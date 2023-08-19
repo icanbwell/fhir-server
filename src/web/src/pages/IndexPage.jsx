@@ -117,7 +117,7 @@ const IndexPage = ({search}) => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, resourceType, search]);
+    }, [id, queryString, resourceType, search, operation]);
 
     /**
      * Handle search event from child component

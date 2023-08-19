@@ -4,8 +4,9 @@ const {VectorStoreFactory} = require('../vectorStores/vectorStoreFactory');
 const {ConfigManager} = require('../../utils/configManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {BasePostSaveHandler} = require('../../utils/basePostSaveHandler');
 
-class FhirSummaryWriter {
+class FhirSummaryWriter extends BasePostSaveHandler {
     /**
      * constructor
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
@@ -19,6 +20,7 @@ class FhirSummaryWriter {
             configManager
         }
     ) {
+        super();
         /**
          * @type {BaseFhirToDocumentConverter}
          */
@@ -39,24 +41,22 @@ class FhirSummaryWriter {
     }
 
     /**
-     * Saves the resources to the vector store
-     * @param {Resource} resource
-     * @param {string} resourceType
+     * Fires events when a resource is changed
      * @param {string} requestId
-     * @returns {Promise<void>}
+     * @param {string} eventType.  Can be C = create or U = update
+     * @param {string} resourceType
+     * @param {Resource} doc
+     * @return {Promise<void>}
      */
-    async saveResourceAsync(
-        {
-            resource,
-            resourceType,
-            // eslint-disable-next-line no-unused-vars
-            requestId
+    // eslint-disable-next-line no-unused-vars
+    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+        if (!this.configManager.openSearchVectorStoreUrl) {
+            return;
         }
-    ) {
         const bundle = new Bundle({
             entry: [
                 new BundleEntry({
-                    resource: resource
+                    resource: doc
                 })
             ]
         });
@@ -66,7 +66,7 @@ class FhirSummaryWriter {
         const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
             {
                 resourceType,
-                id: resource.id,
+                id: doc.id,
                 bundle
             }
         );
@@ -76,6 +76,15 @@ class FhirSummaryWriter {
          */
         const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
         await this.vectorStoreFactory.addDocumentsAsync({vectorStore, documents});
+    }
+
+    /**
+     * flushes the change event buffer
+     * @param {string} requestId
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async flushAsync({requestId}) {
     }
 }
 

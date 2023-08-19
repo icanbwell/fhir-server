@@ -97,6 +97,7 @@ const {MergeResourceValidator} = require('./operations/merge/validators/mergeRes
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {OpenSearchVectorStoreFactory} = require('./chatgpt/vectorStores/openSearchVectorStoreFactory');
 const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
+const {FhirSummaryWriter} = require('./chatgpt/summaryWriters/fhirSummaryWriter');
 
 /**
  * Creates a container and sets up all the services
@@ -732,9 +733,19 @@ const createContainer = function () {
         }
     ));
 
+    container.register('fhirSummaryWriter', (c) => new FhirSummaryWriter(
+            {
+                fhirToDocumentConverter: c.fhirToDocumentConverter,
+                vectorStoreFactory: c.vectorStoreFactory,
+                configManager: c.configManager
+            }
+        )
+    );
+
     container.register('postSaveProcessor', (c) => new PostSaveProcessor({
         handlers: [
-            c.changeEventProducer
+            c.changeEventProducer,
+            c.fhirSummaryWriter
         ]
     }));
 
