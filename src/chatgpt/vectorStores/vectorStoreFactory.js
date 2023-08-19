@@ -1,32 +1,28 @@
 const {Document} = require('langchain/document');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 
 /**
  * @classdesc Base factory to create a vector store from documents
  */
 class VectorStoreFactory {
     /**
-     * returns a vector store from a list of documents
+     * adds documents to the vector store
+     * @param {import('langchain/vectorstores').VectorStore} vectorStore
      * @param {ChatGPTDocument[]} documents
-     * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async fromDocumentsAsync({documents}) {
+    async addDocumentsAsync({vectorStore, documents}) {
         /**
          * @type {import('langchain/document').Document[]}
          */
         const langChainDocuments = this.convertToLangChainDocuments({documents});
-        const embeddings = new OpenAIEmbeddings();
-        return await this.createVectorStoreAsync({langChainDocuments, embeddings});
+        await vectorStore.addDocuments(langChainDocuments);
     }
 
     /**
      * creates a vector store from a list of langchain documents
-     * @param {import('langchain/document').Document[]} langChainDocuments
-     * @param {import('langchain/embeddings').Embeddings} embeddings
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
     // eslint-disable-next-line no-unused-vars
-    async createVectorStoreAsync({langChainDocuments, embeddings}) {
+    async createVectorStoreAsync() {
         throw new Error('Not Implemented by subclass');
     }
 

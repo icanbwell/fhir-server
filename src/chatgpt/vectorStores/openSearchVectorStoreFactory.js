@@ -3,6 +3,7 @@ const {Client} = require('@opensearch-project/opensearch');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirOpenSearchVectorStore} = require('./fhirOpenSearchVectorStore');
+const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -26,20 +27,18 @@ class OpenSearchVectorStoreFactory extends VectorStoreFactory {
 
     /**
      * creates a vector store from a list of langchain documents
-     * @param {import('langchain/document').Document[]} langChainDocuments
-     * @param {import('langchain/embeddings').Embeddings} embeddings
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreAsync({langChainDocuments, embeddings}) {
+    async createVectorStoreAsync() {
         const client = new Client({
             nodes: [this.configManager.openSearchVectorStoreUrl],
         });
-        const openSearchVectorStore = new FhirOpenSearchVectorStore(embeddings, {
+        const embeddings = new OpenAIEmbeddings();
+
+        return new FhirOpenSearchVectorStore(embeddings, {
             client,
             indexName: this.configManager.openSearchVectorStoreIndexName, // Will default to `documents`
         });
-        await openSearchVectorStore.addDocuments(langChainDocuments);
-        return openSearchVectorStore;
     }
 
     /**

@@ -82,7 +82,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         /**
          * @type {import('langchain/vectorstores').VectorStore}
          */
-        const vectorStore = await this.vectorStoreFactory.fromDocumentsAsync({documents});
+        const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
+        await this.vectorStoreFactory.addDocumentsAsync({vectorStore, documents});
 
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);

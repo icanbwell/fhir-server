@@ -1,5 +1,6 @@
 const {VectorStoreFactory} = require('./vectorStoreFactory');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
+const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -7,14 +8,11 @@ const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 class MemoryVectorStoreFactory extends VectorStoreFactory {
     /**
      * creates a vector store from a list of langchain documents
-     * @param {import('langchain/document').Document[]} langChainDocuments
-     * @param {import('langchain/embeddings').Embeddings} embeddings
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreAsync({langChainDocuments, embeddings}) {
-        const memoryVectorStore = new MemoryVectorStore(embeddings);
-        await memoryVectorStore.addDocuments(langChainDocuments);
-        return memoryVectorStore;
+    async createVectorStoreAsync() {
+        const embeddings = new OpenAIEmbeddings();
+        return new MemoryVectorStore(embeddings);
     }
 
     /**
