@@ -9,6 +9,7 @@ const {PatientFilterManager} = require('../../fhir/patientFilterManager');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {RethrownError} = require('../../utils/rethrownError');
 const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
+const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
 
 class FhirSummaryWriter extends BasePostSaveHandler {
     /**
@@ -89,13 +90,16 @@ class FhirSummaryWriter extends BasePostSaveHandler {
              */
             let parentResourceType;
             const patientProperty = this.patientFilterManager.getPatientPropertyForResource({resourceType});
-            if (patientProperty && doc[`${patientProperty}`]) {
-                const parentReference = doc[`${patientProperty}`].reference;
+            if (resourceType !== 'Patient' && patientProperty) {
+                const parentReference = NestedPropertyReader.getNestedProperty({
+                    obj: doc,
+                    path: patientProperty
+                });
                 if (parentReference) {
-                    const {id1, resourceType1} = ReferenceParser.parseReference(parentReference);
-                    if (id1) {
-                        parentId = id1;
-                        if (resourceType1) {
+                    if (parentReference) {
+                        const {id: id1, resourceType: resourceType1} = ReferenceParser.parseReference(parentReference);
+                        if (id1 && resourceType1 === 'Patient') {
+                            parentId = id1;
                             parentResourceType = resourceType1;
                         }
                     }
@@ -108,15 +112,16 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                     })
                 ]
             });
+            const resourceInfo = {
+                resourceType: parentResourceType || resourceType,
+                id: parentId || doc.id,
+                bundle
+            };
             /**
              * {ChatGPTDocument[]}
              */
             const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
-                {
-                    resourceType: parentResourceType || resourceType,
-                    id: parentId || doc.id,
-                    bundle
-                }
+                resourceInfo
             );
 
             /**
