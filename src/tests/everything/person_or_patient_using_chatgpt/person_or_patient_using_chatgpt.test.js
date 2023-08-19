@@ -24,11 +24,18 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {MemoryVectorStoreFactory} = require('../../../chatgpt/vectorStores/memoryVectorStoreFactory');
+const {ConfigManager} = require('../../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
+
+class MockConfigManager extends ConfigManager {
+    get writeFhirSummaryToVectorStore() {
+        return true;
+    }
+}
 
 describe('Person and Patient $everything chatgpt Tests', () => {
     beforeEach(async () => {
@@ -46,6 +53,7 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 return;
             }
             const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
                 container.register('vectorStoreFactory', () => new MemoryVectorStoreFactory());
                 return container;
             });
@@ -115,6 +123,17 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const testContainer = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = testContainer.postRequestProcessor;
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
 
             // ACT & ASSERT
             // First get patient everything
