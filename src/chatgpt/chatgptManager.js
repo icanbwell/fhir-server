@@ -38,9 +38,10 @@ class ChatGPTManager {
      * @param {Bundle} bundle
      * @param {string} question
      * @param {'html'|'text'|undefined} outputFormat
+     * @param {boolean|undefined} [verbose]
      * @return {Promise<ChatGPTResponse>}
      */
-    async answerQuestionAsync({resourceType, id, bundle, question, outputFormat}) {
+    async answerQuestionAsync({resourceType, id, bundle, question, outputFormat, verbose}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -73,7 +74,8 @@ class ChatGPTManager {
             question,
             startPrompt,
             id,
-            resourceType
+            resourceType,
+            verbose
         });
         if (outputFormat === 'html') {
             response.responseText = filterXSS(
@@ -96,6 +98,7 @@ class ChatGPTManager {
      * @param {string} question
      * @param {string} resourceType
      * @param {string} id
+     * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync(
@@ -109,7 +112,9 @@ class ChatGPTManager {
             // eslint-disable-next-line no-unused-vars
             resourceType,
             // eslint-disable-next-line no-unused-vars
-            id
+            id,
+            // eslint-disable-next-line no-unused-vars
+            verbose
         }
     ) {
         throw new Error('Not Implemented by subclass');

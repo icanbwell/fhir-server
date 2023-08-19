@@ -20,6 +20,7 @@ class ConditionConverter extends BaseConverter {
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
+- Resource: Condition
 - ID: ${id}
 - Last Updated: ${this.formatDate(lastUpdated)}
 - Source: ${source}

@@ -27,6 +27,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * @param {string} question
      * @param {string} resourceType
      * @param {string} id
+     * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync(
@@ -35,7 +36,9 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             startPrompt,
             question,
             resourceType,
-            id
+            id,
+            // eslint-disable-next-line no-unused-vars
+            verbose
         }
     ) {
         const configuration = {
@@ -75,7 +78,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         ];
         const fullPrompt = JSON.stringify(messages);
         /**
-         * @type {import('openai').CreateChatCompletionRequest}
+         * @type {import('openai').CompletionCreateParamsNonStreaming}
          */
         const chatCompletionRequest = {
             model: 'gpt-3.5-turbo',

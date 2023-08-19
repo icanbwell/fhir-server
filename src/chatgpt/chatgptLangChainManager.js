@@ -39,6 +39,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * @param {string} question
      * @param {string} resourceType
      * @param {string} id
+     * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync(
@@ -48,7 +49,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             startPrompt,
             question,
             resourceType,
-            id
+            id,
+            verbose
         }
     ) {
         assertIsValid(resourceType, 'resourceType is null');
@@ -73,9 +75,9 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                 // These tags will be attached to all calls made with this LLM.
                 tags: ['example', 'callbacks', 'constructor'],
                 // This handler will be used for all calls made with this LLM.
-                callbacks: [new ConsoleCallbackHandler()],
+                callbacks: verbose ? [new ConsoleCallbackHandler()] : [],
                 // maxTokens: 3800,
-                verbose: true
+                verbose: verbose
             }
         );
 

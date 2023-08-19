@@ -12,6 +12,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ChatGPTLangChainManager} = require('../../chatgpt/chatgptLangChainManager');
 const Narrative = require('../../fhir/classes/4_0_0/complex_types/narrative');
+const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 
 class EverythingOperation {
     /**
@@ -67,7 +68,7 @@ class EverythingOperation {
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
 
-        const {id} = parsedArgs;
+        const {id, _debug, _explain} = parsedArgs;
 
         const currentOperationName = 'everything';
         /**
@@ -107,7 +108,8 @@ class EverythingOperation {
                         id: id,
                         bundle: bundle,
                         question: question.queryParameterValue.value,
-                        outputFormat: 'html'
+                        outputFormat: 'html',
+                        verbose: _debug || _explain
                     }
                 );
                 const html = response.responseText;
@@ -118,10 +120,35 @@ class EverythingOperation {
                 const patientBundleEntry = bundle.entry.find(e => e.resource.resourceType === 'Patient');
                 if (patientBundleEntry) {
                     // return as text Narrative
+                    /**
+                     * @type {Extension[]}
+                     */
+                    const extension = response.documents ?
+                        response.documents.map(doc =>
+                            new Extension(
+                                {
+                                    url: 'http://www.icanbwell.com/relevantDocument',
+                                    valueString: JSON.stringify(doc)
+                                }
+                            )
+                        ) : [];
+                    if (response.fullPrompt) {
+                        extension.push(
+                            new Extension(
+                                {
+                                    url: 'http://www.icanbwell.com/prompt',
+                                    valueString: JSON.stringify(response.fullPrompt)
+                                }
+                            )
+                        );
+                    }
                     patientBundleEntry.resource.text = new Narrative({
                         status: 'generated',
                         div: html
                     });
+                    if (extension.length > 0 && (_debug || _explain)) {
+                        patientBundleEntry.resource.text.extension = extension;
+                    }
                     patientBundleEntry.resource.contained = null;
                 }
                 if (responseStreamer) {

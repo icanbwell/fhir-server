@@ -24,7 +24,7 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHtmlHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {MemoryVectorStoreFactory} = require('../../../chatgpt/vectorStores/memoryVectorStoreFactory');
 
@@ -145,104 +145,6 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             expect(resp).toHaveResponse(expectedPersonTopLevelResources);
             resp = await request
                 .get('/4_0_0/Person/personTopLevel/$everything?contained=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);
-
-            // Third get person everything from person1
-            resp = await request
-                .get('/4_0_0/Person/person1/$everything')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPerson1Resources);
-            resp = await request
-                .get('/4_0_0/Person/person1/$everything?contained=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPerson1ContainedResources);
-        });
-        test.skip('Person and Patient $everything chatgpt works when accept type is html', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-            const request = await createTestRequest();
-            // ARRANGE
-            // add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(topLevelPersonResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(person1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-
-            resp = await request
-                .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(person2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(patient2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-
-            resp = await request
-                .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observation1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            resp = await request
-                .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observation2Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-
-            // ACT & ASSERT
-            // First get patient everything
-            const question = "What is this patient's date of birth?";
-            const urlEncodedQuestion = encodeURIComponent(question);
-            resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
-                .set(getHtmlHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientResources);
-            resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}&contained=true')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientContainedResources);
-
-            // Second get person everything from topLevel
-            resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?_question=${urlEncodedQuestion}')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonTopLevelResources);
-            resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?contained=true&_question=${urlEncodedQuestion}')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);

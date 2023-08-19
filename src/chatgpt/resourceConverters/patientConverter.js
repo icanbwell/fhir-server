@@ -43,6 +43,7 @@ class PatientConverter extends BaseConverter{
         const communicationLanguage = communication && communication.length > 0 && communication[0].language.coding[0].display;
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
+- Resource: Patient
 - ID: ${id}
 - Name: ${fullName}
 - Last Updated: ${new Date(lastUpdated).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
