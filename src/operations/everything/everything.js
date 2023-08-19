@@ -97,7 +97,7 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer: question ? undefined : responseStreamer // disable response streaming if we are answering a question
             });
-            if (question && resourceType === 'Patient') {
+            if (question && resourceType === 'Patient' && bundle.entry && bundle.entry.length > 0) {
                 /**
                  * @type {ChatGPTResponse}
                  */
