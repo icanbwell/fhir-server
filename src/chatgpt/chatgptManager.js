@@ -4,17 +4,20 @@ const {filterXSS} = require('xss');
 const {assertTypeEquals} = require('../utils/assertType');
 const {VectorStoreFactory} = require('./vectorStores/vectorStoreFactory');
 const {BaseFhirToDocumentConverter} = require('./fhirToDocumentConverters/baseFhirToDocumentConverter');
+const {ConfigManager} = require('../utils/configManager');
 
 class ChatGPTManager {
     /**
      * constructor
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
      * @param {VectorStoreFactory} vectorStoreFactory
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
             fhirToDocumentConverter,
-            vectorStoreFactory
+            vectorStoreFactory,
+            configManager
         }
     ) {
         /**
@@ -28,6 +31,12 @@ class ChatGPTManager {
          */
         this.vectorStoreFactory = vectorStoreFactory;
         assertTypeEquals(vectorStoreFactory, VectorStoreFactory);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**

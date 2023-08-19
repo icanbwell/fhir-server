@@ -723,6 +723,7 @@ const createContainer = function () {
     container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
         fhirToDocumentConverter: c.fhirToDocumentConverter,
         vectorStoreFactory: c.vectorStoreFactory,
+        configManager: c.configManager
     }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {

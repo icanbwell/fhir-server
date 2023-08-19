@@ -380,6 +380,22 @@ class ConfigManager {
     get openSearchVectorStoreIndexName() {
         return env.OPENSEARCH_VECTORSTORE_INDEX || 'documents';
     }
+
+    /**
+     * returns key to use for OpenAI
+     * @returns {string|undefined}
+     */
+    get openAIApiKey() {
+        return env.OPENAI_API_KEY;
+    }
+
+    /**
+     * returns model to use for OpenAI
+     * @returns {string}
+     */
+    get openAIModel() {
+        return env.OPENAI_MODEL || 'gpt-4';
+    }
 }
 
 module.exports = {

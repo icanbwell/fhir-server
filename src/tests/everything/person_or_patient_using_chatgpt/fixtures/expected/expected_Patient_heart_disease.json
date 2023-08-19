@@ -48,7 +48,7 @@
         ],
         "resourceType": "Patient",
         "text": {
-          "div": "The text suggests that the patient has heart failure, which is a type of heart disease. So, yes, the patient has heart disease.",
+          "div": "The text suggests that the patient has a heart condition, specifically heart failure, although it is unspecified.",
           "status": "generated"
         }
       }

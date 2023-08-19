@@ -7,20 +7,6 @@ const OpenAI = require('openai');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
-     * constructor
-     * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
-     * @param {VectorStoreFactory} vectorStoreFactory
-     */
-    constructor(
-        {
-            fhirToDocumentConverter,
-            vectorStoreFactory
-        }
-    ) {
-        super({fhirToDocumentConverter, vectorStoreFactory});
-    }
-
-    /**
      * answers the question with the provided documents and start prompt
      * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
@@ -42,7 +28,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         }
     ) {
         const configuration = {
-            apiKey: process.env.OPENAI_API_KEY,
+            apiKey: this.configManager.openAIApiKey,
         };
         const openai = new OpenAI(configuration);
 
@@ -81,7 +67,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
          * @type {import('openai').CompletionCreateParamsNonStreaming}
          */
         const chatCompletionRequest = {
-            model: 'gpt-3.5-turbo',
+            model: this.configManager.openAIModel,
             // model: 'gpt-3.5-turbo-16k',
             messages: messages,
             temperature: 0.0,
@@ -124,7 +110,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
 
     async listModelsAsync() {
         const configuration = {
-            apiKey: process.env.OPENAI_API_KEY,
+            apiKey: this.configManager.openAIApiKey,
         };
         const openai = new OpenAI(configuration);
         const response = await openai.models.list();

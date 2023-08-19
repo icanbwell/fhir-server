@@ -19,20 +19,6 @@ const {assertIsValid} = require('../utils/assertType');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
-     * constructor
-     * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
-     * @param {VectorStoreFactory} vectorStoreFactory
-     */
-    constructor(
-        {
-            fhirToDocumentConverter,
-            vectorStoreFactory
-        }
-    ) {
-        super({fhirToDocumentConverter, vectorStoreFactory});
-    }
-
-    /**
      * answers the question with the provided documents and start prompt
      * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
@@ -68,10 +54,10 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // Now create an OpenAI model.
         const model = new ChatOpenAI(
             {
-                openAIApiKey: process.env.OPENAI_API_KEY,
+                openAIApiKey: this.configManager.openAIApiKey,
                 temperature: 0,
                 // modelName: 'gpt-3.5-turbo',
-                modelName: 'gpt-4',
+                modelName: this.configManager.openAIModel,
                 // These tags will be attached to all calls made with this LLM.
                 tags: ['example', 'callbacks', 'constructor'],
                 // This handler will be used for all calls made with this LLM.
@@ -210,9 +196,9 @@ Question: {question}
         // https://nathankjer.com/introduction-to-langchain/
         const model = new ChatOpenAI(
             {
-                openAIApiKey: process.env.OPENAI_API_KEY,
+                openAIApiKey: this.configManager.openAIApiKey,
                 temperature: 0,
-                modelName: 'gpt-3.5-turbo',
+                modelName: this.configManager.openAIModel,
                 // These tags will be attached to all calls made with this LLM.
                 tags: ['example', 'callbacks', 'constructor'],
                 // This handler will be used for all calls made with this LLM.
