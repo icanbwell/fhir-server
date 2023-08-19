@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import ResourceCard from './ResourceCard';
 import FhirApi from '../utils/fhirApi';
 import SearchContainer from '../partials/SearchContainer';
-import Narrative from '../partials/Narrative';
 
 /**
  * IndexPage

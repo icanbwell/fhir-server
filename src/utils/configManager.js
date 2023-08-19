@@ -396,6 +396,14 @@ class ConfigManager {
     get openAIModel() {
         return env.OPENAI_MODEL || 'gpt-4';
     }
+
+    /**
+     * returns whether to write fhir summary to vector store
+     * @returns {boolean}
+     */
+    get writeFhirSummaryToVectorStore() {
+        return isTrue(env.WRITE_FHIR_SUMMARY_TO_VECTORSTORE);
+    }
 }
 
 module.exports = {

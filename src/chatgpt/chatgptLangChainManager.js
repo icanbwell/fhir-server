@@ -20,7 +20,6 @@ const {assertIsValid} = require('../utils/assertType');
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
      * answers the question with the provided documents and start prompt
-     * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
@@ -30,7 +29,6 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      */
     async answerQuestionWithDocumentsAsync(
         {
-            documents,
             // eslint-disable-next-line no-unused-vars
             startPrompt,
             question,
@@ -72,7 +70,6 @@ class ChatGPTLangChainManager extends ChatGPTManager {
          * @type {import('langchain/vectorstores').VectorStore}
          */
         const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
-        await this.vectorStoreFactory.addDocumentsAsync({vectorStore, documents});
 
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);
@@ -90,6 +87,18 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
+
+        if (relevantDocuments.length === 0) {
+            return new ChatGPTResponse(
+                {
+                    responseText: 'No relevant documents found',
+                    fullPrompt: '',
+                    numberTokens: 0,
+                    documents: []
+                }
+            );
+        }
+
         const condenseQuestionTemplate = `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 
 Chat History:

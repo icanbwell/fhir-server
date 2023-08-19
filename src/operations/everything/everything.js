@@ -106,7 +106,6 @@ class EverythingOperation {
                     {
                         resourceType: resourceType,
                         id: id,
-                        bundle: bundle,
                         question: question.queryParameterValue.value,
                         outputFormat: 'html',
                         verbose: _debug || _explain

@@ -50,7 +50,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      */
     // eslint-disable-next-line no-unused-vars
     async afterSaveAsync({requestId, eventType, resourceType, doc}) {
-        if (!this.configManager.openSearchVectorStoreUrl) {
+        if (!this.configManager.writeFhirSummaryToVectorStore) {
             return;
         }
         const bundle = new Bundle({

@@ -44,30 +44,18 @@ class ChatGPTManager {
      * Returns the result as HTML body
      * @param {string} resourceType
      * @param {string} id
-     * @param {Bundle} bundle
      * @param {string} question
      * @param {'html'|'text'|undefined} outputFormat
      * @param {boolean|undefined} [verbose]
      * @return {Promise<ChatGPTResponse>}
      */
-    async answerQuestionAsync({resourceType, id, bundle, question, outputFormat, verbose}) {
+    async answerQuestionAsync({resourceType, id, question, outputFormat, verbose}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
         // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
         // https://nathankjer.com/introduction-to-langchain/
         // First convert the resources in the bundle into text documetns
-        /**
-         * {ChatGPTDocument[]}
-         */
-        const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
-            {
-                resourceType,
-                id,
-                bundle
-            }
-        );
-
         let startPrompt = 'Based on the following data that I will provide, please answer the question. ' +
             '\nPlease use only the information I provide, and do not refer to external sources or general knowledge.';
 
@@ -79,7 +67,6 @@ class ChatGPTManager {
          * @type {ChatGPTResponse}
          */
         const response = await this.answerQuestionWithDocumentsAsync({
-            documents: documents,
             question,
             startPrompt,
             id,
@@ -102,7 +89,6 @@ class ChatGPTManager {
 
     /**
      * answers the question with the provided documents and start prompt
-     * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
@@ -112,8 +98,6 @@ class ChatGPTManager {
      */
     async answerQuestionWithDocumentsAsync(
         {
-            // eslint-disable-next-line no-unused-vars
-            documents,
             // eslint-disable-next-line no-unused-vars
             startPrompt,
             // eslint-disable-next-line no-unused-vars
