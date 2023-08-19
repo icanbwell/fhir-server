@@ -49,6 +49,8 @@ class OpenSearchVectorStoreFactory extends VectorStoreFactory {
      * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
      */
     getFilter(filter) {
+        // OpenSearchFilter is just of type object
+        // noinspection JSValidateTypes
         return {
             parentResourceType: filter.resourceType,
             parentId: filter.id

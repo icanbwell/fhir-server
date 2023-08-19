@@ -12,10 +12,9 @@ class MemoryVectorStoreFactory extends VectorStoreFactory {
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
     async createVectorStoreAsync({langChainDocuments, embeddings}) {
-        return await MemoryVectorStore.fromDocuments(
-            langChainDocuments,
-            embeddings
-        );
+        const memoryVectorStore = new MemoryVectorStore(embeddings);
+        await memoryVectorStore.addDocuments(langChainDocuments);
+        return memoryVectorStore;
     }
 
     /**
