@@ -1,6 +1,6 @@
 const {VectorStoreFactory} = require('./vectorStoreFactory');
 const {Client} = require('@opensearch-project/opensearch');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirOpenSearchVectorStore} = require('./fhirOpenSearchVectorStore');
 const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
@@ -35,9 +35,11 @@ class OpenSearchVectorStoreFactory extends VectorStoreFactory {
         });
         const embeddings = new OpenAIEmbeddings();
 
+        const indexName = this.configManager.openSearchVectorStoreIndexName;
+        assertIsValid(indexName === indexName.toLowerCase(), 'openSearchVectorStoreIndexName must be lowercase');
         return new FhirOpenSearchVectorStore(embeddings, {
             client,
-            indexName: this.configManager.openSearchVectorStoreIndexName, // Will default to `documents`
+            indexName: indexName,
         });
     }
 

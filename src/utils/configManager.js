@@ -378,7 +378,7 @@ class ConfigManager {
      * @returns {string|undefined}
      */
     get openSearchVectorStoreIndexName() {
-        return env.OPENSEARCH_VECTORSTORE_INDEX || 'documents';
+        return env.OPENSEARCH_VECTORSTORE_INDEX || 'fhir-summaries';
     }
 
     /**

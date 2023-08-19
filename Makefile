@@ -24,7 +24,7 @@ up:
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
-	echo OpenSearch: http://admin:admin@localhost:9200 && \
+	echo OpenSearch: http://admin:admin@localhost:9200/fhir_summaries/_search?pretty && \
 	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline
@@ -40,7 +40,7 @@ up-offline:
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
-	echo OpenSearch: http://admin:admin@localhost:9200 && \
+	echo OpenSearch: http://admin:admin@localhost:9200/fhir_summaries/_search?pretty && \
 	echo FHIR server: http://localhost:3000
 
 .PHONY:down

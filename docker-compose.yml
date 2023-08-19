@@ -62,7 +62,7 @@ services:
       ENABLE_CONSENTED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       OPENSEARCH_VECTORSTORE_URL: 'http://admin:admin@elasticsearch:9200'
-      OPENSEARCH_VECTORSTORE_INDEX: 'documents'
+      OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
     ports:
       - '3000:3000'
     volumes:
