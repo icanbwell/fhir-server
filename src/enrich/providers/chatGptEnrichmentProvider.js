@@ -1,6 +1,6 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
 const {assertTypeEquals} = require('../../utils/assertType');
-const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
+const {ChatGPTManager} = require('../../chatgpt/managers/chatgptManager');
 const {ConfigManager} = require('../../utils/configManager');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 const Narrative = require('../../fhir/classes/4_0_0/complex_types/narrative');

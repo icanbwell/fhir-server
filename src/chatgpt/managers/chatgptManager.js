@@ -1,10 +1,10 @@
 const {encoding_for_model} = require('@dqbd/tiktoken');
 const sanitize = require('sanitize-html');
 const {filterXSS} = require('xss');
-const {assertTypeEquals} = require('../utils/assertType');
-const {VectorStoreFactory} = require('./vectorStores/vectorStoreFactory');
-const {BaseFhirToDocumentConverter} = require('./fhirToDocumentConverters/baseFhirToDocumentConverter');
-const {ConfigManager} = require('../utils/configManager');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {VectorStoreFactory} = require('../vectorStores/vectorStoreFactory');
+const {BaseFhirToDocumentConverter} = require('../fhirToDocumentConverters/baseFhirToDocumentConverter');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ChatGPTManager {
     /**

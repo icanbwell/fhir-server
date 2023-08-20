@@ -8,16 +8,16 @@ const {
     HumanMessagePromptTemplate
 } = require('langchain/prompts');
 const {LLMChain} = require('langchain/chains');
-const {ChatGPTError} = require('./chatgptError');
-const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
+const {ChatGPTError} = require('../exceptions/chatgptError');
+const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
 const {ChatOpenAI} = require('langchain/chat_models/openai');
-const {ChatGPTResponse} = require('./chatGPTResponse');
+const {ChatGPTResponse} = require('../structures/chatGPTResponse');
 const {ChatGPTManager} = require('./chatgptManager');
 const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
 const {StringOutputParser} = require('langchain/schema/output_parser');
-const {assertIsValid, assertTypeEquals} = require('../utils/assertType');
-const {VectorStoreFilter} = require('./vectorStores/vectorStoreFilter');
-const {BaseVectorStoreManager} = require('./vectorStores/baseVectorStoreManager');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
+const {BaseVectorStoreManager} = require('../vectorStores/baseVectorStoreManager');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**

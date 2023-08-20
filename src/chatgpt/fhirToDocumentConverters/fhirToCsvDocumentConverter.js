@@ -1,7 +1,7 @@
 const {groupByLambda} = require('../../utils/list.util');
 const {Parser} = require('@json2csv/plainjs');
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
-const {ChatGPTDocument} = require('../chatgptDocument');
+const {ChatGPTDocument} = require('../structures/chatgptDocument');
 
 class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
     /**

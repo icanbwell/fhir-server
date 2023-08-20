@@ -8,7 +8,7 @@ dotenv.config({
 const patientBundleResource = require('./fixtures/patient.json');
 const patientCondensedBundleResource = require('./fixtures/patient_condensed.json');
 const {describe, test} = require('@jest/globals');
-const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
+const {ChatGPTManagerDirect} = require('../../chatgpt/managers/chatgptManagerDirect');
 const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
 const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
 const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');

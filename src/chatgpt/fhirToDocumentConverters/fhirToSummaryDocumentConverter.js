@@ -1,5 +1,5 @@
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
-const {ChatGPTDocument} = require('../chatgptDocument');
+const {ChatGPTDocument} = require('../structures/chatgptDocument');
 
 class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**

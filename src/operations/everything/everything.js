@@ -10,7 +10,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
-const {ChatGPTLangChainManager} = require('../../chatgpt/chatgptLangChainManager');
+const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
 
 class EverythingOperation {
     /**

@@ -1,10 +1,10 @@
-const {ChatGPTMessage} = require('./chatgptMessage');
+const {ChatGPTMessage} = require('../structures/chatgptMessage');
 const {ChatGPTManager} = require('./chatgptManager');
-const {ChatGPTResponse} = require('./chatGPTResponse');
-const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
-const {ChatGPTError} = require('./chatgptError');
+const {ChatGPTResponse} = require('../structures/chatGPTResponse');
+const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
+const {ChatGPTError} = require('../exceptions/chatgptError');
 const OpenAI = require('openai');
-const {VectorStoreFilter} = require('./vectorStores/vectorStoreFilter');
+const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
