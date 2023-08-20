@@ -5,6 +5,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {VectorStoreFactory} = require('../vectorStores/vectorStoreFactory');
 const {BaseFhirToDocumentConverter} = require('../fhirToDocumentConverters/baseFhirToDocumentConverter');
 const {ConfigManager} = require('../../utils/configManager');
+const {LLMFactory} = require('../llms/llmFactory');
 
 class ChatGPTManager {
     /**
@@ -12,12 +13,14 @@ class ChatGPTManager {
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
      * @param {VectorStoreFactory} vectorStoreFactory
      * @param {ConfigManager} configManager
+     * @param {LLMFactory} llmFactory
      */
     constructor(
         {
             fhirToDocumentConverter,
             vectorStoreFactory,
-            configManager
+            configManager,
+            llmFactory
         }
     ) {
         /**
@@ -37,6 +40,12 @@ class ChatGPTManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {LLMFactory}
+         */
+        this.llmFactory = llmFactory;
+        assertTypeEquals(llmFactory, LLMFactory);
     }
 
     /**

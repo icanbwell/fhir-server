@@ -14,7 +14,8 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 const condition1Resource = require('./fixtures/Condition/condition1.json');
 const condition2Resource = require('./fixtures/Condition/condition2.json');
 
-const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
+const expectedPatientBundle = require('./fixtures/expected/expected_Patient_bundle.json');
+const expectedPatient = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
@@ -44,7 +45,7 @@ describe('Person and Patient $everything chatgpt Tests', () => {
     });
 
     describe('Person and Patient $everything chatgpt Tests', () => {
-        test('Person and Patient $everything chatgpt works', async () => {
+        test('Patient with age question', async () => {
             console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
             if (!process.env.OPENAI_API_KEY) {
                 return;
@@ -138,13 +139,106 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientResources);
+            expect(resp).toHaveResponse(expectedPatientBundle);
             resp = await request
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}&contained=true`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientContainedResources);
+            resp = await request
+                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion}`)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatient);
+        });
+        test('Patient with heart disease question', async () => {
+            console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Condition/1/$merge?validate=true')
+                .send(condition1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Condition/2/$merge?validate=true')
+                .send(condition2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const testContainer = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = testContainer.postRequestProcessor;
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+
+            // ACT & ASSERT
             const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');
             resp = await request
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}&_debug=1`)

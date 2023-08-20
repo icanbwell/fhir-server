@@ -101,6 +101,7 @@ const {FhirSummaryWriter} = require('./chatgpt/summaryWriters/fhirSummaryWriter'
 const {VectorStoreFactory} = require('./chatgpt/vectorStores/vectorStoreFactory');
 const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorStoreManager');
 const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
+const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 
 /**
  * Creates a container and sets up all the services
@@ -742,10 +743,17 @@ const createContainer = function () {
         }
     ));
 
+    container.register('llmFactory', (c) => new OpenAILLMFactory(
+        {
+            configManager: c.configManager
+        }
+    ));
+
     container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
         fhirToDocumentConverter: c.fhirToDocumentConverter,
         vectorStoreFactory: c.vectorStoreFactory,
-        configManager: c.configManager
+        configManager: c.configManager,
+        llmFactory: c.llmFactory
     }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {

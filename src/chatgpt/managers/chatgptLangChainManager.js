@@ -1,4 +1,3 @@
-const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
 const {
@@ -10,7 +9,6 @@ const {
 const {LLMChain} = require('langchain/chains');
 const {ChatGPTError} = require('../exceptions/chatgptError');
 const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
-const {ChatOpenAI} = require('langchain/chat_models/openai');
 const {ChatGPTResponse} = require('../structures/chatGPTResponse');
 const {ChatGPTManager} = require('./chatgptManager');
 const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
@@ -52,20 +50,12 @@ class ChatGPTLangChainManager extends ChatGPTManager {
 
 
         // Now create an OpenAI model.
-        const model = new ChatOpenAI(
+        /**
+         * @type {import('langchain/chat_models').BaseChatModel}
+         */
+        const model = await this.llmFactory.createAsync(
             {
-                openAIApiKey: this.configManager.openAIApiKey,
-                temperature: 0, // make model more deterministic
-                topP: 0, // make model more deterministic
-                // modelName: 'gpt-3.5-turbo',
-                modelName: this.configManager.openAIModel,
-                // These tags will be attached to all calls made with this LLM.
-                tags: ['example', 'callbacks', 'constructor'],
-                // This handler will be used for all calls made with this LLM.
-                callbacks: verbose ? [new ConsoleCallbackHandler()] : [],
-                // maxTokens: 3800,
-                verbose: verbose,
-                cache: true // cache in memory
+                verbose
             }
         );
 
@@ -212,23 +202,19 @@ Question: {question}
      * @param {string} query
      * @param {string} baseUrl baseUrl of the FHIR server
      * @param {string|undefined} [patientId] restrict query to this patient
+     * @param {verbose} verbose
      * @return {Promise<string|undefined>}
      */
-    async getFhirQueryAsync({query, baseUrl, patientId}) {
+    async getFhirQueryAsync({query, baseUrl, patientId, verbose}) {
         // https://js.langchain.com/docs/getting-started/guide-llm
         // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
         // https://nathankjer.com/introduction-to-langchain/
-        const model = new ChatOpenAI(
+        /**
+         * @type {import('langchain/chat_models').BaseChatModel}
+         */
+        const model = await this.llmFactory.createAsync(
             {
-                openAIApiKey: this.configManager.openAIApiKey,
-                temperature: 0,
-                modelName: this.configManager.openAIModel,
-                // These tags will be attached to all calls made with this LLM.
-                tags: ['example', 'callbacks', 'constructor'],
-                // This handler will be used for all calls made with this LLM.
-                callbacks: [new ConsoleCallbackHandler()],
-                // maxTokens: 3800,
-                verbose: true
+                verbose
             }
         );
 
