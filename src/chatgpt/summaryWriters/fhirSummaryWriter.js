@@ -100,15 +100,13 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                         path: patientProperty
                     });
                     if (parentReference) {
-                        if (parentReference) {
-                            const {
-                                id: id1,
-                                resourceType: resourceType1
-                            } = ReferenceParser.parseReference(parentReference);
-                            if (id1 && resourceType1 === 'Patient') {
-                                parentId = id1;
-                                parentResourceType = resourceType1;
-                            }
+                        const {
+                            id: id1,
+                            resourceType: resourceType1
+                        } = ReferenceParser.parseReference(parentReference);
+                        if (id1 && resourceType1 === 'Patient') {
+                            parentId = id1;
+                            parentResourceType = resourceType1;
                         }
                     }
                 }

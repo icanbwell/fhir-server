@@ -64,7 +64,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                 // This handler will be used for all calls made with this LLM.
                 callbacks: verbose ? [new ConsoleCallbackHandler()] : [],
                 // maxTokens: 3800,
-                verbose: verbose
+                verbose: verbose,
+                cache: true // cache in memory
             }
         );
 

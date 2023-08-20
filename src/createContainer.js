@@ -100,6 +100,7 @@ const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 const {FhirSummaryWriter} = require('./chatgpt/summaryWriters/fhirSummaryWriter');
 const {VectorStoreFactory} = require('./chatgpt/vectorStores/vectorStoreFactory');
 const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorStoreManager');
+const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -133,7 +134,13 @@ const createContainer = function () {
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
             }),
-            new HashReferencesEnrichmentProvider()
+            new HashReferencesEnrichmentProvider(),
+            new ChatGptEnrichmentProvider(
+                {
+                    chatgptManager: c.chatgptManager,
+                    configManager: c.configManager
+                }
+            )
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(

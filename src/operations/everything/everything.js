@@ -11,8 +11,6 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ChatGPTLangChainManager} = require('../../chatgpt/chatgptLangChainManager');
-const Narrative = require('../../fhir/classes/4_0_0/complex_types/narrative');
-const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 
 class EverythingOperation {
     /**
@@ -68,8 +66,6 @@ class EverythingOperation {
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
 
-        const {id, _debug, _explain} = parsedArgs;
-
         const currentOperationName = 'everything';
         /**
          * @type {number}
@@ -85,81 +81,13 @@ class EverythingOperation {
         });
 
         try {
-            // see if a _question arg is passed
-            /**
-             * @type {ParsedArgsItem|undefined}
-             */
-            const question = parsedArgs.get('_question');
-
-            const bundle = await this.everythingBundleAsync({
+            return await this.everythingBundleAsync({
                 requestInfo,
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer: question ? undefined : responseStreamer // disable response streaming if we are answering a question
+                responseStreamer: responseStreamer // disable response streaming if we are answering a question
             });
-            if (question && resourceType === 'Patient' && bundle.entry && bundle.entry.length > 0) {
-                /**
-                 * @type {ChatGPTResponse}
-                 */
-                const response = await this.chatgptManager.answerQuestionAsync(
-                    {
-                        resourceType: resourceType,
-                        id: id,
-                        question: question.queryParameterValue.value,
-                        outputFormat: 'html',
-                        verbose: _debug || _explain
-                    }
-                );
-                const html = response.responseText;
-                // find the patient resource
-                /**
-                 * @type {BundleEntry}
-                 */
-                const patientBundleEntry = bundle.entry.find(e => e.resource.resourceType === 'Patient');
-                if (patientBundleEntry) {
-                    // return as text Narrative
-                    /**
-                     * @type {Extension[]}
-                     */
-                    const extension = response.documents ?
-                        response.documents.map(doc =>
-                            new Extension(
-                                {
-                                    url: 'http://www.icanbwell.com/relevantDocument',
-                                    valueString: JSON.stringify(doc)
-                                }
-                            )
-                        ) : [];
-                    if (response.fullPrompt) {
-                        extension.push(
-                            new Extension(
-                                {
-                                    url: 'http://www.icanbwell.com/prompt',
-                                    valueString: JSON.stringify(response.fullPrompt)
-                                }
-                            )
-                        );
-                    }
-                    patientBundleEntry.resource.text = new Narrative({
-                        status: 'generated',
-                        div: html
-                    });
-                    if (extension.length > 0 && (_debug || _explain)) {
-                        patientBundleEntry.resource.text.extension = extension;
-                    }
-                    patientBundleEntry.resource.contained = null;
-                }
-                if (responseStreamer) {
-                    // write only the Patient resource since we are providing the answer
-                    await responseStreamer.writeBundleEntryAsync({bundleEntry: patientBundleEntry});
-
-                    // for (const bundleEntry of bundle.entry) {
-                    //     await responseStreamer.writeBundleEntryAsync({bundleEntry: bundleEntry});
-                    // }
-                }
-            }
-            return bundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
