@@ -4,11 +4,11 @@ const {ChatGPTResponse} = require('./chatGPTResponse');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 const {ChatGPTError} = require('./chatgptError');
 const OpenAI = require('openai');
+const {VectorStoreFilter} = require('./vectorStores/vectorStoreFilter');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
      * answers the question with the provided documents and start prompt
-     * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
@@ -18,7 +18,6 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      */
     async answerQuestionWithDocumentsAsync(
         {
-            documents,
             startPrompt,
             question,
             resourceType,
@@ -31,6 +30,24 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             apiKey: this.configManager.openAIApiKey,
         };
         const openai = new OpenAI(configuration);
+
+        /**
+         * @type {BaseVectorStoreManager|undefined}
+         */
+        const vectorStoreManager = await this.vectorStoreFactory.createVectorStoreAsync();
+        /**
+         * @type {import('langchain/schema/retriever').BaseRetriever}
+         */
+        const retriever = vectorStoreManager.asRetriever({
+                filter: new VectorStoreFilter(
+                    {
+                        resourceType: resourceType,
+                        id: id
+                    }
+                )
+            }
+        );
+        const documents = await retriever.getRelevantDocuments(question);
 
         const contextMessages = documents
             .filter((document) => (document.metadata.resourceType === resourceType && document.metadata.id === id) ||

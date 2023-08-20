@@ -14,6 +14,18 @@ const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConve
 const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
 const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
+const {ConfigManager} = require('../../utils/configManager');
+const {createTestRequest, getTestContainer} = require('../common');
+
+class MockConfigManager extends ConfigManager {
+    get writeFhirSummaryToVectorStore() {
+        return true;
+    }
+
+    get enableMemoryVectorStore() {
+        return true;
+    }
+}
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -21,17 +33,28 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
             const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager()
             });
             /**
              * @type {ChatGPTDocument[]}
              */
-            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                bundle: patientBundleResource,
-            });
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync(
+                {
+                    resourceType: 'Patient',
+                    id: '1',
+                    bundle: patientBundleResource,
+                }
+            );
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
@@ -52,14 +75,24 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
             const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager()
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                resourceType: 'Patient',
+                id: '1',
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -82,13 +115,23 @@ describe('ChatGPT Tests', () => {
                 return;
             }
             const fhirToDocumentConverter = new FhirToCsvDocumentConverter();
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+            // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager()
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                resourceType: 'Patient',
+                id: '1',
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -113,13 +156,23 @@ describe('ChatGPT Tests', () => {
             const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+            // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager()
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                resourceType: 'Patient',
+                id: '1',
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -142,13 +195,23 @@ describe('ChatGPT Tests', () => {
                 return;
             }
             const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+            // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager()
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                resourceType: 'Patient',
+                id: '1',
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>

@@ -72,6 +72,7 @@ class BaseVectorStoreManager {
     /**
      * returns a retriever for the vector store.  Each type of vector store has a different type of retriever
      * @param {VectorStoreFilter} filter
+     * @return {import('langchain/schema/retriever').BaseRetriever}
      */
     // eslint-disable-next-line no-unused-vars
     asRetriever({filter}) {

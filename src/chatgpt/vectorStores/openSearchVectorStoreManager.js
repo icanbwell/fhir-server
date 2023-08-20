@@ -79,7 +79,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
     /**
      * returns a retriever for the vector store.  Each type of vector store has a different type of retriever
      * @param {VectorStoreFilter|undefined} [filter]
-     * @return {import('langchain/vectorstores').VectorStoreRetriever}
+     * @return {import('langchain/schema/retriever').BaseRetriever}
      */
     asRetriever({filter}) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');

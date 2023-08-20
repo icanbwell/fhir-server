@@ -27,6 +27,7 @@ class VectorStoreFactory {
     async createVectorStoreAsync() {
         for (const vectorStoreManager of this.vectorStoreManagers) {
             if (await vectorStoreManager.isEnabledAsync()) {
+                await vectorStoreManager.createVectorStoreAsync();
                 return vectorStoreManager;
             }
         }
