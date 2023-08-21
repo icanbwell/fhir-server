@@ -22,7 +22,7 @@ class FakeLLM extends SimpleChatModel {
      */
     // eslint-disable-next-line no-unused-vars
     _call(messages, options, runManager) {
-        return 'hello world';
+        throw new Error('Should override via mocking');
     }
 
     _llmType() {

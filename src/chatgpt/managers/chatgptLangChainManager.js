@@ -16,6 +16,7 @@ const {StringOutputParser} = require('langchain/schema/output_parser');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
 const {BaseVectorStoreManager} = require('../vectorStores/baseVectorStoreManager');
+const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -75,6 +76,19 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         }
         assertTypeEquals(vectorStoreManager, BaseVectorStoreManager);
 
+        await logTraceSystemEventAsync(
+            {
+                event: 'ChatGPTLangChainManager: answerQuestionWithDocumentsAsync',
+                message: 'ChatGPTLangChainManager: answerQuestionWithDocumentsAsync',
+                args: {
+                    startPrompt,
+                    question,
+                    resourceType,
+                    uuid,
+                    verbose
+                }
+            }
+        );
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);
         const retriever = new ContextualCompressionRetriever({

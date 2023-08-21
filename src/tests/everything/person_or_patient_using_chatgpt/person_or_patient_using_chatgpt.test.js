@@ -52,11 +52,26 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
+            const fakeLLM = new FakeLLM();
+            const mockedMethod = jest.spyOn(fakeLLM, '_call', undefined)
+                .mockImplementation(
+                    async (messages) => {
+                        expect(messages.length).toBe(1);
+                        if (messages[0].content.includes('Standalone question')) {
+                            // this one is trying to rephrase the question
+                            return 'What is this patient\'s date of birth?';
+                        }
+                        expect(messages[0].content).toInclude('December 31, 2016');
+                        return 'The date of birth of this patient is December 31, 2016.';
+                    }
+                );
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
-                container.register('llmFactory', () => new FakeLLMFactory({
-                    fnCreateLLM: () => new FakeLLM()
-                }));
+                container.register('llmFactory', () => {
+                    return new FakeLLMFactory({
+                        fnCreateLLM: () => fakeLLM
+                    });
+                });
                 return container;
             });
             // ARRANGE
@@ -145,6 +160,8 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientBundle);
+            expect(mockedMethod).toHaveBeenCalledTimes(8);
+
             resp = await request
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}&contained=true`)
                 .set(getHeaders());
