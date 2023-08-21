@@ -348,7 +348,7 @@
         ],
         "resourceType": "Patient",
         "text": {
-          "div": "The date of birth of this patient is December 31, 2016.",
+          "div": "<div class=\"answer\"><p>Birth Date: December 31, 2016</p></div>",
           "status": "generated"
         }
       }

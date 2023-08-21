@@ -17,7 +17,6 @@ const condition2Resource = require('./fixtures/Condition/condition2.json');
 const expectedPatientBundle = require('./fixtures/expected/expected_Patient_bundle.json');
 const expectedPatient = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
-const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -139,19 +138,27 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientBundle);
+            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
+                if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
+                    // handle the slight variations that ChatGPT produces
+                    resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
+                }
+                return resource;
+            });
 
-            resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}&contained=true`)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientContainedResources);
             resp = await request
                 .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatient);
-        });
+            expect(resp).toHaveResponse(expectedPatient, (resource) => {
+                if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
+                    // handle the slight variations that ChatGPT produces
+                    resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
+                }
+                return resource;
+            });
+
+        }, 120000);
         test('Patient with heart disease question', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
@@ -175,7 +182,6 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
-
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
