@@ -46,13 +46,14 @@ describe('Person and Patient $everything chatgpt Tests', () => {
         await commonAfterEach();
     });
 
+    const fakeLLM = new FakeLLM();
+
     describe('Person and Patient $everything chatgpt Tests', () => {
         test('Patient with age question', async () => {
             console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const fakeLLM = new FakeLLM();
             const mockedMethod = jest.spyOn(fakeLLM, '_call', undefined)
                 .mockImplementation(
                     async (messages) => {
@@ -172,6 +173,8 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatient);
+
+            mockedMethod.mockReset();
         });
         test('Patient with heart disease question', async () => {
             console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
