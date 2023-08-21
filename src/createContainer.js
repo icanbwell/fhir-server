@@ -87,7 +87,6 @@ const {ChatGPTLangChainManager} = require('./chatgpt/managers/chatgptLangChainMa
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
-const {LinkedPatientsFinder} = require('./utils/linkedPatientsFinder');
 const {ConsentManager} = require('./operations/search/consentManger');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -207,11 +206,6 @@ const createContainer = function () {
             requestSpecificCache: c.requestSpecificCache
         }
     ));
-    container.register('linkedPatientsFinder', (c) => new LinkedPatientsFinder({
-        bwellPersonFinder: c.bwellPersonFinder,
-        databaseQueryFactory: c.databaseQueryFactory,
-        personToPatientIdsExpander: c.personToPatientIdsExpander,
-    }));
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator,
     }));
@@ -219,8 +213,8 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
         patientFilterManager: c.patientFilterManager,
-        linkedPatientsFinder: c.linkedPatientsFinder,
-        searchQueryBuilder: c.searchQueryBuilder
+        searchQueryBuilder: c.searchQueryBuilder,
+        bwellPersonFinder: c.bwellPersonFinder,
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
