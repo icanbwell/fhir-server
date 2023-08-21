@@ -23,6 +23,7 @@ const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTest
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 const {FakeLLMFactory} = require('../../../chatgpt/llms/fakeLLMFactory');
+const {FakeLLM} = require('../../../chatgpt/llms/fakeLLM');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
@@ -53,7 +54,9 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             }
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
-                container.register('llmFactory', () => new FakeLLMFactory());
+                container.register('llmFactory', () => new FakeLLMFactory({
+                    fnCreateLLM: () => new FakeLLM()
+                }));
                 return container;
             });
             // ARRANGE

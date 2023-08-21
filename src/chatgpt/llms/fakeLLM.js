@@ -2,6 +2,17 @@ const {SimpleChatModel} = require('langchain/chat_models');
 
 class FakeLLM extends SimpleChatModel {
     /**
+     * constructor
+     */
+    constructor() {
+        /**
+         * @type {import('langchain/base_language').BaseLanguageModelParams}
+         */
+        const options = {};
+        super(options);
+    }
+
+    /**
      * override this method to implement the call
      * @param {import('langchain/schema').BaseMessage} messages
      * @param {Object} options

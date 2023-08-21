@@ -1,7 +1,21 @@
 const {LLMFactory} = require('./llmFactory');
-const {FakeLLM} = require('./fakeLLM');
 
 class FakeLLMFactory extends LLMFactory {
+    /**
+     * constructor
+     * @param {function(): FakeLLM } fnCreateLLM
+     */
+    constructor(
+        {
+            fnCreateLLM
+        }
+    ) {
+        super();
+        /**
+         * @type {function(): FakeLLM}
+         */
+        this.fnCreateLLM = fnCreateLLM;
+    }
     /**
      * creates a model
      * @param verbose
@@ -9,11 +23,7 @@ class FakeLLMFactory extends LLMFactory {
      */
     // eslint-disable-next-line no-unused-vars
     async createAsync({verbose}) {
-        /**
-         * @type {import('langchain/base_language').BaseLanguageModelParams}
-         */
-        const options = {};
-        return new FakeLLM(options);
+         return this.fnCreateLLM();
     }
 }
 
