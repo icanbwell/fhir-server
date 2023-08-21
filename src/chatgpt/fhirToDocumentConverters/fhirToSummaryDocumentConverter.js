@@ -1,6 +1,7 @@
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
 const {ChatGPTDocument} = require('../structures/chatgptDocument');
 const {ChatGPTMeta} = require('../structures/chatgptMeta');
+const {RethrownError} = require('../../utils/rethrownError');
 
 class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**
@@ -35,31 +36,37 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
          */
         const documents = [];
         for (const resource of resources) {
-            // currentResourceIndex++;
-            /**
-             * @type {BaseConverter|undefined}
-             */
-            const resourceConverter = this.resourceConverterFactory.getConverterForResource(
-                {
-                    resource
-                }
-            );
-            const content = resourceConverter ? resourceConverter.convert({resource}) : JSON.stringify(resource);
-            documents.push(
-                new ChatGPTDocument(
+            try {
+                /**
+                 * @type {BaseConverter|undefined}
+                 */
+                const resourceConverter = this.resourceConverterFactory.getConverterForResource(
                     {
-                        content: content,
-                        metadata: new ChatGPTMeta({
-                            _id: `${resource.resourceType}/${resource.id}`,
-                            uuid: resource._uuid,
-                            reference: `${resource.resourceType}/${resource.id}`,
-                            resourceType: resource.resourceType,
-                            parentResourceType: resourceType,
-                            parentUuid: uuid
-                        })
+                        resource
                     }
-                )
-            );
+                );
+                const content = resourceConverter ? resourceConverter.convert({resource}) : JSON.stringify(resource);
+                documents.push(
+                    new ChatGPTDocument(
+                        {
+                            content: content,
+                            metadata: new ChatGPTMeta({
+                                _id: `${resource.resourceType}/${resource.id}`,
+                                uuid: resource._uuid,
+                                reference: `${resource.resourceType}/${resource.id}`,
+                                resourceType: resource.resourceType,
+                                parentResourceType: resourceType,
+                                parentUuid: uuid
+                            })
+                        }
+                    )
+                );
+            } catch (e) {
+                throw new RethrownError({
+                    message: `Error in convertBundleToDocumentsAsync(): ${e.message}`, error: e,
+                    args: {resourceType, uuid, resource: resource.toJSONInternal()}
+                });
+            }
         }
 
         return documents;
