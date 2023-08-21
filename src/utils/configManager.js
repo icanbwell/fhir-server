@@ -382,6 +382,38 @@ class ConfigManager {
     }
 
     /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreUrl() {
+        return env.MONGO_VECTORSTORE_URL;
+    }
+
+    /**
+     * database for mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreDb() {
+        return env.MONGO_VECTORSTORE_DB;
+    }
+
+    /**
+     * collection for mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreCollection() {
+        return env.MONGO_VECTORSTORE_COLLECTION || 'fhir-summaries';
+    }
+
+    /**
+     * url to open search vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreIndexName() {
+        return env.MONGO_VECTORSTORE_INDEX || 'default';
+    }
+
+    /**
      * returns key to use for OpenAI
      * @returns {string|undefined}
      */

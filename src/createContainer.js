@@ -102,6 +102,7 @@ const {VectorStoreFactory} = require('./chatgpt/vectorStores/vectorStoreFactory'
 const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorStoreManager');
 const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
 const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
+const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
 
 /**
  * Creates a container and sets up all the services
@@ -734,9 +735,14 @@ const createContainer = function () {
         configManager: c.configManager
     }));
 
+    container.register('mongoAtlasVectorStoreManager', (c) => new MongoAtlasVectorStoreManager({
+        configManager: c.configManager
+    }));
+
     container.register('vectorStoreFactory', (c) => new VectorStoreFactory(
         {
             vectorStoreManagers: [
+                c.mongoAtlasVectorStoreManager,
                 c.openSearchVectorStoreManager,
                 c.memoryVectorStoreManager
             ]
