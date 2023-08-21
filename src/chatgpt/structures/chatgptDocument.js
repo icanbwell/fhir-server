@@ -1,8 +1,11 @@
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ChatGPTMeta} = require('./chatgptMeta');
+
 class ChatGPTDocument {
     /**
      * constructor
      * @param {string} content
-     * @param {Object} metadata
+     * @param {ChatGPTMeta} metadata
      */
     constructor(
         {
@@ -15,9 +18,10 @@ class ChatGPTDocument {
          */
         this.content = content;
         /**
-         * @type {Object}
+         * @type {ChatGPTMeta}
          */
         this.metadata = metadata;
+        assertTypeEquals(metadata, ChatGPTMeta);
     }
 }
 

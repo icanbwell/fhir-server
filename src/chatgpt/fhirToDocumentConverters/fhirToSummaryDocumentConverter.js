@@ -1,5 +1,6 @@
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
 const {ChatGPTDocument} = require('../structures/chatgptDocument');
+const {ChatGPTMeta} = require('../structures/chatgptMeta');
 
 class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**
@@ -17,11 +18,11 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {string} resourceType
-     * @param {string} id
+     * @param {string} uuid
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({resourceType, id, bundle}) {
+    async convertBundleToDocumentsAsync({resourceType, uuid, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -48,14 +49,14 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                 new ChatGPTDocument(
                     {
                         content: content,
-                        metadata: {
+                        metadata: new ChatGPTMeta({
                             _id: `${resource.resourceType}/${resource.id}`,
-                            id: resource.id,
+                            uuid: resource._uuid,
                             reference: `${resource.resourceType}/${resource.id}`,
                             resourceType: resource.resourceType,
                             parentResourceType: resourceType,
-                            parentId: id
-                        }
+                            parentUuid: uuid
+                        })
                     }
                 )
             );

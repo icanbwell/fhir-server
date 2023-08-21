@@ -23,7 +23,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
-     * @param {string} id
+     * @param {string} uuid
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
@@ -33,12 +33,12 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             startPrompt,
             question,
             resourceType,
-            id,
+            uuid,
             verbose
         }
     ) {
         assertIsValid(resourceType, 'resourceType is null');
-        assertIsValid(id, 'id is null');
+        assertIsValid(uuid, 'uuid is null');
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -83,7 +83,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                     filter: new VectorStoreFilter(
                         {
                             resourceType: resourceType,
-                            id: id
+                            uuid: uuid
                         }
                     )
                 }
@@ -171,7 +171,7 @@ Question: {question}
             });
 
             return new ChatGPTResponse({
-                responseText: res3.text,
+                responseText: res3.content,
                 fullPrompt: fullPrompt,
                 numberTokens: numberTokens,
                 documents: relevantDocuments

@@ -68,7 +68,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
         const response = await this.chatgptManager.answerQuestionAsync(
             {
                 resourceType: resource.resourceType,
-                id: resource.id,
+                uuid: resource._uuid,
                 question: question,
                 outputFormat: 'html',
                 verbose: _debug || _explain

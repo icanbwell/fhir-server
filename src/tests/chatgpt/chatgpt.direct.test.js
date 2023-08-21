@@ -70,7 +70,7 @@ describe('ChatGPT Tests', () => {
             });
             const result = await chatGptManager.answerQuestionAsync({
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
                 bundle: patientBundleResource,
                 question: 'write a clinical summary'
             });
@@ -95,7 +95,7 @@ describe('ChatGPT Tests', () => {
             });
             const result = await chatGptManager.answerQuestionAsync({
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
                 bundle: patientCondensedBundleResource,
                 question: 'what conditions does this patient have?'
             });

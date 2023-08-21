@@ -2,12 +2,12 @@ class VectorStoreFilter {
     /**
      * constructor
      * @param {string|undefined} [resourceType]
-     * @param {string|undefined} [id]
+     * @param {string|undefined} [uuid]
      */
     constructor(
         {
             resourceType,
-            id
+            uuid
         }
     ) {
         /**
@@ -17,7 +17,7 @@ class VectorStoreFilter {
         /**
          * @type {string|undefined}
          */
-        this.id = id;
+        this.uuid = uuid;
     }
 }
 

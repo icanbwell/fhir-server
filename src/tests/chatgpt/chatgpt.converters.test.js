@@ -51,7 +51,7 @@ describe('ChatGPT Tests', () => {
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync(
                 {
                     resourceType: 'Patient',
-                    id: '1',
+                    uuid: '1',
                     bundle: patientBundleResource,
                 }
             );
@@ -92,7 +92,7 @@ describe('ChatGPT Tests', () => {
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -131,7 +131,7 @@ describe('ChatGPT Tests', () => {
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -172,7 +172,7 @@ describe('ChatGPT Tests', () => {
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -211,7 +211,7 @@ describe('ChatGPT Tests', () => {
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>

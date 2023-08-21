@@ -12,7 +12,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
-     * @param {string} id
+     * @param {string} uuid
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
@@ -21,7 +21,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             startPrompt,
             question,
             resourceType,
-            id,
+            uuid,
             // eslint-disable-next-line no-unused-vars
             verbose
         }
@@ -42,7 +42,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
                 filter: new VectorStoreFilter(
                     {
                         resourceType: resourceType,
-                        id: id
+                        uuid: uuid
                     }
                 )
             }
@@ -50,8 +50,8 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const documents = await retriever.getRelevantDocuments(question);
 
         const contextMessages = documents
-            .filter((document) => (document.metadata.resourceType === resourceType && document.metadata.id === id) ||
-                (document.metadata.parentResourceType === resourceType && document.metadata.parentId === id))
+            .filter((document) => (document.metadata.resourceType === resourceType && document.metadata.uuid === uuid) ||
+                (document.metadata.parentResourceType === resourceType && document.metadata.parentUuid === uuid))
             .map(
                 d => new ChatGPTMessage(
                     {

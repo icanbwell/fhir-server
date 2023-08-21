@@ -598,7 +598,7 @@ describe('ChatGPT Tests', () => {
                 bundle: patientBundleResource,
                 question: 'Create a clinical summary to share with my doctor',
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
             });
             console.log(result.responseText);
             // expect(result).toStrictEqual('<h1>Clinical Summary</h1>  <p>Date: 2023-07-10</p>  <p>Patient Name: John Doe</p>  <p>Gender: Male</p>  <p>Date of Birth: 1980-01-01</p>  <p>Address: 123 Main St, Anytown, USA</p>  <p>Contact Number: (555) 123-4567</p>  <h2>Allergies</h2>  <ul>    <li>Penicillin</li>    <li>Latex</li>  </ul>  <h2>Medications</h2>  <ul>    <li>Metoprolol - 50mg, once daily</li>    <li>Levothyroxine - 100mcg, once daily</li>  </ul>  <h2>Conditions</h2>  <ul>    <li>Hypertension</li>    <li>Hypothyroidism</li>  </ul>  <h2>Immunizations</h2>  <ul>    <li>Influenza - 2022-10-15</li>    <li>Tetanus - 2021-07-01</li>  </ul>  <h2>Recent Lab Results</h2>  <ul>    <li>Complete Blood Count - 2023-06-30</li>    <li>Cholesterol Panel - 2023-06-15</li>  </ul>');
@@ -625,7 +625,7 @@ describe('ChatGPT Tests', () => {
                 bundle: patientBundleResource,
                 question: 'When did this patient receive the tetanus vaccine',
                 resourceType: 'Patient',
-                id: '1',
+                uuid: '1',
             });
             console.log(result.responseText);
         });

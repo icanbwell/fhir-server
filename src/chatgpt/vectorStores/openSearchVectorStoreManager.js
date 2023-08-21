@@ -65,14 +65,13 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
     /**
      * gets a filter for the vector store
      * @param {VectorStoreFilter} filter
-     * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
+     * @returns {function(*): boolean| import('langchain/vectorstores/opensearch').OpenSearchFilter}
      */
     getFilter(filter) {
         // OpenSearchFilter is just of type object
-        // noinspection JSValidateTypes
-        return {
+        return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
             parentResourceType: filter.resourceType,
-            parentId: filter.id
+            parentUuid: filter.uuid
         };
     }
 

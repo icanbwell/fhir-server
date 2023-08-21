@@ -52,13 +52,13 @@ class ChatGPTManager {
      * Sends the bundle of FHIR resources to ChatGPT and asks the provided question.
      * Returns the result as HTML body
      * @param {string} resourceType
-     * @param {string} id
+     * @param {string} uuid
      * @param {string} question
      * @param {'html'|'text'|undefined} outputFormat
      * @param {boolean|undefined} [verbose]
      * @return {Promise<ChatGPTResponse>}
      */
-    async answerQuestionAsync({resourceType, id, question, outputFormat, verbose}) {
+    async answerQuestionAsync({resourceType, uuid, question, outputFormat, verbose}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -78,7 +78,7 @@ class ChatGPTManager {
         const response = await this.answerQuestionWithDocumentsAsync({
             question,
             startPrompt,
-            id,
+            uuid,
             resourceType,
             verbose
         });
@@ -101,7 +101,7 @@ class ChatGPTManager {
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
-     * @param {string} id
+     * @param {string} uuid
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
@@ -114,7 +114,7 @@ class ChatGPTManager {
             // eslint-disable-next-line no-unused-vars
             resourceType,
             // eslint-disable-next-line no-unused-vars
-            id,
+            uuid,
             // eslint-disable-next-line no-unused-vars
             verbose
         }

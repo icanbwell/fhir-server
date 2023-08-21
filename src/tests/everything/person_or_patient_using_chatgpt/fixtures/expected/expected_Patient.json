@@ -1,6 +1,7 @@
 {
   "birthDate": "2017-01-01",
   "gender": "female",
+  "id": "patient1",
   "identifier": [
     {
       "id": "sourceId",
