@@ -90,7 +90,7 @@ class GetMultipleUuidCountRunner extends BaseBulkOperationRunner {
                                 },
                             },
                         },
-                    ]);
+                    ], { allowDiskUse: true });
 
                     let duplicateUuidCount = 0;
 
