@@ -7,12 +7,13 @@ const {ChatGPTMeta} = require('../structures/chatgptMeta');
 class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
-     * @param {string} resourceType
-     * @param {string} uuid
+     * @param {string} parentResourceType
+     * @param {string} parentUuid
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({resourceType, uuid, bundle}) {
+    // eslint-disable-next-line no-unused-vars
+    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -52,8 +53,8 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
                                 uuid: '0',
                                 reference: `${resourceType1}`,
                                 resourceType: resourceType1,
-                                parentResourceType: resourceType,
-                                parentUuid: uuid
+                                parentResourceType: parentResourceType,
+                                parentUuid: parentUuid
                             }
                         )
                     }

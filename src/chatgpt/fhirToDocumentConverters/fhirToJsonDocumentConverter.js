@@ -5,12 +5,13 @@ const {ChatGPTMeta} = require('../structures/chatgptMeta');
 class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
-     * @param {string} resourceType
-     * @param {string} uuid
+     * @param {string} parentResourceType
+     * @param {string} parentUuid
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({resourceType, uuid, bundle}) {
+    // eslint-disable-next-line no-unused-vars
+    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
         return bundle.entry.map(
             e => {
                 return new ChatGPTDocument(
@@ -21,8 +22,8 @@ class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
                             uuid: e.resource._uuid,
                             reference: `${e.resource.resourceType}/${e.resource.id}`,
                             resourceType: e.resource.resourceType,
-                            parentResourceType: resourceType,
-                            parentUuid: uuid
+                            parentResourceType: parentResourceType,
+                            parentUuid: parentUuid
                         })
                     });
             }

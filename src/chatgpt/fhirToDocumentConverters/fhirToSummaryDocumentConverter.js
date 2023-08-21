@@ -18,12 +18,13 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
 
     /**
      * converts a FHIR bundle into documents for ChatGPT
-     * @param {string} resourceType
-     * @param {string} uuid
+     * @param {string} parentResourceType
+     * @param {string} parentUuid
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({resourceType, uuid, bundle}) {
+    // eslint-disable-next-line no-unused-vars
+    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -55,8 +56,8 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                                 uuid: resource._uuid,
                                 reference: `${resource.resourceType}/${resource.id}`,
                                 resourceType: resource.resourceType,
-                                parentResourceType: resourceType,
-                                parentUuid: uuid
+                                parentResourceType: parentResourceType,
+                                parentUuid: parentUuid
                             })
                         }
                     )
@@ -64,7 +65,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
             } catch (e) {
                 throw new RethrownError({
                     message: `Error in convertBundleToDocumentsAsync(): ${e.message}`, error: e,
-                    args: {resourceType, uuid, resource: resource.toJSONInternal()}
+                    args: {parentResourceType, parentUuid, resource: resource.toJSONInternal()}
                 });
             }
         }

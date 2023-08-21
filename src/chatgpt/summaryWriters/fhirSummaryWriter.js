@@ -10,6 +10,7 @@ const {ReferenceParser} = require('../../utils/referenceParser');
 const {RethrownError} = require('../../utils/rethrownError');
 const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
 const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
+const {isUuid, generateUUIDv5} = require('../../utils/uid.util');
 
 /**
  * @classdesc Writes summary for a resource to vector store
@@ -91,15 +92,12 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                 /**
                  * @type {string|undefined}
                  */
-                let parentId;
+                let parentUuid;
                 /**
                  * @type {string|undefined}
                  */
                 let parentResourceType;
-                /**
-                 * @type {string|undefined}
-                 */
-                let parentSourceAssigningAuthority;
+
                 // Read the patient id from the doc
                 const patientProperty = this.patientFilterManager.getPatientPropertyForResource({resourceType});
                 if (resourceType !== 'Patient' && patientProperty) {
@@ -107,16 +105,36 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                         obj: doc,
                         path: patientProperty
                     });
+                    const parentReferenceItem = NestedPropertyReader.getNestedProperty({
+                        obj: doc,
+                        path: patientProperty.replace('.reference', '')
+                    });
                     if (parentReference) {
-                        const {
-                            id: id1,
-                            resourceType: resourceType1,
-                            sourceAssigningAuthority: sourceAssigningAuthority1
-                        } = ReferenceParser.parseReference(parentReference);
-                        if (id1 && resourceType1 === 'Patient') {
-                            parentId = id1;
-                            parentResourceType = resourceType1;
-                            parentSourceAssigningAuthority = sourceAssigningAuthority1;
+                        if (parentReferenceItem && parentReferenceItem.extension && parentReferenceItem.extension.length > 0) {
+                            const extension = parentReferenceItem.extension.find(
+                                e => e.id === 'uuid');
+                            if (extension && extension.valueString) {
+                                const {
+                                    id: uuid1,
+                                    resourceType: resourceType1
+                                } = ReferenceParser.parseReference(extension.valueString);
+                                if (uuid1) {
+                                    parentUuid = uuid1;
+                                    parentResourceType = resourceType1;
+                                }
+                            }
+                        }
+                        if (!parentUuid) {
+                            const {
+                                id: id1,
+                                resourceType: resourceType1,
+                                sourceAssigningAuthority: sourceAssigningAuthority1
+                            } = ReferenceParser.parseReference(parentReference);
+                            if (id1 && resourceType1 === 'Patient') {
+                                parentResourceType = resourceType1;
+                                const parentSourceAssigningAuthority = sourceAssigningAuthority1 || doc._sourceAssigningAuthority;
+                                parentUuid = isUuid(id1) ? id1 : generateUUIDv5(`${id1}|${parentSourceAssigningAuthority}`);
+                            }
                         }
                     }
                 }
@@ -128,12 +146,8 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                     ]
                 });
                 const resourceInfo = {
-                    resourceType: parentResourceType || resourceType,
-                    uuid: parentId ? ReferenceParser.createReference({
-                        resourceType: parentResourceType,
-                        id: parentId,
-                        sourceAssigningAuthority: parentSourceAssigningAuthority
-                    }) : doc._uuid,
+                    parentResourceType: parentResourceType || resourceType,
+                    parentUuid: parentUuid || doc._uuid,
                     bundle
                 };
                 /**

@@ -348,7 +348,17 @@
         ],
         "resourceType": "Patient",
         "text": {
-          "div": "No relevant documents found",
+          "div": "The text suggests that the patient has a heart condition, specifically heart failure, although it is unspecified.",
+          "extension": [
+            {
+              "url": "http://www.icanbwell.com/relevantDocument",
+              "valueString": "{\"pageContent\":\"- Code: Heart failure, unspecified (undefined)\",\"metadata\":{\"_id\":\"Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f\",\"uuid\":\"e73357e5-b948-57a6-8a04-269ff833118e\",\"resourceType\":\"Condition\",\"parentUuid\":\"24a5930e-11b4-5525-b482-669174917044\",\"parentResourceType\":\"Patient\",\"reference\":\"Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f\"}}"
+            },
+            {
+              "url": "http://www.icanbwell.com/prompt",
+              "valueString": "\"Answer the question based only on the following context and Reply in HTML with just the body :\\n- Code: Heart failure, unspecified (undefined)\\nCurrent Date: 2023-08-21\\nQuestion: Does this patient have heart disease?\\n\""
+            }
+          ],
           "status": "generated"
         }
       }

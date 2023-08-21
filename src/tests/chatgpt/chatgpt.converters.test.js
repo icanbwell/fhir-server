@@ -43,15 +43,16 @@ describe('ChatGPT Tests', () => {
             const chatGptManager = new ChatGPTManagerDirect({
                 fhirToDocumentConverter: fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync(
                 {
-                    resourceType: 'Patient',
-                    uuid: '1',
+                    parentResourceType: 'Patient',
+                    parentUuid: '1',
                     bundle: patientBundleResource,
                 }
             );
@@ -85,14 +86,15 @@ describe('ChatGPT Tests', () => {
             const chatGptManager = new ChatGPTManagerDirect({
                 fhirToDocumentConverter: fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                resourceType: 'Patient',
-                uuid: '1',
+                parentResourceType: 'Patient',
+                parentUuid: '1',
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -124,14 +126,15 @@ describe('ChatGPT Tests', () => {
             const chatGptManager = new ChatGPTManagerDirect({
                 fhirToDocumentConverter: fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                resourceType: 'Patient',
-                uuid: '1',
+                parentResourceType: 'Patient',
+                parentUuid: '1',
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -165,14 +168,15 @@ describe('ChatGPT Tests', () => {
             const chatGptManager = new ChatGPTManagerDirect({
                 fhirToDocumentConverter: fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                resourceType: 'Patient',
-                uuid: '1',
+                parentResourceType: 'Patient',
+                parentUuid: '1',
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -204,14 +208,15 @@ describe('ChatGPT Tests', () => {
             const chatGptManager = new ChatGPTManagerDirect({
                 fhirToDocumentConverter: fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             /**
              * @type {ChatGPTDocument[]}
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                resourceType: 'Patient',
-                uuid: '1',
+                parentResourceType: 'Patient',
+                parentUuid: '1',
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
