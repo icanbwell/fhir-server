@@ -52,7 +52,15 @@ const IndexPage = ({search}) => {
         }
         // If narrative is returned then show it at top level
         return <>
-            {resources && resources.length > 0 && resources[0].resource?.text?.div &&
+            {/* if we have a single resource*/}
+            {resources && resources.length === 1 && resources[0].text?.div &&
+                <Alert severity="success">
+                    <AlertTitle>Answer</AlertTitle>
+                    <Box dangerouslySetInnerHTML={{__html: resources[0].text?.div}}/>
+                </Alert>
+            }
+            {/*if we have a list of resources*/}
+            {resources && resources.length === 1 && resources[0].resource?.text?.div &&
                 <Alert severity="success">
                     <AlertTitle>Answer</AlertTitle>
                     <Box dangerouslySetInnerHTML={{__html: resources[0].resource?.text?.div}}/>
@@ -149,10 +157,10 @@ const IndexPage = ({search}) => {
                     aria-controls={`searchCollapse`}
                     id={`searchAccordion`}
                 >
-                    <Typography>Search</Typography>
+                    <Typography variant="h5">Search</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <SearchContainer onSearch={handleSearch}></SearchContainer>
+                    <SearchContainer onSearch={handleSearch} id={id}></SearchContainer>
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>

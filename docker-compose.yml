@@ -63,6 +63,7 @@ services:
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       OPENSEARCH_VECTORSTORE_URL: 'http://admin:admin@elasticsearch:9200'
       OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
+      WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
     ports:
       - '3000:3000'
     volumes:

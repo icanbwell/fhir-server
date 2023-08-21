@@ -26,7 +26,7 @@ function TabPanel(props) {
     );
 }
 
-const SearchContainer = ({onSearch, resourceType}) => {
+const SearchContainer = ({onSearch, resourceType, id}) => {
     const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
@@ -42,7 +42,7 @@ const SearchContainer = ({onSearch, resourceType}) => {
             <Tabs value={value} onChange={handleChange}>
                 <Tab label="Advanced Search"/>
                 <Tab label="ChatGPT"/>
-                <Tab label="Tab Three"/>
+                {/*<Tab label="Tab Three"/>*/}
             </Tabs>
             <TabPanel value={value} index={0}>
                 <SearchForm onSearch={handleSearch}></SearchForm>
@@ -50,9 +50,9 @@ const SearchContainer = ({onSearch, resourceType}) => {
             <TabPanel value={value} index={1}>
                 <SearchBox onSearch={handleSearch}></SearchBox>
             </TabPanel>
-            <TabPanel value={value} index={2}>
-                Content of Tab Three
-            </TabPanel>
+            {/*<TabPanel value={value} index={2}>*/}
+            {/*    Content of Tab Three*/}
+            {/*</TabPanel>*/}
         </>
     );
 };

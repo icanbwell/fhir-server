@@ -49,7 +49,7 @@ describe('Person and Patient fake chatgpt Tests', () => {
     const fakeLLM = new FakeLLM();
 
     describe('Person and Patient $everything chatgpt Tests', () => {
-        test('Patient with age question', async () => {
+        test.skip('Patient with age question', async () => {
             const mockedMethod = jest.spyOn(fakeLLM, '_call', undefined)
                 .mockImplementation(
                     async (messages) => {

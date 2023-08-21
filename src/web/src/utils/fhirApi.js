@@ -84,8 +84,6 @@ class FhirApi {
         }
         if (operation) {
             urlString += `/${operation}`;
-        } else if (queryParameters && queryParameters.find(a => a.startsWith('_question'))) {
-            urlString += `/$everything`;
         }
 
         function stripFirstCharIfQuestionMark(str) {
@@ -106,7 +104,7 @@ class FhirApi {
             });
         }
         // add limit of 10 for results
-        if (!url.searchParams.has('_count')) {
+        if (!id && !url.searchParams.has('_count')) {
             url.searchParams.append('_count', 10);
         }
         return url;
