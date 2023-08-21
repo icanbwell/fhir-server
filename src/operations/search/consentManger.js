@@ -4,7 +4,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, PROXY_PERSON_CONSENT_CODING } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, PROXY_PERSON_CONSENT_CODING, CONSENT_OF_LINKED_PERSON_INDEX } = require('../../constants');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
@@ -70,11 +70,33 @@ class ConsentManager {
      */
     async getConsentResources({ownerTags, bwellPersonIds}) {
 
+        // get all consents where provision.actor.reference is of proxy-person with valid code
+        let proxyPersonReferences = bwellPersonIds.map(
+            (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
+        );
+
         const query =
         {
             $and: [
-                {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
                 {'status': 'active'},
+                {
+                    '$and': [
+                        {
+                            'provision.actor.reference._uuid': {
+                                '$in': proxyPersonReferences,
+                            },
+                        },
+                        {
+                            'provision.actor.role.coding': {
+                                '$elemMatch': {
+                                    'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
+                                    'code': PROXY_PERSON_CONSENT_CODING.CODE,
+                                },
+                            }
+                        },
+                    ]
+                },
+                {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
                 {'provision.type': 'permit'},
                 {'meta.security': {
                     '$elemMatch': {
@@ -85,29 +107,6 @@ class ConsentManager {
             ]
         };
 
-        // if proxyPerson is passed, then add the query
-            // get all consents where provision.actor.reference is of proxy-person with valid code
-        let proxyPersonReferences = bwellPersonIds.map(
-            (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
-        );
-        query.$and.push({
-            '$and': [
-                {
-                    'provision.actor.reference._uuid': {
-                        '$in': proxyPersonReferences,
-                    },
-                },
-                {
-                    'provision.actor.role.coding': {
-                        '$elemMatch': {
-                            'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
-                            'code': PROXY_PERSON_CONSENT_CODING.CODE,
-                        },
-                    }
-                },
-            ]
-        });
-
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
             base_version: '4_0_0',
@@ -117,7 +116,13 @@ class ConsentManager {
             query: query,
             projection: {}
         });
-        const consentResources = await cursor.sort({'meta.lastUpdated': -1}).toArrayRawAsync();
+        const consentResources = await cursor
+            // forcing to use this index
+            .hint({
+                indexHint: CONSENT_OF_LINKED_PERSON_INDEX,
+            })
+            .sort({'meta.lastUpdated': -1})
+            .toArrayRawAsync();
 
         return consentResources;
     }

@@ -30,15 +30,19 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
 
 
 const headers = getHeaders('user/*.read access/client.*');
 
 describe('Consent Based Data Access Test', () => {
+    const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
+
     beforeEach(async () => {
+        cursorSpy.mockReturnThis();
         await commonBeforeEach();
     });
 
