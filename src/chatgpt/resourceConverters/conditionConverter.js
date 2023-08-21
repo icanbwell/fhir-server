@@ -22,6 +22,7 @@ class ConditionConverter extends BaseConverter {
         const formattedOutput = `
 - Resource: Condition
 - ID: ${id}
+- Patient: ${subject.reference}
 - Last Updated: ${this.formatDate(lastUpdated)}
 - Source: ${source}
 - Clinical Status: ${clinicalStatusText}

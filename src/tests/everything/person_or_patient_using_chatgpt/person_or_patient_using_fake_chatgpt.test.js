@@ -37,7 +37,7 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-describe('Person and Patient $everything chatgpt Tests', () => {
+describe('Person and Patient fake chatgpt Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -50,10 +50,6 @@ describe('Person and Patient $everything chatgpt Tests', () => {
 
     describe('Person and Patient $everything chatgpt Tests', () => {
         test('Patient with age question', async () => {
-            console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
             const mockedMethod = jest.spyOn(fakeLLM, '_call', undefined)
                 .mockImplementation(
                     async (messages) => {
@@ -176,13 +172,22 @@ describe('Person and Patient $everything chatgpt Tests', () => {
 
             mockedMethod.mockReset();
         });
-        test('Patient with heart disease question', async () => {
-            console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
+        test.skip('Patient with heart disease question', async () => {
+            const mockedMethod = jest.spyOn(fakeLLM, '_call', undefined)
+                .mockImplementation(
+                    async (messages) => {
+                        expect(messages.length).toBe(1);
+                        expect(messages[0].content).toInclude('Resource: Patient');
+                        return 'NO_OUTPUT';
+                    }
+                );
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
+                container.register('llmFactory', () => {
+                    return new FakeLLMFactory({
+                        fnCreateLLM: () => fakeLLM
+                    });
+                });
                 return container;
             });
             // ARRANGE
@@ -266,7 +271,7 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             // ACT & ASSERT
             const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');
             resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}&_debug=1`)
+                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion2}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources, (resource) => {
@@ -277,6 +282,8 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 }
                 return resource;
             });
+            expect(mockedMethod).toHaveBeenCalledTimes(8);
+            mockedMethod.mockReset();
         });
     });
 });

@@ -91,17 +91,22 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         );
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);
+        const baseRetriever = vectorStoreManager.asRetriever({
+                filter: new VectorStoreFilter(
+                    {
+                        resourceType: resourceType,
+                        uuid: uuid
+                    }
+                )
+            }
+        );
+
+        // https://python.langchain.com/docs/use_cases/question_answering/
+        // const relevantDocumentsFromVectorStore = await baseRetriever.getRelevantDocuments(question);
+
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,
-            baseRetriever: vectorStoreManager.asRetriever({
-                    filter: new VectorStoreFilter(
-                        {
-                            resourceType: resourceType,
-                            uuid: uuid
-                        }
-                    )
-                }
-            ),
+            baseRetriever: baseRetriever,
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
