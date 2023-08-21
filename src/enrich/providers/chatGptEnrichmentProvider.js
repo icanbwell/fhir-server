@@ -74,7 +74,10 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
                 verbose: _debug || _explain
             }
         );
-        const html = response.responseText;
+        if (!response.responseText) {
+            return;
+        }
+        const html = `<div class="answer">${response.responseText}</div>`;
         // return as text Narrative
         /**
          * @type {Extension[]}

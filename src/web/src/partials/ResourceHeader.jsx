@@ -5,6 +5,13 @@ import Meta from '../partials/Meta';
 import Extension from '../partials/Extension';
 import {Box, Link} from '@mui/material';
 
+const styles = {
+    answer: {
+        color: 'rgb(30, 70, 32)',
+        backgroundColor: 'rgb(237, 247, 237)'
+    },
+};
+
 function ResourceHeader({resource}) {
     if (!resource) return null;
     return (
