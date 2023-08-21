@@ -1,4 +1,4 @@
-const {SimpleChatModel} = require('langchain/chat_models');
+const {SimpleChatModel} = require('langchain/chat_models/base');
 
 class FakeLLM extends SimpleChatModel {
     /**
