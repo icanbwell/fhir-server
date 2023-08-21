@@ -12,8 +12,6 @@ class GetMultipleUuidCountRunner extends BaseBulkOperationRunner {
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {date|undefined} afterLastUpdatedDate
-     * @param {date|undefined} beforeLastUpdatedDate
      * @param {string|undefined} [startFromCollection]
      */
     constructor({
@@ -22,8 +20,6 @@ class GetMultipleUuidCountRunner extends BaseBulkOperationRunner {
         batchSize,
         adminLogger,
         mongoDatabaseManager,
-        afterLastUpdatedDate,
-        beforeLastUpdatedDate,
         startFromCollection,
     }) {
         super({
@@ -38,23 +34,13 @@ class GetMultipleUuidCountRunner extends BaseBulkOperationRunner {
         this.collections = collections;
 
         /**
-         * @type {date|undefined}
-         */
-        this.afterLastUpdatedDate = afterLastUpdatedDate;
-
-        /**
-         * @type {date|undefined}
-         */
-        this.beforeLastUpdatedDate = beforeLastUpdatedDate;
-
-        /**
          * @type {string|undefined}
          */
         this.startFromCollection = startFromCollection;
     }
 
     /**
-     * Runs a loop to process all the documents
+     * Runs a loop on all the documents
      * @returns {Promise<void>}
      */
     async processAsync() {
@@ -71,7 +57,6 @@ class GetMultipleUuidCountRunner extends BaseBulkOperationRunner {
                 this.collections = this.collections.sort();
                 if (this.startFromCollection) {
                     this.collections = this.collections.filter(
-
                         (c) => c >= this.startFromCollection
                     );
                 }

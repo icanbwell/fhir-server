@@ -31,15 +31,6 @@ async function main() {
         ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    /**
-     * @type {Date|undefined}
-     */
-    const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
-
-    /**
-     * @type {Date|undefined}
-     */
-    const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
     const adminLogger = new AdminLogger();
     adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
@@ -55,8 +46,6 @@ async function main() {
                 adminLogger,
                 batchSize,
                 collections,
-                afterLastUpdatedDate,
-                beforeLastUpdatedDate,
                 startFromCollection: parameters.startFromCollection,
             }
         )
@@ -75,18 +64,9 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/getMultipleUuidCount.js --collections=Practitioner_4_0_0 --batchSize=10000 --referenceBatchSize=50 --collectionConcurrency=3
+ * node src/admin/scripts/getMultipleUuidCount.js --collections=Practitioner_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=all --batchSize=10000 --after 2021-12-31
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/getMultipleUuidCount.js --collections=all --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/getMultipleUuidCount.js --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {
