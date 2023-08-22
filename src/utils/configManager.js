@@ -402,7 +402,7 @@ class ConfigManager {
      * @returns {string|undefined}
      */
     get mongoAtlasVectorStoreCollection() {
-        return env.MONGO_VECTORSTORE_COLLECTION || 'fhir-summaries';
+        return env.MONGO_VECTORSTORE_COLLECTION || 'fhir';
     }
 
     /**
@@ -411,6 +411,22 @@ class ConfigManager {
      */
     get mongoAtlasVectorStoreIndexName() {
         return env.MONGO_VECTORSTORE_INDEX || 'default';
+    }
+
+    /**
+     * key to use for embedding in mongo atlas vector store
+     * @return {string}
+     */
+    get mongoAtlasVectorStoreTextKey() {
+        return env.MONGO_VECTORSTORE_TEXT_KEY || 'text';
+    }
+
+    /**
+     * key to use for embedding in mongo atlas vector store
+     * @return {string}
+     */
+    get mongoAtlasVectorStoreEmbeddingKey() {
+        return env.MONGO_VECTORSTORE_EMBEDDING_KEY || 'embedding';
     }
 
     /**

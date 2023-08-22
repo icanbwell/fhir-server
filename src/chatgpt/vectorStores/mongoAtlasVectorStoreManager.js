@@ -44,10 +44,14 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
         const collectionName = this.configManager.mongoAtlasVectorStoreCollection;
         const indexName = this.configManager.mongoAtlasVectorStoreIndexName;
         const dbName = this.configManager.mongoAtlasVectorStoreDb;
+        const textKey = this.configManager.mongoAtlasVectorStoreTextKey;
+        const embeddingKey = this.configManager.mongoAtlasVectorStoreEmbeddingKey;
         const collection = client.db(dbName).collection(collectionName);
         return new MongoDBAtlasVectorSearch(embeddings, {
             collection: collection,
             indexName: indexName,
+            textKey: textKey,
+            embeddingKey: embeddingKey
         });
     }
 
