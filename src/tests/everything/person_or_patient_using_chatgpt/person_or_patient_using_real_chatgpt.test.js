@@ -138,14 +138,13 @@ describe('Person and Patient real chatgpt Tests', () => {
             const postRequestProcessor = testContainer.postRequestProcessor;
             await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
 
-            // ACT & ASSERT
-            // First get patient everything
             const urlEncodedQuestion = encodeURIComponent("What is this patient's date of birth?");
+
             resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
+                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
+            expect(resp).toHaveResponse(expectedPatient, (resource) => {
                 if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
                     // handle the slight variations that ChatGPT produces
                     resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
@@ -153,11 +152,14 @@ describe('Person and Patient real chatgpt Tests', () => {
                 return resource;
             });
 
+
+            // ACT & ASSERT
+            // First get patient everything
             resp = await request
-                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion}`)
+                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatient, (resource) => {
+            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
                 if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
                     // handle the slight variations that ChatGPT produces
                     resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';

@@ -44,7 +44,17 @@
   ],
   "resourceType": "Patient",
   "text": {
-    "div": "The date of birth of this patient is December 31, 2016.",
+    "div": "<div class=\"answer\"><p>Birth Date: December 31, 2016</p></div>",
+    "extension": [
+      {
+        "url": "http://www.icanbwell.com/relevantDocument",
+        "valueString": "{\"pageContent\":\"- Birth Date: December 31, 2016\",\"metadata\":{\"_id\":\"Patient/patient1\",\"uuid\":\"24a5930e-11b4-5525-b482-669174917044\",\"resourceType\":\"Patient\",\"parentUuid\":\"24a5930e-11b4-5525-b482-669174917044\",\"parentResourceType\":\"Patient\",\"reference\":\"Patient/patient1\"}}"
+      },
+      {
+        "url": "http://www.icanbwell.com/prompt",
+        "valueString": "\"Answer the question based only on the following context and Reply in HTML with just the body :\\n- Birth Date: December 31, 2016\\nCurrent Date: 2023-08-22\\nQuestion: What is this patient's date of birth?\\n\""
+      }
+    ],
     "status": "generated"
   }
 }
