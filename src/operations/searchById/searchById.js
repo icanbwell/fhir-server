@@ -133,6 +133,7 @@ class SearchByIdOperation {
             scope,
             /** @type {string} */
             requestId,
+            /**@type {string} */ userRequestId,
             /** @type {string} */ method
         } = requestInfo;
 
@@ -242,7 +243,7 @@ class SearchByIdOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {

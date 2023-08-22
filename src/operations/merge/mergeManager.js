@@ -869,7 +869,7 @@ class MergeManager {
             }
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            await this.auditLogger.flushAsync({requestId, currentDate, method});
+            await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId: requestInfo.userRequestId});
         } catch (e) {
             throw new RethrownError({
                 error: e
