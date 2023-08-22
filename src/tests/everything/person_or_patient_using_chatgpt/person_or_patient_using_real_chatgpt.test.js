@@ -53,6 +53,13 @@ describe('Person and Patient real chatgpt Tests', () => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
+
+            const container = getTestContainer();
+            /**
+             * @type {MemoryVectorStoreManager}
+             */
+            const memoryVectorStoreManager = container.memoryVectorStoreManager;
+            await memoryVectorStoreManager.clearAsync();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -167,6 +174,13 @@ describe('Person and Patient real chatgpt Tests', () => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
+            const container = getTestContainer();
+            /**
+             * @type {MemoryVectorStoreManager}
+             */
+            const memoryVectorStoreManager = container.memoryVectorStoreManager;
+            await memoryVectorStoreManager.clearAsync();
+
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -251,10 +265,17 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources, (resource) => {
+                const currentDate = new Date().toISOString().split('T')[0];
                 if (resource.text && resource.text.div && resource.text.div.indexOf('heart') >= 0) {
                     // handle the slight variations that ChatGPT produces
                     resource.text.div = 'The text suggests that the patient has a heart condition, specifically heart failure, ' +
                         'although it is unspecified.';
+                }
+                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
+                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
+                    if (extension && extension.valueString) {
+                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-21');
+                    }
                 }
                 return resource;
             });

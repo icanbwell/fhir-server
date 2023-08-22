@@ -74,6 +74,16 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
     }
+
+    /**
+     * clears the vector store
+     * @returns {Promise<void>}
+     */
+    async clearAsync() {
+        if (this.vectorStore) {
+            this.vectorStore = await this.createVectorStoreInternalAsync();
+        }
+    }
 }
 
 module.exports = {
