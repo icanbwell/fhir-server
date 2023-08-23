@@ -7,6 +7,7 @@ class PatientConverter extends BaseConverter {
      * @returns {string}
      */
     convert({resource}) {
+        const patient = /** @type {Patient} */ resource;
         const {
             id,
             meta: {lastUpdated, source},
@@ -22,7 +23,7 @@ class PatientConverter extends BaseConverter {
             maritalStatus,
             multipleBirthBoolean,
             communication,
-        } = resource;
+        } = patient;
 
         const fullName = name && name.length > 0 && name[0].given && name[0].given.length > 0 ? `${name[0].given[0]} ${name[0].family} ` : 'unknown';
         const race = extension && extension.find((ext) => ext.url === 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race');

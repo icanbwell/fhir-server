@@ -8,6 +8,7 @@ const {MedicationRequestConverter} = require('./medicationRequestConverter');
 const {ObservationConverter} = require('./observationConverter');
 const {PatientConverter} = require('./patientConverter');
 const {ProcedureConverter} = require('./procedureConverter');
+const {AttachmentConverter} = require('./attachmentConverter');
 
 class ResourceConverterFactory {
     constructor() {
@@ -24,7 +25,8 @@ class ResourceConverterFactory {
             'MedicationRequest': new MedicationRequestConverter(),
             'Observation': new ObservationConverter(),
             'Patient': new PatientConverter(),
-            'Procedure': new ProcedureConverter()
+            'Procedure': new ProcedureConverter(),
+            'Attachment': new AttachmentConverter(),
         };
     }
 

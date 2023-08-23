@@ -1,6 +1,6 @@
 class BaseConverter {
     /**
-     * converts Patient resource to text
+     * converts a FHIR resource to summary text
      * @param {Resource} resource
      * @returns {string}
      */
@@ -20,6 +20,18 @@ class BaseConverter {
         }
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'});
+    }
+
+    /**
+     * if value is defined then it formats the template with the value and returns it otherwise returns undefined
+     * @param {string} template
+     * @param {*} value
+     * @return {string}
+     */
+    addSafeText({template, value}) {
+        if (value) {
+            return template;
+        }
     }
 }
 
