@@ -78,6 +78,18 @@ class BaseVectorStoreManager {
     asRetriever({filter}) {
         throw new Error('Not Implemented by subclass');
     }
+
+    /**
+     * searches the vector store for the provided text
+     * @param {VectorStoreFilter} filter
+     * @param {string} text
+     * @param {number|undefined} [limit]
+     * @return {Promise<ChatGPTDocument[]>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async searchAsync({filter, text, limit}) {
+        throw new Error('Not Implemented by subclass');
+    }
 }
 
 module.exports = {

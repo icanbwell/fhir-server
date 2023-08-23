@@ -661,9 +661,24 @@ describe('ChatGPT Tests', () => {
             )).toBe('patientRecord');
             expect(await chatGPTManager.classifyQuestionAsync(
                 {
+                    question: 'create a clinical summary for this patient'
+                }
+            )).toBe('patientRecord');
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
                     question: 'find patients who have diabetes and are over 65'
                 }
             )).toBe('fhirQuery');
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
+                    question: 'imran qureshi'
+                }
+            )).toBe('fullTextSearch');
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
+                    question: 'How old is my aunt?'
+                }
+            )).toBe('other');
         });
     });
 });

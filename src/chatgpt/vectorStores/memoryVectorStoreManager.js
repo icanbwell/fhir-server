@@ -3,6 +3,8 @@ const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
+const {ChatGPTDocument} = require('../structures/chatgptDocument');
+const {ChatGPTMeta} = require('../structures/chatgptMeta');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -83,6 +85,33 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
         if (this.vectorStore) {
             this.vectorStore = await this.createVectorStoreInternalAsync();
         }
+    }
+
+    /**
+     * searches the vector store for the provided text
+     * @param {VectorStoreFilter} filter
+     * @param {string} text
+     * @param {number|undefined} [limit]
+     * @return {Promise<ChatGPTDocument[]>}
+     */
+    async searchAsync({filter, text, limit}) {
+        assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
+        /**
+         * @type {[Document, number][]}
+         */
+        const results = await this.vectorStore.similaritySearchWithScore(
+            text,
+            limit,
+            this.getFilter(filter)
+        );
+        return results.map(
+            ([doc, _]) => new ChatGPTDocument(
+                {
+                    content: doc.pageContent,
+                    metadata: new ChatGPTMeta(doc.metadata)
+                }
+            )
+        );
     }
 }
 
