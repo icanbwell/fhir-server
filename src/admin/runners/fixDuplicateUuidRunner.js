@@ -206,8 +206,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
 
             const resources = await collection
                 .find({ _uuid: { $eq: uuid } })
-                .project({ _id: 1, meta: { versionId: 1 } })
-                .sort({ _id: -1 })
+                .project({ _id: 1, meta: { versionId: 1, lastUpdated: 1 } })
                 .toArray();
 
             if (resources.some((res) => !res.meta?.versionId)) {
@@ -226,12 +225,16 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
             /**
              * @type {Object}
              */
-            let resourcesWithMaxVersionId = resources.find(
+            let resourcesWithMaxVersionId = resources.filter(
                 (res) => Number(res.meta.versionId) === versionIdToKeep
             );
 
+            if (resourcesWithMaxVersionId.length > 1) {
+                resourcesWithMaxVersionId.sort((res1, res2) => (new Date(res2.meta.lastUpdated)).getTime() - (new Date(res1.meta.lastUpdated)).getTime());
+            }
+
             const resourcesToDelete = resources.reduce((toDelete, res) => {
-                if (res._id !== resourcesWithMaxVersionId._id) {
+                if (res._id !== resourcesWithMaxVersionId[0]._id) {
                     toDelete.push(res._id);
                 }
                 return toDelete;
