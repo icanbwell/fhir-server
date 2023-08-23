@@ -336,21 +336,26 @@ Question: {question}
                 verbose
             }
         );
+        const categories = [
+            'Question about a single patient record',
+            'Question about how to find records in a FHIR server',
+            'full text search',
+            'other'
+        ];
         const categorizeQuestionTemplate = `Given the following categories and a follow up question, return the category of the question:
 Categories:
-- Question about a patient record
-- Question about how to find records in a FHIR server
-- full text search
-- other
-Question: what is this person's age?
+{categories}
+Question: {question}
 Category:`;
-        const CATEGORIZE_QUESTION_PROMPT = PromptTemplate.fromTemplate(
-            categorizeQuestionTemplate
-        );
+        const CATEGORIZE_QUESTION_PROMPT = new PromptTemplate({
+            template: categorizeQuestionTemplate,
+            inputVariables: ['categories', 'question'],
+        });
 
         const categorizeQuestionChain = RunnableSequence.from([
             {
-                question: (input) => input.question
+                question: (input) => input.question,
+                categories: () => categories.join('\n')
             },
             CATEGORIZE_QUESTION_PROMPT,
             model
@@ -358,6 +363,7 @@ Category:`;
 
         const fullPrompt = await CATEGORIZE_QUESTION_PROMPT.format({
             question: question,
+            categories: categories.join('\n')
         });
         const chatGPTResponse = await this.runChainAsync(
             {
@@ -368,13 +374,13 @@ Category:`;
             }
         );
         switch (chatGPTResponse.responseText) {
-            case 'Question about a patient record':
+            case categories[0]:
                 return 'patientRecord';
-            case 'Question about how to find records in a FHIR server':
+            case categories[1]:
                 return 'fhirQuery';
-            case 'full text search':
+            case categories[2]:
                 return 'fullTextSearch';
-            case 'Other':
+            case categories[3]:
                 return 'other';
             default:
                 return 'other';

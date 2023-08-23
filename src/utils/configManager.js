@@ -373,7 +373,7 @@ class ConfigManager {
         return env.OPENSEARCH_VECTORSTORE_URL;
     }
 
-        /**
+    /**
      * url to mongo atlas vector store
      * @returns {string|undefined}
      */
@@ -492,6 +492,14 @@ class ConfigManager {
      */
     get enableMemoryVectorStore() {
         return false; // should only enable in unit tests
+    }
+
+    /**
+     * returns whether to enable rewriting of queries by chatgpt
+     * @return {boolean|undefined}
+     */
+    get enableChatGptRewriter() {
+        return isTrue(env.ENABLE_CHATGPT_REWRITER);
     }
 }
 

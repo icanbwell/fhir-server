@@ -51,7 +51,7 @@ class ChatGPTQueryRewriter extends QueryRewriter {
      */
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         const {_question, _debug} = parsedArgs;
-        if (_question) {
+        if (_question && this.configManager.enableChatGptRewriter) {
             return await this.getParsedArgsFromQuestionAsync(
                 {
                     _question: _question,
