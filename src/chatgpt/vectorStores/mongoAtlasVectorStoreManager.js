@@ -4,6 +4,7 @@ const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
 const {MongoClient} = require('mongodb');
 const {MongoDBAtlasVectorSearch} = require('langchain/vectorstores/mongodb_atlas');
+const {RethrownError} = require('../../utils/rethrownError');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -38,21 +39,49 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
     async createVectorStoreInternalAsync() {
-        const client = new MongoClient(this.configManager.mongoAtlasVectorStoreUrl);
-        const embeddings = new OpenAIEmbeddings();
-
+        let mongoUrl = this.configManager.mongoAtlasVectorStoreUrl;
         const collectionName = this.configManager.mongoAtlasVectorStoreCollection;
         const indexName = this.configManager.mongoAtlasVectorStoreIndexName;
         const dbName = this.configManager.mongoAtlasVectorStoreDb;
         const textKey = this.configManager.mongoAtlasVectorStoreTextKey;
         const embeddingKey = this.configManager.mongoAtlasVectorStoreEmbeddingKey;
-        const collection = client.db(dbName).collection(collectionName);
-        return new MongoDBAtlasVectorSearch(embeddings, {
-            collection: collection,
-            indexName: indexName,
-            textKey: textKey,
-            embeddingKey: embeddingKey
-        });
+        try {
+            if (this.configManager.mongoAtlasVectorStoreUserName !== undefined) {
+                mongoUrl = mongoUrl.replace(
+                    'mongodb://',
+                    `mongodb://${this.configManager.mongoAtlasVectorStoreUserName}:${this.configManager.mongoAtlasVectorStorePassword}@`
+                );
+                mongoUrl = mongoUrl.replace(
+                    'mongodb+srv://',
+                    `mongodb+srv://${this.configManager.mongoAtlasVectorStoreUserName}:${this.configManager.mongoAtlasVectorStorePassword}@`
+                );
+            }
+            const client = new MongoClient(mongoUrl);
+            const embeddings = new OpenAIEmbeddings();
+
+            const collection = client.db(dbName).collection(collectionName);
+            return new MongoDBAtlasVectorSearch(embeddings, {
+                collection: collection,
+                indexName: indexName,
+                textKey: textKey,
+                embeddingKey: embeddingKey
+            });
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: `MongoAtlasVectorStoreManager: ${e.message}`,
+                    error: e,
+                    args: {
+                        mongoAtlasVectorStoreUrl: this.configManager.mongoAtlasVectorStoreUrl,
+                        collectionName: collectionName,
+                        dbName: dbName,
+                        indexName: indexName,
+                        textKey: textKey,
+                        embeddingKey: embeddingKey
+                    }
+                }
+            );
+        }
     }
 
     /**

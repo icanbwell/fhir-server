@@ -373,6 +373,23 @@ class ConfigManager {
         return env.OPENSEARCH_VECTORSTORE_URL;
     }
 
+        /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStoreUserName() {
+        return env.OPENSEARCH_VECTORSTORE_USERNAME;
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStorePassword() {
+        return env.OPENSEARCH_VECTORSTORE_PASSWORD;
+    }
+
+
     /**
      * url to open search vector store
      * @returns {string|undefined}
@@ -387,6 +404,22 @@ class ConfigManager {
      */
     get mongoAtlasVectorStoreUrl() {
         return env.MONGO_VECTORSTORE_URL;
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreUserName() {
+        return env.MONGO_VECTORSTORE_USERNAME;
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStorePassword() {
+        return env.MONGO_VECTORSTORE_PASSWORD;
     }
 
     /**

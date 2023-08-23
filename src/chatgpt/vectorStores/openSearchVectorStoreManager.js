@@ -38,8 +38,20 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
     async createVectorStoreInternalAsync() {
+        let openSearchVectorStoreUrl = this.configManager.openSearchVectorStoreUrl;
+        if (this.configManager.openSearchVectorStoreUserName !== undefined) {
+            openSearchVectorStoreUrl = openSearchVectorStoreUrl.replace(
+                'https://',
+                `https://${this.configManager.openSearchVectorStoreUserName}:${this.configManager.openSearchVectorStorePassword}@`
+            );
+            openSearchVectorStoreUrl = openSearchVectorStoreUrl.replace(
+                'http://',
+                `http://${this.configManager.openSearchVectorStoreUserName}:${this.configManager.openSearchVectorStorePassword}@`
+            );
+        }
+
         const client = new Client({
-            nodes: [this.configManager.openSearchVectorStoreUrl],
+            nodes: [openSearchVectorStoreUrl],
         });
         const embeddings = new OpenAIEmbeddings();
 

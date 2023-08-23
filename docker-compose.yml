@@ -61,9 +61,15 @@ services:
       DD_TRACE_ENABLED: 'False'
       ENABLE_CONSENTED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
-      OPENSEARCH_VECTORSTORE_URL: 'http://admin:admin@elasticsearch:9200'
+      OPENSEARCH_VECTORSTORE_URL: 'http://elasticsearch:9200'
       OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
+      OPENSEARCH_VECTORSTORE_USERNAME: 'admin'
+      OPENSEARCH_VECTORSTORE_PASSWORD: 'admin'
       WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
+#      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
+#      MONGO_VECTORSTORE_USERNAME: ''
+#      MONGO_VECTORSTORE_PASSWORD: ''
+#      MONGO_VECTORSTORE_DB: 'cl-dev-knowledge'
     ports:
       - '3000:3000'
     volumes:
