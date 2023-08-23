@@ -1,7 +1,16 @@
 import React from 'react';
 import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 
+/**
+ * Extension
+ * @param extensions
+ * @return {React.JSX.Element|null}
+ * @constructor
+ */
 function Extension({extensions}) {
+    if (!extensions) {
+        return null;
+    }
     // Ensure `extensions` is an array
     if (!Array.isArray(extensions)) {
         extensions = [extensions];

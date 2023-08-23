@@ -149,6 +149,14 @@ describe('Person and Patient real chatgpt Tests', () => {
                     // handle the slight variations that ChatGPT produces
                     resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
                 }
+                const currentDate = new Date().toISOString().split('T')[0];
+
+                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
+                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
+                    if (extension && extension.valueString) {
+                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-22');
+                    }
+                }
                 return resource;
             });
 
@@ -163,6 +171,13 @@ describe('Person and Patient real chatgpt Tests', () => {
                 if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
                     // handle the slight variations that ChatGPT produces
                     resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
+                }
+                const currentDate = new Date().toISOString().split('T')[0];
+                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
+                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
+                    if (extension && extension.valueString) {
+                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-22');
+                    }
                 }
                 return resource;
             });
