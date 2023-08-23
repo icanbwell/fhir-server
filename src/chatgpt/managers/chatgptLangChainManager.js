@@ -337,12 +337,12 @@ Question: {question}
             }
         );
         const categories = [
-            'Question about a single patient record',
-            'Question about how to find records in a FHIR server',
-            'full text search',
-            'other'
+            'Question about a single patient record (name: patientRecord)',
+            'Question about how to find records in a FHIR server (name: fhirQuery)',
+            'full text search (name: fullTextSearch)',
+            'other (name: other)'
         ];
-        const categorizeQuestionTemplate = `Given the following categories and a follow up question, return the category of the question:
+        const categorizeQuestionTemplate = `Given the following category descriptions and names plus a follow up question, return the category name of the question:
 Categories:
 {categories}
 Question: {question}
@@ -373,18 +373,7 @@ Category:`;
                 relevantDocuments: []
             }
         );
-        switch (chatGPTResponse.responseText) {
-            case categories[0]:
-                return 'patientRecord';
-            case categories[1]:
-                return 'fhirQuery';
-            case categories[2]:
-                return 'fullTextSearch';
-            case categories[3]:
-                return 'other';
-            default:
-                return 'other';
-        }
+        return chatGPTResponse.responseText;
     }
 }
 
