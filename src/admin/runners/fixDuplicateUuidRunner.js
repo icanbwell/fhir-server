@@ -209,8 +209,11 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 .project({ _id: 1, meta: { versionId: 1, lastUpdated: 1 } })
                 .toArray();
 
-            if (resources.some((res) => !res.meta?.versionId)) {
-                this.adminLogger.logInfo(`Resources without versionId for uuid: ${uuid}`);
+            const resourceWithoutMetaVersionId = resources.filter(res => !res.meta?.lastUpdated);
+            if (resourceWithoutMetaVersionId.length > 0) {
+                this.adminLogger.logInfo(
+                    `Resources without versionId for uuid: ${uuid} and _id: ${resourceWithoutMetaVersionId.map(res => res._id).join()}`
+                );
                 return [];
             }
 
