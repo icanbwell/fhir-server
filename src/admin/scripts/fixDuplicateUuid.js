@@ -85,10 +85,16 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/fixDuplicateUuid.js --collections=Practitioner_4_0_0 --batchSize=10000
+ * node src/admin/scripts/fixDuplicateUuid.js --collections=Practitioner_4_0_0 --batchSize=10000 --dotenv
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
- * node src/admin/scripts/fixDuplicateUuid.js --collections=Account_4_0_0 --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --startFromId 123
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=all --batchSize=10000 --after 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixDuplicateUuid.js --collections=all --batchSize=10000 --before 2021-12-31
  */
 main().catch(reason => {
     console.error(reason);

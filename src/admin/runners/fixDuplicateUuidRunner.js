@@ -197,7 +197,10 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      */
     async processResourceAsync({ uuid, collection, collectionName }) {
         try {
-            if (this.processedUuids.has(uuid)) {
+            if (
+                this.processedUuids.has(collectionName) &&
+                this.processedUuids.get(collectionName).has(uuid)
+            ) {
                 return [];
             }
 
