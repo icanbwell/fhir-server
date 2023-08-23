@@ -109,6 +109,9 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             baseRetriever: baseRetriever,
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
+        /**
+         * @type {Document[]}
+         */
         const relevantDocuments = await retriever.getRelevantDocuments(question);
 
         if (relevantDocuments.length === 0) {
@@ -131,15 +134,6 @@ Standalone question:`;
         const CONDENSE_QUESTION_PROMPT = PromptTemplate.fromTemplate(
             condenseQuestionTemplate
         );
-
-        const currentDate = new Date().toISOString().split('T')[0];
-
-        const answerTemplate = `Answer the question based only on the following context and Reply in HTML with just the body :
-{context}
-Current Date: ${currentDate}
-Question: {question}
-`;
-        const ANSWER_PROMPT = PromptTemplate.fromTemplate(answerTemplate);
 
         const combineDocumentsFn = (docs, separator = '\n\n') => {
             const serializedDocs = docs.map((doc) => doc.pageContent);
@@ -164,6 +158,15 @@ Question: {question}
             new StringOutputParser(),
         ]);
 
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        const answerTemplate = `Answer the question based only on the following context and Reply in HTML with just the body :
+{context}
+Current Date: ${currentDate}
+Question: {question}
+`;
+        const ANSWER_PROMPT = PromptTemplate.fromTemplate(answerTemplate);
+
         const answerChain = RunnableSequence.from([
             {
                 context: retriever.pipe(combineDocumentsFn),
@@ -180,11 +183,29 @@ Question: {question}
             context: combineDocumentsFn(relevantDocuments),
             question: question,
         });
+        return await this.runChainAsync(
+            {
+                fullPrompt,
+                chain: conversationalRetrievalQAChain,
+                question,
+                relevantDocuments
+            }
+        );
+    }
 
+    /**
+     * Runs the chain and returns the response as a ChatGPTResponse
+     * @param {string} fullPrompt for logging
+     * @param {import('langchain/schema/runnable').RunnableSequence} chain
+     * @param {string} question
+     * @param {Document[]} relevantDocuments
+     * @return {Promise<ChatGPTResponse>}
+     */
+    async runChainAsync({fullPrompt, chain, question, relevantDocuments}) {
         const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
 
         try {
-            const res3 = await conversationalRetrievalQAChain.invoke({
+            const res3 = await chain.invoke({
                 question: question,
                 chat_history: [],
             });
@@ -297,6 +318,67 @@ Question: {question}
             }
         }
         return undefined;
+    }
+
+    /**
+     * Classifies a question
+     * @param {string} question
+     * @param {boolean|undefined} [verbose]
+     * @return {Promise<ChatGPTQuestionCategory>}
+     */
+    async classifyQuestionAsync({question, verbose}) {
+        assertIsValid(question, 'question is not set');
+        /**
+         * @type {import('langchain/chat_models').BaseChatModel}
+         */
+        const model = await this.llmFactory.createAsync(
+            {
+                verbose
+            }
+        );
+        const categorizeQuestionTemplate = `Given the following categories and a follow up question, return the category of the question:
+Categories:
+- Question about a patient record
+- Question about how to find records in a FHIR server
+- full text search
+- other
+Question: what is this person's age?
+Category:`;
+        const CATEGORIZE_QUESTION_PROMPT = PromptTemplate.fromTemplate(
+            categorizeQuestionTemplate
+        );
+
+        const categorizeQuestionChain = RunnableSequence.from([
+            {
+                question: (input) => input.question
+            },
+            CATEGORIZE_QUESTION_PROMPT,
+            model
+        ]);
+
+        const fullPrompt = await CATEGORIZE_QUESTION_PROMPT.format({
+            question: question,
+        });
+        const chatGPTResponse = await this.runChainAsync(
+            {
+                fullPrompt: fullPrompt,
+                chain: categorizeQuestionChain,
+                question: question,
+                relevantDocuments: []
+            }
+        );
+        switch (chatGPTResponse.responseText) {
+            case 'Question about a patient record':
+                return 'patientRecord';
+            case 'Question about how to find records in a FHIR server':
+                return 'fhirQuery';
+            case 'full text search':
+                return 'fullTextSearch';
+            case 'Other':
+                return 'other';
+            default:
+                return 'other';
+        }
     }
 }
 

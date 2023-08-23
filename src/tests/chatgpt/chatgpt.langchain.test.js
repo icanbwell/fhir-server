@@ -150,7 +150,8 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
@@ -175,7 +176,8 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
@@ -199,7 +201,8 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
@@ -473,7 +476,8 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             const patientResources = patientBundleResource.entry.map(
                 e => new Document(
@@ -592,7 +596,8 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
@@ -619,7 +624,8 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
             });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
@@ -628,6 +634,36 @@ describe('ChatGPT Tests', () => {
                 uuid: '1',
             });
             console.log(result.responseText);
+        }, 120000);
+        test('Classify questions', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
+            });
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
+                    question: 'what is this person\'s age?'
+                }
+            )).toBe('patientRecord');
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
+                    question: 'find patients who have diabetes and are over 65'
+                }
+            )).toBe('fhirQuery');
         });
     });
 });

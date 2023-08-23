@@ -54,7 +54,7 @@ describe('Person and Patient fake chatgpt Tests', () => {
                 .mockImplementation(
                     async (messages) => {
                         expect(messages.length).toBe(1);
-                        if (messages[0].content.includes('Standalone question')) {
+                        if (messages[0].content.includes('Given the following question and context, extract any part of the context')) {
                             // this one is trying to rephrase the question
                             return 'What is this patient\'s date of birth?';
                         }
@@ -172,7 +172,7 @@ describe('Person and Patient fake chatgpt Tests', () => {
 
             mockedMethod.mockReset();
         });
-        test.skip('Patient with heart disease question', async () => {
+        test('Patient with heart disease question', async () => {
             const mockedMethod = jest.spyOn(fakeLLM, '_call', undefined)
                 .mockImplementation(
                     async (messages) => {
