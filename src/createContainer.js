@@ -410,7 +410,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                chatgptManager: c.chatgptManager
             }
         )
     );
@@ -422,7 +423,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                chatgptManager: c.chatgptManager
             }
         )
     );

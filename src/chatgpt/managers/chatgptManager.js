@@ -137,6 +137,30 @@ class ChatGPTManager {
         }, 0);
         return totalTokens;
     }
+
+    /**
+     * Classifies a question
+     * @param {string} question
+     * @param {boolean|undefined} [verbose]
+     * @return {Promise<ChatGPTQuestionCategory>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async classifyQuestionAsync({question, verbose}) {
+        throw new Error('Not Implemented by subclass');
+    }
+
+    /**
+     * Gets the fhir query
+     * @param {string} question
+     * @param {string} baseUrl baseUrl of the FHIR server
+     * @param {string|undefined} [patientId] restrict query to this patient
+     * @param {verbose} verbose
+     * @return {Promise<string|undefined>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async getFhirQueryAsync({question, baseUrl, patientId, verbose}) {
+        throw new Error('Not Implemented by subclass');
+    }
 }
 
 module.exports = {
