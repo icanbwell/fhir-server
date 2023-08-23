@@ -1,0 +1,54 @@
+{
+  "resourceType": "Condition",
+  "id": "14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2021-12-15T15:30:30+00:00",
+    "source": "/patients",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "B"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "B"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+          "code": "encounter-diagnosis"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "code": "I509",
+        "display": "Heart failure, unspecified"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/patient1"
+  },
+  "encounter": {
+    "reference": "Encounter/8b063166401978436de7cb5dc0e998a50d38b786e99e5f5ea61bb475e1373a9"
+  },
+  "onsetDateTime": "2021-09-08T00:00:00+00:00",
+  "recordedDate": "2023-01-21T08:00:00+00:00"
+}

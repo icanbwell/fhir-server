@@ -1,15 +1,19 @@
 const {groupByLambda} = require('../../utils/list.util');
 const {Parser} = require('@json2csv/plainjs');
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
-const {ChatGPTDocument} = require('../chatgptDocument');
+const {ChatGPTDocument} = require('../structures/chatgptDocument');
+const {ChatGPTMeta} = require('../structures/chatgptMeta');
 
 class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
+     * @param {string} parentResourceType
+     * @param {string} parentUuid
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({bundle}) {
+    // eslint-disable-next-line no-unused-vars
+    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -33,7 +37,7 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
         const documents = [];
         for (
             const [
-                /** @type {string} */ resourceType,
+                /** @type {string} */ resourceType1,
                 /** @type {Resource[]} */ resources1
             ]
             of Object.entries(groupByResourceType)
@@ -43,11 +47,16 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
                 new ChatGPTDocument(
                     {
                         content: csv,
-                        metadata: {
-                            id: '0',
-                            reference: `${resourceType}`,
-                            resourceType: resourceType
-                        }
+                        metadata: new ChatGPTMeta(
+                            {
+                                _id: `${resourceType1}`,
+                                uuid: '0',
+                                reference: `${resourceType1}`,
+                                resourceType: resourceType1,
+                                parentResourceType: parentResourceType,
+                                parentUuid: parentUuid
+                            }
+                        )
                     }
                 )
             );

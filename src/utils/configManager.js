@@ -364,6 +364,135 @@ class ConfigManager {
     get validateSchema() {
         return isTrue(env.VALIDATE_SCHEMA);
     }
+
+    /**
+     * url to open search vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStoreUrl() {
+        return env.OPENSEARCH_VECTORSTORE_URL;
+    }
+
+        /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStoreUserName() {
+        return env.OPENSEARCH_VECTORSTORE_USERNAME;
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStorePassword() {
+        return env.OPENSEARCH_VECTORSTORE_PASSWORD;
+    }
+
+
+    /**
+     * url to open search vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStoreIndexName() {
+        return env.OPENSEARCH_VECTORSTORE_INDEX || 'fhir-summaries';
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreUrl() {
+        return env.MONGO_VECTORSTORE_URL;
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreUserName() {
+        return env.MONGO_VECTORSTORE_USERNAME;
+    }
+
+    /**
+     * url to mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStorePassword() {
+        return env.MONGO_VECTORSTORE_PASSWORD;
+    }
+
+    /**
+     * database for mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreDb() {
+        return env.MONGO_VECTORSTORE_DB;
+    }
+
+    /**
+     * collection for mongo atlas vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreCollection() {
+        return env.MONGO_VECTORSTORE_COLLECTION || 'fhir';
+    }
+
+    /**
+     * url to open search vector store
+     * @returns {string|undefined}
+     */
+    get mongoAtlasVectorStoreIndexName() {
+        return env.MONGO_VECTORSTORE_INDEX || 'default';
+    }
+
+    /**
+     * key to use for embedding in mongo atlas vector store
+     * @return {string}
+     */
+    get mongoAtlasVectorStoreTextKey() {
+        return env.MONGO_VECTORSTORE_TEXT_KEY || 'text';
+    }
+
+    /**
+     * key to use for embedding in mongo atlas vector store
+     * @return {string}
+     */
+    get mongoAtlasVectorStoreEmbeddingKey() {
+        return env.MONGO_VECTORSTORE_EMBEDDING_KEY || 'embedding';
+    }
+
+    /**
+     * returns key to use for OpenAI
+     * @returns {string|undefined}
+     */
+    get openAIApiKey() {
+        return process.env.OPENAI_API_KEY;
+    }
+
+    /**
+     * returns model to use for OpenAI
+     * @returns {string}
+     */
+    get openAIModel() {
+        return env.OPENAI_MODEL || 'gpt-4';
+    }
+
+    /**
+     * returns whether to write fhir summary to vector store
+     * @returns {boolean}
+     */
+    get writeFhirSummaryToVectorStore() {
+        return isTrue(env.WRITE_FHIR_SUMMARY_TO_VECTORSTORE);
+    }
+
+    /**
+     * returns whether to enable memory vector store
+     * @return {boolean}
+     */
+    get enableMemoryVectorStore() {
+        return false; // should only enable in unit tests
+    }
 }
 
 module.exports = {

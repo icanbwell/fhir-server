@@ -99,7 +99,7 @@ class KafkaClient {
                      */
                     if (cause instanceof KafkaJSProtocolError && cause.code === 72) {
                         // reconfigure the client by reordering brokers array
-                        const oldBrokers = this.brokers;
+                        const oldBrokers = this.brokers || [];
                         const reorderedBrokers = oldBrokers.length > 1 ? [...oldBrokers.slice(1), oldBrokers[0]] : [...oldBrokers];
                         await logSystemEventAsync({
                             event: 'kafkaClientRetry',
@@ -128,7 +128,6 @@ class KafkaClient {
      * Helper function for sendMessagesAsync
      * @param {string} topic
      * @param {KafkaClientMessage[]} messages
-     * @param {number} triedTimes number of times already tried
      * @return {Promise<void>}
      */
     async sendMessagesAsyncHelper(topic, messages) {

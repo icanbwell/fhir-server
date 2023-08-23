@@ -30,10 +30,19 @@ class FhirApi {
      * @param {string|undefined} [id]
      * @param {string} [queryString]
      * @param {string[]|undefined} [queryParameters]
+     * @param {string|undefined} [operation]
      * @returns {Promise<{status: number, json: Object}>}
      */
-    async getBundleAsync({resourceType, id, queryString, queryParameters}) {
-        const url = this.getUrl({resourceType, id, queryString, queryParameters});
+    async getBundleAsync({resourceType, id, queryString, queryParameters, operation}) {
+        const url = this.getUrl(
+            {
+                resourceType,
+                id,
+                queryString,
+                queryParameters,
+                operation
+            }
+        );
 
         const response = await fetch(url.toString(),
             {
@@ -57,12 +66,24 @@ class FhirApi {
      * @param {string|undefined} [id]
      * @param {string} [queryString]
      * @param {string[]|undefined} [queryParameters]
+     * @param {string|undefined} [operation]
      * @returns {URL}
      */
-    getUrl({resourceType, id, queryString, queryParameters}) {
+    getUrl(
+        {
+            resourceType,
+            id,
+            queryString,
+            queryParameters,
+            operation
+        }
+    ) {
         let urlString = `/4_0_0/${resourceType}`;
         if (id) {
-            urlString += `/${id}/`;
+            urlString += `/${id}`;
+        }
+        if (operation) {
+            urlString += `/${operation}`;
         }
 
         function stripFirstCharIfQuestionMark(str) {
@@ -83,7 +104,7 @@ class FhirApi {
             });
         }
         // add limit of 10 for results
-        if (!url.searchParams.has('_count')) {
+        if (!id && !url.searchParams.has('_count')) {
             url.searchParams.append('_count', 10);
         }
         return url;

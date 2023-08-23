@@ -16,7 +16,6 @@ const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {ChangeEventProducer} = require('../utils/changeEventProducer');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
@@ -36,6 +35,7 @@ const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutco
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 const {MergeResultEntry} = require('../operations/common/mergeResultEntry');
 const {BulkInsertUpdateEntry} = require('./bulkInsertUpdateEntry');
+const {PostSaveProcessor} = require('./postSaveProcessor');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -50,26 +50,26 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {ChangeEventProducer} changeEventProducer
      * @param {PreSaveManager} preSaveManager
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
+     * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor({
                     resourceManager,
                     postRequestProcessor,
                     mongoCollectionManager,
                     resourceLocatorFactory,
-                    changeEventProducer,
                     preSaveManager,
                     requestSpecificCache,
                     databaseUpdateFactory,
                     resourceMerger,
                     configManager,
-                    mongoFilterGenerator
+                    mongoFilterGenerator,
+                    postSaveProcessor
                 }) {
         super();
 
@@ -96,12 +96,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-
-        /**
-         * @type {ChangeEventProducer}
-         */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
 
         /**
          * @type {PreSaveManager}
@@ -139,6 +133,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.mongoFilterGenerator = mongoFilterGenerator;
         assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     /**
@@ -1158,7 +1158,7 @@ class DatabaseBulkInserter extends EventEmitter {
         if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
             this.postRequestProcessor.add({
                 requestId,
-                fnTask: async () => await this.changeEventProducer.fireEventsAsync({
+                fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
                     requestId,
                     eventType: bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U',
                     resourceType: resourceType,

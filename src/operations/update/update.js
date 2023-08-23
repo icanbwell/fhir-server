@@ -4,7 +4,6 @@ const { FieldMapper } = require('../query/filters/fieldMapper');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -21,6 +20,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
@@ -30,7 +30,7 @@ class UpdateOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
@@ -46,7 +46,7 @@ class UpdateOperation {
     constructor(
         {
             databaseQueryFactory,
-            changeEventProducer,
+            postSaveProcessor,
             auditLogger,
             postRequestProcessor,
             scopesManager,
@@ -66,10 +66,10 @@ class UpdateOperation {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {AuditLogger}
          */
@@ -368,10 +368,10 @@ class UpdateOperation {
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
-                        await this.changeEventProducer.fireEventsAsync({
+                        await this.postSaveProcessor.afterSaveAsync({
                             requestId, eventType: 'U', resourceType, doc
                         });
-                        await this.changeEventProducer.flushAsync({requestId});
+                        await this.postSaveProcessor.flushAsync({requestId});
                     }
                 });
 

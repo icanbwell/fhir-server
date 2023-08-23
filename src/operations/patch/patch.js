@@ -6,7 +6,6 @@ const moment = require('moment-timezone');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -19,12 +18,13 @@ const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentM
 const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 
 class PatchOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
@@ -36,7 +36,7 @@ class PatchOperation {
     constructor(
         {
             databaseQueryFactory,
-            changeEventProducer,
+            postSaveProcessor,
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
@@ -52,10 +52,10 @@ class PatchOperation {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {PostRequestProcessor}
          */
@@ -255,10 +255,10 @@ class PatchOperation {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await this.changeEventProducer.fireEventsAsync({
+                    await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc: resource
                     });
-                    await this.changeEventProducer.flushAsync({requestId});
+                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
 

@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
-import {Accordion, Box, Container, LinearProgress} from '@mui/material';
+import {Accordion, Alert, AlertTitle, Box, Container, LinearProgress} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
-import SearchForm from '../partials/SearchForm';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import ResourceCard from './ResourceCard';
 import FhirApi from '../utils/fhirApi';
+import SearchContainer from '../partials/SearchContainer';
 
 /**
  * IndexPage
@@ -23,7 +23,7 @@ const IndexPage = ({search}) => {
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const {id, resourceType} = useParams();
+    const {id, resourceType, operation} = useParams();
 
     const [searchTabExpanded, setSearchTabExpanded] = useState(false);
     const [resourceCardExpanded, setResourceCardExpanded] = useState(false);
@@ -50,7 +50,22 @@ const IndexPage = ({search}) => {
         if (resources.length === 0) {
             return <Box>No Results Found</Box>;
         }
+        // If narrative is returned then show it at top level
         return <>
+            {/* if we have a single resource*/}
+            {resources && resources.length === 1 && resources[0].text?.div &&
+                <Alert severity="success">
+                    <AlertTitle>Answer</AlertTitle>
+                    <Box dangerouslySetInnerHTML={{__html: resources[0].text?.div}}/>
+                </Alert>
+            }
+            {/*if we have a list of resources*/}
+            {resources && resources.length === 1 && resources[0].resource?.text?.div &&
+                <Alert severity="success">
+                    <AlertTitle>Answer</AlertTitle>
+                    <Box dangerouslySetInnerHTML={{__html: resources[0].resource?.text?.div}}/>
+                </Alert>
+            }
             {resources.map((fullResource, index) => {
                 const resource = fullResource.resource || fullResource;
                 return (
@@ -61,7 +76,7 @@ const IndexPage = ({search}) => {
     }
 
     console.log(`id: ${id}, resourceType: ${resourceType}, queryString: ${queryString},` +
-        ` search: ${search}`);
+        ` search: ${search}, operation: ${operation}`);
 
     useEffect(() => {
         if (id) {
@@ -80,7 +95,8 @@ const IndexPage = ({search}) => {
                     {
                         resourceType,
                         id,
-                        queryString
+                        queryString,
+                        operation,
                     }
                 );
                 if (status === 401) {
@@ -108,7 +124,7 @@ const IndexPage = ({search}) => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, resourceType, search]);
+    }, [id, queryString, resourceType, search, operation]);
 
     /**
      * Handle search event from child component
@@ -141,10 +157,10 @@ const IndexPage = ({search}) => {
                     aria-controls={`searchCollapse`}
                     id={`searchAccordion`}
                 >
-                    <Typography>Advanced Search</Typography>
+                    <Typography variant="h5">Search</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <SearchForm onSearch={handleSearch}></SearchForm>
+                    <SearchContainer onSearch={handleSearch} id={id}></SearchContainer>
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>

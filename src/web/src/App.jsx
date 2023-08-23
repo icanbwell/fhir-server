@@ -38,8 +38,8 @@ function App() {
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
                 <Route path="/4_0_0/:resourceType/_search/*" element={<SearchPage/>}/>
-                <Route path="/4_0_0/:resourceType/:id/*" element={<IndexPage/>}/>
-                <Route path="/4_0_0/:resourceType/*" element={<IndexPage/>}/>
+                <Route path="/4_0_0/:resourceType/:id?/:operation?/*" element={<IndexPage/>}/>
+                <Route path="/4_0_0/:resourceType/:operation?/*" element={<IndexPage/>}/>
             </Routes>
         );
     }

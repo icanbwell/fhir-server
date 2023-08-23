@@ -61,6 +61,15 @@ services:
       DD_TRACE_ENABLED: 'False'
       ENABLE_CONSENTED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
+      OPENSEARCH_VECTORSTORE_URL: 'http://elasticsearch:9200'
+      OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
+      OPENSEARCH_VECTORSTORE_USERNAME: 'admin'
+      OPENSEARCH_VECTORSTORE_PASSWORD: 'admin'
+      WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
+#      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
+#      MONGO_VECTORSTORE_USERNAME: ''
+#      MONGO_VECTORSTORE_PASSWORD: ''
+#      MONGO_VECTORSTORE_DB: 'cl-dev-knowledge'
     ports:
       - '3000:3000'
     volumes:
@@ -70,7 +79,7 @@ services:
     command: yarn run dev
     healthcheck:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
-  
+
   mongo:
     image: mongo:5.0.18
     ports:
@@ -81,14 +90,14 @@ services:
       - mongo_data:/data/db
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
-  
+
   #  mongoclient:
   #    image: imranq2/mongoclient-aws:0.1.8
   #    ports:
   #      - '3010:3000'
   #    environment:
   #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
-  
+
   zookeeper:
     image: 'docker.io/bitnami/zookeeper:3.8.0'
     ports:
@@ -98,7 +107,7 @@ services:
     restart: on-failure
     healthcheck:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
-  
+
   kafka:
     image: 'docker.io/bitnami/kafka:3.2.1'
     ports:
@@ -123,7 +132,7 @@ services:
           'zookeeper:2181',
           '--list',
         ]
-  
+
   kafkaUI:
     image: 'obsidiandynamics/kafdrop:3.30.0'
     ports:
@@ -132,12 +141,12 @@ services:
       - KAFKA_BROKERCONNECT=kafka:9092
       - 'JVM_OPTS=-Xms32M -Xmx64M'
       - SERVER_SERVLET_CONTEXTPATH=/
-  
+
   hapi-fhir-server:
     image: hapiproject/hapi:v6.6.0
     ports:
       - "3001:8080"
-  
+
   elasticsearch:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
     # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
@@ -154,6 +163,7 @@ services:
       - network.host=0.0.0.0 # required if not using the demo security configuration
       #      - opendistro_security.disabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
+      - plugins.security.ssl.http.enabled=false
     ulimits:
       memlock:
         soft: -1
@@ -169,8 +179,6 @@ services:
       - '9600:9600' # required for Performance Analyzer
     healthcheck:
       test: [ "CMD-SHELL", "curl --silent --fail https://admin:admin@localhost:9200/_cluster/health --insecure || exit 1" ]
-
-
 
 volumes:
   mongo_data:

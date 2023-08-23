@@ -1,13 +1,17 @@
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
-const {ChatGPTDocument} = require('../chatgptDocument');
+const {ChatGPTDocument} = require('../structures/chatgptDocument');
+const {ChatGPTMeta} = require('../structures/chatgptMeta');
 
 class FhirToDocumentSplitter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
+     * @param {string} parentResourceType
+     * @param {string} parentUuid
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({bundle}) {
+    // eslint-disable-next-line no-unused-vars
+    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -35,11 +39,14 @@ class FhirToDocumentSplitter extends BaseFhirToDocumentConverter {
                 new ChatGPTDocument(
                     {
                         content: content,
-                        metadata: {
-                            id: resource.id,
+                        metadata: new ChatGPTMeta({
+                            _id: `${resource.resourceType}/${resource.id}`,
+                            uuid: resource._uuid,
                             reference: `${resource.resourceType}/${resource.id}`,
-                            resourceType: resource.resourceType
-                        }
+                            resourceType: resource.resourceType,
+                            parentResourceType: parentResourceType,
+                            parentUuid: parentUuid
+                        })
                     }
                 )
             );

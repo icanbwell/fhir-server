@@ -1,6 +1,6 @@
 import Practitioner from './Practitioner';
 import Patient from './Patient';
-import Account from './AccountPage';
+import Account from './Account';
 import ActivityDefinition from './ActivityDefinition';
 import AllergyIntolerance from './AllergyIntolerance';
 import CareTeam from './CareTeam';
@@ -37,6 +37,7 @@ import Slot from './Slot';
 import Task from './Task';
 import ValueSet from './ValueSet';
 import DomainResource from './DomainResource';
+import OperationOutcome from './OperationOutcome';
 
 function ResourceItem({resourceType, resource, index}) {
     console.log(`ResourceItem: resourceType=${resourceType}`);
@@ -91,6 +92,8 @@ function ResourceItem({resourceType, resource, index}) {
             return <MedicationStatement resource={resource} index={index}/>;
         case 'Observation':
             return <Observation resource={resource} index={index}/>;
+        case 'OperationOutcome':
+            return <OperationOutcome resource={resource} index={index}/>;
         case 'Organization':
             return <Organization resource={resource} index={index}/>;
         case 'OrganizationAffiliation':
