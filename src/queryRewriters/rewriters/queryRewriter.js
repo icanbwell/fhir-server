@@ -1,5 +1,5 @@
 /**
- * Abstract base class for an enrichment provider.  Inherit from this to create a new enrichment provider
+ * Abstract base class for a query rewriter.  Inherit from this to create a new enrichment provider
  */
 class QueryRewriter {
     /**

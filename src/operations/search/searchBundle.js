@@ -16,7 +16,6 @@ const {ConfigManager} = require('../../utils/configManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {ChatGPTManager} = require('../../chatgpt/managers/chatgptManager');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchBundleOperation {
@@ -30,7 +29,6 @@ class SearchBundleOperation {
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {ChatGPTManager} chatgptManager
      */
     constructor(
         {
@@ -41,8 +39,7 @@ class SearchBundleOperation {
             scopesValidator,
             bundleManager,
             configManager,
-            databaseAttachmentManager,
-            chatgptManager
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -91,12 +88,6 @@ class SearchBundleOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {ChatGPTManager}
-         */
-        this.chatgptManager = chatgptManager;
-        assertTypeEquals(chatgptManager, ChatGPTManager);
     }
 
     /**
@@ -163,7 +154,7 @@ class SearchBundleOperation {
          */
         const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
-        const {/** @type {string} **/base_version, _question, _debug} = parsedArgs;
+        const {/** @type {string} **/base_version} = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -173,27 +164,6 @@ class SearchBundleOperation {
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
             this.searchManager.validateAuditEventQueryParameters(parsedArgs);
-        }
-
-        if (_question) {
-            // classify the question first to see what type of question it is
-            /**
-             * @type {ChatGPTQuestionCategory}
-             */
-            const questionCategory = await this.chatgptManager.classifyQuestionAsync(
-                {
-                    question: _question,
-                    verbose: _debug
-                }
-            );
-            switch (questionCategory) {
-                case 'patientRecord':
-                    break;
-                case 'fhirQuery':
-                    break;
-                case 'fullTextSearch':
-                    break;
-            }
         }
 
         try {

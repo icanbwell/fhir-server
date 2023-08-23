@@ -102,6 +102,7 @@ const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorS
 const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
 const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
+const {ChatGPTQueryRewriter} = require('./queryRewriters/rewriters/chatgptQueryRewriter');
 
 /**
  * Creates a container and sets up all the services
@@ -279,7 +280,15 @@ const createContainer = function () {
         queryRewriters: [
             new PatientProxyQueryRewriter({
                 personToPatientIdsExpander: c.personToPatientIdsExpander
-            })
+            }),
+            new ChatGPTQueryRewriter(
+                {
+                    r4ArgsParser: c.r4ArgsParser,
+                    chatgptManager: c.chatgptManager,
+                    configManager: c.configManager
+                }
+            )
+
         ]
     }));
 
@@ -410,8 +419,7 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager,
-                chatgptManager: c.chatgptManager
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -423,8 +431,7 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
-                configManager: c.configManager,
-                chatgptManager: c.chatgptManager
+                configManager: c.configManager
             }
         )
     );
