@@ -4,6 +4,7 @@ const {ChatGPTManager} = require('../../chatgpt/managers/chatgptManager');
 const {ConfigManager} = require('../../utils/configManager');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 const Narrative = require('../../fhir/classes/4_0_0/complex_types/narrative');
+const {RethrownError} = require('../../utils/rethrownError');
 
 class ChatGptEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -45,7 +46,17 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
         const {_debug, _explain, _question: question} = parsedArgs;
         if (question) {
             for (const resource of resources.filter(r => r.resourceType === 'Patient')) {
-                await this.updateResourceWithAnswerAsync({resource, question, _debug, _explain});
+                try {
+                    await this.updateResourceWithAnswerAsync({resource, question, _debug, _explain});
+                } catch (e) {
+                    throw new RethrownError(
+                        {
+                            message: `ChatGPTEnrichmentProvider: ${e.message}`,
+                            error: e,
+                            resource: resource
+                        }
+                    );
+                }
             }
         }
         return resources;

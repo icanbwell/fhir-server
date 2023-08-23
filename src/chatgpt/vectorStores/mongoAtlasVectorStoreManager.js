@@ -72,10 +72,24 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * @returns {function(*): boolean| import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}
      */
     getFilter(filter) {
+        // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
         return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}*/ {
-            preFilter: {
-                parentResourceType: filter.resourceType,
-                parentUuid: filter.uuid
+            compound: {
+                should: [
+                    {
+                        phrase: {
+                            path: 'parentResourceType',
+                            query: filter.resourceType
+                        }
+                    },
+                    {
+                        phrase: {
+                            path: 'parentUuid',
+                            query: filter.uuid
+                        }
+                    }
+
+                ]
             }
         };
     }
@@ -87,7 +101,10 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      */
     asRetriever({filter}) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
-        return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
+        return this.vectorStore.asRetriever({
+                filter: this.getFilter(filter),
+            }
+        );
     }
 }
 
