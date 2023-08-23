@@ -285,7 +285,8 @@ const createContainer = function () {
                 {
                     r4ArgsParser: c.r4ArgsParser,
                     chatgptManager: c.chatgptManager,
-                    configManager: c.configManager
+                    configManager: c.configManager,
+                    vectorStoreFactory: c.vectorStoreFactory
                 }
             )
 

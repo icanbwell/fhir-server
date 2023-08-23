@@ -3,8 +3,8 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ChatGPTManager} = require('../../chatgpt/managers/chatgptManager');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
 const {ConfigManager} = require('../../utils/configManager');
-const {BaseVectorStoreManager} = require('../../chatgpt/vectorStores/baseVectorStoreManager');
 const {VectorStoreFilter} = require('../../chatgpt/vectorStores/vectorStoreFilter');
+const {VectorStoreFactory} = require('../../chatgpt/vectorStores/vectorStoreFactory');
 
 /**
  * @classdesc if _question is present in parameter then this rewrites the query using ChatGPT
@@ -15,14 +15,14 @@ class ChatGPTQueryRewriter extends QueryRewriter {
      * @param {ChatGPTManager} chatgptManager
      * @param {R4ArgsParser} r4ArgsParser
      * @param {ConfigManager} configManager
-     * @param {BaseVectorStoreManager} vectorStoreManager
+     * @param {VectorStoreFactory} vectorStoreFactory
      */
     constructor(
         {
             chatgptManager,
             r4ArgsParser,
             configManager,
-            vectorStoreManager
+            vectorStoreFactory
         }
     ) {
         super();
@@ -46,10 +46,10 @@ class ChatGPTQueryRewriter extends QueryRewriter {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {BaseVectorStoreManager}
+         * @type {VectorStoreFactory}
          */
-        this.vectorStoreManager = vectorStoreManager;
-        assertTypeEquals(vectorStoreManager, BaseVectorStoreManager);
+        this.vectorStoreFactory = vectorStoreFactory;
+        assertTypeEquals(vectorStoreFactory, VectorStoreFactory);
     }
 
     /**
@@ -87,6 +87,7 @@ class ChatGPTQueryRewriter extends QueryRewriter {
                             _question: _question,
                             _debug: _debug,
                             resourceType: resourceType,
+                            parsedArgsOriginal: parsedArgs
                         }
                     );
                 default:
@@ -124,22 +125,29 @@ class ChatGPTQueryRewriter extends QueryRewriter {
          * @type {ParsedArgs}
          */
         const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
-        // see if any query rewriters want to rewrite the args
         return parsedArgs;
     }
 
     /**
      * Gets new parsed args from question
      * @param {string} _question
+     * @param {ParsedArgs} parsedArgsOriginal
      * @param {boolean|undefined} _debug
      * @param {string} resourceType
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsForFullTextSearchAsync({_question, _debug, resourceType}) {
+    async getParsedArgsForFullTextSearchAsync({_question, parsedArgsOriginal, _debug, resourceType}) {
+        /**
+         * @type {BaseVectorStoreManager|undefined}
+         */
+        const vectorStoreManager = await this.vectorStoreFactory.createVectorStoreAsync();
+        if (!vectorStoreManager) {
+            return parsedArgsOriginal;
+        }
         /**
          * @type {ChatGPTDocument[]}
          */
-        const documents = await this.vectorStoreManager.searchAsync(
+        const documents = await vectorStoreManager.searchAsync(
             {
                 filter: new VectorStoreFilter({
                     resourceType: resourceType
@@ -155,7 +163,6 @@ class ChatGPTQueryRewriter extends QueryRewriter {
          * @type {ParsedArgs}
          */
         const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
-        // see if any query rewriters want to rewrite the args
         return parsedArgs;
 
     }
