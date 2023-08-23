@@ -111,7 +111,8 @@ class PatchOperation {
             requestId,
             method,
             body: patchContent,
-            /** @type {import('content-type').ContentType} */ contentTypeFromHeader
+            /** @type {import('content-type').ContentType} */ contentTypeFromHeader,
+            /**@type {string} */ userRequestId
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -235,7 +236,8 @@ class PatchOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {

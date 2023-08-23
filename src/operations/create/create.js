@@ -132,7 +132,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method} = requestInfo;
+        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method, /**@type {string} */ userRequestId } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -249,7 +249,7 @@ class CreateOperation {
                         operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
                     }
                 );
-                await this.auditLogger.flushAsync({requestId, currentDate, method});
+                await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
@@ -264,7 +264,8 @@ class CreateOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
 

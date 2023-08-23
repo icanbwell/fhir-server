@@ -155,7 +155,8 @@ class UpdateOperation {
             path,
             body, /** @type {string|null} */
             requestId, /** @type {string} */
-            method
+            method,
+            /**@type {string} */ userRequestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -320,7 +321,8 @@ class UpdateOperation {
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
                         requestId, currentDate, base_version: base_version,
-                        method
+                        method,
+                        userRequestId,
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -344,7 +346,7 @@ class UpdateOperation {
                             ids: [resource_incoming['id']]
                         }
                     );
-                    await this.auditLogger.flushAsync({requestId, currentDate, method});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
                 }
 
                 // changing the attachment._file_id to attachment.data for response

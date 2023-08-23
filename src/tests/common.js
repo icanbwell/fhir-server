@@ -422,13 +422,17 @@ module.exports.getRequestId = (resp) => {
 
 /**
  * @description Mocks the get method of express-http-context to override requestId and userRequestId
+ * @param {{systemGeneratedRequestId: string|undefined; userRequestId: string|undefined}} opts
  * @returns {string}
  */
-module.exports.mockHttpContext = () => {
+module.exports.mockHttpContext = ({
+    systemGeneratedRequestId,
+    userRequestId
+} = {}) => {
     jest.spyOn(httpContext, 'get');
     const values = {
-        'systemGeneratedRequestId': '12345678',
-        'userRequestId': '1234'
+        'systemGeneratedRequestId': systemGeneratedRequestId || '12345678',
+        'userRequestId': userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
         // eslint-disable-next-line security/detect-object-injection

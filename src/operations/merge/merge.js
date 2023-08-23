@@ -265,7 +265,8 @@ class MergeOperation {
                 {
                     requestId, currentDate,
                     base_version,
-                    method
+                    method,
+                    userRequestId,
                 });
 
             // flush any event handlers
