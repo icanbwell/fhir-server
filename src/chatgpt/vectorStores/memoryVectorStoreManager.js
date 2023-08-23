@@ -63,8 +63,17 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
      */
     getFilter(filter) {
-        return (document) => (document.metadata.resourceType === filter.resourceType && document.metadata.uuid === filter.uuid) ||
-            (document.metadata.parentResourceType === filter.resourceType && document.metadata.parentUuid === filter.uuid);
+        if (filter.resourceType && filter.uuid) {
+            return document => (document.metadata.resourceType === filter.resourceType && document.metadata.uuid === filter.uuid);
+        }
+        if (filter.resourceType) {
+            return document => (document.metadata.resourceType === filter.resourceType);
+        }
+        if (filter.parentResourceType && filter.parentUuid) {
+            return document => (document.metadata.parentResourceType === filter.parentResourceType &&
+                document.metadata.parentUuid === filter.parentUuid);
+        }
+        throw new Error('Either resourceType, uuid or parentResourceType+parentUuid must be set');
     }
 
     /**

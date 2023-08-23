@@ -3,6 +3,8 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ChatGPTManager} = require('../../chatgpt/managers/chatgptManager');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
 const {ConfigManager} = require('../../utils/configManager');
+const {BaseVectorStoreManager} = require('../../chatgpt/vectorStores/baseVectorStoreManager');
+const {VectorStoreFilter} = require('../../chatgpt/vectorStores/vectorStoreFilter');
 
 /**
  * @classdesc if _question is present in parameter then this rewrites the query using ChatGPT
@@ -13,12 +15,14 @@ class ChatGPTQueryRewriter extends QueryRewriter {
      * @param {ChatGPTManager} chatgptManager
      * @param {R4ArgsParser} r4ArgsParser
      * @param {ConfigManager} configManager
+     * @param {BaseVectorStoreManager} vectorStoreManager
      */
     constructor(
         {
             chatgptManager,
             r4ArgsParser,
-            configManager
+            configManager,
+            vectorStoreManager
         }
     ) {
         super();
@@ -40,6 +44,12 @@ class ChatGPTQueryRewriter extends QueryRewriter {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BaseVectorStoreManager}
+         */
+        this.vectorStoreManager = vectorStoreManager;
+        assertTypeEquals(vectorStoreManager, BaseVectorStoreManager);
     }
 
     /**
@@ -52,14 +62,36 @@ class ChatGPTQueryRewriter extends QueryRewriter {
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         const {_question, _debug} = parsedArgs;
         if (_question && this.configManager.enableChatGptRewriter) {
-            return await this.getParsedArgsFromQuestionAsync(
+            /**
+             * @type {ChatGPTQuestionCategory}
+             */
+            const questionCategory = await this.chatgptManager.classifyQuestionAsync(
                 {
-                    _question: _question,
-                    _debug: _debug,
-                    resourceType: resourceType,
-                    base_version: base_version
+                    question: _question,
+                    verbose: _debug
                 }
             );
+            switch (questionCategory) {
+                case 'fhirQuery':
+                    return await this.getParsedArgsForFhirQueryAsync(
+                        {
+                            _question: _question,
+                            _debug: _debug,
+                            resourceType: resourceType,
+                            base_version: base_version
+                        }
+                    );
+                case 'fullTextSearch':
+                    return await this.getParsedArgsForFullTextSearchAsync(
+                        {
+                            _question: _question,
+                            _debug: _debug,
+                            resourceType: resourceType,
+                        }
+                    );
+                default:
+                    return super.rewriteArgsAsync({base_version, parsedArgs, resourceType});
+            }
         } else {
             return super.rewriteArgsAsync({base_version, parsedArgs, resourceType});
         }
@@ -73,7 +105,7 @@ class ChatGPTQueryRewriter extends QueryRewriter {
      * @param {string} base_version
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsFromQuestionAsync({_question, _debug, resourceType, base_version}) {
+    async getParsedArgsForFhirQueryAsync({_question, _debug, resourceType, base_version}) {
         const result = await this.chatgptManager.getFhirQueryAsync(
             {
                 question: _question,
@@ -96,6 +128,37 @@ class ChatGPTQueryRewriter extends QueryRewriter {
         return parsedArgs;
     }
 
+    /**
+     * Gets new parsed args from question
+     * @param {string} _question
+     * @param {boolean|undefined} _debug
+     * @param {string} resourceType
+     * @return {Promise<ParsedArgs>}
+     */
+    async getParsedArgsForFullTextSearchAsync({_question, _debug, resourceType}) {
+        /**
+         * @type {ChatGPTDocument[]}
+         */
+        const documents = await this.vectorStoreManager.searchAsync(
+            {
+                filter: new VectorStoreFilter({
+                    resourceType: resourceType
+                }),
+                text: _question,
+                limit: 10
+            }
+        );
+        // get the ids out
+        const uuids = documents.map(doc => doc.metadata.uuid);
+        const args = `id=${uuids.join(',')}`;
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        // see if any query rewriters want to rewrite the args
+        return parsedArgs;
+
+    }
 }
 
 module.exports = {

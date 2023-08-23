@@ -83,10 +83,24 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      */
     getFilter(filter) {
         // OpenSearchFilter is just of type object
-        return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
-            parentResourceType: filter.resourceType,
-            parentUuid: filter.uuid
-        };
+        if (filter.resourceType && filter.uuid) {
+            return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
+                resourceType: filter.resourceType,
+                uuid: filter.uuid
+            };
+        }
+        if (filter.resourceType) {
+            return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
+                resourceType: filter.resourceType,
+            };
+        }
+        if (filter.parentResourceType && filter.parentUuid) {
+            return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
+                parentResourceType: filter.parentResourceType,
+                parentUuid: filter.parentUuid
+            };
+        }
+        throw new Error('Either resourceType, uuid or parentResourceType+parentUuid must be set');
     }
 
     /**

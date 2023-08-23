@@ -3,11 +3,15 @@ class VectorStoreFilter {
      * constructor
      * @param {string|undefined} [resourceType]
      * @param {string|undefined} [uuid]
+     * @param {string|undefined} [parentResourceType]
+     * @param {string|undefined} [parentUuid]
      */
     constructor(
         {
             resourceType,
-            uuid
+            uuid,
+            parentResourceType,
+            parentUuid
         }
     ) {
         /**
@@ -18,6 +22,15 @@ class VectorStoreFilter {
          * @type {string|undefined}
          */
         this.uuid = uuid;
+
+        /**
+         * @type {string|undefined}
+         */
+        this.parentResourceType = parentResourceType;
+        /**
+         * @type {string|undefined}
+         */
+        this.parentUuid = parentUuid;
     }
 }
 

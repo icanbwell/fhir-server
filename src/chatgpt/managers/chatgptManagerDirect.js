@@ -41,8 +41,8 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const retriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {
-                        resourceType: resourceType,
-                        uuid: uuid
+                        parentResourceType: resourceType,
+                        parentUuid: uuid
                     }
                 )
             }

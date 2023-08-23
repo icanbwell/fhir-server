@@ -94,8 +94,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const baseRetriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {
-                        resourceType: resourceType,
-                        uuid: uuid
+                        parentResourceType: resourceType,
+                        parentUuid: uuid
                     }
                 )
             }

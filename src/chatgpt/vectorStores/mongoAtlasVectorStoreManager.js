@@ -103,26 +103,60 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * @returns {function(*): boolean| import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}
      */
     getFilter(filter) {
-        // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
-        return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}*/ {
-            compound: {
-                should: [
-                    {
-                        phrase: {
-                            path: 'parentResourceType',
-                            query: filter.resourceType
+        if (filter.resourceType && filter.uuid) {
+            // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
+            return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}*/ {
+                compound: {
+                    should: [
+                        {
+                            phrase: {
+                                path: 'resourceType',
+                                query: filter.resourceType
+                            }
+                        },
+                        {
+                            phrase: {
+                                path: 'uuid',
+                                query: filter.uuid
+                            }
                         }
-                    },
-                    {
-                        phrase: {
-                            path: 'parentUuid',
-                            query: filter.uuid
-                        }
-                    }
 
-                ]
-            }
-        };
+                    ]
+                }
+            };
+        }
+        if (filter.resourceType) {
+            // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
+            return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}*/ {
+                phrase: {
+                    path: 'resourceType',
+                    query: filter.resourceType
+                }
+            };
+        }
+        if (filter.parentResourceType && filter.parentUuid) {
+            // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
+            return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}*/ {
+                compound: {
+                    should: [
+                        {
+                            phrase: {
+                                path: 'parentResourceType',
+                                query: filter.parentResourceType
+                            }
+                        },
+                        {
+                            phrase: {
+                                path: 'parentUuid',
+                                query: filter.parentUuid
+                            }
+                        }
+
+                    ]
+                }
+            };
+        }
+        throw new Error('Either resourceType, uuid or parentResourceType+parentUuid must be set');
     }
 
     /**
