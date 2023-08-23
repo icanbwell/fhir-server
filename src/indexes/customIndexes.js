@@ -200,7 +200,8 @@ module.exports = {
                     '_uuid': 1,
                 },
                 options: {
-                    name: 'uuid'
+                    name: 'uuid',
+                    unique: true
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
