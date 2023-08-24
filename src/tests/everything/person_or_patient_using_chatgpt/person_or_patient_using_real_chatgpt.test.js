@@ -16,6 +16,7 @@ const condition2Resource = require('./fixtures/Condition/condition2.json');
 
 const expectedPatientBundle = require('./fixtures/expected/expected_Patient_bundle.json');
 const expectedPatient = require('./fixtures/expected/expected_Patient.json');
+const expectedPatientsFhirQuery = require('./fixtures/expected/expected_Patient_fhirQuery.json');
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
@@ -34,6 +35,10 @@ class MockConfigManager extends ConfigManager {
     }
 
     get enableChatGptRewriter() {
+        return true;
+    }
+
+    get enableReturnBundle() {
         return true;
     }
 }
@@ -394,12 +399,12 @@ describe('Person and Patient real chatgpt Tests', () => {
             await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
 
             // ACT & ASSERT
-            const urlEncodedQuestion2 = encodeURIComponent('find patients over 65 and are women');
+            const urlEncodedQuestion2 = encodeURIComponent('find patients over 20 and are women');
             resp = await request
                 .get(`/4_0_0/Patient/?_question=${urlEncodedQuestion2}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources, (resource) => {
+            expect(resp).toHaveResponse(expectedPatientsFhirQuery, (resource) => {
                 const currentDate = new Date().toISOString().split('T')[0];
 
                 if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {

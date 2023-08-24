@@ -78,7 +78,8 @@ class ChatGPTQueryRewriter extends QueryRewriter {
                             _question: _question,
                             _debug: _debug,
                             resourceType: resourceType,
-                            base_version: base_version
+                            base_version: base_version,
+                            parsedArgsOriginal: parsedArgs
                         }
                     );
                 case 'fullTextSearch':
@@ -101,12 +102,13 @@ class ChatGPTQueryRewriter extends QueryRewriter {
     /**
      * Gets new parsed args from question
      * @param {string} _question
+     * @param {ParsedArgs} parsedArgsOriginal
      * @param {boolean|undefined} _debug
      * @param {string} resourceType
      * @param {string} base_version
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsForFhirQueryAsync({_question, _debug, resourceType, base_version}) {
+    async getParsedArgsForFhirQueryAsync({_question, parsedArgsOriginal, _debug, resourceType, base_version}) {
         const result = await this.chatgptManager.getFhirQueryAsync(
             {
                 question: _question,
@@ -117,14 +119,13 @@ class ChatGPTQueryRewriter extends QueryRewriter {
         // parse url into query string parameters
         const url = new URL(result);
         /**
-         * ≈
-         * @type {string[]}
+         * @type {Object}
          */
-        const args = {};
+        const args = parsedArgsOriginal.getRawArgs();
+        delete args._question; // we already handled the question
         for (const [key, value] of url.searchParams) {
             args[`${key}`] = value;
         }
-        args['base_version'] = base_version;
         /**
          * @type {ParsedArgs}
          */
@@ -162,7 +163,12 @@ class ChatGPTQueryRewriter extends QueryRewriter {
         );
         // get the ids out
         const uuids = documents.map(doc => doc.metadata.uuid);
-        const args = `id=${uuids.join(',')}`;
+        /**
+         * @type {Object}
+         */
+        const args = parsedArgsOriginal.getRawArgs();
+        delete args._question; // we already handled the question
+        args['id'] = `${uuids.join(',')}`;
         /**
          * @type {ParsedArgs}
          */
