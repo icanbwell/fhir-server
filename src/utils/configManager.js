@@ -493,6 +493,14 @@ class ConfigManager {
     get enableMemoryVectorStore() {
         return false; // should only enable in unit tests
     }
+
+    /**
+     * returns the size of payload that should be acceptable
+     * @returns {string}
+     */
+    get payloadLimit() {
+        return env.PAYLOAD_LIMIT || '50mb';
+    }
 }
 
 module.exports = {
