@@ -725,9 +725,14 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
 
-    container.register('fhirToDocumentConverter', () => new FhirToSummaryDocumentConverter(
+    container.register('fhirToDocumentConverter', (c) => new FhirToSummaryDocumentConverter(
         {
-            resourceConverterFactory: new ResourceConverterFactory()
+            resourceConverterFactory: new ResourceConverterFactory(
+                {
+                    mongoDatabaseManager: c.mongoDatabaseManager,
+                    databaseAttachmentManager: c.databaseAttachmentManager
+                }
+            )
         }
     ));
 

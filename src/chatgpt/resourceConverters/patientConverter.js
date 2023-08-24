@@ -6,7 +6,7 @@ class PatientConverter extends BaseConverter {
      * @param {Resource} resource
      * @returns {string}
      */
-    convert({resource}) {
+    async convertAsync({resource}) {
         const patient = /** @type {Patient} */ resource;
         const {
             id,

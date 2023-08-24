@@ -14,6 +14,8 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 const condition1Resource = require('./fixtures/Condition/condition1.json');
 const condition2Resource = require('./fixtures/Condition/condition2.json');
 
+const documentReference1Resource = require('./fixtures/DocumentReference/documentReference1.json');
+
 const expectedPatientBundle = require('./fixtures/expected/expected_Patient_bundle.json');
 const expectedPatient = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientClinicalSummary = require('./fixtures/expected/expected_Patient_clinical_summary.json');
@@ -289,6 +291,150 @@ describe('Person and Patient real chatgpt Tests', () => {
 
             const urlEncodedQuestion = encodeURIComponent(
                 'Write a clinical summary for this patient to get a second opinion'
+            );
+
+            resp = await request
+                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion}&_debug=1`)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientClinicalSummary, (resource) => {
+                const currentDate = new Date().toISOString().split('T')[0];
+
+                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
+                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
+                    if (extension && extension.valueString) {
+                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-22');
+                    }
+                }
+                return resource;
+            });
+
+
+            // ACT & ASSERT
+            // First get patient everything
+            resp = await request
+                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
+                if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
+                    // handle the slight variations that ChatGPT produces
+                    resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
+                }
+                const currentDate = new Date().toISOString().split('T')[0];
+                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
+                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
+                    if (extension && extension.valueString) {
+                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-22');
+                    }
+                }
+                return resource;
+            });
+
+        }, 120000);
+        test('Patient with insurance plan', async () => {
+            console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+
+            const container = getTestContainer();
+            /**
+             * @type {MemoryVectorStoreManager}
+             */
+            const memoryVectorStoreManager = container.memoryVectorStoreManager;
+            await memoryVectorStoreManager.clearAsync();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Condition/1/$merge?validate=true')
+                .send(condition1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Condition/2/$merge?validate=true')
+                .send(condition2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/DocumentReference/123456/$merge?validate=true')
+                .send(documentReference1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const testContainer = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = testContainer.postRequestProcessor;
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+
+            const urlEncodedQuestion = encodeURIComponent(
+                'How much does dental insurance cost for this patient?'
             );
 
             resp = await request

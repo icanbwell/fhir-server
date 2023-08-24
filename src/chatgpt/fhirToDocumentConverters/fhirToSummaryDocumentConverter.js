@@ -46,7 +46,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                         resource
                     }
                 );
-                const content = resourceConverter ? resourceConverter.convert({resource}) : JSON.stringify(resource);
+                const content = resourceConverter ? await resourceConverter.convertAsync({resource}) : JSON.stringify(resource);
                 documents.push(
                     new ChatGPTDocument(
                         {

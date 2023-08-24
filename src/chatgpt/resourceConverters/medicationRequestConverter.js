@@ -2,7 +2,7 @@ const {BaseConverter} = require('./baseConverter');
 
 
 class MedicationRequestConverter extends BaseConverter {
-    convert({resource}) {
+    async convertAsync({resource}) {
         const {
             id,
             meta: {lastUpdated, source},

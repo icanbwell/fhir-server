@@ -37,9 +37,9 @@ class DocumentReference extends Resource {
      * @param {Reference|undefined} [authenticator],
      * @param {Reference|undefined} [custodian],
      * @param {DocumentReferenceRelatesTo[]|undefined} [relatesTo],
-     * @param {String|undefined} [description],
-     * @param {CodeableConcept[]|undefined} [securityLabel],
-     * @param {DocumentReferenceContent[]} content,
+     * @param {String|undefined} [description]
+     * @param {CodeableConcept[]|undefined} [securityLabel]
+     * @param {DocumentReferenceContent[]} content
      * @param {DocumentReferenceContext|undefined} [context],
      * @param {Object|undefined} [_access]
      * @param {string|undefined} [_sourceAssigningAuthority]
@@ -243,7 +243,7 @@ class DocumentReference extends Resource {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).

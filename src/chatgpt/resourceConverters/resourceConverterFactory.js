@@ -8,13 +8,20 @@ const {MedicationRequestConverter} = require('./medicationRequestConverter');
 const {ObservationConverter} = require('./observationConverter');
 const {PatientConverter} = require('./patientConverter');
 const {ProcedureConverter} = require('./procedureConverter');
-const {AttachmentConverter} = require('./attachmentConverter');
+const {DocumentReferenceConverter} = require('./documentReferenceConverter');
 
 class ResourceConverterFactory {
-    constructor() {
-        /**
-         * @type {{CarePlan: BaseConverter}}
-         */
+    /**
+     * constructor
+     * @param {MongoDatabaseManager} mongoDatabaseManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     */
+    constructor(
+        {
+            mongoDatabaseManager,
+            databaseAttachmentManager
+        }
+    ) {
         this.converterMapping = {
             'CarePlan': new CarePlanConverter(),
             'Condition': new ConditionConverter(),
@@ -26,7 +33,12 @@ class ResourceConverterFactory {
             'Observation': new ObservationConverter(),
             'Patient': new PatientConverter(),
             'Procedure': new ProcedureConverter(),
-            'Attachment': new AttachmentConverter(),
+            'DocumentReference': new DocumentReferenceConverter(
+                {
+                    mongoDatabaseManager,
+                    databaseAttachmentManager
+                }
+            ),
         };
     }
 

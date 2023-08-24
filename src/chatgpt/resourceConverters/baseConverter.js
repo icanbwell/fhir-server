@@ -2,10 +2,10 @@ class BaseConverter {
     /**
      * converts a FHIR resource to summary text
      * @param {Resource} resource
-     * @returns {string}
+     * @returns {Promise<string>}
      */
     // eslint-disable-next-line no-unused-vars
-    convert({resource}) {
+    async convertAsync({resource}) {
         throw new Error('Not Implemented by subclass');
     }
 

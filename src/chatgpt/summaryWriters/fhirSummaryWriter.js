@@ -138,11 +138,6 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                         }
                     }
                 }
-                // TODO: temporary hack for testing.  Proper solution is to walk this through DocumentReference
-                if (resourceType === 'Attachment' && doc._uuid === '') {
-                    parentResourceType = 'Patient';
-                    parentUuid = '';
-                }
                 const bundle = new Bundle({
                     entry: [
                         new BundleEntry({

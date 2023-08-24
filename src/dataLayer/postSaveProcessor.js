@@ -33,14 +33,15 @@ class PostSaveProcessor {
      * @return {Promise<void>}
      */
     async afterSaveAsync({requestId, eventType, resourceType, doc}) {
-        try {
-            for (const handler of this.handlers) {
+        for (const handler of this.handlers) {
+            try {
                 await handler.afterSaveAsync({requestId, eventType, resourceType, doc});
+            } catch (e) {
+                throw new RethrownError({
+                    message: `Error in afterSaveAsync(): ${e.message}`,
+                    error: e
+                });
             }
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in afterSaveAsync(): ', error: e
-            });
         }
     }
 

@@ -207,7 +207,7 @@ class DatabaseAttachmentManager {
      * changes the attachment._file_id to attachment.data if attachment._file_id is present
      * @param {Resource} resource
      * @param {import('mongodb').GridFSBucket} gridFSBucket
-     * @returns {Promise<Resource>}
+     * @returns {Promise<Resource|Element>}
     */
     async convertFileIdToData(resource, gridFSBucket) {
         return new Promise((resolve, reject) => {
