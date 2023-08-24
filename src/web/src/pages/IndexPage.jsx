@@ -150,7 +150,7 @@ const IndexPage = ({search}) => {
 
     return (
         <Container maxWidth={false}>
-            <Header resources={resources}/>
+            <Header resources={resources} meta={bundle.meta}/>
             <Accordion expanded={searchTabExpanded} onChange={handleExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}

@@ -4,6 +4,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
 import {Link} from 'react-router-dom';
 import BwellIcon from '../dist/images/bwell.png';
+import CloseIcon from '@mui/icons-material/Close';
 
 class Header extends React.Component {
     constructor(props) {
@@ -12,7 +13,19 @@ class Header extends React.Component {
             deployEnvironment: 'Your Deploy Environment',
             environment: 'Your Environment',
             resources: [],
+            open: false,
         };
+
+        this.handleClick = this.handleClick.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+    }
+
+    handleClick() {
+        this.setState({open: true});
+    }
+
+    handleClose() {
+        this.setState({open: false});
     }
 
     setCookie(name, value, days) {
@@ -63,7 +76,7 @@ class Header extends React.Component {
                         <Typography variant="h6" style={{flexGrow: 1}}>
                             FHIR Server
                         </Typography>
-                        <IconButton color="inherit" aria-label="information" id="appInfo">
+                        <IconButton color="inherit" aria-label="information" id="appInfo" onClick={this.handleClick}>
                             <InfoIcon/>
                         </IconButton>
                         {environment &&
@@ -73,6 +86,23 @@ class Header extends React.Component {
                         }
                     </Toolbar>
                 </AppBar>
+                {this.state.open && (
+                    <Alert
+                        severity="info"
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                size="small"
+                                onClick={this.handleClose}
+                            >
+                                <CloseIcon fontSize="inherit"/>
+                            </IconButton>
+                        }
+                    >
+                        This is an information alert with an icon.
+                    </Alert>
+                )}
                 <Alert severity="info" action={
                     <Button color="inherit" size="small" onClick={this.switchToOldUI}>
                         Switch to Old UI
