@@ -139,14 +139,18 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory({
+                    mongoDatabaseManager: container.mongoDatabaseManager,
+                    databaseAttachmentManager: container.databaseAttachmentManager
+                })
+            });
+
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -165,14 +169,19 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory(
+                    {
+                        mongoDatabaseManager: container.mongoDatabaseManager,
+                        databaseAttachmentManager: container.databaseAttachmentManager
+                    }
+                )
+            });
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -190,14 +199,18 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
+
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory({
+                    mongoDatabaseManager: container.mongoDatabaseManager,
+                    databaseAttachmentManager: container.databaseAttachmentManager
+                })
+            });
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -465,14 +478,18 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
+
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory({
+                    mongoDatabaseManager: container.mongoDatabaseManager,
+                    databaseAttachmentManager: container.databaseAttachmentManager
+                })
+            });
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -585,14 +602,17 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory({
+                    mongoDatabaseManager: container.mongoDatabaseManager,
+                    databaseAttachmentManager: container.databaseAttachmentManager
+                })
+            });
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -613,14 +633,18 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
+
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory({
+                    mongoDatabaseManager: container.mongoDatabaseManager,
+                    databaseAttachmentManager: container.databaseAttachmentManager
+                })
+            });
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -640,14 +664,19 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory(
+                    {
+                        mongoDatabaseManager: container.mongoDatabaseManager,
+                        databaseAttachmentManager: container.databaseAttachmentManager
+                    }
+                )
+            });
             const chatGPTManager = new ChatGPTLangChainManager({
                 fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
@@ -657,11 +686,6 @@ describe('ChatGPT Tests', () => {
             expect(await chatGPTManager.classifyQuestionAsync(
                 {
                     question: 'what is this person\'s age?'
-                }
-            )).toBe('patientRecord');
-            expect(await chatGPTManager.classifyQuestionAsync(
-                {
-                    question: 'create a clinical summary for this patient'
                 }
             )).toBe('patientRecord');
             expect(await chatGPTManager.classifyQuestionAsync(
@@ -679,6 +703,16 @@ describe('ChatGPT Tests', () => {
                     question: 'How old is my aunt?'
                 }
             )).toBe('other');
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
+                    question: 'How much does dental insurance cost?'
+                }
+            )).toBe('insurance');
+            expect(await chatGPTManager.classifyQuestionAsync(
+                {
+                    question: 'Write a clinical summary to get a second opinion'
+                }
+            )).toBe('summary');
         });
     });
 });

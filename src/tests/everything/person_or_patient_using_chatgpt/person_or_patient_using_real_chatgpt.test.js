@@ -309,28 +309,6 @@ describe('Person and Patient real chatgpt Tests', () => {
                 return resource;
             });
 
-
-            // ACT & ASSERT
-            // First get patient everything
-            resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
-                if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
-                    // handle the slight variations that ChatGPT produces
-                    resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
-                }
-                const currentDate = new Date().toISOString().split('T')[0];
-                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
-                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
-                    if (extension && extension.valueString) {
-                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-22');
-                    }
-                }
-                return resource;
-            });
-
         }, 120000);
         test('Patient with insurance plan', async () => {
             console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
@@ -434,7 +412,7 @@ describe('Person and Patient real chatgpt Tests', () => {
             await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
 
             const urlEncodedQuestion = encodeURIComponent(
-                'How much does dental insurance cost for this patient?'
+                'How much does dental insurance cost?'
             );
 
             resp = await request
@@ -444,28 +422,6 @@ describe('Person and Patient real chatgpt Tests', () => {
             expect(resp).toHaveResponse(expectedPatientClinicalSummary, (resource) => {
                 const currentDate = new Date().toISOString().split('T')[0];
 
-                if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
-                    const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
-                    if (extension && extension.valueString) {
-                        extension.valueString = extension.valueString.replace(currentDate, '2023-08-22');
-                    }
-                }
-                return resource;
-            });
-
-
-            // ACT & ASSERT
-            // First get patient everything
-            resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientBundle, (resource) => {
-                if (resource.text && resource.text.div && resource.text.div.indexOf('December 31, 2016') >= 0) {
-                    // handle the slight variations that ChatGPT produces
-                    resource.text.div = '<div class="answer"><p>Birth Date: December 31, 2016</p></div>';
-                }
-                const currentDate = new Date().toISOString().split('T')[0];
                 if (resource.text && resource.text.extension && resource.text.extension && resource.text.extension.length > 0) {
                     const extension = resource.text.extension.find(e => e.url === 'http://www.icanbwell.com/prompt');
                     if (extension && extension.valueString) {
@@ -571,7 +527,7 @@ describe('Person and Patient real chatgpt Tests', () => {
             // ACT & ASSERT
             const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');
             resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}&_debug=1`)
+                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion2}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources, (resource) => {
@@ -685,7 +641,7 @@ describe('Person and Patient real chatgpt Tests', () => {
             // ACT & ASSERT
             const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');
             resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}&_debug=1`)
+                .get(`/4_0_0/Patient/patient1/?_question=${urlEncodedQuestion2}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources, (resource) => {

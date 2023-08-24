@@ -313,8 +313,10 @@ FHIR url:`;
         const categories = [
             'Question about a single patient record (name: patientRecord)',
             'Question about how to find records in a FHIR server (name: fhirQuery)',
-            'full text search (name: fullTextSearch)',
-            'other (name: other)'
+            'Question about insurance (name: insurance)',
+            'Writing summary (name: summary)',
+            'other question (name: other)',
+            'Not a question (name: fullTextSearch)',
         ];
         const categorizeQuestionTemplate = `Given the following category descriptions and names plus a follow up question, return the category name of the question:
 Categories:
