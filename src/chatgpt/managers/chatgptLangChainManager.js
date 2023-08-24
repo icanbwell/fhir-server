@@ -157,6 +157,8 @@ Standalone question:`;
         const currentDate = new Date().toISOString().split('T')[0];
 
         const answerTemplate = `Answer the question based only on the following context and Reply in HTML with just the body :
+Please provide just the answer concisely.
+Context:
 {context}
 Current Date: ${currentDate}
 Question: {question}
