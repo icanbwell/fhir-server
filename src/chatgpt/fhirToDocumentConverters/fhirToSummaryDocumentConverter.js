@@ -52,9 +52,9 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                         {
                             content: content,
                             metadata: new ChatGPTMeta({
-                                _id: `${resource.resourceType}/${resource.id}`,
+                                _id: `${resource.resourceType}/${resource._uuid}`,
                                 uuid: resource._uuid,
-                                reference: `${resource.resourceType}/${resource.id}`,
+                                reference: `${resource.resourceType}/${resource._uuid}`,
                                 resourceType: resource.resourceType,
                                 parentResourceType: parentResourceType,
                                 parentUuid: parentUuid
