@@ -1,0 +1,60 @@
+{
+  "birthDate": "1997-01-01",
+  "gender": "female",
+  "id": "patient1",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "patient1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "24a5930e-11b4-5525-b482-669174917044"
+    }
+  ],
+  "meta": {
+    "security": [
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://healthsystem1health.org/provider",
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient",
+  "text": {
+    "div": "<div class=\"answer\"><p>The cost of dental insurance for an employee only is $0. For an employee and spouse, it is $10.00. For an employee and children, it is also $10.00. For a family, it is $15.00.</p></div>",
+    "extension": [
+      {
+        "url": "http://www.icanbwell.com/relevantDocument",
+        "valueString": "{\"pageContent\":\"\\\"PREMIUM BENEFIT SUMMARY\\n\\nunder\\n\\n$100,000\\n\\nEmployee Semi Monthly Deductions\\nEmployee\\nOnly\\n\\nEmployee &\\nSpouse\\n\\nEmployee &\\nChildren\\n\\nFamily\\n\\nHDHP Savings Plan\\n\\n$34.88\\n\\n$112.38\\n\\n$89.13\\n\\n$147.25\\n\\nPPO Plan\\n\\n$85.25\\n\\n$170.50\\n\\n$155.00\\n\\n$232.50\\n\\nDental Plan\\n\\n$0\\n\\n$10.00\\n\\n$10.00\\n\\n$15.00\\n\\nVision Plan\\n\\n$0\\n\\n$4.00\\n\\n$3.00\\n\\n$5.00\\n\\nCritical Illness\\nAccident\\n\\nPlease see PayCor for exact cost, chart on page 13\\n$5.28\\n\\n$8.59\\n\\n$11.92\\n\\n$16.27\\n\\nb.well Semi Monthly Contributions\\nEmployee\\nOnly\\n$337.67\\n\\nEmployee &\\nSpouse\\n$744.50\\n\\nEmployee &\\nChildren\\n$600.10\\n\\n$985.32\\n\\nPPO Plan\\n\\n$438.99\\n\\n$1,035.25\\n\\n$814.84\\n\\n$1,361.18\\n\\nDental Plan\\n\\n$16.76\\n\\n$23.32\\n\\n$26.18\\n\\n$41.32\\n\\nVision Plan\\n\\n$3.61\\n\\n$4.42\\n\\n$3.62\\n\\n$5.23\\n\\nHDHP Savings Plan\\n\\nFamily\\n\\nBasic Life & AD&D\\n\\nEmployer Paid, please see PayCor for employer contribution\\n\\nShort Term Disability\\n\\nEmployer Paid, please see PayCor for employer contribution\\n\\nLong Term Disability\\n\\nEmployer Paid, please see PayCor for employer contribution\\n\\nVoluntary Supplemental Benefits & EE Costs\\nVoluntary Life\\n\\nEmployee\\nEmployee &\\nEmployee &\\nFamily\\nOnly\\nSpouse\\nChildren\\nAge Banded Rates, please see Paycor for your deduction\\n\\n5\\n\\n\\fPREMIUM BENEFIT SUMMARY\\n\\nover\\n\\n$100,000\\n\\nEmployee Semi Monthly Deductions\\nEmployee\\nOnly\\n\\nEmployee &\\nSpouse\\n\\nEmployee &\\nChildren\\n\\nFamily\\n\\nHDHP Savings Plan\\n\\n$54.25\\n\\n$143.38\\n\\n$116.25\\n\\n$193.75\\n\\nPPO Plan\\n\\n$100.75\\n\\n$224.75\\n\\n$178.25\\n\\n$294.50\\n\\nDental Plan\\n\\n$0\\n\\n$10.00\\n\\n$10.00\\n\\n$15.00\\n\\nVision Plan\\n\\n$0\\n\\n$4.00\\n\\n$3.00\\n\\n$5.00\\n\\nCritical Illness\\nAccident\\n\\nPlease see PayCor for exact cost, chart on page\",\"metadata\":{\"_id\":\"DocumentReference/184cc0d4-8d89-57e4-b2e6-5721484e1c94\",\"uuid\":\"184cc0d4-8d89-57e4-b2e6-5721484e1c94\",\"resourceType\":\"DocumentReference\",\"parentUuid\":\"24a5930e-11b4-5525-b482-669174917044\",\"parentResourceType\":\"Patient\",\"reference\":\"DocumentReference/184cc0d4-8d89-57e4-b2e6-5721484e1c94\"}}"
+      },
+      {
+        "url": "http://www.icanbwell.com/prompt",
+        "valueString": "\"Answer the question based only on the following context and Reply in HTML with just the body :\\nPlease provide just the answer concisely.\\nContext:\\n\\\"PREMIUM BENEFIT SUMMARY\\n\\nunder\\n\\n$100,000\\n\\nEmployee Semi Monthly Deductions\\nEmployee\\nOnly\\n\\nEmployee &\\nSpouse\\n\\nEmployee &\\nChildren\\n\\nFamily\\n\\nHDHP Savings Plan\\n\\n$34.88\\n\\n$112.38\\n\\n$89.13\\n\\n$147.25\\n\\nPPO Plan\\n\\n$85.25\\n\\n$170.50\\n\\n$155.00\\n\\n$232.50\\n\\nDental Plan\\n\\n$0\\n\\n$10.00\\n\\n$10.00\\n\\n$15.00\\n\\nVision Plan\\n\\n$0\\n\\n$4.00\\n\\n$3.00\\n\\n$5.00\\n\\nCritical Illness\\nAccident\\n\\nPlease see PayCor for exact cost, chart on page 13\\n$5.28\\n\\n$8.59\\n\\n$11.92\\n\\n$16.27\\n\\nb.well Semi Monthly Contributions\\nEmployee\\nOnly\\n$337.67\\n\\nEmployee &\\nSpouse\\n$744.50\\n\\nEmployee &\\nChildren\\n$600.10\\n\\n$985.32\\n\\nPPO Plan\\n\\n$438.99\\n\\n$1,035.25\\n\\n$814.84\\n\\n$1,361.18\\n\\nDental Plan\\n\\n$16.76\\n\\n$23.32\\n\\n$26.18\\n\\n$41.32\\n\\nVision Plan\\n\\n$3.61\\n\\n$4.42\\n\\n$3.62\\n\\n$5.23\\n\\nHDHP Savings Plan\\n\\nFamily\\n\\nBasic Life & AD&D\\n\\nEmployer Paid, please see PayCor for employer contribution\\n\\nShort Term Disability\\n\\nEmployer Paid, please see PayCor for employer contribution\\n\\nLong Term Disability\\n\\nEmployer Paid, please see PayCor for employer contribution\\n\\nVoluntary Supplemental Benefits & EE Costs\\nVoluntary Life\\n\\nEmployee\\nEmployee &\\nEmployee &\\nFamily\\nOnly\\nSpouse\\nChildren\\nAge Banded Rates, please see Paycor for your deduction\\n\\n5\\n\\n\\fPREMIUM BENEFIT SUMMARY\\n\\nover\\n\\n$100,000\\n\\nEmployee Semi Monthly Deductions\\nEmployee\\nOnly\\n\\nEmployee &\\nSpouse\\n\\nEmployee &\\nChildren\\n\\nFamily\\n\\nHDHP Savings Plan\\n\\n$54.25\\n\\n$143.38\\n\\n$116.25\\n\\n$193.75\\n\\nPPO Plan\\n\\n$100.75\\n\\n$224.75\\n\\n$178.25\\n\\n$294.50\\n\\nDental Plan\\n\\n$0\\n\\n$10.00\\n\\n$10.00\\n\\n$15.00\\n\\nVision Plan\\n\\n$0\\n\\n$4.00\\n\\n$3.00\\n\\n$5.00\\n\\nCritical Illness\\nAccident\\n\\nPlease see PayCor for exact cost, chart on page\\nCurrent Date: 2023-08-22\\nQuestion: How much does dental insurance cost?\\n\""
+      }
+    ],
+    "status": "generated"
+  }
+}
