@@ -155,7 +155,7 @@ describe('ChatGPT Tests', () => {
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
-                query: 'Find me all conditions that are diabetes'
+                question: 'Find me all conditions that are diabetes'
             });
             console.log(result);
             expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?code=http://snomed.info/sct|73211009');
@@ -181,7 +181,7 @@ describe('ChatGPT Tests', () => {
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
-                query: 'Find all patients that are older than 10 years old'
+                question: 'Find all patients that are older than 10 years old'
             });
             console.log(result);
             expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Patient?birthdate=lt=2013-07-10');
@@ -206,7 +206,7 @@ describe('ChatGPT Tests', () => {
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
-                query: 'Find me all conditions that are diabetes for this patient',
+                question: 'Find me all conditions that are diabetes for this patient',
                 patientId: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             });
             console.log(result);

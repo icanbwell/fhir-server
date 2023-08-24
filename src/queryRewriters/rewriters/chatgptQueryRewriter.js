@@ -120,7 +120,11 @@ class ChatGPTQueryRewriter extends QueryRewriter {
          * ≈
          * @type {string[]}
          */
-        const args = Array.from(url.searchParams.values());
+        const args = {};
+        for (const [key, value] of url.searchParams) {
+            args[`${key}`] = value;
+        }
+        args['base_version'] = base_version;
         /**
          * @type {ParsedArgs}
          */

@@ -2,11 +2,7 @@ const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/c
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
 const {
     PromptTemplate,
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate
 } = require('langchain/prompts');
-const {LLMChain} = require('langchain/chains');
 const {ChatGPTError} = require('../exceptions/chatgptError');
 const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
 const {ChatGPTResponse} = require('../structures/chatGPTResponse');
@@ -211,7 +207,7 @@ Question: {question}
             });
 
             return new ChatGPTResponse({
-                responseText: res3.content,
+                responseText: (typeof res3 === 'string') ? res3 : res3.content,
                 fullPrompt: fullPrompt,
                 numberTokens: numberTokens,
                 documents: relevantDocuments
@@ -239,16 +235,17 @@ Question: {question}
 
     /**
      * Gets the fhir query
-     * @param {string} query
+     * @param {string} question
      * @param {string} baseUrl baseUrl of the FHIR server
      * @param {string|undefined} [patientId] restrict query to this patient
      * @param {verbose} verbose
      * @return {Promise<string|undefined>}
      */
-    async getFhirQueryAsync({query, baseUrl, patientId, verbose}) {
+    async getFhirQueryAsync({question, baseUrl, verbose}) {
         // https://js.langchain.com/docs/getting-started/guide-llm
         // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
         // https://nathankjer.com/introduction-to-langchain/
+        assertIsValid(question, 'question needs to be passed');
         /**
          * @type {import('langchain/chat_models').BaseChatModel}
          */
@@ -258,66 +255,41 @@ Question: {question}
             }
         );
 
-        const inputVariables = ['baseUrl', 'query'];
-        if (patientId) {
-            inputVariables.push('patientId');
-        }
+        const currentDate = new Date().toISOString().split('T')[0];
 
-        const prompt = new ChatPromptTemplate({
-            promptMessages: [
-                SystemMessagePromptTemplate.fromTemplate(
-                    'You are an AI assistant. Please provide short responses. ' +
-                    '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
-                    // '\n{format_instructions}' +
-                    '\nWrite a FHIR query for the user\'s query' +
-                    ' using the base url of {baseUrl}' +
-                    (patientId ? ' and patient id of {patientId}.' : '')
-                ),
-                HumanMessagePromptTemplate.fromTemplate('{query}'),
-            ],
-            inputVariables: inputVariables,
-        });
-
-        const chain = new LLMChain(
+        const fhirQueryPromptTemplate = `You are an AI assistant that translates questions in English to FHIR urls.
+Please provide short responses.
+Today's date is ${currentDate}
+Return just the url using the base url of ${baseUrl}.
+Follow Up Input: {question}
+FHIR url:`;
+        const FHIR_QUERY_PROMPT = PromptTemplate.fromTemplate(
+            fhirQueryPromptTemplate
+        );
+        const fhirQueryChain = RunnableSequence.from([
             {
-                llm: model,
-                prompt: prompt,
-                outputKey: 'text', // For readability - otherwise the chain output will default to a property named "text"
-            });
+                question: (input) => input.question,
+            },
+            FHIR_QUERY_PROMPT,
+            model,
+        ]);
 
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
-        const parameters = {query: query, baseUrl: baseUrl};
-        if (patientId) {
-            parameters['patientId'] = patientId;
-        }
-        const fullPrompt = await prompt.format(parameters);
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
-        // Finally run the chain and get the result
-        try {
-            const result = await chain.call(parameters);
-            if (result.text) {
-                return result.text.replace('GET ', '');
+        const parameters = {question: question};
+
+        const fullPrompt = await FHIR_QUERY_PROMPT.format(parameters);
+        /**
+         * @type {ChatGPTResponse}
+         */
+        const response = await this.runChainAsync(
+            {
+                fullPrompt,
+                chain: fhirQueryChain,
+                question: question,
+                relevantDocuments: []
             }
-        } catch (e) {
-            if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
-                throw new ChatGPTContextLengthExceededError({
-                    error: e,
-                    args: {
-                        prompt: fullPrompt,
-                        numberOfTokens: numberTokens
-                    }
-                });
-            } else {
-                throw new ChatGPTError({
-                    error: e,
-                    args: {
-                        prompt: fullPrompt,
-                        numberOfTokens: numberTokens
-                    }
-                });
-            }
-        }
-        return undefined;
+        );
+        return response.responseText;
     }
 
     /**
