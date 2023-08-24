@@ -37,7 +37,6 @@
     "test:graphql": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/graphql",
     "test:merge": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/practitioner.merge.test.js",
     "test:search": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/searchParameters/search_by* src/tests/patient/search_by* src/tests/operations/query/r4/r4.test.js",
-    "snyk-protect": "snyk protect",
     "prepare": "",
     "prettier-check": "prettier --check \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
     "prettier-fix": "prettier --write \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
@@ -172,7 +171,6 @@
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.11.0",
     "snappy": "^7.2.2",
-    "snyk": "^1.1205.0",
     "superagent": "^8.1.2",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.0",
@@ -231,6 +229,5 @@
     "typescript": "^5.1.6",
     "vm2": "^3.9.19"
   },
-  "private": false,
-  "snyk": false
+  "private": false
 }

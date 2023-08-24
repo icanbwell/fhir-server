@@ -56,7 +56,6 @@ WORKDIR /srv/src
 USER node
 COPY --chown=node:node package.json /srv/src/package.json
 COPY --chown=node:node yarn.lock /srv/src/yarn.lock
-COPY --chown=node:node .snyk /srv/src/.snyk
 
 # Copy the remaining application code.
 COPY --chown=node:node . /srv/src
