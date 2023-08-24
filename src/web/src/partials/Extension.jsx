@@ -44,7 +44,7 @@ function Extension({extensions}) {
                                                         `${detailExtension.valueCodeableConcept.coding[0].code} (${detailExtension.valueCodeableConcept.text})`
                                                         : detailExtension.valueRange ?
                                                             `${detailExtension.valueRange.low.value} ${detailExtension.valueRange.low.unit} to ${detailExtension.valueRange.high.value} ${detailExtension.valueRange.high.unit}`
-                                                            : `${detailExtension.valueString}${detailExtension.valueUri}`
+                                                            : `${detailExtension.valueString}${detailExtension.valueUri || ''}`
                                                     }
                                                 </TableCell>
                                             </TableRow>
