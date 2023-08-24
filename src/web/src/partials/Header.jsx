@@ -5,6 +5,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import {Link} from 'react-router-dom';
 import BwellIcon from '../dist/images/bwell.png';
 import CloseIcon from '@mui/icons-material/Close';
+import BundleMeta from './BundleMeta';
 
 class Header extends React.Component {
     constructor(props) {
@@ -100,7 +101,7 @@ class Header extends React.Component {
                             </IconButton>
                         }
                     >
-                        This is an information alert with an icon.
+                        <BundleMeta meta={this.props.meta}></BundleMeta>
                     </Alert>
                 )}
                 <Alert severity="info" action={
