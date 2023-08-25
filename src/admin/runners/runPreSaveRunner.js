@@ -158,6 +158,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             for (const collectionName of this.collections) {
 
                 this.startFromIdContainer.startFromId = '';
+                // query for checking reference field with _uuid and _sourceId as array
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
