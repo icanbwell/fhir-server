@@ -82,11 +82,9 @@ update:down
 	npm install --location=global yarn && \
 	rm -f yarn.lock && \
 	yarn install --no-optional && \
-	npm i --package-lock-only && \
 	cd src/web && \
 	rm -f yarn.lock && \
 	yarn install --no-optional && \
-	npm i --package-lock-only
 
 # https://www.npmjs.com/package/npm-check-updates
 .PHONY:upgrade_packages
