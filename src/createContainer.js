@@ -472,7 +472,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                preSaveManager: c.preSaveManager
             }
         )
     );

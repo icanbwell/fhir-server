@@ -21,6 +21,7 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
@@ -42,6 +43,7 @@ class UpdateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -57,7 +59,8 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            bwellPersonFinder
+            bwellPersonFinder,
+            preSaveManager
         }
     ) {
         /**
@@ -129,6 +132,12 @@ class UpdateOperation {
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -178,6 +187,8 @@ class UpdateOperation {
          */
         let resource_incoming_json = body;
         let {base_version, id} = parsedArgs;
+
+        resource_incoming_json.id = id;
 
         if (this.configManager.logAllSaves) {
             await sendToS3('logs',
@@ -252,6 +263,18 @@ class UpdateOperation {
              */
             let foundResource;
 
+            // Check if the resource is missing owner tag
+            if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
+            }
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {
@@ -289,17 +312,6 @@ class UpdateOperation {
                 }
             } else {
                 // not found so insert
-                // Check if the resource is missing owner tag
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.owner}`
-                        )
-                    );
-                }
                 // Check if meta & meta.source exists in incoming resource
                 if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
