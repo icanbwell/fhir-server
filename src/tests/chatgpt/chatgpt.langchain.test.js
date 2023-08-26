@@ -37,11 +37,90 @@ class MockConfigManager extends ConfigManager {
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
-        test('ChatGPT with summaries', async () => {
+        test('Test contextual compression retriever', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
 
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            // add summaries to memory vector store
+            const memoryVectorStoreManager = await container.vectorStoreFactory.createVectorStoreAsync();
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = [];
+            // add patient summary
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: patient1Summary.content,
+                        metadata: new ChatGPTMeta(patient1Summary.metadata)
+                    }
+                )
+            );
+            // add observations
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: observation1Summary.content,
+                        metadata: new ChatGPTMeta(observation1Summary.metadata)
+                    }
+                )
+            );
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: observation2Summary.content,
+                        metadata: new ChatGPTMeta(observation2Summary.metadata)
+                    }
+                )
+            );
+            // add conditions
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: condition1Summary.content,
+                        metadata: new ChatGPTMeta(condition1Summary.metadata)
+                    }
+                )
+            );
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: condition2Summary.content,
+                        metadata: new ChatGPTMeta(condition2Summary.metadata)
+                    }
+                )
+            );
+            await memoryVectorStoreManager.addDocumentsAsync(
+                {
+                    documents: documents
+                }
+            );
+            const chatGPTManager = container.chatgptManager;
+            assertTypeEquals(chatGPTManager, ChatGPTLangChainManager);
+
+            const retriever = await chatGPTManager.getRetriever(
+                {
+                    vectorStoreManager: memoryVectorStoreManager,
+                    resourceType: 'Patient',
+                    uuid: '24a5930e-11b4-5525-b482-669174917044',
+                });
+            /**
+             * @type {Document[]}
+             */
+            const relevantDocuments = await retriever.getRelevantDocuments('What is the age of tbis person?');
+            expect(relevantDocuments[0].pageContent).toContain('Birth Date: December 31, 1996');
+        });
+        test('ChatGPT with summaries', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
 
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
@@ -110,8 +189,10 @@ describe('ChatGPT Tests', () => {
                 question: 'What is the age of tbis person?',
                 resourceType: 'Patient',
                 uuid: '24a5930e-11b4-5525-b482-669174917044',
+                verbose: true
             });
             console.log(result.responseText);
+            expect(result.responseText).toContain('26');
         });
         test('Classify questions', async () => {
             if (!process.env.OPENAI_API_KEY) {

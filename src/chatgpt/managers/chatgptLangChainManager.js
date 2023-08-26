@@ -88,43 +88,11 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                 }
             }
         );
-        // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
-        // const baseCompressor = LLMChainExtractor.fromLLM(model);
-
-        const splitter = new RecursiveCharacterTextSplitter(
-            {chunkSize: 200, chunkOverlap: 0, separators: ['-']}
-        );
-        /**
-         * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
-         */
-        const embeddings = new OpenAIEmbeddings();
-        const relevant_filter = new EmbeddingsFilter(
+        const retriever = this.getRetriever(
             {
-                embeddings: embeddings,
-                k: 10,
-                // similarity_threshold: 0.95
+                vectorStoreManager, resourceType, uuid
             }
         );
-        const compressorPipeline = new DocumentCompressorPipeline(
-            {transformers: [splitter, relevant_filter]}
-        );
-
-        const baseRetriever = vectorStoreManager.asRetriever({
-                filter: new VectorStoreFilter(
-                    {
-                        parentResourceType: resourceType,
-                        parentUuid: uuid
-                    }
-                )
-            }
-        );
-        // https://python.langchain.com/docs/use_cases/question_answering/
-        // const relevantDocumentsFromVectorStore = await baseRetriever.getRelevantDocuments(question);
-
-        const retriever = new ContextualCompressionRetriever({
-            baseCompressor: compressorPipeline,
-            baseRetriever: baseRetriever,
-        });
         // https://python.langchain.com/docs/use_cases/question_answering/
         /**
          * @type {Document[]}
@@ -210,6 +178,54 @@ Question: {question}
                 relevantDocuments
             }
         );
+    }
+
+    /**
+     * Gets the retriever from vectorStoreManager
+     * @param {BaseVectorStoreManager} vectorStoreManager
+     * @param {string} resourceType
+     * @param {string} uuid
+     * @return {ContextualCompressionRetriever}
+     */
+    getRetriever({vectorStoreManager, resourceType, uuid}) {
+        // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
+        // const baseCompressor = LLMChainExtractor.fromLLM(model);
+
+        const splitter = new RecursiveCharacterTextSplitter(
+            {chunkSize: 200, chunkOverlap: 0, separators: ['-']}
+        );
+        /**
+         * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
+         */
+        const embeddings = new OpenAIEmbeddings();
+        const relevant_filter = new EmbeddingsFilter(
+            {
+                embeddings: embeddings,
+                k: 10,
+                // similarity_threshold: 0.95
+            }
+        );
+        const compressorPipeline = new DocumentCompressorPipeline(
+            {transformers: [splitter, relevant_filter]}
+        );
+
+        const baseRetriever = vectorStoreManager.asRetriever({
+                filter: new VectorStoreFilter(
+                    {
+                        parentResourceType: resourceType,
+                        parentUuid: uuid
+                    }
+                )
+            }
+        );
+        // https://python.langchain.com/docs/use_cases/question_answering/
+        // const relevantDocumentsFromVectorStore = await baseRetriever.getRelevantDocuments(question);
+
+        const retriever = new ContextualCompressionRetriever({
+            baseCompressor: compressorPipeline,
+            baseRetriever: baseRetriever,
+        });
+        return retriever;
     }
 
     /**
