@@ -92,7 +92,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // const baseCompressor = LLMChainExtractor.fromLLM(model);
 
         const splitter = new RecursiveCharacterTextSplitter(
-            {chunkSize: 300, chunkOverlap: 0}
+            {chunkSize: 50, chunkOverlap: 0, separators: ['-']}
         );
         /**
          * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
@@ -101,8 +101,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const relevant_filter = new EmbeddingsFilter(
             {
                 embeddings: embeddings,
-                k: undefined,
-                similarity_threshold: 0.95
+                k: 10,
+                // similarity_threshold: 0.95
             }
         );
         const compressorPipeline = new DocumentCompressorPipeline(
