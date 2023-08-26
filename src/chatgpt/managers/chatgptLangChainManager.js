@@ -1,4 +1,3 @@
-const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
 const {
     PromptTemplate,
@@ -13,6 +12,8 @@ const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
 const {BaseVectorStoreManager} = require('../vectorStores/baseVectorStoreManager');
 const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
+const {EmbeddingsFilter} = require('../extensions/embeddingsFilter');
+const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -86,7 +87,18 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             }
         );
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
-        const baseCompressor = LLMChainExtractor.fromLLM(model);
+        // const baseCompressor = LLMChainExtractor.fromLLM(model);
+        /**
+         * @type {OpenAIEmbeddings}
+         */
+        const embeddings = new OpenAIEmbeddings();
+        const baseCompressor = new EmbeddingsFilter(
+            {
+                embeddings: embeddings,
+                similarity_threshold: 0.76
+            }
+        );
+
         const baseRetriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {

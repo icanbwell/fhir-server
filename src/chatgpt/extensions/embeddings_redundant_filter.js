@@ -51,7 +51,7 @@ function zip(...arrays) {
  * gets embeddings from stateful docs
  * @param {import('langchain/embeddings').Embeddings} embeddings
  * @param {_DocumentWithState[]} documents
- * @return {number[][]}
+ * @return {Promise<number[][]>}
  */
 function _get_embeddings_from_stateful_docs(embeddings, documents) {
     let embedded_documents;

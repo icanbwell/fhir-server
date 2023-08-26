@@ -15,11 +15,30 @@ class EmbeddingsFilter extends BaseDocumentCompressor {
      * @param {number|undefined} [k]
      * @param {float|undefined} [similarity_threshold]
      */
-    constructor(embeddings, similarity_fn = cosineSimilarity, k = 20, similarity_threshold = null) {
+    constructor(
+        {
+            embeddings,
+            similarity_fn = cosineSimilarity,
+            k = 20,
+            similarity_threshold = null
+        }
+    ) {
         super();
+        /**
+         * @type {import('langchain/embeddings').Embeddings}
+         */
         this.embeddings = embeddings;
+        /**
+         * @type {function(number[][], number[][]): number[][]}
+         */
         this.similarity_fn = similarity_fn;
+        /**
+         * @type {number|undefined}
+         */
         this.k = k;
+        /**
+         * @type {float|undefined}
+         */
         this.similarity_threshold = similarity_threshold;
     }
 
@@ -39,7 +58,7 @@ class EmbeddingsFilter extends BaseDocumentCompressor {
      */
     async compressDocuments(documents, query) {
         const stateful_documents = get_stateful_documents(documents);
-        const embedded_documents = _get_embeddings_from_stateful_docs(this.embeddings, stateful_documents);
+        const embedded_documents = await _get_embeddings_from_stateful_docs(this.embeddings, stateful_documents);
         const embedded_query = await this.embeddings.embedQuery(query);
         const similarity = this.similarity_fn([embedded_query], embedded_documents)[0];
         let included_idxs = Array.from(
