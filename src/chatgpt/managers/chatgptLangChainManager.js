@@ -95,7 +95,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const baseCompressor = new EmbeddingsFilter(
             {
                 embeddings: embeddings,
-                similarity_threshold: 0.76
+                k: null,
+                similarity_threshold: 0.95
             }
         );
 
