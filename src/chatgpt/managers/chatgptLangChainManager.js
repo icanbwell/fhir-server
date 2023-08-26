@@ -14,6 +14,8 @@ const {BaseVectorStoreManager} = require('../vectorStores/baseVectorStoreManager
 const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
 const {EmbeddingsFilter} = require('../extensions/embeddingsFilter');
 const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
+const {RecursiveCharacterTextSplitter} = require('langchain/text_splitter');
+const {DocumentCompressorPipeline} = require('../extensions/documentCompressorPipeline');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -88,16 +90,23 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         );
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         // const baseCompressor = LLMChainExtractor.fromLLM(model);
+
+        const splitter = new RecursiveCharacterTextSplitter(
+            {chunkSize: 300, chunkOverlap: 0}
+        );
         /**
-         * @type {OpenAIEmbeddings}
+         * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
          */
         const embeddings = new OpenAIEmbeddings();
-        const baseCompressor = new EmbeddingsFilter(
+        const relevant_filter = new EmbeddingsFilter(
             {
                 embeddings: embeddings,
-                k: null,
+                k: undefined,
                 similarity_threshold: 0.95
             }
+        );
+        const compressorPipeline = new DocumentCompressorPipeline(
+            {transformers: [splitter, relevant_filter]}
         );
 
         const baseRetriever = vectorStoreManager.asRetriever({
@@ -114,7 +123,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // const relevantDocumentsFromVectorStore = await baseRetriever.getRelevantDocuments(question);
 
         const retriever = new ContextualCompressionRetriever({
-            baseCompressor,
+            baseCompressor: compressorPipeline,
             baseRetriever: baseRetriever,
         });
         // https://python.langchain.com/docs/use_cases/question_answering/

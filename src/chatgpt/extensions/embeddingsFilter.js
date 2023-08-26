@@ -13,7 +13,7 @@ class EmbeddingsFilter extends BaseDocumentCompressor {
      * @param {import('langchain/embeddings').Embeddings} embeddings
      * @param {function(X: number[][], Y: number[][]): number[][]} similarity_fn
      * @param {number|undefined} [k]
-     * @param {float|undefined} [similarity_threshold]
+     * @param {number|undefined|null} [similarity_threshold]
      */
     constructor(
         {
