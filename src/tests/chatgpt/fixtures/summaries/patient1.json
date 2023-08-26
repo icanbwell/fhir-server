@@ -1,0 +1,11 @@
+{
+  "content": "\n- Resource: Patient\n- ID: patient1\n- Name: SHYLA PATIENT1 \n- Last Updated: August 26, 2023\n- Source: http://healthsystem1health.org/provider\n- Language: undefined\n- Race: undefined\n- Ethnicity: undefined\n- Gender: female\n- Birth Date: December 31, 1996\n- Birth Place: undefined, undefined, undefined\n- Disability Adjusted Life Years: undefined\n- Quality Adjusted Life Years: undefined\n- Marital Status: undefined\n- Multiple Birth: No\n- Communication Language: undefined\n- Identifier: https://www.icanbwell.com/sourceId: undefined : patient1\nhttps://www.icanbwell.com/uuid: undefined : 24a5930e-11b4-5525-b482-669174917044\n- Contact Information: undefined\n- Address: undefined\n",
+  "metadata": {
+    "_id": "Patient|24a5930e-11b4-5525-b482-669174917044",
+    "uuid": "24a5930e-11b4-5525-b482-669174917044",
+    "resourceType": "Patient",
+    "parentUuid": "24a5930e-11b4-5525-b482-669174917044",
+    "parentResourceType": "Patient",
+    "reference": "Patient/24a5930e-11b4-5525-b482-669174917044"
+  }
+}

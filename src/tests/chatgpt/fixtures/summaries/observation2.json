@@ -1,0 +1,11 @@
+{
+  "content": "\n- Resource: Observation\n- ID: 2354-InGenderCohort\n- Last Updated: August 26, 2023\n- Source: /patients\n- Status: \n- Category: \n- Code: \n- Subject Reference: Patient/patient2\n- Effective Date/Time: \n- Value: \n- Interpretation: \n",
+  "metadata": {
+    "_id": "Observation|d8beeb1d-2978-5694-b3f6-fd9c28a05da7",
+    "uuid": "d8beeb1d-2978-5694-b3f6-fd9c28a05da7",
+    "resourceType": "Observation",
+    "parentUuid": "dc1946f6-aed3-599f-8f8d-dd543a094589",
+    "parentResourceType": "Patient",
+    "reference": "Observation/d8beeb1d-2978-5694-b3f6-fd9c28a05da7"
+  }
+}

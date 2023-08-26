@@ -92,7 +92,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // const baseCompressor = LLMChainExtractor.fromLLM(model);
 
         const splitter = new RecursiveCharacterTextSplitter(
-            {chunkSize: 50, chunkOverlap: 0, separators: ['-']}
+            {chunkSize: 200, chunkOverlap: 0, separators: ['-']}
         );
         /**
          * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
@@ -118,7 +118,6 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                 )
             }
         );
-
         // https://python.langchain.com/docs/use_cases/question_answering/
         // const relevantDocumentsFromVectorStore = await baseRetriever.getRelevantDocuments(question);
 

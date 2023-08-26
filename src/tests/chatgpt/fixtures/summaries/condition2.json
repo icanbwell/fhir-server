@@ -1,0 +1,11 @@
+{
+  "content": "\n- Resource: Condition\n- ID: 2169a56959b45ca06d27923fe76070e5cdd27f2ad07b370c559ab4300a2774e\n- Patient: Patient/patient1\n- Last Updated: August 26, 2023\n- Source: /patients\n- Clinical Status: \n- Verification Status: \n- Category: \n- Code: Unspecified asthma, uncomplicated (undefined)\n- Subject Reference: Patient/patient1\n- Onset Period:  to \n- Recorded Date: June 14, 2023\n",
+  "metadata": {
+    "_id": "Condition|07735afb-2340-5e33-ba9a-2b280043a5eb",
+    "uuid": "07735afb-2340-5e33-ba9a-2b280043a5eb",
+    "resourceType": "Condition",
+    "parentUuid": "24a5930e-11b4-5525-b482-669174917044",
+    "parentResourceType": "Patient",
+    "reference": "Condition/07735afb-2340-5e33-ba9a-2b280043a5eb"
+  }
+}
