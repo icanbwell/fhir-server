@@ -19,6 +19,8 @@ const observation1Summary = require('./fixtures/summaries/observation1.json');
 const observation2Summary = require('./fixtures/summaries/observation2.json');
 const condition1Summary = require('./fixtures/summaries/condition1.json');
 const condition2Summary = require('./fixtures/summaries/condition2.json');
+const documentReference1Summary = require('./fixtures/summaries/documentReference1.json');
+
 const {ChatGPTDocument} = require('../../chatgpt/structures/chatgptDocument');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ChatGPTMeta} = require('../../chatgpt/structures/chatgptMeta');
@@ -116,6 +118,63 @@ describe('ChatGPT Tests', () => {
              */
             const relevantDocuments = await retriever.getRelevantDocuments('What is the age of tbis person?');
             expect(relevantDocuments[0].pageContent).toContain('Birth Date: December 31, 1996');
+        });
+        test('Test contextual compression retriever with insurance doc', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            // add summaries to memory vector store
+            const memoryVectorStoreManager = await container.vectorStoreFactory.createVectorStoreAsync();
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = [];
+            // add patient summary
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: patient1Summary.content,
+                        metadata: new ChatGPTMeta(patient1Summary.metadata)
+                    }
+                )
+            );
+            // add DocumentReference to vector store
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: documentReference1Summary.content,
+                        metadata: new ChatGPTMeta(documentReference1Summary.metadata)
+                    }
+                )
+            );
+            await memoryVectorStoreManager.addDocumentsAsync(
+                {
+                    documents: documents
+                }
+            );
+            const chatGPTManager = container.chatgptManager;
+            assertTypeEquals(chatGPTManager, ChatGPTLangChainManager);
+
+            const retriever = await chatGPTManager.getRetriever(
+                {
+                    vectorStoreManager: memoryVectorStoreManager,
+                    resourceType: 'Patient',
+                    uuid: '24a5930e-11b4-5525-b482-669174917044',
+                });
+            /**
+             * @type {Document[]}
+             */
+            const relevantDocuments = await retriever.getRelevantDocuments(
+                'What is the cost of dental insurance for this person and their spouse?'
+            );
+            expect(relevantDocuments[0].pageContent).toContain('$10');
         });
         test('ChatGPT with summaries', async () => {
             if (!process.env.OPENAI_API_KEY) {

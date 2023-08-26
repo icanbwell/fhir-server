@@ -67,6 +67,9 @@ class EmbeddingsFilter extends BaseDocumentCompressor {
         if (this.k !== null) {
             included_idxs = similarity.map((val, idx) => [val, idx]).sort((a, b) => b[0] - a[0]).slice(0, this.k).map(([_, idx]) => idx);
         }
+        included_idxs.forEach(i => {
+            stateful_documents[`${i}`].metadata['similarity'] = similarity[`${i}`];
+        });
         if (this.similarity_threshold !== null) {
             const similar_enough = included_idxs.filter(idx => similarity[`${idx}`] > this.similarity_threshold);
             included_idxs = similar_enough;
