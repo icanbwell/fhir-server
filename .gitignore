@@ -34,3 +34,4 @@ src/fhir/generator/__pycache__
 .env
 /src/web/build
 /src/tests/practitioner/search_by_multiple_ids_csv/fixtures/practitioner/practitioner_out.json
+/src/views/pages/.idea/

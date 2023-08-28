@@ -385,9 +385,16 @@ const getFieldValue = (res, name) => {
                 .map(n => n.value)
                 .join(',<br>');
         case 'identifier':
-            return (res.identifier || [])
-                .map(n => `${n.value}(${n.system})`)
-                .join(',<br>');
+            if (res.identifier) {
+                if (!Array.isArray(res.identifier)) {
+                    return `${res.identifier.value}(${res.identifier.system})`;
+                } else {
+                    return res.identifier
+                        .map(n => `${n.value}(${n.system})`)
+                        .join(',<br>');
+                }
+            }
+            return '';
         case '_security':
             return (res.meta && res.meta.security || [])
                 .map(n => `${n.code}(${n.system.split('/').pop()})`)

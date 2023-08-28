@@ -1,19 +1,16 @@
 const {logDebug} = require('../common/logging');
 const {generateUUID} = require('../../utils/uid.util');
-const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
-const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
@@ -21,13 +18,12 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 
 class CreateOperation {
     /**
      * constructor
-     * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
@@ -37,12 +33,11 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor(
         {
-            changeEventProducer,
             auditLogger,
             postRequestProcessor,
             scopesManager,
@@ -52,15 +47,10 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor,
-            bwellPersonFinder
+            bwellPersonFinder,
+            postSaveProcessor
         }
     ) {
-        /**
-         * @type {ChangeEventProducer}
-         */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
         /**
          * @type {AuditLogger}
          */
@@ -111,18 +101,19 @@ class CreateOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
-
-        /**
          * @type {BwellPersonFinder}
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
+    // noinspection ExceptionCaughtLocallyJS
     /**
      * does a FHIR Create (POST)
      * @param {FhirRequestInfo} requestInfo
@@ -141,7 +132,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method} = requestInfo;
+        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method, /**@type {string} */ userRequestId } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -174,7 +165,7 @@ class CreateOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        if (isTrue(env.LOG_ALL_SAVES)) {
+        if (this.configManager.logAllSaves) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming,
@@ -188,7 +179,7 @@ class CreateOperation {
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -258,20 +249,12 @@ class CreateOperation {
                         operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
                     }
                 );
-                await this.auditLogger.flushAsync({requestId, currentDate, method});
+                await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
             logDebug('Inserting', {user, args: {doc: doc}});
-
-            // The access tags are updated before updating the resources.
-            // If access tags is to be updated call the corresponding processor
-            if (this.configManager.enabledAccessTagUpdate) {
-                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                    resource: doc,
-                });
-            }
 
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
@@ -281,7 +264,8 @@ class CreateOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
 
@@ -308,33 +292,16 @@ class CreateOperation {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await this.changeEventProducer.fireEventsAsync({
+                    await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc
                     });
-                    await this.changeEventProducer.flushAsync({requestId});
+                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
-            if (this.configManager.enabledAccessTagUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
-                        }
-                        if (
-                            mergeResults[0].resourceType === 'Person' &&
-                            (mergeResults[0].created || mergeResults[0].updated) &&
-                            this.bwellPersonFinder.isBwellPerson(doc)
-                        ) {
-                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
-                        }
-                    }
-                });
-            }
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+            if (this.configManager.logValidationFailures) {
                 await sendToS3('errors',
                     resourceType,
                     resource_incoming,

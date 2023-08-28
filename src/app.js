@@ -37,12 +37,12 @@ const {logInfo} = require('./operations/common/logging');
 
 /**
  * Creates the FHIR app
- * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {function (): SimpleContainer} fnGetContainer
  * @param {import('express').Express} app1
- * @return {MyFHIRServer}
+ * @returns {MyFHIRServer}
  */
-function createFhirApp(fnCreateContainer, app1) {
-    return new MyFHIRServer(fnCreateContainer, fhirServerConfig, app1)
+function createFhirApp(fnGetContainer, app1) {
+    return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
         .configureHelmet()
@@ -53,13 +53,37 @@ function createFhirApp(fnCreateContainer, app1) {
         .setErrorRoutes();
 }
 
+// /**
+//  * https://stackoverflow.com/questions/14934452/how-to-get-all-registered-routes-in-express/55589657#55589657
+//  * @param app
+//  * @returns {*[]}
+//  */
+// function getRoutes(app) {
+//     let route;
+//     let routes = [];
+//
+//     app._router.stack
+//         // .filter(r => r.route) // take out all the middleware
+//         .forEach(function (middleware) {
+//             if (middleware.route) { // routes registered directly on the app
+//                 routes.push(middleware.route);
+//             } else if (middleware.name === 'router') { // router middleware
+//                 middleware.handle.stack.forEach(function (handler) {
+//                     route = handler.route;
+//                     route && routes.push(route);
+//                 });
+//             }
+//         });
+//     return routes;
+// }
+
 /**
  * Creates the app
- * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {function (): SimpleContainer} fnGetContainer
  * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp({fnCreateContainer, trackMetrics}) {
+function createApp({fnGetContainer, trackMetrics}) {
     const swaggerUi = require('swagger-ui-express');
     // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
@@ -68,6 +92,12 @@ function createApp({fnCreateContainer, trackMetrics}) {
      * @type {import('express').Express}
      */
     const app = express();
+
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = fnGetContainer();
+    const configManager = container.configManager;
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
@@ -169,11 +199,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
     });
 
     app.get('/health', (req, res) => handleHealthCheck(
-        fnCreateContainer, req, res
+        fnGetContainer, req, res
     ));
 
     app.get('/full-healthcheck', (req, res) => handleFullHealthCheck(
-        fnCreateContainer, req, res
+        fnGetContainer, req, res
     ));
 
     app.get('/live', (req, res) => handleMemoryCheck(req, res));
@@ -191,20 +221,26 @@ function createApp({fnCreateContainer, trackMetrics}) {
     // render the home page
     app.get('/', (
         /** @type {import('express').Request} */ req,
-        /** @type {import('express').Response} */ res,) => {
+        /** @type {import('express').Response} */ res,
+        next) => {
         const home_options = {
             resources: resourceDefinitions,
             user: req.user
         };
-        return res.render(__dirname + '/views/pages/home', home_options);
+        if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
+            // fall through to the handler in fhirServer.js
+            next();
+        } else {
+            return res.render(__dirname + '/views/pages/home', home_options);
+        }
     });
 
     app.get('/clean/:collection?', (req, res) => handleClean(
-        {fnCreateContainer, req, res}
+        {fnGetContainer, req, res}
     ));
 
     app.get('/stats', (req, res) => handleStats(
-        {fnCreateContainer, req, res}
+        {fnGetContainer, req, res}
     ));
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration);
@@ -232,6 +268,8 @@ function createApp({fnCreateContainer, trackMetrics}) {
         express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+    // serve react js and css files
+    app.use('/static', express.static(path.join(__dirname, './web/build/static')));
 
 
     if (isTrue(env.AUTH_ENABLED)) {
@@ -241,34 +279,14 @@ function createApp({fnCreateContainer, trackMetrics}) {
         app.use(cors(fhirServerConfig.server.corsOptions));
     }
 
-    if (process.env.OPENAI_API_KEY) {
-        // eslint-disable-next-line new-cap
-        const webRouter = express.Router();
-        if (isTrue(env.AUTH_ENABLED)) {
-            webRouter.use(passport.initialize());
-            webRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
-        }
-
-        // Serve static files from the React app
-        webRouter.use('/web', express.static(path.join(__dirname, 'web/build')));
-        // Always serve the React app for any other request
-        webRouter.get('/web', (req, res) => {
-            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
-        });
-        webRouter.get('/web/*', (req, res) => { // support sub-paths also
-            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
-        });
-        app.use(webRouter);
-    }
-
     // eslint-disable-next-line new-cap
-    const adminRouter = express.Router();
+    const adminRouter = express.Router({mergeParams: true});
     if (isTrue(env.AUTH_ENABLED)) {
         adminRouter.use(passport.initialize());
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
     const adminHandler = (req, res) => handleAdmin(
-        fnCreateContainer, req, res
+        fnGetContainer, req, res
     );
     adminRouter.get('/admin/:op?', adminHandler);
     adminRouter.post('/admin/:op?', adminHandler);
@@ -283,7 +301,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        graphql(fnCreateContainer)
+        graphql(fnGetContainer)
             .then((graphqlMiddleware) => {
                 // eslint-disable-next-line new-cap
                 const router = express.Router();
@@ -300,16 +318,16 @@ function createApp({fnCreateContainer, trackMetrics}) {
                         /**
                          * @type {SimpleContainer}
                          */
-                        const container = req1.container;
-                        if (container) {
+                        const container1 = req1.container;
+                        if (container1) {
                             /**
                              * @type {PostRequestProcessor}
                              */
-                            const postRequestProcessor = container.postRequestProcessor;
+                            const postRequestProcessor = container1.postRequestProcessor;
                             /**
                              * @type {RequestSpecificCache}
                              */
-                            const requestSpecificCache = container.requestSpecificCache;
+                            const requestSpecificCache = container1.requestSpecificCache;
                             if (postRequestProcessor) {
                                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                                 await postRequestProcessor.executeAsync({requestId});
@@ -322,19 +340,26 @@ function createApp({fnCreateContainer, trackMetrics}) {
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
                 app.use('/graphqlv2', router);
-
                 app.use('/graphql', router);
+                app.use('/\\$graphql', router);
             })
             .then((_) => {
-                createFhirApp(fnCreateContainer, app);
+                createFhirApp(fnGetContainer, app);
+                // getRoutes(app);
             });
 
     } else {
-        createFhirApp(fnCreateContainer, app);
+        createFhirApp(fnGetContainer, app);
     }
     app.locals.currentYear = new Date().getFullYear();
     app.locals.deployEnvironment = env.ENVIRONMENT;
     app.locals.deployVersion = getImageVersion();
+
+    app.get('/robots.txt', (req, res) => {
+        // Your logic for the route goes here
+        // If the resource is not found, send a 404 response
+        res.status(404).send('Not Found');
+    });
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html

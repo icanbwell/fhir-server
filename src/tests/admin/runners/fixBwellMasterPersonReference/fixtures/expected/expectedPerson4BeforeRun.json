@@ -1,0 +1,60 @@
+{
+    "id": "4",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "4"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "0b5a7f26-c452-5ab1-8550-ce5db60320aa"
+        }
+    ],
+    "link": [
+        {
+            "assurance": "level3",
+            "target": {
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/4a083f90-1c8a-50ff-8538-32450e1d85ee"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "thedacare"
+                    }
+                ],
+                "reference": "Patient/1|thedacare"
+            }
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell",
+        "versionId": "1"
+    },
+    "resourceType": "Person"
+}

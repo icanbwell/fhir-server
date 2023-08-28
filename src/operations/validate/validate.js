@@ -10,8 +10,12 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {ConfigManager} = require('../../utils/configManager');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {isTrue} = require('../../utils/isTrue');
+const {SearchManager} = require('../search/searchManager');
 const deepcopy = require('deepcopy');
+
 
 class ValidateOperation {
     /**
@@ -19,11 +23,18 @@ class ValidateOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ResourceValidator} resourceValidator
+     * @param {ConfigManager} configManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
-            scopesManager, fhirLoggingManager,
-            resourceValidator
+            scopesManager,
+            fhirLoggingManager,
+            resourceValidator,
+            configManager,
+            databaseQueryFactory,
+            searchManager
         }
     ) {
         /**
@@ -41,6 +52,24 @@ class ValidateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -56,11 +85,25 @@ class ValidateOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
 
+        const {id, resource, base_version} = parsedArgs;
         /**
          * @type {number}
          */
         const startTime = Date.now();
-        const path = requestInfo.path;
+        const {
+            /** @type {string[]} */
+            patientIdsFromJwtToken,
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            personIdFromJwtToken,
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string} */
+            path,
+        } = requestInfo;
 
         /**
          * @type {string}
@@ -72,17 +115,144 @@ class ValidateOperation {
         // https://www.hl7.org/fhir/resource-operation-validate.html
         // 1. Resource is sent in the body
         // 2. Resource is sent inside a Parameters resource in the body
+        // 3. id of the resource is sent in the url
+        try {
+            /**
+             * @type {Object|null}
+             */
+            let resource_incoming = null;
+            // if id of the resource is sent in url then use that
+            if (id) {
+                // retrieve the resource from the database
+                /**
+                 * @type {boolean}
+                 */
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
+                /**
+                 * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+                 */
+                const {
+                    /** @type {import('mongodb').Document}**/
+                    query,
+                    // /** @type {Set} **/
+                    // columns
+                } = await this.searchManager.constructQueryAsync(
+                    {
+                        user,
+                        scope,
+                        isUser,
+                        patientIdsFromJwtToken,
+                        resourceType,
+                        useAccessIndex,
+                        personIdFromJwtToken,
+                        parsedArgs
+                    }
+                );
+
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version}
+                );
+                /**
+                 * @type {DatabasePartitionedCursor}
+                 */
+                const cursor = await databaseQueryManager.findAsync({query});
+                let operationOutcome = null;
+                while (await cursor.hasNext()) {
+                    resource_incoming = (await cursor.next()).toJSON();
+                    const operationOutcomeForResource = await this.validateResourceAsync(
+                        {
+                            resource_incoming,
+                            resourceType,
+                            path,
+                            currentDate,
+                            parsedArgs,
+                            currentOperationName,
+                            requestInfo,
+                            startTime
+                        });
+                    if (operationOutcome) {
+                        // combine the operation outcome issues
+                        if (operationOutcome.issue) {
+                            operationOutcome.issue = operationOutcome.issue.concat(operationOutcomeForResource.issue);
+                        } else {
+                            operationOutcome.issue = operationOutcomeForResource.issue;
+                        }
+                    } else {
+                        operationOutcome = operationOutcomeForResource;
+                    }
+                }
+                return operationOutcome;
+            }
+            if (resource) {
+                resource_incoming = resource;
+            }
+            if (!resource) {
+                resource_incoming = requestInfo.body;
+            }
+            return await this.validateResourceAsync(
+                {
+                    resource_incoming,
+                    resourceType,
+                    path,
+                    currentDate,
+                    parsedArgs,
+                    currentOperationName,
+                    requestInfo,
+                    startTime
+                }
+            );
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
+            throw e;
+        }
+    }
+
+    /**
+     * validates a resource
+     * @param {Object} resource_incoming
+     * @param {string} resourceType
+     * @param {string} path
+     * @param currentDate
+     * @param parsedArgs
+     * @param currentOperationName
+     * @param requestInfo
+     * @param startTime
+     * @returns {Promise<OperationOutcome>}
+     */
+    async validateResourceAsync(
+        {
+            resource_incoming,
+            resourceType,
+            path,
+            currentDate,
+            parsedArgs,
+            currentOperationName,
+            requestInfo,
+            startTime
+        }
+    ) {
         /**
-         * @type {Object|null}
+         * @type {string}
          */
-        let resource_incoming = parsedArgs.resource ? parsedArgs.resource : requestInfo.body;
+        let specifiedProfile = parsedArgs.profile;
 
         // check if this is a Parameters resourceType
         if (resource_incoming.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters
             // const ParametersResourceCreator = getResource(base_version, 'Parameters');
             // const parametersResource = new ParametersResourceCreator(resource_incoming);
+            /**
+             * @type {Parameters|undefined}
+             */
             const parametersResource = resource_incoming;
             if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                 /**
@@ -103,6 +273,16 @@ class ValidateOperation {
                 });
             }
             // find the actual resource in the parameter called resource
+            /**
+             * @type {string|null}
+             */
+            const profileParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.profile));
+            if (profileParameter) {
+                specifiedProfile = profileParameter;
+            }
+            /**
+             * @type {Parameters|null}
+             */
             const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
             if (!resourceParameter || !resourceParameter.resource) {
                 /**
@@ -124,11 +304,6 @@ class ValidateOperation {
             }
             resource_incoming = resourceParameter.resource;
         }
-
-        /**
-         * @type {Resource}
-         */
-        const resourceToValidate = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         // The FHIR validator wants meta.lastUpdated to be string instead of data
         // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
@@ -152,7 +327,9 @@ class ValidateOperation {
                 resourceToValidate: resourceObjectToValidate,
                 path: path,
                 currentDate: currentDate,
-                resourceObj: resourceToValidate
+                resourceObj: resource_incoming,
+                useRemoteFhirValidatorIfAvailable: true,
+                profile: specifiedProfile,
             });
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
@@ -166,7 +343,7 @@ class ValidateOperation {
                 });
             return validationOperationOutcome;
         }
-        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidate)) {
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
             return new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
@@ -174,7 +351,7 @@ class ValidateOperation {
                         severity: 'error',
                         code: 'invalid',
                         details: new CodeableConcept({
-                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
+                            text: `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
                                 ' is missing a security access tag with system: ' +
                                 `${SecurityTagSystem.owner}`
                         }),

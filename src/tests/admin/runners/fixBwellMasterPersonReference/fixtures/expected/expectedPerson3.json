@@ -1,0 +1,60 @@
+{
+    "id": "3",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "3"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "42247a4d-7507-57bb-b6c1-ee2815815c07"
+        }
+    ],
+    "link": [
+        {
+            "assurance": "level3",
+            "target": {
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/61abdd48-df46-5e98-ac6c-fde3cace4d07"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Person/1"
+            }
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell",
+        "versionId": "1"
+    },
+    "resourceType": "Person"
+}

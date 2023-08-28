@@ -6,7 +6,6 @@ const moment = require('moment-timezone');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -16,36 +15,33 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
-const { matchPersonLinks } = require('../../utils/personLinksMatcher');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 
 class PatchOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
             databaseQueryFactory,
-            changeEventProducer,
+            postSaveProcessor,
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
             databaseAttachmentManager,
-            sensitiveDataProcessor,
             configManager,
             bwellPersonFinder
         }
@@ -56,10 +52,10 @@ class PatchOperation {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {PostRequestProcessor}
          */
@@ -85,12 +81,6 @@ class PatchOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
 
         /**
          * @type {ConfigManager}
@@ -121,7 +111,8 @@ class PatchOperation {
             requestId,
             method,
             body: patchContent,
-            /** @type {import('content-type').ContentType} */ contentTypeFromHeader
+            /** @type {import('content-type').ContentType} */ contentTypeFromHeader,
+            /**@type {string} */ userRequestId
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -222,14 +213,6 @@ class PatchOperation {
             // converting attachment.data to attachment._file_id for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
-            // The access tags are updated before updating the resources.
-            // If access tags is to be updated call the corresponding processor
-            if (this.configManager.enabledAccessTagUpdate) {
-                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                    resource: resource,
-                });
-            }
-
             // Same as update from this point on
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
@@ -253,7 +236,8 @@ class PatchOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -273,30 +257,12 @@ class PatchOperation {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await this.changeEventProducer.fireEventsAsync({
+                    await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc: resource
                     });
-                    await this.changeEventProducer.flushAsync({requestId});
+                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
-            if (this.configManager.enabledAccessTagUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [resource]});
-                        }
-                        if (
-                            mergeResults[0].resourceType === 'Person' &&
-                            (mergeResults[0].created || mergeResults[0].updated) &&
-                            this.bwellPersonFinder.isBwellPerson(resource_incoming) &&
-                            !matchPersonLinks(resource_incoming.link, foundResource.link)
-                        ) {
-                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [resource]});
-                        }
-                    }
-                });
-            }
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);

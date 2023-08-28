@@ -1,25 +1,26 @@
 {
-  compilerOptions: {
-    target: "es2021",
-    module: "commonjs",
-    baseUrl: "./",
-    esModuleInterop: true,
-    strict: true,
-    strictNullChecks: true,
-    strictFunctionTypes: true,
-    strictBindCallApply: true,
-    strictPropertyInitialization: true,
-    noEmit: true
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "commonjs",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noEmit": true,
+    "outDir": "dist"
   },
-  files: [
+  "files": [
     "global.d.ts",
     "src/types/jest/index.d.ts"
   ],
-  include: [
+  "include": [
     "src/**/*",
     "test/**/*"
   ],
-  exclude: [
+  "exclude": [
     "node_modules"
   ]
 }

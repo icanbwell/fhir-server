@@ -3,7 +3,6 @@ const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MergeManager} = require('./mergeManager');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
@@ -18,24 +17,22 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {QueryItem} = require('../graph/queryItem');
-const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
-const {matchPersonLinks} = require('../../utils/personLinksMatcher');
 const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
 const {MergeValidator} = require('./mergeValidator');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {MergeValidator} mergeValidator
@@ -44,14 +41,13 @@ class MergeOperation {
         {
             mergeManager,
             databaseBulkInserter,
-            changeEventProducer,
+            postSaveProcessor,
             databaseBulkLoader,
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            sensitiveDataProcessor,
             configManager,
             bwellPersonFinder,
             mergeValidator
@@ -68,10 +64,10 @@ class MergeOperation {
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {DatabaseBulkLoader}
          */
@@ -104,11 +100,6 @@ class MergeOperation {
          */
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
-        /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
 
         /**
          * @type {ConfigManager}
@@ -252,14 +243,6 @@ class MergeOperation {
                 user
             });
 
-            // The access tags are updated before updating the resources.
-            // If access tags is to be updated call the corresponding processor
-            if (this.configManager.enabledAccessTagUpdate) {
-                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                    resource: resourcesIncomingArray,
-                });
-            }
-
             // merge the resources
             await this.mergeManager.mergeResourceListAsync(
                 {
@@ -282,13 +265,14 @@ class MergeOperation {
                 {
                     requestId, currentDate,
                     base_version,
-                    method
+                    method,
+                    userRequestId,
                 });
 
             // flush any event handlers
             this.postRequestProcessor.add({
                 requestId,
-                fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
+                fnTask: async () => await this.postSaveProcessor.flushAsync({requestId})
             });
 
 
@@ -314,51 +298,6 @@ class MergeOperation {
                     action: currentOperationName,
                     result: JSON.stringify(mergeResults, getCircularReplacer())
                 });
-            if (this.configManager.enabledAccessTagUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        let changedConsentResources = [];
-                        let personChangedResources = [];
-                        mergeResults.forEach(mergeResult => {
-                            const { currentResourceType, created, updated } = mergeResult;
-                            const resourceUUID = mergeResult.toJSON().uuid;
-
-                            if (currentResourceType === 'Consent' && (created || updated)) {
-                                changedConsentResources.push(resourceUUID);
-                            }
-                            if (currentResourceType === 'Person' && (created || updated)) {
-                                personChangedResources.push(resourceUUID);
-                            }
-                        });
-                        let consentResources = resourcesIncomingArray.filter((resource) => {
-                            return changedConsentResources.includes(resource._uuid);
-                        });
-                        let personResources = resourcesIncomingArray.filter((resource) => {
-                            if (resource.resourceType !== 'Person') {
-                                return false;
-                            }
-                            let previousResource = this.databaseBulkLoader.getResourceFromExistingList({
-                                requestId: requestId, resourceType: resource.resourceType, uuid: resource._uuid
-                            });
-                            if (!previousResource) {
-                                return true;
-                            }
-                            return (
-                                personChangedResources.includes(resource._uuid) &&
-                                this.bwellPersonFinder.isBwellPerson(resource) &&
-                                !matchPersonLinks(previousResource.link, resource.link)
-                            );
-                        });
-                        if (consentResources.length > 0) {
-                            await this.sensitiveDataProcessor.processPatientConsentChange({ requestId: requestId, resources: consentResources });
-                        }
-                        if (personResources.length > 0) {
-                            await this.sensitiveDataProcessor.processPersonLinkChange({ requestId: requestId, resources: personResources });
-                        }
-                    }
-                });
-            }
 
             /**
              * @type {number}

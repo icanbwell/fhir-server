@@ -21,7 +21,6 @@ const resolveSchema = (version = '4_0_0', schema = '') => {
 };
 /**
  * Utility helpful for checking if a given string is a valid FHIR version
- * within node-fhir-server-core
  * @param {String} version
  */
 

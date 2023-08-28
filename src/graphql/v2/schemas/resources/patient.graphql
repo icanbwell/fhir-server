@@ -111,7 +111,7 @@ type Patient {
     """
     A name associated with the individual.
     """
-    name: [HumanName]        
+    name(use: [String]): [HumanName]        
     """
     A contact detail (e.g. a telephone number or an email address) by which the
     individual may be contacted.

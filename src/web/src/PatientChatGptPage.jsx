@@ -1,9 +1,11 @@
 import './App.css';
 import React, {useState} from 'react';
-// import {useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import FhirApi from "./utils/fhirApi";
+
 
 function PatientChatGptPage() {
-    // const {id} = useParams();
+    const {id} = useParams();
     const [
         textInput,
         setTextInput,
@@ -23,22 +25,13 @@ function PatientChatGptPage() {
         setTextInput(event.target.value);
     };
 
-    // noinspection JSCheckFunctionSignatures
     const callApi = async () => {
         try {
-            const urlEncodedQuestion = encodeURIComponent(textInput);
-            const patientId = `john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3`;
-            const url = `/4_0_0/Patient/${patientId}/$everything?_question=${urlEncodedQuestion}`;
             setApiData({});
             setTextResponse('Running...');
-            const response = await fetch(url,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                });
-            const data = await response.json();
+            const patientId = `john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3`;
+            const fhirApi = new FhirApi();
+            const data = await fhirApi.getPatientEverythingAsync({patientId, question: textInput});
             console.log(data);
             setApiData(data);
             if (data.entry && data.entry.length > 0) {
@@ -55,7 +48,7 @@ function PatientChatGptPage() {
 
     return (
         <div className="App">
-            {/*<div>{id}</div>*/}
+            <div>{id}</div>
             <textarea value={textInput} onChange={handleInputChange} rows="4" cols="100"/>
             <br/>
             <button onClick={callApi}>Ask</button>
@@ -74,7 +67,7 @@ function PatientChatGptPage() {
                         <pre>{JSON.stringify(apiData, null, 2)}</pre>
                     </div>
                 ) : (
-                    <p>Loading...</p>
+                    <p></p>
                 )}
             </div>
         </div>

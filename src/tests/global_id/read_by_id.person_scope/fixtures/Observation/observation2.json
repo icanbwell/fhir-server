@@ -42,7 +42,7 @@
         ]
     },
     "subject": {
-        "reference": "Patient/patient1"
+        "reference": "Patient/patient1|medstar"
     },
     "effectivePeriod": {
         "start": "2021-01-01T00:00:00.000Z",

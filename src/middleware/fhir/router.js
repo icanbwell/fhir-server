@@ -129,7 +129,7 @@ class FhirRouter {
      */
     enableOperationRoutesForProfile(app, config, profile, key, parameters, corsDefaults) {
         // Error message we will use for invalid configurations
-        let errorMessage = `Invalid operation configuration for ${key}. Please ` + 'see the Operations wiki for instructions on how to use operations. ' + 'https://github.com/Asymmetrik/node-fhir-server-core/wiki/Operations';
+        let errorMessage = `Invalid operation configuration for ${key}. Please ` + 'see the wiki on how to use operations. ' + 'https://github.com/icanbwell/fhir-server#cheat-sheet';
 
         for (let op of profile.operation) {
             let functionName = hyphenToCamelcase(op.name || '');
@@ -295,7 +295,7 @@ class FhirRouter {
      */
     enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults) {
         if (profile.operation && profile.operation.length) {
-          this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
+            this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
         } // Start iterating over potential routes to enable for this profile
     }
 
@@ -322,7 +322,7 @@ class FhirRouter {
             try {
                 parameters = versions.reduce((all, version) => all.concat(getSearchParameters(lowercaseKey, version, overrideArguments)), []);
             } catch (err) {
-                throw new Error(`${profileName} is an invalid profile configuration, please see the wiki for ` + 'instructions on how to enable a profile in your server, ' + 'https://github.com/Asymmetrik/node-fhir-server-core/wiki/Profile');
+                throw new Error(`${profileName} is an invalid profile configuration, please see the wiki ` + 'for further instruction' + 'https://github.com/icanbwell/fhir-server#cheat-sheet');
             } // Enable all provided operations for this profile
 
             this.enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults);
@@ -411,11 +411,27 @@ class FhirRouter {
                 methods: [currentRoute.type.toUpperCase()]
             }); // Enable cors with preflight
 
+            currentRoute.args = [routeArgs.BASE];
+
             app.options(currentRoute.path, cors(corsOptions)); // Enable base route
 
-            app[currentRoute.type](currentRoute.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), sanitizeMiddleware(currentRoute.args), currentRoute.controller({
-                config
-            }));
+            app[currentRoute.type](
+                currentRoute.path,
+                cors(corsOptions),
+                versionValidationMiddleware(versionValidationConfiguration),
+                sanitizeMiddleware(currentRoute.args),
+                authenticationMiddleware(config),
+                // sofScopeMiddleware({
+                //     route: currentRoute,
+                //     auth: config.auth,
+                //     // name: profileName
+                // }),
+                currentRoute.controller(
+                    {
+                        config
+                    }
+                )
+            );
         }
     }
 

@@ -106,6 +106,12 @@ def main() -> int:
           reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
         }},
         {{
+          name: 'validate',
+          route: '/:id/$validate',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
+        }},
+        {{
           name: 'graph',
           route: '/$graph',
           method: 'POST',

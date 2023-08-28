@@ -363,7 +363,7 @@ class SearchStreamingOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
                 }
             } else { // no records found
                 if (useNdJson) {

@@ -158,13 +158,10 @@ class R4ArgsParser {
                 args,
                 queryParameter
             ));
-            // if it is a valid parameter then add it
-            if (Array.isArray(queryParameterValue)) {
-                // remove undefined/null from array
-                queryParameterValue = queryParameterValue.filter(v => v);
-            }
+
             if (queryParameterValue && (
-                    !Array.isArray(queryParameterValue) || queryParameterValue.length > 0
+                    !Array.isArray(queryParameterValue) ||
+                    queryParameterValue.filter(v => v).length > 0
                 )
             ) {
                 parseArgItems.push(
@@ -179,13 +176,10 @@ class R4ArgsParser {
                     })
                 );
             }
-            // same for 'notEquals' parameters
-            if (Array.isArray(notQueryParameterValue)) {
-                // remove undefined/null from array
-                notQueryParameterValue = notQueryParameterValue.filter(v => v);
-            }
+
             if (notQueryParameterValue && (
-                    !Array.isArray(notQueryParameterValue) || notQueryParameterValue.length > 0
+                    !Array.isArray(notQueryParameterValue) ||
+                    notQueryParameterValue.filter(v => v).length > 0
                 )
             ) {
                 let newModifiers = deepcopy(modifiers);

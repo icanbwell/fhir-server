@@ -153,7 +153,7 @@
     {
       "id": "34266c79-0b93-4d70-aa52-72ca1997c7eb",
       "target": {
-        "reference": "Person/34266c79-0b93-4d70-aa52-72ca1997c7eb",
+        "reference": "Person/34266c79-0b93-4d70-aa52-72ca1997c7eb|mps-api",
         "type": "Person"
       },
       "assurance": "level4"

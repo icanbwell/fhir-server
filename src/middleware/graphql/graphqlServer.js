@@ -5,10 +5,11 @@ const {ApolloServer} = require('@apollo/server');
 const {expressMiddleware} = require('@apollo/server/express4');
 const {join} = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
-const { REQUEST_ID_TYPE} = require('../../constants');
+const {REQUEST_ID_TYPE} = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
+const {buildSubgraphSchema} = require('@apollo/subgraph');
 
 const {
     ApolloServerPluginLandingPageLocalDefault,
@@ -23,10 +24,10 @@ const contentType = require('content-type');
 const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
 /**
- * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<e.Router>}
  */
-const graphql = async (fnCreateContainer) => {
+const graphql = async (fnGetContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
 
@@ -37,9 +38,13 @@ const graphql = async (fnCreateContainer) => {
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
         // eslint-disable-next-line new-cap
-        ApolloServerPluginLandingPageLocalDefault(),
+        ApolloServerPluginLandingPageLocalDefault({
+            embed: {
+                runTelemetry: false
+            },
+        }),
         getBundleMetaApolloServerPlugin(),
-        getApolloServerLoggingPlugin('graphqlv2'),
+        getApolloServerLoggingPlugin('graphql'),
         getAddRequestIdToResponseHeadersPlugin(),
         // ApolloServerPluginLandingPageDisabled()
         getValidateMissingVariableValuesPlugin(),
@@ -52,7 +57,7 @@ const graphql = async (fnCreateContainer) => {
      * @return {Promise<GraphQLContext>}
      */
     async function getContext({req, res}) {
-        const container = fnCreateContainer();
+        const container = fnGetContainer();
 
         /**
          * @type {import('content-type').ContentType}
@@ -105,8 +110,9 @@ const graphql = async (fnCreateContainer) => {
     const server = new ApolloServer(
         {
             // schema: schemaWithResolvers,
-            typeDefs: typeDefs,
-            resolvers: resolvers,
+            schema: buildSubgraphSchema({ typeDefs, resolvers }),
+            // typeDefs: typeDefs,
+            // resolvers: resolvers,
             introspection: true,
             cache: 'bounded',
             plugins: plugins,
@@ -118,6 +124,9 @@ const graphql = async (fnCreateContainer) => {
             //     // be manipulated in other ways, as long as it's returned.
             //     return formattedError;
             // },
+            stringifyResult: (value) => {
+                return JSON.stringify(value, null, 2);
+            },
         });
 
     // apollo requires us to start the server first

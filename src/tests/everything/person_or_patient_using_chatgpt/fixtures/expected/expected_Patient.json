@@ -1,60 +1,60 @@
 {
-  "entry": [
+  "birthDate": "2017-01-01",
+  "gender": "female",
+  "id": "patient1",
+  "identifier": [
     {
-      "id": "patient1",
-      "resource": {
-        "birthDate": "2017-01-01",
-        "gender": "female",
-        "id": "patient1",
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "patient1"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "24a5930e-11b4-5525-b482-669174917044"
-          }
-        ],
-        "meta": {
-          "security": [
-            {
-              "code": "healthsystem1",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "healthsystem1",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "healthsystem1",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "http://healthsystem1health.org/provider",
-          "versionId": "1"
-        },
-        "name": [
-          {
-            "family": "PATIENT1",
-            "given": [
-              "SHYLA"
-            ],
-            "text": "t",
-            "use": "usual"
-          }
-        ],
-        "resourceType": "Patient",
-        "text": {
-          "div": "<p>Date of Birth: 1985-10-15</p>\n",
-          "status": "generated"
-        }
-      }
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "patient1"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "24a5930e-11b4-5525-b482-669174917044"
     }
   ],
-  "resourceType": "Bundle",
-  "total": 1,
-  "type": "searchset"
+  "meta": {
+    "security": [
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://healthsystem1health.org/provider",
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient",
+  "text": {
+    "div": "<div class=\"answer\"><p>Birth Date: December 31, 2016</p></div>",
+    "extension": [
+      {
+        "url": "http://www.icanbwell.com/relevantDocument",
+        "valueString": "{\"pageContent\":\"- Birth Date: December 31, 2016\",\"metadata\":{\"_id\":\"Patient/patient1\",\"uuid\":\"24a5930e-11b4-5525-b482-669174917044\",\"resourceType\":\"Patient\",\"parentUuid\":\"24a5930e-11b4-5525-b482-669174917044\",\"parentResourceType\":\"Patient\",\"reference\":\"Patient/patient1\"}}"
+      },
+      {
+        "url": "http://www.icanbwell.com/prompt",
+        "valueString": "\"Answer the question based only on the following context and Reply in HTML with just the body :\\n- Birth Date: December 31, 2016\\nCurrent Date: 2023-08-22\\nQuestion: What is this patient's date of birth?\\n\""
+      }
+    ],
+    "status": "generated"
+  }
 }

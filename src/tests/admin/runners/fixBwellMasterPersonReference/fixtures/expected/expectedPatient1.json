@@ -1,0 +1,51 @@
+{
+    "id": "1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "4a083f90-1c8a-50ff-8538-32450e1d85ee"
+        }
+    ],
+    "managingOrganization": {
+        "display": "ACME Healthcare, Inc",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Organization/1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Organization/4a083f90-1c8a-50ff-8538-32450e1d85ee"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "thedacare"
+            }
+        ],
+        "reference": "Organization/1"
+    },
+    "meta": {
+        "security": [
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "https://medstar.com/1",
+        "versionId": "1"
+    },
+    "resourceType": "Patient"
+}

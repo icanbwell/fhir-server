@@ -1,0 +1,33 @@
+{
+  "resourceType": "Person",
+  "id": "mps-person",
+  "meta": {
+    "versionId": "1",
+    "source": "https://www.icanbwell.com/enterprise-person-service",
+    "lastUpdated": "2023-02-15T01:06:29.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "mps-api"
+      }
+    ]
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/patient-1"
+      }
+    }
+  ]
+}

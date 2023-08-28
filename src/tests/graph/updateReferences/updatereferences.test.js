@@ -9,8 +9,8 @@ const expectedObservationWithProxyPatientResources = require('./fixtures/expecte
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
-const personResource = require('../../searchParameters/search_by_proxy_patient/search_by_proxy_patient/fixtures/Person/person.json');
-const observation2Resource = require('../../searchParameters/search_by_proxy_patient/search_by_proxy_patient/fixtures/Observation/observation2.json');
+const personResource = require('./fixtures/Person/person.json');
+const observation2Resource = require('./fixtures/Observation/observation2.json');
 const {logInfo} = require('../../../operations/common/logging');
 // graph
 const graphDefinitionResource = require('./fixtures/graph/my_graph.json');

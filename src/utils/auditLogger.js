@@ -196,9 +196,10 @@ class AuditLogger {
      * @param {string} requestId
      * @param {string} currentDate
      * @param {string} method
+     * @param {string} userRequestId
      * @return {Promise<void>}
      */
-    async flushAsync({requestId, currentDate, method}) {
+    async flushAsync({requestId, currentDate, method, userRequestId}) {
         /**
          * Audit entries are always of resource type AuditEvent
          * @type {string}
@@ -215,7 +216,8 @@ class AuditLogger {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: this.base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
             /**

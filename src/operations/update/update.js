@@ -1,12 +1,9 @@
-const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -22,9 +19,8 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
-const { matchPersonLinks } = require('../../utils/personLinksMatcher');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
@@ -34,7 +30,7 @@ class UpdateOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
@@ -45,13 +41,12 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
             databaseQueryFactory,
-            changeEventProducer,
+            postSaveProcessor,
             auditLogger,
             postRequestProcessor,
             scopesManager,
@@ -62,7 +57,6 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor,
             bwellPersonFinder
         }
     ) {
@@ -72,10 +66,10 @@ class UpdateOperation {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {AuditLogger}
          */
@@ -131,12 +125,6 @@ class UpdateOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
-
-        /**
          * @type {BwellPersonFinder}
          */
         this.bwellPersonFinder = bwellPersonFinder;
@@ -167,7 +155,8 @@ class UpdateOperation {
             path,
             body, /** @type {string|null} */
             requestId, /** @type {string} */
-            method
+            method,
+            /**@type {string} */ userRequestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -190,7 +179,7 @@ class UpdateOperation {
         let resource_incoming_json = body;
         let {base_version, id} = parsedArgs;
 
-        if (isTrue(env.LOG_ALL_SAVES)) {
+        if (this.configManager.logAllSaves) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming_json,
@@ -205,9 +194,9 @@ class UpdateOperation {
          */
         let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
-        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs['_validate']) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
-            resource_incoming_json.id = resource_incoming_json.id.slice(0, 64);
+            resource_incoming_json.id = id.slice(0, 64);
             /**
              * @type {OperationOutcome|null}
              */
@@ -222,7 +211,7 @@ class UpdateOperation {
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                if (this.configManager.logValidationFailures) {
                     await sendToS3('validation_failures',
                         resourceType,
                         resource_incoming_json,
@@ -326,21 +315,14 @@ class UpdateOperation {
             }
 
             if (doc) {
-                // The access tags are updated before updating the resources.
-                // If access tags is to be updated call the corresponding processor
-                if (this.configManager.enabledAccessTagUpdate) {
-                    await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                        resource: doc,
-                    });
-                }
-
                 /**
                  * @type {MergeResultEntry[]}
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
                         requestId, currentDate, base_version: base_version,
-                        method
+                        method,
+                        userRequestId,
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -364,7 +346,7 @@ class UpdateOperation {
                             ids: [resource_incoming['id']]
                         }
                     );
-                    await this.auditLogger.flushAsync({requestId, currentDate, method});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
                 }
 
                 // changing the attachment._file_id to attachment.data for response
@@ -388,30 +370,13 @@ class UpdateOperation {
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async () => {
-                        await this.changeEventProducer.fireEventsAsync({
+                        await this.postSaveProcessor.afterSaveAsync({
                             requestId, eventType: 'U', resourceType, doc
                         });
-                        await this.changeEventProducer.flushAsync({requestId});
+                        await this.postSaveProcessor.flushAsync({requestId});
                     }
                 });
-                if (this.configManager.enabledAccessTagUpdate) {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
-                            }
-                            if (
-                                mergeResults[0].resourceType === 'Person' &&
-                                (mergeResults[0].created || mergeResults[0].updated) &&
-                                this.bwellPersonFinder.isBwellPerson(doc) &&
-                                !matchPersonLinks(doc.link, foundResource.link)
-                            ) {
-                                await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
-                            }
-                        }
-                    });
-                }
+
                 return result;
             } else {
                 // not modified
@@ -424,7 +389,7 @@ class UpdateOperation {
                 };
             }
         } catch (e) {
-            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+            if (this.configManager.logValidationFailures) {
                 await sendToS3('errors',
                     resourceType,
                     resource_incoming_json,

@@ -22,7 +22,8 @@ Sentry.init({
 const main = async function () {
     try {
         initialize();
-        await createServer(() => createContainer());
+        const container = createContainer();
+        await createServer(() => container);
     } catch (e) {
         console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));
     }

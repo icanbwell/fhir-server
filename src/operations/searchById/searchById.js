@@ -133,6 +133,7 @@ class SearchByIdOperation {
             scope,
             /** @type {string} */
             requestId,
+            /**@type {string} */ userRequestId,
             /** @type {string} */ method
         } = requestInfo;
 
@@ -191,6 +192,9 @@ class SearchByIdOperation {
              * @type {Resource[]}
              */
             const resources = await cursor.toArrayAsync();
+            /**
+             * @type {ParsedArgsItem|undefined}
+             */
             const originalIdParsedArg = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
             if (resources.length > 1 &&
                 originalIdParsedArg &&// in case of patient proxy lookup allow multiple resources
@@ -242,7 +246,7 @@ class SearchByIdOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {

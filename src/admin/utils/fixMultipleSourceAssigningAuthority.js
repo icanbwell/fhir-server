@@ -59,9 +59,9 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
     }
     resource.meta.security = securityWithoutOriginalOwnersAndAuthority;
 
-    let identifier = resource.identifier || [];
-    resource.identifier = identifier.filter(i => i.system !== IdentifierSystem.uuid);
-
+    if (Array.isArray(resource.identifier)) {
+        resource.identifier = resource.identifier.filter(i => i.system !== IdentifierSystem.uuid);
+    }
     delete resource._uuid;
 
     return resource;
@@ -87,8 +87,9 @@ function fixResource(resource) {
     resource._sourceAssigningAuthority = newSourceAssigningAuthority.code;
     resource.meta.security = securityWithoutOriginalAuthority;
 
-    let identifier = resource.identifier || [];
-    resource.identifier = identifier.filter(i => i.system !== IdentifierSystem.uuid);
+    if (Array.isArray(resource.identifier)) {
+        resource.identifier = resource.identifier.filter(i => i.system !== IdentifierSystem.uuid);
+    }
 
     delete resource._uuid;
 

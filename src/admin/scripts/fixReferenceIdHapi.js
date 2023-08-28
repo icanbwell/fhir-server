@@ -1,4 +1,12 @@
-// load config from .env.  Should be first thing so env vars are available to rest of the code
+if (process.argv.includes('--dotenv')) {
+    const path = require('path');
+    const dotenv = require('dotenv');
+    const pathToEnv = path.resolve(__dirname, '.env');
+    dotenv.config({
+        path: pathToEnv
+    });
+    console.log(`Reading config from ${pathToEnv}`);
+}
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
@@ -105,6 +113,7 @@ async function main() {
  * nvm use
  * node src/admin/scripts/fixReferenceIdHapi.js --collections=Practitioner_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdHapi.js --collections=all --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdHapi.js --collections=all --batchSize=10000 --dotenv
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdHapi.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdHapi.js --collections=Person_4_0_0 --batchSize=10000 --hapiCollections=Person_4_0_0,Patient_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdHapi.js --collections=Person_4_0_0 --batchSize=10000 --hapiCollections=Person_4_0_0,Patient_4_0_0 --useTransaction

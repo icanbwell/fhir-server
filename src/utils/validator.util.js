@@ -8,9 +8,7 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {validateReferences} = require('./referenceValidator');
 
-// Create this once for the app since it is an expensive operation
-const validator = new JSONValidator();
-const schema = validator.schema;
+const schema = require('../fhir/generator/json/fhir.schema.json');
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
@@ -39,7 +37,7 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {Object} resourceObj - fhir resource object
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource(resourceBody, resourceName, path, resourceObj = null) {
+function validateResource({resourceBody, resourceName, path, resourceObj = null}) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -76,7 +74,7 @@ function validateResource(resourceBody, resourceName, path, resourceObj = null) 
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
             severity: 'error',
             code: 'invalid',
-            details: new CodeableConcept({ text: err }),
+            details: new CodeableConcept({text: err}),
         })));
     }
     if (issue && issue.length) {

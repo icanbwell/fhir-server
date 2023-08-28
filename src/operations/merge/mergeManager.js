@@ -2,7 +2,6 @@ const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
 const {BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
-const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
 const {isTrue} = require('../../utils/isTrue');
 const {groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid} = require('../../utils/list.util');
@@ -251,7 +250,7 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
         }
 
-        if (isTrue(env.LOG_ALL_SAVES)) {
+        if (this.configManager.logAllSaves) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 resourceToMerge,
@@ -339,7 +338,7 @@ class MergeManager {
                         }
                     ]
                 };
-                if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                if (this.configManager.logValidationFailures) {
                     await sendToS3('errors',
                         resourceToMerge.resourceType,
                         resourceToMerge,
@@ -870,7 +869,7 @@ class MergeManager {
             }
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            await this.auditLogger.flushAsync({requestId, currentDate, method});
+            await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId: requestInfo.userRequestId});
         } catch (e) {
             throw new RethrownError({
                 error: e

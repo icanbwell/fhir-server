@@ -1,0 +1,54 @@
+{
+  "resourceType": "Condition",
+  "id": "2169a56959b45ca06d27923fe76070e5cdd27f2ad07b370c559ab4300a2774e",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2021-12-15T15:30:30+00:00",
+    "source": "/patients",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "B"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "B"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+          "code": "encounter-diagnosis"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://hl7.org/fhir/sid/icd-10-cm",
+        "code": "J45909",
+        "display": "Unspecified asthma, uncomplicated"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/patient1"
+  },
+  "encounter": {
+    "reference": "Encounter/16846b8f30f338549c1bcda50335cfc352429282c17e1c58b8c94937a1793e2"
+  },
+  "onsetDateTime": "2023-06-13T00:00:00+00:00",
+  "recordedDate": "2023-06-14T07:00:00+00:00"
+}

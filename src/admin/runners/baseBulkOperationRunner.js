@@ -7,6 +7,7 @@ const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
 const sizeof = require('object-sizeof');
+const { MongoServerError } = require('mongodb');
 const {RethrownError} = require('../../utils/rethrownError');
 const {sliceIntoChunks} = require('../../utils/list.util');
 
@@ -57,6 +58,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number|undefined} [skip]
      * @param {string[]|undefined} [filterToIds]
      * @param {string|undefined} [filterToIdProperty]
+     * @param {boolean} useEstimatedCount
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -77,7 +79,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             useTransaction,
             skip,
             filterToIds,
-            filterToIdProperty
+            filterToIdProperty,
+            useEstimatedCount = false
         }
     ) {
         try {
@@ -91,32 +94,61 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sourceCollection
             } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
-            // this.adminLogger.logInfo(
-            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
-            // );
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${sourceCollectionName}`
+            );
 
             // first get the count
-            const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
-            // this.adminLogger.logInfo(
-            //     `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
-            // );
-            /**
-             * @type {number}
-             */
-            const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCountAsync(
-                {
-                    collection: sourceCollection,
-                    query,
-                    groupKey: 'id'
-                });
-            const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
-            // this.adminLogger.logInfo(
-            //     `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            //     `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            //     `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
-            // );
+            let numberOfSourceDocuments, useLimit;
+            // If count query does not return in 30 seconds, use skip and limit params to restrict the query
+            try {
+                if (useEstimatedCount){
+                    numberOfSourceDocuments = await sourceCollection.estimatedDocumentCount();
+                } else {
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+                }
+            } catch (e){
+                if ((e instanceof MongoServerError) && limit){
+                    useLimit = true;
+                    try {
+                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
+                    } catch (ex){
+                        numberOfSourceDocuments = limit;
+                    }
+                } else {
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+                }
+            }
+
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${destinationCollectionName}`,
+            );
+
+            let numberOfDestinationDocuments;
+            if (useEstimatedCount) {
+                numberOfDestinationDocuments = await destinationCollection.estimatedDocumentCount();
+            } else {
+                if (useLimit) {
+                    try {
+                        numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000,
+                        });
+                    } catch (ex) {
+                        numberOfDestinationDocuments = limit;
+                    }
+                } else {
+                    numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                }
+
+            }
+            this.adminLogger.logInfo(
+                `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
+            );
 
             if (numberOfSourceDocuments === numberOfDestinationDocuments) {
                 if (skipWhenCountIsSame) {
@@ -175,13 +207,29 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 });
 
             // get the count at the end
-            // this.adminLogger.logInfo(
-            //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-            // );
-            const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+            this.adminLogger.logInfo(
+                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            );
+            let numberOfDestinationDocumentsAtEnd;
+            if (useEstimatedCount) {
+                numberOfDestinationDocumentsAtEnd = await destinationCollection.estimatedDocumentCount();
+            } else {
+                if (useLimit) {
+                    try {
+                        numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000,
+                        });
+                    } catch (ex) {
+                        numberOfDestinationDocumentsAtEnd = limit;
+                    }
+                } else {
+                    numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+                }
+            }
             this.adminLogger.logInfo(
                 `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-                `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
                 `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`
             );
 
@@ -297,20 +345,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
 
                 let loopNumber = 0;
+                let {
+                    session,
+                    sessionId,
+                    sourceDb,
+                    destinationCollection,
+                    sourceCollection,
+                    sourceClient,
+                    destinationClient
+                } = await this.createConnectionAsync(
+                    {
+                        config, destinationCollectionName, sourceCollectionName
+                    });
                 for (const uuidListChunk of uuidListChunks) {
                     loopNumber += 1;
-                    let {
-                        session,
-                        sessionId,
-                        sourceDb,
-                        destinationCollection,
-                        sourceCollection,
-                        sourceClient,
-                        destinationClient
-                    } = await this.createConnectionAsync(
-                        {
-                            config, destinationCollectionName, sourceCollectionName
-                        });
+                    this.adminLogger.logInfo(`Starting loop for uuidChunk ${loopNumber}/${uuidListChunks.length}`);
 
                     this.adminLogger.logInfo(
                         `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -413,13 +462,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                             `mem: ${memoryManager.memoryUsed} ` +
                             `lastId: ${previouslyCheckedId}`);
-                        if (Object.prototype.hasOwnProperty.call(this, 'historyUuidCache') && doc._uuid && !sourceCollectionName.includes('_History')) {
-                            if (!this.historyUuidCache.has(doc.resourceType)) {
-                                this.historyUuidCache.set(doc.resourceType, new Set());
-                            }
-                            let historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
-                            historyUuidCacheSet.add(doc._uuid);
-                        }
+
                         /**
                          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                          */
@@ -427,6 +470,19 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         for (const bulkOperation of bulkOperations) {
                             operations.push(bulkOperation);
                             startFromIdContainer.numOperations += 1;
+                        }
+
+                        if (
+                            Object.prototype.hasOwnProperty.call(this, 'historyUuidCache') &&
+                            doc._uuid &&
+                            !sourceCollectionName.includes('_History') &&
+                            bulkOperations.length > 0
+                        ) {
+                            if (!this.historyUuidCache.has(doc.resourceType)) {
+                                this.historyUuidCache.set(doc.resourceType, new Set());
+                            }
+                            let historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
+                            historyUuidCacheSet.add(doc._uuid);
                         }
 
                         startFromIdContainer.convertedIds += 1;
@@ -515,10 +571,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         }
                     }
                     continueLoop = false; // done
-                    session.endSession();
-                    await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
-                    await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 }
+                session.endSession();
+                await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+                await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
                     `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
@@ -584,6 +640,42 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             }
         );
         return {sourceClient, destinationClient, session, sessionId, sourceDb, destinationCollection, sourceCollection};
+    }
+
+    /**
+     * Creates a single connection and returns the collection instance
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} mongoConfig
+     * @param {string} collectionName
+     * @returns {Promise<{collection: import('mongodb').Collection<import('mongodb').Document>|undefined, session: import('mongodb').ClientSession, sessionId: import('mongodb').ServerSessionId; client: import('mongodb').MongoClient}>}
+     */
+    async createSingeConnectionAsync({ mongoConfig, collectionName }) {
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+
+        /**
+         * @type {import('mongodb').ClientSession}
+         */
+        const session = client.startSession();
+        /**
+         * @type {import('mongodb').ServerSessionId}
+         */
+        let sessionId = session.serverSession.id;
+        this.adminLogger.logInfo('Started session', {'session id': sessionId});
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(mongoConfig.db_name);
+
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').Document>|undefined}
+         */
+        let collection;
+        if (collectionName) {
+            collection = db.collection(collectionName);
+        }
+        return { collection, db, session, client, sessionId };
     }
 
     /**

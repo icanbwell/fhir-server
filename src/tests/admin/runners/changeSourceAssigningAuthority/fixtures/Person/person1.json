@@ -1,0 +1,33 @@
+{
+    "resourceType": "Person",
+    "id": "1",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "rise"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "rise"
+            }
+        ]
+    },
+    "link": [
+        {
+            "target": {
+                "reference": "Person/2",
+                "display": "Eve Everywoman"
+            },
+            "assurance": "level3"
+        },
+        {
+            "target": {
+                "reference": "Patient/1",
+                "display": "Eve Everywoman"
+            },
+            "assurance": "level3"
+        }
+    ]
+}

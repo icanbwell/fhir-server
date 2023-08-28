@@ -21,3 +21,10 @@ module.exports.transaction = () => {
         return service.transaction(req, res).then(result => res.status(200).json(result)).catch(err => next(err));
     };
 };
+
+
+module.exports.question = () => {
+    return (req, res, next) => {
+            return service.question(req, res).then(result => res.status(200).json(result)).catch(err => next(err));
+    };
+};

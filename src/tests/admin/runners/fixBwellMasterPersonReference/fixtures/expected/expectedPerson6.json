@@ -1,0 +1,30 @@
+{
+    "id": "unique",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "unique"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "62486179-4970-516a-ab65-10e50e0df229"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell",
+        "versionId": "1"
+    },
+    "resourceType": "Person"
+}

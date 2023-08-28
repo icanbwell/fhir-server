@@ -1,0 +1,109 @@
+{
+    "_sourceAssigningAuthority": "bwell",
+    "_sourceId": "1",
+    "_uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07",
+    "author": {
+        "_sourceAssigningAuthority": "bwell",
+        "_sourceId": "Practitioner/f201",
+        "_uuid": "Practitioner/58ada394-90f3-5494-a0df-90d6a21f75b0",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/f201"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/58ada394-90f3-5494-a0df-90d6a21f75b0"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+            }
+        ],
+        "reference": "Practitioner/f201"
+    },
+    "authored": "2013-06-18T00:00:00+01:00",
+    "id": "1",
+    "identifier": {
+        "system": "bwell"
+    },
+    "item": [
+        {
+            "answer": [
+                {
+                    "valueBoolean": true
+                }
+            ],
+            "linkId": "1",
+            "text": "Do you have allergies?"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell"
+    },
+    "resourceType": "QuestionnaireResponse",
+    "source": {
+        "_sourceAssigningAuthority": "bwell",
+        "_sourceId": "Practitioner/f201",
+        "_uuid": "Practitioner/58ada394-90f3-5494-a0df-90d6a21f75b0",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/f201"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/58ada394-90f3-5494-a0df-90d6a21f75b0"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+            }
+        ],
+        "reference": "Practitioner/f201"
+    },
+    "status": "completed",
+    "subject": {
+        "_sourceAssigningAuthority": "bwell",
+        "_sourceId": "Patient/f201",
+        "_uuid": "Patient/58ada394-90f3-5494-a0df-90d6a21f75b0",
+        "display": "Roel",
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/f201"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/58ada394-90f3-5494-a0df-90d6a21f75b0"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+            }
+        ],
+        "reference": "Patient/f201"
+    },
+    "text": {
+        "status": "generated"
+    }
+}

@@ -2,7 +2,7 @@ const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
-const moment = require('moment-timezone');
+// const moment = require('moment-timezone');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { fixMultipleAuthorities } = require('../utils/fixMultipleSourceAssigningAuthority');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
@@ -139,7 +139,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
         // batch up the calls to update
-        updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+        // updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         const result = { replaceOne: { filter: { _id: doc._id }, replacement: updatedResource.toJSONInternal() } };
         operations.push(result);
         // console.log(`Operation: ${JSON.stringify(result)}`);

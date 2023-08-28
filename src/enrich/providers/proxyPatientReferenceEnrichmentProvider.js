@@ -29,7 +29,11 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 for (const resource of resources) {
                     await resource.updateReferencesAsync({
                         fnUpdateReferenceAsync: async (reference) => {
-                            if (reference.reference && proxyPatientIds.includes(reference.reference)) {
+                            if (
+                                (reference.reference && proxyPatientIds.includes(reference.reference)) ||
+                                // if proxy-patient-ids include the uuid reference
+                                (reference._uuid && proxyPatientIds.includes(reference._uuid))
+                            ) {
                                 reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
                                     proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
                             }
