@@ -168,7 +168,7 @@
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",
     "pdf-parse": "^1.1.1",
-    "pdfreader": "^3.0.2",
+    "pdfjs-dist": "^3.10.111",
     "prom-client": "^14.2.0",
     "response-time": "^2.3.2",
     "sanitize-filename": "^1.6.3",

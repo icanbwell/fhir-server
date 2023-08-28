@@ -1,0 +1,372 @@
+
+# CONTENTS 
+
+### 2023 BENEFIT INFORMATION .............................................................. 3 
+
+### ENROLLMENT FAQS .............................................................................. 4 
+
+### PREMIUM BENEFIT SUMMARY <100K ................................................. 5 
+
+### PREMIUM BENEFIT SUMMARY >100K................................................ .6 
+
+### MEDICAL ......................................................................................... 7 8 
+
+### HEALTHCARE REIMBURSEMENT ACCOUNT ....................................... 9 
+
+### WELCOME TO CIGNA.................................................................. .1011 
+
+### DENTA L....................................................................................... 12 13 
+
+### VISION .......................................................................................1 4 15 
+
+### SHORT TERM DISABILITY ............................................................... 16 
+
+### LONG TERM DISABILITY ............................................................... 16 
+
+### LIFE INSURANCE .......................................................................... 16 
+
+### VOLUNTARY LIFE INSURANCE ..................................................... 16 
+
+### CRITICAL ILLNESS.........................................................................17 
+
+### ACCIDENT......................................................................................1 8 
+
+### HEALTH SAVINGS ACCOUNT ........................................................ 19 
+
+### FLEXIBLE SPENDING ACCOUNT ...................................................... 20 
+
+### EMPLOYEE ASSISTANCE PROGRAM.............................. .. ............ ..2 1 
+
+### AURA.............................................................................................2 2 
+
+### PET INSURANCE............................................................... .. ...........2 3 
+
+### LEGAL SERVICES......................................................................2 4 25 
+
+### CONTACT INFORMATION ................................................................ 26 
+
+ The information in this Enrollment Guide is presented for illustrative purposes and is based on information provided by the employer. The text contained in this Guide was taken from various summary plan descriptions and benefit information. While every effort was taken to accurately report your benefits, discrepancies, or errors are always possible. In case of discrepancy between the Guide and the actual plan documents, the actual plan documents will prevail. The plan documents will govern all plans covered in this Guide. The Guide is not a contract or a guarantee of your eligibility or benefit. All information is confidential, pursuant to the Health Insurance Portability and Accountability Act of 1996. If you have any questions about your Guide, contact your administrator. If you sign up for coverage that requires evidence of insurability, even though deductions may start, you are not considered enrolled in the plans until confirmed by the carrier. If declined, you will be reimbursed. 
+
+
+# 2023 BENEFIT INFORMATION 
+
+ This benefit enrollment period is your opportunity to choose the benefits that are best for you and your lifestyle. This guide has been prepared with all the information you need to select your 202 3 benefit coverages. Your benefits are effective June 1 st, 2023 through May 31 st, 202 4. Below are some changes we want you to be aware of as well as some updated information regarding the Affordable Care Act (ACA): 
+
+- First and foremost, b.well Connected Health has negotiated and worked hard with Cigna to minimize     benefit changes to our plan. In an environment where annual costs continue to go up, we are pleased     that we were able to continue to offer a very high employer contribution to offset premiums. 
+
+- b.well Connected Health is pleased to continue to provide coverage on the 1 st^ month following date     of employment on both the PPO & HDHP plans, Dental, Vision, Basic Life, Voluntary Life/AD&D,     Short/Long Term Disability, and FSA/HSA & Dependent Care. As you consider your healthcare options, please remember: 
+
+- If you enroll in any of the Medical plans offered by b.well Connected Health, you will meet the     current ACA Individual Mandate and will not be subject to IRS penalties. 
+
+- You will not be eligible for any premium subsidies offered in the marketplace. As a full-time     employee, b.well Connected Health already subsidizes your cost of medical insurance and meets     the affordability requirement of the employer mandate under ACA. 
+
+
+# BENEFIT ENROLLMENT FAQS 
+
+## WHO IS ELIGIBLE FOR BENEFITS? 
+
+- All regular full time b.well Connected Health employees who work an average of a minimum     of 30 hours per week are eligible for benefits. Please note that regular part time and seasonal     full-time employees who work a minimum average of 30 hours per week are only eligible for     Health, prescription drug and dental benefits. 
+
+## HOW DO I ENROLL FOR BENEFITS? 
+
+- The first step is to review your benefit offerings displayed in this enrollment guide. Our     carriers are Cigna (Medical), Ameritas (Dental & Vision), Mutual of Omaha (STD, LTD, Basic     Life, Voluntary Life, Accident & Critical Illness). 
+
+- Once decided, you will then be able to make your elections by logging into the online Paycor     portal. You must complete the enrollment elections during your enrollment period via     our online web portal. If you do not complete online enrollment elections, you could have     an interruption in insurance coverage. 
+
+## CAN I MAKE CHANGES AFTER ENROLLMENT? 
+
+- After your enrollment concludes, to make any changes you will have to have a qualifying     change in status. Qualified changes in status include: marriage; divorce; legal separation;     birth or adoption of a child; change in child’s dependent status; death of spouse, child or     other qualified dependent; commencement or termination of adoption proceedings; change     in residence due to an employment transfer; or change in spouse’s employment status. This     must be done within thirty days of your qualified life event. 
+
+## THINGS TO REMEMBER ... 
+
+- Please don’t forget your balance in your Flexible Spending Account. You have 90 days to     file claims against your 2022- 2023 annual election. No amount over $570 will be rolled over     into the new plan year. Don’t forget that we offer Accident, Critical Illness, Pet Insurance,     Legal Services, & Identity Theft coverages. You’re able to enroll in these benefits at open     enrollment! 
+
+
+# PREMIUM BENEFIT SUMMARY under $100,000 
+
+ HDHP Savings Plan $34.88 $112. 38 $89.13 $147.25 PPO Plan $85.25 $170.50 $155.00 $ 232 .50 Dental Plan $0 $10.00 $10.00 $15.00 Vision Plan $0 $4.00 $3.00 $5.00 Critical Illness Please see PayCor for exact cost, chart on page 13 Accident $5.28 $8.59 $11.92 $16.27 
+
+## b.well Semi Monthly Contributions 
+
+ Employee Only Employee & Spouse Employee & Children Family HDHP Savings Plan $337.67 $744.50 $600.10 $985.32 PPO Plan $438.99 $1,035.25 $814.84 $1,361.18 Dental Plan $16.7 6 $23.32 $26.18 $41.32 Vision Plan $3.61 $4.42 $ 3 .62 $ 5 .23 Basic Life & AD&D Employer Paid, please see PayCor for employer contribution Short Term Disability Employer Paid, please see PayCor for employer contribution Long Term Disability Employer Paid, please see PayCor for employer contribution 
+
+#### Voluntary Life Age Banded Rates, please see Paycor for your deduction 
+
+## Employee Semi Monthly Deductions 
+
+ Employee Only Employee & Spouse Employee & Children Family 
+
+## Voluntary Supplemental Benefits & EE Costs 
+
+ Employee Only Employee & Spouse Employee & Children Family 
+
+
+# PREMIUM BENEFIT SUMMARY over $100,000 
+
+ HDHP Savings Plan $54.25 $143.38 $116.25 $193.75 PPO Plan $100.75 $224.75 $178.25 $294.50 Dental Plan $ 0 $10.00 $ 10 .00 $ 1 5.00 Vision Plan $ 0 $4.00 $3.00 $5.00 Critical Illness Please see PayCor for exact cost, chart on page 13 Accident $5.28 $8.59 $11.92 $16.27 
+
+## b.well Semi Monthly Contributions 
+
+ Employee Only Employee & Spouse Employee & Children Family HDHP Savings Plan $318.3 0 $713.50 $572.98 $938.8 2 PPO Plan $ 423 .49 $981.00 $791.59 $1299.18 Dental Plan $16.7 6 $ 2 3.32 $26.18 $41.32 Vision Plan $3.61 $ 4 .42 $ 3 .62 $ 5 .23 Basic Life & AD&D Employer Paid, please see PayCor for employer contribution Short Term Disability Employer Paid, please see PayCor for employer contribution Long Term Disability Employer Paid, please see PayCor for employer contribution 
+
+Voluntary Life (^) Age Banded Rates, please see Paycor for your deduction 
+
+## Employee Semi Monthly Deductions 
+
+ Employee Only Employee & Spouse Employee & Children Family 
+
+## Voluntary Supplemental Benefits & EE Costs 
+
+ Employee Only Employee & Spouse Employee & Children Family 
+
+
+# MEDICAL Cigna 
+
+## PPO Plan 
+
+## In-Network Out of Network 
+
+Deductible $ 1 , 000 Single / $ 2 ,000 Family $ 1 ,000 Single/$ 2 ,000 Family Coinsurance $ 0 Single / $0 Family $ 4 , 000 Single / $ 8 , 0 00 Family Employee Maximum Out of Pocket *Inc. Deductibles/ Copays $2,500 Single / $ 5 ,000 Family $ 5 ,000 Single/$ 10 ,000 Family Coinsurance Percentage 10 0% CIGNA / 0% Employee 8 0% CIGNA / 2 0% Employee Hospital/In and Out-Patient IP: Deductible/Coinsurance OP: Deductible/Coinsurance IP: Deductible/Coinsurance OP: Deductible/Coinsurance Primary Care Physician $ 20 Co-pay Deductible/Coinsurance Specialist Physician $ 3 0 Co-pay Deductible/Coinsurance Preventive Screenings 100%, Covered by CIGNA Not Covered Urgent Care $ 3 0 Co-pay Deductible/Coinsurance Chiropractic20 visits Deductible, $ 500 annual max Deductible/Coinsurance Physical Therapy $30 copay/100% Deductible/Coinsurance Acupuncture $30 Co-pay Deductible/Coinsurance Telehealth $ 45 $55 Co-pay Deductible/Coinsurance Office Surgery PCP/Specialist Co-pay Deductible/Coinsurance Emergency Room $ 1 00 Copay/ Deductible/Coinsurance Deductible/Coinsurance Prescription Copays *There is no Rx deductible $1 0 Generic $ 25 Preferred $ 45 Non-Preferred 30% up to $15 0 Specialty Meds Deductible/Coinsurance Lifetime Maximum Unlimited Unlimited 
+
+
+# MEDICAL Cigna 
+
+## HDHP Plan/Savings Plan 
+
+## In-Network Out of Network 
+
+Deductible $3, 0 00 Single / $ 6 ,000 Family $ 6 ,000 Single / $1 2 ,000 Family Coinsurance (covered by the HRA) $ 1 , 0 00 Single / $ 2 ,000 Family $ 2 , 0 00 Single / $ 4 , 0 00 Family Employee Maximum Out of Pocket *Inc. Deductibles/Coinsurance/Copays $ 4 , 0 00 Single / $ 8 , 0 00 Family $ 8 ,000 Single / $1 6 ,000 Family HRA Reimbursement *See Page 9 $1,000 Single / $2,000 Family N/A Coinsurance Percentage 70% CIGNA / 30% Employee 5 0% CIGNA / 5 0% Employee Hospital/In and Out-Patient IP: Deductible/Coinsurance OP: Deductible/Coinsurance IP: Deductible/Coinsurance OP: Deductible/Coinsurance Primary Care Physician Deductible/Coinsurance Deductible/Coinsurance Specialist Physician Deductible/Coinsurance Deductible/Coinsurance Preventive Screenings 100%, Covered by CIGNA 100%, Covered by CIGNA Urgent Care Deductible/Coinsurance Deductible/Coinsurance Chiropractic20 visits Deductible/Coinsurance Deductible/Coinsurance $1,000 annual max Physical Therapy Deductible/Coinsurance Deductible/Coinsurance Telehealth Deductible/Coinsurance Deductible/Coinsurance Acupuncture Deductible/Coinsurance Deductible/Coinsurance Office Surgery Deductible/Coinsurance Deductible/Coinsurance Emergency Room Deductible/Coinsurance Deductible/Coinsurance Prescription Copays Deductible/Coinsurance Deductible/Coinsurance Lifetime Maximum Unlimited Unlimited 
+
+
+## Employee pays the first $3,000 
+
+# HEALTH CARE 
+
+# REIMBURSEMENT ACCOUNT (HRA) 
+
+b.well Connected Health provides you a Health Reimbursement Account (HRA) to reimburse eligible medical deductible expenses incurred by Employees and covered Dependents. b.well Connected Health will offer the Health Reimbursement Account (HRA) on the HDHP Savings Plan only. Please see the following description of HRA reimbursement for this plan (the illustration is for In Network benefits). Cigna will process any medical claims after $ 30 00 of your deductible is reached. After receiving your claims, Cigna will pay your provider directly for any claims over the $ 3000 deductible up to the $ 1 ,000 coinsurance max. You can check your HRA status at [http://www.mycigna.com](http://www.mycigna.com) or you can contact Laura Howell and she will check on this for you. 
+
+### HDHP Savings Plan: 
+
+ The total in network coinsurance is $ 1 ,000 for Employee Only and $ 2 ,000 for Employee plus Spouse or more covered. ➢ Employee only coverage: After you satisfy the first $ 3 , 0 00 of in network deductible expenses, the HRA will reimburse the next $1,000 (dollars $ 3 ,00 1 $ 4 ,000) ➢ Employee plus Dependents: See the Employee only in network description above. That schedule applies to both deductible tiers. The maximum reimbursement is $1,000 for incurred in network coinsurance expenses. ($1,000 for employee and $1,000 for spouse). The reimbursement schedule only applies to the HDHP Savings Plan. 
+
+## b.well 
+
+## will pay the next 
+
+## $1,000 to your 
+
+## provider 
+
+
+
+
+### To access network providers, 
+
+### visit http://www.ameritas.com/sign-in & select ‘ Member 
+
+### Sign In ’ 
+
+# DENTAL Ameritas 
+
+ In Network Out of Network (UCR) Preventative 100% 100% Basic Services (Cavities, fillings, simple extractions, Xrays) 8 0% 80% Major Services (Bridges, Crowns, Dentures) 5 0%^ 50% Deductible $ 2 5/3x Family Basic & Major Services Only $ 25 /3x Family Basic & Major Services Only Annual Max $ 2 ,000 $ 2 , 000 Orthodontia: Adult & Child (Lifetime max) 50% to $ 2 , 000 Lifetime Max 50% to $ 1 , 000 Lifetime Max 
+
+Waiting Periods (^) None None b.well Connected Health offers employees and their families a comprehensive dental plan. Our dental plan is administered by Ameritas. Our plan includes coverage for preventive, basic, and major dental services (see certificate for full coverage details). You may visit the dental provider of your choice but we also have a network available. Costs using a network provider are lower than a non-network provider. Ameritas reimburses out of network providers at 90% of usual customary rates. You can access the provider network by going to [http://www.ameritas.com](http://www.ameritas.com) and enter your zip code or your dentist’s name. 
+
+
+
+# VISION Ameritas 
+
+ In Network Out of Network 
+
+Exam Copay $0 (^) Up to $45 Materials Copay $0 (^) N/A Exam Allowance Covered 100% (^) N/A Lenses (per pair) Single Vision Bifocal Trifocal Lenticular Progressive Covered in full Covered in full Covered in full Covered in full See lens options Up to $30 Up to $50 Up to $65 N/A N/A Contacts Elective Medically Necessary Up to $ 100 Covered in full Up to $ 80 Up to $210 Frame Allowance $ 100 Up to $ 100 Frequencies (months) Exam/Lens/Frame 12/12/ 12 Based on service 12/12/ 12 Based on service Lens Options (member cost)* Progressive Lenses Standard Polycarbonate Solid Plastic Dye Plastic Gradient Dye Scratch Resistant Coating Anti-Reflective Coating Up to provider’s contracted fee for Lined Bifocal Lenses. The patient is responsible for the difference between the base lens and the Progressive Lens charge. Covered in full for dependent children $33 for adults $15 (except Pink I & II) $17 $17-$33 $43-$85 Up to Lined Bifocal allowance No Benefit No Benefit No Benefit No Benefit b.well Connected Health offers employees and their families a comprehensive vision plan. Our vision is administered by Ameritas. Our plan includes an annual eye exam, material allowance, material co-pays and other discounts. You may visit the vision provider of your choice but we also have a network available consisting of retail stores and other private practices. Costs using a network provider are lower than a non-network provider. You can access the provider network by going to [http://www.vsp.com](http://www.vsp.com) and entering your zip code in the provider search or by calling 1800 877 7195. You do not have to be on the medical plan to have vision coverage. 
+
+### To access network providers, 
+
+### visit http://www.vsp.com & select ‘ Find a Doctor ’” 
+
+
+
+# SHORT TERM DISABILITY Mutual of Omaha 
+
+### (100% paid by employer) 
+
+Plan Benefits Weekly Benefit Up to $ 2 , 4 00 per week Income Replaced 6 0% Elimination Period 14 th^ day accident/ 14 th^ day sickness Benefit Payable 12 weeks b.well Connected Health offers Short Term Disability to help offset lost income in the case of a disability. This is employer paid for all employees. 
+
+# LONG TERM DISABILITY Mutual of Omaha 
+
+### (100% paid by employer) 
+
+Plan Benefits Monthly Benefit Up to $ 10 ,000 per month Income Replaced 5 0% Elimination Period 90 days Partial Disability Paid Yes Benefit Payable To age 65/SSNRA b.well Connected Health provides all full time employees with a Long Term Disability plan. Your Long Term plan covers you up to 5 0% of your income to a maximum of $ 10 ,000 per month. The Long Term plan could cover you to Social Security Normal Retirement Age. This is a gross up plan, where the disability contract provides a benefit that is not taxed to employees while out on a disability claim. 
+
+# LIFE INSURANCE Mutual of Omaha 
+
+### (100% paid by employer) 
+
+Employees are provided with Group Basic Term Life in the amount of $50,000 for all employees. Our coverage includes accidental death & dismemberment coverage. For accidental death our plan pays 100% of the life benefit (See the certificate of coverage for dismemberment benefits). The benefit amount is subject to age restrictions starting at age 65. Be sure to keep your beneficiaries up to date! 
+
+# VOLUNTARY LIFE INSURANCE Mutual of Omaha 
+
+### (100% paid by employee) 
+
+We also offer the ability to purchase additional voluntary life insurance. You are guaranteed to be accepted for up to $1 0 0,000 for yourself, $ 25 ,000 for your spouse, and $10,000 for dependents. This coverage is guarantee issue (no health questions asked) at initial enrollment after your date of hire. Spouse and/or dependent coverage is only available if you elect voluntary life coverage on yourself. You can purchase more than the guaranteed issue, up to 5x your salary to a max of $ 5 00,000, if you fill out an Evidence of Insurability and are approved by the carrier. **If you wish to pick up coverage at a later date you will be subject to evidence of insurability** (required to fill out a health questionnaire). Please see b.well Connected Health People & Culture for the appropriate paperwork. 
+
+
+# ADDITIONAL VOLUNTARY BENEFITS 
+
+**Critical Illness (Including Cancer)** 
+
+### (100% paid by employee) 
+
+As a fulltime employee, you have the option to elect these additional voluntary benefits through Mutual of Omaha. These benefits provide a lump-sum payment to you if you have an eligible claim. **Your rates are based on coverage level/benefit amount selection & age**. This benefit will help you pay for non-medical and out-of-pocket medical expenses upon diagnosis of one of eleven covered specified critical illnesses. This product provides a lump sum payment of $5,000 or $10,000 upon diagnosis. **This plan also includes a benefit for a completed covered health screening test for $50 per each insured person. Spouse rates are the same as employee rates. Spouses can enroll for 100% of the member benefit.** Example: If you are between the ages of 3039 , your semi-monthly cost for a $1 0 ,000 benefit is $ 2. 35. **Child Insurance is automatic if Employee coverage is purchased **Critical Illness Benefit Amount Semi-Monthly Deduction Issue Age $ 10 ,000 $ 2 0,000 $30,000 30 &U** $1.35 $2.70 $4.05 **30 39** $2.35 $4.70 $7.05 **40 49** $5.05 $10.10 $15.15 **50 59** $10.45 $20.90 $31.35 **60 69** $21.85 $43.70 $65.55 **Benefit Category/Critical Illness Benefit Heart/Circulatory Category** Heart Attack (Myocardial Infarction) 100% of the CI Principal Sum Heart Transplant/Placement on UNOS List 100% of the CI Principal Sum Heart Valve Surgery 25% of the CI Principal Sum Coronary Artery Bypass 25% of the CI Principal Sum Aortic Surgery 25% of the CI Principal Sum Stroke 100% of the CI Principal Sum **Organ Category** Major Organ Transplant/Placement on UNOS List 100% of the CI Principal Sum End-stage Renal Failure 100% of the CI Principal Sum Acute Respiratory Distress Syndrome (ARDS) 25% of the CI Principal Sum **Childhood/Developmental Category** Cerebral Palsy 100% of the CI Principal Sum Structural Congenital Defects 100% of the CI Principal Sum Genetic Disorders 100% of the CI Principal Sum Congenital Metabolic Disorders 100% of the CI Principal Sum Type 1 Diabetes 100% of the CI Principal Sum **Cancer Category** Cancer (Invasive) 100% of the CI Principal Sum Bone Marrow Transplant 5 0% of the CI Principal Sum Carcinoma in Situ 25 % of the CI Principal Sum Benign Brain Tumor 25 % of the CI Principal Sum 
+
+
+# VOLUNTARY ACCIDENT 
+
+### (100% paid by employee) 
+
+As a full-time employee, you have the option to elect Accident Insurance. If an insured person is injured as a result of an accident, an express benefit will be paid upon notification of the accident. The benefit is payable once per accident for each injured person. This is off-job coverage only. Children are allowed to be covered up to age 26. **Benefit Amount Initial Care** Emergency Room $150 Urgent Care Center $100 Initial Physician Office Visit $75 **Fractures Open Reduction Closed Reduction** Skull, depressed (Cranial bones) $6,000 $3,000 Bones of face (except nose and lower jaw) $1,200 $600 Nose $900 $450 Shoulder Blade $1,200 $600 Collarbone $900 $450 Rib $900 $450 Upper Arm $1,200 $600 Wrist $1,200 $600 Tailbone $900 $450 Knee Cap $1,200 $600 Ankle $1,200 $600 **Dislocations** Lower jaw $1,800 $900 Elbow $1,800 $900 **Hospital Benefit Amount** Admission $1,000 Daily Confinement $200 per day X-Ray $50 **Accidental Death** Employee/Spouse/Child(ren) $25,000/$10,000/$5,000 Basic Accidental Death 100% **Dismemberment & Paralysis Class 1** Loss of both hands, both feet, entire sight of both eyes or any combination of tow of more of these losses 100% Loss of Thump and Index Finger 25% Accident Plan $5.28 $8.59 $11.92 $16.27 
+
+## Employee Semi Monthly Deductions 
+
+ Employee Only Employee & Spouse Employee & Children Family 
+
+
+# HEALTH SAVINGS ACCOUNT 
+
+If you enroll in the HDHP Medical Plan, you are eligible to contribute to a Health Savings Account (HSA). With an HSA, you can gain more control over your health care expenses because contributions, interest and withdrawals for qualified health care expenses are all pre-tax. Your savings can be used to pay for qualified health care expenses today, tomorrow, next year 
+
+- for your life. You will be provided a debit card to use at point of purchase. Be sure to keep your receipts as the IRS may request these in the event of an audit. 
+
+## Am I eligible? To be eligible to contribute to an HSA, you must meet the following requirements: 
+
+✓ Be covered under an HSA-qualified health plan on the first day of any month for which eligibility is claimed (as described in IRS Publication 969); the offered HDHP Plan meets the requirements. ✓ Not be enrolled in Medicare; ✓ Not be claimed as a dependent on someone else’s tax return; ✓ Have no other insurance except what is permitted by the IRS (see IRS Publication 969). Why choose an HSA? With an HSA, you get to take some of the money that would have gone to pay for higher health insurance premiums and put it into your own pocket. You don’t lose it if you don’t spend it. The HSA, including all the money in the account, is yours. You take the account with you when you change jobs, retire, or leave your qualified health plan. You don’t have to pay taxes on withdrawals for eligible medical expenses. Even if you lose your qualified plan in the future, you can still use the remaining funds in your HSA on qualified medical expenses. IRS HSA Contribution Limits* 2023 Individual $3, 850 Family $7, 750 Age 55+ Catch Up Contribution: Additional $1,000 *These limits are based on your medical plan coverage level. 
+
+## Can I change my contribution? Yes, you can change your contribution at any time by contacting 
+
+Human Resources. Please communicate any changes (including account closings) within 72 hours of making the change. Payroll contribution changes will take place on the following payroll from when the change is approved. 
+
+## What expenses are qualified? You can use your HSA funds to pay for medical, dental, vision, 
+
+and pharmacy expenses. After age 65, you are able to use your account for things other than medical expenses; these amounts withdrawn will still be subject to income taxes but will not be subject to penalties. 
+
+## Can I participate in the FSA and the HSA? It is recommended that you contribute to 
+
+the HSA if you are enrolled in the HDHP medical plan and meet all eligibility requirements. You may not contribute to both an HSA and a Medical FSA at the same time. However, you can participate in an HSA as well as the Dependent Care FSA. 
+
+### Questions about your HSA? 
+
+### http://www.BenefitCoordinators.com 
+
+### Customer Service: (8 00 ) 951 1012 
+
+
+### Questions about your FSA? 
+
+### http://www.benefitslogin.wexhealth.com 
+
+### Customer Service: (8 66 ) 451 3399 
+
+# FLEXIBLE SPENDING 
+
+# ACCOUNT (FSA) 
+
+To help you save money on health care and dependent care costs, b.well Connected Health is happy to offer our employees a Flexible Spending Account & Dependent Care Account administered by Wex. The purpose of both accounts is to allow you to set money aside on a pre-tax basis to cover expenses that are not otherwise covered under a traditional medical, dental or vision plan and to pay daycare expenses. The FSA plan is available with the Enhanced Medical Plan. IRS FSA Contribution Limits FSA Contribution Limit Dependent Care Contribution Limit Health Care FSA $3,0 50 $ 2 ,5 0 0 Single/$ 5 , 0 00 Married (filing jointly) 
+
+## How Does an FSA Work? 
+
+- Employees elect the amount they will use pre-tax for dependent care and healthcare expenses for the full plan     year. (June 1st-May 31st) 
+
+- The annual election is deducted in equal increments from each paycheck. 
+
+- You will receive a debit card to use for your medical FSA transactions. You can use the debit card for any tax     eligible dependents and for Medical, Dental, Vision expenses as well. 
+
+- You save approximately $.30 on every dollar you spend through your FSA! 
+
+## Important Notes for your Medical FSA: 
+
+- [http://www.benefitslogin.wexhealth.com](http://www.benefitslogin.wexhealth.com) is a great tool to file claims, view balances, and email your account manager     with any questions. 
+
+- Estimate your extra medical expenses for the upcoming year so that the right amount is deducted from your     paycheck. An FSA is a use it-or lose it account. You will only be able to roll over $5 7 0 of your unused dollars.     The maximum medical contribution limit for 202 3 is $3,050. 
+
+- Some examples of Covered Expenses are: office visit and prescription drug copays, deductibles/coinsurance,     insulin and diabetic supplies, braces and other orthodontic expenses, weight loss programs prescribed to treat     a medical condition, infertility treatments, orthopedic shoes, hearing aids, lasik/laser eye surgery, medical     equipment (wheelchair, crutches, braces), adoption expenses, breast pumps, prosthetics and artificial limbs. 
+
+## Visit the Wex website for complete FSA information: 
+
+ Be sure to review the employee benefits website at http://www.benefitslogin.wexhealth.com. You will find helpful resources such as an FSA calculator, extensive lists of eligible and ineligible expenses, forms, provider links and answers to frequently asked questions. You can also email their team at customerservice@wexhealth.com 
+
+
+### Toll Free Service Line: (800) 316 2796 
+
+### http://www.mutualofomaha.com/eap 
+
+# EMPLOYEE ASSISTANCE 
+
+# PROGRAM (EAP) 
+
+### When you or your family need useful ideas, helpful resources, or reliable 
+
+### professional care, your EAP is just a phone call away. Free, confidential 
+
+### services include: 
+
+Telephonic assistance and up to three ( 3 ) in-person sessions for: ✓ Stress, depression, and personal problems ✓ Balancing work and personal needs ✓ Family and relationship concerns ✓ Alcohol or drug dependency ✓ Workplace conflicts ✓ Any other issue of concern in your life WorkLife Services: ✓ Financial consultation and resources to set up a budget, obtain and review credit report information or assist with debt management and consolidation. ✓ Legal consultation with an attorney either over the phone or face-to-face for consumer law, traffic citations and fender benders, family law, or estate planning. Online and assisted searches for: ✓ Child and elder care resources and guidance ✓ Adoption assistance ✓ Educational resources ✓ Personal security ✓ Online calculators for a variety of analytical questions and needs ✓ Home improvement ✓ Veterinarians, pet sitting, and obedience training Neither b.well Connected Health nor their People & Culture Department will receive a report as to who has utilized this service. 
+
+## Do not delay if you need help, 
+
+## dedicated professionals are available 24/7 
+
+
+# AURA (Identity & Fraud Protection) 
+
+Online interactions are at an all-time high, making employees more vulnerable to personal data and identity fraud. With this comes an increase in data breaches and identity theft as well. Aura helps prevent fraud before it even happens. Aura’ s all-inone digital theft prevention benefit is designed to keep you and your family safe from identity theft, financial fraud, and o nline threats. If you elect this benefit in PayCor, you will need to agree to a statement provided in PayCor **, as it’s a fe** deral law requiring approval prior to servicing the ID Theft option. 
+
+
+# PET INSURANCE 
+
+
+# LEGAL SERVICES 
+
+
+# LEGAL SERVICES (cont.) 
+
+
+### JEFFCOAT & JEFFCOAT b.well Connected Health 
+
+### Laura Howell Trina Stone 
+
+ laura@jeffcoat andj effcoat.com Trina.stone@icanbwell.com (803) 7562011 
+
+### Kevin Arrowood Alicia Raymond 
+
+ karrowood@jeffcoatandjeffcoat.com Alicia.raymond@icanbwell.com (803) 4901776 
+
+### People & Culture Department 
+
+ Peopl e_support@icanbwell.com 
+
+### Website Portal: 
+
+ http://www.jeffcoatandjeffcoat.com/ client-portal/bwell/ Password: bwell22 
+
+### CARRIERS 
+
+### Cigna Ameritas 
+
+[http://www.mycigna.com](http://www.mycigna.com) (8 00 ) 997 1654 [http://www.ameritas.com](http://www.ameritas.com) (800) 659 2223 
+
+### Mutual of Omaha 
+
+[http://www.mutualofomaha.com](http://www.mutualofomaha.com) (800) 2476875 
+
+### Wex 
+
+[http://www.benefitslogin.wexhealth.com](http://www.benefitslogin.wexhealth.com) (800) 4920669 
+
+### Benefit Coordinators 
+
+[http://www.benefitcoordi](http://www.benefitcoordi) nators.com (800) 9511012 
+
+# CONTACT US 
+
+

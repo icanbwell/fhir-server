@@ -244,8 +244,12 @@ describe('ChatGPT Tests', () => {
         test('convert pdf to documents', async () => {
             const filePath = path.resolve(__dirname, './fixtures/benefits_guide.pdf');
             const pdfBuffer = fs.readFileSync(filePath);
+            // noinspection ES6RedundantAwait
             const text = await pdf2md(pdfBuffer);
             expect(text.length).toBeGreaterThan(0);
+            const expectedFilePath = path.resolve(__dirname, './fixtures/expected/benefits_guide.md');
+            const expectedMarkdown = fs.readFileSync(expectedFilePath, 'utf8');
+            expect(text).toStrictEqual(expectedMarkdown);
         });
     });
 });
