@@ -135,14 +135,14 @@ class MyFHIRServer {
         this.app.use(
             express.urlencoded({
                 extended: true,
-                limit: '50mb',
+                limit: this.configManager.payloadLimit,
                 parameterLimit: 50000,
             })
         );
         this.app.use(
             express.json({
                 type: allowedContentTypes,
-                limit: '50mb',
+                limit: this.configManager.payloadLimit,
             })
         );
 

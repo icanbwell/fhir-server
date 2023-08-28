@@ -501,6 +501,14 @@ class ConfigManager {
     get enableChatGptRewriter() {
         return isTrue(env.ENABLE_CHATGPT_REWRITER);
     }
+
+    /**
+     * returns the size of payload that should be acceptable
+     * @returns {string}
+     */
+    get payloadLimit() {
+        return env.PAYLOAD_LIMIT || '50mb';
+    }
 }
 
 module.exports = {
