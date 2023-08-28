@@ -156,15 +156,20 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
-                resourceConverterFactory: new ResourceConverterFactory()
-            });
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
                 return container;
             });
             const container = getTestContainer();
-            // noinspection JSUnresolvedReference
+
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory(
+                    {
+                        mongoDatabaseManager: container.mongoDatabaseManager,
+                        databaseAttachmentManager: container.databaseAttachmentManager
+                    }
+                )
+            });
             const chatGptManager = new ChatGPTManagerDirect({
                 fhirToDocumentConverter: fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
