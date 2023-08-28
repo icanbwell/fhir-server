@@ -16,6 +16,8 @@ const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentCo
 const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
 const {ConfigManager} = require('../../utils/configManager');
 const {createTestRequest, getTestContainer} = require('../common');
+const pdf2md = require('@opendocsg/pdf2md');
+const fs = require('fs');
 
 class MockConfigManager extends ConfigManager {
     get writeFhirSummaryToVectorStore() {
@@ -238,6 +240,12 @@ describe('ChatGPT Tests', () => {
                 }
             );
             console.log(result);
+        });
+        test('convert pdf to documents', async () => {
+            const filePath = path.resolve(__dirname, './fixtures/benefits_guide.pdf');
+            const pdfBuffer = fs.readFileSync(filePath);
+            const text = await pdf2md(pdfBuffer);
+            expect(text.length).toBeGreaterThan(0);
         });
     });
 });

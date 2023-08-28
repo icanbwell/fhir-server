@@ -15,11 +15,13 @@ class ResourceConverterFactory {
      * constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {PdfToMarkdownConverter}  pdfToMarkdownConverter
      */
     constructor(
         {
             mongoDatabaseManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            pdfToMarkdownConverter
         }
     ) {
         this.converterMapping = {
@@ -36,7 +38,8 @@ class ResourceConverterFactory {
             'DocumentReference': new DocumentReferenceConverter(
                 {
                     mongoDatabaseManager,
-                    databaseAttachmentManager
+                    databaseAttachmentManager,
+                    pdfToMarkdownConverter
                 }
             ),
         };

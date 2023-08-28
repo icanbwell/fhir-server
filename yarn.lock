@@ -2590,6 +2590,15 @@
     "@opencensus/core" "^0.0.8"
     uuid "^3.2.1"
 
+"@opendocsg/pdf2md@^0.1.26":
+  version "0.1.26"
+  resolved "https://registry.yarnpkg.com/@opendocsg/pdf2md/-/pdf2md-0.1.26.tgz#788c5f676fcfe38e053c2d34ac8df373e66ed7cf"
+  integrity sha512-n/sty2aaaTf27qr6Ib7xekH7g3F3m5yTJY/eGSeWsQrUAVLlHPLUMuceubQUu8QShFTU6WxXDblQyMyy7Lergw==
+  dependencies:
+    enumify "^1.0.4"
+    minimist "^1.2.5"
+    pdfjs-dist "^2.9.359"
+
 "@opensearch-project/opensearch@^2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@opensearch-project/opensearch/-/opensearch-2.3.1.tgz#3596e2f1f0615a7555102f6f941f0e0ec645c2cd"
@@ -5622,6 +5631,11 @@ domhandler@^5.0.2, domhandler@^5.0.3:
   dependencies:
     domelementtype "^2.3.0"
 
+dommatrix@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/dommatrix/-/dommatrix-1.0.3.tgz#e7c18e8d6f3abdd1fef3dd4aa74c4d2e620a0525"
+  integrity sha512-l32Xp/TLgWb8ReqbVJAFIvXmY7go4nTxxlWiAFyhoQw9RKEOHBZNnyGvJWqDVSPmq3Y9HlM4npqF/T6VMOXhww==
+
 domutils@1.5:
   version "1.5.1"
   resolved "https://registry.npmjs.org/domutils/-/domutils-1.5.1.tgz"
@@ -5778,6 +5792,11 @@ entities@^4.2.0, entities@^4.3.0:
   version "4.5.0"
   resolved "https://registry.npmjs.org/entities/-/entities-4.5.0.tgz"
   integrity sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==
+
+enumify@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/enumify/-/enumify-1.0.4.tgz#2bb6263071dd4551e54c55755707fad24a40cd7e"
+  integrity sha512-5mwWXaVzJaqyUdOW/PDH5QySRgmQ8VvujmxmvXoXj9w0n+6omhVuyD56eI37FMqy/LxueJzsQ4DrHVQzuT/TXg==
 
 env-paths@^2.2.0:
   version "2.2.1"
@@ -8304,9 +8323,9 @@ minimatch@~3.0.2:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@^1.2.0:
+minimist@^1.2.0, minimist@^1.2.5:
   version "1.2.8"
-  resolved "https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
   integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
 
 minipass-collect@^1.0.2:
@@ -9238,6 +9257,14 @@ pdf2json@3.0.1:
   integrity sha512-1pNsakC8F+OuFS72U+ZI0u8J/voPYYDYHj/0B/7ywYUm3w0QurkDBy3pH35kzygjgmJJVHk2a9I6gBswFF8hQQ==
   dependencies:
     "@xmldom/xmldom" "^0.8.6"
+
+pdfjs-dist@^2.9.359:
+  version "2.16.105"
+  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-2.16.105.tgz#937b9c4a918f03f3979c88209d84c1ce90122c2a"
+  integrity sha512-J4dn41spsAwUxCpEoVf6GVoz908IAA3mYiLmNxg8J9kfRXc2jxpbUepcP0ocp0alVNLFthTAM8DZ1RaHh8sU0A==
+  dependencies:
+    dommatrix "^1.0.3"
+    web-streams-polyfill "^3.2.1"
 
 pdfreader@^3.0.2:
   version "3.0.2"

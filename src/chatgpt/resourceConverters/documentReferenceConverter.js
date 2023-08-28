@@ -2,17 +2,20 @@ const {BaseConverter} = require('./baseConverter');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {PdfToMarkdownConverter} = require('../../utils/pdfToMarkdownConverter');
 
 class DocumentReferenceConverter extends BaseConverter {
     /**
      * constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {PdfToMarkdownConverter} pdfToMarkdownConverter
      */
     constructor(
         {
             mongoDatabaseManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            pdfToMarkdownConverter
         }
     ) {
         super();
@@ -28,12 +31,18 @@ class DocumentReferenceConverter extends BaseConverter {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {PdfToMarkdownConverter}
+         */
+        this.pdfToMarkdownConverter = pdfToMarkdownConverter;
+        assertTypeEquals(pdfToMarkdownConverter, PdfToMarkdownConverter);
     }
 
     /**
      * converts a FHIR resource to summary text
      * @param {Resource} resource
-     * @returns {string}
+     * @returns {Promise<string>}
      */
     async convertAsync({resource}) {
         const documentReference = /** @type {DocumentReference} */ resource;
@@ -47,18 +56,16 @@ class DocumentReferenceConverter extends BaseConverter {
                 let attachment = contentItem.attachment;
                 if (attachment && attachment._file_id) {
                     const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-                    /**
-                     * @type {Attachment}
-                     */
-                    attachment = await this.databaseAttachmentManager.convertFileIdToData(attachment, gridFSBucket);
+                    attachment = /** @type {Element} */ await this.databaseAttachmentManager.convertFileIdToData(attachment, gridFSBucket);
                 }
                 if (attachment && attachment.data) {
-                    // base64 decode the data
-                    const contentDecoded = attachment.contentType === 'text/plain' ?
-                        Buffer.from(attachment.data, 'base64').toString('utf8') :
-                        undefined;
-                    if (contentDecoded) {
-                        contentBlocks.push(contentDecoded);
+                    switch (attachment.contentType) {
+                        case 'application/pdf':
+                            contentBlocks.push(this.pdfToMarkdownConverter.convertPdfToMarkdownAsync({pdfBuffer: Buffer.from(attachment.data, 'base64')}));
+                            break;
+                        case 'text/plain':
+                            contentBlocks.push(Buffer.from(attachment.data, 'base64').toString('utf8'));
+                            break;
                     }
                 }
             }

@@ -124,6 +124,7 @@
     "@json2csv/plainjs": "^7.0.3",
     "@json2csv/transforms": "^7.0.3",
     "@mongodb-js/zstd": "^1.1.0",
+    "@opendocsg/pdf2md": "^0.1.26",
     "@opensearch-project/opensearch": "^2.3.1",
     "@popperjs/core": "^2.11.8",
     "@sentry/node": "^6.19.7",

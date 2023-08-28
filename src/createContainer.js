@@ -103,6 +103,7 @@ const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmen
 const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
 const {ChatGPTQueryRewriter} = require('./queryRewriters/rewriters/chatgptQueryRewriter');
+const {PdfToMarkdownConverter} = require('./utils/pdfToMarkdownConverter');
 
 /**
  * Creates a container and sets up all the services
@@ -725,12 +726,15 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
 
+    container.register('pdfToMarkdownConverter', () => new PdfToMarkdownConverter());
+
     container.register('fhirToDocumentConverter', (c) => new FhirToSummaryDocumentConverter(
         {
             resourceConverterFactory: new ResourceConverterFactory(
                 {
                     mongoDatabaseManager: c.mongoDatabaseManager,
-                    databaseAttachmentManager: c.databaseAttachmentManager
+                    databaseAttachmentManager: c.databaseAttachmentManager,
+                    pdfToMarkdownConverter: c.pdfToMarkdownConverter,
                 }
             )
         }
