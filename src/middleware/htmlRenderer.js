@@ -1,6 +1,7 @@
 /**
  * This middleware detects if the request is from a web browser user-agent and returns HTML rendered views
  */
+const httpContext = require('express-http-context');
 const {resourceDefinitions} = require('../utils/resourceDefinitions');
 const {
     searchFormData,
@@ -15,6 +16,7 @@ const sanitize = require('sanitize-filename');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 const {logError} = require('../operations/common/logging');
+const { RESPONSE_NONCE } = require('../constants');
 
 /**
  * Function to convert data into JSON format
@@ -112,7 +114,8 @@ const htmlRenderer = ({container, req, res, next}) => {
                 oauth_scope: scope,
                 admin: admin,
                 requestId: req.id,
-                user: req.user
+                user: req.user,
+                nonce: httpContext.get(RESPONSE_NONCE)
             };
 
             if (resourceDefinition) {

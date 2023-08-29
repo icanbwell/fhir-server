@@ -13,7 +13,7 @@ const {generateUUID} = require('../utils/uid.util');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const { REQUEST_ID_HEADER } = require('../constants');
+const { REQUEST_ID_HEADER, RESPONSE_NONCE } = require('../constants');
 const {logInfo} = require('../operations/common/logging');
 const httpContext = require('express-http-context');
 
@@ -74,7 +74,8 @@ async function synchronizeIndexesAsync(
     const indexManager = container.indexManager;
 
     // return response and then continue processing
-    const htmlContent = '<!DOCTYPE html><html><body><script>setTimeout(function(){window.location.href = "/admin/indexProblems";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>';
+    const nonce = httpContext.get(RESPONSE_NONCE);
+    const htmlContent = `<!DOCTYPE html><html><body><script nonce=${nonce}>setTimeout(function(){window.location.href = "/admin/indexProblems";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>`;
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();

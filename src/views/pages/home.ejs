@@ -6,7 +6,7 @@
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
         <div class="container-fluid">
-            <table class="table sticky-table table-striped table-hover">
+            <table class="table sticky-table table-striped table-hover home-table">
                 <thead>
                     <tr>
                         <th scope="col">Resource</th>
@@ -15,13 +15,12 @@
                 </thead>
                 <tbody>
                     <% resources.forEach(function(resource){%>
-                    <tr onclick="searchResource('<%= resource.name %>')" class="row-click">
+                    <tr data-resource-name="<%= resource.name %>"  data-resource-url="<%= resource.url %>" class="row-click">
                         <td><%= resource.name %></td>
                         <td class="pe-5 position-relative">
                             <%= resource.description %>
                             <i
                                 class="fa fa-file-text-o dox-icon"
-                                onclick="openDox(event, '<%= resource.url %>')"
                                 title="FHIR Specification for <%= resource.name %>"
                             ></i>
                         </td>
@@ -30,6 +29,23 @@
                 </tbody>
             </table>
         </div>
+        <script nonce="<%= nonce %>" type="text/javascript">
+            const table = document.querySelector('.home-table');
+            table.addEventListener('click', function (event) {
+                const target = event.target;
+
+                const row = target.closest('.row-click');
+                if (row) {
+                    const resourceName = row.getAttribute('data-resource-name')
+                    searchResource(resourceName);
+                }
+
+                if (target.classList.contains('dox-icon')) {
+                    const resourceUrl = target.closest('.row-click').getAttribute('data-resource-url');
+                    openDox(event, resourceUrl);
+                }
+            });
+        </script>
         <!-- prettier-ignore -->
         <%- include('../partials/footer', {url: locals.url ? url : '', currentYear: locals.currentYear, meta: locals.meta ? meta : {}}); %>
         <script type="text/javascript" src="/js/home.js"></script>
