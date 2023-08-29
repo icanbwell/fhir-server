@@ -51,7 +51,7 @@ describe('ChatGPT Vector Store Tests', () => {
             documents.push(
                 new ChatGPTDocument(
                     {
-                        content: '#Resource\nPatient\n' +
+                        content: '# Resource\nPatient\n' +
                             '## Patient ID\n12345' +
                             '### Birth Date\n' +
                             'November 30, 1983\n' +
@@ -70,15 +70,14 @@ describe('ChatGPT Vector Store Tests', () => {
             documents.push(
                 new ChatGPTDocument(
                     {
-                        content: '- Resource: Observation\n' +
-                            '- ID: 2354-InAgeCohort\n' +
-                            '- Last Updated: August 26, 2023\n' +
-                            '- Source: /patients\n' +
-                            '- Status: \n' +
-                            '- Category: \n' +
-                            '- Code: \n' +
-                            '- Subject Reference: Patient/patient1\n' +
-                            '- Effective Date/Time:',
+                        content: '# Resource\nObservation\n' +
+                            '## ID\n2354-InAgeCohort\n' +
+                            '### Last Updated\n' +
+                            'August 26, 2023\n' +
+                            '### Source\n' +
+                            '/patients\n' +
+                            '### Subject\n' +
+                            'Patient/patient1',
                         metadata: new ChatGPTMeta(observation1Summary.metadata)
                     }
                 )
