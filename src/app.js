@@ -31,9 +31,10 @@ const cookieParser = require('cookie-parser');
 const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {getImageVersion} = require('./utils/getImageVersion');
-const {REQUEST_ID_TYPE, REQUEST_ID_HEADER} = require('./constants');
+const {REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
 const {logInfo} = require('./operations/common/logging');
+const { generateNonce } = require('./utils/nonce');
 
 /**
  * Creates the FHIR app
@@ -127,10 +128,17 @@ function createApp({fnGetContainer, trackMetrics}) {
     app.set('views', path.join(__dirname, '/views'));
     app.set('view engine', 'ejs');
 
-    app.use(handleSecurityPolicy);
-
     // Used to initialize context for each request
     app.use(httpContext.middleware);
+
+    // generate nonce, and add to httpContext
+    app.use((req, res, next) => {
+        const nonce = generateNonce();
+        httpContext.set(RESPONSE_NONCE, nonce);
+        next();
+    });
+
+    app.use(handleSecurityPolicy);
 
     // noinspection SpellCheckingInspection
     const options = {
@@ -225,7 +233,8 @@ function createApp({fnGetContainer, trackMetrics}) {
         next) => {
         const home_options = {
             resources: resourceDefinitions,
-            user: req.user
+            user: req.user,
+            nonce: httpContext.get(RESPONSE_NONCE),
         };
         if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
             // fall through to the handler in fhirServer.js
