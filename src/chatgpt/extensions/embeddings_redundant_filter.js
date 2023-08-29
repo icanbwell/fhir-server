@@ -53,12 +53,12 @@ function zip(...arrays) {
  * @param {_DocumentWithState[]} documents
  * @return {Promise<number[][]>}
  */
-function _get_embeddings_from_stateful_docs(embeddings, documents) {
+async function _get_embeddings_from_stateful_docs(embeddings, documents) {
     let embedded_documents;
     if (documents.length && 'embedded_doc' in documents[0].state) {
         embedded_documents = documents.map(doc => doc.state['embedded_doc']);
     } else {
-        embedded_documents = embeddings.embedDocuments(documents.map(d => d.pageContent));
+        embedded_documents = await embeddings.embedDocuments(documents.map(d => d.pageContent));
         for (const [doc, embedding] of zip(documents, embedded_documents)) {
             doc.state['embedded_doc'] = embedding;
         }

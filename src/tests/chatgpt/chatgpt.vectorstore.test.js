@@ -91,7 +91,7 @@ describe('ChatGPT Vector Store Tests', () => {
                     text: 'What is the patient\'s age?',
                 }
             );
-            expect(resultDocuments.length).toBe(1);
+            expect(resultDocuments.length).toBe(2);
         });
         test('Vector store search for patient age', async () => {
             await createTestRequest((container) => {
