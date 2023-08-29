@@ -18,6 +18,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {createTestRequest, getTestContainer} = require('../common');
 const pdf2md = require('@opendocsg/pdf2md');
 const fs = require('fs');
+const {RecursiveCharacterTextSplitter} = require('langchain/text_splitter');
 
 class MockConfigManager extends ConfigManager {
     get writeFhirSummaryToVectorStore() {
@@ -250,6 +251,25 @@ describe('ChatGPT Tests', () => {
             const expectedFilePath = path.resolve(__dirname, './fixtures/expected/benefits_guide.md');
             const expectedMarkdown = fs.readFileSync(expectedFilePath, 'utf8');
             expect(text).toStrictEqual(expectedMarkdown);
+        });
+        test('split markdown into chunks', async () => {
+            const filePath = path.resolve(__dirname, './fixtures/expected/benefits_guide.md');
+            const markdown = fs.readFileSync(filePath, 'utf8');
+            const splitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {});
+            const documents = await splitter.createDocuments([markdown]);
+            expect(documents.length).toEqual(58);
+            expect(documents[12].pageContent).toEqual('## Employee Semi Monthly Deductions \n' +
+                '\n' +
+                ' Employee Only Employee & Spouse Employee & Children Family \n' +
+                '\n' +
+                '## Voluntary Supplemental Benefits & EE Costs \n' +
+                '\n' +
+                ' Employee Only Employee & Spouse Employee & Children Family \n' +
+                '\n' +
+                '\n' +
+                '# PREMIUM BENEFIT SUMMARY over $100,000 \n' +
+                '\n' +
+                ' HDHP Savings Plan $54.25 $143.38 $116.25 $193.75 PPO Plan $100.75 $224.75 $178.25 $294.50 Dental Plan $ 0 $10.00 $ 10 .00 $ 1 5.00 Vision Plan $ 0 $4.00 $3.00 $5.00 Critical Illness Please see PayCor for exact cost, chart on page 13 Accident $5.28 $8.59 $11.92 $16.27');
         });
     });
 });
