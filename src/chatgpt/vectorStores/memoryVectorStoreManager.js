@@ -111,13 +111,17 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
         const results = await this.vectorStore.similaritySearchWithScore(
             text,
             limit,
-            this.getFilter(filter)
+            filter ? this.getFilter(filter) : null
         );
         return results.map(
-            ([doc, _]) => new ChatGPTDocument(
+            ([doc, score]) => new ChatGPTDocument(
                 {
                     content: doc.pageContent,
-                    metadata: new ChatGPTMeta(doc.metadata)
+                    metadata: new ChatGPTMeta({
+                            ...doc.metadata,
+                            'similarity': score
+                        }
+                    )
                 }
             )
         );

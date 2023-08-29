@@ -34,6 +34,65 @@ class MockConfigManager extends ConfigManager {
 
 describe('ChatGPT Vector Store Tests', () => {
     describe('ChatGPT Vector Store Tests', () => {
+        test('Simple vector store search for patient age', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            // add summaries to memory vector store
+            const memoryVectorStoreManager = await container.vectorStoreFactory.createVectorStoreAsync();
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = [];
+            // add patient summary
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: '#Resource\nPatient\n' +
+                            '## Patient ID\n12345' +
+                            '### Birth Date\n' +
+                            'November 30, 1983\n' +
+                            '### Gender\n' +
+                            'female\n' +
+                            '### Name\n' +
+                            '- Newton, Ashlee\n' +
+                            '### Addresses\n' +
+                            '- 257 Schoen Annex, Hartford, CT, US\n' +
+                            '- 257 Schoen Annex, Hartford, CT, US',
+                        metadata: new ChatGPTMeta(patient1Summary.metadata)
+                    }
+                )
+            );
+            // add observations
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: '- Resource: Observation\n' +
+                            '- ID: 2354-InAgeCohort\n' +
+                            '- Last Updated: August 26, 2023\n' +
+                            '- Source: /patients\n' +
+                            '- Status: \n' +
+                            '- Category: \n' +
+                            '- Code: \n' +
+                            '- Subject Reference: Patient/patient1\n' +
+                            '- Effective Date/Time:',
+                        metadata: new ChatGPTMeta(observation1Summary.metadata)
+                    }
+                )
+            );
+
+            await memoryVectorStoreManager.addDocumentsAsync({documents});
+
+            const resultDocuments = await memoryVectorStoreManager.searchAsync(
+                {
+                    text: 'What is the patient\'s age?',
+                }
+            );
+            expect(resultDocuments.length).toBe(1);
+        });
         test('Vector store search for patient age', async () => {
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());

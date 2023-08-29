@@ -7,8 +7,12 @@ class ChatGPTMeta {
      * @param {string} resourceType
      * @param {string} parentUuid
      * @param {string} parentResourceType
+     * @param {number|undefined} [similarity]
      */
-    constructor({_id, uuid, reference, resourceType, parentUuid, parentResourceType}) {
+    constructor({
+                    _id, uuid, reference, resourceType, parentUuid, parentResourceType,
+                    similarity
+                }) {
         /**
          * @type {string}
          */
@@ -34,6 +38,11 @@ class ChatGPTMeta {
          * @type {string}
          */
         this.reference = reference;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.similarity = similarity;
     }
 }
 
