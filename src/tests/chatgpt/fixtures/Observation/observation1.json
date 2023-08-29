@@ -1,0 +1,95 @@
+{
+  "resourceType": "Observation",
+  "id": "aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-04-06T13:00:48.000Z",
+    "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess/Observation/1",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://sources.aetna.com/observation/identifier/memberobsid/50085",
+      "value": "M11111"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7"
+    }
+  ],
+  "status": "final",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code": "laboratory",
+          "display": "Laboratory"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "82667-7",
+        "display": "Total score [DAST-10]"
+      }
+    ]
+  },
+  "subject": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "john_muir_health"
+      }
+    ],
+    "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+  },
+  "effectiveDateTime": "2022-05-26T03:30:18-04:00",
+  "valueQuantity": {
+    "value": 2,
+    "unit": "{score}",
+    "system": "http://unitsofmeasure.org",
+    "code": "{score}"
+  }
+}

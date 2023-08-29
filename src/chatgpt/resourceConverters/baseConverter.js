@@ -250,6 +250,29 @@ class BaseConverter {
     }
 
     /**
+     * returns the text for the given text or code
+     * @param {string} title
+     * @param {string|string[]|undefined} code
+     * @return {string[]|*[]}
+     */
+    getCode({title, code}) {
+        if (!code) {
+            return [];
+        }
+        const textArray = [
+            `### ${title}`
+        ];
+        if (Array.isArray(code)) {
+            for (const text1 of code) {
+                textArray.push(`- ${text1}`);
+            }
+        } else {
+            textArray.push(`${code}`);
+        }
+        return textArray;
+    }
+
+    /**
      * returns the text for the given codeableConcept
      * @param {string} title
      * @param {CodeableConcept|CodeableConcept[]|undefined} codeableConcept
@@ -339,6 +362,35 @@ class BaseConverter {
             textArray.push(`Start: ${period.start}`);
         } else if (period.end) {
             textArray.push(`End: ${period.end}`);
+        }
+        return textArray;
+    }
+
+    /**
+     * returns the text for the given quantity
+     * @param {string} title
+     * @param {Quantity|Quantity[]|undefined} quantity
+     * @return {*[]}
+     */
+    getQuantity({title, quantity}) {
+        if (quantity) {
+            return [];
+        }
+        const textArray = [
+            `### ${title}`
+        ];
+        /**
+         * @type {string[]}
+         */
+        const quantityParts = [];
+        if (quantity.value) {
+            quantityParts.push(`${quantity.value}`);
+        }
+        if (quantity.unit) {
+            quantityParts.push(`${quantity.unit}`);
+        }
+        if (quantityParts.length > 0) {
+            textArray.push(`- ${quantityParts.join(' ')}`);
         }
         return textArray;
     }

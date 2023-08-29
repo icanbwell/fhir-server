@@ -6,6 +6,7 @@ class ObservationConverter extends BaseConverter {
         const {
             id,
             meta: {lastUpdated, source},
+            identifier,
             status,
             category,
             code,
@@ -14,37 +15,63 @@ class ObservationConverter extends BaseConverter {
             valueQuantity,
             valueCodeableConcept,
             interpretation,
+            resourceType
         } = resource;
 
-        const statusText = this.getDisplayText(status.coding);
-        const categoryText = this.getDisplayText(category && category.length > 0 && category[0].coding);
-        const codeText = this.getDisplayText(code.coding);
-        const subjectReference = subject ? subject.reference : undefined;
+        let textArray = [
+            '# ResourceType',
+            `${resourceType}`,
+            '## Patient ID',
+            `${id}`
+        ];
 
-        let valueText = '';
-        if (valueQuantity) {
-            valueText = `${valueQuantity.value} ${valueQuantity.unit}`;
-        } else if (valueCodeableConcept) {
-            valueText = this.getDisplayText(valueCodeableConcept.coding);
-        }
+        // https://github.github.com/gfm/
 
-        const interpretationText = interpretation ? this.getDisplayText(interpretation.coding) : '';
+        textArray = textArray.concat(
+            this.getDate({title: 'Last Updated', date: lastUpdated})
+        );
 
-        // noinspection UnnecessaryLocalVariableJS
-        const formattedOutput = `
-- Resource: Observation
-- ID: ${id}
-- Last Updated: ${this.formatDate(lastUpdated)}
-- Source: ${source}
-- Status: ${statusText}
-- Category: ${categoryText}
-- Code: ${codeText}
-- Subject Reference: ${subjectReference}
-- Effective Date/Time: ${this.formatDate(effectiveDateTime)}
-- Value: ${valueText}
-- Interpretation: ${interpretationText}
-`;
+        textArray = textArray.concat(
+            this.getIdentifiers({title: 'Identifiers', identifier})
+        );
 
+        textArray = textArray.concat(
+            this.getText({title: 'Source', source})
+        );
+
+        textArray = textArray.concat(
+            this.getText({title: 'Status', text: status})
+        );
+
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Category', codeableConcept: category})
+        );
+
+        textArray = textArray.concat(
+            this.getCode({title: 'Code', text: code})
+        );
+
+        textArray = textArray.concat(
+            this.getReference({title: 'Patient', reference: subject})
+        );
+
+        textArray = textArray.concat(
+            this.getQuantity({title: 'Value', quantity: valueQuantity})
+        );
+
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Value', codeableConcept: valueCodeableConcept})
+        );
+
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Interpretation', codeableConcept: interpretation})
+        );
+
+        textArray = textArray.concat(
+            this.getDate({title: 'Effective Date/Time', date: effectiveDateTime})
+        );
+
+        const formattedOutput = textArray.join('\n');
         return formattedOutput;
     }
 }

@@ -1,11 +1,11 @@
 {
-  "content": "\n- Resource: Observation\n- ID: 2354-InAgeCohort\n- Last Updated: August 26, 2023\n- Source: /patients\n- Status: \n- Category: \n- Code: \n- Subject Reference: Patient/patient1\n- Effective Date/Time: \n- Value: \n- Interpretation: \n",
+  "content": "# ResourceType\nObservation\n## Patient ID\naetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7\n### Last Updated\nApril 6, 2023\n### Identifiers\n- Identifier\n\t- System: https://sources.aetna.com/observation/identifier/memberobsid/50085\n\t- Value: M11111\n- Identifier\n\t- System: https://www.icanbwell.com/sourceId\n\t- Value: aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7\n- Identifier\n\t- System: https://www.icanbwell.com/uuid\n\t- Value: aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7\n### Status\nfinal\n### Category\n- Laboratory\n\t- laboratory (http://terminology.hl7.org/CodeSystem/observation-category)\n### Patient\n- Patient/99af9c84-630a-4db8-a725-85c10fd340ca\n### Effective Date/Time\nMay 26, 2022",
   "metadata": {
     "_id": "Observation|61886699-c643-5e3b-a074-569e4c43bddf",
-    "uuid": "61886699-c643-5e3b-a074-569e4c43bddf",
-    "resourceType": "Observation",
-    "parentUuid": "24a5930e-11b4-5525-b482-669174917044",
     "parentResourceType": "Patient",
-    "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf"
+    "parentUuid": "24a5930e-11b4-5525-b482-669174917044",
+    "reference": "Observation/61886699-c643-5e3b-a074-569e4c43bddf",
+    "resourceType": "Observation",
+    "uuid": "61886699-c643-5e3b-a074-569e4c43bddf"
   }
 }
