@@ -18,7 +18,7 @@ class ConditionConverter extends BaseConverter {
         let textArray = [
             '# ResourceType',
             `${resourceType}`,
-            '## Patient ID',
+            `## ${resourceType} ID`,
             `${id}`
         ];
 

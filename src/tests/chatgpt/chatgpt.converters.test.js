@@ -8,6 +8,7 @@ dotenv.config({
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
+const documentReference1Resource = require('./fixtures/DocumentReference/documentReference1.json');
 const patientBundleResource = require('./fixtures/patient_bundle.json');
 const {describe, test} = require('@jest/globals');
 const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
@@ -26,6 +27,7 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const patient1Summary = require('./fixtures/summaries/patient1.json');
 const condition1Summary = require('./fixtures/summaries/condition1.json');
 const observation1Summary = require('./fixtures/summaries/observation1.json');
+const documentReference1Summary = require('./fixtures/summaries/documentReference1.json');
 
 
 class MockConfigManager extends ConfigManager {
@@ -255,11 +257,11 @@ describe('ChatGPT Tests', () => {
                     }
                 )
             });
-            observation1Resource._uuid = '61886699-c643-5e3b-a074-569e4c43bddf';
+            documentReference1Resource._uuid = '184cc0d4-8d89-57e4-b2e6-5721484e1c94';
             const bundle = new Bundle({
                 entry: [
                     new BundleEntry({
-                        resource: observation1Resource
+                        resource: documentReference1Resource
                     })
                 ]
             });
@@ -272,7 +274,7 @@ describe('ChatGPT Tests', () => {
                 bundle: bundle,
             });
             expect(documents.length).toEqual(1);
-            expect(documents[0]).toEqual(observation1Summary);
+            expect(documents[0]).toEqual(documentReference1Summary);
         });
         test('convert bundle to summary documents', async () => {
             if (!process.env.OPENAI_API_KEY) {

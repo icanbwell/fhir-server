@@ -46,7 +46,13 @@ class DocumentReferenceConverter extends BaseConverter {
      */
     async convertAsync({resource}) {
         const documentReference = /** @type {DocumentReference} */ resource;
-        const {id, /** @type {DocumentReferenceContent[]} */ content, subject} = documentReference;
+        const {
+            id,
+            meta: {lastUpdated, source},
+            identifier,
+            /** @type {DocumentReferenceContent[]} */ content,
+            resourceType
+        } = documentReference;
         const contentBlocks = [];
         if (content && content.length > 0) {
             for (const /** @type {DocumentReferenceContent} */ contentItem of content) {
@@ -61,7 +67,7 @@ class DocumentReferenceConverter extends BaseConverter {
                 if (attachment && attachment.data) {
                     switch (attachment.contentType) {
                         case 'application/pdf':
-                            contentBlocks.push(this.pdfToMarkdownConverter.convertPdfToMarkdownAsync({pdfBuffer: Buffer.from(attachment.data, 'base64')}));
+                            contentBlocks.push(await this.pdfToMarkdownConverter.convertPdfToMarkdownAsync({pdfBuffer: Buffer.from(attachment.data, 'base64')}));
                             break;
                         case 'text/plain':
                             contentBlocks.push(Buffer.from(attachment.data, 'base64').toString('utf8'));
@@ -71,15 +77,35 @@ class DocumentReferenceConverter extends BaseConverter {
             }
         }
 
-        // TODO: Handle PDF by converting it to text using https://www.npmjs.com/package/pdfreader
-        const formattedOutput = `
-- Resource: DocumentReference
-- ID: ${id}
-- Patient: ${subject?.reference}
-- Content:
-${contentBlocks.join('\n----------------------------------\n')}
-`;
-        return formattedOutput;
+        let textArray = [
+            '# ResourceType',
+            `${resourceType}`,
+            `## ${resourceType} ID`,
+            `${id}`
+        ];
+
+        // https://github.github.com/gfm/
+
+        textArray = textArray.concat(
+            this.getDate({title: 'Last Updated', date: lastUpdated})
+        );
+
+        textArray = textArray.concat(
+            this.getIdentifiers({title: 'Identifiers', identifier})
+        );
+
+        textArray = textArray.concat(
+            this.getText({title: 'Source', source})
+        );
+
+        if (contentBlocks.length > 0) {
+            for (const contentBlock of contentBlocks) {
+                textArray.push('### Content');
+                textArray.push(contentBlock);
+            }
+        }
+
+        return textArray.join('\n');
     }
 }
 
