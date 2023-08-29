@@ -21,6 +21,8 @@ const fs = require('fs');
 const {RecursiveCharacterTextSplitter} = require('langchain/text_splitter');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const patient1Summary = require('./fixtures/summaries/patient1.json');
+
 
 class MockConfigManager extends ConfigManager {
     get writeFhirSummaryToVectorStore() {
@@ -135,12 +137,7 @@ describe('ChatGPT Tests', () => {
                     }
                 )
             });
-            const chatGptManager = new ChatGPTLangChainManager({
-                fhirToDocumentConverter: fhirToDocumentConverter,
-                vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager(),
-                llmFactory: container.llmFactory
-            });
+            patient1Resource._uuid = '24a5930e-11b4-5525-b482-669174917044';
             const bundle = new Bundle({
                 entry: [
                     new BundleEntry({
@@ -153,24 +150,11 @@ describe('ChatGPT Tests', () => {
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 parentResourceType: 'Patient',
-                parentUuid: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                parentUuid: '24a5930e-11b4-5525-b482-669174917044',
                 bundle: bundle,
             });
             expect(documents.length).toEqual(1);
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.content
-                    }
-                )
-            );
-            const numberOfTokens = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
-            expect(numberOfTokens).toEqual(365);
+            expect(documents[0]).toEqual(patient1Summary);
         });
         test('convert bundle to summary documents', async () => {
             if (!process.env.OPENAI_API_KEY) {
