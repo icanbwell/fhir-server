@@ -99,12 +99,14 @@ class R4ArgsParser {
             }
             // ---- end of backward compatibility mappings ---
 
+            // graphql search parameters cannot use '-', so do not match standard search parameters. This changes
+            // them to standard
+            if (!queryParameter.startsWith('_') && queryParameter !== 'base_version' && queryParameter !== 'version_id') {
+                queryParameter = queryParameter.replace('_', '-');
+            }
             /**
              * @type {SearchParameterDefinition}
              */
-            if (!queryParameter.startsWith('_')) {
-                queryParameter = queryParameter.replace('_', '-');
-            }
             let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             if (!propertyObj) {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
