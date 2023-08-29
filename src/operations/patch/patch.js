@@ -127,7 +127,7 @@ class PatchOperation {
             /** @type {import('content-type').ContentType} */ contentTypeFromHeader,
             /**@type {string} */ userRequestId,
             user,
-            scope,
+            /**@type {string | null} */ scope,
             /** @type {string[]} */
             patientIdsFromJwtToken,
             /** @type {boolean} */
