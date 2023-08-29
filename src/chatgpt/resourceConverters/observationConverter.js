@@ -14,6 +14,10 @@ class ObservationConverter extends BaseConverter {
             effectiveDateTime,
             valueQuantity,
             valueCodeableConcept,
+            valueString,
+            valueBoolean,
+            valueInteger,
+            valueDateTime,
             interpretation,
             resourceType
         } = resource;
@@ -61,6 +65,22 @@ class ObservationConverter extends BaseConverter {
 
         textArray = textArray.concat(
             this.getCodeableConcept({title: 'Value', codeableConcept: valueCodeableConcept})
+        );
+
+        textArray = textArray.concat(
+            this.getText({title: 'Value', text: valueString})
+        );
+
+        textArray = textArray.concat(
+            this.getText({title: 'Value', text: valueBoolean})
+        );
+
+        textArray = textArray.concat(
+            this.getText({title: 'Value', text: valueInteger})
+        );
+
+        textArray = textArray.concat(
+            this.getDate({title: 'Value', date: valueDateTime})
         );
 
         textArray = textArray.concat(
