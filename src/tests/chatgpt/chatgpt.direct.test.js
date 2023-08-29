@@ -5,12 +5,10 @@ dotenv.config({
     path: pathToEnv
 });
 
-const patientBundleResource = require('./fixtures/patient.json');
-const patientCondensedBundleResource = require('./fixtures/patient_condensed.json');
+const patientBundleResource = require('./fixtures/patient_bundle.json');
 const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/managers/chatgptManagerDirect');
 const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
-const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
 const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
 const {createTestRequest, getTestContainer} = require('../common');
@@ -73,31 +71,6 @@ describe('ChatGPT Tests', () => {
                 uuid: '1',
                 bundle: patientBundleResource,
                 question: 'write a clinical summary'
-            });
-            console.log(result.responseText);
-        });
-        test('list conditions with patient condensed bundle', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-
-            const fhirToDocumentConverter = new FhirToCsvDocumentConverter();
-            await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManager());
-                return container;
-            });
-            const container = getTestContainer();
-            // noinspection JSUnresolvedReference
-            const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
-                vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager()
-            });
-            const result = await chatGptManager.answerQuestionAsync({
-                resourceType: 'Patient',
-                uuid: '1',
-                bundle: patientCondensedBundleResource,
-                question: 'what conditions does this patient have?'
             });
             console.log(result.responseText);
         });

@@ -5,8 +5,8 @@ dotenv.config({
     path: pathToEnv
 });
 
-const patientBundleResource = require('./fixtures/patient.json');
-const patientCondensedBundleResource = require('./fixtures/patient_condensed.json');
+const patient1Resource = require('./fixtures//Patient/patient1.json');
+const patientBundleResource = require('./fixtures/patient_bundle.json');
 const {describe, test} = require('@jest/globals');
 const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
 const {ChatGPTMessage} = require('../../chatgpt/structures/chatgptMessage');
@@ -19,6 +19,8 @@ const {createTestRequest, getTestContainer} = require('../common');
 const pdf2md = require('@opendocsg/pdf2md');
 const fs = require('fs');
 const {RecursiveCharacterTextSplitter} = require('langchain/text_splitter');
+const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 class MockConfigManager extends ConfigManager {
     get writeFhirSummaryToVectorStore() {
@@ -32,7 +34,7 @@ class MockConfigManager extends ConfigManager {
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
-        test('convert bundle to documents', async () => {
+        test('convert bundle to JSON documents', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
@@ -59,47 +61,6 @@ describe('ChatGPT Tests', () => {
                     bundle: patientBundleResource,
                 }
             );
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.content
-                    }
-                )
-            );
-            const result = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
-            console.log(result);
-        });
-        test('convert patient condensed bundle to documents', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-
-            await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManager());
-                return container;
-            });
-            const container = getTestContainer();
-            const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
-            // noinspection JSUnresolvedReference
-            const chatGptManager = new ChatGPTLangChainManager({
-                fhirToDocumentConverter: fhirToDocumentConverter,
-                vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager(),
-                llmFactory: container.llmFactory
-            });
-            /**
-             * @type {ChatGPTDocument[]}
-             */
-            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                parentResourceType: 'Patient',
-                parentUuid: '1',
-                bundle: patientCondensedBundleResource,
-            });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
@@ -155,6 +116,62 @@ describe('ChatGPT Tests', () => {
             );
             console.log(result);
         });
+        test('convert single patient to summary document', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory(
+                    {
+                        mongoDatabaseManager: container.mongoDatabaseManager,
+                        databaseAttachmentManager: container.databaseAttachmentManager,
+                        pdfToMarkdownConverter: container.pdfToMarkdownConverter
+                    }
+                )
+            });
+            const chatGptManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter: fhirToDocumentConverter,
+                vectorStoreFactory: container.vectorStoreFactory,
+                configManager: new MockConfigManager(),
+                llmFactory: container.llmFactory
+            });
+            const bundle = new Bundle({
+                entry: [
+                    new BundleEntry({
+                        resource: patient1Resource
+                    })
+                ]
+            });
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                parentResourceType: 'Patient',
+                parentUuid: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                bundle: bundle,
+            });
+            expect(documents.length).toEqual(1);
+            const chatgptMessages = documents.map(doc =>
+                new ChatGPTMessage(
+                    {
+                        role: 'system',
+                        content: doc.content
+                    }
+                )
+            );
+            const numberOfTokens = await chatGptManager.getTokenCountAsync(
+                {
+                    documents: chatgptMessages
+                }
+            );
+            expect(numberOfTokens).toEqual(365);
+        });
         test('convert bundle to summary documents', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
@@ -185,9 +202,10 @@ describe('ChatGPT Tests', () => {
              */
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 parentResourceType: 'Patient',
-                parentUuid: '1',
+                parentUuid: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
                 bundle: patientBundleResource,
             });
+            expect(documents.length).toEqual(14);
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
@@ -196,52 +214,12 @@ describe('ChatGPT Tests', () => {
                     }
                 )
             );
-            const result = await chatGptManager.getTokenCountAsync(
+            const numberOfTokens = await chatGptManager.getTokenCountAsync(
                 {
                     documents: chatgptMessages
                 }
             );
-            console.log(result);
-        });
-        test('convert patient cendensed bundle to documents optimized', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-            const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
-            await createTestRequest((container) => {
-                container.register('configManager', () => new MockConfigManager());
-                return container;
-            });
-            const container = getTestContainer();
-            // noinspection JSUnresolvedReference
-            const chatGptManager = new ChatGPTLangChainManager({
-                fhirToDocumentConverter: fhirToDocumentConverter,
-                vectorStoreFactory: container.vectorStoreFactory,
-                configManager: new MockConfigManager(),
-                llmFactory: container.llmFactory
-            });
-            /**
-             * @type {ChatGPTDocument[]}
-             */
-            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
-                parentResourceType: 'Patient',
-                parentUuid: '1',
-                bundle: patientCondensedBundleResource,
-            });
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.content
-                    }
-                )
-            );
-            const result = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
-            console.log(result);
+            expect(numberOfTokens).toEqual(3526);
         });
         test('convert pdf to documents', async () => {
             const filePath = path.resolve(__dirname, './fixtures/benefits_guide.pdf');
