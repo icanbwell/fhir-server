@@ -509,6 +509,14 @@ class ConfigManager {
     get payloadLimit() {
         return env.PAYLOAD_LIMIT || '50mb';
     }
+
+    /**
+     * returns whether to enable local filtering for chatgpt
+     * @return {boolean}
+     */
+    get useLocalFilterForChatGPT() {
+        return isTrue(env.USE_LOCAL_FILTER_FOR_CHATGPT);
+    }
 }
 
 module.exports = {

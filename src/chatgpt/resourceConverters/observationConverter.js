@@ -10,7 +10,6 @@ class ObservationConverter extends BaseConverter {
             status,
             category,
             code,
-            subject,
             effectiveDateTime,
             valueQuantity,
             valueCodeableConcept,
@@ -53,10 +52,6 @@ class ObservationConverter extends BaseConverter {
 
         textArray = textArray.concat(
             this.getCode({title: 'Code', text: code})
-        );
-
-        textArray = textArray.concat(
-            this.getReference({title: 'Patient', reference: subject})
         );
 
         textArray = textArray.concat(

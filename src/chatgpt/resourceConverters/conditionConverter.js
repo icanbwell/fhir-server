@@ -10,7 +10,6 @@ class ConditionConverter extends BaseConverter {
             verificationStatus,
             category,
             code,
-            subject,
             onsetPeriod,
             recordedDate,
             resourceType
@@ -38,9 +37,6 @@ class ConditionConverter extends BaseConverter {
         );
 
         // Condition specific properties
-        textArray = textArray.concat(
-            this.getReference({title: 'Patient', reference: subject})
-        );
         textArray = textArray.concat(
             this.getCodeableConcept({title: 'Clinical Status', codeableConcept: clinicalStatus})
         );

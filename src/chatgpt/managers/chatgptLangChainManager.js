@@ -16,6 +16,9 @@ const {EmbeddingsFilter} = require('../extensions/embeddingsFilter');
 const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 const {RecursiveCharacterTextSplitter} = require('langchain/text_splitter');
 const {DocumentCompressorPipeline} = require('../extensions/documentCompressorPipeline');
+const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
+const {ChatGPTDocument} = require('../structures/chatgptDocument');
+const {ChatGPTMeta} = require('../structures/chatgptMeta');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -88,7 +91,10 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                 }
             }
         );
-        const retriever = this.getRetriever(
+        /**
+         * @type {ContextualCompressionRetriever}
+         */
+        const retriever = await this.getRetrieverAsync(
             {
                 vectorStoreManager, resourceType, uuid
             }
@@ -132,6 +138,7 @@ Standalone question:`;
             return formattedDialogueTurns.join('\n');
         };
 
+        // noinspection JSCheckFunctionSignatures
         const standaloneQuestionChain = RunnableSequence.from([
             {
                 question: (input) => input.question,
@@ -185,30 +192,15 @@ Question: {question}
      * @param {BaseVectorStoreManager} vectorStoreManager
      * @param {string} resourceType
      * @param {string} uuid
-     * @return {ContextualCompressionRetriever}
+     * @param {boolean|undefined} verbose
+     * @return {Promise<ContextualCompressionRetriever>}
      */
-    getRetriever({vectorStoreManager, resourceType, uuid}) {
+    async getRetrieverAsync({vectorStoreManager, resourceType, uuid, verbose}) {
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         // const baseCompressor = LLMChainExtractor.fromLLM(model);
-
-        const splitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {
-            chunkSize: 200,
-            chunkOverlap: 100
-        });
-        /**
-         * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
-         */
-        const embeddings = new OpenAIEmbeddings();
-        const relevant_filter = new EmbeddingsFilter(
-            {
-                embeddings: embeddings,
-                k: 10,
-                // similarity_threshold: 0.95
-            }
-        );
-        const compressorPipeline = new DocumentCompressorPipeline(
-            {transformers: [splitter, relevant_filter]}
-        );
+        const compressorPipeline = this.configManager.useLocalFilterForChatGPT ?
+            await this.getLocalFilteringCompressorAsync({verbose}) :
+            await this.getChatGPTCompressorAsync({verbose});
 
         const baseRetriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
@@ -227,6 +219,57 @@ Question: {question}
             baseRetriever: baseRetriever,
         });
         return retriever;
+    }
+
+    /**
+     * Gets the compressor
+     * @param {boolean|undefined} [verbose]
+     * @return {Promise<import('langchain/retrievers/document_compressors').BaseDocumentCompressor>}
+     */
+    async getChatGPTCompressorAsync({verbose}) {
+        // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
+        /**
+         * @type {import('langchain/chat_models').BaseChatModel}
+         */
+        const model = await this.llmFactory.createAsync(
+            {
+                verbose
+            }
+        );
+        const baseCompressor = LLMChainExtractor.fromLLM(model);
+        return baseCompressor;
+    }
+
+    /**
+     * Gets the compressor
+     * @param {boolean|undefined} [verbose]
+     * @return {Promise<import('langchain/retrievers/document_compressors').BaseDocumentCompressor>}
+     */
+    async getLocalFilteringCompressorAsync(
+        {
+            // eslint-disable-next-line no-unused-vars
+            verbose
+        }
+    ) {
+        const splitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {
+            chunkSize: 200,
+            chunkOverlap: 100
+        });
+        /**
+         * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
+         */
+        const embeddings = new OpenAIEmbeddings();
+        const relevant_filter = new EmbeddingsFilter(
+            {
+                embeddings: embeddings,
+                k: 10,
+                // similarity_threshold: 0.95
+            }
+        );
+        const compressorPipeline = new DocumentCompressorPipeline(
+            {transformers: [splitter, relevant_filter]}
+        );
+        return compressorPipeline;
     }
 
     /**
@@ -250,7 +293,13 @@ Question: {question}
                 responseText: (typeof res3 === 'string') ? res3 : res3.content,
                 fullPrompt: fullPrompt,
                 numberTokens: numberTokens,
-                documents: relevantDocuments
+                documents: relevantDocuments.map(doc => new ChatGPTDocument(
+                        {
+                            content: doc.pageContent,
+                            metadata: new ChatGPTMeta(doc.metadata)
+                        }
+                    )
+                )
             });
         } catch (e) {
             if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
@@ -375,6 +424,7 @@ Category:`;
             model
         ]);
 
+        // noinspection JSCheckFunctionSignatures
         const fullPrompt = await CATEGORIZE_QUESTION_PROMPT.format({
             question: question,
             categories: categories.join('\n')

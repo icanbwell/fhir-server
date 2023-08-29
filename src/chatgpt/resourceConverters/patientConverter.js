@@ -113,24 +113,6 @@ class PatientConverter extends BaseConverter {
             )
         );
 
-        textArray = textArray.concat(
-            this.getExtensionValue(
-                {
-                    title: 'Disability Adjusted Life Years',
-                    extension,
-                    url: 'http://synthetichealth.github.io/synthea/disability-adjusted-life-years'
-                }
-            )
-        );
-        textArray = textArray.concat(this.getExtensionValue(
-                {
-                    title: 'Quality Adjusted Life Years',
-                    extension,
-                    url: 'http://synthetichealth.github.io/synthea/quality-adjusted-life-years'
-                }
-            )
-        );
-
         const formattedOutput = textArray.join('\n');
         return formattedOutput;
     }

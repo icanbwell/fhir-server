@@ -236,6 +236,44 @@ describe('ChatGPT Tests', () => {
             expect(documents.length).toEqual(1);
             expect(documents[0]).toEqual(observation1Summary);
         });
+        test('convert single DocumentReference to summary document', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory(
+                    {
+                        mongoDatabaseManager: container.mongoDatabaseManager,
+                        databaseAttachmentManager: container.databaseAttachmentManager,
+                        pdfToMarkdownConverter: container.pdfToMarkdownConverter
+                    }
+                )
+            });
+            observation1Resource._uuid = '61886699-c643-5e3b-a074-569e4c43bddf';
+            const bundle = new Bundle({
+                entry: [
+                    new BundleEntry({
+                        resource: observation1Resource
+                    })
+                ]
+            });
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                parentResourceType: 'Patient',
+                parentUuid: '24a5930e-11b4-5525-b482-669174917044',
+                bundle: bundle,
+            });
+            expect(documents.length).toEqual(1);
+            expect(documents[0]).toEqual(observation1Summary);
+        });
         test('convert bundle to summary documents', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;

@@ -107,7 +107,7 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = container.chatgptManager;
             assertTypeEquals(chatGPTManager, ChatGPTLangChainManager);
 
-            const retriever = await chatGPTManager.getRetriever(
+            const retriever = await chatGPTManager.getRetrieverAsync(
                 {
                     vectorStoreManager: memoryVectorStoreManager,
                     resourceType: 'Patient',
@@ -162,7 +162,7 @@ describe('ChatGPT Tests', () => {
             const chatGPTManager = container.chatgptManager;
             assertTypeEquals(chatGPTManager, ChatGPTLangChainManager);
 
-            const retriever = await chatGPTManager.getRetriever(
+            const retriever = await chatGPTManager.getRetrieverAsync(
                 {
                     vectorStoreManager: memoryVectorStoreManager,
                     resourceType: 'Patient',
@@ -176,7 +176,7 @@ describe('ChatGPT Tests', () => {
             );
             expect(relevantDocuments[0].pageContent).toContain('$10');
         });
-        test('ChatGPT with summaries', async () => {
+        test('Answer question', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
@@ -251,7 +251,7 @@ describe('ChatGPT Tests', () => {
                 verbose: true
             });
             console.log(result.responseText);
-            expect(result.responseText).toContain('26');
+            expect(result.responseText).toContain('39');
         });
         test('Classify questions', async () => {
             if (!process.env.OPENAI_API_KEY) {
@@ -267,7 +267,8 @@ describe('ChatGPT Tests', () => {
                 resourceConverterFactory: new ResourceConverterFactory(
                     {
                         mongoDatabaseManager: container.mongoDatabaseManager,
-                        databaseAttachmentManager: container.databaseAttachmentManager
+                        databaseAttachmentManager: container.databaseAttachmentManager,
+                        pdfToMarkdownConverter: container.pdfToMarkdownConverter
                     }
                 )
             });
