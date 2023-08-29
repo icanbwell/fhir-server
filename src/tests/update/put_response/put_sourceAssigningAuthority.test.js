@@ -1,12 +1,31 @@
 // test file
 const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activitydefinition3.json');
+const activitydefinition4Resource = require('./fixtures/ActivityDefinition/activitydefinition4.json');
+const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activitydefinition5.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition1.json');
 const expectedErrorWithoutOwner = require('./fixtures/expected/expected_error_without_owner.json');
+const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
+const expectedActivityDefinitionMedstarResources = require('./fixtures/expected/expected_ActivityDefinitionMedstar.json');
+const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
+const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const deepcopy = require('deepcopy');
+const { ConfigManager } = require('../../../utils/configManager');
+
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+}
 
 describe('ActivityDefinition Tests', () => {
     beforeEach(async () => {
@@ -73,6 +92,85 @@ describe('ActivityDefinition Tests', () => {
                 .expect(400);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedErrorWithoutOwner);
+        });
+
+        test('put_response works when multiple documents with same id are present when accessed from different scopes', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/medstar.*');
+            let resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition5Resource)
+                .set(allAccessHeaders)
+                .expect(200);
+
+            resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition4Resource)
+                .set(allAccessHeaders)
+                .expect(200);
+
+            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            activitydefinition5Data.name = 'TEST3';
+            const medstarHeaders = getHeaders('user/*.read user/*.write access/medstar.*');
+            const bwellHeaders = getHeaders('user/*.read user/*.write access/bwell.*');
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/sameid')
+                .send(activitydefinition5Data)
+                .set(medstarHeaders)
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
+
+            resp = await request
+                .get('/4_0_0/ActivityDefinition/?_bundle=1')
+                .set(medstarHeaders);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedActivityDefinitionMedstarResources);
+
+            resp = await request
+                .get('/4_0_0/ActivityDefinition/?_bundle=1')
+                .set(bwellHeaders);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedActivityDefinitionBwellResources);
+        });
+
+        test('put_response throws validation error when multiple documents with same id are present when accessed from same scopes', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/medstar.*');
+            let resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition5Resource)
+                .set(allAccessHeaders)
+                .expect(200);
+
+            resp = await request
+                .post('/4_0_0/ActivityDefinition/$merge')
+                .send(activitydefinition4Resource)
+                .set(allAccessHeaders)
+                .expect(200);
+
+            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            activitydefinition5Data.name = 'TEST3';
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/sameid')
+                .send(activitydefinition5Data)
+                .set(allAccessHeaders)
+                .expect(400);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
+
+            resp = await request
+                .put('/4_0_0/ActivityDefinition/sameid|medstar')
+                .send(activitydefinition5Data)
+                .set(allAccessHeaders);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
         });
     });
 });

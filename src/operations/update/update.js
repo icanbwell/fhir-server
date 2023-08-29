@@ -1,6 +1,5 @@
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const { FieldMapper } = require('../query/filters/fieldMapper');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -21,7 +20,9 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
-const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { isTrue } = require('../../utils/isTrue');
+const { SearchManager } = require('../search/searchManager');
+const { IdParser } = require('../../utils/idParser');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
@@ -43,7 +44,7 @@ class UpdateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
-     * @param {PreSaveManager} preSaveManager
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
@@ -60,7 +61,7 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            preSaveManager
+            searchManager
         }
     ) {
         /**
@@ -134,10 +135,10 @@ class UpdateOperation {
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
         /**
-         * @type {PreSaveManager}
+         * @type {SearchManager}
          */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -153,6 +154,9 @@ class UpdateOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
 
         const currentOperationName = 'update';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         // Query our collection for this observation
         /**
          * @type {number}
@@ -165,7 +169,13 @@ class UpdateOperation {
             body, /** @type {string|null} */
             requestId, /** @type {string} */
             method,
-            /**@type {string} */ userRequestId
+            /**@type {string} */ userRequestId,
+            /** @type {string[]} */
+            patientIdsFromJwtToken,
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            personIdFromJwtToken,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -188,7 +198,8 @@ class UpdateOperation {
         let resource_incoming_json = body;
         let {base_version, id} = parsedArgs;
 
-        resource_incoming_json.id = id;
+        const { id: rawId } = IdParser.parse(id);
+        resource_incoming_json.id = rawId;
 
         if (this.configManager.logAllSaves) {
             await sendToS3('logs',
@@ -207,7 +218,7 @@ class UpdateOperation {
 
         if (this.configManager.validateSchema || parsedArgs['_validate']) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
-            resource_incoming_json.id = id.slice(0, 64);
+            resource_incoming_json.id = rawId.slice(0, 64);
             /**
              * @type {OperationOutcome|null}
              */
@@ -242,17 +253,63 @@ class UpdateOperation {
 
 
         try {
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+
+            /**
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+             */
+            const {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
+                user,
+                scope,
+                isUser,
+                patientIdsFromJwtToken,
+                resourceType,
+                useAccessIndex,
+                personIdFromJwtToken,
+                parsedArgs
+            });
+
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
-            const idFieldMapper = new FieldMapper({useHistoryTable: false});
-            const idField = idFieldMapper.getFieldName('id', id.toString());
 
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            /**
+             * @type {[Resource] | null}
+             */
+            let resources = await cursor.toArrayAsync();
+
+            if (resources.length > 1) {
+                const sourceAssigningAuthorities = resources.flatMap(
+                    r => r.meta && r.meta.security ?
+                        r.meta.security
+                            .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
+                            .map(tag => tag.code)
+                        : [],
+                ).sort();
+                throw new BadRequestError(new Error(
+                    `Multiple resources found with id ${id}.  ` +
+                    'Please either specify the owner/sourceAssigningAuthority tag: ' +
+                    sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
+                    ' OR use uuid to query.',
+                ));
+            }
             /**
              * @type {Resource | null}
              */
-            let data = await databaseQueryManager.findOneAsync({query: {[idField]: id.toString()}});
+            let data = resources[0];
             /**
              * @type {Resource|null}
              */
