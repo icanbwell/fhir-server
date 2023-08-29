@@ -33,8 +33,12 @@ $(document).ready(function () {
           setCookie('jwt', accessToken, jwt.exp);
 
           const resourceUrl = decodeURIComponent(parameters.get('resourceUrl'));
-          // console.log(resourceUrl);
-          window.location.assign(resourceUrl);
+          if (validator.isURL(resourceUrl) || resourceUrl.startsWith('/')) {
+            // URL is either fully qualified or relative, so redirect
+            window.location.assign(resourceUrl);
+          } else {
+            throw new Error(`Invalid resource url ${resourceUrl}`);
+          }
       });
 });
 
