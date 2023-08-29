@@ -34,6 +34,72 @@ class MockConfigManager extends ConfigManager {
 
 describe('ChatGPT Vector Store Tests', () => {
     describe('ChatGPT Vector Store Tests', () => {
+        test('Simple vector store search for patient date of birth', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            // add summaries to memory vector store
+            const memoryVectorStoreManager = await container.vectorStoreFactory.createVectorStoreAsync();
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = [];
+            // add patient summary
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: '# Resource\nPatient\n' +
+                            '## Patient ID\n12345' +
+                            '### Birth Date\n' +
+                            'November 30, 1983\n' +
+                            '### Gender\n' +
+                            'female\n' +
+                            '### Name\n' +
+                            '- Newton, Ashlee\n' +
+                            '### Addresses\n' +
+                            '- 257 Schoen Annex, Hartford, CT, US\n' +
+                            '- 257 Schoen Annex, Hartford, CT, US',
+                        metadata: new ChatGPTMeta(patient1Summary.metadata)
+                    }
+                )
+            );
+            // add observations
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: '# Resource\nObservation\n' +
+                            '## ID\n2354-InAgeCohort\n' +
+                            '### Last Updated\n' +
+                            'August 26, 2023\n' +
+                            '### Source\n' +
+                            '/patients\n' +
+                            '### Subject\n' +
+                            'Patient/patient1',
+                        metadata: new ChatGPTMeta(observation1Summary.metadata)
+                    }
+                )
+            );
+
+            await memoryVectorStoreManager.addDocumentsAsync({documents});
+
+            const resultDocuments = await memoryVectorStoreManager.searchAsync(
+                {
+                    text: 'What is the patient\'s date of birth?',
+                }
+            );
+            const scores = resultDocuments.map(doc => {
+                    return {
+                        reference: doc.metadata.reference,
+                        similarity: doc.metadata.similarity
+                    };
+                }
+            );
+            expect(resultDocuments.length).toBe(2);
+            console.log(scores);
+        });
         test('Simple vector store search for patient age', async () => {
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
@@ -90,7 +156,13 @@ describe('ChatGPT Vector Store Tests', () => {
                     text: 'What is the patient\'s age?',
                 }
             );
-            const scores = resultDocuments.map(doc => doc.metadata.similarity);
+            const scores = resultDocuments.map(doc => {
+                    return {
+                        reference: doc.metadata.reference,
+                        similarity: doc.metadata.similarity
+                    };
+                }
+            );
             expect(resultDocuments.length).toBe(2);
             console.log(scores);
         });
