@@ -191,7 +191,10 @@ Question: {question}
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         // const baseCompressor = LLMChainExtractor.fromLLM(model);
 
-        const splitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {});
+        const splitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {
+            chunkSize: 200,
+            chunkOverlap: 100
+        });
         /**
          * @type {import('langchain/embeddings/openai').OpenAIEmbeddings}
          */
