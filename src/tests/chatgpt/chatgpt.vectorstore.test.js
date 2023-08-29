@@ -90,7 +90,9 @@ describe('ChatGPT Vector Store Tests', () => {
                     text: 'What is the patient\'s age?',
                 }
             );
+            const scores = resultDocuments.map(doc => doc.metadata.similarity);
             expect(resultDocuments.length).toBe(2);
+            console.log(scores);
         });
         test('Vector store search for patient age', async () => {
             await createTestRequest((container) => {
