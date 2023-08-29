@@ -186,6 +186,7 @@
     "winston": "^3.10.0",
     "winston-mongodb": "^5.1.1",
     "winston-transport": "^4.5.0",
+    "word2vec": "^1.1.5",
     "xss": "^1.0.14",
     "yargs": "^17.7.2",
     "zlib": "^1.0.5",
