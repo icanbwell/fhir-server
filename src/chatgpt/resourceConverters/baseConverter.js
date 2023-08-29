@@ -287,6 +287,61 @@ class BaseConverter {
         }
         return textArray;
     }
+
+    /**
+     * returns the text for the given reference
+     * @param {string} title
+     * @param {Reference|Reference[]|undefined} reference
+     * @return {string[]|*[]}
+     */
+    getReference({title, reference}) {
+        if (!reference) {
+            return [];
+        }
+        if (!Array.isArray(reference)) {
+            reference = [reference];
+        }
+        if (reference.length === 0) {
+            return [];
+        }
+        const textArray = [
+            `### ${title}`
+        ];
+        for (const reference1 of reference) {
+            const referenceParts = [];
+            if (reference1.reference) {
+                referenceParts.push(`${reference1.reference}`);
+            }
+            if (reference1.display) {
+                referenceParts.push(`(${reference1.display})`);
+            }
+            textArray.push(`- ${referenceParts.join()}`);
+        }
+        return textArray;
+    }
+
+    /**
+     * returns the text for the given period
+     * @param {string} title
+     * @param {Period|Period[]|undefined} period
+     * @return {string[]}
+     */
+    getPeriod({title, period}) {
+        if (!period) {
+            return [];
+        }
+        const textArray = [
+            `### ${title}`
+        ];
+        if (period.start && period.end) {
+            textArray.push(`${period.start} to ${period.end}`);
+        } else if (period.start) {
+            textArray.push(`Start: ${period.start}`);
+        } else if (period.end) {
+            textArray.push(`End: ${period.end}`);
+        }
+        return textArray;
+    }
 }
 
 module.exports = {

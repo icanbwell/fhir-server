@@ -5,6 +5,7 @@ class ConditionConverter extends BaseConverter {
         const {
             id,
             meta: {lastUpdated, source},
+            identifier,
             clinicalStatus,
             verificationStatus,
             category,
@@ -12,28 +13,59 @@ class ConditionConverter extends BaseConverter {
             subject,
             onsetPeriod,
             recordedDate,
+            resourceType
         } = resource;
 
-        const clinicalStatusText = this.getDisplayText(clinicalStatus && clinicalStatus.coding);
-        const verificationStatusText = this.getDisplayText(verificationStatus && verificationStatus.coding);
-        const categoryText = category && category.map((cat) => this.getDisplayText(cat.coding)).join(', ');
+        let textArray = [
+            '# ResourceType',
+            `${resourceType}`,
+            '## Patient ID',
+            `${id}`
+        ];
 
-        // noinspection UnnecessaryLocalVariableJS
-        const formattedOutput = `
-- Resource: Condition
-- ID: ${id}
-- Patient: ${subject.reference}
-- Last Updated: ${this.formatDate(lastUpdated)}
-- Source: ${source}
-- Clinical Status: ${clinicalStatusText}
-- Verification Status: ${verificationStatusText}
-- Category: ${categoryText}
-- Code: ${this.getDisplayText(code && code.coding)} (${code && code.text})
-- Subject Reference: ${subject.reference}
-- Onset Period: ${this.formatDate(onsetPeriod && onsetPeriod.start)} to ${this.formatDate(onsetPeriod && onsetPeriod.end)}
-- Recorded Date: ${this.formatDate(recordedDate)}
-`;
+        // https://github.github.com/gfm/
 
+        textArray = textArray.concat(
+            this.getDate({title: 'Last Updated', date: lastUpdated})
+        );
+
+        textArray = textArray.concat(
+            this.getIdentifiers({title: 'Identifiers', identifier})
+        );
+
+        textArray = textArray.concat(
+            this.getText({title: 'Source', source})
+        );
+
+        // Condition specific properties
+        textArray = textArray.concat(
+            this.getReference({title: 'Patient', reference: subject})
+        );
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Clinical Status', codeableConcept: clinicalStatus})
+        );
+
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Verification Status', codeableConcept: verificationStatus})
+        );
+
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Category', codeableConcept: category})
+        );
+
+        textArray = textArray.concat(
+            this.getCodeableConcept({title: 'Code', codeableConcept: code})
+        );
+
+        textArray = textArray.concat(
+            this.getDate({title: 'Recorded Date', date: recordedDate})
+        );
+
+        textArray = textArray.concat(
+            this.getPeriod({title: 'Onset Period', period: onsetPeriod})
+        );
+
+        const formattedOutput = textArray.join('\n');
         return formattedOutput;
     }
 }

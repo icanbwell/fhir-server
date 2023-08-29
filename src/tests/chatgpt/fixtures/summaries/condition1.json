@@ -1,11 +1,11 @@
 {
-  "content": "\n- Resource: Condition\n- ID: 14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f\n- Patient: Patient/patient1\n- Last Updated: August 26, 2023\n- Source: /patients\n- Clinical Status: \n- Verification Status: \n- Category: \n- Code: Heart failure, unspecified (undefined)\n- Subject Reference: Patient/patient1\n- Onset Period:  to \n- Recorded Date: January 21, 2023\n",
+  "content": "# ResourceType\nCondition\n## Patient ID\njohn-muir-health-e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83\n### Last Updated\nMay 2, 2023\n### Identifiers\n- Identifier\n\t- System: https://www.icanbwell.com/sourceId\n\t- Value: john-muir-health-e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83\n- Identifier\n\t- System: https://www.icanbwell.com/uuid\n\t- Value: 6496501c-906e-5c40-ab0e-392318bdc34a\n### Patient\n- Patient/99af9c84-630a-4db8-a725-85c10fd340ca\n### Clinical Status\n- Active\n\t- active (http://terminology.hl7.org/CodeSystem/condition-clinical)\n### Verification Status\n- Confirmed\n\t- confirmed (http://terminology.hl7.org/CodeSystem/condition-ver-status)\n### Category\n- Problem List Item\n\t- problem-list-item (http://terminology.hl7.org/CodeSystem/condition-category)\n- Health Concern\n\t- 75310-3 (http://loinc.org)\n\t- health-concern (http://hl7.org/fhir/us/core/CodeSystem/condition-category)\n### Code\n- Tendinopathy of patella\n\t- M67.969 (urn:oid:2.16.840.1.113883.6.90)\n\t- 37785001 (urn:oid:2.16.840.1.113883.6.96)\n\t- M67.969 (http://hl7.org/fhir/sid/icd-10-cm)\n\t- 37785001 (http://snomed.info/sct)\n### Recorded Date\nSeptember 25, 2019\n### Onset Period\n2019-09-26T00:00:00.000Z to 2019-09-26T00:00:00.000Z",
   "metadata": {
     "_id": "Condition|e73357e5-b948-57a6-8a04-269ff833118e",
-    "uuid": "e73357e5-b948-57a6-8a04-269ff833118e",
-    "resourceType": "Condition",
-    "parentUuid": "24a5930e-11b4-5525-b482-669174917044",
     "parentResourceType": "Patient",
-    "reference": "Condition/e73357e5-b948-57a6-8a04-269ff833118e"
+    "parentUuid": "24a5930e-11b4-5525-b482-669174917044",
+    "reference": "Condition/e73357e5-b948-57a6-8a04-269ff833118e",
+    "resourceType": "Condition",
+    "uuid": "e73357e5-b948-57a6-8a04-269ff833118e"
   }
 }

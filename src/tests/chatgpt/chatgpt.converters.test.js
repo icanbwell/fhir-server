@@ -5,7 +5,8 @@ dotenv.config({
     path: pathToEnv
 });
 
-const patient1Resource = require('./fixtures//Patient/patient1.json');
+const patient1Resource = require('./fixtures/Patient/patient1.json');
+const condition1Resource = require('./fixtures/Condition/condition1.json');
 const patientBundleResource = require('./fixtures/patient_bundle.json');
 const {describe, test} = require('@jest/globals');
 const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
@@ -22,6 +23,7 @@ const {RecursiveCharacterTextSplitter} = require('langchain/text_splitter');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const patient1Summary = require('./fixtures/summaries/patient1.json');
+const condition1Summary = require('./fixtures/summaries/condition1.json');
 
 
 class MockConfigManager extends ConfigManager {
@@ -155,6 +157,44 @@ describe('ChatGPT Tests', () => {
             });
             expect(documents.length).toEqual(1);
             expect(documents[0]).toEqual(patient1Summary);
+        });
+        test('convert single condition to summary document', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory(
+                    {
+                        mongoDatabaseManager: container.mongoDatabaseManager,
+                        databaseAttachmentManager: container.databaseAttachmentManager,
+                        pdfToMarkdownConverter: container.pdfToMarkdownConverter
+                    }
+                )
+            });
+            condition1Resource._uuid = 'e73357e5-b948-57a6-8a04-269ff833118e';
+            const bundle = new Bundle({
+                entry: [
+                    new BundleEntry({
+                        resource: condition1Resource
+                    })
+                ]
+            });
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
+                parentResourceType: 'Patient',
+                parentUuid: '24a5930e-11b4-5525-b482-669174917044',
+                bundle: bundle,
+            });
+            expect(documents.length).toEqual(1);
+            expect(documents[0]).toEqual(condition1Summary);
         });
         test('convert bundle to summary documents', async () => {
             if (!process.env.OPENAI_API_KEY) {
