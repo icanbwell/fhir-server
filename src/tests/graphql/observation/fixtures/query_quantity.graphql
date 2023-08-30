@@ -21,11 +21,8 @@ fragment QuantityFields on Quantity {
 
 query Vitals{
     observation(
-        _sort: ["-effectiveDateTime"],
-        _count: 10,
-        _debug: true,
         value_quantity: {
-          value: 75
+          value: "75"
         }
     ) {
         entry {

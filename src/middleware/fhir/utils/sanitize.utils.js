@@ -82,6 +82,7 @@ const validateType = function (type, value) {
         case 'uri':
         case 'token':
         case 'date':
+        case 'quantity':
             if (Array.isArray(value)) {
                 result = value.every(v => typeof v === 'string');
             } else {

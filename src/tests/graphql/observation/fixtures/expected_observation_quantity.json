@@ -1,121 +1,86 @@
 {
-  "data": {
-    "observation": {
-      "entry": [
-        {
-          "resource": {
-            "id": "exs2hLRJfViSgT3bVra9fQ-Kby.uXxCNtphbSgs6mos56m",
-            "__typename": "Observation",
-            "meta": {
-              "tag": null,
-              "security": [
-                {
-                  "system": "https://www.icanbwell.com/owner",
-                  "code": "A"
-                },
-                {
-                  "system": "https://www.icanbwell.com/access",
-                  "code": "A"
-                },
-                {
-                  "system": "https://www.icanbwell.com/vendor",
-                  "code": "A"
-                },
-                {
-                  "system": "https://www.icanbwell.com/connectionType",
-                  "code": "proa"
-                },
-                {
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "code": "A"
-                }
-              ]
-            },
-            "component": [
-              {
-                "code": {
-                  "text": "Systolic blood pressure"
-                },
-                "valueQuantity": {
-                  "value": 120,
-                  "unit": "mm[Hg]",
-                  "code": "mm[Hg]",
-                  "comparator": null
-                },
-                "valueCodeableConcept": null,
-                "valueString": null,
-                "valueBoolean": null,
-                "valueInteger": null,
-                "valueTime": null,
-                "valueDateTime": null,
-                "valuePeriod": null,
-                "interpretation": null
+    "data": {
+      "observation": {
+        "entry": [
+          {
+            "resource": {
+              "id": "exs2hLRJfViSgT3bVra9fQ-Kby.uXxCNtphbSgs6mos56m",
+              "__typename": "Observation",
+              "meta": {
+                "tag": null,
+                "security": [
+                  {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "A"
+                  },
+                  {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "A"
+                  },
+                  {
+                    "system": "https://www.icanbwell.com/vendor",
+                    "code": "A"
+                  },
+                  {
+                    "system": "https://www.icanbwell.com/connectionType",
+                    "code": "proa"
+                  },
+                  {
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "A"
+                  }
+                ]
               },
-              {
-                "code": {
-                  "text": "Diastolic blood pressure"
+              "component": [
+                {
+                  "code": {
+                    "text": "Systolic blood pressure"
+                  },
+                  "valueQuantity": {
+                    "value": 120,
+                    "unit": "mm[Hg]",
+                    "code": "mm[Hg]",
+                    "comparator": null
+                  },
+                  "valueCodeableConcept": null,
+                  "valueString": null,
+                  "valueBoolean": null,
+                  "valueInteger": null,
+                  "valueTime": null,
+                  "valueDateTime": null,
+                  "valuePeriod": null,
+                  "interpretation": null
                 },
-                "valueQuantity": {
-                  "value": 75,
-                  "unit": "mm[Hg]",
-                  "code": "mm[Hg]",
-                  "comparator": null
-                },
-                "valueCodeableConcept": null,
-                "valueString": null,
-                "valueBoolean": null,
-                "valueInteger": null,
-                "valueTime": null,
-                "valueDateTime": null,
-                "valuePeriod": null,
-                "interpretation": null
+                {
+                  "code": {
+                    "text": "Diastolic blood pressure"
+                  },
+                  "valueQuantity": {
+                    "value": 75,
+                    "unit": "mm[Hg]",
+                    "code": "mm[Hg]",
+                    "comparator": null
+                  },
+                  "valueCodeableConcept": null,
+                  "valueString": null,
+                  "valueBoolean": null,
+                  "valueInteger": null,
+                  "valueTime": null,
+                  "valueDateTime": null,
+                  "valuePeriod": null,
+                  "interpretation": null
+                }
+              ],
+              "valueQuantity": {
+                "value": 75,
+                "unit": "mm[Hg]",
+                "code": "mm[Hg]",
+                "comparator": null
               }
-            ],
-            "valueQuantity": {
-              "value": 75,
-              "unit": "mm[Hg]",
-              "code": "mm[Hg]",
-              "comparator": null
             }
           }
-        }
-      ],
-      "meta": {
-        "tag": [
-          {
-            "system": "https://www.icanbwell.com/query",
-            "display": "[db.Observation_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b','Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454']}}]}, {}).sort({'effectiveDateTime':-1,'id':1}).limit(10)]"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryCollection",
-            "code": ""
-          },
-          {
-            "system": "https://www.icanbwell.com/queryOptions",
-            "display": "[{'sort':{'effectiveDateTime':-1,'id':1},'limit':10}]"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryFields",
-            "display": "[['effectiveDateTime','id']]"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryTime",
-            "display": "[8.542]"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryOptimization",
-            "display": "[{'useTwoStepSearchOptimization':undefined}]"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryExplain",
-            "display": "[[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Observation_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"subject._uuid\":{\"$in\":[\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\",\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\"]}},\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SORT\",\"sortPattern\":{\"effectiveDateTime\":-1,\"id\":1},\"memLimit\":104857600,\"limitAmount\":10,\"type\":\"simple\",\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"subject._uuid\":1,\"effectiveDateTime\":-1,\"_sourceId\":1},\"indexName\":\"reverse_helix_observation_effective_uuid_2\",\"isMultiKey\":false,\"multiKeyPaths\":{\"subject._uuid\":[],\"effectiveDateTime\":[],\"_sourceId\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"subject._uuid\":[\"[\\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\", \\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\"]\",\"[\\\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\\\", \\\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\\\"]\"],\"effectiveDateTime\":[\"[MaxKey, MinKey]\"],\"_sourceId\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":4,\"advanced\":1,\"needTime\":2,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"effectiveDateTime\":-1,\"id\":1},\"memLimit\":104857600,\"limitAmount\":10,\"type\":\"simple\",\"totalDataSizeSorted\":4778,\"usedDisk\":false,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"subject._uuid\":1,\"effectiveDateTime\":-1,\"_sourceId\":1},\"indexName\":\"reverse_helix_observation_effective_uuid_2\",\"isMultiKey\":false,\"multiKeyPaths\":{\"subject._uuid\":[],\"effectiveDateTime\":[],\"_sourceId\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"subject._uuid\":[\"[\\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\", \\\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\\\"]\",\"[\\\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\\\", \\\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\\\"]\"],\"effectiveDateTime\":[\"[MaxKey, MinKey]\"],\"_sourceId\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Observation_4_0_0\",\"filter\":{\"$and\":[{\"subject._uuid\":{\"$in\":[\"Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b\",\"Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454\"]}}]},\"sort\":{\"effectiveDateTime\":-1,\"id\":1},\"limit\":10,\"maxTimeMS\":30000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Darryls-MacBook-Pro.local\",\"port\":54421,\"version\":\"5.0.19\",\"gitVersion\":\"0736b66d8cf64847cbd71c5472b0d6f19b1f5daa\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7272407130039123972\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7272407130039123972\"}}]]"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryExplainSimple",
-            "display": "[[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"reverse_helix_observation_effective_uuid_2\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Observation_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b','Patient/person.79e59046-ffc7-4c41-9819-c8ef83275454']}}]}, {}).sort({'effectiveDateTime':-1,'id':1}).limit(10)\"}]]"
-          }
-        ]
+        ],
+        "meta": null
       }
     }
   }
-}
