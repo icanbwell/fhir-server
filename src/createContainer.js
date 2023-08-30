@@ -472,7 +472,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                searchManager: c.searchManager
             }
         )
     );
@@ -562,7 +563,8 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder
+            bwellPersonFinder: c.bwellPersonFinder,
+            searchManager: c.searchManager
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
