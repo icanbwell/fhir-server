@@ -42,10 +42,10 @@ describe('ObservationReturnIdTests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right observation back
+            // search by quantity value|system|code and make sure we get the right observation back
             resp = await request
                 .get(
-                    '/4_0_0/Observation/?valueQuantity=75|http://unitsofmeasure.org|mm[Hg]&_setIndexHint=1&_bundle=1')
+                    '/4_0_0/Observation?value-quantity=75|http://unitsofmeasure.org|mm[Hg]&_setIndexHint=1&_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
