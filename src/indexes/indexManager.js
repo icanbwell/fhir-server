@@ -317,14 +317,13 @@ class IndexManager {
                  */
                 const indexMatchingByName = indexesMatchingByName[0];
                 // compare the keys
-                if (!(deepEqual(indexConfig.keys, indexMatchingByName.keys)) || (
-                    indexConfig.options?.unique &&
+                if (
+                    !(deepEqual(indexConfig.keys, indexMatchingByName.keys)) ||
                     (
-                        indexMatchingByName.options.unique ||
+                        (indexConfig.options.unique || indexMatchingByName.options.unique) &&
                         indexConfig.options.unique !== indexMatchingByName.options.unique
                     )
-                )) {
-                    console.log(indexConfig, indexMatchingByName);
+                ) {
                     compareIndexesResult.indexes.push(
                         {
                             indexConfig: indexConfig,
