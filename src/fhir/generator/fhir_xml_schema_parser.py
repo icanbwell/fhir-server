@@ -643,9 +643,8 @@ class FhirXmlSchemaParser:
                     documentation = documentation_item_dict
                 else:
                     documentation = "Error"
-                    assert isinstance(documentation_item_dict, OrderedDict), type(
-                        documentation_item_dict
-                    )
+                    if not isinstance(documentation_item_dict, OrderedDict):
+                        raise Exception(f'documentation_item_dict type is {type(documentation_item_dict)} instead of OrderedDict')
                 # print(f"// {documentation}")
                 if documentation:
                     documentation_entries.append(documentation)
@@ -868,7 +867,8 @@ class FhirXmlSchemaParser:
                     "element"
                 ]
                 types: ObjectifiedElement = snapshot_element["type"]
-                assert isinstance(types, OrderedDict)
+                if not isinstance(types, OrderedDict):
+                    raise Exception(f'{types} is not an instance of OrderedDict')
 
                 # There are 3 main cases:
                 # 1. A simple scalar type
@@ -971,7 +971,7 @@ class FhirXmlSchemaParser:
                                 c.split("/")[-1] for c in target_profiles
                             ]
                             # If target resource is type Reference(Any),
-                            # the target resource will be a list of all resources. 
+                            # the target resource will be a list of all resources.
                             if "Resource" in target_resources:
                                 fhir_reference: FhirReferenceType = FhirReferenceType(
                                     target_resources=target_resources,
@@ -1435,7 +1435,8 @@ class FhirXmlSchemaParser:
             fhir_name: str = value_set.name.get("value")
             name: str = fhir_name.replace(".", "_")
             description: str = value_set.description.get("value")
-            assert isinstance(description, str)
+            if not isinstance(description, str):
+                raise Exception(f'{description} is not of type str')
             url: str = value_set.url.get("value")
             fhir_concepts: List[FhirValueSetConcept] = []
             if hasattr(value_set, "concept"):

@@ -70,14 +70,14 @@ describe('History UI Tests', () => {
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            const text = resp.text.replace('\\"', '"').replaceAll('\n', '');
+            const text = resp.text.replace('\\"', '"').replaceAll('\n', '').replaceAll('&#34;', '"');
             logInfo('------- response html ------------');
             logInfo(text);
             logInfo('------- end response html ------------');
             expect(text).toMatch(new RegExp('^<!DOCTYPE html>?'));
             expect(text).toMatch(new RegExp('<b>Version:</b> 2'));
             expect(text).toMatch(new RegExp('family=PATIENT1'));
-            expect(text).toMatch(new RegExp('\\"diagnostics\\": \\"{\\"op\\\\\\":\\\\\\"replace\\\\\\",\\\\\\"path\\\\\\":\\\\\\"/birthDate\\\\\\",\\\\\\"value\\\\\\":\\\\\\"2015-01-01\\\\\\"}\\"'));
+            expect(text).toMatch(new RegExp('\\"diagnostics\\": \\"{\\\\\\"op\\\\\\":\\\\\\"replace\\\\\\",\\\\\\"path\\\\\\":\\\\\\"/birthDate\\\\\\",\\\\\\"value\\\\\\":\\\\\\"2015-01-01\\\\\\"}\\"'));
         });
     });
 });

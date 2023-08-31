@@ -20,6 +20,7 @@ const {FilterById} = require('./filters/id');
 const {MongoQuerySimplifier} = require('../../utils/mongoQuerySimplifier');
 const {FilterParameters} = require('./filters/filterParameters');
 const {UrlParser} = require('../../utils/urlParser');
+const {FilterByQuantity} = require('./filters/quantity');
 
 class R4SearchQueryCreator {
     /**
@@ -69,6 +70,7 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
+        let includesQuantityType = false;
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
             if (parsedArg.queryParameterValue && parsedArg.propertyObj) {
                 /**
@@ -124,6 +126,9 @@ class R4SearchQueryCreator {
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));
                 }
+                if (parsedArg.propertyObj.type === 'quantity') {
+                    includesQuantityType = true;
+                }
             }
         }
 
@@ -138,8 +143,10 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        query = MongoQuerySimplifier.simplifyFilter({filter: query});
-
+        if (!includesQuantityType) {
+            // the simplifier mangles quantity-type queries
+            query = MongoQuerySimplifier.simplifyFilter({filter: query});
+        }
         /**
          * list of columns used in the query
          * this is used to pick index hints
@@ -208,6 +215,9 @@ class R4SearchQueryCreator {
                     } else {
                         andSegments = new FilterByReference(filterParameters).filter();
                     }
+                    break;
+                case fhirFilterTypes.quantity:
+                    andSegments = new FilterByQuantity(filterParameters).filter();
                     break;
                 default:
                     throw new Error('Unknown type=' + propertyObj.type);

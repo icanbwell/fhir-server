@@ -1,0 +1,26 @@
+{
+  "resourceType": "ActivityDefinition",
+  "id": "sameid",
+  "meta": {
+    "source": "bwell",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "medstar"
+      }
+    ]
+  },
+  "name": "TEST2",
+  "approvalDate": "2022-09-12",
+  "library": [
+    "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
+  ]
+}

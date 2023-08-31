@@ -675,7 +675,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         if (collectionName) {
             collection = db.collection(collectionName);
         }
-        return { collection, session, client, sessionId };
+        return { collection, db, session, client, sessionId };
     }
 
     /**

@@ -40,7 +40,7 @@
                                 <%= res.period.start && res.period.end ? 'to' : '' %>
                                 <%= res.period.end ? searchUtils.formatDate(res.period.end) : '' %>
                             <% } else { %>
-                                <%- searchUtils.fieldValue(res, field.name) %>
+                                <%= searchUtils.fieldValue(res, field.name) %>
                             <% } %>
                         </td>
                     <% }) %>

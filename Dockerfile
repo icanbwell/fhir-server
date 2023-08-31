@@ -15,7 +15,7 @@ COPY package.json /srv/src/package.json
 COPY yarn.lock /srv/src/yarn.lock
 
 RUN echo "$NODE_ENV"
-RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && yarn install --no-optional; else echo 'building production' && cd /srv/src && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 
 FROM node:18.16.0-bullseye-slim as build_react
 # set our node environment, either development or production
@@ -31,7 +31,7 @@ RUN npm install -g npm@latest && npm upgrade --global yarn
 
 RUN mkdir -p /srv/src/src/web
 COPY src/web /srv/src/src/web
-RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/src/web && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src/src/web && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/src/web && yarn install --no-optional; else echo 'building production' && cd /srv/src/src/web && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 RUN cd /srv/src/src/web && npm run build
 
 
@@ -56,7 +56,6 @@ WORKDIR /srv/src
 USER node
 COPY --chown=node:node package.json /srv/src/package.json
 COPY --chown=node:node yarn.lock /srv/src/yarn.lock
-COPY --chown=node:node .snyk /srv/src/.snyk
 
 # Copy the remaining application code.
 COPY --chown=node:node . /srv/src
