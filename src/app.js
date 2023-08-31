@@ -18,7 +18,7 @@ const {strategy} = require('./strategies/jwt.bearer.strategy');
 
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
-const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
+const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
@@ -320,7 +320,8 @@ function createApp({fnGetContainer, trackMetrics}) {
                 }
                 router.use(cors(fhirServerConfig.server.corsOptions));
                 router.use(express.json());
-                router.use(handleSecurityPolicy);
+                // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
+                router.use(handleSecurityPolicyGraphql);
                 router.use(function (req, res, next) {
                     res.once('finish', async () => {
                         const req1 = req;
