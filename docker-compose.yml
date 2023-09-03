@@ -147,6 +147,8 @@ services:
     image: hapiproject/hapi:v6.6.0
     ports:
       - "3001:8080"
+    environment:
+      - spring.datasource.url=jdbc:h2:mem:test_mem
 
   elasticsearch:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9

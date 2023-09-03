@@ -176,7 +176,7 @@ describe('ChatGPT Tests', () => {
             );
             expect(relevantDocuments[0].pageContent).toContain('$10');
         });
-        test('Answer question', async () => {
+        test('Answer question about age', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
@@ -246,6 +246,59 @@ describe('ChatGPT Tests', () => {
 
             const result = await chatGPTManager.answerQuestionAsync({
                 question: 'What is the age of tbis person?',
+                resourceType: 'Patient',
+                uuid: '24a5930e-11b4-5525-b482-669174917044',
+                verbose: true
+            });
+            console.log(result.responseText);
+            expect(result.responseText).toContain('39');
+        });
+        test('Answer question about insurance document', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                return container;
+            });
+            const container = getTestContainer();
+
+            // add summaries to memory vector store
+            const memoryVectorStoreManager = await container.vectorStoreFactory.createVectorStoreAsync();
+            /**
+             * @type {ChatGPTDocument[]}
+             */
+            const documents = [];
+            // add patient summary
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: patient1Summary.content,
+                        metadata: new ChatGPTMeta(patient1Summary.metadata)
+                    }
+                )
+            );
+            // add observations
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: documentReference1Summary.content,
+                        metadata: new ChatGPTMeta(documentReference1Summary.metadata)
+                    }
+                )
+            );
+
+            await memoryVectorStoreManager.addDocumentsAsync(
+                {
+                    documents: documents
+                }
+            );
+            const chatGPTManager = container.chatgptManager;
+            assertTypeEquals(chatGPTManager, ChatGPTLangChainManager);
+
+            const result = await chatGPTManager.answerQuestionAsync({
+                question: 'what is the cost of dental insurance for this person and their spouse?',
                 resourceType: 'Patient',
                 uuid: '24a5930e-11b4-5525-b482-669174917044',
                 verbose: true
