@@ -1,0 +1,215 @@
+{
+  "resourceType": "Practitioner",
+  "id": "1013973049",
+  "meta": {
+    "versionId": "4",
+    "lastUpdated": "2023-03-20T22:16:12.000Z",
+    "source": "https://www.healthpartners.com/providers",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthpartners"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "healthpartners"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "nppes"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "nppes"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "nppes"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "extension": [
+        {
+          "id": "hpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "hpartners"
+        }
+      ],
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "PRN"
+          }
+        ]
+      },
+      "value": "N1479059"
+    },
+    {
+      "id": "nppes-1013973049",
+      "extension": [
+        {
+          "id": "nppes-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "nppes"
+        }
+      ],
+      "use": "official",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NPI"
+          }
+        ]
+      },
+      "system": "http://hl7.org/fhir/sid/us-npi",
+      "value": "1013973049"
+    },
+    {
+      "id": "provider-id",
+      "extension": [
+        {
+          "id": "healthpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "healthpartners"
+        }
+      ],
+      "type": {
+        "coding": [
+          {
+            "id": "type-code",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "PRN"
+          }
+        ]
+      },
+      "value": "N1479059"
+    },
+    {
+      "id": "npi",
+      "extension": [
+        {
+          "id": "healthpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "healthpartners"
+        }
+      ],
+      "type": {
+        "coding": [
+          {
+            "id": "type-code",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NPI"
+          }
+        ]
+      },
+      "value": "1013973049"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "1013973049"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "e5d17e1f-da85-5df9-9271-2df928166aa7"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "id": "nppes-name",
+      "extension": [
+        {
+          "id": "nppes-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "nppes"
+        }
+      ],
+      "use": "official",
+      "text": "GREGORY COOPER",
+      "family": "COOPER",
+      "given": [
+        "GREGORY",
+        "W."
+      ],
+      "suffix": [
+        "M.D."
+      ]
+    },
+    {
+      "id": "TC-HP-name",
+      "extension": [
+        {
+          "id": "healthpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "healthpartners"
+        }
+      ],
+      "use": "usual",
+      "text": "Gregory W Cooper",
+      "family": "Cooper",
+      "given": [
+        "Gregory",
+        "W"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "id": "nppes-phone-number",
+      "extension": [
+        {
+          "id": "nppes-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "nppes"
+        }
+      ],
+      "system": "phone",
+      "use": "work",
+      "rank": 1
+    },
+    {
+      "id": "nppes-fax-number",
+      "extension": [
+        {
+          "id": "nppes-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "nppes"
+        }
+      ],
+      "system": "fax",
+      "use": "work",
+      "rank": 2
+    }
+  ],
+  "address": [
+    {
+      "id": "nppes-address",
+      "extension": [
+        {
+          "id": "nppes-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "nppes"
+        }
+      ],
+      "use": "billing",
+      "type": "postal",
+      "line": [
+        "PO BOX 9007"
+      ],
+      "city": "CHARLOTTESVILLE",
+      "state": "VA",
+      "postalCode": "229069007"
+    }
+  ],
+  "gender": "male"
+}

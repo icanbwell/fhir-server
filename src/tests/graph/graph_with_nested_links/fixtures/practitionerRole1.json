@@ -1,0 +1,106 @@
+{
+  "resourceType": "PractitionerRole",
+  "id": "1003369042-632a2221fbdddc064cce050c",
+  "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-08-10T20:59:07.000Z",
+      "source": "https://www.icanbwell.com/practitioner_health_system",
+      "security": [
+          {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "bwell"
+          },
+          {
+              "system": "https://www.icanbwell.com/access",
+              "code": "bwell"
+          },
+          {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "connecthub"
+          },
+          {
+              "system": "https://www.icanbwell.com/access",
+              "code": "connecthub"
+          },
+          {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
+          }
+      ]
+  },
+  "identifier": [
+      {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "1003369042-632a2221fbdddc064cce050c"
+      },
+      {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "455cc364-8ab4-579e-8b3c-5a40caedabbf"
+      }
+  ],
+  "active": true,
+  "practitioner": {
+      "extension": [
+          {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Practitioner/1003369042"
+          },
+          {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Practitioner/41fd3f18-ed14-5a44-a6a0-4c35ba83b936"
+          },
+          {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "nppes"
+          }
+      ],
+      "reference": "Practitioner/1003369042|nppes"
+  },
+  "organization": {
+      "extension": [
+          {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Organization/632a2221fbdddc064cce050c"
+          },
+          {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Organization/ba18086b-8dfb-51f8-b888-b3ae5f2f261d"
+          },
+          {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+          }
+      ],
+      "reference": "Organization/632a2221fbdddc064cce050c"
+  },
+  "endpoint": [
+      {
+          "extension": [
+              {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Endpoint/632a2221fbdddc064cce050c"
+              },
+              {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Endpoint/ba18086b-8dfb-51f8-b888-b3ae5f2f261d"
+              },
+              {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+              }
+          ],
+          "reference": "Endpoint/632a2221fbdddc064cce050c"
+      }
+  ]
+}
