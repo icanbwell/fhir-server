@@ -17,6 +17,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {string[]} properties
      * @param {string[]} patientUuids
      * @param {string[]} personUuids
+     * @param {number} concurrencyBatchSize
      */
     constructor({
         mongoCollectionManager,
@@ -27,6 +28,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         properties,
         patientUuids,
         personUuids,
+        concurrencyBatchSize,
     }) {
         super({
             mongoCollectionManager,
@@ -54,6 +56,11 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
          * @type {string[]}
          */
         this.personUuids = personUuids;
+
+        /**
+         * @type {number}
+         */
+        this.concurrencyBatchSize = concurrencyBatchSize;
 
         /**
          * @type {Map}
@@ -168,6 +175,11 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
 
                 for (let uuid of uuidsToDelete) {
                     await this.processRecordAsync(uuid, resource);
+                }
+                while (uuidsToDelete.length) {
+                    const uuidChunk = uuidsToDelete.splice(0, this.concurrencyBatchSize);
+
+                    await Promise.all(uuidChunk.map(uuid => this.processRecordAsync(uuid, resource)));
                 }
             }
             this.adminLogger.logInfo(`Deleted count: ${Array.from(this.resourceDeletedCount)}`);

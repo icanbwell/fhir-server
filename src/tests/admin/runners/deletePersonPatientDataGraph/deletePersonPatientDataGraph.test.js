@@ -66,12 +66,14 @@ describe('Person Tests', () => {
             expect((await personCollection.find({}).toArray()).length).toEqual(1);
 
             const batchSize = 100;
+            const concurrencyBatchSize = 10;
             container.register(
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
                         mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
+                        concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         personUuids: ['61abdd48-df46-5e98-ac6c-fde3cace4d07'],
@@ -124,12 +126,14 @@ describe('Person Tests', () => {
             expect((await patientCollection.find({}).toArray()).length).toEqual(1);
 
             const batchSize = 100;
+            const concurrencyBatchSize = 10;
             container.register(
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
                         mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
+                        concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         patientUuids: ['61abdd48-df46-5e98-ac6c-fde3cace4d07'],
@@ -201,12 +205,14 @@ describe('Person Tests', () => {
             expect((await personCollection.find({}).toArray()).length).toEqual(1);
 
             const batchSize = 100;
+            const concurrencyBatchSize = 10;
             container.register(
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
                         mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
+                        concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         patientUuids: ['61abdd48-df46-5e98-ac6c-fde3cace4d07'],
@@ -275,12 +281,14 @@ describe('Person Tests', () => {
             expect((await personCollection.find({}).toArray()).length).toEqual(2);
 
             const batchSize = 100;
+            const concurrencyBatchSize = 10;
             container.register(
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
                         mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
+                        concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         personUuids: ['61abdd48-df46-5e98-ac6c-fde3cace4d07', '27153f78-54c7-5029-889b-1026a9580ebf'],
@@ -318,12 +326,14 @@ describe('Person Tests', () => {
             expect((await personCollection.find({}).toArray()).length).toEqual(0);
 
             const batchSize = 100;
+            const concurrencyBatchSize = 10;
             container.register(
                 'deletePersonPatientDataGraphRunner',
                 (c) =>
                     new DeletePersonPatientDataGraphRunner({
                         mongoCollectionManager: c.mongoCollectionManager,
                         batchSize,
+                        concurrencyBatchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         personUuids: ['61abdd48-df46-5e98-ac6c-fde3cace4d07'],

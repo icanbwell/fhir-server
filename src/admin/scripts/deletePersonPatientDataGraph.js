@@ -34,6 +34,8 @@ async function main() {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
+    const concurrencyBatchSize = parameters.concurrencyBatchSize || 10;
+
     const patientUuids = parameters.patientUuids ? parameters.patientUuids.split(',') : [];
 
     const personUuids = parameters.personUuids ? parameters.personUuids.split(',') : [];
@@ -60,6 +62,7 @@ async function main() {
                 properties,
                 patientUuids,
                 personUuids,
+                concurrencyBatchSize,
             })
     );
 
@@ -76,12 +79,11 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/deletePersonPatientDataGraph.js --collections=Practitioner_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js
+ * node src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --dotenv
- * node src/admin/scripts/deletePersonPatientDataGraph.js
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv --concurrencyBatchSize=10
+ * node src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
  */
 main().catch((reason) => {
     console.error(reason);
