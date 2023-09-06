@@ -158,7 +158,7 @@ class AdminPersonPatientDataManager {
      * @param {import('http').ServerResponse} res
      * @param {string} personId
      * @param {BaseResponseStreamer} responseStreamer
-     * @return {Promise<void>}
+     * @return {Promise<Bundle>}
      */
     async deletePersonDataGraphAsync({req, res, personId, responseStreamer}) {
         try {
@@ -175,14 +175,16 @@ class AdminPersonPatientDataManager {
                 parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Person', args}),
                 responseStreamer: null
             });
-            bundle.entry.forEach(bundleEntry => responseStreamer.writeBundleEntryAsync({bundleEntry}));
+            if (bundle.entry) {
+                bundle.entry.forEach(bundleEntry => responseStreamer ? responseStreamer.writeBundleEntryAsync({bundleEntry}) : bundleEntry);
+            }
             // now also remove any connections to this Patient record
             await this.removeLinksFromOtherPersonsAsync({
                 requestId: req.id,
                 responseStreamer,
                 bundle
             });
-            return;
+            return bundle;
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deletePersonDataGraphAsync(): ' + `person id:${personId}, `, error: e
@@ -221,7 +223,7 @@ class AdminPersonPatientDataManager {
             /**
              * @type {string[]}
              */
-            const deletedResourceIds = bundle.entry.filter(e => e.resource.resourceType === resourceType).map(e => e.resource.id);
+            const deletedResourceIds = bundle.entry.filter(e => e.resource.resourceType === resourceType).map(e => e.resource._uuid);
             if (deletedResourceIds && deletedResourceIds.length > 0) {
                 /**
                  * @type {string[]}
@@ -231,9 +233,7 @@ class AdminPersonPatientDataManager {
                  * @type {DatabasePartitionedCursor}
                  */
                 const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
-                    query: {
-                        'link.target.reference': {'$in': deletedResourceIdsWithResourceType}
-                    }
+                    query: {'link.target._uuid': {'$in': deletedResourceIdsWithResourceType}}
                 });
                 /**
                  * @type {import('mongodb').DefaultSchema[]}

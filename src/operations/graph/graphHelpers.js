@@ -1701,7 +1701,7 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             const deleteOperationBundleEntries = [];
-            for (const entry of bundle.entry) {
+            for (const entry of (bundle.entry || [])) {
                 /**
                  * @type {Resource}
                  */
