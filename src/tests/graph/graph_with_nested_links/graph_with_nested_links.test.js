@@ -43,7 +43,7 @@ describe('Graphs with nested links Tests', () => {
         expect(resp).toHaveResponse(expectedWithSingleId);
     });
 
-    test('Graph contained with multiple ids and nested links should return duplicate contained resources', async () => {
+    test('Graph contained with multiple ids and nested links should not return duplicate contained resources', async () => {
         const request = await createTestRequest();
 
         // add the resources to FHIR server

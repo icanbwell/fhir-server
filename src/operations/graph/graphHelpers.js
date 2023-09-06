@@ -255,8 +255,15 @@ class GraphHelper {
                 return; // nothing to do
             }
 
+            /**
+             * Parent entities can contain duplicate objects as its functions are recursively called and
+             * children of parents will be the parents for next level
+             * @type {import('./entityAndContainedBase').EntityAndContainedBase[]}
+             */
+            const uniqueParentEntities = Array.from(new Set(parentEntities));
+
             // get values of this property from all the entities
-            const relatedReferences = parentEntities.flatMap(p => this.getPropertiesForEntity({entity: p, property})
+            const relatedReferences = uniqueParentEntities.flatMap(p => this.getPropertiesForEntity({entity: p, property})
                 .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                 .filter(r => r !== undefined && r !== null));
             // select just the ids from those reference properties
@@ -368,7 +375,7 @@ class GraphHelper {
                     /**
                      * @type {EntityAndContainedBase[]}
                      */
-                    let matchingParentEntities = parentEntities.filter(
+                    let matchingParentEntities = uniqueParentEntities.filter(
                         p =>
                             this.getPropertiesForEntity({
                                     entity: p,
@@ -381,7 +388,7 @@ class GraphHelper {
 
                     if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
                         idToSearch = `${relatedResource.resourceType}/${relatedResource.id}`;
-                        matchingParentEntities = parentEntities.filter(
+                        matchingParentEntities = uniqueParentEntities.filter(
                             p =>
                                 this.getPropertiesForEntity({
                                         entity: p,
@@ -396,7 +403,7 @@ class GraphHelper {
                         /**
                          * @type {string}
                          */
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
+                        const parentEntitiesString = uniqueParentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
                         logError('Forward Reference: No match found for child entity ' +
                             `${relatedResource.resourceType}/${relatedResource._uuid} in parent entities ` +
                             `${parentEntitiesString} using property ${property}`, {});
@@ -485,16 +492,23 @@ class GraphHelper {
             if (!(reverse_filter)) {
                 throw new Error('reverse_filter must be set');
             }
+
+            /**
+             * Parent entities can contain duplicate objects as its functions are recursively called and
+             * children of parents will be the parents for next level
+             * @type {import('./entityAndContainedBase').EntityAndContainedBase}
+             */
+            const uniqueParentEntities = Array.from(new Set(parentEntities));
             // create comma separated list of ids
             /**
              * @type {string[]}
              */
-            let parentResourceTypeAndIdList = parentEntities
+            let parentResourceTypeAndIdList = uniqueParentEntities
                 .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
             if (this.configManager.supportLegacyIds) {
                 parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
-                    parentEntities
+                    uniqueParentEntities
                         .filter(p => p.entityId !== undefined && p.entityId !== null)
                         .map(p => `${p.resource.resourceType}/${p.entityId}`)
                 );
@@ -623,15 +637,15 @@ class GraphHelper {
                     /**
                      * @type {EntityAndContainedBase[]}
                      */
-                    let matchingParentEntities = parentEntities.filter(
+                    let matchingParentEntities = uniqueParentEntities.filter(
                         p => references.includes(`${p.resource.resourceType}/${p.resource._uuid}`));
 
                     if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
-                        matchingParentEntities = parentEntities.filter(
+                        matchingParentEntities = uniqueParentEntities.filter(
                             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
                     }
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = parentEntities.map(
+                        const parentEntitiesString = uniqueParentEntities.map(
                             p => `${p.resource.resourceType}/${p.resource.id}`).toString();
                         logError(
                             `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
