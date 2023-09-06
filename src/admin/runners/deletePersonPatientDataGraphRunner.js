@@ -129,7 +129,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             });
         }
 
-        if (bundleEntries?.entry && bundleEntries.entry.length > 0) {
+        if (bundleEntries.entry?.length) {
             this.adminLogger.logInfo(
                 `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}, $everything link: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true`
             );

@@ -141,15 +141,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
+                      "valueString": "Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "healthsystem1"
+                      "valueString": "medstar"
                     }
                   ],
-                  "reference": "Patient/patient1"
+                  "reference": "Patient/patient1|medstar"
                 }
               }
             ],
@@ -295,15 +295,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                      "valueString": "Person/5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "bwell"
+                      "valueString": "healthsystem1"
                     }
                   ],
-                  "reference": "Person/person1"
+                  "reference": "Person/person1|healthsystem1"
                 }
               }
             ],

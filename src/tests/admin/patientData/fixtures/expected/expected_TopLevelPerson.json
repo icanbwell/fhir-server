@@ -49,15 +49,15 @@
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+            "valueString": "Person/5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
           },
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "bwell"
+            "valueString": "healthsystem1"
           }
         ],
-        "reference": "Person/person1"
+        "reference": "Person/person1|healthsystem1"
       }
     }
   ],
