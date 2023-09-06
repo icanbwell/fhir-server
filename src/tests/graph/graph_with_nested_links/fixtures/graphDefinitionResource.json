@@ -1,0 +1,34 @@
+{
+  "resourceType": "GraphDefinition",
+  "id": "o",
+  "name": "provider_everything",
+  "status": "active",
+  "start": "Practitioner",
+  "link": [
+      {
+          "description": "Practitioner Roles for this Practitioner",
+          "target": [
+              {
+                  "type": "PractitionerRole",
+                  "params": "practitioner={ref}&active:not=false&_security=https://www.icanbwell.com/access%7Cnppes,https://www.icanbwell.com/access%7Cconnecthub",
+                  "link": [
+                      {
+                          "path": "organization",
+                          "target": [
+                              {
+                                  "type": "Organization",
+                                  "link":[
+                                      {
+                                          "path": "endpoint[x]",
+                                          "target": [{"type": "Endpoint"}]
+                                      }
+                                  ]
+                              }                                
+                          ]                            
+                      }
+                  ]
+              }
+          ]
+      }
+  ]
+}
