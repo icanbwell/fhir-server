@@ -30,5 +30,29 @@
         "source": "bwell",
         "versionId": "1"
     },
+    "link": [
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/61abdd48-df46-5e98-ac6c-fde3cace4d07"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Patient/1"
+            }
+        }
+    ],
     "resourceType": "Person"
 }

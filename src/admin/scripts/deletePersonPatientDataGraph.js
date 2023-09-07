@@ -36,6 +36,8 @@ async function main() {
 
     const concurrencyBatchSize = parameters.concurrencyBatchSize || 10;
 
+    const dryRun = parameters.dryRun ? Boolean(parameters.dryRun === 'true') : true;
+
     const patientUuids = parameters.patientUuids ? parameters.patientUuids.split(',') : [];
 
     const personUuids = parameters.personUuids ? parameters.personUuids.split(',') : [];
@@ -63,6 +65,7 @@ async function main() {
                 patientUuids,
                 personUuids,
                 concurrencyBatchSize,
+                dryRun,
             })
     );
 
@@ -81,6 +84,7 @@ async function main() {
  * nvm use
  * node src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dryRun false
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/deletePersonPatientDataGraph.js --personUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5 --dotenv --concurrencyBatchSize=10
  * node src/admin/scripts/deletePersonPatientDataGraph.js --patientUuids=0c2f8ae1-2cc0-5936-a66c-f85ea566e5c5

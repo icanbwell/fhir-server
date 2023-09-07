@@ -18,6 +18,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {string[]} patientUuids
      * @param {string[]} personUuids
      * @param {number} concurrencyBatchSize
+     * @param {boolean} dryRun
      */
     constructor({
         mongoCollectionManager,
@@ -29,6 +30,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         patientUuids,
         personUuids,
         concurrencyBatchSize,
+        dryRun,
     }) {
         super({
             mongoCollectionManager,
@@ -63,9 +65,19 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         this.concurrencyBatchSize = concurrencyBatchSize;
 
         /**
+         * @type {boolean}
+         */
+        this.dryRun = dryRun;
+
+        /**
          * @type {Map}
          */
         this.resourceDeletedCount = new Map();
+
+        /**
+         * @type {Map}
+         */
+        this.resourceUpdatedCount = new Map();
     }
 
     /**
@@ -117,7 +129,9 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             },
         };
 
-        this.adminLogger.logInfo(`Deleting data graph for ${resource}/${uuid}`);
+        if (!this.dryRun) {
+            this.adminLogger.logInfo(`Deleting data graph for ${resource}/${uuid}`);
+        }
 
         let bundleEntries;
         if (resource === 'Person') {
@@ -125,6 +139,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 req,
                 res: {},
                 personId: uuid,
+                method: this.dryRun ? 'READ' : 'DELETE',
             });
         }
 
@@ -133,22 +148,36 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 req,
                 res: {},
                 patientId: uuid,
+                method: this.dryRun ? 'READ' : 'DELETE',
             });
         }
 
         if (bundleEntries.entry?.length) {
             this.adminLogger.logInfo(
-                `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}, $everything link: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true`
+                this.dryRun ?
+                    `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true` :
+                    `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}`
             );
             bundleEntries.entry.forEach((entry) => {
                 const resourceType = entry.resource.resourceType;
-                if (!this.resourceDeletedCount.has(resourceType)) {
-                    this.resourceDeletedCount.set(resourceType, 0);
+                if (entry.request?.method === 'DELETE' || this.dryRun) {
+                    if (!this.resourceDeletedCount.has(resourceType)) {
+                        this.resourceDeletedCount.set(resourceType, 0);
+                    }
+                    this.resourceDeletedCount.set(
+                        resourceType,
+                        this.resourceDeletedCount.get(resourceType) + 1
+                    );
                 }
-                this.resourceDeletedCount.set(
-                    resourceType,
-                    this.resourceDeletedCount.get(resourceType) + 1
-                );
+                if (entry.request?.method === 'PATCH') {
+                    if (!this.resourceUpdatedCount.has(resourceType)) {
+                        this.resourceUpdatedCount.set(resourceType, 0);
+                    }
+                    this.resourceUpdatedCount.set(
+                        resourceType,
+                        this.resourceUpdatedCount.get(resourceType) + 1
+                    );
+                }
             });
         } else {
             this.adminLogger.logInfo(`${resource} with _uuid: ${uuid} doesn't exists`);
@@ -169,20 +198,30 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                  * @type {string}
                  */
                 const resource = collectionName.replace('_4_0_0', '');
-                this.adminLogger.logInfo(`Starting loop for ${resource} resource`);
+                this.adminLogger.logInfo(
+                    this.dryRun ?
+                    `Printing Everything url for ${resource} resource` :
+                    `Starting loop for ${resource} resource`
+                );
 
                 const uuidsToDelete = resource === 'Person' ? this.personUuids : this.patientUuids;
 
-                for (let uuid of uuidsToDelete) {
-                    await this.processRecordAsync(uuid, resource);
-                }
                 while (uuidsToDelete.length) {
                     const uuidChunk = uuidsToDelete.splice(0, this.concurrencyBatchSize);
-
-                    await Promise.all(uuidChunk.map(uuid => this.processRecordAsync(uuid, resource)));
+                    await Promise.all(
+                        uuidChunk.map((uuid) => this.processRecordAsync(uuid, resource))
+                    );
+                }
+                if (!this.dryRun) {
+                    this.adminLogger.logInfo(`Finished loop for ${resource} resource`);
                 }
             }
-            this.adminLogger.logInfo(`Deleted count: ${Array.from(this.resourceDeletedCount)}`);
+            if (!this.dryRun) {
+                this.adminLogger.logInfo(`Deleted count: ${Array.from(this.resourceDeletedCount)}`);
+                this.adminLogger.logInfo(`Updated count: ${Array.from(this.resourceUpdatedCount)}`);
+            } else {
+                this.adminLogger.logInfo(`To be deleted count: ${Array.from(this.resourceDeletedCount)}`);
+            }
             this.adminLogger.logInfo('Finished script');
             this.adminLogger.logInfo('Shutting down');
             await this.shutdown();

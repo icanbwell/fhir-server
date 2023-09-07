@@ -35,32 +35,6 @@
   ],
   "implicitRules": "some-implicit-rule",
   "language": "english",
-  "link": [
-    {
-      "assurance": "level4",
-      "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
-      "target": {
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "Person/person1"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Person/5f3ca115-8630-5e55-a97d-4d6ee26c0adc"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "healthsystem1"
-          }
-        ],
-        "reference": "Person/person1|healthsystem1"
-      }
-    }
-  ],
   "managingOrganization": {
     "display": "some-text-to-display",
     "extension": [
@@ -121,7 +95,7 @@
       }
     ],
     "source": "https://www.icanbwell.com",
-    "versionId": "1"
+    "versionId": "2"
   },
   "name": [
     {

@@ -69,10 +69,10 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePatientDataGraphAsync({req, res, patientId, responseStreamer}) {
+    async deletePatientDataGraphAsync({req, res, patientId, responseStreamer, method = 'DELETE'}) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-            requestInfo.method = 'DELETE';
+            requestInfo.method = method;
             const args = {
                 'base_version': base_version,
                 'id': patientId
@@ -160,10 +160,10 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePersonDataGraphAsync({req, res, personId, responseStreamer}) {
+    async deletePersonDataGraphAsync({req, res, personId, responseStreamer, method = 'DELETE' }) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-            requestInfo.method = 'DELETE';
+            requestInfo.method = method;
             const args = {
                 'base_version': base_version,
                 'id': personId
@@ -247,7 +247,7 @@ class AdminPersonPatientDataManager {
                     const person = new Person(personRecordWithLinkToDeletedResourceId);
                     person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target._uuid));
                     await databaseUpdateManagerForPerson.replaceOneAsync({
-                        doc: person
+                        doc: person, smartMerge: false
                     });
                     const bundleEntry = new BundleEntry(
                         {

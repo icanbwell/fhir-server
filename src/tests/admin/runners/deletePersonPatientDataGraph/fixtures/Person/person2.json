@@ -13,5 +13,12 @@
                 "code": "bwell"
             }
         ]
-    }
+    },
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/1"
+            }
+        }
+    ]
 }
