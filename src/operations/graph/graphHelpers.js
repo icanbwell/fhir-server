@@ -1701,7 +1701,7 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             const deleteOperationBundleEntries = [];
-            for (const entry of bundle.entry) {
+            for (const entry of (bundle.entry || [])) {
                 /**
                  * @type {Resource}
                  */
@@ -1742,6 +1742,7 @@ class GraphHelper {
                     id: resource.id,
                     resource: FhirResourceCreator.create({
                         id: resource.id,
+                        _uuid: resource._uuid,
                         resourceType: resultResourceType
                     }, ResourceContainer),
                     request: new BundleRequest(
