@@ -94,3 +94,11 @@ The FHIR server implements OAuth. You can set these environment variables:
 
 The FHIR server can optionally send change events to a Kafka queue:
 [Change Events](changeEvents.md)
+
+## Running New UI in dev
+To run the New UI in dev environment, follow these steps before running the container
+1. `cd ./src/web`
+2. `nvm use && yarn install && npm run build`
+
+Then start the container: `sudo make up`
+
