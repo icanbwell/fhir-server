@@ -84,16 +84,18 @@ class AdminPersonPatientDataManager {
                 parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Patient', args}),
                 responseStreamer
             });
-            // now also remove any connections to this Patient record
-            /**
-             * @type {BundleEntry[]}
-             */
-            const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
-                requestId: req.id,
-                bundle,
-                responseStreamer
-            });
-            bundleEntries.forEach(e => bundle.entry.push(e));
+            if (method === 'DELETE') {
+                // now also remove any connections to this Patient record
+                /**
+                 * @type {BundleEntry[]}
+                 */
+                const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
+                    requestId: req.id,
+                    bundle,
+                    responseStreamer
+                });
+                bundleEntries.forEach(e => bundle.entry.push(e));
+            }
             return bundle;
         } catch (e) {
             throw new RethrownError({
@@ -176,12 +178,14 @@ class AdminPersonPatientDataManager {
                 responseStreamer: null
             });
             bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({bundleEntry}));
-            // now also remove any connections to this Patient record
-            await this.removeLinksFromOtherPersonsAsync({
-                requestId: req.id,
-                responseStreamer,
-                bundle
-            });
+            if (method === 'DELETE') {
+                // now also remove any connections to this Patient record
+                await this.removeLinksFromOtherPersonsAsync({
+                    requestId: req.id,
+                    responseStreamer,
+                    bundle
+                });
+            }
             return bundle;
         } catch (e) {
             throw new RethrownError({
