@@ -1,4 +1,4 @@
-FROM node:20.5.0-bullseye-slim as build
+FROM node:18.16.0-bullseye-slim as build
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -7,7 +7,7 @@ ARG NODE_ENV=production
 RUN apt-get -y update && apt-get -y --no-install-recommends install autoconf build-essential && apt-get clean
 
 # update npm
-RUN npm install -g npm@latest && npm upgrade --global yarn
+RUN npm install -g npm@9.8.1 && npm upgrade --global yarn
 # RUN npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
 
 RUN mkdir /srv/src
@@ -17,7 +17,7 @@ COPY yarn.lock /srv/src/yarn.lock
 RUN echo "$NODE_ENV"
 RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && yarn install --no-optional; else echo 'building production' && cd /srv/src && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 
-FROM node:20.5.0-bullseye-slim as build_react
+FROM node:18.16.0-bullseye-slim as build_react
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -26,7 +26,7 @@ ARG NODE_ENV=production
 RUN apt-get -y update && apt-get -y --no-install-recommends install autoconf build-essential && apt-get clean
 
 # update npm
-RUN npm install -g npm@latest && npm upgrade --global yarn
+RUN npm install -g npm@9.8.1 && npm upgrade --global yarnmake
 # RUN npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
 
 RUN mkdir -p /srv/src/src/web
@@ -35,7 +35,7 @@ RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd 
 RUN cd /srv/src/src/web && npm run build
 
 
-FROM node:20.5.0-bullseye-slim
+FROM node:18.16.0-bullseye-slim
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -44,7 +44,7 @@ ARG NODE_ENV=production
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y --no-install-recommends install curl && apt-get clean
 
 # update npm
-RUN npm install -g npm@latest && npm upgrade --global yarn
+RUN npm install -g npm@9.8.1 && npm upgrade --global yarn
 
 # Set the working directory
 RUN mkdir -p /srv/src && chown node:node /srv/src
