@@ -1,8 +1,9 @@
 /**
  * This file specifies information for FHIR resources shown on the home opage
  */
+import {ResourceDefinition} from "./resourceDefinition";
 
-const resourceDefinitions = [
+const resourceDefinitions: ResourceDefinition[] = [
     {
         name: 'Account',
         description: 'A financial tool for tracking value accrued for a particular purpose. In the healthcare field, used to track charges for a patient, cost centers, etc.',

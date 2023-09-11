@@ -1,7 +1,7 @@
 import './App.css';
 import React, {useState} from 'react';
 import {useParams} from "react-router-dom";
-import FhirApi from "./utils/fhirApi";
+import FhirApi from './utils/fhirApi';
 
 
 function PatientChatGptPage() {
