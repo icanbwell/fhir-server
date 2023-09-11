@@ -69,10 +69,10 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePatientDataGraphAsync({req, res, patientId, responseStreamer}) {
+    async deletePatientDataGraphAsync({req, res, patientId, responseStreamer, method = 'DELETE'}) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-            requestInfo.method = 'DELETE';
+            requestInfo.method = method;
             const args = {
                 'base_version': base_version,
                 'id': patientId
@@ -84,16 +84,18 @@ class AdminPersonPatientDataManager {
                 parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Patient', args}),
                 responseStreamer
             });
-            // now also remove any connections to this Patient record
-            /**
-             * @type {BundleEntry[]}
-             */
-            const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
-                requestId: req.id,
-                bundle,
-                responseStreamer
-            });
-            bundleEntries.forEach(e => bundle.entry.push(e));
+            if (method === 'DELETE') {
+                // now also remove any connections to this Patient record
+                /**
+                 * @type {BundleEntry[]}
+                 */
+                const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
+                    requestId: req.id,
+                    bundle,
+                    responseStreamer
+                });
+                bundleEntries.forEach(e => bundle.entry.push(e));
+            }
             return bundle;
         } catch (e) {
             throw new RethrownError({
@@ -158,12 +160,12 @@ class AdminPersonPatientDataManager {
      * @param {import('http').ServerResponse} res
      * @param {string} personId
      * @param {BaseResponseStreamer} responseStreamer
-     * @return {Promise<void>}
+     * @return {Promise<Bundle>}
      */
-    async deletePersonDataGraphAsync({req, res, personId, responseStreamer}) {
+    async deletePersonDataGraphAsync({req, res, personId, responseStreamer, method = 'DELETE' }) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-            requestInfo.method = 'DELETE';
+            requestInfo.method = method;
             const args = {
                 'base_version': base_version,
                 'id': personId
@@ -175,14 +177,16 @@ class AdminPersonPatientDataManager {
                 parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Person', args}),
                 responseStreamer: null
             });
-            bundle.entry.forEach(bundleEntry => responseStreamer.writeBundleEntryAsync({bundleEntry}));
-            // now also remove any connections to this Patient record
-            await this.removeLinksFromOtherPersonsAsync({
-                requestId: req.id,
-                responseStreamer,
-                bundle
-            });
-            return;
+            bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({bundleEntry}));
+            if (method === 'DELETE') {
+                // now also remove any connections to this Patient record
+                await this.removeLinksFromOtherPersonsAsync({
+                    requestId: req.id,
+                    responseStreamer,
+                    bundle
+                });
+            }
+            return bundle;
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deletePersonDataGraphAsync(): ' + `person id:${personId}, `, error: e
@@ -221,7 +225,7 @@ class AdminPersonPatientDataManager {
             /**
              * @type {string[]}
              */
-            const deletedResourceIds = bundle.entry.filter(e => e.resource.resourceType === resourceType).map(e => e.resource.id);
+            const deletedResourceIds = bundle.entry.filter(e => e.resource.resourceType === resourceType).map(e => e.resource._uuid);
             if (deletedResourceIds && deletedResourceIds.length > 0) {
                 /**
                  * @type {string[]}
@@ -231,9 +235,7 @@ class AdminPersonPatientDataManager {
                  * @type {DatabasePartitionedCursor}
                  */
                 const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
-                    query: {
-                        'link.target.reference': {'$in': deletedResourceIdsWithResourceType}
-                    }
+                    query: {'link.target._uuid': {'$in': deletedResourceIdsWithResourceType}}
                 });
                 /**
                  * @type {import('mongodb').DefaultSchema[]}
@@ -247,9 +249,9 @@ class AdminPersonPatientDataManager {
                      * @type {Person}
                      */
                     const person = new Person(personRecordWithLinkToDeletedResourceId);
-                    person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target.reference));
+                    person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target._uuid));
                     await databaseUpdateManagerForPerson.replaceOneAsync({
-                        doc: person
+                        doc: person, smartMerge: false
                     });
                     const bundleEntry = new BundleEntry(
                         {

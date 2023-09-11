@@ -99,7 +99,7 @@
     {
       "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
       "target": {
-        "reference": "Patient/patient1"
+        "reference": "Patient/patient1|medstar"
       },
       "assurance": "level4"
     }

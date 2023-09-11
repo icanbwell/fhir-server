@@ -26,7 +26,7 @@ ARG NODE_ENV=production
 RUN apt-get -y update && apt-get -y --no-install-recommends install autoconf build-essential && apt-get clean
 
 # update npm
-RUN npm install -g npm@9.8.1 && npm upgrade --global yarnmake
+RUN npm install -g npm@9.8.1 && npm upgrade --global yarn
 # RUN npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
 
 RUN mkdir -p /srv/src/src/web
