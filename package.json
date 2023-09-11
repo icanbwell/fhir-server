@@ -6,7 +6,7 @@
   "repository": "https://github.com/icanbwell/fhir-server",
   "license": "MIT",
   "engines": {
-    "node": "18.16.x"
+    "node": "18.17.x"
   },
   "scripts": {
     "build": "cd src/web && yarn install && npm run build",
