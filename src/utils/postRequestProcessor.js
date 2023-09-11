@@ -116,7 +116,7 @@ class PostRequestProcessor {
                             error: e
                         }
                     );
-                    throw e;
+                    // swallow the error so we can continue processing
                 }
                 task = queue.shift();
             }

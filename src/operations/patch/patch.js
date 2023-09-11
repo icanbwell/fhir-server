@@ -3,10 +3,8 @@
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch, compare} = require('fast-json-patch');
 const moment = require('moment-timezone');
-const { FieldMapper } = require('../query/filters/fieldMapper');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -19,12 +17,16 @@ const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentM
 const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { isTrue } = require('../../utils/isTrue');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { SearchManager } = require('../search/searchManager');
 
 class PatchOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
@@ -32,18 +34,20 @@ class PatchOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
             databaseQueryFactory,
-            changeEventProducer,
+            postSaveProcessor,
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
             databaseAttachmentManager,
             configManager,
-            bwellPersonFinder
+            bwellPersonFinder,
+            searchManager
         }
     ) {
         /**
@@ -52,10 +56,10 @@ class PatchOperation {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {PostRequestProcessor}
          */
@@ -93,6 +97,12 @@ class PatchOperation {
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -107,11 +117,23 @@ class PatchOperation {
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'patch';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         const {
             requestId,
             method,
             body: patchContent,
-            /** @type {import('content-type').ContentType} */ contentTypeFromHeader
+            /** @type {import('content-type').ContentType} */ contentTypeFromHeader,
+            /**@type {string} */ userRequestId,
+            user,
+            /**@type {string | null} */ scope,
+            /** @type {string[]} */
+            patientIdsFromJwtToken,
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            personIdFromJwtToken,
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -155,16 +177,59 @@ class PatchOperation {
              * @type {Resource}
              */
             let foundResource;
-            try {
-                const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                );
-                const idFieldMapper = new FieldMapper({useHistoryTable: false});
-                const idField = idFieldMapper.getFieldName('id', id.toString());
-                foundResource = await databaseQueryManager.findOneAsync({query: {[idField]: id.toString()}});
-            } catch (e) {
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+
+            /**
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+             */
+            const {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
+                user,
+                scope,
+                isUser,
+                patientIdsFromJwtToken,
+                resourceType,
+                useAccessIndex,
+                personIdFromJwtToken,
+                parsedArgs,
+            });
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                { resourceType, base_version },
+            );
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            /**
+             * @type {[Resource] | null}
+             */
+            let resources = await cursor.toArrayAsync();
+
+            if (resources.length > 1) {
+                const sourceAssigningAuthorities = resources.flatMap(
+                    r => r.meta && r.meta.security ?
+                        r.meta.security
+                            .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
+                            .map(tag => tag.code)
+                        : [],
+                ).sort();
+                throw new BadRequestError(new Error(
+                    `Multiple resources found with id ${id}.  ` +
+                    'Please either specify the owner/sourceAssigningAuthority tag: ' +
+                    sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
+                    ' OR use uuid to query.',
+                ));
+            } else if (resources.length === 0) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
+            foundResource = resources[0];
             if (!foundResource) {
                 throw new NotFoundError('Resource not found');
             }
@@ -235,7 +300,8 @@ class PatchOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -255,10 +321,10 @@ class PatchOperation {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await this.changeEventProducer.fireEventsAsync({
+                    await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc: resource
                     });
-                    await this.changeEventProducer.flushAsync({requestId});
+                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
 

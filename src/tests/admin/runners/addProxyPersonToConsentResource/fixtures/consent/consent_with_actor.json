@@ -1,0 +1,63 @@
+{
+  "resourceType": "Consent",
+  "id": "5b03064e-6032-48f2-848f-8f8556f71e07",
+  "meta": {
+    "versionId": "1",
+    "source": "medstar",
+    "lastUpdated": "2022-09-08T14:05:09.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "medstar"
+      }
+    ]
+  },
+  "status": "active",
+  "scope": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+        "code": "patient-privacy"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "59284-0"
+        }
+      ]
+    }
+  ],
+  "patient": {
+    "reference": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
+  },
+  "dateTime": "2022-09-08T14:05:07.350Z",
+  "sourceReference": {
+    "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+  },
+  "provision": {
+    "type": "permit",
+    "actor": [
+      {
+        "role": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+              "code": "CST"
+            }
+          ]
+        },
+        "reference": {
+          "reference": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
+        }
+      }
+    ]
+  }
+}

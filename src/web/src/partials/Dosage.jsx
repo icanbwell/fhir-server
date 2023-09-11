@@ -6,7 +6,7 @@ import Timing from '../partials/Timing';
 const Dosage = ({dosages, name}) => {
     return (
         <>
-            {dosages.length > 0 && dosages[0] && (
+            {dosages && dosages.length > 0 && dosages[0] && (
                 <Box>
                     <Typography variant="h4">{name}</Typography>
                     {dosages.map((dosage, index) => (

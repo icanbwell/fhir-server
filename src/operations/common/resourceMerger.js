@@ -42,7 +42,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
-     * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
+     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync(
         {
@@ -67,16 +67,16 @@ class ResourceMerger {
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
-        if (!resourceToMerge._sourceAssigningAuthority) {
-            resourceToMerge._sourceAssigningAuthority = currentResource._sourceAssigningAuthority;
+        // copy sourceAssigningAuthority to be used in GlobalId handler while running preSave
+        // Will only be required when _uuid is passed in id field and there are references to update in the resource
+        const currentSourceAssigningAuthority = currentResource.meta.security.find(
+            s => s.system === SecurityTagSystem.sourceAssigningAuthority
+        );
+        if (!resourceToMerge._sourceAssigningAuthority && currentSourceAssigningAuthority) {
             if (!resourceToMerge.meta.security) {
-                resourceToMerge.meta.security = [
-                    currentResource.meta.security.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
-                ];
-            } else if (resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
-                resourceToMerge.meta.security.push(
-                    currentResource.meta.security.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
-                );
+                resourceToMerge.meta.security = [currentSourceAssigningAuthority];
+            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
+                resourceToMerge.meta.security.push(currentSourceAssigningAuthority);
             }
         }
 
@@ -93,14 +93,14 @@ class ResourceMerger {
                 resourceToMerge.id = currentResource.id;
             }
             if (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
-                if (!resourceToMerge.identifier) {
-                    resourceToMerge.identifier = [
-                        getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-                    ];
-                } else {
+                if (resourceToMerge.identifier) {
                     resourceToMerge.identifier.push(
                         getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
                     );
+                } else {
+                    resourceToMerge.identifier = [
+                        getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                    ];
                 }
             }
         }
@@ -111,18 +111,18 @@ class ResourceMerger {
             (!resourceToMerge.identifier ||
                 !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
         ) {
-            if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [
-                    getFirstElementOrNull(
-                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
-                    )
-                ];
-            } else {
+            if (resourceToMerge.identifier) {
                 resourceToMerge.identifier.push(
                     getFirstElementOrNull(
                         currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
                     )
                 );
+            } else {
+                resourceToMerge.identifier = [
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
+                    )
+                ];
             }
         }
 

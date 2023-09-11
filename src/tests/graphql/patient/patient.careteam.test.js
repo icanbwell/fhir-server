@@ -58,7 +58,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
             resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
 
             resp = await request
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},

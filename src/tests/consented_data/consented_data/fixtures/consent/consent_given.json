@@ -44,6 +44,35 @@
       {
         "code": "/dataSharingConsent"
       }
+    ],
+    "actor": [
+      {
+        "role": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+              "code": "CST"
+            }
+          ]
+        },
+        "reference": {
+          "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6"
+        }
+      },
+      {
+        "role": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html",
+              "code": "AUT"
+            }
+          ]
+        },
+        "reference": {
+          "reference": "Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57",
+          "_sourceAssigningAuthority": "bwell"
+        }
+      }
     ]
   }
 }

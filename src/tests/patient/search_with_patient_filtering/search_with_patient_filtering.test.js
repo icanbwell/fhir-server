@@ -134,7 +134,7 @@ describe('patient Tests', () => {
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .put('/4_0_0/AllergyIntolerance/patient-123-c-allergy-intolerance')
+            .put('/4_0_0/AllergyIntolerance/patient-123-a-allergy-intolerance')
             .send(allergy3Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -155,7 +155,7 @@ describe('patient Tests', () => {
         expect(resp).toHaveStatusCode(201);
 
         resp = await request
-            .put('/4_0_0/Condition/patient-123-c-condition')
+            .put('/4_0_0/Condition/patient-123-a-condition')
             .send(condition3Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
@@ -493,7 +493,7 @@ describe('patient Tests', () => {
             let resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},

@@ -83,11 +83,10 @@ const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichm
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
-const {ChatGPTLangChainManager} = require('./chatgpt/chatgptLangChainManager');
+const {ChatGPTLangChainManager} = require('./chatgpt/managers/chatgptLangChainManager');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
-const {LinkedPatientsFinder} = require('./utils/linkedPatientsFinder');
 const {ConsentManager} = require('./operations/search/consentManger');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
@@ -95,6 +94,14 @@ const {ParametersResourceValidator} = require('./operations/merge/validators/par
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
+const {OpenSearchVectorStoreManager} = require('./chatgpt/vectorStores/openSearchVectorStoreManager');
+const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
+const {FhirSummaryWriter} = require('./chatgpt/summaryWriters/fhirSummaryWriter');
+const {VectorStoreFactory} = require('./chatgpt/vectorStores/vectorStoreFactory');
+const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorStoreManager');
+const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
+const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
+const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
 
 /**
  * Creates a container and sets up all the services
@@ -128,7 +135,13 @@ const createContainer = function () {
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
             }),
-            new HashReferencesEnrichmentProvider()
+            new HashReferencesEnrichmentProvider(),
+            new ChatGptEnrichmentProvider(
+                {
+                    chatgptManager: c.chatgptManager,
+                    configManager: c.configManager
+                }
+            )
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -193,11 +206,6 @@ const createContainer = function () {
             requestSpecificCache: c.requestSpecificCache
         }
     ));
-    container.register('linkedPatientsFinder', (c) => new LinkedPatientsFinder({
-        bwellPersonFinder: c.bwellPersonFinder,
-        databaseQueryFactory: c.databaseQueryFactory,
-        personToPatientIdsExpander: c.personToPatientIdsExpander,
-    }));
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator,
     }));
@@ -205,8 +213,8 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
         patientFilterManager: c.patientFilterManager,
-        linkedPatientsFinder: c.linkedPatientsFinder,
-        searchQueryBuilder: c.searchQueryBuilder
+        searchQueryBuilder: c.searchQueryBuilder,
+        bwellPersonFinder: c.bwellPersonFinder,
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
@@ -343,7 +351,7 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                changeEventProducer: c.changeEventProducer,
+                postSaveProcessor: c.postSaveProcessor,
                 preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
                 databaseUpdateFactory: c.databaseUpdateFactory,
@@ -436,7 +444,7 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                changeEventProducer: c.changeEventProducer,
+                postSaveProcessor: c.postSaveProcessor,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
@@ -452,7 +460,7 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                changeEventProducer: c.changeEventProducer,
+                postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
@@ -464,7 +472,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                searchManager: c.searchManager
             }
         )
     );
@@ -472,7 +481,7 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            changeEventProducer: c.changeEventProducer,
+            postSaveProcessor: c.postSaveProcessor,
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
@@ -547,14 +556,15 @@ const createContainer = function () {
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            changeEventProducer: c.changeEventProducer,
+            postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder
+            bwellPersonFinder: c.bwellPersonFinder,
+            searchManager: c.searchManager
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -713,14 +723,62 @@ const createContainer = function () {
         }
     ));
 
+    container.register('openSearchVectorStoreManager', (c) => new OpenSearchVectorStoreManager({
+        configManager: c.configManager
+    }));
+
+    container.register('memoryVectorStoreManager', (c) => new MemoryVectorStoreManager({
+        configManager: c.configManager
+    }));
+
+    container.register('mongoAtlasVectorStoreManager', (c) => new MongoAtlasVectorStoreManager({
+        configManager: c.configManager
+    }));
+
+    container.register('vectorStoreFactory', (c) => new VectorStoreFactory(
+        {
+            vectorStoreManagers: [
+                c.mongoAtlasVectorStoreManager,
+                c.openSearchVectorStoreManager,
+                c.memoryVectorStoreManager
+            ]
+        }
+    ));
+
+    container.register('llmFactory', (c) => new OpenAILLMFactory(
+        {
+            configManager: c.configManager
+        }
+    ));
+
     container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
-        fhirToDocumentConverter: c.fhirToDocumentConverter
+        fhirToDocumentConverter: c.fhirToDocumentConverter,
+        vectorStoreFactory: c.vectorStoreFactory,
+        configManager: c.configManager,
+        llmFactory: c.llmFactory
     }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager
         }
     ));
+
+    container.register('fhirSummaryWriter', (c) => new FhirSummaryWriter(
+            {
+                fhirToDocumentConverter: c.fhirToDocumentConverter,
+                vectorStoreFactory: c.vectorStoreFactory,
+                configManager: c.configManager,
+                patientFilterManager: c.patientFilterManager
+            }
+        )
+    );
+
+    container.register('postSaveProcessor', (c) => new PostSaveProcessor({
+        handlers: [
+            c.changeEventProducer,
+            c.fhirSummaryWriter
+        ]
+    }));
 
     return container;
 };

@@ -19,7 +19,7 @@ class ObservationConverter extends BaseConverter {
         const statusText = this.getDisplayText(status.coding);
         const categoryText = this.getDisplayText(category && category.length > 0 && category[0].coding);
         const codeText = this.getDisplayText(code.coding);
-        const subjectReference = subject?.reference;
+        const subjectReference = subject ? subject.reference : undefined;
 
         let valueText = '';
         if (valueQuantity) {
@@ -32,6 +32,7 @@ class ObservationConverter extends BaseConverter {
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
+- Resource: Observation
 - ID: ${id}
 - Last Updated: ${this.formatDate(lastUpdated)}
 - Source: ${source}

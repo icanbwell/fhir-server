@@ -61,6 +61,15 @@ services:
       DD_TRACE_ENABLED: 'False'
       ENABLE_CONSENTED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
+      OPENSEARCH_VECTORSTORE_URL: 'http://elasticsearch:9200'
+      OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
+      OPENSEARCH_VECTORSTORE_USERNAME: 'admin'
+      OPENSEARCH_VECTORSTORE_PASSWORD: 'admin'
+      WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
+#      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
+#      MONGO_VECTORSTORE_USERNAME: ''
+#      MONGO_VECTORSTORE_PASSWORD: ''
+#      MONGO_VECTORSTORE_DB: 'cl-dev-knowledge'
     ports:
       - '3000:3000'
     volumes:
@@ -72,7 +81,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:5.0.19
+    image: mongo:5.0.18
     ports:
       - '27017:27017'
     environment:
@@ -90,7 +99,7 @@ services:
   #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
 
   zookeeper:
-    image: docker.io/bitnami/zookeeper:3.8.2
+    image: 'docker.io/bitnami/zookeeper:3.8.0'
     ports:
       - '2181:2181'
     environment:
@@ -100,7 +109,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: docker.io/bitnami/kafka:3.5.1
+    image: 'docker.io/bitnami/kafka:3.2.1'
     ports:
       - '9092:9092'
     environment:
@@ -125,7 +134,7 @@ services:
         ]
 
   kafkaUI:
-    image: obsidiandynamics/kafdrop:3.31.0
+    image: 'obsidiandynamics/kafdrop:3.30.0'
     ports:
       - '9000:9000'
     environment:
@@ -154,6 +163,7 @@ services:
       - network.host=0.0.0.0 # required if not using the demo security configuration
       #      - opendistro_security.disabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
+      - plugins.security.ssl.http.enabled=false
     ulimits:
       memlock:
         soft: -1

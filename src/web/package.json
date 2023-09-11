@@ -8,10 +8,10 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.3",
-    "@mui/material": "^5.14.4",
-    "@mui/styles": "^5.14.4",
-    "@mui/x-date-pickers": "^6.11.1",
-    "@testing-library/jest-dom": "^5.17.0",
+    "@mui/material": "^5.14.5",
+    "@mui/styles": "^5.14.5",
+    "@mui/x-date-pickers": "^6.11.2",
+    "@testing-library/jest-dom": "^6.0.1",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "chart.js": "^4.3.3",
@@ -25,12 +25,20 @@
     "react-vertical-timeline-component": "^3.6.0",
     "web-vitals": "^3.4.0"
   },
+  "devDependencies": {
+    "@testing-library/react": "^14.0.0",
+    "dotenv-cli": "^7.3.0",
+    "cra-build-watch": "^3.4.0",
+    "nock": "^13.3.3"
+  },
   "homepage": "/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:dev": "dotenv -e .env.development react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "watch": "cra-build-watch"
   },
   "eslintConfig": {
     "extends": [

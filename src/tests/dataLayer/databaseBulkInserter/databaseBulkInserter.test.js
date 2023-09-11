@@ -408,6 +408,7 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const userRequestId = '123456';
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -625,6 +626,7 @@ describe('databaseBulkInserter Tests', () => {
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestId: requestId,
+                userRequestId,
                 currentDate,
                 base_version,
                 method: 'POST'
@@ -643,7 +645,7 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.executeAsync({requestId, userRequestId});
             await postRequestProcessor.waitTillDoneAsync({requestId});
 
             // check codeSystems
@@ -733,7 +735,7 @@ describe('databaseBulkInserter Tests', () => {
                 {
                     'id': generateUUIDv5('loinc-1|medstar'),
                     'request': new BundleRequest({
-                        'id': '1234',
+                        'id': userRequestId,
                         'method': 'POST',
                         'url': '/4_0_0/CodeSystem/loinc-1'
                     }),
@@ -868,6 +870,7 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
+            const userRequestId = '123456';
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -1070,6 +1073,7 @@ describe('databaseBulkInserter Tests', () => {
                 requestId: requestId,
                 currentDate,
                 base_version,
+                userRequestId,
                 method: 'POST'
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
@@ -1086,7 +1090,7 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.executeAsync({requestId, userRequestId});
             await postRequestProcessor.waitTillDoneAsync({requestId});
 
             // check codeSystems
@@ -1177,7 +1181,7 @@ describe('databaseBulkInserter Tests', () => {
                 {
                     'id': generateUUIDv5('loinc-1|medstar'),
                     'request': new BundleRequest({
-                        'id': '1234',
+                        'id': userRequestId,
                         'method': 'POST',
                         'url': '/4_0_0/CodeSystem/loinc-1'
                     }),

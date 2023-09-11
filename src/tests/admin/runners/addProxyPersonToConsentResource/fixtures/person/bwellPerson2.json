@@ -1,0 +1,37 @@
+{
+    "resourceType": "Person",
+    "id": "97f5479a-1611-4964-911f-df1640f454f0",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "official",
+            "family": "Irving",
+            "given": [
+                "Lloyd"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Person/9e40c66e-afd4-4106-b3f2-bf579e209dbc|walgreens",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        }
+    ]
+}

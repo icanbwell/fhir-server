@@ -3,7 +3,6 @@ const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MergeManager} = require('./mergeManager');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
@@ -21,12 +20,13 @@ const {QueryItem} = require('../graph/queryItem');
 const {ConfigManager} = require('../../utils/configManager');
 const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
 const {MergeValidator} = require('./mergeValidator');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {ChangeEventProducer} changeEventProducer
+     * @param {PostSaveProcessor} postSaveProcessor
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
@@ -41,7 +41,7 @@ class MergeOperation {
         {
             mergeManager,
             databaseBulkInserter,
-            changeEventProducer,
+            postSaveProcessor,
             databaseBulkLoader,
             postRequestProcessor,
             scopesManager,
@@ -64,10 +64,10 @@ class MergeOperation {
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
         /**
-         * @type {ChangeEventProducer}
+         * @type {PostSaveProcessor}
          */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
         /**
          * @type {DatabaseBulkLoader}
          */
@@ -265,13 +265,14 @@ class MergeOperation {
                 {
                     requestId, currentDate,
                     base_version,
-                    method
+                    method,
+                    userRequestId,
                 });
 
             // flush any event handlers
             this.postRequestProcessor.add({
                 requestId,
-                fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
+                fnTask: async () => await this.postSaveProcessor.flushAsync({requestId})
             });
 
 

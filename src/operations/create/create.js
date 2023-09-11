@@ -5,7 +5,6 @@ const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
@@ -20,11 +19,11 @@ const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 
 class CreateOperation {
     /**
      * constructor
-     * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
@@ -35,10 +34,10 @@ class CreateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {PostSaveProcessor} postSaveProcessor
      */
     constructor(
         {
-            changeEventProducer,
             auditLogger,
             postRequestProcessor,
             scopesManager,
@@ -48,14 +47,10 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
-            bwellPersonFinder
+            bwellPersonFinder,
+            postSaveProcessor
         }
     ) {
-        /**
-         * @type {ChangeEventProducer}
-         */
-        this.changeEventProducer = changeEventProducer;
-        assertTypeEquals(changeEventProducer, ChangeEventProducer);
         /**
          * @type {AuditLogger}
          */
@@ -110,6 +105,12 @@ class CreateOperation {
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {PostSaveProcessor}
+         */
+        this.postSaveProcessor = postSaveProcessor;
+        assertTypeEquals(postSaveProcessor, PostSaveProcessor);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -131,7 +132,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method} = requestInfo;
+        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method, /**@type {string} */ userRequestId } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -248,7 +249,7 @@ class CreateOperation {
                         operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
                     }
                 );
-                await this.auditLogger.flushAsync({requestId, currentDate, method});
+                await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
@@ -263,7 +264,8 @@ class CreateOperation {
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate, base_version: base_version,
-                    method
+                    method,
+                    userRequestId,
                 }
             );
 
@@ -290,10 +292,10 @@ class CreateOperation {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {
-                    await this.changeEventProducer.fireEventsAsync({
+                    await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc
                     });
-                    await this.changeEventProducer.flushAsync({requestId});
+                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
 

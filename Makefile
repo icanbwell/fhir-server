@@ -24,15 +24,24 @@ up:
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo HAPI UI: http://localhost:3001/fhir/ && \
+	echo OpenSearch: http://admin:admin@localhost:9200/fhir_summaries/_search?pretty && \
 	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline
 up-offline:
 	docker compose -p fhir-dev -f docker-compose.yml up --detach && \
-	echo "waiting for Fhir server to become healthy" && \
-	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; do printf "." && sleep 2; done
+	echo "\nwaiting for Mongo server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-mongo-1`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-mongo-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-mongo-1 =========\n" && exit 1; fi
+	echo "\nwaiting for FHIR server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-fhir-1`" != "restarting" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
-	echo FHIR server: http://localhost:3000/
+	echo FHIR server Metrics: http://localhost:3000/metrics && \
+	echo Kafka UI: http://localhost:9000 && \
+	echo HAPI UI: http://localhost:3001/fhir/ && \
+	echo OpenSearch: http://admin:admin@localhost:9200/fhir_summaries/_search?pretty && \
+	echo FHIR server: http://localhost:3000
 
 .PHONY:down
 down:
@@ -59,13 +68,6 @@ init:
 	nvm install
 	make update
 
-#   We use gitpkg to expose the subfolder as a package here.
-#	When you change the package go here to create a new link: https://gitpkg.vercel.app/ using the path:
-# https://github.com/icanbwell/node-fhir-server-core/tree/master/packages/node-fhir-server-core
-# 	yarn cache clean && \
-#	yarn --update-checksums && \
-# 	cd node_modules/@asymmetrik/node-fhir-server-core && yarn install
-# "@asymmetrik/node-fhir-server-core": "https://gitpkg.now.sh/icanbwell/node-fhir-server-core/packages/node-fhir-server-core?master",
 
 .PHONY:update
 update:down
@@ -73,11 +75,9 @@ update:down
 	npm install --location=global yarn && \
 	rm -f yarn.lock && \
 	yarn install --no-optional && \
-	npm i --package-lock-only && \
 	cd src/web && \
 	rm -f yarn.lock && \
 	yarn install --no-optional && \
-	npm i --package-lock-only
 
 # https://www.npmjs.com/package/npm-check-updates
 .PHONY:upgrade_packages

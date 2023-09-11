@@ -179,12 +179,8 @@ class SecurityTagManager {
             });
             if (patientFilterProperty) {
                 if (Array.isArray(patientFilterProperty)) {
-                    /**
-                     * @type {string[]}
-                     */
-                    const patientFilterList = patientFilterProperty;
                     patientsUuidQuery = {
-                        '$or': patientFilterList.map(p => {
+                        '$or': patientFilterProperty.map(p => {
                                 // if patient itself then search by _uuid
                                 if (p === 'id') {
                                     return {'_uuid': inQuery};
@@ -218,12 +214,8 @@ class SecurityTagManager {
             });
             if (patientFilterProperty) {
                 if (Array.isArray(patientFilterProperty)) {
-                    /**
-                     * @type {string[]}
-                     */
-                    const patientFilterList = patientFilterProperty;
                     patientsNonUuidQuery = {
-                        '$or': patientFilterList.map(p => {
+                        '$or': patientFilterProperty.map(p => {
                                 // if patient itself then search by _sourceId
                                 if (p === 'id') {
                                     return {'_sourceId': inQuery};

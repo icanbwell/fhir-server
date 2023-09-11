@@ -80,55 +80,55 @@ function Observation({resource}) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {resource.valueString !== null && (
+                        {resource.valueString && (
                             <TableRow>
                                 <TableCell>valueString</TableCell>
                                 <TableCell>{resource.valueString}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueBoolean !== null && (
+                        {resource.valueBoolean && (
                             <TableRow>
                                 <TableCell>valueBoolean</TableCell>
-                                <TableCell>{resource.valueBoolean.toString()}</TableCell>
+                                <TableCell>{resource.valueBoolean?.toString()}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueInteger !== null && (
+                        {resource.valueInteger && (
                             <TableRow>
                                 <TableCell>valueInteger</TableCell>
                                 <TableCell>{resource.valueInteger}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueQuantity !== null && resource.valueQuantity.value && (
+                        {resource.valueQuantity && resource.valueQuantity.value && (
                             <TableRow>
                                 <TableCell>valueQuantity</TableCell>
                                 <TableCell>{resource.valueQuantity.value} {resource.valueQuantity.unit}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueRange !== null && (
+                        {resource.valueRange && (
                             <TableRow>
                                 <TableCell>valueRange</TableCell>
                                 <TableCell>{resource.valueRange.low.value} to {resource.valueRange.high.value}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueRatio !== null && resource.valueRatio.numerator && resource.valueRatio.numerator.value && resource.valueRatio.denominator && resource.valueRatio.denominator.value && (
+                        {resource.valueRatio && resource.valueRatio.numerator && resource.valueRatio.numerator.value && resource.valueRatio.denominator && resource.valueRatio.denominator.value && (
                             <TableRow>
                                 <TableCell>valueRatio</TableCell>
                                 <TableCell>{resource.valueRatio.numerator.value} / {resource.valueRatio.denominator.value}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueTime !== null && (
+                        {resource.valueTime && (
                             <TableRow>
                                 <TableCell>valueTime</TableCell>
                                 <TableCell>{resource.valueTime}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valueDateTime !== null && (
+                        {resource.valueDateTime && (
                             <TableRow>
                                 <TableCell>valueDateTime</TableCell>
                                 <TableCell>{resource.valueDateTime}</TableCell>
                             </TableRow>
                         )}
-                        {resource.valuePeriod !== null && (
+                        {resource.valuePeriod && (
                             <TableRow>
                                 <TableCell>valuePeriod</TableCell>
                                 <TableCell>{resource.valuePeriod.start} to {resource.valuePeriod.end}</TableCell>

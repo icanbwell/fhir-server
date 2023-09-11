@@ -54,17 +54,17 @@
     ]
   },
   "subject": {
-    "reference": "Patient/person.b12345",
+    "reference": "Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57",
     "extension": [
       {
         "id": "sourceId",
         "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Patient/person.b12345"
+        "valueString": "Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57"
       },
       {
         "id": "uuid",
         "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Patient/3cf3103a-5daa-598c-9d0a-e99cb8ac244d"
+        "valueString": "Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57"
       },
       {
         "id": "sourceAssigningAuthority",

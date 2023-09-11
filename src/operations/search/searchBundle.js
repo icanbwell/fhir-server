@@ -135,6 +135,7 @@ class SearchBundleOperation {
              * @type {string}
              */
             requestId,
+            /**@type {string} */ userRequestId,
             /** @type {string} */ method
         } = requestInfo;
 
@@ -290,7 +291,7 @@ class SearchBundleOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
                 }
             }
 

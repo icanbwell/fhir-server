@@ -7,6 +7,7 @@ const personBundleResource = require('./fixtures/person/person1.json');
 const expectedObservationResources = require('./fixtures/expected_observation.json');
 const expectedObservationSubjectResources = require('./fixtures/expected_observation_w_subject.json');
 const expectedObservationNotSubjectResources = require('./fixtures/expected_observation_not_subject.json');
+const expectedObservationQuantityResources = require('./fixtures/expected_observation_quantity.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +16,7 @@ const path = require('path');
 const observationQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 const observationSubjectQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query_subject.graphql'), 'utf8');
 const observationNotSubjectQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query_not_subject.graphql'), 'utf8');
-// const observationNotQuantityQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query_not_quantity.graphql'), 'utf8');
+const observationQuantityQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query_quantity.graphql'), 'utf8');
 
 const {
     commonBeforeEach,
@@ -66,7 +67,7 @@ describe('GraphQL Observation Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -109,7 +110,7 @@ describe('GraphQL Observation Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -152,7 +153,7 @@ describe('GraphQL Observation Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -166,7 +167,7 @@ describe('GraphQL Observation Tests', () => {
             expect(resp).toHaveGraphQLResponse(expectedObservationNotSubjectResources, 'observation');
         });
         // blocked by bug where quantity searchs are ignored
-        /* test('GraphQL notEquals Quantity type', async () => {
+         test('GraphQL equals Quantity value', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -191,12 +192,12 @@ describe('GraphQL Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-            const graphqlQueryText = observationNotQuantityQuery.replace(/\\n/g, '');
+            const graphqlQueryText = observationQuantityQuery.replace(/\\n/g, '');
             // ACT & ASSERT
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {
@@ -207,7 +208,7 @@ describe('GraphQL Observation Tests', () => {
                .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveGraphQLResponse(expectedObservationNotSubjectResources, 'observation');
-        }); */
+            expect(resp).toHaveGraphQLResponse(expectedObservationQuantityResources, 'observation');
+        });
     });
 });

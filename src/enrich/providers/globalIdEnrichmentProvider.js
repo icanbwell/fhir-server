@@ -5,7 +5,7 @@ const {isUuid} = require('../../utils/uid.util');
 const {ReferenceParser} = require('../../utils/referenceParser');
 
 /**
- * Abstract base class for an enrichment provider.  Inherit from this to create a new enrichment provider
+ * @classdesc sets id to global id if the 'Prefer' header is set
  */
 class GlobalIdEnrichmentProvider extends EnrichmentProvider {
 
@@ -47,13 +47,12 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                         }
                     }
                     if (resource.contained && resource.contained.length > 0) {
-                        const contained = await this.enrichAsync(
+                        resource.contained = await this.enrichAsync(
                             {
                                 resources: resource.contained,
                                 parsedArgs
                             }
                         );
-                        resource.contained = contained;
                     }
                     if (resource.updateReferencesAsync) {
                         // update references

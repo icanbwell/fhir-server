@@ -138,7 +138,12 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
         db_name: dbName,
     };
 }
-accessLogsMongoConfig.options = {...options, useUnifiedTopology: true};
+accessLogsMongoConfig.options = {
+    ...options,
+    useUnifiedTopology: true,
+    writeConcern: { w: 1 },
+    maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 15
+};
 delete accessLogsMongoConfig.options.compressors;
 
 // Set up whitelist
@@ -151,7 +156,7 @@ let whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] :
 
 /**
  * @name fhirServerConfig
- * @summary @asymmetrik/node-fhir-server-core configurations.
+ * @summary fhir-server configurations.
  */
 let fhirServerConfig = {
     auth: {

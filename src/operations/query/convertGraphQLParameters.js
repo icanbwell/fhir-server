@@ -112,10 +112,10 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         quantityString += queryParameterValue['value'];
                     }
                     if (queryParameterValue['system']) {
-                        quantityString = '|' + queryParameterValue['system'];
+                        quantityString += '|' + queryParameterValue['system'];
                     }
                     if (queryParameterValue['code']) {
-                        quantityString = '|' + queryParameterValue['code'];
+                        quantityString += '|' + queryParameterValue['code'];
                     }
                     if (useNotEquals) {
                         notQueryParameterValue = quantityString;

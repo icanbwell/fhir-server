@@ -1,0 +1,44 @@
+{
+  "resourceType": "ActivityDefinition",
+  "id": "sameid",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-08-29T09:27:35.000Z",
+    "source": "bwell",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "medstar"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "sameid"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "8a635bee-94ea-548b-a1f3-1e4ad96ae350"
+    }
+  ],
+  "name": "TEST3",
+  "approvalDate": "2022-09-12",
+  "library": [
+    "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
+  ]
+}

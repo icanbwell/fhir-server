@@ -58,7 +58,7 @@ export default function SearchForm({onSearch, resourceType}) {
                 '& .MuiTextField-root': {m: 1, width: {xs: '90%', sm: '25ch'}},
             }}
             noValidate
-            autoComplete="off"
+            autoComplete="on"
         >
             <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -129,13 +129,15 @@ export default function SearchForm({onSearch, resourceType}) {
                         fullWidth
                     />
                 </Grid>
+                <Grid item xs={12}>
+                    <Button variant="outlined" color="secondary" onClick={resetFields}>
+                        Reset
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={search}>
+                        Search
+                    </Button>
+                </Grid>
             </Grid>
-            <Button variant="outlined" color="secondary" onClick={resetFields}>
-                Reset
-            </Button>
-            <Button variant="contained" color="primary" onClick={search}>
-                Search
-            </Button>
         </Box>
     );
 }

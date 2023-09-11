@@ -193,9 +193,15 @@ module.exports = {
         USER_REQUEST_ID: 'userRequestId',
         SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId',
     },
+    RESPONSE_NONCE: 'responseNonce',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',
     BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY: 'bwell',
+    PROXY_PERSON_CONSENT_CODING: {
+        SYSTEM: 'http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html',
+        CODE: 'AUT'
+    },
+    CONSENT_OF_LINKED_PERSON_INDEX: 'consent_of_linked_person',
 };
