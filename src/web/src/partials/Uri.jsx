@@ -6,7 +6,7 @@ function Uri({name, value}) {
         value &&
         <Box>
             <Typography variant="body1" display="inline">
-                <b>{name}:</b>&nbsp
+                <b>{name}:</b>&nbsp;
             </Typography>
             <Link href={value}>
                 {value}
