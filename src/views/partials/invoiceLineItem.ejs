@@ -1,0 +1,34 @@
+<% if (!Array.isArray(lineItems)) {
+    lineItems = [lineItems];
+} %>
+<% if (lineItems && lineItems.length > 0 && lineItems[0]) { %>
+    <div>
+        <h4><%= name; %></h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Item</th>
+                <th scope="col">Code</th>
+                <th scope="col">Price Component</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% lineItems.forEach(function(lineItem){ %>
+                <% if (lineItem) { %>
+                    <tr>
+                        <td>
+                            <%= lineItem.chargeItemReference.reference; %>
+                        </td>
+                        <td>
+                            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: lineItem.chargeItemCodeableConcept, name: "Code", searchParameter: ''}); %>
+                        </td>
+                        <td>
+                            <%- include('../partials/invoicePriceComponent', {priceComponents: lineItem.priceComponent, name: ''}); %>
+                        </td>
+                    </tr>
+                <% } %>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } %>

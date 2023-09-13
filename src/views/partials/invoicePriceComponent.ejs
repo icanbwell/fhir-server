@@ -1,0 +1,40 @@
+<% if (!Array.isArray(priceComponents)) {
+    priceComponents = [priceComponents];
+} %>
+<% if (priceComponents && priceComponents.length > 0 && priceComponents[0]) { %>
+    <div>
+        <% if (name) { %>
+        <h4><%= name; %></h4>
+        <% } %>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Type</th>
+                <th scope="col">Code</th>
+                <th scope="col">Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% priceComponents.forEach(function(priceComponent){ %>
+                <% if (priceComponent) { %>
+                    <tr>
+                        <td>
+                            <%= priceComponent.id %>
+                        </td>
+                        <td>
+                            <%= priceComponent.type %>
+                        </td>
+                        <td>
+                            <%- include('../partials/codeableConcept', {resourceType: "", codeableConcepts: priceComponent.code, name: "Code", searchParameter: ''}); %>
+                        </td>
+                        <td>
+                            <%- include('../partials/money', {name: '', value: priceComponent.amount.value}); %>
+                        </td>
+                    </tr>
+                <% } %>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } %>
