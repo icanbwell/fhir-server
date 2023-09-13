@@ -301,16 +301,6 @@ module.exports = {
             },
             {
                 keys: {
-                    '_access.medstar': 1,
-                    '_uuid': 1,
-                    'recorded': 1,
-                },
-                options: {
-                    name: '_accessMedstar_uuidRecorded'
-                }
-            },
-            {
-                keys: {
                     '_uuid': 1,
                     'recorded': 1,
                 },
@@ -330,32 +320,12 @@ module.exports = {
             },
             {
                 keys: {
-                    'agent.who._sourceId': 1,
-                    '_uuid': 1,
-                    'recorded': 1
-                },
-                options: {
-                    name: 'agentWho_sourceId_uuidRecorded'
-                }
-            },
-            {
-                keys: {
                     'entity.what._uuid': 1,
                     '_uuid': 1,
                     'recorded': 1
                 },
                 options: {
                     name: 'entityWhat_uuid_uuidRecorded'
-                }
-            },
-            {
-                keys: {
-                    'entity.what._sourceId': 1,
-                    '_uuid': 1,
-                    'recorded': 1
-                },
-                options: {
-                    name: 'entityWhat_sourceId_uuidRecorded'
                 }
             }
         ],
