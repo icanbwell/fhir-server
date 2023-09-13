@@ -45,7 +45,7 @@ describe('Patient Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Person search_by_proxy_patient Multiple Tests', () => {
+    describe('Resources search_by_proxy_patient Multiple Tests', () => {
         test('search person by patient for proxy patients includes proxy patient itself for single proxy person', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
@@ -81,7 +81,7 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedSinglePerson);
         });
 
-        test.only('search person by patient for proxy patients includes wrong proxy patient itself for multiple proxy person', async () => {
+        test('search person by patient for proxy patients includes correct proxy patient itself for multiple proxy person', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;

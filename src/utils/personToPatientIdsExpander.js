@@ -33,9 +33,10 @@ class PersonToPatientIdsExpander {
      * @param {string} base_version
      * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
-     * @return {Promise<string|string[]>}
+     * @param {boolean} toMap If return map of person to patient
+     * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix}) {
+    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix, toMap}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: base_version
@@ -53,19 +54,40 @@ class PersonToPatientIdsExpander {
                 personIds,
                 totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
-                level: 1
+                level: 1,
+                toMap,
             }
         );
-        if (patientIds && patientIds.length > 0) {
-            // Also include the proxy patient ID for resources that are associated with the proxy patient directly
-            personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
-            if (includePatientPrefix) {
-                patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
+        if (!toMap) {
+            if (patientIds && patientIds.length > 0) {
+                // Also include the proxy patient ID for resources that are associated with the proxy patient directly
+                personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
+                if (includePatientPrefix) {
+                    patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
+                }
+                // 4. return a csv of those patient ids (remove duplicates)
+                return Array.from(new Set(patientIds));
             }
-            // 4. return a csv of those patient ids (remove duplicates)
-            return Array.from(new Set(patientIds));
+            return ids;
+        } else {
+            /**
+             * @type {Map<string, Set<string>}
+             */
+            const personToPatientMap = patientIds;
+            /**@type {{[key: string]: string[]}} */
+            const plainMap = {};
+            for (const [personId, patientIdsSet] of personToPatientMap) {
+
+                plainMap[`${personId}`] = Array.from(patientIdsSet);
+
+                // Also include the proxy patient Id
+                plainMap[`${personId}`].push(`${personProxyPrefix}${personId}`);
+                if (includePatientPrefix) {
+                    plainMap[`${personId}`] = plainMap[`${personId}`].map((p) => `${patientReferencePrefix}${p}`);
+                }
+            }
+            return plainMap;
         }
-        return ids;
     }
 
     /**

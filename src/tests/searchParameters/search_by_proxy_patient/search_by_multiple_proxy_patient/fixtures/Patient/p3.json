@@ -1,6 +1,6 @@
 {
   "resourceType": "Patient",
-  "id": "northwell-3|northwell",
+  "id": "northwell-3",
   "meta": {
       "source": "http://healthsystem1health.org/provider",
       "security": [

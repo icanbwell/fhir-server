@@ -2,6 +2,7 @@ const {EnrichmentProvider} = require('./enrichmentProvider');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ParsedArgs} = require('../../operations/query/parsedArgs');
+const {PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX} = require('../../constants');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -16,26 +17,31 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
-             * @type {ParsedArgsItem}
+             * @type {import('../../operations/query/parsedArgsItem').ParsedArgsItem}
              */
             const parsedArgsItem = parsedArgs.get(`${proxyPatientPersonIdKey}`);
             if (parsedArgsItem) {
+                const patientToPersonMap = parsedArgsItem.patientToPersonMap;
+
                 /**
                  * @type {string[]}
                  */
-                const proxyPatientIds = parsedArgsItem.queryParameterValue.values ?
-                    parsedArgsItem.queryParameterValue.values.map(
-                        a => a.startsWith('Patient/') ? a : `Patient/${a}`) : [];
+                const patientIdsFromQueryParam =
+                    parsedArgsItem?.queryParameterValue?.values?.map((a) =>
+                        a.startsWith('Patient/') ? a : `Patient/${a}`
+                    ) ?? [];
                 for (const resource of resources) {
                     await resource.updateReferencesAsync({
                         fnUpdateReferenceAsync: async (reference) => {
-                            if (
-                                (reference.reference && proxyPatientIds.includes(reference.reference)) ||
-                                // if proxy-patient-ids include the uuid reference
-                                (reference._uuid && proxyPatientIds.includes(reference._uuid))
-                            ) {
-                                reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
-                                    proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
+                            /**
+                             * if reference is present in patientIdsWithProxyPatient,
+                             * then its patientReference and we need to replace it with correct proxy-patient
+                             */
+                            const patientReference = patientIdsFromQueryParam.find((v) => v === reference.reference || v === reference._uuid);
+                            if (patientReference && patientToPersonMap[`${patientReference}`]) {
+                                // find person associated with it
+                                const person = patientToPersonMap[`${patientReference}`];
+                                reference.reference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${person}`;
                             }
                             return reference;
                         }
@@ -48,12 +54,30 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 if (latestPatientResource) {
                     // remove all other Patient resources except the latest
                     resources = resources.filter(r => r.resourceType !== 'Patient' || r.id === latestPatientResource.id);
-                    // and set the id of the latest Patient resource to proxyPatient
-                    latestPatientResource.id = proxyPatientPersonId;
+                    // and set the id of the latest Patient resource to its proxyPatient
+                    const personId = this.findPersonIdFromMap(patientToPersonMap, latestPatientResource);
+                    if (personId) {
+                        latestPatientResource.id = `${PERSON_PROXY_PREFIX}${personId}`;
+                    }
                 }
             }
         }
         return resources;
+    }
+
+    /**
+     * Find person id from given patientToPersonMap and patient-resource/reference
+     * It search for both id and _uuid
+     * @param {{[k: string]: string} | undefined} patientToPersonMap
+     * @param {{ id: string, _uuid: string }} resource Reference or resource containing these felids
+     * @returns {string|undefined}
+     */
+    findPersonIdFromMap(patientToPersonMap, resource) {
+        if (patientToPersonMap) {
+            if (patientToPersonMap[`${resource.id}`]) {return patientToPersonMap[`${resource.id}`];}
+            if (patientToPersonMap[`${resource._uuid}`]) {return patientToPersonMap[`${resource._uuid}`];}
+        }
+        return undefined;
     }
 
     /**

@@ -29,7 +29,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
 
     /**
      * updates the queryParameters
-     * @param {ParsedArgs} parsedArgs
+     * @param {ParseArgsItem} parsedArgs
      * @param {string} base_version
      * @param {boolean} includePatientPrefix
      * @returns {ParsedArgsItem}
@@ -58,20 +58,36 @@ class PatientProxyQueryRewriter extends QueryRewriter {
 
             if (queryParametersWithProxyPatientIds.length > 0) {
                 /**
-                 * @type {string[]}
+                 * @type {{[k: string]: string[]}}
                  */
-                const patientProxyIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
+                const patientProxyMap = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                     {
                         base_version,
                         ids: queryParametersWithProxyPatientIds,
-                        includePatientPrefix
+                        includePatientPrefix,
+                        toMap: true,
                     }
                 );
+
+
+                 /**@type {{[k: string]: string}} */
+                let patientToPersonMap = {};
+
+                /**@type {string[]} */
+                let patientProxyIds = [];
+                Object.entries(patientProxyMap).forEach(([personId, ids]) => {
+                    patientProxyIds.push(...ids);
+                    ids.forEach((id) => {
+                        patientToPersonMap[`${id}`] = personId;
+                    });
+                });
 
                 parsedArg.queryParameterValue = new QueryParameterValue({
                     value: [...patientProxyIds, ...queryParametersWithoutProxyPatientIds],
                     operator: '$or'
                 });
+                // assign the map here
+                parsedArg.patientToPersonMap = patientToPersonMap;
             }
         }
         return parsedArg;

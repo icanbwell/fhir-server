@@ -16,6 +16,7 @@ class ParsedArgsItem {
      * @param {SearchParameterDefinition|undefined} propertyObj
      * @param {string[]|undefined} modifiers
      * @param {ParsedReferenceItem[]|undefined} [references]
+     * @param {Object} patientToPersonMap
      */
     constructor(
         {
@@ -23,7 +24,8 @@ class ParsedArgsItem {
             queryParameterValue,
             propertyObj,
             modifiers,
-            references
+            references,
+            patientToPersonMap
         }
     ) {
         /**'
@@ -56,6 +58,20 @@ class ParsedArgsItem {
         if (!references) {
             this.updateReferences();
         }
+
+        Object.defineProperty(this, 'patientToPersonMap', {
+            enumerable: true,
+            configurable: true,
+            get: () => this._patientToPersonMap,
+            set(map) {
+                this._patientToPersonMap = map;
+            }
+        });
+
+         /**
+         * @type {{[key: string]: string}|undefined}
+         */
+         this.patientToPersonMap = patientToPersonMap;
     }
 
     /**
@@ -182,7 +198,8 @@ class ParsedArgsItem {
                 queryParameterValue: this._queryParameterValue.clone(),
                 propertyObj: this.propertyObj ? this.propertyObj.clone() : undefined,
                 modifiers: this.modifiers,
-                references: this.references ? this.references.map(r => r.clone()) : undefined
+                references: this.references ? this.references.map(r => r.clone()) : undefined,
+                patientToPersonMap: this.patientToPersonMap ? Object.create(this.patientToPersonMap) : undefined,
             }
         );
     }
