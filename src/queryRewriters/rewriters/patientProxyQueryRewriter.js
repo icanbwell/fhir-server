@@ -74,7 +74,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 let patientToPersonMap = {};
 
                 /**@type {string[]} */
-                let patientProxyIds = [];
+                const patientProxyIds = [];
                 Object.entries(patientProxyMap).forEach(([personId, ids]) => {
                     patientProxyIds.push(...ids);
                     ids.forEach((id) => {
@@ -82,11 +82,6 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                     });
                 });
 
-                // EdgeCase: proxy-person passed here could be a non-uuid, but personId returned in patientProxyMap will
-                // always be an uuid. In that case add these also.
-                patientProxyIds.push(...queryParametersWithProxyPatientIds);
-                // remove any duplicates
-                patientProxyIds = Array.from(new Set(patientProxyIds));
 
                 parsedArg.queryParameterValue = new QueryParameterValue({
                     value: [...patientProxyIds, ...queryParametersWithoutProxyPatientIds],

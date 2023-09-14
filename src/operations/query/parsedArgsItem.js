@@ -199,7 +199,7 @@ class ParsedArgsItem {
                 propertyObj: this.propertyObj ? this.propertyObj.clone() : undefined,
                 modifiers: this.modifiers,
                 references: this.references ? this.references.map(r => r.clone()) : undefined,
-                patientToPersonMap: this.patientToPersonMap ? Object.create(this.patientToPersonMap) : undefined,
+                patientToPersonMap: this.patientToPersonMap ? {...this.patientToPersonMap} : undefined,
             }
         );
     }
@@ -214,7 +214,8 @@ class ParsedArgsItem {
             queryParameterValue: this._queryParameterValue.toJSON(),
             propertyObj: this.propertyObj ? this.propertyObj.toJSON() : undefined,
             modifiers: this.modifiers,
-            references: this.references ? this.references.map(r => r.toJSON()) : undefined
+            references: this.references ? this.references.map(r => r.toJSON()) : undefined,
+            patientToPersonMap: this.patientToPersonMap,
         });
     }
 }

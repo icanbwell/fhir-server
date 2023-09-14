@@ -38,9 +38,9 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                              * then its patientReference and we need to replace it with correct proxy-patient
                              */
                             const patientReference = patientIdsFromQueryParam.find((v) => v === reference.reference || v === reference._uuid);
-                            if (patientReference && patientToPersonMap[`${patientReference}`]) {
+                            if (patientReference && (patientToPersonMap[`${patientReference}`] || patientToPersonMap[`${patientReference.replace(PATIENT_REFERENCE_PREFIX, '')}`])) {
                                 // find person associated with it
-                                const person = patientToPersonMap[`${patientReference}`];
+                                const person = patientToPersonMap[`${patientReference}`] || patientToPersonMap[`${patientReference.replace(PATIENT_REFERENCE_PREFIX, '')}`];
                                 reference.reference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${person}`;
                             }
                             return reference;
