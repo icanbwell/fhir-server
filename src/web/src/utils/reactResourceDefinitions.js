@@ -84,6 +84,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/insuranceplan.html'
     },
     {
+        name: 'Invoice',
+        description: 'Invoice containing collected ChargeItems from an Account with calculated individual and total price for Billing purpose.',
+        url: 'https://www.hl7.org/fhir/invoice.html'
+    },
+    {
         name: 'Library',
         description: 'The Library resource is a general-purpose container for knowledge asset definitions. It can be used to describe and expose existing knowledge assets such as logic libraries and information model descriptions, as well as to describe a collection of knowledge assets.',
         url: 'https://www.hl7.org/fhir/library.html'

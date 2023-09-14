@@ -39,6 +39,7 @@ import ValueSet from './ValueSet';
 import DomainResource from './DomainResource';
 import OperationOutcome from './OperationOutcome';
 import Endpoint from './Endpoint';
+import Invoice from './Invoice';
 
 function ResourceItem({resourceType, resource, index}) {
     console.log(`ResourceItem: resourceType=${resourceType}`);
@@ -75,6 +76,8 @@ function ResourceItem({resourceType, resource, index}) {
             return <Immunization resource={resource} index={index}/>;
         case 'InsurancePlan':
             return <InsurancePlan resource={resource} index={index}/>;
+        case 'Invoice':
+            return <Invoice resource={resource} index={index}/>
         case 'Library':
             return <Library resource={resource} index={index}/>;
         case 'Location':
