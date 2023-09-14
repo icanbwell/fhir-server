@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Table, TableHead, TableBody, TableRow, TableCell, Link, Box} from '@mui/material';
+import {Typography, Table, TableHead, TableBody, TableRow, TableCell, Box} from '@mui/material';
 import CodeableConcept from '../partials/CodeableConcept';
 import Money from '../partials/Money';
 
