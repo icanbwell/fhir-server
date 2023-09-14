@@ -1,3 +1,5 @@
+const env = require('var');
+
 const {ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX} = require('../constants');
 
 /**
@@ -343,7 +345,8 @@ module.exports = {
                     'timestamp': -1
                 },
                 options: {
-                    name: 'timestamp_1'
+                    name: 'timestamp_1',
+                    expireAfterSeconds: env.ACCESS_LOGS_EXPIRE_TIME ? Number(env.ACCESS_LOGS_EXPIRE_TIME) : 30 * 24 * 60 * 60
                 }
             }
         ],
