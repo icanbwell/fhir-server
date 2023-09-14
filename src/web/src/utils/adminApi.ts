@@ -114,6 +114,65 @@ class AdminApi {
         return data;
     }
 
+    async showPersonToPersonLink(bwellPersonId: string) {
+        const urlString = `/admin/showPersonToPersonLink?bwellPersonId=${bwellPersonId}`;
+        const url = new URL(urlString, window.location.origin);
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            cache: 'no-store'
+        });
+        const data = await response.json();
+        return data;
+    }
+
+    async createPersonToPersonLink(bwellPersonId: string, externalPersonId: string) {
+        const urlString = `/admin/createPersonToPersonLink?bwellPersonId=${bwellPersonId}&externalPersonId=${externalPersonId}`;
+        const url = new URL(urlString, window.location.origin);
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            cache: 'no-store'
+        });
+        const data = await response.json();
+        return data;
+    }
+
+    async removePersonToPersonLink(bwellPersonId: string, externalPersonId: string) {
+        const urlString = `/admin/removePersonToPersonLink?bwellPersonId=${bwellPersonId}&externalPersonId=${externalPersonId}`;
+        const url = new URL(urlString, window.location.origin);
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            cache: 'no-store'
+        });
+        const data = await response.json();
+        return data;
+    }
+
+    async createPersonToPatientLink(externalPersonId: string, patientId: string) {
+        const urlString = `/admin/createPersonToPatientLink?externalPersonId=${externalPersonId}&patientId=${patientId}`;
+        const url = new URL(urlString, window.location.origin);
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            cache: 'no-store'
+        });
+        const data = await response.json();
+        return data;
+    }
 }
 
 export default AdminApi;

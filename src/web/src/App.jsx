@@ -18,6 +18,7 @@ import SearchPage from './pages/SearchPage';
 import PersonMatchPage from './admin/personMatch';
 import AdminIndexPage from './admin';
 import PatientDataPage from './admin/patientData';
+import PersonPatientLinkPage from "./admin/personPatientLink";
 
 // import ErrorPage from "./error-page";
 
@@ -46,6 +47,7 @@ function App() {
                 <Route path="/admin" element={<AdminIndexPage/>}/>
                 <Route path="/admin/personMatch/*" element={<PersonMatchPage/>}/>
                 <Route path="/admin/patientData/*" element={<PatientDataPage/>}/>
+                <Route path="/admin/personPatientLink/*" element={<PersonPatientLinkPage/>}/>
             </Routes>
         );
     }
