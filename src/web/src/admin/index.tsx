@@ -5,7 +5,7 @@ import {Container, Typography, List, ListItem, Divider} from '@mui/material';
 const AdminIndexPage: React.FC = () => {
     return (
         <Container maxWidth="sm">
-            <Typography variant="h1">Admin Tools</Typography>
+            <Typography variant="h2">Admin Tools</Typography>
             <List>
                 <ListItem><Link to="/admin/searchLog">Search Log</Link></ListItem>
                 <Divider/>

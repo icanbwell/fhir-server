@@ -43,7 +43,7 @@ function App() {
                 <Route path="/4_0_0/:resourceType/:id?/:operation?/*" element={<IndexPage/>}/>
                 <Route path="/4_0_0/:resourceType/:operation?/*" element={<IndexPage/>}/>
                 <Route path="/admin" element={<AdminIndexPage/>}/>
-                <Route path="/admin/runPersonMatch" element={<PersonMatchPage/>}/>
+                <Route path="/admin/personMatch" element={<PersonMatchPage/>}/>
             </Routes>
         );
     }
