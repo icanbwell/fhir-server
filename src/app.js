@@ -34,7 +34,8 @@ const {getImageVersion} = require('./utils/getImageVersion');
 const {REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
 const {logInfo} = require('./operations/common/logging');
-const { generateNonce } = require('./utils/nonce');
+const {generateNonce} = require('./utils/nonce');
+const {handleAdminReact} = require('./routeHandlers/adminReact');
 
 /**
  * Creates the FHIR app
@@ -238,7 +239,7 @@ function createApp({fnGetContainer, trackMetrics}) {
         };
         if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
             // fall through to the handler in fhirServer.js
-            next();
+            return next();
         } else {
             return res.render(__dirname + '/views/pages/home', home_options);
         }
@@ -297,6 +298,10 @@ function createApp({fnGetContainer, trackMetrics}) {
     const adminHandler = (req, res) => handleAdmin(
         fnGetContainer, req, res
     );
+    const adminReactHandler = (req, res, next) => handleAdminReact(
+        fnGetContainer, req, res, next
+    );
+    adminRouter.get('/admin/:op?', adminReactHandler);
     adminRouter.get('/admin/:op?', adminHandler);
     adminRouter.post('/admin/:op?', adminHandler);
     app.use(adminRouter);
