@@ -60,6 +60,11 @@ const resourceDefinitions: ResourceDefinition[] = [
         url: 'https://www.hl7.org/fhir/encounter.html'
     },
     {
+        name: 'Endpoint',
+        description: 'The technical details of an endpoint that can be used for electronic services, such as for web services providing XDS.b or a REST endpoint for another FHIR server. This may include any security context information.',
+        url: 'https://www.hl7.org/fhir/R4/endpoint.html'
+    },
+    {
         name: 'ExplanationOfBenefit',
         description: 'This resource provides: the claim details; adjudication details from the processing of a Claim; and optionally account balance information, for informing the subscriber of the benefits provided.',
         url: 'http://hl7.org/fhir/R4/explanationofbenefit.html'

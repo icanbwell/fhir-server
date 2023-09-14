@@ -38,6 +38,7 @@ import Task from './Task';
 import ValueSet from './ValueSet';
 import DomainResource from './DomainResource';
 import OperationOutcome from './OperationOutcome';
+import Endpoint from './Endpoint';
 
 function ResourceItem({resourceType, resource, index}) {
     console.log(`ResourceItem: resourceType=${resourceType}`);
@@ -64,6 +65,8 @@ function ResourceItem({resourceType, resource, index}) {
             return <Coverage resource={resource} index={index}/>;
         case 'Encounter':
             return <Encounter resource={resource} index={index}/>;
+        case 'Endpoint':
+            return <Endpoint resource={resource} index={index}/>;
         case 'ExplanationOfBenefit':
             return <ExplanationOfBenefit resource={resource} index={index}/>;
         case 'HealthcareService':
