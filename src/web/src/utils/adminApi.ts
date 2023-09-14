@@ -173,6 +173,20 @@ class AdminApi {
         const data = await response.json();
         return data;
     }
+    async searchLogs(id: string) {
+        const urlString = `/admin/searchLogResults?id=${id}`;
+        const url = new URL(urlString, window.location.origin);
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            cache: 'no-store'
+        });
+        const data = await response.json();
+        return data;
+    }
 }
 
 export default AdminApi;

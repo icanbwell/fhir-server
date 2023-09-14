@@ -13,12 +13,15 @@ import PatientChatGptPage from './PatientChatGptPage';
 import ObservationGraph from "./ObservationGraph";
 import ObservationTimeline from "./ObservationTimeline";
 import PatientTimeline from "./PatientTimeline";
-import IndexPage from './pages/IndexPage';
-import SearchPage from './pages/SearchPage';
-import PersonMatchPage from './admin/personMatch';
-import AdminIndexPage from './admin';
-import PatientDataPage from './admin/patientData';
+import AdminRoutes from "./routes/adminRoutes";
+import FhirRoutes from "./routes/fhirRoutes";
+import AdminIndexPage from "./admin";
+import PersonMatchPage from "./admin/personMatch";
+import PatientDataPage from "./admin/patientData";
 import PersonPatientLinkPage from "./admin/personPatientLink";
+import SearchLogsPage from "./admin/searchLogs";
+import SearchPage from "./pages/SearchPage";
+import IndexPage from "./pages/IndexPage";
 
 // import ErrorPage from "./error-page";
 
@@ -48,6 +51,7 @@ function App() {
                 <Route path="/admin/personMatch/*" element={<PersonMatchPage/>}/>
                 <Route path="/admin/patientData/*" element={<PatientDataPage/>}/>
                 <Route path="/admin/personPatientLink/*" element={<PersonPatientLinkPage/>}/>
+                <Route path="/admin/searchLog/*" element={<SearchLogsPage/>}/>
             </Routes>
         );
     }
