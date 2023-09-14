@@ -116,6 +116,7 @@ async function handleAdmin(
          * @type {SimpleContainer}
          */
         const container = fnGetContainer();
+        // noinspection JSUnresolvedReference
         /**
          * @type {ScopesManager}
          */
@@ -433,7 +434,7 @@ async function handleAdmin(
                 }
 
                 case 'runPersonMatch': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('runPersonMatch', {'req.query': req.query});
                     const sourceId = req.query['sourceId'];
                     const sourceType = req.query['sourceType'];
                     const targetId = req.query['targetId'];

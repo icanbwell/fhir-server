@@ -18,7 +18,13 @@ class AdminApi {
 
         url.search = new URLSearchParams(params).toString();
 
-        const response = await fetch(url);
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+            cache: 'no-store',
+        });
 
         if (!response.ok) {
             throw new Error('Network response was not ok');
