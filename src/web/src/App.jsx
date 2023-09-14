@@ -16,6 +16,7 @@ import PatientTimeline from "./PatientTimeline";
 import IndexPage from './pages/IndexPage';
 import SearchPage from './pages/SearchPage';
 import PersonMatchPage from './admin/personMatch';
+import AdminIndexPage from './admin';
 
 // import ErrorPage from "./error-page";
 
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/4_0_0/:resourceType/_search/*" element={<SearchPage/>}/>
                 <Route path="/4_0_0/:resourceType/:id?/:operation?/*" element={<IndexPage/>}/>
                 <Route path="/4_0_0/:resourceType/:operation?/*" element={<IndexPage/>}/>
+                <Route path="/admin" element={<AdminIndexPage/>}/>
                 <Route path="/admin/runPersonMatch" element={<PersonMatchPage/>}/>
             </Routes>
         );
