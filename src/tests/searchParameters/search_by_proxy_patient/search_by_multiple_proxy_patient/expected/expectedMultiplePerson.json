@@ -1,0 +1,332 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Person",
+        "id": "93f91e52-25c7-4f06-9c75-4e5c49f1096e",
+        "meta": {
+          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+          "extension": [
+            {
+              "id": "2011-10-05T14:48:00.000Z",
+              "url": "someurl",
+              "valueCodeableConcept": {
+                "id": "2011-10-05T14:48:00.000Z",
+                "coding": [
+                  {
+                    "system": "foo://example.com:8042/over/there?name=ferret#",
+                    "code": "code-1",
+                    "display": "some-display"
+                  }
+                ],
+                "text": "some-text"
+              }
+            }
+          ],
+          "versionId": "1",
+          "source": "https://www.icanbwell.com",
+          "profile": [
+            "some-profile"
+          ],
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "northwell"
+            }
+          ]
+        },
+        "implicitRules": "some-implicit-rule",
+        "language": "english",
+        "identifier": [
+          {
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1000000-a-02"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "93f91e52-25c7-4f06-9c75-4e5c49f1096e"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "93f91e52-25c7-4f06-9c75-4e5c49f1096e"
+          }
+        ],
+        "name": [
+          {
+            "use": "nickname",
+            "family": "Azamar",
+            "given": [
+              "Daniel"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "id": "2011-10-05T14:48:00.000Z",
+            "system": "phone",
+            "value": "+52123456789",
+            "use": "home"
+          }
+        ],
+        "gender": "male",
+        "address": [
+          {
+            "id": "2011-10-05T14:48:00.000Z",
+            "line": [
+              "301 W, in a yellow submarine"
+            ],
+            "city": "Austin",
+            "state": "Texas",
+            "postalCode": "78701",
+            "country": "Some country",
+            "period": {
+              "id": "2011-10-05T14:48:00.000Z"
+            }
+          }
+        ],
+        "photo": {
+          "id": "2011-10-05T14:48:00.000Z",
+          "contentType": "image/jpeg",
+          "language": "english",
+          "data": "someLongString",
+          "url": "someurl.com",
+          "size": 1024,
+          "hash": "whatANiceHash!",
+          "title": "what a nice picture!"
+        },
+        "active": true,
+        "link": [
+          {
+            "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/northwell-1"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/fc763159-4816-502a-9e08-97f2a3e1dac3"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "northwell"
+                }
+              ],
+              "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+            },
+            "assurance": "level4"
+          },
+          {
+            "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/northwell-2"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/dfd7cc6b-a5a3-5433-a5a5-3ac0d10a6572"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "northwell"
+                }
+              ],
+              "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+            },
+            "assurance": "level4"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Person",
+        "id": "95ca23e6-fd24-4fdd-afbf-a8957752059f",
+        "meta": {
+          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+          "extension": [
+            {
+              "id": "2011-10-05T14:48:00.000Z",
+              "url": "someurl",
+              "valueCodeableConcept": {
+                "id": "2011-10-05T14:48:00.000Z",
+                "coding": [
+                  {
+                    "system": "foo://example.com:8042/over/there?name=ferret#",
+                    "code": "code-1",
+                    "display": "some-display"
+                  }
+                ],
+                "text": "some-text"
+              }
+            }
+          ],
+          "versionId": "1",
+          "source": "https://www.icanbwell.com",
+          "profile": [
+            "some-profile"
+          ],
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "northwell"
+            }
+          ]
+        },
+        "implicitRules": "some-implicit-rule",
+        "language": "english",
+        "identifier": [
+          {
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1000000-a-02"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "95ca23e6-fd24-4fdd-afbf-a8957752059f"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "95ca23e6-fd24-4fdd-afbf-a8957752059f"
+          }
+        ],
+        "name": [
+          {
+            "use": "nickname",
+            "family": "Azamar",
+            "given": [
+              "Daniel"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "id": "2011-10-05T14:48:00.000Z",
+            "system": "phone",
+            "value": "+52123456789",
+            "use": "home"
+          }
+        ],
+        "gender": "male",
+        "address": [
+          {
+            "id": "2011-10-05T14:48:00.000Z",
+            "line": [
+              "301 W, in a yellow submarine"
+            ],
+            "city": "Austin",
+            "state": "Texas",
+            "postalCode": "78701",
+            "country": "Some country",
+            "period": {
+              "id": "2011-10-05T14:48:00.000Z"
+            }
+          }
+        ],
+        "photo": {
+          "id": "2011-10-05T14:48:00.000Z",
+          "contentType": "image/jpeg",
+          "language": "english",
+          "data": "someLongString",
+          "url": "someurl.com",
+          "size": 1024,
+          "hash": "whatANiceHash!",
+          "title": "what a nice picture!"
+        },
+        "active": true,
+        "link": [
+          {
+            "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/northwell-3"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/4a2de23e-5403-5b4d-864f-ab5bd3577785"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "northwell"
+                }
+              ],
+              "reference": "Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
+            },
+            "assurance": "level4"
+          },
+          {
+            "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/northwell-4"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/fcf576b0-be81-5529-ae60-3bed54b12e26"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "northwell"
+                }
+              ],
+              "reference": "Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
+            },
+            "assurance": "level4"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "timestamp": "2023-09-13T09:49:23.2323Z",
+  "total": 0,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:3000/4_0_0/Person/?_bundle=1&patient=Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2,Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
+    },
+    {
+      "relation": "next",
+      "url": "http://localhost:3000/4_0_0/Person/?_bundle=1&patient=Patient%2Fperson.54808e62-6445-4bb6-8f89-b2ed7e6865d2%2CPatient%2Fperson.cda43a72-b5e0-476a-a928-4d768e66d6f8&id%3Aabove=95ca23e6-fd24-4fdd-afbf-a8957752059f"
+    }
+  ]
+}
