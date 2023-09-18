@@ -17,6 +17,10 @@
       },
       {
         "system": "https://www.icanbwell.com/access",
+        "code": "lnf"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
         "code": "boon-chapman"
       },
       {
@@ -44,10 +48,6 @@
         "code": "convergent"
       },
       {
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "honest"
-      },
-      {
         "system": "https://www.icanbwell.com/owner",
         "code": "thedacare"
       },
@@ -62,10 +62,6 @@
       {
         "system": "https://www.icanbwell.com/vendor",
         "code": "healthpartners"
-      },
-      {
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "thedacare"
       }
     ]
   },

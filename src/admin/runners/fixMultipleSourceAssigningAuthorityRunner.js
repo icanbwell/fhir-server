@@ -176,57 +176,64 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
+
+                let idList = [];
+                // Get ids of documents that have multiple sourceAssigningAuthority.
+                let db = await this.mongoDatabaseManager.getClientDbAsync();
+                let dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
+                    db,
+                    collectionName,
+                });
+                let result = await dbCollection.aggregate([
+                    {
+                        '$unwind': {
+                            'path': '$meta.security',
+                        },
+                    },
+                    {
+                        '$match': {
+                            'meta.security.system': SecurityTagSystem.access,
+                        },
+                    },
+                    {
+                        '$group': {
+                            _id: {
+                                code: '$meta.security.code',
+                                _id: '$_id'
+                            },
+                            count: { $count: {} },
+                        },
+                    },
+                    {
+                        '$match': {
+                            'count': {
+                                $gte: 2,
+                            },
+                        },
+                    },
+                    {
+                        $project: { array: true },
+                    },
+                ], { allowDiskUse: true }).toArray();
+
+                idList = result.map(obj => obj._id._id);
+
+                if (idList.length === 0) {
+                    this.adminLogger.logInfo(`${collectionName} does not contain any duplicate access-tags`);
+                    continue;
+                }
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-
-
-                const query = this.beforeLastUpdatedDate ? {
-                    'meta.lastUpdated': {
-                        $lt: this.beforeLastUpdatedDate,
-                    },
-                } : {};
-
-                let idList = [];
-                if (this.filterRecords) {
-                    // Get ids of documents that have multiple sourceAssigningAuthority.
-                    let db = await this.mongoDatabaseManager.getClientDbAsync();
-                    let dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
-                        db,
-                        collectionName,
-                    });
-                    let result = await dbCollection.aggregate([
-                        {
-                            '$unwind': {
-                                'path': '$meta.security',
-                            },
-                        },
-                        {
-                            '$match': {
-                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
-                            },
-                        },
-                        {
-                            '$group': {
-                                _id: '$_id',
-                                count: { $count: {} },
-                            },
-                        },
-                        {
-                            '$match': {
-                                'count': {
-                                    $gte: 2,
-                                },
-                            },
-                        },
-                        {
-                            $project: { array: true },
-                        },
-                    ], { allowDiskUse: true }).toArray();
-
-                    idList = result.map(obj => obj._id);
+                let query = { _id: { $in: idList } };
+                if (this.beforeLastUpdatedDate) {
+                    query = {
+                        $and: [
+                            query,
+                            { 'meta.lastUpdated': { $lte: this.beforeLastUpdatedDate } }
+                        ]
+                    };
                 }
 
                 try {
@@ -239,15 +246,13 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                             destinationCollectionName: collectionName,
                             query,
                             projection: undefined,
-                            startFromIdContainer: this.startFromIdContainer,
+                            startFromIdContainer: this.createStartFromIdContainer(),
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
                             skip: this.skip,
-                            filterToIdProperty: '_id',
-                            filterToIds: this.filterRecords ? idList : undefined,
                         },
                     );
                 } catch (e) {

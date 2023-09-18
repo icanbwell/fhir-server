@@ -16,6 +16,10 @@
         "code": "virginiaeagle"
       },
       {
+        "system": "https://www.icanbwell.com/access",
+        "code": "virginiaeagle"
+      },
+      {
         "system": "https://www.icanbwell.com/vendor",
         "code": "boon-chapman"
       },
@@ -34,10 +38,6 @@
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
         "code": "virginiaeagle"
-      },
-      {
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "lnf"
       }
     ]
   },

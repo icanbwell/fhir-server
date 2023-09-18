@@ -17,6 +17,10 @@
       },
       {
         "system": "https://www.icanbwell.com/access",
+        "code": "thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
         "code": "healthpartners"
       },
       {
@@ -34,10 +38,6 @@
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
         "code": "thedacare"
-      },
-      {
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "nppes"
       }
     ]
   },

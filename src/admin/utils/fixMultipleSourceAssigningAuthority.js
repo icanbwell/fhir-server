@@ -10,6 +10,24 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { PRACTITIONER_SOURCE_OWNER_MAP } = require('../runners/constants');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
+const removeDuplicateAccessTags = (resource) => {
+    const currentAccessTags = new Set();
+
+    resource.meta.security = resource.meta.security.reduce((securityTags, security) => {
+        if (security.system === SecurityTagSystem.access) {
+            if (!currentAccessTags.has(security.code)) {
+                securityTags.push(security);
+                currentAccessTags.add(security.code);
+            }
+        } else {
+            securityTags.push(security);
+        }
+        return securityTags;
+    }, []);
+
+    return resource;
+};
+
 function fixPractitionerResource(resource, fixMultipleOwners) {
     let security = resource.meta.security || [];
     if (!security.length){
@@ -62,7 +80,11 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
     if (Array.isArray(resource.identifier)) {
         resource.identifier = resource.identifier.filter(i => i.system !== IdentifierSystem.uuid);
     }
+
+    resource = removeDuplicateAccessTags(resource);
+
     delete resource._uuid;
+    delete resource._access;
 
     return resource;
 }
@@ -91,7 +113,10 @@ function fixResource(resource) {
         resource.identifier = resource.identifier.filter(i => i.system !== IdentifierSystem.uuid);
     }
 
+    resource = removeDuplicateAccessTags(resource);
+
     delete resource._uuid;
+    delete resource._access;
 
     return resource;
 }
@@ -99,6 +124,7 @@ function fixResource(resource) {
 function fixMultipleAuthorities(resource, fixMultipleOwners) {
     const resourceFixFnMap = {
         'Practitioner': fixPractitionerResource,
+
     };
     return resourceFixFnMap[`${resource.resourceType}`] ? resourceFixFnMap[`${resource.resourceType}`](resource, fixMultipleOwners) : fixResource(resource);
 }

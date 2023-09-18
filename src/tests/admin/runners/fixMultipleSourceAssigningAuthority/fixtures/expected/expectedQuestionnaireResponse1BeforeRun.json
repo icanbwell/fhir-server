@@ -38,7 +38,11 @@
             },
             {
                 "code": "bwell",
-                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/access"
             }
         ],
         "source": "bwell"
