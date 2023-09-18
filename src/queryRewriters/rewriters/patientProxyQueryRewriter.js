@@ -43,8 +43,9 @@ class PatientProxyQueryRewriter extends QueryRewriter {
             const {queryParametersWithProxyPatientIds, queryParametersWithoutProxyPatientIds} =
                 queryParameterValues.reduce((queryParametersMap, queryParameterValue) => {
                     if (typeof queryParameterValue === 'string' && (
+                        // either person.id or Patient/person.id
                         queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix) ||
-                        (!includePatientPrefix && queryParameterValue.startsWith(personProxyPrefix))
+                        (queryParameterValue.startsWith(personProxyPrefix))
                     )) {
                         queryParametersMap.queryParametersWithProxyPatientIds.push(queryParameterValue);
                     } else {
