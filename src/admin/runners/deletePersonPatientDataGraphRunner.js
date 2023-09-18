@@ -2,6 +2,7 @@ const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { AdminPersonPatientDataManager } = require('../adminPersonPatientDataManager');
 const { generateUUID } = require('../../utils/uid.util');
+const fs = require('fs');
 
 /**
  * @classdesc deletes the person/patient resource along with its links
@@ -78,6 +79,15 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
          * @type {Map}
          */
         this.resourceUpdatedCount = new Map();
+
+        if (this.dryRun) {
+            /**
+             * @type {require('fs').writeStream}
+             */
+            this.writeStream = fs.createWriteStream(`everythingLinks-${generateUUID()}.txt`, { flags: 'w' });
+
+            this.writeStream.write('[\n');
+        }
     }
 
     /**
@@ -153,6 +163,9 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         }
 
         if (bundleEntries.entry?.length) {
+            if (this.dryRun) {
+                this.writeStream.write(`\t"/4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true",\n`);
+            }
             this.adminLogger.logInfo(
                 this.dryRun ?
                     `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true` :
@@ -222,10 +235,16 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             } else {
                 this.adminLogger.logInfo(`To be deleted count: ${Array.from(this.resourceDeletedCount)}`);
             }
+            if (this.dryRun) {
+                this.writeStream.write(']\n');
+            }
             this.adminLogger.logInfo('Finished script');
             this.adminLogger.logInfo('Shutting down');
             await this.shutdown();
             this.adminLogger.logInfo('Shutdown finished');
+
+            this.writeStream.close();
+            return new Promise(resolve => this.writeStream.on('close', resolve));
         } catch (e) {
             this.adminLogger.logError(`ERROR: ${e.message} ${e.stack}`);
         }

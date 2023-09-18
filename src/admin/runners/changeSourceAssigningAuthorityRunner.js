@@ -195,9 +195,6 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                 this.adminLogger.logError(err.message, { stack: err.stack });
             }
 
-            if (this.logUnresolvedReferencesToFile) {
-                this.writeStream.write('}\n');
-            }
             this.adminLogger.logInfo('Finished script');
             this.adminLogger.logInfo('Shutting down');
             await this.shutdown();
