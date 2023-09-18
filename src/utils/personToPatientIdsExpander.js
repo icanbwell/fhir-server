@@ -33,9 +33,10 @@ class PersonToPatientIdsExpander {
      * @param {string} base_version
      * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
-     * @return {Promise<string|string[]>}
+     * @param {boolean} toMap If return map of person to patient
+     * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix}) {
+    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix, toMap}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: base_version
@@ -53,19 +54,41 @@ class PersonToPatientIdsExpander {
                 personIds,
                 totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
-                level: 1
+                level: 1,
+                toMap,
+                returnOriginalPersonId: true, // return the passed personId not its uuid
             }
         );
-        if (patientIds && patientIds.length > 0) {
-            // Also include the proxy patient ID for resources that are associated with the proxy patient directly
-            personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
-            if (includePatientPrefix) {
-                patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
+        if (!toMap) {
+            if (patientIds && patientIds.length > 0) {
+                // Also include the proxy patient ID for resources that are associated with the proxy patient directly
+                personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
+                if (includePatientPrefix) {
+                    patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
+                }
+                // 4. return a csv of those patient ids (remove duplicates)
+                return Array.from(new Set(patientIds));
             }
-            // 4. return a csv of those patient ids (remove duplicates)
-            return Array.from(new Set(patientIds));
+            return ids;
+        } else {
+            /**
+             * @type {Map<string, Set<string>}
+             */
+            const personToPatientMap = patientIds;
+            /**@type {{[key: string]: string[]}} */
+            const plainMap = {};
+            for (const [personId, patientIdsSet] of personToPatientMap) {
+
+                plainMap[`${personId}`] = Array.from(patientIdsSet);
+
+                // Also include the proxy patient Id
+                plainMap[`${personId}`].push(`${personProxyPrefix}${personId}`);
+                if (includePatientPrefix) {
+                    plainMap[`${personId}`] = plainMap[`${personId}`].map((p) => `${patientReferencePrefix}${p}`);
+                }
+            }
+            return plainMap;
         }
-        return ids;
     }
 
     /**
@@ -120,10 +143,11 @@ class PersonToPatientIdsExpander {
      * @param {DatabaseQueryManager} databaseQueryManager
      * @param {number} level
      * @param {boolean} toMap If passed, will return a map of personId -> all related personIds
+     * @param {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @return {Promise<string[] | Map<string, Set<string>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
     async getPatientIdsFromPersonAsync({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false,
+        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false,
     }) {
 
         /**
@@ -142,7 +166,7 @@ class PersonToPatientIdsExpander {
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
                 query: FilterById.getListFilter(personIds),
-                options: { projection: { id: 1, link: 1, _id: 0, _uuid: 1 } }
+                options: { projection: { id: 1, link: 1, _id: 0, _uuid: 1, _sourceId: 1 } }
             }
         );
         /**
@@ -152,7 +176,13 @@ class PersonToPatientIdsExpander {
         let personIdsToRecurse = [];
         while (await personResourceCursor.hasNext()) {
             let person = await personResourceCursor.next();
-            const personId = person._uuid;
+            let personId = person._uuid;
+
+            // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
+            // also, this is only have significance when we want to return map
+            if (returnOriginalPersonId && toMap) {
+                personId = personIds.find((id) => id === person._uuid || id === person._sourceId);
+            }
             const uuidKey = '_uuid';
 
             if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(personId)) {
@@ -214,6 +244,7 @@ class PersonToPatientIdsExpander {
                     databaseQueryManager,
                     level: level + 1,
                     toMap,
+                    returnOriginalPersonId: false, // always return _uuid map for it
                 });
 
                 // add all patients to current person

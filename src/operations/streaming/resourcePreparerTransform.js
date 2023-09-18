@@ -110,8 +110,11 @@ class ResourcePreparerTransform extends Transform {
                             args: {
                                 id: chunk.id,
                                 chunk: chunk,
-                                reason: reason
-                            }
+                                reason: reason,
+                                message: reason?.message,
+                                stack: reason?.stack,
+                            },
+                            error: reason
                         }
                     );
                 });

@@ -1,0 +1,115 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "person.54808e62-6445-4bb6-8f89-b2ed7e6865d2",
+        "meta": {
+          "versionId": "1",
+          "source": "http://healthsystem1health.org/provider",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "northwell"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "northwell-1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "fc763159-4816-502a-9e08-97f2a3e1dac3"
+          }
+        ],
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2017-01-01"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "person.cda43a72-b5e0-476a-a928-4d768e66d6f8",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-09-14T12:23:54.000Z",
+          "source": "http://healthsystem1health.org/provider",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "northwell"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "northwell"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "northwell-3"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "4a2de23e-5403-5b4d-864f-ab5bd3577785"
+          }
+        ],
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2017-01-01"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "timestamp": "2023-09-13T12:43:36.3636Z",
+  "total": 0,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:3000/4_0_0/Patient/?_bundle=1&id=person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+    },
+    {
+      "relation": "next",
+      "url": "http://localhost:3000/4_0_0/Patient/?_bundle=1&id=person.54808e62-6445-4bb6-8f89-b2ed7e6865d2&id%3Aabove=Patient%2Fperson.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+    }
+  ]
+}

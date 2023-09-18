@@ -488,8 +488,24 @@ module.exports = {
                 options: {
                     name: 'providedBy_uuid_sourceId_uuid'
                 }
+            },
+             {
+                keys: {
+                    'location._uuid': 1
+                },
+                options: {
+                    name: 'location._uuid_1'
+                }
+            },
+            {
+                keys: {
+                    'location._sourceId': 1
+                },
+                options: {
+                    name: 'location._sourceId_1'
+                }
             }
-        ],
+       ],
         'Location_4_0_0': [
             {
                 keys: {
