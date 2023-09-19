@@ -447,6 +447,16 @@ module.exports = {
                 options: {
                     name: 'access_bwell.uuid.meta_lastUpdated'
                 }
+            },
+            {
+                keys: {
+                    'meta.security.system': 1,
+                    'meta.security.code': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'security.system_code_uuid_1'
+                }
             }
         ],
         'Group_4_0_0': [
