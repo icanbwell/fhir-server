@@ -183,17 +183,9 @@ class GraphHelper {
      * @return {string[]}
      */
     getReferencesFromPropertyValue({propertyValue}) {
-        if (this.configManager.supportLegacyIds) {
-            // concat uuids and ids so we can search both in case some reference does not have
-            // _sourceAssigningAuthority set correctly
-            return Array.isArray(propertyValue) ?
-                propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference)) :
-                [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
-        } else {
-            return Array.isArray(propertyValue) ?
-                propertyValue.map(a => a._uuid) :
-                [].concat([propertyValue._uuid]);
-        }
+        return Array.isArray(propertyValue) ?
+            propertyValue.map(a => a._uuid) :
+            [].concat([propertyValue._uuid]);
     }
 
     /**
@@ -386,19 +378,6 @@ class GraphHelper {
                                 .filter(r => r !== undefined && r !== null)
                                 .includes(idToSearch));
 
-                    if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
-                        idToSearch = `${relatedResource.resourceType}/${relatedResource.id}`;
-                        matchingParentEntities = uniqueParentEntities.filter(
-                            p =>
-                                this.getPropertiesForEntity({
-                                        entity: p,
-                                        property
-                                    }
-                                )
-                                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                                    .filter(r => r !== undefined && r !== null)
-                                    .includes(idToSearch));
-                    }
                     if (matchingParentEntities.length === 0) {
                         /**
                          * @type {string}
@@ -506,13 +485,6 @@ class GraphHelper {
             let parentResourceTypeAndIdList = uniqueParentEntities
                 .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
-            if (this.configManager.supportLegacyIds) {
-                parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
-                    uniqueParentEntities
-                        .filter(p => p.entityId !== undefined && p.entityId !== null)
-                        .map(p => `${p.resource.resourceType}/${p.entityId}`)
-                );
-            }
 
             if (parentResourceTypeAndIdList.length === 0) {
                 return;
@@ -640,10 +612,6 @@ class GraphHelper {
                     let matchingParentEntities = uniqueParentEntities.filter(
                         p => references.includes(`${p.resource.resourceType}/${p.resource._uuid}`));
 
-                    if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
-                        matchingParentEntities = uniqueParentEntities.filter(
-                            p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
-                    }
                     if (matchingParentEntities.length === 0) {
                         const parentEntitiesString = uniqueParentEntities.map(
                             p => `${p.resource.resourceType}/${p.resource.id}`).toString();
