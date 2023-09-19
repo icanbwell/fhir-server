@@ -26,15 +26,15 @@
                     {
                         "id": "uuid",
                         "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Patient/c58fa1ce-5658-53fa-a329-be668f23fc89"
+                        "valueString": "Patient/961f45e1-403a-5cd8-b41e-10e9bd4c6e27"
                     },
                     {
                         "id": "sourceAssigningAuthority",
                         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "bwell"
+                        "valueString": "humanapi"
                     }
                 ],
-                "reference": "Patient/HumanApi-111111111111111111111111111111111111111111111111111111"
+                "reference": "Patient/HumanApi-111111111111111111111111111111111111111111111111111111|humanapi"
             }
         }
     ],

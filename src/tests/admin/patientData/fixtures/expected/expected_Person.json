@@ -93,15 +93,15 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Patient/31ec4317-9af1-5f48-b7f6-b6db262e1304"
+                  "valueString": "Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "A"
+                  "valueString": "medstar"
                 }
               ],
-              "reference": "Patient/patient1"
+              "reference": "Patient/patient1|medstar"
             },
             "valueBoolean": false
           },
