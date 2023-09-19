@@ -107,6 +107,8 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
             }).then((resp) => {
                 this.adminLogger.logInfo(`Collection - ${collectionName} , _id - ${resp.body._id}`);
             }).catch((resp) => {
+                // log the full error
+                this.adminLogger.logError(`Collection-${collectionName}, Error-${resp}`);
                 if (resp.statusCode === 409) {
                     this.adminLogger.logError(`Collection-${collectionName}, Error-${resp.body.errorCode}`);
                 } else {
