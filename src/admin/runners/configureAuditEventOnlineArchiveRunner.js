@@ -64,7 +64,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         return new Promise((resolve, reject) => {
             request
                 .post(options.url)
-                .auth(options.auth.user, options.auth.pass)
+                .auth(options.auth.user, options.auth.pass, { type: 'auto' })
                 .set(options.headers)
                 .send(options.json)
                 .then((response) => {
