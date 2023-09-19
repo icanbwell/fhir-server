@@ -243,8 +243,10 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             await this.shutdown();
             this.adminLogger.logInfo('Shutdown finished');
 
-            this.writeStream.close();
-            return new Promise(resolve => this.writeStream.on('close', resolve));
+            if (this.dryRun) {
+                this.writeStream.close();
+                return new Promise(resolve => this.writeStream.on('close', resolve));
+            }
         } catch (e) {
             this.adminLogger.logError(`ERROR: ${e.message} ${e.stack}`);
         }
