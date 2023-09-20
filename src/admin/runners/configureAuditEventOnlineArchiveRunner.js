@@ -62,7 +62,10 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         };
         const headers = {
             'Content-Type': 'application/json',
+            // version number is required
+            'Accept': 'application/vnd.atlas.2023-02-01+json',
         };
+
         const digestRequest = new RequestWithDigestAuth({
             username: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
             password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
