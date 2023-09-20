@@ -14,6 +14,7 @@ async function main() {
     const parameters = CommandLineParser.parseCommandLine();
     const adminLogger = new AdminLogger();
     const collections = parameters.collections ? parameters.collections.split(',') : undefined;
+    const expireAfterDays = parameters.expireAfterDays ? Number(parameters.expireAfterDays) : undefined;
     adminLogger.logInfo('Running script to configure online archive');
 
     // set up all the standard services in the container
@@ -27,6 +28,7 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 adminLogger,
                 collections,
+                expireAfterDays
             })
     );
 
@@ -50,6 +52,7 @@ async function main() {
  * ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY=
  * Command: node -r dotenv/config src/admin/scripts/configureAuditEventOnlineArchive.js
  * Command: node -r dotenv/config src/admin/scripts/configureAuditEventOnlineArchive.js --collections="AuditEvent_4_0_0_2023_09_09"
+ * Command: node -r dotenv/config src/admin/scripts/configureAuditEventOnlineArchive.js --collections="AuditEvent_4_0_0_2023_09" --expireAfterDays=60
  */
 main().catch((reason) => {
     console.error(reason);
