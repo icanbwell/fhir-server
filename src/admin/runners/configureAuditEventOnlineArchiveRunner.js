@@ -116,25 +116,11 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
                     );
                 })
                 .catch((resp) => {
-                    if (resp.statusCode === 409) {
-                        this.adminLogger.logError(
-                            `Collection-${collectionName}, Error-${resp.body.errorCode}`
-                        );
-                    } else if (resp.body) {
-                        this.adminLogger.logError(
-                            `Collection-${collectionName}, Error-${JSON.stringify(resp.body)}`
-                        );
-                    } else if (resp.response.body) {
-                        this.adminLogger.logError(
-                            `Collection-${collectionName}, Error-${JSON.stringify(
-                                resp.response.body
-                            )}`
-                        );
-                    } else {
-                        this.adminLogger.logError(
-                            `Collection-${collectionName}, Error-${JSON.stringify(resp)}`
-                        );
-                    }
+                    const responseBody = resp?.body || resp?.response?.body || resp;
+                    const status = resp?.status || resp.response.status;
+                    this.adminLogger.logError(
+                        `Collection-${collectionName}, ${status ? `Status: ${status}` : ''} Error-${JSON.stringify(responseBody)}`
+                    );
                 });
         }
     }

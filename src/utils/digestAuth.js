@@ -6,6 +6,8 @@ const crypto = require('crypto');
  * Its a wrapper around super-agent module.
  * Use this class to send requests with digest auth.
  * This code is inspired by https://github.com/mhoc/axios-digest-auth
+ * https://datatracker.ietf.org/doc/html/rfc2831
+ * https://en.wikipedia.org/wiki/Digest_access_authentication
  */
 class RequestWithDigestAuth {
     /**
