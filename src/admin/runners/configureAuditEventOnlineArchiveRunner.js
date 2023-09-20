@@ -1,14 +1,16 @@
-const {BaseScriptRunner} = require('./baseScriptRunner');
+const { BaseScriptRunner } = require('./baseScriptRunner');
 const env = require('var');
-const request = require('superagent');
+const { RequestWithDigestAuth } = require('../../utils/digestAuth');
+const ARCHIVE_DEFAULT_EXPIRE_AFTER_DAYS = 60;
 
 class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     constructor({
-                    mongoDatabaseManager,
-                    mongoCollectionManager,
-                    adminLogger,
-                    collections
-                }) {
+        mongoDatabaseManager,
+        mongoCollectionManager,
+        adminLogger,
+        collections,
+        expireAfterDays,
+    }) {
         super({
             mongoCollectionManager: mongoCollectionManager,
             adminLogger: adminLogger,
@@ -19,6 +21,10 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
          * @type {string [] | undefined}
          */
         this.collections = collections;
+        /**
+         * @type {number}
+         */
+        this.expireAfterDays = expireAfterDays || ARCHIVE_DEFAULT_EXPIRE_AFTER_DAYS;
     }
 
     /**
@@ -34,50 +40,46 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
      * @description Makes an api call to mongo to create an online archive.
      * @param {Object} config
      * @param {string} collectionName
-     * @return {Promise}
+     * @return {Promise<import('superagent').Response>}
+     * @throws {Error | import('superagent').Response}
      */
-    createCollection({config, collectionName}) {
+    async createCollection({ config, collectionName }) {
         const data = {
-            'collName': collectionName,
-            'dbName': config.db_name,
-            'criteria': {
-                'type': 'DATE',
-                'dateField': 'recorded',
-                'dateFormat': 'ISODATE',
-                'expireAfterDays': 90,
-            }
+            collName: collectionName,
+            dbName: config.db_name,
+            criteria: {
+                type: 'DATE',
+                dateField: 'recorded',
+                dateFormat: 'ISODATE',
+                expireAfterDays: this.expireAfterDays,
+            },
+            partitionFields: [
+                {
+                    fieldName: 'recorded',
+                    order: 0,
+                },
+            ],
         };
         const headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            // version number is required
+            'Accept': 'application/vnd.atlas.2023-02-01+json',
         };
-        const options = {
-            method: 'POST',
-            url: env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
-            auth: {
-                user: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
-                pass: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
-                sendImmediately: false
-            },
-            headers: headers,
-            json: data
-        };
-        return new Promise((resolve, reject) => {
-            request
-                .post(options.url)
-                .auth(options.auth.username, options.auth.password)
-                .set(options.headers)
-                .send(options.body)
-                .then((response) => {
-                    if (response.status === 200) {
-                        resolve(response);
-                    } else {
-                        reject(response);
-                    }
-                })
-                .catch((error) => {
-                    reject(error);
-                });
+
+        const digestRequest = new RequestWithDigestAuth({
+            username: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
+            password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
         });
+        const response = await digestRequest.request({
+            method: 'post',
+            url: env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
+            headers,
+            data,
+        });
+        if (response.status !== 200) {
+            throw response;
+        }
+        return response;
     }
 
     /**
@@ -86,37 +88,44 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     async processAsync() {
         // Creating a config of audit event cluster and initiating a client connection
         const auditEventConfig = await this.mongoDatabaseManager.getAuditConfigAsync();
-        const auditEventClient = await this.mongoDatabaseManager.createClientAsync(auditEventConfig);
+        const auditEventClient =
+            await this.mongoDatabaseManager.createClientAsync(auditEventConfig);
         // Creating a db instance for audit event cluster
         const auditEventDatabase = auditEventClient.db(auditEventConfig.db_name);
-        await this.adminLogger.logInfo(`Db instance created, database name = ${auditEventConfig.db_name} `);
+        await this.adminLogger.logInfo(
+            `Db instance created, database name = ${auditEventConfig.db_name} `
+        );
 
         // If collection name has been passed from shell tha filter only the audit event collections
         // else get all collection names from audit event cluster database.
-        const allCollectionNames = this.collections ?
-            this.collections :
-            await this.mongoCollectionManager.getAllCollectionNames({db: auditEventDatabase});
+        const allCollectionNames = this.collections ? this.collections : await this.mongoCollectionManager.getAllCollectionNames({ db: auditEventDatabase });
 
         const collectionNames = this.filterAuditEventCollections(allCollectionNames);
-        await this.adminLogger.logInfo(`The list of collections to be created on audit event online archive are ${collectionNames}`);
+        await this.adminLogger.logInfo(
+            `The list of collections to be created on audit event online archive are ${collectionNames}`
+        );
 
         for (const collectionName of collectionNames) {
             await this.createCollection({
                 config: auditEventConfig,
-                collectionName: collectionName
-            }).then((resp) => {
-                this.adminLogger.logInfo(`Collection - ${collectionName} , _id - ${resp.body._id}`);
-            }).catch((resp) => {
-                if (resp.statusCode === 409) {
-                    this.adminLogger.logError(`Collection-${collectionName}, Error-${resp.body.errorCode}`);
-                } else {
-                    this.adminLogger.logError(`Collection-${collectionName}, Error-${JSON.stringify(resp.body)}`);
-                }
-            });
+                collectionName: collectionName,
+            })
+                .then((resp) => {
+                    this.adminLogger.logInfo(
+                        `Collection - ${collectionName} , _id - ${resp.body._id}`
+                    );
+                })
+                .catch((resp) => {
+                    const responseBody = resp?.body || resp?.response?.body || resp;
+                    const status = resp?.status || resp.response.status;
+                    this.adminLogger.logError(
+                        `Collection-${collectionName}, ${status ? `Status: ${status}` : ''} Error-${JSON.stringify(responseBody)}`
+                    );
+                });
         }
     }
 }
 
 module.exports = {
-    ConfigureAuditEventOnlineArchiveRunner
+    ConfigureAuditEventOnlineArchiveRunner,
 };
