@@ -92,6 +92,12 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
          * @type {Map<string, Set<string>>}
          */
         this.processedUuids = new Map();
+
+        /**
+         * stores meta and _id information for each _uuid
+         * @type {Map<string, {meta: Object, _id: string}[]>}
+         */
+        this.metaIdCache = new Map();
     }
 
     /**
@@ -162,7 +168,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @returns {Promise<string[]>}
      */
     async getDuplicateUuidArrayAsync({ collection }) {
-        return (
+        const result = (
             await collection
                 .aggregate(
                     [
@@ -170,6 +176,8 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                             $group: {
                                 _id: '$_uuid',
                                 count: { $count: {} },
+                                meta: { $push: '$meta'},
+                                id: { $push: '$_id' }
                             },
                         },
                         {
@@ -184,18 +192,23 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 )
                 .toArray()
         )
-            .map((res) => res._id)
-            .filter((res) => res);
+            .map(res => {
+                this.metaIdCache.set(res._id, res.id.map((id, index) => ({
+                    meta: res.meta[Number(index)], _id: id
+                })));
+                return res._id;
+            });
+
+        return result;
     }
 
     /**
      * Make provided uuid unqiue for the collection
      * @param {string} uuid
-     * @param {require('mongodb').collection} collection
      * @param {string} collectionName
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processResourceAsync({ uuid, collection, collectionName }) {
+    async processResourceAsync({ uuid, collectionName }) {
         try {
             if (
                 this.processedUuids.has(collectionName) &&
@@ -204,12 +217,15 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                 return [];
             }
 
-            const resources = await collection
-                .find({ _uuid: { $eq: uuid } })
-                .project({ _id: 1, meta: { versionId: 1, lastUpdated: 1 } })
-                .toArray();
+            if (!this.metaIdCache.has(uuid)) {
+                // safety check
+                this.adminLogger.logInfo(`uuid: ${uuid} is missing from cache`);
+                return [];
+            }
 
-            const resourceWithoutMetaVersionId = resources.filter(res => !res.meta?.lastUpdated);
+            const resources = this.metaIdCache.get(uuid);
+
+            const resourceWithoutMetaVersionId = resources.filter(res => !res.meta?.versionId);
             if (resourceWithoutMetaVersionId.length > 0) {
                 this.adminLogger.logInfo(
                     `Resources without versionId for uuid: ${uuid} and _id: ${resourceWithoutMetaVersionId.map(res => res._id).join()}`
@@ -334,7 +350,6 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                                 fnCreateBulkOperationAsync: async (doc) =>
                                     await this.processResourceAsync({
                                         uuid: doc._uuid,
-                                        collection,
                                         collectionName,
                                     }),
                                 ordered: false,
