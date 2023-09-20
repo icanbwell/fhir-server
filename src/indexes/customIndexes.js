@@ -586,6 +586,16 @@ module.exports = {
                 options: {
                     name: 'access_bwell.uuid.meta_lastUpdated'
                 }
+            },
+            {
+                keys: {
+                    'category.coding.code': 1,
+                    'effectiveDateTime': -1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'category_coding_code.effectiveDateTime._uuid_1'
+                }
             }
         ],
         'Organization_4_0_0': [
