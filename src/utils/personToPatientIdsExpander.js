@@ -48,6 +48,8 @@ class PersonToPatientIdsExpander {
             ) : [
                 ids.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
             ];
+        /**@type {Set<string>} */
+        const unvisitedPersonIds = new Set(personIds);
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
             {
@@ -63,6 +65,7 @@ class PersonToPatientIdsExpander {
             if (patientIds && patientIds.length > 0) {
                 // Also include the proxy patient ID for resources that are associated with the proxy patient directly
                 personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
+                unvisitedPersonIds.clear();
                 if (includePatientPrefix) {
                     patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
                 }
@@ -79,6 +82,7 @@ class PersonToPatientIdsExpander {
             const plainMap = {};
             for (const [personId, patientIdsSet] of personToPatientMap) {
 
+                unvisitedPersonIds.delete(personId);
                 plainMap[`${personId}`] = Array.from(patientIdsSet);
 
                 // Also include the proxy patient Id
@@ -87,6 +91,16 @@ class PersonToPatientIdsExpander {
                     plainMap[`${personId}`] = plainMap[`${personId}`].map((p) => `${patientReferencePrefix}${p}`);
                 }
             }
+
+            // there can be personIds, for which person resource doesn't exist.
+            // add all these ids
+            unvisitedPersonIds.forEach((pId) => {
+                const proxyPatient = includePatientPrefix ? `${patientReferencePrefix}${personProxyPrefix}${pId}` : `${personProxyPrefix}${pId}`;
+                // if not exist, should reference itself
+                if (!plainMap[`${pId}`]) {
+                    plainMap[`${pId}`] = [proxyPatient];
+                }
+            });
             return plainMap;
         }
     }
