@@ -95,7 +95,7 @@ class PersonToPatientIdsExpander {
             // there can be personIds, for which person resource doesn't exist.
             // add all these ids
             unvisitedPersonIds.forEach((pId) => {
-                const proxyPatient = `${personProxyPrefix}${pId}`;
+                const proxyPatient = includePatientPrefix ? `${patientReferencePrefix}${personProxyPrefix}${pId}` : `${personProxyPrefix}${pId}`;
                 // if not exist, should reference itself
                 if (!plainMap[`${pId}`]) {
                     plainMap[`${pId}`] = [proxyPatient];
