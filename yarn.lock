@@ -10037,9 +10037,9 @@ syntax-error@^1.1.6:
     acorn-node "^1.2.0"
 
 systeminformation@^5.7:
-  version "5.17.13"
-  resolved "https://registry.npmjs.org/systeminformation/-/systeminformation-5.17.13.tgz"
-  integrity sha512-82cPluoHh5TglXohpDzViP0Gzli+AZDoccyYwhIg4VB5LESYUxqLvg0BLMLJgyWgU4GnMqvP3gmKt8K8sbGQ7w==
+  version "5.21.8"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.21.8.tgz#18395187e5983698619ed07ca8640ae48ec232b2"
+  integrity sha512-Xf1KDMUTQHLOT9Z7MjpSpsbaICOHcm4OZ9c9qqpkCoXuxq5MoyDrgu5GIQYpoiralXNPrqxDz3ND8MdllpXeQA==
 
 tar-stream@^2.1.4:
   version "2.2.0"
