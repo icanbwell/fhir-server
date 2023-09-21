@@ -32,6 +32,7 @@ const {
 } = require('../../../common');
 const { describe, beforeEach, afterEach, test } = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
+const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -156,6 +157,41 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedPatientsWithProxyPatient);
+
+        });
+
+        test('search patient by proxy-person should return empty result when person is not present', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send([
+                    bwellPerson1,
+                    bwellPerson2,
+                    northwellPerson1,
+                    northwellPerson2,
+                    patient1,
+                    patient2,
+                    patient3,
+                    patient4,
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            const emptyEntries = deepcopy(expectedPatientsWithProxyPatient);
+            emptyEntries.entry = [];
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Patient back
+            resp = await request
+                .get(
+                    '/4_0_0/Patient/?id=person.wrong1'
+                )
+                .set(getHeaders());
+            expect(resp).toHaveResponse(emptyEntries);
 
         });
 
