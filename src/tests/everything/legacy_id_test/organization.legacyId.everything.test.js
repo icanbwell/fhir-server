@@ -26,7 +26,7 @@ describe('Organization Everything Tests', () => {
     });
 
     describe('Everything Tests', () => {
-        test('Everything works without legacyId properly', async () => {
+        test('Everything doesn\'t find resources with id', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
