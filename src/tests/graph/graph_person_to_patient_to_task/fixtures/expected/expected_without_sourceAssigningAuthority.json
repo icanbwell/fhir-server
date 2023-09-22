@@ -6,9 +6,7 @@
         "address": [
           {
             "city": "Austin",
-            "line": [
-              "301 W. Second St., Austin, Texas 78701"
-            ],
+            "line": ["301 W. Second St., Austin, Texas 78701"],
             "postalCode": "78701",
             "state": "Texas"
           }
@@ -19,9 +17,7 @@
             "address": [
               {
                 "city": "Austin",
-                "line": [
-                  "801 W 5th St"
-                ],
+                "line": ["801 W 5th St"],
                 "postalCode": "78703",
                 "state": "TX"
               }
@@ -55,9 +51,7 @@
               }
             ],
             "meta": {
-              "profile": [
-                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
-              ],
+              "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"],
               "security": [
                 {
                   "code": "healthsystem1",
@@ -78,9 +72,7 @@
             "name": [
               {
                 "family": "qbebhcwilt",
-                "given": [
-                  "Sweetie"
-                ],
+                "given": ["Sweetie"],
                 "use": "official"
               }
             ],
@@ -102,9 +94,7 @@
             "address": [
               {
                 "city": "Austin",
-                "line": [
-                  "301 W. Second St., Austin, Texas 78701"
-                ],
+                "line": ["301 W. Second St., Austin, Texas 78701"],
                 "postalCode": "78701",
                 "state": "Texas"
               }
@@ -164,9 +154,7 @@
               }
             ],
             "meta": {
-              "profile": [
-                "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
-              ],
+              "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"],
               "security": [
                 {
                   "code": "healthsystem2",
@@ -187,9 +175,7 @@
             "name": [
               {
                 "family": "Family",
-                "given": [
-                  "Given"
-                ],
+                "given": ["Given"],
                 "use": "official"
               }
             ],
@@ -549,9 +535,7 @@
         "name": [
           {
             "family": "Family",
-            "given": [
-              "Given"
-            ],
+            "given": ["Given"],
             "use": "official"
           }
         ],

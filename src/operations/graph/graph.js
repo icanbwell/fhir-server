@@ -67,9 +67,10 @@ class GraphOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
-    async graph({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async graph({requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId = true }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -189,7 +190,8 @@ class GraphOperation {
                         resourceType,
                         graphDefinitionJson: graphDefinitionRaw,
                         responseStreamer,
-                        parsedArgs
+                        parsedArgs,
+                        supportLegacyId
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
@@ -199,7 +201,8 @@ class GraphOperation {
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
                         responseStreamer,
-                        parsedArgs
+                        parsedArgs,
+                        supportLegacyId
                     }
                 );
 

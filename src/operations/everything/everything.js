@@ -140,6 +140,7 @@ class EverythingOperation {
 
         try {
             const {id} = parsedArgs;
+            const supportLegacyId = false;
 
             let query = {};
             query.id = id;
@@ -148,7 +149,7 @@ class EverythingOperation {
                 case 'Practitioner': {
                     parsedArgs.resource = practitionerEverythingGraph;
                     const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
@@ -162,7 +163,7 @@ class EverythingOperation {
                 case 'Organization': {
                     parsedArgs.resource = organizationEverythingGraph;
                     const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
@@ -176,7 +177,7 @@ class EverythingOperation {
                 case 'Slot': {
                     parsedArgs.resource = slotEverythingGraph;
                     const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
@@ -190,7 +191,7 @@ class EverythingOperation {
                 case 'Person': {
                     parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
                     const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,
@@ -204,7 +205,7 @@ class EverythingOperation {
                 case 'Patient': {
                     parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
                     const result = await this.graphOperation.graph({
-                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId
                     });
                     await this.fhirLoggingManager.logOperationSuccessAsync({
                         requestInfo,

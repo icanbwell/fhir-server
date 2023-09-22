@@ -157,15 +157,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Location/5ff4e3db-a2bb-53fa-9a69-b1fd4d535c26"
+                    "valueString": "Location/d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "myhealthsystem"
                   }
                 ],
-                "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
+                "reference": "Location/myhealthsystem-Alias-GP6-GGIM|myhealthsystem"
               }
             ],
             "meta": {
@@ -234,15 +234,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Location/5ff4e3db-a2bb-53fa-9a69-b1fd4d535c26"
+                    "valueString": "Location/d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "myhealthsystem"
                   }
                 ],
-                "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
+                "reference": "Location/myhealthsystem-Alias-GP6-GGIM|myhealthsystem"
               }
             ],
             "meta": {
@@ -357,57 +357,43 @@
           {
             "address": {
               "city": "Washington",
-              "line": [
-                "1 Street"
-              ],
+              "line": ["1 Street"],
               "postalCode": "20007",
               "state": "DC"
             },
             "hoursOfOperation": [
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "mon"
-                ],
+                "daysOfWeek": ["mon"],
                 "id": "mon-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "tue"
-                ],
+                "daysOfWeek": ["tue"],
                 "id": "tue-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "wed"
-                ],
+                "daysOfWeek": ["wed"],
                 "id": "wed-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "thu"
-                ],
+                "daysOfWeek": ["thu"],
                 "id": "thu-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "fri"
-                ],
+                "daysOfWeek": ["fri"],
                 "id": "fri-hours",
                 "openingTime": "08:00:00"
               },
               {
-                "daysOfWeek": [
-                  "sun"
-                ],
+                "daysOfWeek": ["sun"],
                 "id": "sun-hours"
               }
             ],
@@ -582,57 +568,43 @@
           {
             "address": {
               "city": "Washington",
-              "line": [
-                "1 Street"
-              ],
+              "line": ["1 Street"],
               "postalCode": "20007",
               "state": "DC"
             },
             "hoursOfOperation": [
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "mon"
-                ],
+                "daysOfWeek": ["mon"],
                 "id": "mon-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "tue"
-                ],
+                "daysOfWeek": ["tue"],
                 "id": "tue-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "wed"
-                ],
+                "daysOfWeek": ["wed"],
                 "id": "wed-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "thu"
-                ],
+                "daysOfWeek": ["thu"],
                 "id": "thu-hours",
                 "openingTime": "08:00:00"
               },
               {
                 "closingTime": "17:00:00",
-                "daysOfWeek": [
-                  "fri"
-                ],
+                "daysOfWeek": ["fri"],
                 "id": "fri-hours",
                 "openingTime": "08:00:00"
               },
               {
-                "daysOfWeek": [
-                  "sun"
-                ],
+                "daysOfWeek": ["sun"],
                 "id": "sun-hours"
               }
             ],
@@ -809,16 +781,12 @@
             "address": [
               {
                 "city": "Washington",
-                "line": [
-                  "1 Street # 6"
-                ],
+                "line": ["1 Street # 6"],
                 "postalCode": "20007",
                 "state": "DC"
               }
             ],
-            "alias": [
-              "myhealthsystem Internal Medicine at Georgetown Univ Hospital"
-            ],
+            "alias": ["myhealthsystem Internal Medicine at Georgetown Univ Hospital"],
             "contact": [
               {
                 "purpose": {
@@ -948,16 +916,12 @@
             "address": [
               {
                 "city": "Washington",
-                "line": [
-                  "1 Street # 6"
-                ],
+                "line": ["1 Street # 6"],
                 "postalCode": "20007",
                 "state": "DC"
               }
             ],
-            "alias": [
-              "myhealthsystem Internal Medicine at Georgetown Univ Hospital"
-            ],
+            "alias": ["myhealthsystem Internal Medicine at Georgetown Univ Hospital"],
             "contact": [
               {
                 "purpose": {
@@ -1141,15 +1105,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/decf2e37-ae9e-5989-bc04-e141c34d236c"
+                    "valueString": "HealthcareService/9f5523bc-0c54-56bb-ae8c-413fe6105fcf"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "myhealthsystem"
+                    "valueString": "medstar"
                   }
                 ],
-                "reference": "HealthcareService/1043289440-MCS-MCPS"
+                "reference": "HealthcareService/1043289440-MCS-MCPS|medstar"
               }
             ],
             "id": "1003059437-GP6-GGIM",
@@ -1320,15 +1284,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/2bbd9be7-674b-5851-b50b-09f983f21ccf"
+                    "valueString": "HealthcareService/4778b0fa-94e2-579f-9506-e9c91633fa98"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "myhealthsystem"
+                    "valueString": "medstar"
                   }
                 ],
-                "reference": "HealthcareService/1043289440-MCS-MVVM"
+                "reference": "HealthcareService/1043289440-MCS-MVVM|medstar"
               }
             ],
             "id": "1003059437-GP6-MVVM",
@@ -1769,9 +1733,7 @@
         "name": [
           {
             "family": "LNAME",
-            "given": [
-              "FNAME"
-            ],
+            "given": ["FNAME"],
             "text": "FNAME LNAME MD",
             "use": "usual"
           },
@@ -1784,9 +1746,7 @@
               }
             ],
             "family": "LNAME",
-            "given": [
-              "FNAME"
-            ],
+            "given": ["FNAME"],
             "id": "myhealthsystem-name",
             "text": "FNAME LNAME MD",
             "use": "usual"
@@ -2062,9 +2022,7 @@
         "name": [
           {
             "family": "LNAME",
-            "given": [
-              "FNAME"
-            ],
+            "given": ["FNAME"],
             "text": "FNAME LNAME MD",
             "use": "usual"
           },
@@ -2077,9 +2035,7 @@
               }
             ],
             "family": "LNAME",
-            "given": [
-              "FNAME"
-            ],
+            "given": ["FNAME"],
             "id": "myhealthsystem-name",
             "text": "FNAME LNAME MD",
             "use": "usual"
@@ -2183,7 +2139,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1003059437','1003059438']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$and':[{'$or':[{'practitioner._uuid':{'$in':['Practitioner/22f7284d-a04b-5db8-8baa-22ae71d4b893','Practitioner/328efaac-1ab6-5d34-ae55-0320d2901d4a']}},{'practitioner._sourceId':{'$in':['Practitioner/1003059437','Practitioner/1003059438']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94'},{'_sourceId':'myhealthsystem-Alias-GP6-GGIM'}]}, {}) | db.Location_4_0_0.find({'$or':[{'_uuid':'d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94'},{'_sourceId':'myhealthsystem-Alias-GP6-GGIM'}]}, {}) | db.HealthcareService_4_0_0.find({'$or':[{'_uuid':'decf2e37-ae9e-5989-bc04-e141c34d236c'},{'_sourceId':'1043289440-MCS-MCPS'},{'_uuid':'2bbd9be7-674b-5851-b50b-09f983f21ccf'},{'_sourceId':'1043289440-MCS-MVVM'}]}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_uuid':'7ba94807-d698-5a61-b421-9b8a9016fdf9'},{'_sourceId':'Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice'}]}, {}) | db.Schedule_4_0_0.find({'$and':[{'$or':[{'actor._uuid':{'$in':['PractitionerRole/62bebdb0-88f7-5b28-9a53-2f8d77b27755','PractitionerRole/18d73b53-4450-5377-be90-41b8970374e0','PractitionerRole/7098a8f5-1cc5-51e9-a7ee-908f46a42595']}},{'actor._sourceId':{'$in':['PractitionerRole/1003059437-GP6-GGIM','PractitionerRole/1003059437-GP6-MVVM','PractitionerRole/1003059437-Kaiser-Permanente-Kaiser-Permanente-Signature-Added-']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {}) | db.Group_4_0_0.find({'$and':[{'$or':[{'member.entity._uuid':{'$in':['Practitioner/22f7284d-a04b-5db8-8baa-22ae71d4b893','Practitioner/328efaac-1ab6-5d34-ae55-0320d2901d4a']}},{'member.entity._sourceId':{'$in':['Practitioner/1003059437','Practitioner/1003059438']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {}) | db.MeasureReport_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Practitioner/22f7284d-a04b-5db8-8baa-22ae71d4b893','Practitioner/328efaac-1ab6-5d34-ae55-0320d2901d4a']}},{'subject._sourceId':{'$in':['Practitioner/1003059437','Practitioner/1003059438']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {})",
+        "display": "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1003059437','1003059438']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$and':[{'$or':[{'practitioner._uuid':{'$in':['Practitioner/22f7284d-a04b-5db8-8baa-22ae71d4b893','Practitioner/328efaac-1ab6-5d34-ae55-0320d2901d4a']}},{'practitioner._sourceId':{'$in':['Practitioner/1003059437','Practitioner/1003059438']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94'},{'_sourceId':'myhealthsystem-Alias-GP6-GGIM'}]}, {}) | db.Location_4_0_0.find({'$or':[{'_uuid':'d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94'},{'_sourceId':'myhealthsystem-Alias-GP6-GGIM'}]}, {}) | db.HealthcareService_4_0_0.find({'_uuid':{'$in':['9f5523bc-0c54-56bb-ae8c-413fe6105fcf','4778b0fa-94e2-579f-9506-e9c91633fa98']}}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_uuid':'7ba94807-d698-5a61-b421-9b8a9016fdf9'},{'_sourceId':'Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice'}]}, {}) | db.Schedule_4_0_0.find({'$and':[{'$or':[{'actor._uuid':{'$in':['PractitionerRole/62bebdb0-88f7-5b28-9a53-2f8d77b27755','PractitionerRole/18d73b53-4450-5377-be90-41b8970374e0','PractitionerRole/7098a8f5-1cc5-51e9-a7ee-908f46a42595']}},{'actor._sourceId':{'$in':['PractitionerRole/1003059437-GP6-GGIM','PractitionerRole/1003059437-GP6-MVVM','PractitionerRole/1003059437-Kaiser-Permanente-Kaiser-Permanente-Signature-Added-']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {}) | db.Group_4_0_0.find({'$and':[{'$or':[{'member.entity._uuid':{'$in':['Practitioner/22f7284d-a04b-5db8-8baa-22ae71d4b893','Practitioner/328efaac-1ab6-5d34-ae55-0320d2901d4a']}},{'member.entity._sourceId':{'$in':['Practitioner/1003059437','Practitioner/1003059438']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {}) | db.MeasureReport_4_0_0.find({'$and':[{'$or':[{'subject._uuid':{'$in':['Practitioner/22f7284d-a04b-5db8-8baa-22ae71d4b893','Practitioner/328efaac-1ab6-5d34-ae55-0320d2901d4a']}},{'subject._sourceId':{'$in':['Practitioner/1003059437','Practitioner/1003059438']}}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'myhealthsystem'}}}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {
