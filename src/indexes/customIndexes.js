@@ -514,6 +514,14 @@ module.exports = {
                 options: {
                     name: 'location._sourceId_1'
                 }
+            },
+            {
+                keys: {
+                    'providedBy._sourceId': 1,
+                },
+                options: {
+                    name: 'providedBy._sourceId'
+                }
             }
        ],
         'Location_4_0_0': [
