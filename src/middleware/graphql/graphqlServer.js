@@ -27,7 +27,7 @@ const httpContext = require('express-http-context');
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<e.Router>}
  */
-const graphql = async (fnGetContainer) => {
+const graphql = async (fnGetContainer, tracer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
 
@@ -92,6 +92,7 @@ const graphql = async (fnGetContainer) => {
         return {
             req,
             res,
+            tracer,
             fhirRequestInfo,
             dataApi: new FhirDataSource(
                 {

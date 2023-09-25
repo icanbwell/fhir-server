@@ -2,8 +2,8 @@
  * Implements the main function
  */
 // This line must come before importing any instrumented module.
-require('dd-trace').init({
-    logInjection: true
+const tracer = require('dd-trace').init({
+    logInjection: true,
 });
 // Now load the rest of the modules
 const { createServer } = require('./server');
@@ -23,7 +23,7 @@ const main = async function () {
     try {
         initialize();
         const container = createContainer();
-        await createServer(() => container);
+        await createServer(() => container, tracer);
     } catch (e) {
         console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));
     }

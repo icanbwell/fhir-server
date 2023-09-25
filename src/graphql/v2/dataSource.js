@@ -111,6 +111,7 @@ class FhirDataSource {
      * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch({keys, requestInfo, args}) {
+        const startTime = new Date().getTime();
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -168,7 +169,12 @@ class FhirDataSource {
             ),
             keys
         );
-
+        const span = context.tracer.scope().active();
+        span?.setTag('getResourcesInBatch_span', {
+            time: new Date().getTime() - startTime,
+            fhirRequestInfo: requestInfo,
+            args,
+        });
         return results;
     }
 
@@ -207,6 +213,7 @@ class FhirDataSource {
         if (!reference) {
             return null;
         }
+        const startTime = new Date().getTime();
         if (!reference.reference) {
             let possibleResourceType = reference.type;
             if (!possibleResourceType && info.returnType && info.returnType._types && info.returnType._types.length > 0) {
@@ -229,6 +236,14 @@ class FhirDataSource {
             // noinspection JSValidateTypes
             let resource = await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
             resource = this.enrichResourceWithReferenceData(resource, reference, resourceType);
+            const span = context.tracer.scope().active();
+            span?.setTag('findResourceByReference_span', {
+                time: new Date().getTime() - startTime,
+                reference,
+                info,
+                fhirRequestInfo: context.fhirRequestInfo,
+                args,
+            });
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
@@ -264,9 +279,19 @@ class FhirDataSource {
         if (!references) {
             return null;
         }
-        return async.flatMap(references, async (reference) => {
+        const startTime = new Date().getTime();
+        const result = async.flatMap(references, async (reference) => {
             return await this.findResourceByReference(parent, args, context, info, reference);
         });
+        const span = context.tracer.scope().active();
+        span?.setTag('findResourcesByReference_span', {
+            time: new Date().getTime() - startTime,
+            references,
+            info,
+            fhirRequestInfo: context.fhirRequestInfo,
+            args,
+        });
+        return result;
     }
 
     /**
@@ -280,12 +305,13 @@ class FhirDataSource {
      */
     async getResources(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
+        const startTime = new Date().getTime();
         const args1 = {
             base_version: '4_0_0',
             _bundle: '1',
             ...args
         };
-        return this.unBundle(
+        const results = this.unBundle(
             await this.searchBundleOperation.searchBundleAsync(
                 {
                     requestInfo: context.fhirRequestInfo,
@@ -301,6 +327,14 @@ class FhirDataSource {
                 }
             )
         );
+        const span = context.tracer.scope().active();
+        span?.setTag('getResources_span', {
+            time: new Date().getTime() - startTime,
+            resourceType,
+            fhirRequestInfo: context.fhirRequestInfo,
+            args,
+        });
+        return results;
     }
 
     /**
@@ -314,6 +348,7 @@ class FhirDataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType, useAggregationPipeline = false) {
+        const startTime = new Date().getTime();
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -339,6 +374,13 @@ class FhirDataSource {
         if (bundle.meta) {
             this.metaList.push(bundle.meta);
         }
+        const span = context.tracer.scope().active();
+        span?.setTag('getResourcesBundle_span', {
+            time: new Date().getTime() - startTime,
+            resourceType,
+            fhirRequestInfo: context.fhirRequestInfo,
+            args,
+        });
         return bundle;
     }
 

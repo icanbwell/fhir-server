@@ -84,7 +84,7 @@ function createFhirApp(fnGetContainer, app1) {
  * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp({fnGetContainer, trackMetrics}) {
+function createApp({fnGetContainer, trackMetrics, tracer}) {
     const swaggerUi = require('swagger-ui-express');
     // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
@@ -310,7 +310,7 @@ function createApp({fnGetContainer, trackMetrics}) {
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        graphql(fnGetContainer)
+        graphql(fnGetContainer, tracer)
             .then((graphqlMiddleware) => {
                 // eslint-disable-next-line new-cap
                 const router = express.Router();
@@ -323,6 +323,7 @@ function createApp({fnGetContainer, trackMetrics}) {
                 // enableUnsafeInline because graphql requires it to be true for loading graphql-ui
                 router.use(handleSecurityPolicyGraphql);
                 router.use(function (req, res, next) {
+                    const startTime = new Date().getTime();
                     res.once('finish', async () => {
                         const req1 = req;
                         /**
@@ -344,6 +345,8 @@ function createApp({fnGetContainer, trackMetrics}) {
                                 await requestSpecificCache.clearAsync({requestId});
                             }
                         }
+                        const span = tracer.scope().active();
+                        span?.setTag('request_time', new Date().getTime() - startTime);
                     });
                     next();
                 });

@@ -14,10 +14,10 @@ const { createTerminus } = require('@godaddy/terminus');
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<import('http').Server>}
  */
-async function createServer(fnGetContainer) {
+async function createServer(fnGetContainer, tracer) {
     await new MongoDatabaseManager().connectAsync();
 
-    const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
+    const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS), tracer});
 
     const server = http
         .createServer(app)
