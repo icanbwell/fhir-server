@@ -43,7 +43,7 @@
         ],
         "location": [
           {
-            "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
+            "reference": "Location/myhealthsystem-Alias-GP6-GGIM|myhealthsystem"
           }
         ],
         "name": "PrimaryCare"
@@ -92,7 +92,7 @@
         ],
         "location": [
           {
-            "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
+            "reference": "Location/myhealthsystem-Alias-GP6-GGIM|myhealthsystem"
           }
         ],
         "name": "PrimaryCare"

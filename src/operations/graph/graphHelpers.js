@@ -180,10 +180,11 @@ class GraphHelper {
      * retrieves references from the provided property.
      * Always returns an array of references whether the property value is an array or just an object
      * @param {Object || Object[]} propertyValue
+     * @param {boolean} supportLegacyId
      * @return {string[]}
      */
-    getReferencesFromPropertyValue({propertyValue}) {
-        if (this.configManager.supportLegacyIds) {
+    getReferencesFromPropertyValue({propertyValue, supportLegacyId = true}) {
+        if (this.configManager.supportLegacyIds && supportLegacyId) {
             // concat uuids and ids so we can search both in case some reference does not have
             // _sourceAssigningAuthority set correctly
             return Array.isArray(propertyValue) ?
@@ -202,9 +203,10 @@ class GraphHelper {
      * @param {string} property
      * @param {string?} filterProperty
      * @param {string?} filterValue
+     * @param {boolean} supportLegacyId
      * @returns {boolean}
      */
-    isPropertyAReference({entities, property, filterProperty, filterValue}) {
+    isPropertyAReference({entities, property, filterProperty, filterValue, supportLegacyId = true}) {
         /**
          * @type {EntityAndContainedBase}
          */
@@ -216,7 +218,7 @@ class GraphHelper {
                 entity, property, filterProperty, filterValue
             });
             const references = propertiesForEntity
-                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r, supportLegacyId}))
                 .filter(r => r !== undefined && r !== null);
 
             if (references && references.length > 0) { // if it has a 'reference' property then it is a reference
@@ -237,6 +239,7 @@ class GraphHelper {
      * @param {*|null} filterValue (Optional) match filterProperty to this value
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {boolean} supportLegacyId
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync({
@@ -248,7 +251,8 @@ class GraphHelper {
                                         filterProperty,
                                         filterValue,
                                         explain,
-                                        debug
+                                        debug,
+                                        supportLegacyId = true
                                     }) {
         try {
             if (!parentEntities || parentEntities.length === 0) {
@@ -264,7 +268,7 @@ class GraphHelper {
 
             // get values of this property from all the entities
             const relatedReferences = uniqueParentEntities.flatMap(p => this.getPropertiesForEntity({entity: p, property})
-                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r, supportLegacyId}))
                 .filter(r => r !== undefined && r !== null));
             // select just the ids from those reference properties
             // noinspection JSCheckFunctionSignatures
@@ -382,11 +386,11 @@ class GraphHelper {
                                     property
                                 }
                             )
-                                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r, supportLegacyId}))
                                 .filter(r => r !== undefined && r !== null)
                                 .includes(idToSearch));
 
-                    if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
+                    if (this.configManager.supportLegacyIds && supportLegacyId && matchingParentEntities.length === 0) {
                         idToSearch = `${relatedResource.resourceType}/${relatedResource.id}`;
                         matchingParentEntities = uniqueParentEntities.filter(
                             p =>
@@ -395,7 +399,7 @@ class GraphHelper {
                                         property
                                     }
                                 )
-                                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r, supportLegacyId}))
                                     .filter(r => r !== undefined && r !== null)
                                     .includes(idToSearch));
                     }
@@ -474,6 +478,7 @@ class GraphHelper {
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {boolean} supportLegacyId
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync({
@@ -486,7 +491,8 @@ class GraphHelper {
                                         filterValue,
                                         reverse_filter,
                                         explain,
-                                        debug
+                                        debug,
+                                        supportLegacyId = true
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -506,7 +512,8 @@ class GraphHelper {
             let parentResourceTypeAndIdList = uniqueParentEntities
                 .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
-            if (this.configManager.supportLegacyIds) {
+
+            if (this.configManager.supportLegacyIds && supportLegacyId) {
                 parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
                     uniqueParentEntities
                         .filter(p => p.entityId !== undefined && p.entityId !== null)
@@ -632,7 +639,7 @@ class GraphHelper {
                      * @type {string[]}
                      */
                     const references = properties
-                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r, supportLegacyId}))
                         .filter(r => r !== undefined).map(r => r.split('|')[0]);
                     /**
                      * @type {EntityAndContainedBase[]}
@@ -640,7 +647,7 @@ class GraphHelper {
                     let matchingParentEntities = uniqueParentEntities.filter(
                         p => references.includes(`${p.resource.resourceType}/${p.resource._uuid}`));
 
-                    if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
+                    if (this.configManager.supportLegacyIds && supportLegacyId && matchingParentEntities.length === 0) {
                         matchingParentEntities = uniqueParentEntities.filter(
                             p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
                     }
@@ -789,6 +796,7 @@ class GraphHelper {
      * @param {boolean|null} debug
      * @param {{type: string}} target
      * @param {ParsedArgs} parsedArgs
+     * @param {boolean} supportLegacyId
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync(
@@ -801,7 +809,8 @@ class GraphHelper {
             explain,
             debug,
             target,
-            parsedArgs
+            parsedArgs,
+            supportLegacyId = true
         }
     ) {
         try {
@@ -834,7 +843,7 @@ class GraphHelper {
                 }));
                 // if this is a reference then get related resources
                 if (this.isPropertyAReference({
-                    entities: parentEntities, property, filterProperty, filterValue
+                    entities: parentEntities, property, filterProperty, filterValue, supportLegacyId
                 })) {
                     await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
@@ -858,6 +867,7 @@ class GraphHelper {
                             filterValue,
                             explain,
                             debug,
+                            supportLegacyId
                         }
                     );
                     if (queryItem) {
@@ -914,7 +924,8 @@ class GraphHelper {
                             filterValue: null,
                             reverse_filter: target.params,
                             explain,
-                            debug
+                            debug,
+                            supportLegacyId
                         }
                     );
                     if (queryItem) {
@@ -955,7 +966,8 @@ class GraphHelper {
                                 parentEntities: childEntries,
                                 explain,
                                 debug,
-                                parsedArgs
+                                parsedArgs,
+                                supportLegacyId
                             }
                         )
                     );
@@ -992,6 +1004,7 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
+     * @param {boolean} supportLegacyId
      * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync(
@@ -1003,7 +1016,8 @@ class GraphHelper {
             parentEntities,
             explain,
             debug,
-            parsedArgs
+            parsedArgs,
+            supportLegacyId = true
         }
     ) {
         try {
@@ -1026,7 +1040,8 @@ class GraphHelper {
                         explain,
                         debug,
                         target,
-                        parsedArgs
+                        parsedArgs,
+                        supportLegacyId
                     }
                 )
             );
@@ -1065,6 +1080,7 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
+     * @param {boolean} supportLegacyId
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync(
@@ -1076,7 +1092,8 @@ class GraphHelper {
             linkItems,
             explain,
             debug,
-            parsedArgs
+            parsedArgs,
+            supportLegacyId = true
         }
     ) {
         try {
@@ -1105,7 +1122,8 @@ class GraphHelper {
                         parentEntities: resultEntities,
                         explain,
                         debug,
-                        parsedArgs
+                        parsedArgs,
+                        supportLegacyId
                     }
                 )
             );
@@ -1204,6 +1222,7 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ResourceIdentifier[]} idsAlreadyProcessed
+     * @param {boolean} supportLegacyId
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
@@ -1217,7 +1236,8 @@ class GraphHelper {
             debug,
             parsedArgs,
             responseStreamer,
-            idsAlreadyProcessed
+            idsAlreadyProcessed,
+            supportLegacyId = true
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1343,7 +1363,8 @@ class GraphHelper {
                     linkItems,
                     explain,
                     debug,
-                    parsedArgs
+                    parsedArgs,
+                    supportLegacyId
                 }
             );
 
@@ -1509,6 +1530,7 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ParsedArgs} parsedArgs
+     * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1519,7 +1541,8 @@ class GraphHelper {
             graphDefinitionJson,
             contained,
             responseStreamer,
-            parsedArgs
+            parsedArgs,
+            supportLegacyId = true
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1594,7 +1617,8 @@ class GraphHelper {
                         debug: parsedArgs['_debug'] ? true : false,
                         parsedArgs: parsedArgsForChunk,
                         responseStreamer,
-                        idsAlreadyProcessed: bundleEntryIdsProcessed
+                        idsAlreadyProcessed: bundleEntryIdsProcessed,
+                        supportLegacyId
                     }
                 );
                 entries = entries.concat(entries1);
@@ -1665,6 +1689,7 @@ class GraphHelper {
      * @param {Object} graphDefinitionJson (a GraphDefinition resource)
      * @param {BaseResponseStreamer} responseStreamer
      * @param {ParsedArgs} parsedArgs
+     * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1674,7 +1699,8 @@ class GraphHelper {
             resourceType,
             graphDefinitionJson,
             responseStreamer,
-            parsedArgs
+            parsedArgs,
+            supportLegacyId = true
         }
     ) {
         try {
@@ -1693,7 +1719,8 @@ class GraphHelper {
                     contained: false,
                     graphDefinitionJson,
                     responseStreamer: null, // don't let graph send the response
-                    parsedArgs
+                    parsedArgs,
+                    supportLegacyId
                 }
             );
             // now iterate and delete by resuourceType and Id

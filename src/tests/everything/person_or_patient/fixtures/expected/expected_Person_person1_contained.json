@@ -127,9 +127,7 @@
             "name": [
               {
                 "family": "PATIENT1",
-                "given": [
-                  "SHYLA"
-                ],
+                "given": ["SHYLA"],
                 "text": "t",
                 "use": "usual"
               }
@@ -165,15 +163,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b"
+                      "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "medstar"
+                      "valueString": "healthsystem1"
                     }
                   ],
-                  "reference": "Patient/patient1",
+                  "reference": "Patient/patient1|healthsystem1",
                   "type": "Patient"
                 }
               }
@@ -199,9 +197,7 @@
             "name": [
               {
                 "family": "PATIENT2",
-                "given": [
-                  "OTHER"
-                ],
+                "given": ["OTHER"],
                 "text": "t",
                 "use": "usual"
               }
@@ -215,9 +211,7 @@
                 "city": "Austin",
                 "country": "Some country",
                 "id": "2011-10-05T14:48:00.000Z",
-                "line": [
-                  "301 W, in a yellow submarine"
-                ],
+                "line": ["301 W, in a yellow submarine"],
                 "period": {
                   "id": "2011-10-05T14:48:00.000Z"
                 },
@@ -257,15 +251,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Patient/b1b84ea6-c8e3-52d8-9759-ebe994c1e89d"
+                      "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "bwell"
+                      "valueString": "healthsystem1"
                     }
                   ],
-                  "reference": "Patient/patient1"
+                  "reference": "Patient/patient1|healthsystem1"
                 }
               },
               {
@@ -281,15 +275,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Patient/90d14c10-b08a-5977-8aaf-4252355ac169"
+                      "valueString": "Patient/dc1946f6-aed3-599f-8f8d-dd543a094589"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "bwell"
+                      "valueString": "healthsystem2"
                     }
                   ],
-                  "reference": "Patient/patient2"
+                  "reference": "Patient/patient2|healthsystem2"
                 }
               }
             ],
@@ -315,9 +309,7 @@
             "name": [
               {
                 "family": "Azamar",
-                "given": [
-                  "Daniel"
-                ],
+                "given": ["Daniel"],
                 "use": "nickname"
               }
             ],
@@ -338,9 +330,7 @@
                 "city": "Austin",
                 "country": "Some country",
                 "id": "2011-10-05T14:48:00.000Z",
-                "line": [
-                  "301 W, in a yellow submarine"
-                ],
+                "line": ["301 W, in a yellow submarine"],
                 "period": {
                   "id": "2011-10-05T14:48:00.000Z"
                 },
@@ -380,15 +370,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Patient/b1b84ea6-c8e3-52d8-9759-ebe994c1e89d"
+                      "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "bwell"
+                      "valueString": "healthsystem1"
                     }
                   ],
-                  "reference": "Patient/patient1"
+                  "reference": "Patient/patient1|healthsystem1"
                 }
               },
               {
@@ -404,15 +394,15 @@
                     {
                       "id": "uuid",
                       "url": "https://www.icanbwell.com/uuid",
-                      "valueString": "Person/0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                      "valueString": "Person/cb910ded-67db-5c75-b62d-1d1a545c3e56"
                     },
                     {
                       "id": "sourceAssigningAuthority",
                       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                      "valueString": "bwell"
+                      "valueString": "medstar"
                     }
                   ],
-                  "reference": "Person/person1"
+                  "reference": "Person/person1|medstar"
                 }
               }
             ],
@@ -438,9 +428,7 @@
             "name": [
               {
                 "family": "Azamar",
-                "given": [
-                  "Daniel"
-                ],
+                "given": ["Daniel"],
                 "use": "nickname"
               }
             ],
@@ -482,15 +470,15 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b"
+                  "valueString": "Patient/24a5930e-11b4-5525-b482-669174917044"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "healthsystem1"
                 }
               ],
-              "reference": "Patient/patient1",
+              "reference": "Patient/patient1|healthsystem1",
               "type": "Patient"
             }
           }
@@ -516,9 +504,7 @@
         "name": [
           {
             "family": "PATIENT2",
-            "given": [
-              "OTHER"
-            ],
+            "given": ["OTHER"],
             "text": "t",
             "use": "usual"
           }

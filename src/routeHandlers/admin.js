@@ -472,7 +472,7 @@ async function handleAdmin(
                 )
             ]
         });
-        return res.json(operationOutcome.toJSON());
+        return res.end(JSON.stringify(operationOutcome));
     }
 }
 

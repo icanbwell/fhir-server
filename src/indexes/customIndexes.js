@@ -202,10 +202,12 @@ module.exports = {
                     '_uuid': 1,
                 },
                 options: {
-                    name: 'uuid'
+                    name: 'uuid',
+                    unique: true
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
+                    'InternalAuditEvent_4_0_0',
                     ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
@@ -513,6 +515,14 @@ module.exports = {
                 },
                 options: {
                     name: 'location._sourceId_1'
+                }
+            },
+            {
+                keys: {
+                    'providedBy._sourceId': 1,
+                },
+                options: {
+                    name: 'providedBy._sourceId'
                 }
             }
        ],

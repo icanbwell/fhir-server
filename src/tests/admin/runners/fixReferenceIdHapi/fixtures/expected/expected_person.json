@@ -31,10 +31,10 @@
                     {
                         "id": "sourceAssigningAuthority",
                         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "bwell"
+                        "valueString": "humanapi"
                     }
                 ],
-                "reference": "Patient/111111111111111111111111111111111111111111111111111111"
+                "reference": "Patient/111111111111111111111111111111111111111111111111111111|humanapi"
             }
         }
     ],

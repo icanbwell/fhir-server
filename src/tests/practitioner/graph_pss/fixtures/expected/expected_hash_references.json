@@ -157,15 +157,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Location/5ff4e3db-a2bb-53fa-9a69-b1fd4d535c26"
+                    "valueString": "Location/d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "myhealthsystem"
                   }
                 ],
-                "reference": "Location/#myhealthsystem-Alias-GP6-GGIM"
+                "reference": "Location/myhealthsystem-Alias-GP6-GGIM|myhealthsystem"
               }
             ],
             "meta": {
@@ -234,15 +234,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Location/5ff4e3db-a2bb-53fa-9a69-b1fd4d535c26"
+                    "valueString": "Location/d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "myhealthsystem"
                   }
                 ],
-                "reference": "Location/#myhealthsystem-Alias-GP6-GGIM"
+                "reference": "Location/myhealthsystem-Alias-GP6-GGIM|myhealthsystem"
               }
             ],
             "meta": {
@@ -1141,15 +1141,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/decf2e37-ae9e-5989-bc04-e141c34d236c"
+                    "valueString": "HealthcareService/9f5523bc-0c54-56bb-ae8c-413fe6105fcf"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "myhealthsystem"
+                    "valueString": "medstar"
                   }
                 ],
-                "reference": "HealthcareService/#1043289440-MCS-MCPS"
+                "reference": "HealthcareService/1043289440-MCS-MCPS|medstar"
               }
             ],
             "id": "1003059437-GP6-GGIM",
@@ -1320,15 +1320,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/2bbd9be7-674b-5851-b50b-09f983f21ccf"
+                    "valueString": "HealthcareService/4778b0fa-94e2-579f-9506-e9c91633fa98"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "myhealthsystem"
+                    "valueString": "medstar"
                   }
                 ],
-                "reference": "HealthcareService/#1043289440-MCS-MVVM"
+                "reference": "HealthcareService/1043289440-MCS-MVVM|medstar"
               }
             ],
             "id": "1003059437-GP6-MVVM",
