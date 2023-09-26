@@ -5,19 +5,29 @@ const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableCon
 const {ConfigManager} = require('./configManager');
 const {logInfo} = require('../operations/common/logging');
 const request = require('superagent');
+const { ProfileUrlMapper } = require('./profileMapper');
+const { BadRequestError} = require('./httpErrors');
 
 class RemoteFhirValidator {
     /**
      * constructor
      * @param {ConfigManager} configManager
+     * @param {ProfileUrlMapper} ProfileUrlMapper
      */
     constructor(
         {
-            configManager
+            configManager,
+            profileUrlMapper
         }
     ) {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {ProfileUrlMapper}
+         */
+        this.profileUrlMapper = profileUrlMapper;
+        assertTypeEquals(profileUrlMapper, ProfileUrlMapper);
     }
 
     /**
@@ -27,11 +37,25 @@ class RemoteFhirValidator {
      */
     async fetchProfileAsync({url}) {
         assertIsValid(url, 'url must be specified');
-        const response = await request
-            .get(url.toString())
-            .set('Accept', 'application/json');
+        const originalUrl = this.profileUrlMapper.getOriginalUrl(url);
+        try {
+            const response = await request
+                .get(originalUrl.toString())
+                .set('Accept', 'application/json');
+            return response.body;
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                // handle 404 error
+                throw new BadRequestError(
+                    new Error(
+                        `Unable to fetch profile details from ${url}`
+                    )
+                );
+            } else {
+                throw error;
+            }
+        }
 
-        return response.body;
     }
 
     /**
