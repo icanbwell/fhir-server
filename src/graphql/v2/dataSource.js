@@ -111,7 +111,6 @@ class FhirDataSource {
      * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch({keys, requestInfo, args}) {
-        const startTime = new Date().getTime();
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -169,12 +168,6 @@ class FhirDataSource {
             ),
             keys
         );
-        const span = context.tracer.scope().active();
-        span?.setTag('getResourcesInBatch_span', {
-            time: new Date().getTime() - startTime,
-            fhirRequestInfo: requestInfo,
-            args,
-        });
         return results;
     }
 
