@@ -102,6 +102,7 @@ const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorS
 const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
 const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
+const { ProfileUrlMapper } = require('./utils/profileMapper');
 
 /**
  * Creates a container and sets up all the services
@@ -179,9 +180,12 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         configManager: c.configManager
     }));
+    container.register('profileUrlMapper', (_c) => new ProfileUrlMapper());
+
     container.register('remoteFhirValidator', (c) => new RemoteFhirValidator(
         {
             configManager: c.configManager,
+            profileUrlMapper: c.profileUrlMapper,
         }
     ));
     container.register('resourceValidator', (c) => new ResourceValidator(
