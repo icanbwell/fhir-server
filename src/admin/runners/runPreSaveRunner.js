@@ -161,7 +161,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = {_uuid: null};
                 if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {
