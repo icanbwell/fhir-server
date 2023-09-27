@@ -3,6 +3,8 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
+const Coding = require('../../web/src/partials/Coding');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 /**
@@ -95,14 +97,33 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      */
     async processRecordAsync(doc) {
         const operations = [];
-        if (!doc.meta || !doc.meta.security) {
-            return operations;
-        }
+        // if (!doc.meta || !doc.meta.security) {
+        //     return operations;
+        // }
         assertIsValid(doc.resourceType);
         /**
          * @type {Resource}
          */
         const currentResource = FhirResourceCreator.create(doc);
+        if (!currentResource.meta){
+            currentResource.meta = {};
+        }
+        if (!currentResource.meta.security){
+            currentResource.meta.security = [];
+        }
+        if (!currentResource.meta.security.find(s => s.system === SecurityTagSystem.owner)) {
+            if (currentResource.id.toLowerCase().includes('wps-claim')) {
+                currentResource.meta.security.push(new Coding({
+                    system: SecurityTagSystem.owner,
+                    code: 'thedacare',
+                }));
+            } else if (currentResource.id.toLowerCase().includes('medstar-alias')) {
+                currentResource.meta.security.push(new Coding({
+                    system: SecurityTagSystem.owner,
+                    code: 'medstar',
+                }));
+            }
+        }
         /**
          * @type {Resource}
          */
