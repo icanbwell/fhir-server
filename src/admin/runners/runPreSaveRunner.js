@@ -3,9 +3,9 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
-const Coding = require('../../web/src/partials/Coding');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 
 /**
  * @classdesc runs preSave() on every record
@@ -101,29 +101,29 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
         //     return operations;
         // }
         assertIsValid(doc.resourceType);
-        /**
-         * @type {Resource}
-         */
-        const currentResource = FhirResourceCreator.create(doc);
-        if (!currentResource.meta){
-            currentResource.meta = {};
+        if (!doc.meta){
+            doc.meta = {};
         }
-        if (!currentResource.meta.security){
-            currentResource.meta.security = [];
+        if (!doc.meta.security){
+            doc.meta.security = [];
         }
-        if (!currentResource.meta.security.find(s => s.system === SecurityTagSystem.owner)) {
-            if (currentResource.id.toLowerCase().includes('wps-claim')) {
-                currentResource.meta.security.push(new Coding({
+        if (!doc.meta.security.find(s => s.system === SecurityTagSystem.owner)) {
+            if (doc.id.toLowerCase().includes('wps-claim')) {
+                doc.meta.security.push(new Coding({
                     system: SecurityTagSystem.owner,
                     code: 'thedacare',
                 }));
-            } else if (currentResource.id.toLowerCase().includes('medstar-alias')) {
-                currentResource.meta.security.push(new Coding({
+            } else if (doc.id.toLowerCase().includes('medstar-alias')) {
+                doc.meta.security.push(new Coding({
                     system: SecurityTagSystem.owner,
                     code: 'medstar',
                 }));
             }
         }
+        /**
+         * @type {Resource}
+         */
+        const currentResource = FhirResourceCreator.create(doc);
         /**
          * @type {Resource}
          */
