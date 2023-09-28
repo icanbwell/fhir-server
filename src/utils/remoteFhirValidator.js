@@ -6,7 +6,6 @@ const {ConfigManager} = require('./configManager');
 const {logInfo} = require('../operations/common/logging');
 const request = require('superagent');
 const { ProfileUrlMapper } = require('./profileMapper');
-const { BadRequestError} = require('./httpErrors');
 
 class RemoteFhirValidator {
     /**
@@ -38,24 +37,10 @@ class RemoteFhirValidator {
     async fetchProfileAsync({url}) {
         assertIsValid(url, 'url must be specified');
         const originalUrl = this.profileUrlMapper.getOriginalUrl(url);
-        try {
-            const response = await request
-                .get(originalUrl.toString())
-                .set('Accept', 'application/json');
-            return response.body;
-        } catch (error) {
-            if (error.response && error.response.status === 404) {
-                // handle 404 error
-                throw new BadRequestError(
-                    new Error(
-                        `Unable to fetch profile details from ${url}`
-                    )
-                );
-            } else {
-                throw error;
-            }
-        }
-
+        const response = await request
+            .get(originalUrl.toString())
+            .set('Accept', 'application/json');
+        return response.body;
     }
 
     /**

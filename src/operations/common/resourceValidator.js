@@ -14,6 +14,7 @@ const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structur
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const { BadRequestError } = require('../../utils/httpErrors');
 
 class ResourceValidator {
     /**
@@ -176,7 +177,20 @@ class ResourceValidator {
                 await this.remoteFhirValidator.updateProfileAsync({profileJson: profileJson1});
             } else {
                 // profile not found in our fhir server, so fetch from remote fhir server
-                const profileJson = await this.remoteFhirValidator.fetchProfileAsync({url: profile});
+                const profileJson = await this.remoteFhirValidator
+                    .fetchProfileAsync({ url: profile })
+                    .catch((error) => {
+                        if (error.response && error.response.status === 404) {
+                            // handle 404 error
+                            throw new BadRequestError(
+                                new Error(
+                                    `Unable to fetch profile details from passed param profile = '${profile}'`
+                                )
+                            );
+                        } else {
+                            throw error;
+                        }
+                    });
                 if (profileJson) {
                     // write to our fhir server
                     /**
@@ -198,19 +212,23 @@ class ResourceValidator {
                             new Coding({
                                 system: SecurityTagSystem.owner,
                                 code: profileResourceNew.publisher || 'profile',
-                            })
+                            }),
                         ];
                     }
                     if (!profileResourceNew.meta.source) {
                         profileResourceNew.meta.source = profileResourceNew.url;
                     }
-                    const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager(
-                        {resourceType: 'StructureDefinition', base_version: VERSIONS['4_0_0']}
-                    );
+                    const databaseUpdateManager =
+                        this.databaseUpdateFactory.createDatabaseUpdateManager({
+                            resourceType: 'StructureDefinition',
+                            base_version: VERSIONS['4_0_0'],
+                        });
                     await databaseUpdateManager.replaceOneAsync({
                         doc: profileResourceNew,
                     });
-                    await this.remoteFhirValidator.updateProfileAsync({profileJson: profileResourceNew.toJSON()});
+                    await this.remoteFhirValidator.updateProfileAsync({
+                        profileJson: profileResourceNew.toJSON(),
+                    });
                 }
             }
         }
@@ -220,10 +238,25 @@ class ResourceValidator {
              * @type {string[]}
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
-            for (const metaProfile of metaProfiles) {
-                const profileJson = await this.remoteFhirValidator.fetchProfileAsync({url: metaProfile});
+            for (let i = 0; i < metaProfiles.length; i++) {
+                // eslint-disable-next-line security/detect-object-injection
+                const metaProfile = metaProfiles[i];
+                const profileJson = await this.remoteFhirValidator
+                    .fetchProfileAsync({ url: metaProfile })
+                    .catch((error) => {
+                        if (error.response && error.response.status === 404) {
+                            // handle 404 error
+                            throw new BadRequestError(
+                                new Error(
+                                    `Unable to fetch profile details for resource at ${resourceToValidateJson.resourceType}.meta.profile[${i}] = '${profile}'`
+                                )
+                            );
+                        } else {
+                            throw error;
+                        }
+                    });
                 if (profileJson) {
-                    await this.remoteFhirValidator.updateProfileAsync({profileJson});
+                    await this.remoteFhirValidator.updateProfileAsync({ profileJson });
                 }
             }
         }
