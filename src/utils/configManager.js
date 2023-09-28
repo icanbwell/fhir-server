@@ -301,14 +301,6 @@ class ConfigManager {
     }
 
     /**
-     * If count requested is higher than this then don't do duplicate removal to save memory
-     * @returns {number}
-     */
-    get streamingMaxCountForDuplicateRemoval() {
-        return env.STREAMING_MAX_COUNT_FOR_DUPLICATE_REMOVAL || 1000;
-    }
-
-    /**
      * whether to log inside our streaming.  Very verbose so don't set in production
      * @returns {boolean}
      */
