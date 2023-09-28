@@ -1,0 +1,13 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Unable to fetch profile details for resource at Practitioner.meta.profile[0] = 'http://hl7.org/fhir/us/core/StructureDefinition/invalid'"
+      },
+      "diagnostics": "Error: Unable to fetch profile details for resource at Practitioner.meta.profile[0] = 'http://hl7.org/fhir/us/core/StructureDefinition/invalid'"
+    }
+  ]
+}
