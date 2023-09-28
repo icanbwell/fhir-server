@@ -1,4 +1,5 @@
 const superagent = require('superagent');
+const env = require('var');
 const urlLib = require('url');
 const crypto = require('crypto');
 
@@ -25,6 +26,10 @@ class RequestWithDigestAuth {
         this.username = username;
         this.count = 0;
         this.retry = retry ?? 1;
+        /**
+         * @type {number}
+         */
+        this.requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
     }
 
     /**
@@ -117,7 +122,7 @@ class RequestWithDigestAuth {
                 request.query(query);
             }
 
-            const response = await request.send(data);
+            const response = await request.send(data).timeout(this.requestTimeout);
             return response;
         }
     }

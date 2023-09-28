@@ -11,6 +11,7 @@ const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
 const {Issuer} = require('openid-client');
+const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = [
     // 'custom:clientFhirPersonId',
@@ -28,9 +29,12 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
     /**
      * @type {*}
      */
-    const res = await superagent.get(jwksUrl).set({
-        'Accept': 'application/json'
-    });
+    const res = await superagent
+        .get(jwksUrl)
+        .set({
+            Accept: 'application/json',
+        })
+        .timeout(requestTimeout);
     /**
      * @type {Object}
      */

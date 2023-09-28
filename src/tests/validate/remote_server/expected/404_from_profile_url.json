@@ -5,9 +5,9 @@
       "severity": "error",
       "code": "invalid",
       "details": {
-        "text": "Unable to fetch profile details from http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+        "text": "Unable to fetch profile details from passed param profile = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner'"
       },
-      "diagnostics": "Error: Unable to fetch profile details from http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+      "diagnostics": "Error: Unable to fetch profile details from passed param profile = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner'"
     }
   ]
 }
