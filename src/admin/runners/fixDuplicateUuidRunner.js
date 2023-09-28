@@ -322,64 +322,71 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                     /**
                      * @type {string[]}
                      */
-                    const duplicateUuidArray = await this.getDuplicateUuidArrayAsync({
+                    let duplicateUuidArray = await this.getDuplicateUuidArrayAsync({
                         collection,
                     });
+                    let currentUuidCount = 0;
 
-                    const startFromIdContainer = this.createStartFromIdContainer();
+                    while (duplicateUuidArray.length && currentUuidCount <= this.limit) {
+                        const startFromIdContainer = this.createStartFromIdContainer();
 
-                    /**
-                     * @type {import('mongodb').Filter<import('mongodb').Document>}
-                     */
-                    const query = this.getQueryForDuplicateUuidResources({
-                        duplicateUuidArray,
-                    });
+                        /**
+                         * @type {import('mongodb').Filter<import('mongodb').Document>}
+                         */
+                        const query = this.getQueryForDuplicateUuidResources({
+                            duplicateUuidArray,
+                        });
 
-                    if (duplicateUuidArray.length > 0) {
-                        this.adminLogger.logInfo(`Started processing uuids for ${collectionName}`);
-                        this.adminLogger.logInfo(
-                            `duplicate uuids count for the collection ${collectionName}: ${duplicateUuidArray.length}`
-                        );
-                        try {
-                            await this.runForQueryBatchesAsync({
-                                config: mongoConfig,
-                                sourceCollectionName: collectionName,
-                                destinationCollectionName: collectionName,
-                                query,
-                                projection: this.properties ? this.getProjection() : undefined,
-                                startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) =>
-                                    await this.processResourceAsync({
-                                        uuid: doc._uuid,
-                                        collectionName,
-                                    }),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: false,
-                                limit: this.limit,
-                                useTransaction: this.useTransaction,
-                                skip: this.skip,
-                            });
-                        } catch (e) {
-                            console.log(e.message);
-                            this.adminLogger.logError(
-                                `Got error ${e}.  At ${startFromIdContainer.startFromId}`
+                        if (duplicateUuidArray.length > 0) {
+                            this.adminLogger.logInfo(`Started processing uuids for ${collectionName}`);
+                            this.adminLogger.logInfo(
+                                `duplicate uuids count for the collection ${collectionName}: ${duplicateUuidArray.length}`,
                             );
-                            throw new RethrownError({
-                                message: `Error processing references of collection ${collectionName} ${e.message}`,
-                                error: e,
-                                args: {
+                            try {
+                                await this.runForQueryBatchesAsync({
+                                    config: mongoConfig,
+                                    sourceCollectionName: collectionName,
+                                    destinationCollectionName: collectionName,
                                     query,
-                                },
-                                source: 'FixDuplicateUuidRunner.processAsync',
-                            });
-                        }
+                                    projection: this.properties ? this.getProjection() : undefined,
+                                    startFromIdContainer,
+                                    fnCreateBulkOperationAsync: async (doc) =>
+                                        await this.processResourceAsync({
+                                            uuid: doc._uuid,
+                                            collectionName,
+                                        }),
+                                    ordered: false,
+                                    batchSize: this.batchSize,
+                                    skipExistingIds: false,
+                                    limit: this.limit,
+                                    useTransaction: this.useTransaction,
+                                    skip: this.skip,
+                                });
+                            } catch (e) {
+                                console.log(e.message);
+                                this.adminLogger.logError(
+                                    `Got error ${e}.  At ${startFromIdContainer.startFromId}`,
+                                );
+                                throw new RethrownError({
+                                    message: `Error processing references of collection ${collectionName} ${e.message}`,
+                                    error: e,
+                                    args: {
+                                        query,
+                                    },
+                                    source: 'FixDuplicateUuidRunner.processAsync',
+                                });
+                            }
 
-                        this.adminLogger.logInfo(`Finished processing uuids for ${collectionName}`);
-                    } else {
-                        this.adminLogger.logInfo(
-                            `${collectionName} does not contain duplicate _uuid resource`
-                        );
+                            this.adminLogger.logInfo(`Finished processing uuids for ${collectionName}`);
+                        } else {
+                            this.adminLogger.logInfo(
+                                `${collectionName} does not contain duplicate _uuid resource`,
+                            );
+                        }
+                        currentUuidCount += duplicateUuidArray.length;
+                        duplicateUuidArray = await this.getDuplicateUuidArrayAsync({
+                            collection,
+                        });
                     }
                 }
             } finally {
