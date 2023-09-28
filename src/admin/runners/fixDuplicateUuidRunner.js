@@ -187,6 +187,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                                 },
                             },
                         },
+                        { $limit: this.batchSize }
                     ],
                     { allowDiskUse: true }
                 )
@@ -337,7 +338,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                     if (duplicateUuidArray.length > 0) {
                         this.adminLogger.logInfo(`Started processing uuids for ${collectionName}`);
                         this.adminLogger.logInfo(
-                            `duplicate uuids for the collection: ${duplicateUuidArray.join()}`
+                            `duplicate uuids count for the collection ${collectionName}: ${duplicateUuidArray.length}`
                         );
                         try {
                             await this.runForQueryBatchesAsync({
