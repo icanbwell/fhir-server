@@ -248,7 +248,7 @@ class ResourceValidator {
                             // handle 404 error
                             throw new BadRequestError(
                                 new Error(
-                                    `Unable to fetch profile details for resource at ${resourceToValidateJson.resourceType}.meta.profile[${i}] = '${profile}'`
+                                    `Unable to fetch profile details for resource at ${resourceToValidateJson.resourceType}.meta.profile[${i}] = '${metaProfile}'`
                                 )
                             );
                         } else {
