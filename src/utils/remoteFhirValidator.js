@@ -19,6 +19,9 @@ class RemoteFhirValidator {
             profileUrlMapper
         }
     ) {
+        /**
+         * @type {ConfigManager}
+         */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
@@ -39,7 +42,8 @@ class RemoteFhirValidator {
         const originalUrl = this.profileUrlMapper.getOriginalUrl(url);
         const response = await request
             .get(originalUrl.toString())
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .timeout(this.configManager.requestTimeoutMs);
         return response.body;
     }
 

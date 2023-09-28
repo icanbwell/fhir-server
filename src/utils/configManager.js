@@ -501,6 +501,14 @@ class ConfigManager {
     get payloadLimit() {
         return env.PAYLOAD_LIMIT || '50mb';
     }
+
+    /**
+     * returns the request timeout in ms
+     * @returns {number}
+     */
+    get requestTimeoutMs() {
+        return (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
+    }
 }
 
 module.exports = {

@@ -24,6 +24,9 @@ class PersonMatchManager {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
+        /**
+         * @type {ConfigManager}
+         */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
     }
@@ -140,7 +143,8 @@ class PersonMatchManager {
             const res = await superagent
                 .post(url)
                 .send(parameters)
-                .set(header);
+                .set(header)
+                .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
             logInfo('', {json});
             return json;
