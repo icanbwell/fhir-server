@@ -10,6 +10,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {R4ArgsParser} = require('./r4ArgsParser');
+const {ReferenceUuidFinder} = require('../../utils/referenceUuidFinder');
 const {ParsedArgs} = require('./parsedArgs');
 const {FieldMapper} = require('./filters/fieldMapper');
 const {FilterByMissing} = require('./filters/missing');
@@ -28,11 +29,13 @@ class R4SearchQueryCreator {
      * @param {ConfigManager} configManager
      * @param {AccessIndexManager} accessIndexManager
      * @param {R4ArgsParser} r4ArgsParser
+     * @param {ReferenceUuidFinder} referenceUuidFinder
      */
     constructor({
                     configManager,
                     accessIndexManager,
-                    r4ArgsParser
+                    r4ArgsParser,
+                    referenceUuidFinder
                 }) {
         /**
          * @type {ConfigManager}
@@ -50,6 +53,12 @@ class R4SearchQueryCreator {
          */
         this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {ReferenceUuidFinder}
+         */
+        this.referenceUuidFinder = referenceUuidFinder;
+        assertTypeEquals(referenceUuidFinder, ReferenceUuidFinder);
     }
 
     /**
@@ -213,7 +222,7 @@ class R4SearchQueryCreator {
                     if (queryParameterValue.values && queryParameterValue.values.every(v => UrlParser.isUrl(v))) {
                         andSegments = new FilterByCanonical(filterParameters).filter();
                     } else {
-                        andSegments = new FilterByReference(filterParameters).filter();
+                        andSegments = new FilterByReference(filterParameters, this.referenceUuidFinder).filter();
                     }
                     break;
                 case fhirFilterTypes.quantity:

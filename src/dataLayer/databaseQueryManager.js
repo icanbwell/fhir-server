@@ -482,6 +482,62 @@ class DatabaseQueryManager {
         }
 
     }
+
+    /**
+     * Gets UUID from database
+     * @param {string} resource
+     * @param {string} sourceId
+     * @param {string} sourceAssigningAuthority
+     * @return {Promise<{uuid: string}>}
+     */
+    async getUuidForSourceIdAndSourceAssigningAuthorityAsync({sourceId, sourceAssigningAuthority }) {
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        const query = this.mongoFilterGenerator.generateFilterForSourceIdAndSourceAssigningAuthority(
+            {
+                sourceId,
+                sourceAssigningAuthority
+            }
+        );
+        /**
+         *
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+         */
+        const options = {
+            projection: {
+                '_uuid': 1,
+            }
+        };
+        try {
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            const cursor = await this.findAsync(
+                {
+                    query,
+                    options
+                }
+            );
+            while (await cursor.hasNext()) {
+                /**
+                 * @type {Object|null}
+                 */
+                const doc = await cursor.nextRaw();
+                if (!doc) {
+                    return null;
+                }
+                return {uuid: doc._uuid};
+            }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in getUuidForSourceIdAndSourceAssigningAuthorityAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
+        }
+
+    }
 }
 
 module.exports = {

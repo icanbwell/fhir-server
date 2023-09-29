@@ -68,6 +68,7 @@ const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandle
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
+const {ReferenceUuidFinder} = require('./utils/referenceUuidFinder');
 const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
 const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
@@ -274,7 +275,9 @@ const createContainer = function () {
     container.register('personToPatientIdsExpander', (c) => new PersonToPatientIdsExpander({
         databaseQueryFactory: c.databaseQueryFactory
     }));
-
+    container.register('referenceUuidFinder', (c) => new ReferenceUuidFinder({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
             new PatientProxyQueryRewriter({
@@ -673,7 +676,8 @@ const createContainer = function () {
         {
             configManager: c.configManager,
             accessIndexManager: c.accessIndexManager,
-            r4ArgsParser: c.r4ArgsParser
+            r4ArgsParser: c.r4ArgsParser,
+            referenceUuidFinder: c.referenceUuidFinder
         }));
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
