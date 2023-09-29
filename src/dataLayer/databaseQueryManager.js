@@ -98,7 +98,7 @@ class DatabaseQueryManager {
                 /**
                  * @type { Promise<Resource|null>}
                  */
-                const resource = await collection.findOne(query, options);
+                const resource = await collection.findOne(query, options).withReadPreference('secondaryPreferred');
                 if (resource !== null) {
                     return FhirResourceCreator.createByResourceType(resource, this._resourceType);
                 }
@@ -206,7 +206,7 @@ class DatabaseQueryManager {
                 /**
                  * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
                  */
-                const cursor = collection.find(query, options);
+                const cursor = collection.find(query, options).withReadPreference('secondaryPreferred');
                 cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
             }
             return new DatabasePartitionedCursor({
@@ -242,7 +242,7 @@ class DatabaseQueryManager {
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
                 let cursor;
                 if (extraInfo.matchQueryProvided) {
-                    cursor = collection.aggregate(query);
+                    cursor = collection.aggregate(query).withReadPreference('secondaryPreferred');
                 } else {
                     /**
                      * @type {import('mongodb').AggregationCursor<Document>}
@@ -258,7 +258,7 @@ class DatabaseQueryManager {
                             }
                         ],
                         options,
-                    );
+                    ).withReadPreference('secondaryPreferred');
                 }
                 cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
             }
@@ -359,7 +359,7 @@ class DatabaseQueryManager {
                 /**
                  * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
                  */
-                const cursor = collection.find(query, options);
+                const cursor = collection.find(query, options).withReadPreference('secondaryPreferred');
                 cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
             }
             return new DatabasePartitionedCursor({
