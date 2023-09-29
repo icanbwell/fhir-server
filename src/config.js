@@ -74,7 +74,11 @@ if (env.AUDIT_EVENT_MONGO_URL) {
     auditEventMongoConfig = {
         connection: auditEventMongoUrl,
         db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
-        options: options,
+        options: {
+            ...options,
+            minPoolSize: env.AUDIT_EVENT_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MIN_POOL_SIZE) : options.minPoolSize,
+            maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize
+        },
     };
 } else {
     auditEventMongoConfig = mongoConfig;
