@@ -34,6 +34,11 @@ const options = {
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
+    readPreference: env.MONGO_READ_PREFERENCE ? env.MONGO_READ_PREFERENCE : 'secondaryPreferred',
+    retryWrites: true,
+    writeConcern: {
+        w: 'majority'
+    },
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
@@ -77,7 +82,8 @@ if (env.AUDIT_EVENT_MONGO_URL) {
         options: {
             ...options,
             minPoolSize: env.AUDIT_EVENT_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MIN_POOL_SIZE) : options.minPoolSize,
-            maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize
+            maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize,
+            readPreference: env.AUDIT_EVENT_READ_PREFERENCE ? env.AUDIT_EVENT_READ_PREFERENCE : options.readPreference,
         },
     };
 } else {
@@ -107,7 +113,8 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
         options: {
             ...options,
             minPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE) : 0,
-            maxPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE) : 100
+            maxPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE) : 100,
+            readPreference: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_READ_PREFERENCE ? env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_READ_PREFERENCE : options.readPreference,
         },
     };
 } else {
@@ -152,7 +159,8 @@ accessLogsMongoConfig.options = {
     useUnifiedTopology: true,
     writeConcern: { w: 1 },
     maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
-    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
+    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1,
+    readPreference: env.ACCESS_LOGS_READ_PREFERENCE ? env.ACCESS_LOGS_READ_PREFERENCE : options.readPreference,
 };
 // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
 delete accessLogsMongoConfig.options.compressors;
