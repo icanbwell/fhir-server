@@ -835,7 +835,6 @@ class SearchManager {
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark: highWaterMark,
                         configManager: this.configManager,
-                        removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -975,12 +974,6 @@ class SearchManager {
         const highWaterMark = this.configManager.streamingHighWaterMark || 100;
 
         /**
-         * If count requested is higher than this then don't do duplicate removal to save memory
-         * @type {number}
-         */
-        const maximumCountForDuplicateRemoval = this.configManager.streamingMaxCountForDuplicateRemoval || 100;
-
-        /**
          * @type {{id: *[]}}
          */
         const tracker = {
@@ -1038,7 +1031,6 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
                 configManager: this.configManager,
-                removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= maximumCountForDuplicateRemoval // don't remove dups for large requests
             }
         );
         /**

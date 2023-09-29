@@ -1,5 +1,4 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
-const {getFirstResourceOrNull, groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ParsedArgs} = require('../../operations/query/parsedArgs');
 const {PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX} = require('../../constants');
@@ -48,31 +47,15 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                     });
                 }
                 // now copy the latest Patient and set the id to proxyPatient
-                const patientResources = resources.filter(r => r.resourceType === 'Patient')
-                    .sort((a, b) => (a.meta.lastUpdated > b.meta.lastUpdated ? -1 : 1));
+                const patientResources = resources.filter(r => r.resourceType === 'Patient');
 
-                if (patientToPersonMap) {
-                    /**
-                     * group the patientResources on basis of proxy-person
-                     * @type {{[group: string]: Array<Resource>}}
-                     */
-                    const groupByProxyPerson = groupByLambda(patientResources, requestedResource => {
-                        return this.findPersonIdFromMap(patientToPersonMap, requestedResource);
+                if (patientToPersonMap && patientResources.length > 0) {
+                    patientResources.forEach((p) => {
+                        const personId = this.findPersonIdFromMap(patientToPersonMap, p);
+                        if (personId) {
+                            p.id = `${PERSON_PROXY_PREFIX}${personId}`;
+                        }
                     });
-
-                    const latestPatientResources = Object.values(groupByProxyPerson).map(pResources => getFirstResourceOrNull(pResources)).filter((p) => p);
-                    if (latestPatientResources.length > 0) {
-                        const latestPatientResourceIds = new Set(latestPatientResources.map(r => r.id));
-                        // remove all other Patient resources except the latest
-                        resources = resources.filter(r => r.resourceType !== 'Patient' || latestPatientResourceIds.has(r.id));
-
-                        latestPatientResources.forEach((p) => {
-                            const personId = this.findPersonIdFromMap(patientToPersonMap, p);
-                            if (personId) {
-                                p.id = `${PERSON_PROXY_PREFIX}${personId}`;
-                            }
-                        });
-                    }
                 }
             }
         }

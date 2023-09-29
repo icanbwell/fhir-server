@@ -138,7 +138,6 @@ class ResourcePreparer {
             );
             resources = resources.concat(enrichedResources);
         }
-        resources = this.resourceManager.removeDuplicateResources({resources});
         return resources;
     }
 }

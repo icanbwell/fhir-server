@@ -15,7 +15,6 @@ class ResourcePreparerTransform extends Transform {
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
      * @param {ResourcePreparer} resourcePreparer
-     * @param {boolean|undefined} removeDuplicates
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
@@ -28,7 +27,6 @@ class ResourcePreparerTransform extends Transform {
             useAccessIndex,
             signal,
             resourcePreparer,
-            removeDuplicates,
             highWaterMark,
             configManager
         }
@@ -62,17 +60,6 @@ class ResourcePreparerTransform extends Transform {
          * @type {ResourcePreparer}
          */
         this.resourcePreparer = resourcePreparer;
-
-        /**
-         * what resources have we already processed
-         * @type {{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}[]}
-         */
-        this.resourcesProcessed = [];
-
-        /**
-         * @type {boolean|undefined}
-         */
-        this.removeDuplicates = removeDuplicates;
 
         /**
          * @type {ConfigManager}
@@ -155,26 +142,11 @@ class ResourcePreparerTransform extends Transform {
                 /** @type {Resource[]} */resources => {
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
-                            // Remove any duplicates
-                            if (resource && this.removeDuplicates &&
-                                !this.resourcesProcessed.some(a =>
-                                    resource.isSameResourceByIdAndSecurityTag({other: a})
-                                )
-                            ) {
+                            if (resource) {
                                 if (this.configManager.logStreamSteps) {
                                     logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
                                 this.push(resource);
-                                if (this.removeDuplicates) {
-                                    this.resourcesProcessed.push(
-                                        {
-                                            resourceType: resource.resourceType,
-                                            _uuid: resource._uuid,
-                                            id: resource.id,
-                                            securityTagStructure: resource.securityTagStructure
-                                        }
-                                    );
-                                }
                             }
                         }
                     }
