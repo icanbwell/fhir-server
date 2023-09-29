@@ -8,8 +8,12 @@ class IdParser {
     static parse(id) {
         let id1;
         let sourceAssigningAuthority;
-
-        const idParts = id.split('|');
+        let idParts = [];
+        if (id && typeof id === 'string') {
+            idParts = id.split('|');
+        } else {
+            return {id: '', sourceAssigningAuthority: undefined};
+        }
         if (idParts.length > 1) {
             id1 = idParts[0];
             sourceAssigningAuthority = idParts[1];
