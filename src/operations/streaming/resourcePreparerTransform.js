@@ -1,9 +1,10 @@
 const {Transform} = require('stream');
-const {logInfo} = require('../common/logging');
+const {logInfo, logError} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const { captureSentryException } = require('../common/sentry');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -89,22 +90,44 @@ class ResourcePreparerTransform extends Transform {
             const promises = chunks.map(chunk1 =>
                 this.processChunkAsync(chunk1)
             );
-            Promise.all(promises).then(() => callback()).catch(
-                (reason) => {
-                    throw new RethrownError(
-                        {
-                            message: `ResourcePreparer _transform: error: ${reason}. id: ${chunk.id}`,
+
+            const processChunksAsync = async () => {
+                try {
+                    await Promise.all(promises);
+                } catch (error) {
+                    logError(`ResourcePreparer _transform: error: ${error.message || error}. id: ${chunk.id}`, {
+                        error: error,
+                        source: 'ResourcePreparer._transform',
+                        args: {
+                            id: chunk.id,
+                            stack: error?.stack,
+                            message: error.message,
+                        },
+                    });
+                    const rethrownError = new RethrownError({
+                        message: `ResourcePreparer _transform: error: ${error.message}. id: ${chunk.id}`,
                             args: {
                                 id: chunk.id,
                                 chunk: chunk,
-                                reason: reason,
-                                message: reason?.message,
-                                stack: reason?.stack,
+                                reason: error,
+                                message: error?.message,
+                                stack: error?.stack,
                             },
-                            error: reason
-                        }
-                    );
-                });
+                            error: error
+                    });
+                    captureSentryException(rethrownError);
+                    /**
+                     * @type {OperationOutcome}
+                     */
+                    const operationOutcome = convertErrorToOperationOutcome({
+                        error: rethrownError,
+                    });
+                    this.push(operationOutcome);
+                }
+            };
+            processChunksAsync().finally(() => {
+                callback();
+            });
         } catch (e) {
             const error = new RethrownError(
                 {
