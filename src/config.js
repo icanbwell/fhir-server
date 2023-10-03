@@ -4,6 +4,7 @@
 const env = require('var');
 const Sentry = require('@sentry/node');
 const {profiles} = require('./profiles');
+const {getQueryParams} = require('./utils/getQueryParams');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {
@@ -18,12 +19,16 @@ if (env.MONGO_USERNAME !== undefined) {
 }
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
+const queryParams = getQueryParams(mongoUrl);
+const writeConcern = queryParams['w'] ?? 'majority';
+delete queryParams['w'];
 // noinspection JSValidateTypes
 /**
  * https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
  * @type {import('mongodb').MongoClientOptions}
  */
 const options = {
+    ...queryParams,
     appName: 'fhir',
     connectTimeoutMS: env.MONGO_CONNECT_TIMEOUT ? parseInt(env.MONGO_CONNECT_TIMEOUT) : 60 * 60 * 1000,
     socketTimeoutMS: env.MONGO_SOCKET_TIMEOUT ? parseInt(env.MONGO_SOCKET_TIMEOUT) : 60 * 60 * 1000,
@@ -34,6 +39,9 @@ const options = {
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
+    writeConcern: {
+        w: writeConcern
+    },
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
@@ -71,13 +79,20 @@ if (env.AUDIT_EVENT_MONGO_URL) {
     }
 // url-encode the url
     auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
+    const auditQueryParams = getQueryParams(auditEventMongoUrl);
+    const auditWriteConcern = auditQueryParams['w'] ?? 'majority';
+    delete auditQueryParams['w'];
     auditEventMongoConfig = {
         connection: auditEventMongoUrl,
         db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
         options: {
             ...options,
+            ...auditQueryParams,
             minPoolSize: env.AUDIT_EVENT_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MIN_POOL_SIZE) : options.minPoolSize,
-            maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize
+            maxPoolSize: env.AUDIT_EVENT_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_MAX_POOL_SIZE) : options.maxPoolSize,
+            writeConcern: {
+                w: auditWriteConcern
+            }
         },
     };
 } else {
@@ -101,13 +116,20 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
     }
     // url-encode the url
     auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl ? encodeURI(auditEventReadOnlyMongoUrl) : auditEventReadOnlyMongoUrl;
+    const auditReadOnlyQueryParams = getQueryParams(auditEventReadOnlyMongoUrl);
+    const auditReadOnlyWriteConcern = auditReadOnlyQueryParams['w'] ?? 'majority';
+    delete auditReadOnlyQueryParams['w'];
     auditEventReadOnlyMongoConfig = {
         connection: auditEventReadOnlyMongoUrl,
         db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
         options: {
             ...options,
+            ...auditReadOnlyQueryParams,
             minPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE) : 0,
-            maxPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE) : 100
+            maxPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MAX_POOL_SIZE) : 100,
+            writeConcern: {
+                w: auditReadOnlyWriteConcern
+            }
         },
     };
 } else {
@@ -147,12 +169,16 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
         db_name: dbName,
     };
 }
+const accessLogsQueryParams = getQueryParams(accessLogsMongoConfig.connection);
+const accessLogsWriteConcern = accessLogsQueryParams['w'] ?? 1;
+delete accessLogsQueryParams['w'];
 accessLogsMongoConfig.options = {
     ...options,
+    ...accessLogsQueryParams,
     useUnifiedTopology: true,
-    writeConcern: { w: 1 },
+    writeConcern: { w: accessLogsWriteConcern },
     maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
-    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
+    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1,
 };
 // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
 delete accessLogsMongoConfig.options.compressors;
