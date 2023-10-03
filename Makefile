@@ -77,7 +77,7 @@ update:down
 	yarn install --no-optional && \
 	cd src/web && \
 	rm -f yarn.lock && \
-	yarn install --no-optional && \
+	yarn install --no-optional
 
 # https://www.npmjs.com/package/npm-check-updates
 .PHONY:upgrade_packages
