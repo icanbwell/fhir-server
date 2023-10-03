@@ -1,11 +1,121 @@
 {
-    "entry": [],
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "Person",
+                "id": "a8f347f8-a803-4bfa-81a0-099681254292",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2023-10-03T20:38:29.000Z",
+                    "source": "https://www.icanbwell.com/enterprise-person-service",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "bwell_demo"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "bwell_demo"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "bwell_demo"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://www.icanbwell.com/identifier-types",
+                                    "code": "user-identifier"
+                                }
+                            ]
+                        },
+                        "system": "http://www.icanbwell.com/bwell_demo/email",
+                        "value": "abhishek.porwal+dfwd@icanbwell.com"
+                    },
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "a8f347f8-a803-4bfa-81a0-099681254292"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "a8f347f8-a803-4bfa-81a0-099681254292"
+                    }
+                ],
+                "name": [
+                    {
+                        "use": "usual",
+                        "family": "dutta",
+                        "given": [
+                            "lakshay"
+                        ]
+                    }
+                ],
+                "telecom": [
+                    {
+                        "system": "email",
+                        "value": "abhishek.porwal+dfwd@icanbwell.com",
+                        "use": "home"
+                    },
+                    {
+                        "system": "phone",
+                        "value": "(999) 999-9999",
+                        "use": "home"
+                    }
+                ],
+                "gender": "male",
+                "birthDate": "2001-10-21",
+                "address": [
+                    {
+                        "use": "home",
+                        "line": [
+                            "efdkbwerkgj"
+                        ],
+                        "city": "rfgtgh5y",
+                        "state": "AR",
+                        "postalCode": "12222"
+                    }
+                ],
+                "active": true,
+                "link": [
+                    {
+                        "id": "0eb5ae67-88de-41ac-aea1-970f5437b14f",
+                        "target": {
+                            "extension": [
+                                {
+                                    "id": "sourceId",
+                                    "url": "https://www.icanbwell.com/sourceId",
+                                    "valueString": "Patient/f3961f16-59b3-53c4-88be-f51171ca5d43"
+                                },
+                                {
+                                    "id": "uuid",
+                                    "url": "https://www.icanbwell.com/uuid",
+                                    "valueString": "Patient/f3961f16-59b3-53c4-88be-f51171ca5d43"
+                                },
+                                {
+                                    "id": "sourceAssigningAuthority",
+                                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                                    "valueString": "bwell_demo"
+                                }
+                            ],
+                            "reference": "Patient/f3961f16-59b3-53c4-88be-f51171ca5d43"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
     "resourceType": "Bundle",
     "meta": {
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Person_4_0_0.find({'$and':[{'link.target._sourceAssigningAuthority':'bwell_demo'},{'link.target._sourceId':'Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3'}]}, {}).sort({'id':1}).limit(100)"
+                "display": "db.Person_4_0_0.find({'link.target._uuid':'Patient/f3961f16-59b3-53c4-88be-f51171ca5d43'}, {}).sort({'id':1}).limit(100)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
@@ -17,11 +127,11 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryFields",
-                "display": "['link.target._sourceAssigningAuthority','link.target._sourceId','id']"
+                "display": "['link.target._uuid','id']"
             },
             {
                 "system": "https://www.icanbwell.com/queryTime",
-                "display": "15.935"
+                "display": "21.559"
             },
             {
                 "system": "https://www.icanbwell.com/queryOptimization",
@@ -33,21 +143,25 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryExplain",
-                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Person_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"link.target._sourceId\":{\"$eq\":\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\"}},\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"link.target._sourceId\":{\"$eq\":\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\"}},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[{\"stage\":\"SORT\",\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"link.target._sourceId\":1,\"_uuid\":1},\"indexName\":\"linkTarget_sourceId_uuid\",\"isMultiKey\":true,\"multiKeyPaths\":{\"link.target._sourceId\":[\"link\"],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"link.target._sourceId\":[\"[\\\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\\\", \\\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\\\"]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]}}}}]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"link.target._sourceId\":{\"$eq\":\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\"}},\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[{\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"link.target._sourceId\":{\"$eq\":\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\"}},\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}},{\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":0,\"totalDocsExamined\":0,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":0,\"usedDisk\":false,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":1,\"advanced\":0,\"needTime\":0,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":0,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":1,\"advanced\":0,\"needTime\":0,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"link.target._sourceId\":1,\"_uuid\":1},\"indexName\":\"linkTarget_sourceId_uuid\",\"isMultiKey\":true,\"multiKeyPaths\":{\"link.target._sourceId\":[\"link\"],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"link.target._sourceId\":[\"[\\\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\\\", \\\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\\\"]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":0,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}}]},\"command\":{\"find\":\"Person_4_0_0\",\"filter\":{\"link.target._sourceId\":\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\"},\"sort\":{\"id\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Darryls-MacBook-Pro.local\",\"port\":58931,\"version\":\"5.0.19\",\"gitVersion\":\"0736b66d8cf64847cbd71c5472b0d6f19b1f5daa\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7281720251224424481\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7281720251224424481\"}}]"
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Person_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"link.target._uuid\":{\"$eq\":\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\"}},\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"LIMIT\",\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"link.target._uuid\":{\"$eq\":\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\"}},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]}}}},\"rejectedPlans\":[{\"stage\":\"SORT\",\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"inputStage\":{\"stage\":\"FETCH\",\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"link.target._uuid\":1,\"_uuid\":1},\"indexName\":\"linkTarget_uuid_uuid\",\"isMultiKey\":true,\"multiKeyPaths\":{\"link.target._uuid\":[\"link\"],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"link.target._uuid\":[\"[\\\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\\\", \\\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\\\"]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]}}}}]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"link.target._uuid\":{\"$eq\":\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\"}},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}},\"allPlansExecution\":[{\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"limitAmount\":100,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"link.target._uuid\":{\"$eq\":\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\"}},\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"id\":1},\"indexName\":\"id_1\",\"isMultiKey\":false,\"multiKeyPaths\":{\"id\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"id\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}},{\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":2,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":0,\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":100,\"type\":\"simple\",\"totalDataSizeSorted\":2296,\"usedDisk\":false,\"inputStage\":{\"stage\":\"FETCH\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":1,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"link.target._uuid\":1,\"_uuid\":1},\"indexName\":\"linkTarget_uuid_uuid\",\"isMultiKey\":true,\"multiKeyPaths\":{\"link.target._uuid\":[\"link\"],\"_uuid\":[]},\"isUnique\":false,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"link.target._uuid\":[\"[\\\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\\\", \\\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\\\"]\"],\"_uuid\":[\"[MinKey, MaxKey]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":1,\"dupsDropped\":0}}}}]},\"command\":{\"find\":\"Person_4_0_0\",\"filter\":{\"link.target._uuid\":\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\"},\"sort\":{\"id\":1},\"limit\":100,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"Darryls-MacBook-Pro.local\",\"port\":54204,\"version\":\"5.0.19\",\"gitVersion\":\"0736b66d8cf64847cbd71c5472b0d6f19b1f5daa\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7285834503476477953\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7285834503476477953\"}}]"
             },
             {
                 "system": "https://www.icanbwell.com/queryExplainSimple",
-                "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"id_1\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"link.target._sourceId\":{\"$eq\":\"Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3\"}},\"docsExamined\":1,\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Person_4_0_0.find({'link.target._sourceId':'Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3'}, {}).sort({'id':1}).limit(100)\"}]"
+                "display": "[{\"step\":{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"id_1\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"link.target._uuid\":{\"$eq\":\"Patient/f3961f16-59b3-53c4-88be-f51171ca5d43\"}},\"docsExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"LIMIT\",\"nReturned\":1,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":1,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Person_4_0_0.find({'link.target._uuid':'Patient/f3961f16-59b3-53c4-88be-f51171ca5d43'}, {}).sort({'id':1}).limit(100)\"}]"
             }
         ]
     },
     "type": "searchset",
-    "timestamp": "2023-09-22T06:33:50.5050Z",
+    "timestamp": "2023-10-03T08:38:58.5858Z",
     "total": 0,
     "link": [
         {
             "relation": "self",
-            "url": "http://localhost:3000/4_0_0/Person/?_debug=1&patient=Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3"
+            "url": "http://localhost:3000/4_0_0/Person/?_debug=1&patient=Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3%7Cbwell_demo"
+        },
+        {
+            "relation": "next",
+            "url": "http://localhost:3000/4_0_0/Person/?_debug=1&patient=Patient%2FefrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3%7Cbwell_demo&id%3Aabove=a8f347f8-a803-4bfa-81a0-099681254292"
         }
     ]
 }

@@ -1,18 +1,17 @@
-const {assertTypeEquals} = require('../../../utils/assertType');
 const {BaseFilter} = require('./baseFilter');
 const {ReferenceParser} = require('../../../utils/referenceParser');
 const {groupByLambda} = require('../../../utils/list.util');
-const {ReferenceByUuidFinder} = require('../../../utils/referenceUuidFinder');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 /**
  * @classdesc Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
  */
 class FilterByReference extends BaseFilter {
-    constructor(filterParameters, referenceByUuidFinder) {
+    constructor(filterParameters) {
         super(filterParameters);
-        this.referenceByUuidFinder = referenceByUuidFinder;
-        assertTypeEquals(referenceByUuidFinder, ReferenceByUuidFinder);
+        // this.referenceByUuidFinder = referenceByUuidFinder;
+        // assertTypeEquals(referenceByUuidFinder, ReferenceByUuidFinder);
     }
 
     /**
@@ -42,21 +41,20 @@ class FilterByReference extends BaseFilter {
         }
     }
 
-    async buildUuids(sourceAssigningAuthority, references) {
+    buildUuids(sourceAssigningAuthority, references) {
         let uuids = [];
-        uuids.concat(references.flatMap(async (r) => {
-                const parsedRef = ReferenceParser.parseReference(r);
-                const {uuid} = await this.referenceByUuidFinder.getUuidForSourceIdAndSourceAssigningAuthorityAsync({
-                    resourceType: parsedRef.resourceType,
-                    sourceId: parsedRef.id,
-                    sourceAssigingAuthority: sourceAssigningAuthority
-                });
-                this.getReferences({
-                    targets: this.propertyObj.target,
-                    reference: `${parsedRef.resourceType}/${uuid}`
-                });
-            }
-        ));
+        if (sourceAssigningAuthority && sourceAssigningAuthority.length > 0) {
+            const newArray = references.flatMap( r => {
+                    const parsedRef = ReferenceParser.parseReference(r);
+                    const uuid = generateUUIDv5(`${parsedRef.id}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`);
+                    return this.getReferences({
+                        targets: this.propertyObj.target,
+                        reference: `${parsedRef.resourceType}/${uuid}`
+                    });
+                }
+            );
+            uuids = uuids.concat(newArray);
+        }
         return uuids;
     }
 
@@ -109,7 +107,7 @@ class FilterByReference extends BaseFilter {
         const idReferences = this.parsedArg.queryParameterValue.values.filter(r => !ReferenceParser.isUuidReference(r));
         if (idReferences.length > 0) {
             const idFilters = [];
-            const uuids = [];
+            let uuids = [];
             for (const field of this.propertyObj.fields) {
                 const idReferencesWithSourceAssigningAuthority = idReferences.filter(r => ReferenceParser.getSourceAssigningAuthority(r));
                 const idReferencesWithoutSourceAssigningAuthority = idReferences.filter(r => !ReferenceParser.getSourceAssigningAuthority(r));
@@ -119,56 +117,27 @@ class FilterByReference extends BaseFilter {
                         idReferencesWithSourceAssigningAuthority,
                         r => ReferenceParser.getSourceAssigningAuthority(r)
                     );
-//                    for await (
                     for (
                         const [sourceAssigningAuthority, references] of
                         Object.entries(idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups)
                     )
                     {
-//                        uuids.concat(await this.buildUuids(sourceAssigningAuthority, references));
-                        uuids.concat(this.buildUuids(sourceAssigningAuthority, references));
-                        // idFilters.push(
-                        //     {
-                        //         '$and': [
-                        //             {
-                        //                 [`${field}._sourceAssigningAuthority`]: sourceAssigningAuthority
-                        //             },
-                        //             {
-                        //                 [`${field}._sourceId`]: {
-                        //                     '$in': references.flatMap(
-                        //                         r => this.getReferences({
-                        //                             targets: this.propertyObj.target,
-                        //                             reference: r
-                        //                         })
-                        //                     )
-                        //                 }
-                        //             }
-                        //         ]
-                        //     }
-                        // );
+                        uuids = uuids.concat(this.buildUuids(sourceAssigningAuthority, references));
                     }
                 }
                 if (idReferencesWithoutSourceAssigningAuthority.length > 0) {
-//                    for await (
-                    for (
-                        const [references]
-                        of Object.entries(idReferencesWithoutSourceAssigningAuthority)
-                        ) {
-//                        uuids.concat(await this.buildUuids('', references));
-                        uuids.concat(this.buildUuids('', references));
-                        // idFilters.push(
-                        //     {
-                        //         [`${field}._sourceId`]: {
-                        //             '$in': idReferencesWithoutSourceAssigningAuthority.flatMap(
-                        //                 r => this.getReferences({
-                        //                     targets: this.propertyObj.target,
-                        //                     reference: r
-                        //                 })
-                        //             )
-                        //         }
-                        //     }
-                        // );
-                    }
+                    idFilters.push(
+                        {
+                            [`${field}._sourceId`]: {
+                                '$in': idReferencesWithoutSourceAssigningAuthority.flatMap(
+                                    r => this.getReferences({
+                                        targets: this.propertyObj.target,
+                                        reference: r
+                                    })
+                                )
+                            }
+                        }
+                    );
                 }
                 if (uuids.length > 0) {
                     idFilters.push(

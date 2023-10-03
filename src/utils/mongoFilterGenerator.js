@@ -68,29 +68,6 @@ class MongoFilterGenerator {
         let filter = {'_uuid': uuid.toString()};
         return filter;
     }
-
-    /**
-     * Returns a filter for use in searching by sourceid and sourceAssigningAuthority
-     * @param {string} sourceId
-     * @param {string} sourceAssigningAuthority
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-     */
-    generateFilterForSourceIdAndSourceAssigningAuthority({sourceId, sourceAssigningAuthority}) {
-        /**
-         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-         */
-        let filter = {'_sourceId': sourceId};
-        if (sourceAssigningAuthority && sourceAssigningAuthority.length > 0) {
-           filter = {
-                $and: [
-                    {'_sourceId': sourceId},
-                    {'_sourceAssigningAuthority': sourceAssigningAuthority}
-                ]
-            };
-        }
-        return filter;
-    }
-
 }
 
 module.exports = {
