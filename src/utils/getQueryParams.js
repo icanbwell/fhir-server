@@ -9,8 +9,8 @@ const getQueryParams = (url) => {
             result[String(key)] = true;
         } else if (value === 'false') {
             result[String(key)] = false;
-        } else if (parseInt(value)) {
-            result[String(key)] = parseInt(value);
+        } else if (value && !Number.isNaN(Number(value))) {
+            result[String(key)] = Number(value);
         } else {
             result[String(key)] = value;
         }
