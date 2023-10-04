@@ -12,6 +12,7 @@ const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogg
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {ConfigManager} = require('../utils/configManager');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const {ReadPreference} = require('mongodb');
 
 class DatabaseUpdateManager {
     /**
@@ -114,6 +115,8 @@ class DatabaseUpdateManager {
          */
         const docVersionsTested = [];
 
+        const findQueryOptions = { readPreference: ReadPreference.PRIMARY };
+
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
@@ -130,7 +133,7 @@ class DatabaseUpdateManager {
              * @type {Resource|null}
              */
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
-                query: {_uuid: doc._uuid}
+                query: {_uuid: doc._uuid}, findQueryOptions
             });
             await logTraceSystemEventAsync(
                 {
@@ -197,7 +200,7 @@ class DatabaseUpdateManager {
                      * @type {Resource|null}
                      */
                     resourceInDatabase = await databaseQueryManager.findOneAsync({
-                        query: {_uuid: doc._uuid}
+                        query: {_uuid: doc._uuid}, findQueryOptions
                     });
 
                     if (resourceInDatabase !== null) {
