@@ -274,6 +274,7 @@ const createContainer = function () {
     container.register('personToPatientIdsExpander', (c) => new PersonToPatientIdsExpander({
         databaseQueryFactory: c.databaseQueryFactory
     }));
+
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
             new PatientProxyQueryRewriter({

@@ -10,8 +10,6 @@ const { generateUUIDv5 } = require('../../../utils/uid.util');
 class FilterByReference extends BaseFilter {
     constructor(filterParameters) {
         super(filterParameters);
-        // this.referenceByUuidFinder = referenceByUuidFinder;
-        // assertTypeEquals(referenceByUuidFinder, ReferenceByUuidFinder);
     }
 
     /**
