@@ -129,6 +129,15 @@ class ResourcePreparerTransform extends Transform {
                 callback();
             });
         } catch (e) {
+            logError(`ResourcePreparer _transform: error: ${e.message || e}. id: ${chunk.id}`, {
+                error: e,
+                source: 'ResourcePreparer._transform',
+                args: {
+                    id: chunk.id,
+                    stack: e?.stack,
+                    message: e.message,
+                },
+            });
             const error = new RethrownError(
                 {
                     message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
@@ -139,6 +148,8 @@ class ResourcePreparerTransform extends Transform {
                     }
                 }
             );
+
+            captureSentryException(error);
             /**
              * @type {OperationOutcome}
              */

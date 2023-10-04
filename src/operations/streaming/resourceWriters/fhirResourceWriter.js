@@ -3,7 +3,8 @@ const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
+const { captureSentryException } = require('../../common/sentry');
 
 class FhirResourceWriter extends FhirResourceWriterBase {
     /**
@@ -63,6 +64,17 @@ class FhirResourceWriter extends FhirResourceWriterBase {
                 }
             }
         } catch (e) {
+            logError(`FhirResourceWriter _transform: error: ${e.message}`, {
+                error: e,
+                source: 'FhirResourceWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                    encoding,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureSentryException(e);
             // don't let error past this since we're streaming so we can't send errors to http client
             const operationOutcome = convertErrorToOperationOutcome({error: e});
             this.writeOperationOutcome({operationOutcome, encoding});

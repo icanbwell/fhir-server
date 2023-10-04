@@ -1,9 +1,10 @@
 const {Readable} = require('stream');
-const {logInfo} = require('../common/logging');
+const {logInfo, logError} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const { captureSentryException } = require('../common/sentry');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -110,7 +111,17 @@ class MongoReadableStream extends Readable {
                     return;
                 }
             } catch (e) {
-                const error = new RethrownError({messsage: e.messsage, error: e, args: {}, source: 'readAsync'});
+                const error = new RethrownError({message: e.message, error: e, args: {}, source: 'readAsync'});
+                logError(`MongoReadableStream readAsync: error: ${e.message}`, {
+                    error: e,
+                    source: 'MongoReadableStream.readAsync',
+                    args: {
+                        stack: e?.stack,
+                        message: e.message,
+                    }
+                });
+                // send the error to sentry
+                captureSentryException(error);
                 /**
                  * @type {OperationOutcome}
                  */

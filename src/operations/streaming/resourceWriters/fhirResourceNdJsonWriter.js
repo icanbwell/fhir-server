@@ -1,9 +1,10 @@
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
+const { captureSentryException } = require('../../common/sentry');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
@@ -51,6 +52,16 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
+            logError(`FhirResourceNdJsonWriter _transform: error: ${e.message}`, {
+                error: e,
+                source: 'FhirResourceNdJsonWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureSentryException(e);
             const operationOutcome = convertErrorToOperationOutcome({error: e});
             this.writeOperationOutcome({operationOutcome, encoding});
         }

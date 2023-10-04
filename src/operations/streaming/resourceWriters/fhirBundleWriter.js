@@ -4,9 +4,10 @@ const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
 const {RethrownError} = require('../../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
+const { captureSentryException } = require('../../common/sentry');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -112,6 +113,19 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     }
                 }
             );
+            logError(`FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`, {
+                error: e,
+                source: 'FhirBundleWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                    chunkId,
+                    encoding,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureSentryException(error);
+
             this.writeErrorAsOperationOutcome({error});
             callback();
         }
@@ -181,6 +195,16 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     args: {}
                 }
             );
+            logError(`FhirBundleWriter _flush: error: ${e.message}`, {
+                error: e,
+                source: 'FhirBundleWriter._flush',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureSentryException(error);
             this.writeErrorAsOperationOutcome({error});
             this.push(']}');
         }
