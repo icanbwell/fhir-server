@@ -4,6 +4,8 @@ const person1Resource = require('./fixtures/Person/person1.json');
 
 // expected
 const expectedPerson = require('./fixtures/expected/expected_person.json');
+const expectedNotFound1 = require('./fixtures/expected/expected_not_found1.json');
+const expectedNotFound2 = require('./fixtures/expected/expected_not_found2.json');
 
 const {
     commonBeforeEach,
@@ -38,7 +40,7 @@ describe('Observation Tests', () => {
     });
 
     describe('Person search_by_patient_with_source_id Tests', () => {
-        test('search_by_patient_with_source_id returns person', async () => {
+        test('search_by_patient_with_source_id_and_authority returns person', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -73,6 +75,78 @@ describe('Observation Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson);
+        });
+        test('search_by_patient_with_source_id and different authority does not return person', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
+            const container = getTestContainer();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+
+            resp = await request
+                .get('/4_0_0/Person/?_debug=1&patient=Patient/efrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3|bwell_dummy')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNotFound1);
+        });
+        test('search_by_patient_with_diff_source_id and authority does not return person', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
+            const container = getTestContainer();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+
+            resp = await request
+                .get('/4_0_0/Person/?_debug=1&patient=Patient/XfrGiFXEMyusEsK8nw9.g3bbt9oqmQ-HeGPcnrfUYS0s3|bwell_demo')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNotFound2);
         });
     });
 });
