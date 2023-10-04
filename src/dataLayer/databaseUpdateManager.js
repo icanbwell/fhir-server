@@ -115,7 +115,7 @@ class DatabaseUpdateManager {
          */
         const docVersionsTested = [];
 
-        const options = { readPreference: ReadPreference.PRIMARY };
+        const findQueryOptions = { readPreference: ReadPreference.PRIMARY };
 
         try {
             /**
@@ -133,7 +133,7 @@ class DatabaseUpdateManager {
              * @type {Resource|null}
              */
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
-                query: {_uuid: doc._uuid}, options
+                query: {_uuid: doc._uuid}, findQueryOptions
             });
             await logTraceSystemEventAsync(
                 {
@@ -200,7 +200,7 @@ class DatabaseUpdateManager {
                      * @type {Resource|null}
                      */
                     resourceInDatabase = await databaseQueryManager.findOneAsync({
-                        query: {_uuid: doc._uuid}, options
+                        query: {_uuid: doc._uuid}, findQueryOptions
                     });
 
                     if (resourceInDatabase !== null) {
