@@ -292,6 +292,25 @@ class FhirOperationsManager {
     }
 
     /**
+     * Parse arguments
+     * Doesn't expand proxy-patient id passed in params.
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {Object|undefined} [headers]
+     * @return {Promise<ParsedArgs>}
+     */
+    async getParsedArgsWithoutProxyExpanderAsync({args, resourceType, headers}) {
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        if (headers) {
+            parsedArgs.headers = headers;
+        }
+        return parsedArgs;
+    }
+
+    /**
      * does a FHIR Search
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
@@ -424,7 +443,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
+        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
             args: combined_args, resourceType, headers: req.headers
         });
 
@@ -453,7 +472,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
+        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
                 args: combined_args, resourceType, headers: req.headers
             }
         );
@@ -482,7 +501,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
+        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
                 args: combined_args, resourceType, headers: req.headers
             }
         );
@@ -585,7 +604,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
+        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
                 args: combined_args, resourceType, headers: req.headers
             }
         );
@@ -613,7 +632,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
+        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
                 args: combined_args, resourceType, headers: req.headers
             }
         );
@@ -730,7 +749,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({
+        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
                 args: combined_args, resourceType, headers: req.headers
             }
         );

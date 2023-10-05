@@ -165,7 +165,7 @@ module.exports = {
                 const container = context.container;
                 assertIsValid(container, 'container is not defined');
                 const deletePractitioner = args.remove;
-                const patients = await context.dataApi.getResources(
+                const patients = await context.dataApi.getResourcesForMutation(
                     parent,
                     {
                         ...args,

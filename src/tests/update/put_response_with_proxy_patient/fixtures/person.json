@@ -1,0 +1,37 @@
+{
+  "resourceType": "Person",
+  "id": "4f28941f-24af-4e81-89b7-d0bdd627626d",
+  "meta": {
+    "source": "http://healthsystem1health.org/provider",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "northwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "northwell"
+      }
+    ]
+  },
+  "birthDate": "2017-01-01",
+  "gender": "male",
+  "name": [
+    {
+      "use": "usual",
+      "text": "t",
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "prefix": [],
+      "suffix": []
+    }
+  ],
+  "link": {
+    "target": {
+      "reference": "Patient/patient1|northwell"
+    },
+    "assurance": "level3"
+  }
+}
