@@ -8,6 +8,10 @@ const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const { createTerminus } = require('@godaddy/terminus');
+/**
+ * To use uncaught error handlers, we need to import the file
+ */
+require('./middleware/errorHandler');
 
 /**
  * Creates the http server

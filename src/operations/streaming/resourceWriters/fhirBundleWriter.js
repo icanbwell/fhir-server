@@ -4,9 +4,10 @@ const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
 const {RethrownError} = require('../../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
+const { captureException } = require('../../common/sentry');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -112,7 +113,20 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     }
                 }
             );
-            this.writeErrorAsOperationOutcome({error});
+            logError(`FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`, {
+                error: e,
+                source: 'FhirBundleWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                    chunkId,
+                    encoding,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureException(error);
+
+            this.writeErrorAsOperationOutcome({error: {...error, message: `Error occurred while streaming response for chunk: ${chunkId}`}});
             callback();
         }
     }
@@ -127,7 +141,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @type {OperationOutcome}
          */
         const operationOutcome = convertErrorToOperationOutcome({
-            error: error
+            error: error,
         });
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
@@ -181,7 +195,17 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     args: {}
                 }
             );
-            this.writeErrorAsOperationOutcome({error});
+            logError(`FhirBundleWriter _flush: error: ${e.message}`, {
+                error: e,
+                source: 'FhirBundleWriter._flush',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureException(error);
+            this.writeErrorAsOperationOutcome({error: {...error, message: 'Error occurred while streaming response'}});
             this.push(']}');
         }
         this.push(null);
