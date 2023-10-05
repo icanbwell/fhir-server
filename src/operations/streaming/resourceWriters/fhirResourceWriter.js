@@ -4,7 +4,7 @@ const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
 const {logInfo, logError} = require('../../common/logging');
-const { captureSentryException } = require('../../common/sentry');
+const { captureException } = require('../../common/sentry');
 
 class FhirResourceWriter extends FhirResourceWriterBase {
     /**
@@ -74,9 +74,9 @@ class FhirResourceWriter extends FhirResourceWriterBase {
                 }
             });
             // as we are not propagating this error, send this to sentry
-            captureSentryException(e);
+            captureException(e);
             // don't let error past this since we're streaming so we can't send errors to http client
-            const operationOutcome = convertErrorToOperationOutcome({error: e});
+            const operationOutcome = convertErrorToOperationOutcome({error: {...e, message: `Error occurred while streaming response for chunk: ${chunk?.id}`}});
             this.writeOperationOutcome({operationOutcome, encoding});
         }
         callback();

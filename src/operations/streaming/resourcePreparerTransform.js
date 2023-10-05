@@ -4,7 +4,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
-const { captureSentryException } = require('../common/sentry');
+const { captureException } = require('../common/sentry');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -92,35 +92,38 @@ class ResourcePreparerTransform extends Transform {
                     } catch (error) {
                         logError(
                             `ResourcePreparer _transform: error: ${error.message || error}. id: ${
-                                chunk.id
+                                chunk1.id
                             }`,
                             {
                                 error: error,
                                 source: 'ResourcePreparer._transform',
                                 args: {
-                                    id: chunk.id,
+                                    id: chunk1.id,
                                     stack: error?.stack,
                                     message: error.message,
                                 },
                             }
                         );
                         const rethrownError = new RethrownError({
-                            message: `ResourcePreparer _transform: error: ${error.message}. id: ${chunk.id}`,
+                            message: `ResourcePreparer _transform: error: ${error.message}. id: ${chunk1.id}`,
                             args: {
-                                id: chunk.id,
-                                chunk: chunk,
+                                id: chunk1.id,
+                                chunk: chunk1,
                                 reason: error,
                                 message: error?.message,
                                 stack: error?.stack,
                             },
                             error: error,
                         });
-                        captureSentryException(rethrownError);
+                        captureException(rethrownError);
                         /**
                          * @type {OperationOutcome}
                          */
                         const operationOutcome = convertErrorToOperationOutcome({
-                            error: rethrownError,
+                            error: {
+                                ...rethrownError,
+                                message: `Error occurred while streaming response for chunk: ${chunk1.id}`
+                            },
                         });
                         this.push(operationOutcome);
                     }
@@ -148,12 +151,14 @@ class ResourcePreparerTransform extends Transform {
                 },
             });
 
-            captureSentryException(error);
+            captureException(error);
             /**
              * @type {OperationOutcome}
              */
             const operationOutcome = convertErrorToOperationOutcome({
-                error: error,
+                error: {
+                    ...error, message: `Error occurred while streaming response for chunk: ${chunk.id}`
+                },
             });
             this.push(operationOutcome);
             callback();

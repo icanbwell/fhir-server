@@ -4,7 +4,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
-const { captureSentryException } = require('../common/sentry');
+const { captureException } = require('../common/sentry');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -121,12 +121,15 @@ class MongoReadableStream extends Readable {
                     }
                 });
                 // send the error to sentry
-                captureSentryException(error);
+                captureException(error);
                 /**
                  * @type {OperationOutcome}
                  */
                 const operationOutcome = convertErrorToOperationOutcome({
-                    error: error
+                    error: {
+                        ...error,
+                        message: 'Error occurred while streaming response',
+                    }
                 });
                 this.push(operationOutcome);
                 return;

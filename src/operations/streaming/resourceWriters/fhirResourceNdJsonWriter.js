@@ -4,7 +4,7 @@ const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
-const { captureSentryException } = require('../../common/sentry');
+const { captureException } = require('../../common/sentry');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
@@ -61,8 +61,8 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 }
             });
             // as we are not propagating this error, send this to sentry
-            captureSentryException(e);
-            const operationOutcome = convertErrorToOperationOutcome({error: e});
+            captureException(e);
+            const operationOutcome = convertErrorToOperationOutcome({error: {...e, message: `Error occurred while streaming response for chunk: ${chunk?.id}`}});
             this.writeOperationOutcome({operationOutcome, encoding});
         }
         callback();
