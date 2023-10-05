@@ -84,28 +84,28 @@ class ResourcePreparerTransform extends Transform {
         try {
             const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-            /**
-             * @type {Promise<Resource[]>[]}
-             */
-            const promises = chunks.map(chunk1 =>
-                this.processChunkAsync(chunk1)
-            );
-
             const processChunksAsync = async () => {
-                try {
-                    await Promise.all(promises);
-                } catch (error) {
-                    logError(`ResourcePreparer _transform: error: ${error.message || error}. id: ${chunk.id}`, {
-                        error: error,
-                        source: 'ResourcePreparer._transform',
-                        args: {
-                            id: chunk.id,
-                            stack: error?.stack,
-                            message: error.message,
-                        },
-                    });
-                    const rethrownError = new RethrownError({
-                        message: `ResourcePreparer _transform: error: ${error.message}. id: ${chunk.id}`,
+                // process serially to maintain the order
+                for (const chunk1 of chunks) {
+                    try {
+                        await this.processChunkAsync(chunk1);
+                    } catch (error) {
+                        logError(
+                            `ResourcePreparer _transform: error: ${error.message || error}. id: ${
+                                chunk.id
+                            }`,
+                            {
+                                error: error,
+                                source: 'ResourcePreparer._transform',
+                                args: {
+                                    id: chunk.id,
+                                    stack: error?.stack,
+                                    message: error.message,
+                                },
+                            }
+                        );
+                        const rethrownError = new RethrownError({
+                            message: `ResourcePreparer _transform: error: ${error.message}. id: ${chunk.id}`,
                             args: {
                                 id: chunk.id,
                                 chunk: chunk,
@@ -113,16 +113,17 @@ class ResourcePreparerTransform extends Transform {
                                 message: error?.message,
                                 stack: error?.stack,
                             },
-                            error: error
-                    });
-                    captureSentryException(rethrownError);
-                    /**
-                     * @type {OperationOutcome}
-                     */
-                    const operationOutcome = convertErrorToOperationOutcome({
-                        error: rethrownError,
-                    });
-                    this.push(operationOutcome);
+                            error: error,
+                        });
+                        captureSentryException(rethrownError);
+                        /**
+                         * @type {OperationOutcome}
+                         */
+                        const operationOutcome = convertErrorToOperationOutcome({
+                            error: rethrownError,
+                        });
+                        this.push(operationOutcome);
+                    }
                 }
             };
             processChunksAsync().finally(() => {
@@ -138,23 +139,21 @@ class ResourcePreparerTransform extends Transform {
                     message: e.message,
                 },
             });
-            const error = new RethrownError(
-                {
-                    message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
-                    error: e,
-                    args: {
-                        id: chunk.id,
-                        chunk: chunk
-                    }
-                }
-            );
+            const error = new RethrownError({
+                message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
+                error: e,
+                args: {
+                    id: chunk.id,
+                    chunk: chunk,
+                },
+            });
 
             captureSentryException(error);
             /**
              * @type {OperationOutcome}
              */
             const operationOutcome = convertErrorToOperationOutcome({
-                error: error
+                error: error,
             });
             this.push(operationOutcome);
             callback();
