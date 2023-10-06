@@ -211,14 +211,7 @@ describe('r4 search Tests', () => {
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$and': [
-                    {
-                        'subject._sourceAssigningAuthority': 'abc'
-                    },
-                    {
-                        'subject._sourceId': 'Patient/1234'
-                    }
-                ]
+                'subject._uuid': 'Patient/fb37c777-bfde-548e-8500-497f17e31499',
             });
         });
     });
@@ -461,21 +454,16 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
-            expect(result.query).toStrictEqual({
-                '$and': [
+            expect(result.query).toStrictEqual(
                     {
-                        'subject._sourceAssigningAuthority': 'medstar'
-                    },
-                    {
-                        'subject._sourceId': {
+                        'subject._uuid': {
                             '$in': [
-                                'Patient/123',
-                                'Group/456'
+                                'Patient/75410ead-86b3-5f2c-8759-493356176560',
+                                'Group/9c3b9963-2e16-55de-a993-c3de1103d0a8',
                             ]
                         }
                     }
-                ]
-            });
+            );
         });
         test('multiple id reference without resourceType and with different sourceAssigningAuthority', async () => {
             await createTestRequest((container) => {
@@ -573,28 +561,12 @@ describe('r4 search Tests', () => {
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
-                            },
-                            {
-                                'subject._sourceId': 'Patient/123'
-                            }
-                        ]
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': 'Group/456'
-                            }
-                        ]
-                    }
-                ]
+                'subject._uuid': {
+                    '$in': [
+                        'Patient/73e3235f-e3cd-586f-85a6-9872386b672c',
+                        'Group/ae3669df-9cc5-5f76-a94e-17097b323c8a',
+                    ]
+                }
             });
         });
         test('multiple id reference without resourceType and with same & different sourceAssigningAuthority', async () => {
@@ -695,33 +667,13 @@ describe('r4 search Tests', () => {
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
-                            },
-                            {
-                                'subject._sourceId': 'Patient/123'
-                            }
-                        ]
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Group/456',
-                                        'Patient/789'
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                ]
+                'subject._uuid': {
+                    '$in': [
+                        'Patient/73e3235f-e3cd-586f-85a6-9872386b672c',
+                        'Group/ae3669df-9cc5-5f76-a94e-17097b323c8a',
+                        'Patient/8da4bf65-d7e4-50c7-a0b0-13572a1ddaee',
+                    ]
+                }
             });
         });
     });
@@ -907,21 +859,12 @@ describe('r4 search Tests', () => {
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
             expect(result.query).toStrictEqual({
-                '$or': [
-                    {
-                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'medstar'
-                            },
-                            {
-                                'subject._sourceId': 'Patient/123'
-                            }
+                'subject._uuid': {
+                    '$in': [
+                        'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                        'Patient/75410ead-86b3-5f2c-8759-493356176560',
                         ]
-                    }
-                ]
+                }
             });
         });
         test('multiple id reference without resourceType and with same & different sourceAssigningAuthority', async () => {
@@ -1031,34 +974,14 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual({
                 '$or': [
-                    {
-                        'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem1'
-                            },
-                            {
-                                'subject._sourceId': 'Patient/123'
-                            }
-                        ]
-                    },
-                    {
-                        '$and': [
-                            {
-                                'subject._sourceAssigningAuthority': 'healthsystem2'
-                            },
-                            {
-                                'subject._sourceId': {
-                                    '$in': [
-                                        'Group/456',
-                                        'Patient/789'
-                                    ]
-                                }
-                            }
-                        ]
-                    }
+                    {'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',},
+                    {'subject._uuid': {
+                   '$in': [
+                       'Patient/73e3235f-e3cd-586f-85a6-9872386b672c',
+                       'Group/ae3669df-9cc5-5f76-a94e-17097b323c8a',
+                       'Patient/8da4bf65-d7e4-50c7-a0b0-13572a1ddaee',
+                   ]
+                 }}
                 ]
             });
         });

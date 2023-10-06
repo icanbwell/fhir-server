@@ -120,7 +120,33 @@ class FilterByReference extends BaseFilter {
                         Object.entries(idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups)
                     )
                     {
-                        uuids = uuids.concat(this.buildUuids(sourceAssigningAuthority, references));
+                        const refWithoutResourceType = references.filter( r => !ReferenceParser.getResourceType(r));
+                        if (refWithoutResourceType.length > 0) {
+                            idFilters.push(
+                                {
+                                    '$and': [
+                                        {
+                                            [`${field}._sourceAssigningAuthority`]: sourceAssigningAuthority
+                                        },
+                                        {
+                                            [`${field}._sourceId`]: {
+                                                '$in': refWithoutResourceType.flatMap(
+                                                    r => this.getReferences({
+                                                        targets: this.propertyObj.target,
+                                                        reference: r
+                                                    })
+                                                )
+                                            }
+                                        }
+                                    ]
+                                }
+                            );
+                        }
+
+                        const refWithResourceType = references.filter( r => ReferenceParser.getResourceType(r));
+                        if (refWithResourceType.length > 0) {
+                            uuids = uuids.concat(this.buildUuids(sourceAssigningAuthority, refWithResourceType));
+                        }
                     }
                 }
                 if (idReferencesWithoutSourceAssigningAuthority.length > 0) {
