@@ -22,13 +22,19 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
      * gets stats for a collection
      * @param {string} collection_name
      * @param {import('mongodb').Db} db
-     * @return {Promise<{name, count: *}>}
+     * @return {Promise<{name, count: number, indexes: Omit<IndexInfo, 'v'>[]}>}
      */
     async function getStatsForCollectionAsync(collection_name, db) {
         logInfo(collection_name, {});
         const count = await db.collection(collection_name).estimatedDocumentCount();
+        /**
+         * @typedef {{ key: {[keyName: string]: number; v: number}; name: string}} IndexInfo
+         * @type {IndexInfo[]}
+         */
+        const indexes = await db.collection(collection_name).indexes();
+        logInfo(['Fetched index for collection: ', collection_name].join(''), { indexes });
         logInfo(['Found: ', count, ' documents in ', collection_name].join(''), {});
-        return {name: collection_name, count: count};
+        return {name: collection_name, count: count, indexes: indexes.map((i) => ({ key: i.key, name: i.name }))};
     }
 
     const container = fnGetContainer();
@@ -51,7 +57,6 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
         }
 
         collection_names = collection_names.sort((a, b) => a.localeCompare(b));
-
         logInfo(`Collection_names: ${collection_names}`, {});
         const collection_stats = await async.map(
             collection_names,

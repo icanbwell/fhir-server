@@ -11,6 +11,13 @@ const {
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
+const { ConfigManager } = require('../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableStatsEndpoint() {
+        return true;
+    }
+}
 
 describe('Stats Tests', () => {
     let requestId;
@@ -28,7 +35,9 @@ describe('Stats Tests', () => {
     describe('Stats Tests', () => {
         test('stats works', async () => {
 
-            const request = await createTestRequest();
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+            });
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
 
             // noinspection JSUnresolvedFunction
@@ -63,8 +72,21 @@ describe('Stats Tests', () => {
                 .get('/stats')
                 .set(getHeaders());
 
+            const spyFn = jest.fn();
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedStats1Resource);
+            expect(resp).toHaveResponse(expectedStats1Resource, (response) => {
+                response?.collections.forEach((c) => {
+                    // indexes can be added or removed, so delete it from expected output
+                    if (c.indexes && Array.isArray(c.indexes)) {
+                        spyFn();
+                    }
+                    delete c.indexes;
+                });
+                return response;
+            });
+
+            // if index is coming then it should be called atleast once
+            expect(spyFn).toHaveBeenCalled();
         });
     });
 });
