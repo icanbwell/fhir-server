@@ -501,6 +501,18 @@ class ConfigManager {
     get requestTimeoutMs() {
         return (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
     }
+
+    /**
+     * whether to enable stats endpoint
+     * @returns {boolean}
+     */
+    get enableStatsEndpoint() {
+        if (env.ENABLE_STATS_ENDPOINT === null || env.ENABLE_STATS_ENDPOINT === undefined) {
+            return false;
+        }
+
+        return isTrue(env.ENABLE_STATS_ENDPOINT);
+    }
 }
 
 module.exports = {

@@ -98,6 +98,9 @@ function createApp({fnGetContainer, trackMetrics}) {
      * @type {SimpleContainer}
      */
     const container = fnGetContainer();
+    /**
+     * @type {import('./utils/configManager').ConfigManager}
+     */
     const configManager = container.configManager;
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
@@ -248,9 +251,11 @@ function createApp({fnGetContainer, trackMetrics}) {
         {fnGetContainer, req, res}
     ));
 
-    app.get('/stats', (req, res) => handleStats(
+    if (configManager.enableStatsEndpoint) {
+        app.get('/stats', (req, res) => handleStats(
         {fnGetContainer, req, res}
-    ));
+        ));
+    }
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration);
 
