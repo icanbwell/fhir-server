@@ -8,16 +8,16 @@ const {
     PeriodicExportingMetricReader,
     ConsoleMetricExporter,
 } = require('@opentelemetry/sdk-metrics');
+const { initialize, getLogger } = require('./winstonInit');
 
-class TracerExporter extends ConsoleSpanExporter {
-    _exportInfo(span) {
-        return JSON.stringify(super._exportInfo(span));
-    }
-}
+initialize();
+const logger = getLogger();
+
+console.dir = (data) => logger.info(data);
 
 const sdk = new NodeSDK({
     resource: new Resource(),
-    traceExporter: new TracerExporter(),
+    traceExporter: new ConsoleSpanExporter(),
     metricReader: new PeriodicExportingMetricReader({
         exporter: new ConsoleMetricExporter(),
     }),
