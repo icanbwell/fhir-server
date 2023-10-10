@@ -9,9 +9,15 @@ const {
     ConsoleMetricExporter,
 } = require('@opentelemetry/sdk-metrics');
 
+class TracerExporter extends ConsoleSpanExporter {
+    _exportInfo(span) {
+        return JSON.stringify(super._exportInfo(span));
+    }
+}
+
 const sdk = new NodeSDK({
     resource: new Resource(),
-    traceExporter: new ConsoleSpanExporter(),
+    traceExporter: new TracerExporter(),
     metricReader: new PeriodicExportingMetricReader({
         exporter: new ConsoleMetricExporter(),
     }),
