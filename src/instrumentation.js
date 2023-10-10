@@ -8,6 +8,12 @@ const {
     PeriodicExportingMetricReader,
     ConsoleMetricExporter,
 } = require('@opentelemetry/sdk-metrics');
+const { initialize, getLogger } = require('./winstonInit');
+
+initialize();
+const logger = getLogger();
+
+console.dir = (data) => logger.info(data);
 
 const sdk = new NodeSDK({
     resource: new Resource(),
