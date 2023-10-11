@@ -140,7 +140,7 @@
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['id']"
+        "display": "['for._uuid','id']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime"

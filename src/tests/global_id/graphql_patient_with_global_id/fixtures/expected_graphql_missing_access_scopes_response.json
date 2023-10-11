@@ -15,7 +15,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[['id']]",
+        "display": "[['meta.security.system','meta.security.code','id']]",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
