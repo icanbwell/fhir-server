@@ -1,25 +1,17 @@
 'use strict';
 
-const { NodeSDK } = require('@opentelemetry/sdk-node');
-const { ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-base');
+const opentelemetry = require('@opentelemetry/sdk-node');
+const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-grpc');
+const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-grpc');
 const { Resource } = require('@opentelemetry/resources');
 const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const {
-    PeriodicExportingMetricReader,
-    ConsoleMetricExporter,
-} = require('@opentelemetry/sdk-metrics');
-const { initialize, getLogger } = require('./winstonInit');
+const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
 
-initialize();
-const logger = getLogger();
-
-console.dir = (data) => logger.info(data);
-
-const sdk = new NodeSDK({
+const sdk = new opentelemetry.NodeSDK({
     resource: new Resource(),
-    traceExporter: new ConsoleSpanExporter(),
+    traceExporter: new OTLPTraceExporter(),
     metricReader: new PeriodicExportingMetricReader({
-        exporter: new ConsoleMetricExporter(),
+        exporter: new OTLPMetricExporter(),
     }),
     instrumentations: [getNodeAutoInstrumentations()],
 });
