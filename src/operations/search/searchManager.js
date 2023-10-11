@@ -30,6 +30,7 @@ const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirRe
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 const {ConsentManager} = require('../search/consentManger');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
 class SearchManager {
     /**
@@ -194,7 +195,10 @@ class SearchManager {
              * @type {Set}
              */
             let columns;
-
+            /**
+             * @type {boolean}
+             */
+            let shouldUpdateColumns = false;
             // eslint-disable-next-line no-useless-catch
             ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
                 base_version,
@@ -205,6 +209,7 @@ class SearchManager {
 
             // JWT has access tag in scope i.e API call from a specific client
             if (securityTags && securityTags.length > 0) {
+                shouldUpdateColumns = true;
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
@@ -223,6 +228,7 @@ class SearchManager {
                 }
             }
             if (hasPatientScope) {
+                shouldUpdateColumns = true;
                 /**
                  * @type {string[]}
                  */
@@ -255,6 +261,11 @@ class SearchManager {
                         }
                     );
                 }
+            }
+
+            if (shouldUpdateColumns) {
+                // update the columns set
+                columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
             }
 
             ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
@@ -487,12 +498,14 @@ class SearchManager {
                 {
                     query, extraInfo
                 });
+            const indexName = parsedArgs['_setIndexHint'];
             const __ret = this.setIndexHint(
                 {
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
                     columns,
                     cursor,
-                    user
+                    user,
+                    indexName,
                 }
             );
             indexHint = __ret.indexHint;
@@ -619,7 +632,6 @@ class SearchManager {
             const projection = {};
             for (const property of properties_to_return_list) {
                 projection[`${property}`] = 1;
-                columns.add(property);
             }
             // this is a hack for the CQL Evaluator since it does not request these fields but expects them
             if (resourceType === 'Library') {
@@ -903,6 +915,7 @@ class SearchManager {
      * @param {Set} columns
      * @param {DatabasePartitionedCursor} cursor
      * @param {string | null} user
+     * @param {string | undefined} indexName
      * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
      */
     setIndexHint(
@@ -910,11 +923,12 @@ class SearchManager {
             mongoCollectionName,
             columns,
             cursor,
-            user
+            user,
+            indexName
         }
     ) {
         let _cursor = cursor;
-        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
+        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
         if (indexHint) {
             _cursor = _cursor.hint({indexHint});
             logDebug(
