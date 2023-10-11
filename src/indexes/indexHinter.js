@@ -52,7 +52,7 @@ class IndexHinter {
      * @return {string|null}
      */
     findIndexForFields(collectionName, fields, indexName) {
-        const isIndexName = indexName && indexName !== 'true';
+        const isIndexName = indexName && indexName !== 'true' && indexName !== '1';
 
         if (!fields || fields.length === 0) {
             return null;
