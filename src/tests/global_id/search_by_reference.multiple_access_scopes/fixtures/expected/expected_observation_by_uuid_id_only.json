@@ -103,7 +103,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['subject._uuid','id']",
+        "display": "['subject._uuid','meta.security.system','meta.security.code','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
