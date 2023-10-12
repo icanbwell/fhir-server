@@ -1,0 +1,154 @@
+{
+    "resourceType": "Observation",
+    "id": "2",
+    "meta": {
+        "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+        "extension": [
+            {
+                "id": "2011-10-05T14:48:00.000Z",
+                "url": "someurl",
+                "valueCodeableConcept": {
+                    "id": "2011-10-05T14:48:00.000Z",
+                    "coding": [
+                        {
+                            "system": "foo://example.com:8042/over/there?name=ferret#",
+                            "code": "code-1",
+                            "display": "some-display"
+                        }
+                    ],
+                    "text": "some-text"
+                }
+            }
+        ],
+        "versionId": "1",
+        "source": "https://www.icanbwell.com",
+        "profile": ["some-profile"],
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "proa"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "proa"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
+            }
+        ]
+    },
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"f003\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;f003&quot; </p></div><p><b>identifier</b>: <span title=\"    urn:oid:2.16.840.1.113883.4.642.1.7    &amp;#10;    2.16.840.1.113883.4.642.1.118    \">id: 6325 (use: OFFICIAL)</span></p><p><b>status</b>: final</p><p><b>code</b>: Carbon dioxide in blood <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#11557-6)</span></p><p><b>subject</b>: <a href=\"patient-example-f001-pieter.html\">Patient/f001: P. van de Heuvel</a> &quot;Pieter VAN DE HEUVEL&quot;</p><p><b>effective</b>: 2013-04-02T10:30:10+01:00</p><p><b>issued</b>: 4 Apr 2013, 1:30:10 am</p><p><b>performer</b>: <a href=\"practitioner-example-f005-al.html\">Practitioner/f005: A. Langeveld</a> &quot;Langeveld ANNE&quot;</p><p><b>value</b>: 6.2 kPa<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code kPa = 'kPa')</span></p><p><b>interpretation</b>: High <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.1.0/CodeSystem-v3-ObservationInterpretation.html\">ObservationInterpretation</a>#H)</span></p><h3>ReferenceRanges</h3><table class=\"grid\"><tr><td>-</td><td><b>Low</b></td><td><b>High</b></td></tr><tr><td>*</td><td>4.8 kPa<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code kPa = 'kPa')</span></td><td>6.0 kPa<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code kPa = 'kPa')</span></td></tr></table></div>"
+    },
+    "status": "unknown",
+    "code": {
+        "coding": [
+            {
+                "system": "URN:OID:2.16.840.1.113883.6.96",
+                "code": "11557-6",
+                "display": "Carbon dioxide in blood"
+            }
+        ]
+    },
+    "subject": {
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Patient/f001"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Patient/88ca407b-0b98-59af-b4e9-d20e9cc055ef"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+            }
+        ],
+        "reference": "Patient/f001",
+        "display": "P. van de Heuvel"
+    },
+    "encounter": {
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Encounter/9d6d20a7-c8f1-408f-beec-ae046e2c5468"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Encounter/9d6d20a7-c8f1-408f-beec-ae046e2c5468"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "bwell"
+            }
+        ],
+        "reference": "Encounter/9d6d20a7-c8f1-408f-beec-ae046e2c5468"
+    },
+    "effectiveDateTime": "2013-04-02T10:30:10+01:00",
+    "issued": "2013-04-03T15:30:10+01:00",
+    "performer": [
+        {
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Practitioner/f005"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Practitioner/11809d4e-2f15-566e-bb7e-64af2a9cfb74"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "bwell"
+                }
+            ],
+            "reference": "Practitioner/f005",
+            "display": "A. Langeveld"
+        }
+    ],
+    "valueQuantity": {
+        "value": 6.2,
+        "unit": "kPa",
+        "system": "http://unitsofmeasure.org",
+        "code": "kPa"
+    },
+    "interpretation": [
+        {
+            "coding": [
+                {
+                    "system": "urn:oid:2.16.840.1.113883.6.96",
+                    "code": "H",
+                    "display": "High"
+                }
+            ]
+        }
+    ],
+    "referenceRange": [
+        {
+            "low": {
+                "value": 4.8,
+                "unit": "kPa",
+                "system": "http://unitsofmeasure.org",
+                "code": "kPa"
+            },
+            "high": {
+                "value": 6,
+                "unit": "kPa",
+                "system": "http://unitsofmeasure.org",
+                "code": "kPa"
+            }
+        }
+    ]
+}
