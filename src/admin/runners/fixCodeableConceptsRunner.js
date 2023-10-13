@@ -122,6 +122,11 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.updateResources = updateResources;
+
+        /**
+         * @type {Map<string,number>}
+         */
+        this.uuidsToUpdate = new Map();
     }
 
     /**
@@ -277,7 +282,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
     isUpdateNeeded(resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
-                if (coding) {
+                if (coding.system) {
                     // to remove prefix urn:oid: or URN:OID:
                     const system = coding.system.toLowerCase().startsWith('u') ?
                         coding.system.split(':')[2] : coding.system;
@@ -538,6 +543,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                         }
 
                         this.adminLogger.logInfo(`Uuids to update in collection ${collectionName}: ${uuidsToUpdate.length}`);
+                        this.uuidsToUpdate.set(collectionName, uuidsToUpdate.length);
 
                         const updateUuids = async (uuidChunk) => {
                             /**
@@ -608,6 +614,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 this.adminLogger.logError(err);
             }
 
+            this.adminLogger.logInfo(`Resources to update: ${Array.from(this.uuidsToUpdate).join(' ')}`);
             this.adminLogger.logInfo('Finished script');
             this.adminLogger.logInfo('Shutting down');
             await this.shutdown();

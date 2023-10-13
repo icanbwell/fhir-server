@@ -45,12 +45,16 @@ async function main() {
      */
     let collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
-        Array.from(
+        ['all'];
+
+    if (collections[0] === 'all') {
+        collections = Array.from(
             new Set([
                 ...hapiResources.map(collection => `${collection}_4_0_0`),
                 ...proaResources.map(collection => `${collection}_4_0_0`),
             ]),
         );
+    }
 
     let properties = parameters.properties ?
         parameters.properties.split(',').map(x => x.trim()) :
