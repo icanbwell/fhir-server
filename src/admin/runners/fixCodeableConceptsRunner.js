@@ -114,6 +114,11 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         this.oidToStandardSystemUrlMap = oidToStandardSystemUrlMap;
 
         /**
+         * @type {Set<string>}
+         */
+        this.availableOidValues = new Set(Object.keys(oidToStandardSystemUrlMap));
+
+        /**
          * @type {boolean}
          */
         this.updateResources = updateResources;
@@ -274,10 +279,10 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             for (const coding of resource.coding) {
                 if (coding) {
                     // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.startsWith('u') || coding.system.startsWith('U') ?
+                    const system = coding.system.toLowerCase().startsWith('u') ?
                         coding.system.split(':')[2] : coding.system;
 
-                    if (Object.keys(this.oidToStandardSystemUrlMap).includes(system)) {
+                    if (this.availableOidValues.has(system)) {
                         return true;
                     }
                 }
@@ -291,7 +296,12 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
 
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const /** @type {string} */ key in resource) {
-                if (this.isUpdateNeeded(resource[`${key}`])) {
+                if ((
+                        resource[`${key}`] instanceof Object ||
+                        Array.isArray(resource[`${key}`])
+                    ) &&
+                    this.isUpdateNeeded(resource[`${key}`])
+                ) {
                     isUpdateNeeded = true;
                     break;
                 }
@@ -313,10 +323,10 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             for (const coding of resource.coding) {
                 if (coding.system) {
                     // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.startsWith('u') || coding.system.startsWith('U') ?
+                    const system = coding.system.toLowerCase().startsWith('u') ?
                         coding.system.split(':')[2] : coding.system;
 
-                    if (Object.keys(this.oidToStandardSystemUrlMap).includes(system)) {
+                    if (this.availableOidValues.has(system)) {
                         coding.system = this.oidToStandardSystemUrlMap[`${system}`];
                     }
                 }
@@ -326,7 +336,12 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
 
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const /** @type {string} */ key in resource) {
-                if (Object.getOwnPropertyDescriptor(resource, key).writable !== false) {
+                if ((
+                        resource[`${key}`] instanceof Object ||
+                        Array.isArray(resource[`${key}`])
+                    ) &&
+                    Object.getOwnPropertyDescriptor(resource, key).writable !== false
+                ) {
                     resource[`${key}`] = this.updateResource(resource[`${key}`]);
                 }
             }
