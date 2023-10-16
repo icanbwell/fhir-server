@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'subject._sourceAssigningAuthority':'C'},{'subject._sourceId':{'$in':['Patient/patient1','Group/patient1']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'subject._uuid':{'$in':['Patient/8b4f5ad7-d7e0-5b49-a5fb-0330001efa25','Group/8b4f5ad7-d7e0-5b49-a5fb-0330001efa25']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -103,7 +103,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['subject._sourceAssigningAuthority','subject._sourceId','meta.security.system','meta.security.code','id']",
+        "display": "['subject._uuid','meta.security.system','meta.security.code','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

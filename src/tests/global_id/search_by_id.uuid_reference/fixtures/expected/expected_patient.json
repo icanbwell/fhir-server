@@ -1,0 +1,35 @@
+{
+    "id": "1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "5902c735-072c-5df3-b3b9-8b10bd3df727"
+        }
+    ],
+    "meta": {
+        "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"],
+        "security": [
+            {
+                "code": "mps-api",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "mps-api",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "mps-api",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "mps",
+        "versionId": "1"
+    },
+    "resourceType": "Patient"
+}
