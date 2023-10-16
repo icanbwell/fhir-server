@@ -102,7 +102,8 @@ const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorS
 const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
 const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
-const { ProfileUrlMapper } = require('./utils/profileMapper');
+const {ProfileUrlMapper} = require('./utils/profileMapper');
+const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
 
 /**
  * Creates a container and sets up all the services
@@ -283,7 +284,8 @@ const createContainer = function () {
         queryRewriters: [
             new PatientProxyQueryRewriter({
                 personToPatientIdsExpander: c.personToPatientIdsExpander
-            })
+            }),
+            new ReferenceQueryRewriter(),
         ]
     }));
 
