@@ -15,8 +15,7 @@ class ReferenceQueryRewriter extends QueryRewriter {
      * @param {RewriteArgsAsyncOpt} opt
      * @return {Promise<import('../../operations/query/parsedArgs').ParsedArgs>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({ base_version, parsedArgs }) {
+    async rewriteArgsAsync({ parsedArgs }) {
         parsedArgs.parsedArgItems = parsedArgs.parsedArgItems.map((parsedArg) => {
             if (
                 parsedArg?.propertyObj?.type === fhirFilterTypes.reference &&
