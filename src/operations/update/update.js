@@ -448,8 +448,11 @@ class UpdateOperation {
 
                 return result;
             } else {
+                await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
+
                 const result = {
                     id,
+                    id: id,
                     created: false,
                     updated: false,
                     resource_version: foundResource?.meta?.versionId,

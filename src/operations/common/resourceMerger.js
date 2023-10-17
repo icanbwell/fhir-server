@@ -9,13 +9,23 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {isUuid} = require('../../utils/uid.util');
+const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 
 /**
- * @typedef MergePatchEntry
- * @type {object}
+ * @typedef {object} MergePatchEntry
  * @property {string} op
  * @property {string} path
  * @property {*|*[]} value
+ */
+
+/**
+ * @typedef {Object} MergeResourceAsyncProp
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ * @property {boolean|undefined} smartMerge
+ * @property {boolean|undefined} incrementVersion
+ * @property {string[]|undefined} limitToPaths
+ * @property {import('../../dataLayer/databaseAttachmentManager').DatabaseAttachmentManager|null} databaseAttachmentManager
  */
 
 /**
@@ -35,34 +45,17 @@ class ResourceMerger {
     }
 
     /**
-     * Merges two resources and returns either a merged resource or null (if there were no changes)
-     * @param {Resource} currentResource
-     * @param {Resource} resourceToMerge
-     * @param {boolean|undefined} [smartMerge]
-     * @param {boolean|undefined} [incrementVersion]
-     * @param {string[]|undefined} [limitToPaths]
-     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
-     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
+     * Overwrites resourceToMerge with currentResources fields which should not be updated
+     * @param {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+     * @param {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    async mergeResourceAsync(
-        {
-            currentResource,
-            resourceToMerge,
-            smartMerge = true,
-            incrementVersion = true,
-            limitToPaths,
-            databaseAttachmentManager = null
-        }
-    ) {
+    overWriteNonWritableFields(currentResource, resourceToMerge) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
         }
         // compare without checking source, so we don't create a new version just because of a difference in source
-        /**
-         * @type {string}
-         */
-        const original_source = resourceToMerge.meta.source;
         resourceToMerge.meta.versionId = currentResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
@@ -126,32 +119,21 @@ class ResourceMerger {
             }
         }
 
-        // fix up any data that we normally fix up before saving so the comparison is correct
-        await this.preSaveManager.preSaveAsync(resourceToMerge);
+        return resourceToMerge;
+    }
 
-        // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
-            return {updatedResource: null, patches: null};
-        }
-        let currentResourceWithAttachmentData = currentResource;
-        if (databaseAttachmentManager) {
-            currentResourceWithAttachmentData = await databaseAttachmentManager.transformAttachments(
-                currentResource.clone(), RETRIEVE
-            );
-        }
-        /**
-         * @type {Object}
-         */
-        let mergedObject = smartMerge ?
-            mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
-            resourceToMerge.toJSON();
-
-        // now create a patch between the document in db and the incoming document
-        //  this returns an array of patches
+    /**
+     * Compares objects provided and returns patch to convert first object to second
+     * @param {Object} currentObject
+     * @param {Object} mergedObject
+     * @param {Object} limitToPaths
+     * @returns {import('fast-json-patch').Operation[]}
+     */
+    compareObjects(currentObject, mergedObject, limitToPaths = undefined) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
-        let patchContent = compare(currentResourceWithAttachmentData.toJSON(), mergedObject);
+        let patchContent = compare(currentObject, mergedObject);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
         // or any changes to id
@@ -179,43 +161,23 @@ class ResourceMerger {
             );
         }
 
-        // see if there are any changes
-        if (patchContent.length === 0) {
-            if (databaseAttachmentManager) {
-                currentResource = await databaseAttachmentManager.transformAttachments(
-                    currentResource, RETRIEVE
-                );
-            }
-            return {updatedResource: null, patches: null};
-        }
-        // now apply the patches to the found resource
-        if (databaseAttachmentManager) {
-            currentResource = await databaseAttachmentManager.transformAttachments(
-                currentResource, DELETE, patchContent.filter(patch => patch.op !== 'add')
-            );
-            currentResource = await databaseAttachmentManager.transformAttachments(
-                currentResource, RETRIEVE, patchContent
-            );
-        }
-        /**
-         * @type {import('fast-json-patch').PatchResult}
-         */
-        const patchResult = applyPatch(currentResource.toJSONInternal(), patchContent);
-        /**
-         * @type {Object}
-         */
-        let patched_incoming_data = patchResult.newDocument;
-        // Create a new resource to store the merged data
-        /**
-         * @type {Resource}
-         */
-        let patched_resource_incoming = currentResource.create(patched_incoming_data);
+        return patchContent;
+    }
+
+    /**
+     * Updated meta of the resource with meta of current resource
+     * @param {import('../../fhir/classes/4_0_0/resources/resource')} patched_resource_incoming
+     * @param {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+     * @param {string} original_source
+     * @param {boolean} incrementVersion
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     */
+    updateMeta(patched_resource_incoming, currentResource, original_source, incrementVersion) {
         // update the metadata to increment versionId
-        currentResource = currentResource.clone(); // to avoid accidentally changing the original resource
         /**
          * @type {Meta}
          */
-        let meta = currentResource.meta;
+        let meta = new Meta(currentResource.meta);
         meta.versionId = incrementVersion ?
             `${parseInt(currentResource.meta.versionId) + 1}` :
             currentResource.meta.versionId;
@@ -233,6 +195,114 @@ class ResourceMerger {
         if (!(patched_resource_incoming.meta.security)) {
             patched_resource_incoming.meta.security = meta.security;
         }
+
+        return patched_resource_incoming;
+    }
+
+    /**
+     * Applies patch to the resource provided
+     * @param {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+     * @param {import('fast-json-patch').Operation[]} patchContent
+     * @param {string} original_source
+     * @param {boolean|undefined} incrementVersion
+     * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
+     */
+    applyPatch(currentResource, patchContent, original_source = '', incrementVersion = false) {
+        /**
+         * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
+         */
+        const patchResult = applyPatch(currentResource.toJSONInternal(), patchContent);
+        /**
+         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+         */
+        let patched_incoming_data = patchResult.newDocument;
+
+        // Create a new resource to store the merged data
+        /**
+         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+         */
+        let patched_resource_incoming = currentResource.create(patched_incoming_data);
+
+        patched_resource_incoming = this.updateMeta(patched_resource_incoming, currentResource, original_source, incrementVersion);
+
+        return patched_resource_incoming;
+    }
+
+    /**
+     * Merges two resources and returns either a merged resource or null (if there were no changes)
+     * @param {MergeResourceAsyncProp}
+     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
+     */
+    async mergeResourceAsync(
+        {
+            currentResource,
+            resourceToMerge,
+            smartMerge = true,
+            incrementVersion = true,
+            limitToPaths,
+            databaseAttachmentManager = null
+        }
+    ) {
+        /**
+         * @type {string}
+         */
+        const original_source = resourceToMerge?.meta?.source;
+
+        // overwrite fields that should not be changed once resource is created
+        resourceToMerge = this.overWriteNonWritableFields(currentResource, resourceToMerge);
+
+        // fix up any data that we normally fix up before saving so the comparison is correct
+        await this.preSaveManager.preSaveAsync(resourceToMerge);
+
+        // for speed, first check if the incoming resource is exactly the same
+        if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
+            return {updatedResource: null, patches: null};
+        }
+
+        let currentResourceWithAttachmentData = currentResource.clone();
+        if (databaseAttachmentManager) {
+            await databaseAttachmentManager.transformAttachments(
+                currentResourceWithAttachmentData, RETRIEVE
+            );
+        }
+
+        /**
+         * @type {Object}
+         */
+        let mergedObject = smartMerge ?
+            mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
+            resourceToMerge.toJSON();
+
+        // now create a patch between the document in db and the incoming document
+        // this returns an array of patchecurrentResources
+        /**
+         * @type {import('fast-json-patch').Operation[]}
+         */
+        const patchContent = this.compareObjects(
+            currentResourceWithAttachmentData.toJSON(), mergedObject, limitToPaths
+        );
+
+        // see if there are any changes
+        if (patchContent.length === 0) {
+            return {updatedResource: null, patches: null};
+        }
+
+        // now apply the patches to the found resource
+        if (databaseAttachmentManager) {
+            await databaseAttachmentManager.transformAttachments(
+                currentResource, DELETE, patchContent.filter(patch => patch.op !== 'add')
+            );
+            await databaseAttachmentManager.transformAttachments(
+                currentResource, RETRIEVE, patchContent
+            );
+        }
+
+        /**
+         * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+         */
+        let patched_resource_incoming = this.applyPatch(
+            currentResource, patchContent, original_source, incrementVersion
+        );
 
         if (databaseAttachmentManager) {
             patched_resource_incoming = await databaseAttachmentManager.transformAttachments(
