@@ -27,3 +27,4 @@ process.env.KAFKA_SASL_USERNAME = 'msk_user_dev_ue1';
 process.env.KAFKA_SASL_PASSWORD = 'foo;ar';
 process.env.KAFKA_MAX_RETRY = '3';
 process.env.ENABLE_CONSENTED_DATA_ACCESS = '1';
+process.env.EXTERNAL_REQUEST_TIMEOUT_SEC = '5';

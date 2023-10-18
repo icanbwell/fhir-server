@@ -11,6 +11,7 @@ const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
 const {Issuer} = require('openid-client');
+const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = [
@@ -34,6 +35,7 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
         .set({
             Accept: 'application/json',
         })
+        .retry(EXTERNAL_REQUEST_RETRY_COUNT)
         .timeout(requestTimeout);
     /**
      * @type {Object}

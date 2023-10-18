@@ -5,6 +5,7 @@ const {ConfigManager} = require('../utils/configManager');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const {logInfo} = require('../operations/common/logging');
+const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 
 class PersonMatchManager {
     /**
@@ -137,17 +138,34 @@ class PersonMatchManager {
                 Accept: 'application/json',
             };
             logInfo(`Calling ${url} with body`, {'body': parameters});
-            /**
-             * @type {request.Response}
-             */
-            const res = await superagent
+            try {
+                /**
+                 * @type {request.Response}
+                 */
+                const res = await superagent
                 .post(url)
                 .send(parameters)
                 .set(header)
+                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
                 .timeout(this.configManager.requestTimeoutMs);
-            const json = res.body;
-            logInfo('', {json});
-            return json;
+                const json = res.body;
+                logInfo('', {json});
+                return json;
+            } catch (error) {
+                if (error.timeout) {
+                    return new OperationOutcome({
+                        issue: [
+                            new OperationOutcomeIssue({
+                                    severity: 'error',
+                                    code: 'timeout',
+                                    diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source}, target: ${target}`,
+                                }
+                            )
+                        ]
+                    }).toJSON();
+                }
+                throw error;
+            }
         }
     }
 }

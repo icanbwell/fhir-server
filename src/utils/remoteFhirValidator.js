@@ -3,9 +3,11 @@ const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutco
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ConfigManager} = require('./configManager');
-const {logInfo} = require('../operations/common/logging');
+const {logInfo, logError} = require('../operations/common/logging');
 const request = require('superagent');
 const { ProfileUrlMapper } = require('./profileMapper');
+const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
+const { ExternalTimeoutError } = require('./httpErrors');
 
 class RemoteFhirValidator {
     /**
@@ -40,11 +42,28 @@ class RemoteFhirValidator {
     async fetchProfileAsync({url}) {
         assertIsValid(url, 'url must be specified');
         const originalUrl = this.profileUrlMapper.getOriginalUrl(url);
-        const response = await request
-            .get(originalUrl.toString())
-            .set('Accept', 'application/json')
-            .timeout(this.configManager.requestTimeoutMs);
-        return response.body;
+        try {
+            const response = await request
+                .get(originalUrl.toString())
+                .set('Accept', 'application/json')
+                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+                .timeout(this.configManager.requestTimeoutMs);
+            return response.body;
+        } catch (err) {
+            if (err.timeout) {
+                // log the error and send 504 as response
+                logError(`Request timeout while fetching profile for url: ${url}, originalUrl: ${originalUrl}`, {
+                    source: 'RemoteFhirValidator.fetchProfileAsync',
+                    args: {
+                        originalUrl,
+                        url,
+                        timeout: this.configManager.requestTimeoutMs,
+                    },
+                });
+                throw new ExternalTimeoutError('Unexpected: Request timeout while fetching profile info', { timeout: this.configManager.requestTimeoutMs, profileUrl: originalUrl});
+            }
+            throw err;
+        }
     }
 
     /**
@@ -57,13 +76,30 @@ class RemoteFhirValidator {
         assertIsValid(fhirValidationUrl, 'fhirValidationUrl must be specified');
         const url = new URL(fhirValidationUrl);
         url.pathname += '/StructureDefinition';
-        const response = await request
+        try {
+            const response = await request
             .post(url.toString())
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/fhir+json')
+            .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+            .timeout(this.configManager.requestTimeoutMs)
             .send(profileJson);
 
-        return response.body;
+            return response.body;
+        } catch (err) {
+            if (err.timeout) {
+                // log the error and send 504 as response
+                logError(`Request timeout while updating profile in hapi-fhir for profileId: ${profileJson?.id}`, {
+                    source: 'RemoteFhirValidator.updateProfileAsync',
+                    args: {
+                        fhirValidationUrl: url,
+                        timeout: this.configManager.requestTimeoutMs,
+                    },
+                });
+                throw new ExternalTimeoutError('Unexpected: Request timeout while validating resource', { timeout: this.configManager.requestTimeoutMs});
+            }
+            throw err;
+        }
     }
 
     /**
@@ -100,13 +136,29 @@ class RemoteFhirValidator {
         }
         logInfo(`validateResourceAsync: Calling HAPI FHIR ${url.toString()}`, {url});
 
-        const response = await request
-            .post(url.toString())
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/fhir+json')
-            .send(resourceBody);
-
-        return response.body;
+        try {
+            const response = await request
+                .post(url.toString())
+                .set('Accept', 'application/json')
+                .set('Content-Type', 'application/fhir+json')
+                .retry(EXTERNAL_REQUEST_RETRY_COUNT)
+                .timeout(this.configManager.requestTimeoutMs)
+                .send(resourceBody);
+            return response.body;
+        } catch (err) {
+            if (err.timeout) {
+                // log the error and send 504 as response
+                logError('Request timeout while validating the resource', {
+                    source: 'RemoteFhirValidator.validateResourceAsync',
+                    args: {
+                        fhirValidationUrl: url,
+                        timeout: this.configManager.requestTimeoutMs,
+                    },
+                });
+                throw new ExternalTimeoutError('Unexpected: Request timeout while validating resource', { timeout: this.configManager.requestTimeoutMs});
+            }
+            throw err;
+        }
     }
 }
 

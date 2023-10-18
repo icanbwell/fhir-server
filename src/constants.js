@@ -204,4 +204,5 @@ module.exports = {
         CODE: 'AUT'
     },
     CONSENT_OF_LINKED_PERSON_INDEX: 'consent_of_linked_person',
+    EXTERNAL_REQUEST_RETRY_COUNT: 3,
 };
