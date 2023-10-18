@@ -29,6 +29,35 @@ const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
  */
 
 /**
+ * @typedef {Object} OverWriteNonWritableFieldsProp
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+ */
+
+/**
+ * @typedef {Object} CompareObjectsProp
+ * @property {Object} currentObject
+ * @property {Object} mergedObject
+ * @property {string[]|undefined} limitToPaths
+ */
+
+/**
+ * @typedef {Object} UpdateMetaProp
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} patched_resource_incoming
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {string} original_source
+ * @property {boolean} incrementVersion
+ */
+
+/**
+ * @typedef {Object} ApplyPatchProp
+ * @property {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
+ * @property {import('fast-json-patch').Operation[]} patchContent
+ * @property {string} original_source
+ * @property {boolean|undefined} incrementVersion
+ */
+
+/**
  * @description This class merges two resources
  */
 class ResourceMerger {
@@ -46,11 +75,10 @@ class ResourceMerger {
 
     /**
      * Overwrites resourceToMerge with currentResources fields which should not be updated
-     * @param {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
-     * @param {import('../../fhir/classes/4_0_0/resources/resource')} resourceToMerge
+     * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    overWriteNonWritableFields(currentResource, resourceToMerge) {
+    overWriteNonWritableFields({currentResource, resourceToMerge}) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -124,12 +152,10 @@ class ResourceMerger {
 
     /**
      * Compares objects provided and returns patch to convert first object to second
-     * @param {Object} currentObject
-     * @param {Object} mergedObject
-     * @param {Object} limitToPaths
+     * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects(currentObject, mergedObject, limitToPaths = undefined) {
+    compareObjects({currentObject, mergedObject, limitToPaths}) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -166,13 +192,10 @@ class ResourceMerger {
 
     /**
      * Updated meta of the resource with meta of current resource
-     * @param {import('../../fhir/classes/4_0_0/resources/resource')} patched_resource_incoming
-     * @param {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
-     * @param {string} original_source
-     * @param {boolean} incrementVersion
+     * @param {UpdateMetaProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    updateMeta(patched_resource_incoming, currentResource, original_source, incrementVersion) {
+    updateMeta({patched_resource_incoming, currentResource, original_source, incrementVersion}) {
         // update the metadata to increment versionId
         /**
          * @type {Meta}
@@ -201,13 +224,10 @@ class ResourceMerger {
 
     /**
      * Applies patch to the resource provided
-     * @param {import('../../fhir/classes/4_0_0/resources/resource')} currentResource
-     * @param {import('fast-json-patch').Operation[]} patchContent
-     * @param {string} original_source
-     * @param {boolean|undefined} incrementVersion
+     * @param {ApplyPatchProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    applyPatch(currentResource, patchContent, original_source = '', incrementVersion = false) {
+    applyPatch({currentResource, patchContent, original_source, incrementVersion}) {
         /**
          * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
          */
@@ -223,7 +243,7 @@ class ResourceMerger {
          */
         let patched_resource_incoming = currentResource.create(patched_incoming_data);
 
-        patched_resource_incoming = this.updateMeta(patched_resource_incoming, currentResource, original_source, incrementVersion);
+        patched_resource_incoming = this.updateMeta({patched_resource_incoming, currentResource, original_source, incrementVersion});
 
         return patched_resource_incoming;
     }
@@ -249,7 +269,7 @@ class ResourceMerger {
         const original_source = resourceToMerge?.meta?.source;
 
         // overwrite fields that should not be changed once resource is created
-        resourceToMerge = this.overWriteNonWritableFields(currentResource, resourceToMerge);
+        resourceToMerge = this.overWriteNonWritableFields({currentResource, resourceToMerge});
 
         // fix up any data that we normally fix up before saving so the comparison is correct
         await this.preSaveManager.preSaveAsync(resourceToMerge);
@@ -278,9 +298,11 @@ class ResourceMerger {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
-        const patchContent = this.compareObjects(
-            currentResourceWithAttachmentData.toJSON(), mergedObject, limitToPaths
-        );
+        const patchContent = this.compareObjects({
+            currentObject: currentResourceWithAttachmentData.toJSON(),
+            mergedObject,
+            limitToPaths
+        });
 
         // see if there are any changes
         if (patchContent.length === 0) {
@@ -300,9 +322,9 @@ class ResourceMerger {
         /**
          * @type {import('../../fhir/classes/4_0_0/resources/resource')}
          */
-        let patched_resource_incoming = this.applyPatch(
+        let patched_resource_incoming = this.applyPatch({
             currentResource, patchContent, original_source, incrementVersion
-        );
+        });
 
         if (databaseAttachmentManager) {
             patched_resource_incoming = await databaseAttachmentManager.transformAttachments(

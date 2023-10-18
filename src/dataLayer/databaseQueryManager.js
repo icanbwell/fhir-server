@@ -162,7 +162,7 @@ class DatabaseQueryManager {
                                     url: `${this._base_version}/${resource.resourceType}/${resource._uuid}`
                                 }
                             )
-                        }));
+                        }).toJSONInternal());
                     }
                 }
                 /**
