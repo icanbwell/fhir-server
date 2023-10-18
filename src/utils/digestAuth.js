@@ -2,6 +2,7 @@ const superagent = require('superagent');
 const env = require('var');
 const urlLib = require('url');
 const crypto = require('crypto');
+const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 
 /**
  * Its a wrapper around super-agent module.
@@ -122,7 +123,7 @@ class RequestWithDigestAuth {
                 request.query(query);
             }
 
-            const response = await request.send(data).retry(3).timeout(this.requestTimeout);
+            const response = await request.send(data).retry(EXTERNAL_REQUEST_RETRY_COUNT).timeout(this.requestTimeout);
             return response;
         }
     }
