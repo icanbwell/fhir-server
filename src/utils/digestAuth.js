@@ -122,7 +122,7 @@ class RequestWithDigestAuth {
                 request.query(query);
             }
 
-            const response = await request.send(data).timeout(this.requestTimeout);
+            const response = await request.send(data).retry(3).timeout(this.requestTimeout);
             return response;
         }
     }

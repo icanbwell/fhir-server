@@ -35,6 +35,7 @@ const {REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constant
 const {generateUUID} = require('./utils/uid.util');
 const {logInfo} = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
+const { handleServerError } = require('./routeHandlers/handleError');
 
 /**
  * Creates the FHIR app
@@ -257,7 +258,7 @@ function createApp({fnGetContainer, trackMetrics}) {
         ));
     }
 
-    app.get('/.well-known/smart-configuration', handleSmartConfiguration);
+    app.get('/.well-known/smart-configuration', handleSmartConfiguration, handleServerError);
 
     app.get('/alert', handleAlert);
 

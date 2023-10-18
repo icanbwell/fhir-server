@@ -178,6 +178,33 @@ class ForbiddenError extends ServerError {
     }
 }
 
+class ExternalTimeoutError extends ServerError {
+    constructor(message, options = {}) {
+        super(message, {
+            statusCode: 504,
+            // Add any normal operation outcome stuff here
+            // https://www.hl7.org/fhir/valueset-issue-type.html
+            issue: [
+                {
+                    severity: 'error',
+                    code: 'timeout',
+                    details: { text: message }
+                }
+            ],
+        });
+
+        // You can attach relevant information to the error instance
+        // (e.g.. the username)
+
+        for (const [key, value] of Object.entries(options)) {
+            this[`${key}`] = value;
+        }
+    }
+
+    get statusCode() {
+        return 504;
+    }
+}
 
 module.exports = {
     BadRequestError,
@@ -185,5 +212,6 @@ module.exports = {
     NotAllowedError,
     NotValidatedError,
     UnauthorizedError,
-    ForbiddenError
+    ForbiddenError,
+    ExternalTimeoutError,
 };
