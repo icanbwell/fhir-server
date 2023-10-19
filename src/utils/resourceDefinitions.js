@@ -54,6 +54,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/coverage.html'
     },
     {
+        name: 'DiagnosticReport',
+        description: 'The findings and interpretation of diagnostic tests performed on patients, groups of patients, products, substances, devices, and locations, and/or specimens derived from these. The report includes clinical context such as requesting provider information, and some mix of atomic results, images, textual and coded interpretations, and formatted representation of diagnostic reports. The report also includes non-clinical context such as batch analysis and stability reporting of products and substances.',
+        url: 'https://www.hl7.org/fhir/diagnosticreport.html'
+    },
+    {
         name: 'Encounter',
         description: 'An interaction between a patient and healthcare provider(s) for the purpose of providing healthcare service(s) or assessing the health status of a patient.',
         url: 'https://www.hl7.org/fhir/encounter.html'
