@@ -206,7 +206,7 @@ class ResourceValidator {
     /**
      * Fetch profiles from database. If not exists, fetch it from fhirRemoveValidator and
      * then save it to Database.
-     * @param {{ profile: string | string[]}, resourceType?: string} options
+     * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
     async upsertProfileInRemoteServer({ profile, resourceType }) {
@@ -245,6 +245,11 @@ class ResourceValidator {
             }
         };
 
+        const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+            resourceType: 'StructureDefinition',
+            base_version: VERSIONS['4_0_0'],
+        });
+
         /**
          * @type {{ location: string, profile: string }[]}
          */
@@ -278,11 +283,6 @@ class ResourceValidator {
 
             if (profileJson) {
                 const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
-                const databaseUpdateManager =
-                    this.databaseUpdateFactory.createDatabaseUpdateManager({
-                        resourceType: 'StructureDefinition',
-                        base_version: VERSIONS['4_0_0'],
-                    });
                 await databaseUpdateManager.replaceOneAsync({
                     doc: profileResourceNew,
                 });
@@ -310,7 +310,7 @@ class ResourceValidator {
              */
             const profileJson = await cursor.next();
             const profileUrl = profileJson.url;
-            profileJsonToUpdate.push({ profileJson, profileUrl });
+            profileJsonToUpdate.push({ profileJson: profileJson.toJSON(), profileUrl });
             profilesToFetchFromRemote.delete(profileUrl);
         }
 
