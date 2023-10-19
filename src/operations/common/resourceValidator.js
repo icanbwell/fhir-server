@@ -1,3 +1,4 @@
+const async = require('async');
 const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const sendToS3 = require('../../utils/aws-s3');
@@ -15,6 +16,8 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { BadRequestError } = require('../../utils/httpErrors');
+const { logError } = require('./logging');
+const { RethrownError } = require('../../utils/rethrownError');
 
 class ResourceValidator {
     /**
@@ -156,110 +159,19 @@ class ResourceValidator {
         const resourceToValidateJson = (resourceBody instanceof Resource) ? resourceBody.toJSON() : resourceBody;
 
         if (profile) {
-            // see if profile exists in our fhir server already
-            /**
-             * @type {DatabaseQueryManager}
-             */
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType: 'StructureDefinition', base_version: VERSIONS['4_0_0']}
-            );
-            /**
-             * @type {Resource|null}
-             */
-            const profileResource = await databaseQueryManager.findOneAsync(
-                {
-                    query: {url: profile}
-                }
-            );
-            if (profileResource) {
-                // profile found in our fhir server, so use it
-                const profileJson1 = profileResource.toJSON();
-                await this.remoteFhirValidator.updateProfileAsync({profileJson: profileJson1});
-            } else {
-                // profile not found in our fhir server, so fetch from remote fhir server
-                const profileJson = await this.remoteFhirValidator
-                    .fetchProfileAsync({ url: profile })
-                    .catch((error) => {
-                        if (error.response && error.response.status === 404) {
-                            // handle 404 error
-                            throw new BadRequestError(
-                                new Error(
-                                    `Unable to fetch profile details from passed param profile = '${profile}'`
-                                )
-                            );
-                        } else {
-                            throw error;
-                        }
-                    });
-                if (profileJson) {
-                    // write to our fhir server
-                    /**
-                     * @type {StructureDefinition}
-                     */
-                    const profileResourceNew = new StructureDefinition(profileJson);
-                    if (!profileResourceNew.meta) {
-                        profileResourceNew.meta = new Meta({});
-                    }
-                    if (profileResourceNew.meta.security) {
-                        profileResourceNew.meta.security.push(
-                            new Coding({
-                                system: SecurityTagSystem.owner,
-                                code: profileResourceNew.publisher || 'profile',
-                            })
-                        );
-                    } else {
-                        profileResourceNew.meta.security = [
-                            new Coding({
-                                system: SecurityTagSystem.owner,
-                                code: profileResourceNew.publisher || 'profile',
-                            }),
-                        ];
-                    }
-                    if (!profileResourceNew.meta.source) {
-                        profileResourceNew.meta.source = profileResourceNew.url;
-                    }
-                    const databaseUpdateManager =
-                        this.databaseUpdateFactory.createDatabaseUpdateManager({
-                            resourceType: 'StructureDefinition',
-                            base_version: VERSIONS['4_0_0'],
-                        });
-                    await databaseUpdateManager.replaceOneAsync({
-                        doc: profileResourceNew,
-                    });
-                    await this.remoteFhirValidator.updateProfileAsync({
-                        profileJson: profileResourceNew.toJSON(),
-                    });
-                }
-            }
+            // save profile in remote server
+            await this.upsertProfileInRemoteServer({ profile });
         }
-        // first read the profiles specified in the resource and send to fhir validator
+
+        // upsert profiles contained in metaProfiles
         if (resourceToValidateJson.meta && resourceToValidateJson.meta.profile && resourceToValidateJson.meta.profile.length > 0) {
             /**
              * @type {string[]}
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
-            for (let i = 0; i < metaProfiles.length; i++) {
-                // eslint-disable-next-line security/detect-object-injection
-                const metaProfile = metaProfiles[i];
-                const profileJson = await this.remoteFhirValidator
-                    .fetchProfileAsync({ url: metaProfile })
-                    .catch((error) => {
-                        if (error.response && error.response.status === 404) {
-                            // handle 404 error
-                            throw new BadRequestError(
-                                new Error(
-                                    `Unable to fetch profile details for resource at ${resourceToValidateJson.resourceType}.meta.profile[${i}] = '${metaProfile}'`
-                                )
-                            );
-                        } else {
-                            throw error;
-                        }
-                    });
-                if (profileJson) {
-                    await this.remoteFhirValidator.updateProfileAsync({ profileJson });
-                }
-            }
+            await this.upsertProfileInRemoteServer({ profile: metaProfiles, resourceType: resourceToValidateJson.resourceType });
         }
+
         /**
          * @type {OperationOutcome|null}
          */
@@ -291,6 +203,170 @@ class ResourceValidator {
         return operationOutcome;
     }
 
+    /**
+     * Fetch profiles from database. If not exists, fetch it from fhirRemoveValidator and
+     * then save it to Database.
+     * @param {{ profile: string | string[]}, resourceType?: string} options
+     * @throws {BadRequestError} Error if not able to fetch profile from remote url
+     */
+    async upsertProfileInRemoteServer({ profile, resourceType }) {
+        // convert to array
+        const profiles = Array.isArray(profile) ? profile : [profile];
+        const profilesToFetchFromRemote = new Set(profiles);
+        const concurrencyLimit = this.configManager.batchSizeForRemoteFhir;
+
+        const profileJsonToUpdate = [];
+        /**
+         * Upsert profile in HAPI Fhir
+         */
+        const updateRemoteFhirProfileTask = async ({ profileJson }) => {
+            try {
+                await this.remoteFhirValidator.updateProfileAsync({ profileJson });
+            } catch (error) {
+                logError(
+                    `Error occurred while updating profile in hapi server with id: '${profileJson.id}'`,
+                    {
+                        source: 'ResourceValidator.saveProfileIfNotExist',
+                        args: {
+                            error,
+                            message: error.message,
+                            profileId: profileJson.id,
+                        },
+                    }
+                );
+
+                throw new RethrownError({
+                    error,
+                    source: 'ResourceValidator.updateRemoteFhirProfileTask',
+                    args: {
+                        profileJson,
+                    },
+                });
+            }
+        };
+
+        /**
+         * @type {{ location: string, profile: string }[]}
+         */
+        let invalidProfileUrls = [];
+        const fetchProfileFromUrl = async ({ profileUrl, index }) => {
+            /**
+             * @type {{[k: string]: any} | null}
+             */
+            const profileJson = await this.remoteFhirValidator
+                .fetchProfileAsync({ url: profileUrl })
+                .catch((error) => {
+                    if (error.response && error.response.status === 404) {
+                        // push error if 404
+                        if (!resourceType) {
+                            invalidProfileUrls.push({
+                                location: 'profile',
+                                profile: profileUrl,
+                            });
+                        } else {
+                            invalidProfileUrls.push({
+                                location: `${resourceType}.meta.profile[${index}]`,
+                                profile: profileUrl,
+                            });
+                        }
+
+                        return null;
+                    } else {
+                        throw error;
+                    }
+                });
+
+            if (profileJson) {
+                const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
+                const databaseUpdateManager =
+                    this.databaseUpdateFactory.createDatabaseUpdateManager({
+                        resourceType: 'StructureDefinition',
+                        base_version: VERSIONS['4_0_0'],
+                    });
+                await databaseUpdateManager.replaceOneAsync({
+                    doc: profileResourceNew,
+                });
+
+                profileJsonToUpdate.push({ profileJson: profileResourceNew.toJSON(), profileUrl });
+            }
+        };
+
+        /**
+         * @type {import('../../dataLayer/databaseQueryManager').DatabaseQueryManager}
+         */
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'StructureDefinition',
+            base_version: VERSIONS['4_0_0'],
+        });
+
+        // check if profile already exist in database
+        const cursor = await databaseQueryManager.findAsync({
+            query: { url: { $in: profiles } },
+        });
+
+        while (await cursor.hasNext()) {
+            /**
+             * @type {Resource}
+             */
+            const profileJson = await cursor.next();
+            const profileUrl = profileJson.url;
+            profileJsonToUpdate.push({ profileJson, profileUrl });
+            profilesToFetchFromRemote.delete(profileUrl);
+        }
+
+        // resourceType is present, means profiles are present in resource
+        let defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
+
+        // concurrently load the profiles form their url
+        await async.eachLimit(
+            Array.from(profilesToFetchFromRemote).map((p, index) => ({ profileUrl: p, index })),
+            concurrencyLimit,
+            fetchProfileFromUrl
+        );
+
+        // if 404 returns while fetching profile, send those in response
+        if (invalidProfileUrls.length > 0) {
+            const errMsg = `${defaultErrorMessage} ${invalidProfileUrls
+                .map((v) => `${v.location} = '${v.profile}'`)
+                .join(', ')}`;
+            throw new BadRequestError(new Error(errMsg));
+        }
+
+        // update fhir remote server
+        await async.eachLimit(profileJsonToUpdate, concurrencyLimit, updateRemoteFhirProfileTask);
+    }
+
+    /**
+     * Create structure definition from given profile json
+     * @param {{ profileJson: Record<string, any>}} params
+     * @returns {StructureDefinition}
+     */
+    createProfileResourceFromJson({ profileJson }) {
+        const profileResourceNew = new StructureDefinition(profileJson);
+        if (!profileResourceNew.meta) {
+            profileResourceNew.meta = new Meta({});
+        }
+        if (profileResourceNew.meta.security) {
+            profileResourceNew.meta.security.push(
+                new Coding({
+                    system: SecurityTagSystem.owner,
+                    code: profileResourceNew.publisher || 'profile',
+                })
+            );
+        } else {
+            profileResourceNew.meta.security = [
+                new Coding({
+                    system: SecurityTagSystem.owner,
+                    code: profileResourceNew.publisher || 'profile',
+                }),
+            ];
+        }
+        if (!profileResourceNew.meta.source) {
+            profileResourceNew.meta.source = profileResourceNew.url;
+        }
+
+        return profileResourceNew;
+    }
 }
 
 module.exports = {

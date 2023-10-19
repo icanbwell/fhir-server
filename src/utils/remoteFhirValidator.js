@@ -75,10 +75,10 @@ class RemoteFhirValidator {
         const fhirValidationUrl = this.configManager.fhirValidationUrl;
         assertIsValid(fhirValidationUrl, 'fhirValidationUrl must be specified');
         const url = new URL(fhirValidationUrl);
-        url.pathname += '/StructureDefinition';
+        url.pathname += `/StructureDefinition/${profileJson.id}`;
         try {
             const response = await request
-            .post(url.toString())
+            .put(url.toString())
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/fhir+json')
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)

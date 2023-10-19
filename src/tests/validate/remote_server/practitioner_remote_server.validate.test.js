@@ -106,7 +106,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -173,7 +173,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -251,7 +251,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -324,7 +324,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
