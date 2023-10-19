@@ -40,6 +40,7 @@ import DomainResource from './DomainResource';
 import OperationOutcome from './OperationOutcome';
 import Endpoint from './Endpoint';
 import Invoice from './Invoice';
+import DiagnosticReport from './DiagnosticReport';
 
 function ResourceItem({resourceType, resource, index}) {
     console.log(`ResourceItem: resourceType=${resourceType}`);
@@ -64,6 +65,8 @@ function ResourceItem({resourceType, resource, index}) {
             return <Consent resource={resource} index={index}/>;
         case 'Coverage':
             return <Coverage resource={resource} index={index}/>;
+        case 'DiagnosticReport':
+            return <DiagnosticReport resource={resource} index={index}/>;
         case 'Encounter':
             return <Encounter resource={resource} index={index}/>;
         case 'Endpoint':
