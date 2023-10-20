@@ -448,14 +448,25 @@ class UpdateOperation {
 
                 return result;
             } else {
-                // not modified
-                return {
-                    id: id,
+                const result = {
+                    id,
                     created: false,
                     updated: false,
-                    resource_version: foundResource.meta.versionId,
-                    resource: foundResource
+                    resource_version: foundResource?.meta?.versionId,
+                    resource: foundResource,
                 };
+
+                // not modified
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
+
+                return result;
             }
         } catch (e) {
             if (this.configManager.logValidationFailures) {
