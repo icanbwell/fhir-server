@@ -49,7 +49,7 @@ class BundleResourceValidator extends BaseValidator {
                 return {validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true};
             }
             // unwrap the resources
-            incomingResources = incomingResources.entry.map(e => e.resource);
+            incomingResources = incomingResources.entry ? incomingResources.entry.map(e => e.resource) : [];
         }
 
         return {validatedObjects: incomingResources, preCheckErrors: [], wasAList: false};
