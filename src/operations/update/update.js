@@ -466,13 +466,7 @@ class UpdateOperation {
                     result: JSON.stringify(result, getCircularReplacer())
                 });
 
-                return {
-                    id: id,
-                    created: false,
-                    updated: false,
-                    resource_version: foundResource.meta.versionId,
-                    resource: foundResource
-                };
+                return result;
             }
         } catch (e) {
             if (this.configManager.logValidationFailures) {
