@@ -334,6 +334,13 @@ class ConfigManager {
     }
 
     /**
+     * Batch size for parallel fetching/updating profiles in HAPI Fhir
+     */
+    get batchSizeForRemoteFhir() {
+        return Number(env.REMOTE_FHIR_REQUEST_BATCH_SIZE) || 10;
+    }
+
+    /**
      * whether to log validation failures
      * @returns {boolean}
      */
