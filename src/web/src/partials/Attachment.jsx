@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Accordion, AccordionSummary, AccordionDetails, Typography, Box} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {Buffer} from "buffer";
 
 const Attachment = ({value}) => {
     const [items, setItems] = useState([]);
