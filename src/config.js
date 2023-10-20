@@ -5,6 +5,7 @@ const env = require('var');
 const Sentry = require('@sentry/node');
 const {profiles} = require('./profiles');
 const {getQueryParams} = require('./utils/getQueryParams');
+const { isTrue } = require('./utils/isTrue');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {
@@ -106,7 +107,9 @@ if (env.AUDIT_EVENT_MONGO_URL) {
  */
 let auditEventReadOnlyMongoConfig;
 
-if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
+const enableReadFromOnlineArchive = isTrue(env.AUDIT_EVENT_ENABLE_ARCHIVE_READ) && env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL;
+
+if (enableReadFromOnlineArchive) {
     let auditEventReadOnlyMongoUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL;
     if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
         auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl.replace(
