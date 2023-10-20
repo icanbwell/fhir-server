@@ -24,5 +24,28 @@ describe('Person Tests', () => {
                 .set(getHeaders())
                 .expect(400);
         });
+
+        test('should return empty array when bundle entry is empty array', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send({
+                    resourceType: 'Bundle',
+                    entry: [],
+                })
+                .set(getHeaders());
+
+            expect(resp).toHaveMergeResponse([]);
+        });
+
+        test('should return empty array when body is an empty array', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([])
+                .set(getHeaders());
+
+            expect(resp).toHaveMergeResponse([]);
+        });
     });
 });
