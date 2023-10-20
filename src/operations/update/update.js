@@ -448,7 +448,24 @@ class UpdateOperation {
 
                 return result;
             } else {
+                const result = {
+                    id,
+                    created: false,
+                    updated: false,
+                    resource_version: foundResource?.meta?.versionId,
+                    resource: foundResource,
+                };
+
                 // not modified
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
+
                 return {
                     id: id,
                     created: false,
