@@ -448,6 +448,8 @@ class UpdateOperation {
 
                 return result;
             } else {
+                await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
+
                 const result = {
                     id,
                     created: false,
