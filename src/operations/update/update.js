@@ -452,7 +452,6 @@ class UpdateOperation {
 
                 const result = {
                     id,
-                    id: id,
                     created: false,
                     updated: false,
                     resource_version: foundResource?.meta?.versionId,
