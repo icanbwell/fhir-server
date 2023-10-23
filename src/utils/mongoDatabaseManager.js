@@ -4,6 +4,8 @@ const env = require('var');
 const {logInfo, logError} = require('../operations/common/logging');
 const {logSystemEventAsync} = require('../operations/common/systemEventLogging');
 const {MongoClient, GridFSBucket} = require('mongodb');
+const { ConfigManager } = require('./configManager');
+const { assertTypeEquals } = require('./assertType');
 
 /**
  * client connection
@@ -40,7 +42,26 @@ let accessLogsDb = null;
 */
 let gridFSBucket = null;
 
+/**
+ * @typedef MongoDatabaseManagerProps
+ * @property {ConfigManager} configManager
+ */
+
 class MongoDatabaseManager {
+
+    /**
+     * constructor
+     * @param {MongoDatabaseManagerProps} params
+     */
+    constructor({ configManager }) {
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     /**
      * Gets client db
      * @returns {Promise<import('mongodb').Db>}
@@ -203,9 +224,14 @@ class MongoDatabaseManager {
         const auditEventClient = await this.createClientAsync(auditConfig);
         auditClientDb = auditEventClient.db(auditConfig.db_name);
 
-        const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
-        const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
-        auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
+        // if enabled then use auditEventReadOnlyMongoConfig else use same instance on audit event db
+        if (this.configManager.enableAuditEventArchiveRead) {
+            const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
+            const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
+            auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
+        } else {
+            auditReadOnlyClientDb = auditClientDb;
+        }
 
         const accessLogsConfig = await this.getAccessLogsConfigAsync();
         const accessLogsClient = await this.createClientAsync(accessLogsConfig);

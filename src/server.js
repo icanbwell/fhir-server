@@ -19,7 +19,10 @@ require('./middleware/errorHandler');
  * @return {Promise<import('http').Server>}
  */
 async function createServer(fnGetContainer) {
-    await new MongoDatabaseManager().connectAsync();
+    const container = fnGetContainer();
+    await new MongoDatabaseManager({
+        configManager: container.configManager,
+    }).connectAsync();
 
     const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
 
