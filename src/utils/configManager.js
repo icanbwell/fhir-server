@@ -526,10 +526,10 @@ class ConfigManager {
      * @returns {boolean}
      */
     get enableAuditEventArchiveRead() {
-        if (env.AUDIT_EVENT_ENABLE_ARCHIVE_READ === null || env.AUDIT_EVENT_ENABLE_ARCHIVE_READ === undefined) {
+        if (env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === null || env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === undefined) {
             return false;
         }
-        return isTrue(env.AUDIT_EVENT_ENABLE_ARCHIVE_READ);
+        return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
     }
 }
 

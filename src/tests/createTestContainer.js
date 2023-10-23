@@ -18,7 +18,10 @@ const createTestContainer = function (fnUpdateContainer) {
         {
             configManager: c.configManager
         }));
-    container.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
+    container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
+        configManager: c.configManager,
+    }));
+
     container.register('configManager', () => new TestConfigManager());
 
     if (fnUpdateContainer !== undefined) {
