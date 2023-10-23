@@ -38,9 +38,3 @@ process.on('exit', function (code) {
         logInfo(stack, {});
     }
 });
-
-process.on('SIGTERM', () => {
-    console.log('Received SIGTERM signal. Shutting down gracefully...');
-    // Perform any necessary cleanup or finalization steps
-    process.exit(0); // Terminate the process with exit code 0 (success)
-});
