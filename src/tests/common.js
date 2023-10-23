@@ -12,6 +12,7 @@ const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const {fhirContentTypes} = require('../utils/contentTypes');
+const { TestConfigManager } = require('./testConfigManager');
 
 /**
  * @type {import('http').Server}
@@ -146,7 +147,9 @@ module.exports.commonAfterEach = async () => {
     nock.cleanAll();
     // nock.restore(); // nock.activate()
 
-    const testMongoDatabaseManager = new TestMongoDatabaseManager();
+    const configManager = testContainer?.configManager ?? new TestConfigManager();
+
+    const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
     await testMongoDatabaseManager.dropDatabasesAsync();
     if (server) {
         await server.close();
