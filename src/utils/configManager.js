@@ -520,6 +520,17 @@ class ConfigManager {
 
         return isTrue(env.ENABLE_STATS_ENDPOINT);
     }
+
+    /**
+     * whether to read audit event data from archive
+     * @returns {boolean}
+     */
+    get enableAuditEventArchiveRead() {
+        if (env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === null || env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === undefined) {
+            return false;
+        }
+        return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
+    }
 }
 
 module.exports = {

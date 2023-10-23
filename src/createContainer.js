@@ -229,7 +229,9 @@ const createContainer = function () {
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
     }));
-    container.register('mongoDatabaseManager', () => new MongoDatabaseManager());
+    container.register('mongoDatabaseManager', (c) => new MongoDatabaseManager({
+        configManager: c.configManager,
+    }));
     container.register('indexManager', (c) => new IndexManager(
         {
             indexProvider: c.indexProvider,

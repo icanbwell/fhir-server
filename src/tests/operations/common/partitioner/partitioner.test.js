@@ -27,13 +27,14 @@ describe('PartitioningManager Tests', () => {
 
     describe('loadPartitionsFromDatabaseAsync Tests', () => {
         test('loadPartitionsFromDatabaseAsync works', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -58,14 +59,15 @@ describe('PartitioningManager Tests', () => {
             await mongoDatabaseManager.dropDatabasesAsync();
         });
         test('loadPartitionsFromDatabaseAsync works for collections for multiple resources', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager: configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -107,14 +109,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions[0]).toBe(mongoCollectionName2);
         });
         test('loadPartitionsFromDatabaseAsync works for multiple collections for same resource', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -151,14 +154,15 @@ describe('PartitioningManager Tests', () => {
     });
     describe('getPartitionNameByResourceAsync Tests', () => {
         test('getPartitionNameByResourceAsync works for partitioned collection with no records', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -175,14 +179,15 @@ describe('PartitioningManager Tests', () => {
             expect(partition).toBe('Account_4_0_0');
         });
         test('getPartitionNameByResourceAsync works for partitioned collection with records', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -225,14 +230,15 @@ describe('PartitioningManager Tests', () => {
     });
     describe('getPartitionNamesByQueryAsync Tests', () => {
         test('getPartitionNamesByQueryAsync works for partitioned collection with no query', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -247,14 +253,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions[0]).toBe('Account_4_0_0');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent without data & no query', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -272,14 +279,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions.length).toBe(0);
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with data & no query', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -309,14 +317,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for both gt & lt', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -366,14 +375,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for just gt', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -422,14 +432,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for just lt', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
@@ -478,14 +489,15 @@ describe('PartitioningManager Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for both gt & lt outside range', async () => {
+            const configManager = new MockConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: new MockConfigManager(),
+                configManager,
                 mongoDatabaseManager: mongoDatabaseManager
             });
             partitioner.clearCache();
