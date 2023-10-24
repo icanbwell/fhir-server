@@ -23,6 +23,8 @@ const expectedObservationsWithProxyPatients = require('./expected/expectedObserv
 const expectedObservationWithDirectlyLinkedProxyPatient = require('./expected/expectedObservationWithDirectlyLinkedProxyPatient.json');
 const expectedWithWrongProxyPatient = require('./expected/expectedWithWrongProxyPatient.json');
 const expectedObservationWithProxyPatientAndSomeWrongProxyPatient = require('./expected/expectedObservationWithProxyPatientAndSomeWrongProxyPatient.json');
+const expectedObservationWithRewritePatientReferenceFalse = require('./expected/expectedObservationWithRewritePatientReferenceFalse.json');
+const expectedPatientWithRewritePatientReferenceFalse = require('./expected/expectedPatientWithRewritePatientReferenceFalse.json');
 
 const {
     commonBeforeEach,
@@ -45,6 +47,10 @@ class MockConfigManager extends ConfigManager {
 
     get supportLegacyIds() {
         return false;
+    }
+
+    get rewritePatientReference() {
+        return true;
     }
 }
 
@@ -344,5 +350,75 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientAndSomeWrongProxyPatient);
 
         });
+
+        test('should return result with original patient references when _rewritePatientReference is false', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send([
+                    bwellPerson1,
+                    bwellPerson2,
+                    northwellPerson1,
+                    northwellPerson2,
+                    patient1,
+                    patient2,
+                    patient3,
+                    patient4,
+                    observation1,
+                    observation2,
+                    observation3,
+                    observation4,
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Patient back
+            resp = await request
+                .get(
+                    '/4_0_0/Observation/?patient=Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2,Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8&_rewritePatientReference=0'
+                )
+                .set(getHeaders());
+            expect(resp).toHaveResponse(expectedObservationWithRewritePatientReferenceFalse);
+        });
+
+        test('search patient by proxy-person should work correctly when _rewritePatientReference is false', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send([
+                    bwellPerson1,
+                    bwellPerson2,
+                    northwellPerson1,
+                    northwellPerson2,
+                    patient1,
+                    patient2,
+                    patient3,
+                    patient4,
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Patient back
+            resp = await request
+                .get(
+                    '/4_0_0/Patient/?id=person.54808e62-6445-4bb6-8f89-b2ed7e6865d2,person.cda43a72-b5e0-476a-a928-4d768e66d6f8&_rewritePatientReference=0'
+                )
+                .set(getHeaders());
+            expect(resp).toHaveResponse(expectedPatientWithRewritePatientReferenceFalse);
+        });
     });
+
 });

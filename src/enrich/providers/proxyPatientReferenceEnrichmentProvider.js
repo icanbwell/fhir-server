@@ -2,8 +2,23 @@ const {EnrichmentProvider} = require('./enrichmentProvider');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ParsedArgs} = require('../../operations/query/parsedArgs');
 const {PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX} = require('../../constants');
+const { isTrueWithFallback } = require('../../utils/isTrue');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
+
+    /**
+     * @typedef ProxyPatientReferenceEnrichmentProviderParams
+     * @property {ConfigManager} configManager
+     *
+     * constructor
+     * @param {ProxyPatientReferenceEnrichmentProviderParams} params
+     */
+    constructor({ configManager}) {
+        super();
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
     /**
      * enrich the specified resources
      * @param {Resource[]} resources
@@ -12,6 +27,12 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      */
     async enrichAsync({resources, parsedArgs}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
+        const rewritePatientReference = isTrueWithFallback(parsedArgs['_rewritePatientReference'], this.configManager.rewritePatientReference);
+        // if rewrite is false, then don't enrich the resources
+        if (!rewritePatientReference) {
+            return resources;
+        }
+
         // check if any args have a proxy patient
         let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {

@@ -133,7 +133,9 @@ const createContainer = function () {
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new IdEnrichmentProvider(),
-            new ProxyPatientReferenceEnrichmentProvider(),
+            new ProxyPatientReferenceEnrichmentProvider({
+                configManager: c.configManager,
+            }),
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
             }),
@@ -285,7 +287,8 @@ const createContainer = function () {
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
             new PatientProxyQueryRewriter({
-                personToPatientIdsExpander: c.personToPatientIdsExpander
+                personToPatientIdsExpander: c.personToPatientIdsExpander,
+                configManager: c.configManager,
             }),
             new ReferenceQueryRewriter(),
         ]
