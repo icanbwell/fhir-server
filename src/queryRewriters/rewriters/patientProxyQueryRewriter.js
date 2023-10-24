@@ -119,11 +119,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @param {string} base_version
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @param {ConfigManager} configManager
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType, configManager}) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
         // const foo = undefined[1];
