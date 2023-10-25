@@ -74,7 +74,7 @@
               "valueString": "northwell"
             }
           ],
-          "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+          "reference": "Patient/northwell-1|northwell"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -158,7 +158,7 @@
               "valueString": "northwell"
             }
           ],
-          "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+          "reference": "Patient/northwell-2|northwell"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -242,7 +242,7 @@
               "valueString": "northwell"
             }
           ],
-          "reference": "Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
+          "reference": "Patient/northwell-3|northwell"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",
@@ -326,91 +326,7 @@
               "valueString": "northwell"
             }
           ],
-          "reference": "Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8"
-        },
-        "effectivePeriod": {
-          "start": "2021-01-01T00:00:00.000Z",
-          "end": "2021-12-31T00:00:00.000Z"
-        },
-        "issued": "2021-01-01T12:00:00Z",
-        "valueBoolean": false
-      }
-    },
-    {
-      "resource": {
-        "resourceType": "Observation",
-        "id": "b59f86b9-5307-506a-bb6c-3eb555ace529",
-        "meta": {
-          "versionId": "1",
-          "lastUpdated": "2023-09-14T12:56:09.000Z",
-          "source": "/patients",
-          "security": [
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "northwell"
-            },
-            {
-              "system": "https://www.icanbwell.com/access",
-              "code": "northwell"
-            },
-            {
-              "system": "https://www.icanbwell.com/vendor",
-              "code": "northwell"
-            },
-            {
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "code": "northwell"
-            }
-          ]
-        },
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "b59f86b9-5307-506a-bb6c-3eb555ace529"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "b59f86b9-5307-506a-bb6c-3eb555ace529"
-          }
-        ],
-        "status": "final",
-        "code": {
-          "coding": [
-            {
-              "system": "http://www.icanbwell.com/cql/library",
-              "code": "BMI001"
-            },
-            {
-              "system": "http://www.icanbwell.com/cql/libraryVersion",
-              "code": "1.0.0"
-            },
-            {
-              "system": "http://www.icanbwell.com/cql/rule",
-              "code": "InAgeCohort"
-            }
-          ]
-        },
-        "subject": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "northwell"
-            }
-          ],
-          "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
+          "reference": "Patient/northwell-4|northwell"
         },
         "effectivePeriod": {
           "start": "2021-01-01T00:00:00.000Z",

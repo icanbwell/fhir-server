@@ -531,6 +531,16 @@ class ConfigManager {
         }
         return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
     }
+
+    /**
+     * wether to rewrite patient references to proxy-patient reference
+     */
+    get rewritePatientReference() {
+        if (env.REWRITE_PATIENT_REFERENCE === null || env.REWRITE_PATIENT_REFERENCE === undefined) {
+            return true;
+        }
+        return isTrue(env.REWRITE_PATIENT_REFERENCE);
+    }
 }
 
 module.exports = {
