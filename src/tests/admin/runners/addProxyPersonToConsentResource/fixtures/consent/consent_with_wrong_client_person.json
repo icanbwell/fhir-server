@@ -1,22 +1,22 @@
 {
   "resourceType": "Consent",
-  "id": "e0363690-3953-4a02-a98b-f341fd13fb8c",
+  "id": "09d2db52-d386-497f-a777-afe458c7d80b",
   "meta": {
     "versionId": "1",
     "lastUpdated": "2023-08-16T08:07:02.000Z",
-    "source": "medstar",
+    "source": "walgreens",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "walgreens"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "walgreens"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "medstar"
+        "code": "walgreens"
       }
     ]
   },
@@ -24,12 +24,12 @@
     {
       "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
-      "value": "e0363690-3953-4a02-a98b-f341fd13fb8c"
+      "value": "09d2db52-d386-497f-a777-afe458c7c80b"
     },
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "e0363690-3953-4a02-a98b-f341fd13fb8c"
+      "value": "09d2db52-d386-497f-a777-afe458c7c80b"
     }
   ],
   "status": "active",
@@ -56,20 +56,20 @@
       {
         "id": "sourceId",
         "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
+        "valueString": "Patient/cde3a031-fd87-4956-a246-7da32dc0aa39"
       },
       {
         "id": "uuid",
         "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
+        "valueString": "Patient/cde3a031-fd87-4956-a246-7da32dc0aa39"
       },
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "medstar"
+        "valueString": "walgreens"
       }
     ],
-    "reference": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
+    "reference": "Patient/cde3a031-fd87-4956-a246-7da32dc0aa39"
   },
   "dateTime": "2022-09-08T14:05:07.350Z",
   "sourceReference": {
@@ -87,7 +87,7 @@
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "medstar"
+        "valueString": "walgreens"
       }
     ],
     "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
@@ -105,24 +105,8 @@
           ]
         },
         "reference": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
-            }
-          ],
-          "reference": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
+          "reference": "Patient/person.97f5479a-1611-4964-911f-df1740f454e1",
+          "_sourceAssigningAuthority": "walgreens"
         }
       }
     ]

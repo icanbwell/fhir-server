@@ -52,44 +52,10 @@
     }
   ],
   "patient": {
-    "extension": [
-      {
-        "id": "sourceId",
-        "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
-      },
-      {
-        "id": "uuid",
-        "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
-      },
-      {
-        "id": "sourceAssigningAuthority",
-        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "medstar"
-      }
-    ],
     "reference": "Patient/784991a1-14fe-493c-b5e2-027eb36aa192"
   },
   "dateTime": "2022-09-08T14:05:07.350Z",
   "sourceReference": {
-    "extension": [
-      {
-        "id": "sourceId",
-        "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
-      },
-      {
-        "id": "uuid",
-        "url": "https://www.icanbwell.com/uuid",
-        "valueString": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
-      },
-      {
-        "id": "sourceAssigningAuthority",
-        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "medstar"
-      }
-    ],
     "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
   },
   "provision": {
@@ -135,24 +101,8 @@
           ]
         },
         "reference": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
-            }
-          ],
-          "reference": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23"
+          "reference": "Patient/person.a5ff74dd-d593-4059-b399-c399188aca23",
+          "_sourceAssigningAuthority": "medstar"
         }
       }
     ]
