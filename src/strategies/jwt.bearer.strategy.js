@@ -336,6 +336,7 @@ module.exports.strategy = new MyJwtStrategy(
             rateLimit: true,
             jwksRequestsPerMinute: 5,
             jwksUri: env.AUTH_JWKS_URL,
+            cacheMaxAge: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : 24 * 60 * 60 * 1000,
             /**
              * @return {Promise<import('jwks-rsa').JSONWebKey[]>}
              */

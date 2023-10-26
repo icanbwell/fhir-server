@@ -7,8 +7,15 @@ const superagent = require('superagent');
 const { ExternalTimeoutError } = require('../utils/httpErrors');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
+const cacheMaxAge = env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : 24 * 60 * 60 * 1000;
+let lastRequestTime = 0;
+let cachedResponse = null;
+
 module.exports.handleSmartConfiguration = async (req, res, next) => {
     if (env.AUTH_CONFIGURATION_URI) {
+        if (new Date().getTime() - lastRequestTime < cacheMaxAge && cachedResponse) {
+            return res.json(cachedResponse);
+        }
         /**
          * @type {*}
          */
@@ -24,6 +31,8 @@ module.exports.handleSmartConfiguration = async (req, res, next) => {
              * @type {Object}
              */
             const jsonResponse = JSON.parse(response.text);
+            cachedResponse = jsonResponse;
+            lastRequestTime = new Date().getTime();
             res.json(jsonResponse);
         } catch (err) {
             if (err.timeout) {
