@@ -301,6 +301,9 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 );
             } else {
+                if (isNaN(doc.meta.versionId)) {
+                    logInfo('Found operation with NaN versionId in DatabaseBulkInserter.insertOneAsync', {doc, requestId, resourceType});
+                }
                 // else insert it
                 await logVerboseAsync({
                     source: 'DatabaseBulkInserter.insertOneAsync',
@@ -488,7 +491,9 @@ class DatabaseBulkInserter extends EventEmitter {
             doc = await this.preSaveManager.preSaveAsync(doc);
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
-
+            if (isNaN(doc.meta.versionId)) {
+                logInfo('Found operation with NaN versionId in DatabaseBulkInserter.replaceOnceAsync', { doc, requestId, resourceType, uuid, patches});
+            }
             // see if there are any other pending updates for this doc
             /**
              * @type {BulkInsertUpdateEntry[]}
@@ -601,6 +606,9 @@ class DatabaseBulkInserter extends EventEmitter {
                         incrementVersion: false
                     }
                 );
+                if (!isNaN(previousVersionId) || isNaN(updatedResource.meta.versionId)) {
+                    logInfo('Found operation with NaN versionId in if DatabaseBulkInserter.mergeOneAsync', {doc: updatedResource, requestId, previousVersionId, resourceType});
+                }
                 if (!updatedResource) {
                     return; // no change so ignore
                 } else {
@@ -634,6 +642,9 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceToMerge: doc,
                         incrementVersion: false
                     });
+                    if (!isNaN(previousVersionId) || isNaN(updatedResource.meta.versionId)) {
+                        logInfo('Found operation with NaN versionId in else if DatabaseBulkInserter.mergeOneAsync', {doc: updatedResource, requestId, previousVersionId, resourceType});
+                    }
                     if (!updatedResource) {
                         return; // no change so ignore
                     } else {
@@ -648,6 +659,9 @@ class DatabaseBulkInserter extends EventEmitter {
                     assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
+                    if (isNaN(doc.meta.versionId)) {
+                        logInfo('Found operation with NaN versionId in else else DatabaseBulkInserter.mergeOneAsync', {doc, requestId, previousVersionId, resourceType});
+                    }
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
                             requestId,
@@ -994,7 +1008,8 @@ class DatabaseBulkInserter extends EventEmitter {
                             // do inserts/updates one by one
                             await this.updateResourcesOneByOneAsync(
                                 {
-                                    bulkInsertUpdateEntries: expectedInsertsByUniqueId
+                                    bulkInsertUpdateEntries: expectedInsertsByUniqueId,
+                                    requestId
                                 }
                             );
                         }
@@ -1032,7 +1047,8 @@ class DatabaseBulkInserter extends EventEmitter {
                             );
                             await this.updateResourcesOneByOneAsync(
                                 {
-                                    bulkInsertUpdateEntries: expectedUpdates
+                                    bulkInsertUpdateEntries: expectedUpdates,
+                                    requestId
                                 }
                             );
                         }
@@ -1219,9 +1235,10 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Updates resources one by one
      * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
+     * @param {string} requestId
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync({bulkInsertUpdateEntries}) {
+    async updateResourcesOneByOneAsync({bulkInsertUpdateEntries, requestId}) {
         let i = 0;
         for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
             i = i + 1;
@@ -1248,7 +1265,8 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync(
                 {
-                    doc: bulkInsertUpdateEntry.resource
+                    doc: bulkInsertUpdateEntry.resource,
+                    requestId
                 }
             );
             if (savedResource) {

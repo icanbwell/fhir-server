@@ -13,6 +13,7 @@ const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {ConfigManager} = require('../utils/configManager');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const {ReadPreference} = require('mongodb');
+const { logInfo } = require('../operations/common/logging');
 
 class DatabaseUpdateManager {
     /**
@@ -104,10 +105,11 @@ class DatabaseUpdateManager {
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
      * @param {Resource} doc
+     * @param {string} requestId
      * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync({doc, smartMerge = true}) {
+    async replaceOneAsync({doc, requestId, smartMerge = true}) {
         const originalDoc = doc.clone();
         doc = await this.preSaveManager.preSaveAsync(doc);
         /**
@@ -148,6 +150,11 @@ class DatabaseUpdateManager {
                     }
                 }
             );
+            if (!resourceInDatabase && isNaN(doc.meta.versionId)) {
+                logInfo('Found operation with NaN versionId in DatabaseUpdateManager.replaceOneAsync', {
+                    doc, requestId
+                });
+            }
             if (!resourceInDatabase) {
                 return {savedResource: await this.insertOneAsync({doc}), patches: null};
             }
@@ -171,6 +178,11 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
+                if (!isNaN(resourceInDatabase.meta.versionId) && isNaN(doc.meta.versionId)) {
+                    logInfo('Found operation with NaN versionId in DatabaseUpdateManager.replaceOneAsync', {
+                        doc, resourceInDatabase, requestId
+                    });
+                }
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
                     {$and: [{_uuid: doc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
