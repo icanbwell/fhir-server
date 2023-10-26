@@ -3,7 +3,7 @@ const { describe, beforeEach, afterEach, test } = require('@jest/globals');
 const nock = require('nock');
 
 // expected
-const timoeutError = require('./expected/expected_504.json');
+const timeoutError = require('./expected/expected_504.json');
 
 describe('Smart Configuration', () => {
     beforeEach(async () => {
@@ -20,9 +20,6 @@ describe('Smart Configuration', () => {
             authorization_endpoint: '/oauth2/authorize',
         };
         nock('https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD')
-            .get('/.well-known/openid-configuration')
-            .delay(100)
-            .reply(200, mockedResponse)
             // retry 3 times
             .get('/.well-known/openid-configuration')
             .delay(6000)
@@ -35,14 +32,25 @@ describe('Smart Configuration', () => {
             .reply(200, mockedResponse)
             .get('/.well-known/openid-configuration')
             .delay(6000)
+            .reply(200, mockedResponse)
+            .get('/.well-known/openid-configuration')
+            .delay(100)
+            .reply(200, mockedResponse)
+            .get('/.well-known/openid-configuration')
+            .delay(6000)
             .reply(200, mockedResponse);
 
+        // should throw timeout error
         let resp = await request.get('/.well-known/smart-configuration').set(getHeaders());
+        // expect timeout error
+        expect(resp).toHaveResponse(timeoutError);
+
+        // should return correct response
+        resp = await request.get('/.well-known/smart-configuration').set(getHeaders());
         expect(resp).toHaveMergeResponse(mockedResponse);
 
-        // now should throw timeout error
+        // should not throw timeout error due to cache
         resp = await request.get('/.well-known/smart-configuration').set(getHeaders());
-        // expect timeout error
-        expect(resp).toHaveResponse(timoeutError);
+        expect(resp).toHaveMergeResponse(mockedResponse);
     });
 });
