@@ -5,9 +5,9 @@
 const env = require('var');
 const superagent = require('superagent');
 const { ExternalTimeoutError } = require('../utils/httpErrors');
-const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
+const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
-const cacheMaxAge = env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : 24 * 60 * 60 * 1000;
+const cacheMaxAge = env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME;
 let lastRequestTime = 0;
 let cachedResponse = null;
 

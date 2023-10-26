@@ -11,7 +11,7 @@ const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
 const {Issuer} = require('openid-client');
-const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
+const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = [
@@ -336,7 +336,7 @@ module.exports.strategy = new MyJwtStrategy(
             rateLimit: true,
             jwksRequestsPerMinute: 5,
             jwksUri: env.AUTH_JWKS_URL,
-            cacheMaxAge: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : 24 * 60 * 60 * 1000,
+            cacheMaxAge: env.CACHE_EXPIRY_TIME ? Number(env.CACHE_EXPIRY_TIME) : DEFAULT_CACHE_EXPIRY_TIME,
             /**
              * @return {Promise<import('jwks-rsa').JSONWebKey[]>}
              */
