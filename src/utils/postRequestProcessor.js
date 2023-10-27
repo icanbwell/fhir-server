@@ -6,9 +6,6 @@ const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 
-const Mutex = require('async-mutex').Mutex;
-const mutex = new Mutex();
-
 /**
  * This class implements a processor that runs tasks after the response for the current request has been
  * sent to the client.  This speeds up responding to clients and offloading other tasks for after
@@ -83,45 +80,40 @@ class PostRequestProcessor {
         }
         const tasksInQueueBefore = queue.length;
 
-        await mutex.runExclusive(async () => {
-            if (queue.length === 0) {
-                return;
+        this.setExecutionRunningForRequest({requestId, value: true});
+        await logTraceSystemEventAsync(
+            {
+                event: 'executeAsync',
+                message: `executeAsync: ${requestId}`,
+                args: {
+                    requestId: requestId,
+                    count: queue.length
+                }
             }
-            this.setExecutionRunningForRequest({requestId, value: true});
-            await logTraceSystemEventAsync(
-                {
-                    event: 'executeAsync',
-                    message: `executeAsync: ${requestId}`,
-                    args: {
-                        requestId: requestId,
-                        count: queue.length
+        );
+        /**
+         * @type {function(): Promise<void>}
+         */
+        let task = queue.shift();
+        while (task !== undefined) {
+            try {
+                await task();
+            } catch (e) {
+                await logSystemErrorAsync(
+                    {
+                        event: 'postRequestProcessor',
+                        message: 'Error running task',
+                        args: {
+                            requestId: requestId,
+                        },
+                        error: e
                     }
-                }
-            );
-            /**
-             * @type {function(): void}
-             */
-            let task = queue.shift();
-            while (task !== undefined) {
-                try {
-                    await task();
-                } catch (e) {
-                    await logSystemErrorAsync(
-                        {
-                            event: 'postRequestProcessor',
-                            message: 'Error running task',
-                            args: {
-                                requestId: requestId,
-                            },
-                            error: e
-                        }
-                    );
-                    // swallow the error so we can continue processing
-                }
-                task = queue.shift();
+                );
+                // swallow the error so we can continue processing
             }
-            this.setExecutionRunningForRequest({requestId, value: false});
-        });
+            task = queue.shift();
+        }
+        this.setExecutionRunningForRequest({requestId, value: false});
         // If we processed any tasks then log it
         if (tasksInQueueBefore > 0) {
             await logTraceSystemEventAsync(
