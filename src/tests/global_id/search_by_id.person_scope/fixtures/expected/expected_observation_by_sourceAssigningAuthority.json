@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'},{'_sourceAssigningAuthority':'C'},{'$or':[{'subject._uuid':{'$in':['Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b']}},{'subject._sourceId':{'$in':['Patient/person.person1']}}]}]}, {}).sort({'id':1}).limit(1000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'_uuid':'7fcfcd47-31f1-5044-be40-cd2d0059bd67'},{'$or':[{'subject._uuid':{'$in':['Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b']}},{'subject._sourceId':{'$in':['Patient/person.person1']}}]}]}, {}).sort({'id':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -103,7 +103,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['_sourceId','_sourceAssigningAuthority','subject._uuid','subject._sourceId','id']",
+        "display": "['_uuid','subject._uuid','subject._sourceId','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
