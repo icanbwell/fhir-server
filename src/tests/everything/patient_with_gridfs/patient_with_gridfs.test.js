@@ -27,7 +27,7 @@ describe('GridFS everything tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .get(`/4_0_0/Patient/${resp._body[0].id}/$everything`)
+                .get('/4_0_0/Patient/1/$everything')
                 .set(getHeaders())
                 .expect(200);
 

@@ -500,11 +500,14 @@ function toHaveMergeResponse(resp, checks) {
         return toHaveStatusOk(resp);
     }
     try {
-        const body = resp.body;
+        let body = resp.body;
         if (Array.isArray(body)) {
             if (!Array.isArray(checks)) {
                 checks = [checks];
             }
+
+            checks = checks.sort((a, b) => a.uuid?.localeCompare(b.uuid) || 1);
+            body = body.sort((a, b) => a.uuid?.localeCompare(b.uuid) || 1);
             for (const bodyItemIndex in body) {
                 const bodyItem = body[`${bodyItemIndex}`];
                 const expectedItem = checks[`${bodyItemIndex}`];
