@@ -205,7 +205,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':'262230ac-b567-55ca-a224-0ed5ed1e285b'},{'_uuid':'829fc8fe-f9ae-5b97-838b-a717515d2c80'},{'_sourceId':'person.m65633'}]}, {'_id':0})  | db.Observation_4_0_0.find({'subject._uuid':'Patient/262230ac-b567-55ca-a224-0ed5ed1e285b'}, {})",
+        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['262230ac-b567-55ca-a224-0ed5ed1e285b','829fc8fe-f9ae-5b97-838b-a717515d2c80']}},{'_sourceId':'person.m65633'}]}, {'_id':0})  | db.Observation_4_0_0.find({'subject._uuid':'Patient/262230ac-b567-55ca-a224-0ed5ed1e285b'}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {
