@@ -87,7 +87,7 @@
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "client2"
+        "valueString": "walgreens"
       }
     ],
     "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
@@ -105,24 +105,8 @@
           ]
         },
         "reference": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/person.9e40c66e-afd4-4106-b3f2-bf579e209dbc"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/person.9e40c66e-afd4-4106-b3f2-bf579e209dbc"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "client2"
-            }
-          ],
-          "reference": "Patient/person.9e40c66e-afd4-4106-b3f2-bf579e209dbc"
+          "reference": "Patient/person.97f5479a-1611-4964-911f-df1640f454f0",
+          "_sourceAssigningAuthority": "bwell"
         }
       }
     ]

@@ -6,6 +6,7 @@ const { isUuid, generateUUIDv5 } = require('./uid.util');
 const { SearchFilterFromReference } = require('../operations/query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
 const { logWarn } = require('../operations/common/logging');
+const { FilterById } = require('../operations/query/filters/id');
 
 const BwellMasterPersonCode = BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY;
 const MaxDepthForBFS = 3;
@@ -43,6 +44,131 @@ class BwellPersonFinder {
             databaseQueryManager: databaseQueryManager,
             visitedSubjects: new Set()
         });
+    }
+
+    /**
+     * finds client person Ids associated with patientsIds
+     * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean }} options List of patient and proxy-patient References
+     * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as master-persons-id
+     */
+    async getClientPersonIdAsync({ patientReferences, asObject }) {
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version: '4_0_0'
+        });
+        const patientToClientPersonMap = await this.getClientPersonIdsHelperAsync({ references: patientReferences, databaseQueryManager, asObject });
+        return patientToClientPersonMap;
+    }
+
+    /**
+     * Finds client person for given references and returns a map of `reference -> clientPerson Uuid Ref`
+     * @typedef {Object} GetClientPersonIdsHelperProps
+     * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} references
+     * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
+     * @property {boolean} asObject If true, will return Map of PatientReference -> ClientPerson IReference
+     * @param {GetClientPersonIdsHelperProps}
+     * @returns {Promise<Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference>}Returns a map of patientRefs -> client person uuid refs
+     */
+    async getClientPersonIdsHelperAsync({ references, databaseQueryManager, asObject }) {
+        if (!references || Object.keys(references).length === 0) {
+            return new Map();
+        }
+
+        /**
+         * @type {import('../operations/query/filters/searchFilterFromReference').IReferences}
+         */
+        const patientReferences = [];
+        /**
+         * @type {string[]}
+         */
+        const patientReferencesString = [];
+
+        // build the filter
+        const searchFilters = SearchFilterFromReference.buildFilter(references, 'link.target');
+
+        // extract person id from proxy-patient id
+        const personIds = new Set(references.filter((ref) => {
+            if (ref.id.startsWith(PERSON_PROXY_PREFIX)) {
+                return true;
+            } else {
+                patientReferences.push(ref);
+                patientReferencesString.push(ReferenceParser.createReference({...ref}));
+                return false;
+            }
+        }).map(ref => ref.id.replace(PERSON_PROXY_PREFIX, '')));
+
+        const personIdFilter = FilterById.getListFilter(Array.from(personIds));
+
+        /**
+         * @type {Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference}
+         */
+        const patientRefToClientPersonRefMap = new Map();
+
+        /**
+         * @type {Map<string, string[]>}
+         */
+        const personRefToLinkedRefsMap = new Map();
+        /**
+         * @type {Map<string, import('../operations/query/filters/searchFilterFromReference').IReference}
+         */
+        const personRefToPersonRefObj = new Map();
+
+        // get all persons
+        let linkedPersonCursor = await databaseQueryManager.findAsync({
+            query: {
+                '$or': [
+                    ...searchFilters,
+                    personIdFilter,
+                ]
+            }
+        });
+
+        while (await linkedPersonCursor.hasNext()) {
+            let linkedPerson = await linkedPersonCursor.next();
+            const personUuidRef = `${PERSON_REFERENCE_PREFIX}${linkedPerson._uuid}`;
+            const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, patientReferencesString);
+            personRefToLinkedRefsMap.set(personUuidRef, linkedReferences);
+
+            if (asObject) {
+                personRefToPersonRefObj.set(personUuidRef, {
+                    id: linkedPerson._uuid,
+                    resourceType: linkedPerson.resourceType,
+                    sourceAssigningAuthority: linkedPerson._sourceAssigningAuthority,
+                });
+            }
+
+            /**
+             * @type {string|undefined}
+             */
+            let proxyPatientRef;
+            // add to map if person found for proxy-patient
+            if (personIds.has(linkedPerson._uuid)) {
+                proxyPatientRef = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${linkedPerson._uuid}`;
+            } else if (personIds.has(linkedPerson._sourceId)) {
+                proxyPatientRef = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${linkedPerson._sourceId}`;
+            }
+
+            if (proxyPatientRef && asObject) {
+                patientRefToClientPersonRefMap.set(proxyPatientRef, personRefToPersonRefObj.get(personUuidRef));
+            } else if (proxyPatientRef){
+                patientRefToClientPersonRefMap.set(proxyPatientRef, personUuidRef);
+            }
+        }
+
+        // build map of patient to person
+        for (const [clientPerson, linkedReferences] of personRefToLinkedRefsMap.entries()) {
+            if (linkedReferences && linkedReferences.length > 0) {
+                linkedReferences.forEach((currentReference) => {
+                    if (asObject) {
+                        patientRefToClientPersonRefMap.set(currentReference, personRefToPersonRefObj.get(clientPerson));
+                    } else {
+                        patientRefToClientPersonRefMap.set(currentReference, clientPerson);
+                    }
+                });
+            }
+        }
+
+        return patientRefToClientPersonRefMap;
     }
 
     /**

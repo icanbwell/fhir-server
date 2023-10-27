@@ -1,6 +1,6 @@
 {
   "resourceType": "Consent",
-  "id": "09d2db52-d386-497f-a777-afe458c7c80b",
+  "id": "09d2db52-d386-497f-a777-afe458c7d80b",
   "meta": {
     "versionId": "1",
     "lastUpdated": "2023-08-16T08:07:02.000Z",
@@ -105,24 +105,8 @@
           ]
         },
         "reference": {
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/person.9e40c66e-afd4-4106-b3f2-bf579e209dbc"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/person.9e40c66e-afd4-4106-b3f2-bf579e209dbc"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "client2"
-            }
-          ],
-          "reference": "Patient/person.9e40c66e-afd4-4106-b3f2-bf579e209dbc"
+          "reference": "Patient/person.97f5479a-1611-4964-911f-df1740f454e1",
+          "_sourceAssigningAuthority": "client2"
         }
       }
     ]
