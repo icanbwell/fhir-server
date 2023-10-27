@@ -372,6 +372,30 @@ module.exports = {
                 }
             }
         ],
+        'ChargeItem_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
+        'CodeSystem_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
         'Communication_4_0_0': [
             {
                keys: {
@@ -383,6 +407,18 @@ module.exports = {
                 },
                 options: {
                     name: 'health_notifications'
+                }
+            }
+        ],
+        'Condition_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -404,6 +440,28 @@ module.exports = {
                 options: {
                     name: 'helix_coverage_uuid'
                 }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
+        'DocumentReference_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
             }
         ],
         'Encounter_4_0_0': [
@@ -416,6 +474,16 @@ module.exports = {
                 },
                 options: {
                     name: 'access_Thedacare.meta_source.uuid.meta_lastUpdated'
+                }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -458,6 +526,16 @@ module.exports = {
                 },
                 options: {
                     name: 'security.system_code_uuid_1'
+                }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -525,7 +603,19 @@ module.exports = {
                     name: 'providedBy._sourceId'
                 }
             }
-       ],
+        ],
+        'Library_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
         'Location_4_0_0': [
             {
                 keys: {
@@ -543,6 +633,54 @@ module.exports = {
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
+                }
+            }
+        ],
+        'Measure_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
+        'MeasureReport_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
+        'MedicationDispense_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
+        'MedicationRequest_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -605,6 +743,16 @@ module.exports = {
                 },
                 options: {
                     name: 'category_coding_code.effectiveDateTime._uuid_1'
+                }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -677,6 +825,16 @@ module.exports = {
                 },
                 options: {
                     name: 'name.given_1'
+                }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -825,6 +983,16 @@ module.exports = {
                 options: {
                     name: 'birthDate_uuid'
                 }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
             }
         ],
         'Practitioner_4_0_0': [
@@ -932,6 +1100,18 @@ module.exports = {
                 }
             }
         ],
+        'Procedure_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
         'Provenance_4_0_0': [
             {
                 keys: {
@@ -949,6 +1129,18 @@ module.exports = {
                 },
                 options: {
                     name: 'targetSourceid_uuid'
+                }
+            }
+        ],
+        'Questionaire_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -975,6 +1167,16 @@ module.exports = {
                 },
                 options: {
                     name: 'consent_graphql_sourceId'
+                }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
@@ -1066,6 +1268,28 @@ module.exports = {
                 },
                 options: {
                     name: 'identifier.system_1_identifier.value_1'
+                }
+            },
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
+                }
+            }
+        ],
+        'ValueSet_4_0_0': [
+            {
+               keys: {
+                    'meta.lastUpdated"]': 1,
+                    '_access.bwell': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'meta.lastUpdated_1__access.bwell_1__uuid_1'
                 }
             }
         ],
