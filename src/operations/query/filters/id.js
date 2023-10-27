@@ -1,7 +1,7 @@
-const { FieldMapper } = require('./fieldMapper');
-const {isUuid} = require('../../../utils/uid.util');
+const {isUuid, generateUUIDv5} = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
 const {IdParser} = require('../../../utils/idParser');
+const { FieldMapper } = require('./fieldMapper');
 
 const uuidFieldName = '_uuid';
 
@@ -10,40 +10,6 @@ const uuidFieldName = '_uuid';
  * https://www.hl7.org/fhir/search.html#id
  */
 class FilterById extends BaseFilter {
-    /**
-     * @param {string} field
-     * @param {string} value
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
-     */
-    filterByItem(field, value) {
-        if (this.enableGlobalIdSupport) {
-            const {id, sourceAssigningAuthority} = IdParser.parse(value);
-            if (isUuid(id)) {
-                return {
-                    [this.fieldMapper.getFieldName(uuidFieldName)]: id
-                };
-            } else if (sourceAssigningAuthority) {
-                return {
-                    $and: [
-                        {
-                            [this.fieldMapper.getFieldName(field)]: id,
-                        },
-                        {
-                            [this.fieldMapper.getFieldName('_sourceAssigningAuthority')]: sourceAssigningAuthority
-                        }
-                    ]
-                };
-            } else {
-                return {
-                    [this.fieldMapper.getFieldName(field)]: id,
-                };
-            }
-        } else {
-            return {
-                [this.fieldMapper.getFieldName(field)]: value
-            };
-        }
-    }
 
     /**
      * Get filter for list of ids
@@ -51,17 +17,18 @@ class FilterById extends BaseFilter {
      * @returns {{_uuid: {$in}}|{_sourceId: {$in}}|{$or: ({_uuid: {$in}}|{_sourceId: {$in}})[]}}
      */
     static getListFilter(values){
-        const idFieldMapper = new FieldMapper({useHistoryTable: false});
-        let uuids = values.filter(value => idFieldMapper.getFieldName('id', value) === '_uuid');
-        let sourceIds = values.filter(value => idFieldMapper.getFieldName('id', value) === '_sourceId');
-        let query;
-        const uuidQuery = {'_uuid': {$in: uuids}};
-        const sourceIdQuery = {'_sourceId': {$in: sourceIds}};
+        if (!values || values.length === 0) {
+            return { '_uuid': { $in: [] }};
+        }
 
-        if (uuids.length && sourceIds.length){
-            query = {$or: [uuidQuery, sourceIdQuery]};
+        const idFieldMapper = new FieldMapper({useHistoryTable: false});
+        const filter = FilterById.filterByItems('id', values, idFieldMapper);
+        let query;
+
+        if (filter.length > 1){
+            query = {$or: filter};
         } else {
-            query = uuids.length ? uuidQuery : sourceIdQuery;
+            query = filter[0];
         }
         return query;
 
@@ -82,7 +49,7 @@ class FilterById extends BaseFilter {
                     $or: this.propertyObj.fields.flatMap((field) => {
                             return {
                                 [this.parsedArg.queryParameterValue.operator]:
-                                this.filterByItems(field, this.parsedArg.queryParameterValue.values)
+                                FilterById.filterByItems(field, this.parsedArg.queryParameterValue.values, this.fieldMapper)
                             };
                         }
                     ),
@@ -97,51 +64,45 @@ class FilterById extends BaseFilter {
      * Generate filter based of field and values
      * @param {string} field
      * @param {string[]} values
+     * @param {import('./fieldMapper')} fieldMapper
      * @returns {Array<Object>}
      */
-    filterByItems(field, values) {
-        if (this.enableGlobalIdSupport) {
-            const filters = [];
-            /**
-             * 3 types of values are possible
-             * 1. uuid, 2. sourceId, 3. sourceId and sourceAssigningAuthority
-             */
-            let /**@type {string[]}*/uuids = [], /**@type {string[]}*/sourceIds = [], /**@type {string[]}*/sourceIdsWithSourceAssigningAuthority = [];
+    static filterByItems(field, values, fieldMapper) {
+        const filters = [];
+        /**
+         * 3 types of values are possible
+         * 1. uuid, 2. sourceId, 3. sourceId and sourceAssigningAuthority
+         */
+        let /**@type {string[]}*/uuids = [], /**@type {string[]}*/sourceIds = [];
 
-            values.forEach((value) => {
-                const {id, sourceAssigningAuthority} = IdParser.parse(value);
-                if (isUuid(id)) {
-                    uuids.push(id);
-                } else if (sourceAssigningAuthority) {
-                    sourceIdsWithSourceAssigningAuthority.push(value);
-                } else {
-                    sourceIds.push(id);
+        values.forEach((value) => {
+            const {id, sourceAssigningAuthority} = IdParser.parse(value);
+            if (isUuid(id)) {
+                uuids.push(id);
+            } else if (sourceAssigningAuthority) {
+                const generatedUuid = generateUUIDv5(`${id}|${sourceAssigningAuthority}`);
+                uuids.push(generatedUuid);
+            } else {
+                sourceIds.push(id);
+            }
+        });
+
+        if (uuids.length > 0) {
+            filters.push({
+                [fieldMapper.getFieldName(uuidFieldName)]: {
+                    $in: uuids,
                 }
             });
-
-            if (uuids.length > 0) {
-                filters.push({
-                    [this.fieldMapper.getFieldName(uuidFieldName)]: {
-                        $in: uuids,
-                    }
-                });
-            }
-
-            if (sourceIds.length > 0) {
-                filters.push({
-                    [this.fieldMapper.getFieldName(field)]: {
-                        $in: sourceIds,
-                    }
-                });
-            }
-
-            if (sourceIdsWithSourceAssigningAuthority.length > 0) {
-                filters.push(...sourceIdsWithSourceAssigningAuthority.flatMap(v => this.filterByItem(field, v)));
-            }
-            return filters;
-        } else {
-            return values.flatMap((v) => this.filterByItem(field, v));
         }
+
+        if (sourceIds.length > 0) {
+            filters.push({
+                [fieldMapper.getFieldName(field)]: {
+                    $in: sourceIds,
+                }
+            });
+        }
+        return filters;
     }
 
 }
