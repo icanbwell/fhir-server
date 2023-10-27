@@ -137,12 +137,20 @@ class BwellPersonFinder {
                 });
             }
 
+            /**
+             * @type {string|undefined}
+             */
+            let proxyPatientRef;
             // add to map if person found for proxy-patient
             if (personIds.has(linkedPerson._uuid)) {
-                const proxyPatientRef = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${linkedPerson._uuid}`;
-                patientRefToClientPersonRefMap.set(proxyPatientRef, personUuidRef);
+                proxyPatientRef = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${linkedPerson._uuid}`;
             } else if (personIds.has(linkedPerson._sourceId)) {
-                const proxyPatientRef = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${linkedPerson._sourceId}`;
+                proxyPatientRef = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${linkedPerson._sourceId}`;
+            }
+
+            if (proxyPatientRef && asObject) {
+                patientRefToClientPersonRefMap.set(proxyPatientRef, personRefToPersonRefObj.get(personUuidRef));
+            } else if (proxyPatientRef){
                 patientRefToClientPersonRefMap.set(proxyPatientRef, personUuidRef);
             }
         }
@@ -151,17 +159,15 @@ class BwellPersonFinder {
         for (const [clientPerson, linkedReferences] of personRefToLinkedRefsMap.entries()) {
             if (linkedReferences && linkedReferences.length > 0) {
                 linkedReferences.forEach((currentReference) => {
-                    patientRefToClientPersonRefMap.set(currentReference, clientPerson);
+                    if (asObject) {
+                        patientRefToClientPersonRefMap.set(currentReference, personRefToPersonRefObj.get(clientPerson));
+                    } else {
+                        patientRefToClientPersonRefMap.set(currentReference, clientPerson);
+                    }
                 });
             }
         }
 
-        if (asObject) {
-            for (const key of patientRefToClientPersonRefMap.keys()) {
-                const clientPerson = patientRefToClientPersonRefMap.get(key);
-                patientRefToClientPersonRefMap.set(key, personRefToPersonRefObj.get(clientPerson));
-            }
-        }
         return patientRefToClientPersonRefMap;
     }
 
