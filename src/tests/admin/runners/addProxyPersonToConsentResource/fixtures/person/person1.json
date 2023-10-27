@@ -2,15 +2,15 @@
     "resourceType": "Person",
     "id": "a5ff74dd-d593-4059-b399-c399188aca23",
     "meta": {
-        "source": "medstar",
+        "source": "client",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             }
         ]
     },
