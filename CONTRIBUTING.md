@@ -5,6 +5,17 @@ You will need:
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
 2. Node.js 18.16: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
 
+On Macs:
+1. `brew install nvm`
+2. Add the content into ~/.zshrc as suggested by above
+3. Close shell window and open again
+4. `nvm install 18.16`
+5. `nvm use`
+6. `npm install -g yarn`
+7. `yarn install`
+8. `cd src/web && yarn install && cd ../..`
+
+
 ## Common developer processes
 
 ### Run lint
