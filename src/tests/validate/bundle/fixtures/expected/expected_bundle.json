@@ -1,0 +1,12 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Bundle"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
