@@ -3,10 +3,8 @@ on: [workflow_dispatch]
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-13-arm64
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
       - name: Check Architecture
         run: |
           uname -m
