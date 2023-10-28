@@ -312,6 +312,14 @@ class ValidateOperation {
         if (resourceObjectToValidate.id) {
             resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
         }
+        // If we have a bundle then fix the ids in the bundle entries
+        if (resourceObjectToValidate.resourceType === 'Bundle') {
+            for (const entry of resourceObjectToValidate.entry || []) {
+                if (entry.resource && entry.resource.id) {
+                    entry.resource.id = entry.resource.id.slice(0, 64);
+                }
+            }
+        }
         if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
             // noinspection JSValidateTypes
             resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
@@ -396,4 +404,3 @@ class ValidateOperation {
 module.exports = {
     ValidateOperation
 };
-
