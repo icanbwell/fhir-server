@@ -1,0 +1,12 @@
+name: Build on macOS
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Check Architecture
+        run: |
+          uname -m
