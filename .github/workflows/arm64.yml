@@ -3,7 +3,7 @@ on: [workflow_dispatch]
 
 jobs:
   build:
-    runs-on: macos-13-xlarge
+    runs-on: macos-13-large
     steps:
       - name: Check Architecture
         run: |
