@@ -416,26 +416,15 @@ class MergeManager {
              * @type {number}
              */
             const chunkSize = this.configManager.mergeParallelChunkSize;
-            /**
-             * @type {Resource[][]}
-             */
-            const non_duplicate_uuid_chunks = [];
-
-            while (non_duplicate_uuid_resources.length > 0) {
-                non_duplicate_uuid_chunks.push(non_duplicate_uuid_resources.splice(0, chunkSize));
-            }
-
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
                     resourceToMerge: x, resourceType,
                     user, currentDate, requestId, base_version, scope,
                 });
 
-            const processChunk = async (/** @type {Object[]} */ x) => async.map(x, mergeResourceFn);
-
             await Promise.all([
-                async.mapSeries(non_duplicate_uuid_chunks, processChunk), // run chunks in parallel
-                async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
+                async.mapLimit(non_duplicate_uuid_resources, chunkSize, mergeResourceFn), // run chunks in parallel
+                async.mapSeries(duplicate_uuid_resources, mergeResourceFn), // run in series
             ]);
         } catch (e) {
             throw new RethrownError({
@@ -747,6 +736,7 @@ class MergeManager {
                 // noinspection JSValidateTypes
                 return {
                     id,
+                    uuid: resourceToMerge._uuid,
                     created: false,
                     updated: false,
                     issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ?

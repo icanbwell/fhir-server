@@ -283,6 +283,16 @@ class MergeOperation {
                 this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults)
             );
 
+            mergeResults.sort((result1, result2) => {
+                if (!result1.uuid) {
+                    return -1;
+                }
+                if (!result2.uuid) {
+                    return 1;
+                }
+                return result1.uuid.localeCompare(result2.uuid);
+            });
+
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
                     requestInfo, requestId, base_version, parsedArgs, mergeResults,

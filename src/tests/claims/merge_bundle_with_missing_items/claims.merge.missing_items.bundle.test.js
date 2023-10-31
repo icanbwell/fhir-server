@@ -32,7 +32,7 @@ describe('Claim Merge Tests', () => {
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse([{created: false}, {created: true}]);
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
