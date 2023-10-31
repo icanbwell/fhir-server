@@ -377,7 +377,7 @@
             "source": "http://medstarhealth.org/questionnaireresponse",
             "security": [
                 {
-                    "system": "https://www.icanbwell.com/access",
+                    "system": "https://www.icanbwell.com/owner",
                     "code": "medstar"
                 }
             ]
