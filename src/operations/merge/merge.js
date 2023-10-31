@@ -283,7 +283,9 @@ class MergeOperation {
                 this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults)
             );
 
-            mergeResults.sort((res1, res2) => (res1.uuid ?? '').localeCompare(res2.uuid ?? ''));
+            mergeResults.sort((res1, res2) =>
+                res1.uuid ? res2.uuid ? res1.uuid.localeCompare(res2.uuid) : 1 : -1
+            );
 
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
