@@ -198,6 +198,9 @@ class AuditLogger {
      * @return {Promise<void>}
      */
     async flushAsync({requestId, currentDate, method, userRequestId}) {
+        if (this.queue.length === 0) {
+            return;
+        }
         /**
          * Audit entries are always of resource type AuditEvent
          * @type {string}
