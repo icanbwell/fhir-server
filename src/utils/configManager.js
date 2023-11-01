@@ -547,7 +547,7 @@ class ConfigManager {
      * @returns {number}
      */
     get mergeParallelChunkSize() {
-        return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 10;
+        return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
     }
 }
 
