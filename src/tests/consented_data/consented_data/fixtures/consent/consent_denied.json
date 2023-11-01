@@ -39,7 +39,7 @@
   },
   "dateTime": "2022-09-08T14:05:07.350Z",
   "provision": {
-    "type": "denny",
+    "type": "deny",
     "class": [
       {
         "code": "/dataSharingConsent"

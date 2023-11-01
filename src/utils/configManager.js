@@ -533,13 +533,21 @@ class ConfigManager {
     }
 
     /**
-     * wether to rewrite patient references to proxy-patient reference
+     * whether to rewrite patient references to proxy-patient reference
      */
     get rewritePatientReference() {
         if (env.REWRITE_PATIENT_REFERENCE === null || env.REWRITE_PATIENT_REFERENCE === undefined) {
             return true;
         }
         return isTrue(env.REWRITE_PATIENT_REFERENCE);
+    }
+
+    /**
+     * returns number of resources to process in parallel
+     * @returns {number}
+     */
+    get mergeParallelChunkSize() {
+        return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
     }
 }
 
