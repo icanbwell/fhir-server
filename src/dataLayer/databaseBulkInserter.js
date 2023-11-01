@@ -37,9 +37,6 @@ const {MergeResultEntry} = require('../operations/common/mergeResultEntry');
 const {BulkInsertUpdateEntry} = require('./bulkInsertUpdateEntry');
 const {PostSaveProcessor} = require('./postSaveProcessor');
 
-const Mutex = require('async-mutex').Mutex;
-const mutex = new Mutex();
-
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
  */
@@ -842,233 +839,231 @@ class DatabaseBulkInserter extends EventEmitter {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkInserterTimer.startTimer();
         try {
-            return await mutex.runExclusive(async () => {
+            /**
+             * @type {Map<string, BulkInsertUpdateEntry[]>}
+             */
+            const operationsByCollectionNames = new Map();
+            /**
+             * @type {ResourceLocator}
+             */
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {
+                    resourceType, base_version
+                }
+            );
+            for (const /** @type {BulkInsertUpdateEntry} */ operation of operations) {
                 /**
-                 * @type {Map<string, BulkInsertUpdateEntry[]>}
+                 * @type {Resource}
                  */
-                const operationsByCollectionNames = new Map();
+                const resource = operation.resource;
+                assertIsValid(resource, 'resource is null');
                 /**
-                 * @type {ResourceLocator}
+                 * @type {string}
                  */
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                    {
-                        resourceType, base_version
-                    }
-                );
-                for (const /** @type {BulkInsertUpdateEntry} */ operation of operations) {
-                    /**
-                     * @type {Resource}
-                     */
-                    const resource = operation.resource;
-                    assertIsValid(resource, 'resource is null');
-                    /**
-                     * @type {string}
-                     */
-                    const collectionName = useHistoryCollection ?
-                        await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource) :
-                        await resourceLocator.getCollectionNameAsync(resource);
-                    if (!(operationsByCollectionNames.has(collectionName))) {
-                        operationsByCollectionNames.set(`${collectionName}`, []);
-                    }
-
-                    if (!useHistoryCollection && resource._id) {
-                        logInfo('_id still present', {args: {
-                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
-                            doc: resource,
-                            collection: collectionName,
-                            operation
-                        }});
-                    }
-                    operationsByCollectionNames.get(collectionName).push(operation);
+                const collectionName = useHistoryCollection ?
+                    await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource) :
+                    await resourceLocator.getCollectionNameAsync(resource);
+                if (!(operationsByCollectionNames.has(collectionName))) {
+                    operationsByCollectionNames.set(`${collectionName}`, []);
                 }
 
-                // preserve order so inserts come before updates
-                /**
-                 * @type {import('mongodb').BulkWriteOptions|null}
-                 */
-                const options = {ordered: true};
-                /**
-                 * @type {import('mongodb').BulkWriteResult|undefined}
-                 */
-                let bulkWriteResult;
+                if (!useHistoryCollection && resource._id) {
+                    logInfo('_id still present', {args: {
+                        source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                        doc: resource,
+                        collection: collectionName,
+                        operation
+                    }});
+                }
+                operationsByCollectionNames.get(collectionName).push(operation);
+            }
 
-                /**
-                 *
-                 * @type {MergeResultEntry[]}
-                 */
-                const mergeResultEntries = [];
-                for (const operationsByCollectionName of operationsByCollectionNames) {
-                    const [
-                        /** @type {string} */collectionName,
-                        /** @type {BulkInsertUpdateEntry[]} */
-                        operationsByCollection] = operationsByCollectionName;
+            // preserve order so inserts come before updates
+            /**
+             * @type {import('mongodb').BulkWriteOptions|null}
+             */
+            const options = {ordered: true};
+            /**
+             * @type {import('mongodb').BulkWriteResult|undefined}
+             */
+            let bulkWriteResult;
 
-                    if (this.configManager.logAllMerges) {
-                        await sendToS3('bulk_inserter',
-                            resourceType,
-                            operations,
-                            currentDate,
-                            requestId,
-                            'merge');
-                    }
-                    try {
-                        /**
-                         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
-                         */
-                        const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
-                        /**
-                         * @type {BulkInsertUpdateEntry[]}
-                         */
-                        const expectedInsertsByUniqueId = operationsByCollection.filter(o => o.operationType === 'insertUniqueId');
-                        const expectedInsertsByUniqueIdCount = expectedInsertsByUniqueId.length;
-                        /**
-                         * @type {BulkInsertUpdateEntry[]}
-                         */
-                        const expectedUpdates = operationsByCollection.filter(o => o.isUpdateOperation);
-                        /**
-                         * @type {number}
-                         */
-                        const expectedUpdatesCount = expectedUpdates.length;
-                        /**
-                         * @type {(import('mongodb').AnyBulkWriteOperation)[]}
-                         */
-                        const bulkOperations = operationsByCollection.map(o => o.operation);
-                        await logTraceSystemEventAsync(
-                            {
-                                event: 'bulkWriteBegin' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                message: 'Begin Bulk Write',
-                                args: {
-                                    resourceType,
-                                    collectionName,
-                                    operationsByCollection,
-                                    requestId
-                                }
-                            }
-                        );
-                        /**
-                         * @type {import('mongodb').BulkWriteResult}
-                         */
-                        const result = await collection.bulkWrite(bulkOperations, options);
-                        bulkWriteResult = result;
-                        await logTraceSystemEventAsync(
-                            {
-                                event: 'bulkWriteResult' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                message: 'Result of Bulk Write',
-                                args: {
-                                    resourceType,
-                                    collectionName,
-                                    operationsByCollection,
-                                    result,
-                                    requestId
-                                }
-                            }
-                        );
+            /**
+             *
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResultEntries = [];
+            for (const operationsByCollectionName of operationsByCollectionNames) {
+                const [
+                    /** @type {string} */collectionName,
+                    /** @type {BulkInsertUpdateEntry[]} */
+                    operationsByCollection] = operationsByCollectionName;
 
-
-                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
-                        /**
-                         * @type {number}
-                         */
-                        const actualInsertsByUniqueIdCount = bulkWriteResult.upsertedCount;
-
-                        // 1. check if we got same number of inserts as we expected
-                        //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
-                        if (this.configManager.handleConcurrency &&
-                            expectedInsertsByUniqueIdCount > 0 &&
-                            expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount
-                        ) {
-                            await logTraceSystemEventAsync(
-                                {
-                                    event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                    message: 'Insert count not matched so running updates one by one',
-                                    args: {
-                                        resourceType,
-                                        collectionName,
-                                        expectedInsertsByUniqueId,
-                                        actualInsertsByUniqueIdCount,
-                                        expectedInsertsByUniqueIdCount,
-                                        bulkWriteResult
-                                    }
-                                }
-                            );
-                            // do inserts/updates one by one
-                            await this.updateResourcesOneByOneAsync(
-                                {
-                                    bulkInsertUpdateEntries: expectedInsertsByUniqueId
-                                }
-                            );
-                        }
-                        // 2. Now check if we got the same number of updates as we expected.
-                        //      If we did not, it means someone else updated the version of the resources we were updating
-                        // NOTE: Mongo does NOT return ids of updated resources so we have to go through each
-                        //       document to see if it is same in db as we have it
-                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
-                        // nMatched: The number of existing documents selected for update or replacement.
-                        // If the update/replacement operation results in no change to an existing document,
-                        // e.g. $set expression updates the value to the current value,
-                        // nMatched can be greater than nModified.
-                        // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
-                        /**
-                         * @type {number}
-                         */
-                        const actualUpdatesCount = bulkWriteResult.modifiedCount;
-                        if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
-                            actualUpdatesCount < expectedUpdatesCount) {
-                            // concurrency check failed (another parallel process updated atleast one resource)
-                            // process one by one
-                            await logTraceSystemEventAsync(
-                                {
-                                    event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                    message: 'Update count not matched so running updates one by one',
-                                    args: {
-                                        resourceType,
-                                        collectionName,
-                                        expectedUpdates,
-                                        actualUpdatesCount,
-                                        expectedUpdatesCount,
-                                        bulkWriteResult
-                                    }
-                                }
-                            );
-                            await this.updateResourcesOneByOneAsync(
-                                {
-                                    bulkInsertUpdateEntries: expectedUpdates
-                                }
-                            );
-                        }
-
-                        // 3. Call postSaveAsync for each operation
-                        for (const operationByCollection of operationsByCollection) {
-                            mergeResultEntries.push(
-                                await this.postSaveAsync({
-                                    requestId,
-                                    method,
-                                    base_version,
-                                    resourceType,
-                                    bulkInsertUpdateEntry: operationByCollection,
-                                    bulkWriteResult,
-                                    useHistoryCollection,
-                                    userRequestId,
-                                })
-                            );
-                        }
-                    } catch (e) {
-                        await logSystemErrorAsync({
-                            event: 'databaseBulkInserter',
-                            message: 'databaseBulkInserter: Error bulkWrite',
-                            error: e,
+                if (this.configManager.logAllMerges) {
+                    await sendToS3('bulk_inserter',
+                        resourceType,
+                        operations,
+                        currentDate,
+                        requestId,
+                        'merge');
+                }
+                try {
+                    /**
+                     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                     */
+                    const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                    /**
+                     * @type {BulkInsertUpdateEntry[]}
+                     */
+                    const expectedInsertsByUniqueId = operationsByCollection.filter(o => o.operationType === 'insertUniqueId');
+                    const expectedInsertsByUniqueIdCount = expectedInsertsByUniqueId.length;
+                    /**
+                     * @type {BulkInsertUpdateEntry[]}
+                     */
+                    const expectedUpdates = operationsByCollection.filter(o => o.isUpdateOperation);
+                    /**
+                     * @type {number}
+                     */
+                    const expectedUpdatesCount = expectedUpdates.length;
+                    /**
+                     * @type {(import('mongodb').AnyBulkWriteOperation)[]}
+                     */
+                    const bulkOperations = operationsByCollection.map(o => o.operation);
+                    await logTraceSystemEventAsync(
+                        {
+                            event: 'bulkWriteBegin' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                            message: 'Begin Bulk Write',
                             args: {
-                                requestId: requestId,
-                                operations: operationsByCollection,
-                                options: options,
-                                collection: collectionName
+                                resourceType,
+                                collectionName,
+                                operationsByCollection,
+                                requestId
                             }
-                        });
-                        return {resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries};
+                        }
+                    );
+                    /**
+                     * @type {import('mongodb').BulkWriteResult}
+                     */
+                    const result = await collection.bulkWrite(bulkOperations, options);
+                    bulkWriteResult = result;
+                    await logTraceSystemEventAsync(
+                        {
+                            event: 'bulkWriteResult' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                            message: 'Result of Bulk Write',
+                            args: {
+                                resourceType,
+                                collectionName,
+                                operationsByCollection,
+                                result,
+                                requestId
+                            }
+                        }
+                    );
+
+
+                    // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                    /**
+                     * @type {number}
+                     */
+                    const actualInsertsByUniqueIdCount = bulkWriteResult.upsertedCount;
+
+                    // 1. check if we got same number of inserts as we expected
+                    //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
+                    if (this.configManager.handleConcurrency &&
+                        expectedInsertsByUniqueIdCount > 0 &&
+                        expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount
+                    ) {
+                        await logTraceSystemEventAsync(
+                            {
+                                event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                message: 'Insert count not matched so running updates one by one',
+                                args: {
+                                    resourceType,
+                                    collectionName,
+                                    expectedInsertsByUniqueId,
+                                    actualInsertsByUniqueIdCount,
+                                    expectedInsertsByUniqueIdCount,
+                                    bulkWriteResult
+                                }
+                            }
+                        );
+                        // do inserts/updates one by one
+                        await this.updateResourcesOneByOneAsync(
+                            {
+                                bulkInsertUpdateEntries: expectedInsertsByUniqueId
+                            }
+                        );
                     }
+                    // 2. Now check if we got the same number of updates as we expected.
+                    //      If we did not, it means someone else updated the version of the resources we were updating
+                    // NOTE: Mongo does NOT return ids of updated resources so we have to go through each
+                    //       document to see if it is same in db as we have it
+                    // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                    // nMatched: The number of existing documents selected for update or replacement.
+                    // If the update/replacement operation results in no change to an existing document,
+                    // e.g. $set expression updates the value to the current value,
+                    // nMatched can be greater than nModified.
+                    // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
+                    /**
+                     * @type {number}
+                     */
+                    const actualUpdatesCount = bulkWriteResult.modifiedCount;
+                    if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
+                        actualUpdatesCount < expectedUpdatesCount) {
+                        // concurrency check failed (another parallel process updated atleast one resource)
+                        // process one by one
+                        await logTraceSystemEventAsync(
+                            {
+                                event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                message: 'Update count not matched so running updates one by one',
+                                args: {
+                                    resourceType,
+                                    collectionName,
+                                    expectedUpdates,
+                                    actualUpdatesCount,
+                                    expectedUpdatesCount,
+                                    bulkWriteResult
+                                }
+                            }
+                        );
+                        await this.updateResourcesOneByOneAsync(
+                            {
+                                bulkInsertUpdateEntries: expectedUpdates
+                            }
+                        );
+                    }
+
+                    // 3. Call postSaveAsync for each operation
+                    for (const operationByCollection of operationsByCollection) {
+                        mergeResultEntries.push(
+                            await this.postSaveAsync({
+                                requestId,
+                                method,
+                                base_version,
+                                resourceType,
+                                bulkInsertUpdateEntry: operationByCollection,
+                                bulkWriteResult,
+                                useHistoryCollection,
+                                userRequestId,
+                            })
+                        );
+                    }
+                } catch (e) {
+                    await logSystemErrorAsync({
+                        event: 'databaseBulkInserter',
+                        message: 'databaseBulkInserter: Error bulkWrite',
+                        error: e,
+                        args: {
+                            requestId: requestId,
+                            operations: operationsByCollection,
+                            options: options,
+                            collection: collectionName
+                        }
+                    });
+                    return {resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries};
                 }
-                return {resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries};
-            });
+            }
+            return {resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries};
         } catch (e) {
             throw new RethrownError({
                 error: e
