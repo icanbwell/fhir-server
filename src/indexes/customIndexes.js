@@ -375,7 +375,7 @@ module.exports = {
         'ChargeItem_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -387,7 +387,7 @@ module.exports = {
         'CodeSystem_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -413,7 +413,7 @@ module.exports = {
         'Condition_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -443,7 +443,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -455,7 +455,7 @@ module.exports = {
         'DocumentReference_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -478,7 +478,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -530,7 +530,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -607,7 +607,7 @@ module.exports = {
         'Library_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -639,7 +639,7 @@ module.exports = {
         'Measure_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -651,7 +651,7 @@ module.exports = {
         'MeasureReport_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -663,7 +663,7 @@ module.exports = {
         'MedicationDispense_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -675,7 +675,7 @@ module.exports = {
         'MedicationRequest_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -747,7 +747,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -829,7 +829,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -986,7 +986,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -1103,7 +1103,7 @@ module.exports = {
         'Procedure_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -1135,7 +1135,7 @@ module.exports = {
         'Questionaire_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -1171,7 +1171,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -1272,7 +1272,7 @@ module.exports = {
             },
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
@@ -1284,7 +1284,7 @@ module.exports = {
         'ValueSet_4_0_0': [
             {
                keys: {
-                    'meta.lastUpdated"]': 1,
+                    'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     '_uuid': 1
                 },
