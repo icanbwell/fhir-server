@@ -19,6 +19,8 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
 
 class AuditLogger {
     /**
@@ -198,47 +200,41 @@ class AuditLogger {
      * @return {Promise<void>}
      */
     async flushAsync({requestId, currentDate, method, userRequestId}) {
-        if (this.queue.length === 0) {
-            return;
-        }
         /**
          * Audit entries are always of resource type AuditEvent
          * @type {string}
          */
-        const resourceType = 'AuditEvent';
-
-        /**
-         * @type {Resource[]}
-         */
-        const currentQueue = this.queue.splice(0, this.queue.length);
-
-        for (const /** @type {Resource} */ doc of currentQueue) {
-            await this.databaseBulkInserter.insertOnlyAsync({requestId, resourceType, doc});
-        }
-        /**
-         * @type {MergeResultEntry[]}
-         */
-        const mergeResults = await this.databaseBulkInserter.executeAsync(
-            {
-                requestId, currentDate, base_version: this.base_version,
-                method,
-                userRequestId,
+        await mutex.runExclusive(async () => {
+            const resourceType = 'AuditEvent';
+            for (const /** @type {Resource} */ doc of this.queue) {
+                await this.databaseBulkInserter.insertOnlyAsync({requestId, resourceType, doc});
             }
-        );
-        /**
-         * @type {MergeResultEntry[]}
-         */
-        const mergeResultErrors = mergeResults.filter(m => m.issue);
-        if (mergeResultErrors.length > 0) {
-            logError('Error creating audit entries', {
-                error: mergeResultErrors,
-                source: 'flushAsync',
-                args: {
-                    request: {id: requestId},
-                    errors: mergeResultErrors
+            this.queue = [];
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
+                {
+                    requestId, currentDate, base_version: this.base_version,
+                    method,
+                    userRequestId,
                 }
-            });
-        }
+            );
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResultErrors = mergeResults.filter(m => m.issue);
+            if (mergeResultErrors.length > 0) {
+                logError('Error creating audit entries', {
+                    error: mergeResultErrors,
+                    source: 'flushAsync',
+                    args: {
+                        request: {id: requestId},
+                        errors: mergeResultErrors
+                    }
+                });
+            }
+        });
     }
 }
 
