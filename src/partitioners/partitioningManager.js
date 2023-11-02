@@ -114,11 +114,6 @@ class PartitioningManager {
     async addPartitionsToCacheAsync({resourceType, partition}) {
         assertIsValid(resourceType, 'resourceType is empty');
 
-        if (this.partitionsCache.has(resourceType) &&
-            this.partitionsCache.get(resourceType).includes(partition)) {
-            return;
-        }
-
         const release = await mutex.acquire();
         try {
 
