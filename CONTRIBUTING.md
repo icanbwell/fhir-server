@@ -13,7 +13,6 @@ On Macs:
 5. `nvm use`
 6. `npm install -g yarn`
 7. `yarn install`
-8. `cd src/web && yarn install && cd ../..`
 
 
 ## Common developer processes

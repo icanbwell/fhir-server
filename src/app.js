@@ -233,19 +233,15 @@ function createApp({fnGetContainer, trackMetrics}) {
     // render the home page
     app.get('/', (
         /** @type {import('express').Request} */ req,
-        /** @type {import('express').Response} */ res,
-        next) => {
+        /** @type {import('express').Response} */ res
+    ) => {
         const home_options = {
             resources: resourceDefinitions,
             user: req.user,
+            url: req.url,
             nonce: httpContext.get(RESPONSE_NONCE),
         };
-        if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
-            // fall through to the handler in fhirServer.js
-            next();
-        } else {
-            return res.render(__dirname + '/views/pages/home', home_options);
-        }
+        return res.render(__dirname + '/views/pages/home', home_options);
     });
 
     app.get('/clean/:collection?', (req, res) => handleClean(
@@ -283,8 +279,6 @@ function createApp({fnGetContainer, trackMetrics}) {
         express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
-    // serve react js and css files
-    app.use('/static', express.static(path.join(__dirname, './web/build/static')));
 
 
     if (isTrue(env.AUTH_ENABLED)) {

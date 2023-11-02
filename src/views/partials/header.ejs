@@ -56,13 +56,10 @@
     </div>
 </div>
 
-<div class="container-fluid" id="switchToNewUI">
+<div class="container-fluid">
     <div class="alert alert-info" role="alert">
-        Want to try out the new UI? (You can always switch back) <a id="switchToNewUILink" href="#" class="alert-link">Switch
-            to New UI</a>
+        Want to try out the new UI? <a href="<%= process.env.FHIR_SERVER_UI_URL %><%= url %>" target="_blank" class="alert-link">Click Here</a>
     </div>
 </div>
-
-<script type="text/javascript" src="/js/cookieHelper.js"></script>
 
 <% if(resources != null && resources.length === 0){ %><br/><h2 style="text-align: center">No Resources Found</h2><% } %>
