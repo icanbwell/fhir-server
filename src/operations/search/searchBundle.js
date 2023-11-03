@@ -136,7 +136,8 @@ class SearchBundleOperation {
              */
             requestId,
             /**@type {string} */ userRequestId,
-            /** @type {string} */ method
+            /** @type {string} */ method,
+            /** @type {boolean} */ isGraphql
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -291,7 +292,9 @@ class SearchBundleOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                    if (!isGraphql) {
+                        await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                    }
                 }
             }
 
