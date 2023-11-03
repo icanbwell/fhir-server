@@ -344,6 +344,8 @@ function createApp({fnGetContainer, trackMetrics}) {
                              */
                             const postRequestProcessor = container1.postRequestProcessor;
                             if (postRequestProcessor) {
+                                // Setting the value to true so that we can wait for auditEvents to be generated in testcases
+                                // TODO: remove this when auditLogger.flushAsync is moved to postRequestProcessor which should be the expected behaviour
                                 postRequestProcessor.setExecutionRunningForRequest({ requestId, value: true });
                                 /**
                                  * @type {import('./utils/auditLogger').AuditLogger}
