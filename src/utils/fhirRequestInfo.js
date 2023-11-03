@@ -24,6 +24,7 @@ class FhirRequestInfo {
      * @param {Object} headers
      * @param {string} method
      * @param {import('content-type').ContentType|null} contentTypeFromHeader
+     * @param {boolean|undefined} isGraphql
      */
     constructor(
         {
@@ -43,7 +44,8 @@ class FhirRequestInfo {
             personIdFromJwtToken,
             headers,
             method,
-            contentTypeFromHeader
+            contentTypeFromHeader,
+            isGraphql
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -125,9 +127,9 @@ class FhirRequestInfo {
 
         /**
          * confirms that the request is a graphql request
-         * @type {boolean}
+         * @type {boolean|undefined}
          */
-        this.isGraphql = true;
+        this.isGraphql = isGraphql;
     }
 }
 
