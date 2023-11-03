@@ -70,12 +70,13 @@ class PostRequestProcessor {
     /**
      * Run all the tasks
      * @param {string} requestId
+     * @param {boolean} isGraphql
      * @return {Promise<void>}
      */
-    async executeAsync({requestId}) {
+    async executeAsync({requestId, isGraphql}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
-        if (this.executionRunningForRequest({requestId}) || queue.length === 0) {
+        if ((!isGraphql && this.executionRunningForRequest({requestId})) || queue.length === 0) {
             return;
         }
         const tasksInQueueBefore = queue.length;

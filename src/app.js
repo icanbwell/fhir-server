@@ -343,19 +343,20 @@ function createApp({fnGetContainer, trackMetrics}) {
                              * @type {PostRequestProcessor}
                              */
                             const postRequestProcessor = container1.postRequestProcessor;
-                            /**
-                             * @type {import('./utils/auditLogger').AuditLogger}
-                             */
-                            const auditLogger = container1.auditLogger;
-                            if (auditLogger) {
-                                await auditLogger.flushAsync({ requestId, method: req.method, userRequestId, currentDate: moment.utc().format('YYYY-MM-DD') });
-                            }
-                            /**
-                             * @type {RequestSpecificCache}
-                             */
-                            const requestSpecificCache = container1.requestSpecificCache;
                             if (postRequestProcessor) {
-                                await postRequestProcessor.executeAsync({requestId});
+                                postRequestProcessor.setExecutionRunningForRequest({ requestId, value: true });
+                                /**
+                                 * @type {import('./utils/auditLogger').AuditLogger}
+                                 */
+                                const auditLogger = container1.auditLogger;
+                                if (auditLogger) {
+                                    await auditLogger.flushAsync({ requestId, method: req.method, userRequestId, currentDate: moment.utc().format('YYYY-MM-DD') });
+                                }
+                                /**
+                                 * @type {RequestSpecificCache}
+                                 */
+                                const requestSpecificCache = container1.requestSpecificCache;
+                                await postRequestProcessor.executeAsync({requestId, isGraphql: true});
                                 await requestSpecificCache.clearAsync({requestId});
                             }
                         }
