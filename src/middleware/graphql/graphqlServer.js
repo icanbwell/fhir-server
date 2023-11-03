@@ -89,6 +89,7 @@ const graphql = async (fnGetContainer) => {
             });
 
         req.container = container;
+        req.useGraphql = true;
         return {
             req,
             res,

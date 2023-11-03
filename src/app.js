@@ -12,6 +12,7 @@ const path = require('path');
 const useragent = require('express-useragent');
 const {graphql} = require('./middleware/graphql/graphqlServer');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
+const moment = require('moment-timezone');
 
 const passport = require('passport');
 const {strategy} = require('./strategies/jwt.bearer.strategy');
@@ -336,16 +337,24 @@ function createApp({fnGetContainer, trackMetrics}) {
                          */
                         const container1 = req1.container;
                         if (container1) {
+                            const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                            const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
                             /**
                              * @type {PostRequestProcessor}
                              */
                             const postRequestProcessor = container1.postRequestProcessor;
                             /**
+                             * @type {import('./utils/auditLogger').AuditLogger}
+                             */
+                            const auditLogger = container1.auditLogger;
+                            if (auditLogger) {
+                                await auditLogger.flushAsync({ requestId, method: req.method, userRequestId, currentDate: moment.utc().format('YYYY-MM-DD') });
+                            }
+                            /**
                              * @type {RequestSpecificCache}
                              */
                             const requestSpecificCache = container1.requestSpecificCache;
                             if (postRequestProcessor) {
-                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                                 await postRequestProcessor.executeAsync({requestId});
                                 await requestSpecificCache.clearAsync({requestId});
                             }

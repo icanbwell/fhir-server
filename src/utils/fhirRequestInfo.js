@@ -122,6 +122,12 @@ class FhirRequestInfo {
          * @type {boolean}
          */
         this.preferGlobalId = headers['Prefer'] && isTrue(headers['Prefer'].replace('global_id=', ''));
+
+        /**
+         * confirms that the request is a graphql request
+         * @type {boolean}
+         */
+        this.isGraphql = true;
     }
 }
 
