@@ -74,18 +74,12 @@ update:down
 	. ${NVM_DIR}/nvm.sh && nvm use && \
 	npm install --location=global yarn && \
 	rm -f yarn.lock && \
-	yarn install --no-optional && \
-	cd src/web && \
-	rm -f yarn.lock && \
 	yarn install --no-optional
 
 # https://www.npmjs.com/package/npm-check-updates
 .PHONY:upgrade_packages
 upgrade_packages:down
 	. ${NVM_DIR}/nvm.sh && nvm use && \
-	yarn install --no-optional && \
-	ncu -u --reject @sentry/node && \
-	cd src/web && \
 	yarn install --no-optional && \
 	ncu -u --reject @sentry/node
 

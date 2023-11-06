@@ -9,7 +9,6 @@
     "node": "18.16.x"
   },
   "scripts": {
-    "build": "cd src/web && yarn install && npm run build",
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "dev_debug": "NODE_ENV=development DEBUG=express:router ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
@@ -76,8 +75,7 @@
       "<rootDir>/src/graphql/v1/resolvers"
     ],
     "testPathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/src/web"
+      "<rootDir>/node_modules/"
     ],
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"

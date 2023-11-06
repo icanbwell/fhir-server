@@ -309,23 +309,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to show the new UI or the old one
-     * @returns {boolean}
-     */
-    get showNewUI() {
-        return isTrue(env.SHOW_NEW_UI);
-    }
-
-    /**
-     * whether to disable the new UI
-     * @returns {boolean}
-     * @constructor
-     */
-    get disableNewUI() {
-        return isTrue(env.DISABLE_NEW_UI);
-    }
-
-    /**
      * url to fhir validation service e.g., http://localhost:8080/fhir/
      * @returns {string|undefined}
      */
