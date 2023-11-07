@@ -55,7 +55,7 @@ services:
       AUTH_CUSTOM_SCOPE: "custom:scope"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
-      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
+      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       DD_TRACE_ENABLED: 'False'
