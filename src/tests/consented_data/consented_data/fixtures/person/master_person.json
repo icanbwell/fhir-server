@@ -42,10 +42,9 @@
         },
         {
             "target": {
-                "reference": "Person/p12345|proa",
+                "reference": "Person/bdc02b42-ad3a-4e8b-a607-6210316cf58e|client-1",
                 "type": "Person"
-            },
-            "assurance": "level4"
+            }
         }
     ]
 }

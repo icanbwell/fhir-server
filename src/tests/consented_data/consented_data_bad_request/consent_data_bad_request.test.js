@@ -1,7 +1,6 @@
 // test file
 const masterPersonResource = require('./fixtures/person/master_person.json');
 const clientPersonResource = require('./fixtures/person/client_person.json');
-const proaPersonResource = require('./fixtures/person/proa_person.json');
 const masterPatientResource = require('./fixtures/patient/master_patient.json');
 const clientPatientResource = require('./fixtures/patient/client_patient.json');
 const proaPatientResource = require('./fixtures/patient/proa_patient.json');
@@ -9,7 +8,6 @@ const clientObservationResource = require('./fixtures/observation/client_observa
 const proaObservationResource = require('./fixtures/observation/proa_observation.json');
 const masterPersonResource2 = require('./fixtures/person/master_person2.json');
 const clientPersonResource2 = require('./fixtures/person/client_person2.json');
-const proaPersonResource2 = require('./fixtures/person/proa_person2.json');
 const masterPatientResource2 = require('./fixtures/patient/master_patient2.json');
 const clientPatientResource2 = require('./fixtures/patient/client_patient2.json');
 const proaPatientResource2 = require('./fixtures/patient/proa_patient2.json');
@@ -44,9 +42,9 @@ describe('Consent Based Data Access Test', () => {
             // Add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, clientPersonResource, proaPersonResource, masterPatientResource,
+                .send([masterPersonResource, clientPersonResource, masterPatientResource,
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource,
-                    masterPersonResource2, clientPersonResource2, proaPersonResource2, masterPatientResource2,
+                    masterPersonResource2, clientPersonResource2, masterPatientResource2,
                     clientPatientResource2, proaPatientResource, proaPatientResource2, proaObservationResource2
                 ])
                 .set(getHeaders());

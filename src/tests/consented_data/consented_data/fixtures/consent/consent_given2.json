@@ -69,8 +69,7 @@
           ]
         },
         "reference": {
-          "reference": "Patient/person.f98e2e05-6d32-47d1-a7de-b622a202d304",
-          "_sourceAssigningAuthority": "bwell"
+          "reference": "Patient/person.610c21a2-1f62-5e84-a53a-55e1945f3723"
         }
       }
     ]

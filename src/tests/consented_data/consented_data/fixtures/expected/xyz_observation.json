@@ -1,26 +1,26 @@
 {
   "resourceType": "Observation",
-  "id": "3158b5b8-3c3a-4438-9c81-211d824d174b",
+  "id": "97fd81af-c094-448b-91f7-8eb9ab3a36b6",
   "meta": {
     "versionId": "1",
-    "lastUpdated": "2021-12-15T15:30:30+00:00",
+    "lastUpdated": "2023-11-09T08:40:47.000Z",
     "source": "/patients",
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "proa"
+        "code": "client-1"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "proa"
+        "code": "client-1"
       },
       {
         "system": "https://www.icanbwell.com/vendor",
-        "code": "proa"
+        "code": "client-1"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "proa"
+        "code": "client-1"
       }
     ]
   },
@@ -28,12 +28,12 @@
     {
       "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
-      "value": "3158b5b8-3c3a-4438-9c81-211d824d174b"
+      "value": "97fd81af-c094-448b-91f7-8eb9ab3a36b6"
     },
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "3158b5b8-3c3a-4438-9c81-211d824d174b"
+      "value": "97fd81af-c094-448b-91f7-8eb9ab3a36b6"
     }
   ],
   "status": "final",
@@ -54,24 +54,24 @@
     ]
   },
   "subject": {
-    "reference": "Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57",
     "extension": [
       {
         "id": "sourceId",
         "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
+        "valueString": "Patient/69e5e0ca-27dd-4560-9963-590e6ca4abd3"
       },
       {
         "id": "uuid",
         "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
+        "valueString": "Patient/69e5e0ca-27dd-4560-9963-590e6ca4abd3"
       },
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "proa"
+        "valueString": "client-1"
       }
-    ]
+    ],
+    "reference": "Patient/69e5e0ca-27dd-4560-9963-590e6ca4abd3"
   },
   "effectivePeriod": {
     "start": "2021-01-01T00:00:00.000Z",

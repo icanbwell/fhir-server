@@ -61,17 +61,17 @@ class ConsentManager {
     }
 
     /**
-     * @description Fetches all the consent resources linked to a patient IDs.
+     * @description Fetches all the consent resources linked to a clientPerson ids.
      * @typedef {Object} ConsentQueryOptions
      * @property {string[]} ownerTags
-     * @property {string[] | undefined} bwellPersonIds
+     * @property {string[] | undefined} clientPersonIds
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources({ownerTags, bwellPersonIds}) {
+    async getConsentResources({ownerTags, clientPersonIds}) {
 
         // get all consents where provision.actor.reference is of proxy-person with valid code
-        let proxyPersonReferences = bwellPersonIds.map(
+        let proxyPersonReferences = clientPersonIds.map(
             (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
         );
 
@@ -161,32 +161,32 @@ class ConsentManager {
                 await this.validatePatientIdsAsync(patientReferences);
 
                 /**
-                 * Get personRef to bwellMasterPersonUuid
+                 * Get personRef to clientPersonUuid
                  * @type {{[key: string]: string}}
                  */
-                const patientIdToBwellPersonUuid = await this
-                    .getPatientToBwellPersonMapAsync({ patientReferences });
+                const patientIdToClientPersonUuid = await this
+                    .getPatientToClientPersonMapAsync({ patientReferences });
                 /**
                  * @type {Set<string>}
                  */
-                const bwellPersonUuids = new Set();
+                const clientPersonUuids = new Set();
                 /**
                  * Reverse map
                  * @type {Map<string, Set<string>>}
                  */
-                const bwellPersonToInputPatientId = new Map();
-                Object.entries(patientIdToBwellPersonUuid).forEach(([patientId, bwellPerson]) => {
-                    if (!bwellPersonToInputPatientId.has(bwellPerson)) {
-                        bwellPersonToInputPatientId.set(bwellPerson, new Set());
+                const clientPersonToInputPatientId = new Map();
+                Object.entries(patientIdToClientPersonUuid).forEach(([patientId, clientPerson]) => {
+                    if (!clientPersonToInputPatientId.has(clientPerson)) {
+                        clientPersonToInputPatientId.set(clientPerson, new Set());
                     }
-                    bwellPersonToInputPatientId.get(bwellPerson).add(patientId);
-                    bwellPersonUuids.add(bwellPerson);
+                    clientPersonToInputPatientId.get(clientPerson).add(patientId);
+                    clientPersonUuids.add(clientPerson);
                 });
 
-                // Get Consent for each b.well master person
+                // Get Consent for each client person
                 const consentResources = await this.getConsentResources({
                     ownerTags: securityTags,
-                    bwellPersonIds: [...bwellPersonUuids],
+                    clientPersonIds: [...clientPersonUuids],
                 });
 
                 /**
@@ -203,9 +203,9 @@ class ConsentManager {
                         if (proxyPersonActor?.reference?._uuid) {
                             /**@type {string} */
                             const uuidRef = proxyPersonActor.reference._uuid;
-                            const bwellPersonUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
-                            if (bwellPersonToInputPatientId.has(bwellPersonUuid)) {
-                                bwellPersonToInputPatientId.get(bwellPersonUuid).forEach((patientId) => {
+                            const clientPersonUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
+                            if (clientPersonToInputPatientId.has(clientPersonUuid)) {
+                                clientPersonToInputPatientId.get(clientPersonUuid).forEach((patientId) => {
                                     patientIdsWithConsent.add(patientId);
                                 });
                             }
@@ -334,28 +334,28 @@ class ConsentManager {
     }
 
     /**
-     * @typedef {Object} GetPatientToBwellPersonParams - Function Options
+     * @typedef {Object} GetPatientToPersonParams - Function Options
      * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} patientReferences - Array of references
-     * @param {GetPatientToBwellPersonParams} options
+     * @param {GetPatientToPersonParams} options
      * @returns {Promise<{[key: string]: string}>}
      */
-    async getPatientToBwellPersonMapAsync({ patientReferences }) {
-        const patientToBwellMasterPerson =
-            await this.bwellPersonFinder.getBwellPersonIdsAsync({
+    async getPatientToClientPersonMapAsync({ patientReferences }) {
+        const patientToClientPersonAsync =
+            await this.bwellPersonFinder.getClientPersonIdAsync({
                 patientReferences,
             });
-            // convert to patientReference -> bwellPersonUuid
-            const patientReferenceToMasterPersonUuid = {};
-            for (const [patientReference, bwellPerson] of patientToBwellMasterPerson.entries()) {
+            // convert to patientReference -> clientPersonUuid
+            const patientReferenceToClientPersonUuid = {};
+            for (const [patientReference, clientPerson] of patientToClientPersonAsync.entries()) {
                 // reference without Patient prefix
                 const patientId = patientReference.replace(
                     PATIENT_REFERENCE_PREFIX,
                     '',
                 );
                 // remove Person/ prefix
-                patientReferenceToMasterPersonUuid[`${patientId}`] = bwellPerson.replace(PERSON_REFERENCE_PREFIX, '');
+                patientReferenceToClientPersonUuid[`${patientId}`] = clientPerson.replace(PERSON_REFERENCE_PREFIX, '');
             }
-        return patientReferenceToMasterPersonUuid;
+        return patientReferenceToClientPersonUuid;
     }
 
     /**
