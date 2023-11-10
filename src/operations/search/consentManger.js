@@ -369,9 +369,15 @@ class ConsentManager {
                     PATIENT_REFERENCE_PREFIX,
                     '',
                 );
+                // filter out proxy-patient
+                if (patientId.startsWith('person.')) {
+                    continue;
+                }
+
                 // remove Person/ prefix
                 patientReferenceToPersonUuid[`${patientId}`] = immediatePerson.replace(PERSON_REFERENCE_PREFIX, '');
             }
+
         return patientReferenceToPersonUuid;
     }
 

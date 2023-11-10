@@ -37,6 +37,7 @@ const expectedXyzObservationJson = require('./fixtures/expected/xyz_observation.
 const expectedHighMarkObservationJson = require('./fixtures/expected/highmark_observation.json');
 const expectedPatientWithConsentForClient1Json = require('./fixtures/expected/all_patient_related_to_client_1_consented.json');
 const expectedPatientWithoutConsentForClientJson = require('./fixtures/expected/patient_of_client_1_with_no_consent.json');
+const expectedObservationAndConsentQueryWithoutProxyPatient = require('./fixtures/expected/observation_result_consent_query_without_proxy_patient.json');
 
 const {
     commonBeforeEach,
@@ -362,6 +363,33 @@ describe('Consent Based Data Access Test', () => {
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientWithConsentForClient1Json);
+        });
+
+        test('Consent has provided, search on basis of proxy-person, consent query should not contain proxy-patient', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Update proa resouce to use proxy patient as reference
+            let proaObservationResourceCopy = deepcopy(proaObservationResource);
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, clientPersonResource, masterPatientResource,
+                    client1PersonResource, client1ConsentResource, client1ObservationResource,
+                    xyzObservationResource,
+                    clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResourceCopy, consentGivenResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // Get Observation for a specific person
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7&_sort=_uuid&_rewritePatientReference=0&_debug=1&_bundle=1')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationAndConsentQueryWithoutProxyPatient);
         });
     });
 });
