@@ -163,10 +163,10 @@ class ConsentManager {
 
                 /**
                  * Get personRef to personUuidRef
-                 * @type {{[key: string]: string}}
+                 * @type {{[key: string]: string[]}}
                  */
                 const patientIdToImmediatePersonUuid = await this
-                    .getPatientToImmediatePersonMapAsync({ patientReferences });
+                    .getPatientToImmediatePersonMapAsync({ patientReferences, securityTags });
                 /**
                  * @type {Set<string>}
                  */
@@ -176,12 +176,14 @@ class ConsentManager {
                  * @type {Map<string, Set<string>>}
                  */
                 const immediatePersonToInputPatientId = new Map();
-                Object.entries(patientIdToImmediatePersonUuid).forEach(([patientId, person]) => {
-                    if (!immediatePersonToInputPatientId.has(person)) {
-                        immediatePersonToInputPatientId.set(person, new Set());
-                    }
-                    immediatePersonToInputPatientId.get(person).add(patientId);
-                    immediatePersonUuids.add(person);
+                Object.entries(patientIdToImmediatePersonUuid).forEach(([patientId, persons]) => {
+                    persons.forEach((person) => {
+                        if (!immediatePersonToInputPatientId.has(person)) {
+                            immediatePersonToInputPatientId.set(person, new Set());
+                        }
+                        immediatePersonToInputPatientId.get(person).add(patientId);
+                        immediatePersonUuids.add(person);
+                    });
                 });
 
                 // Get Consent for each person
@@ -349,21 +351,25 @@ class ConsentManager {
     /**
      * @typedef {Object} GetPatientToPersonParams - Function Options
      * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} patientReferences - Array of references
-     *
+     * @property {string[]} securityTags
      * Get patient to person map based on passed patient references
      * @param {GetPatientToPersonParams} options
-     * @returns {Promise<{[key: string]: string}>}
+     * @returns {Promise<{[key: string]: string[]}>}
      */
-    async getPatientToImmediatePersonMapAsync({ patientReferences }) {
+    async getPatientToImmediatePersonMapAsync({ patientReferences, securityTags }) {
 
-        // TODO: filter out all proxy patient references so that it will not come in the map
+        /**
+         * @type {Map<string, string[]>}
+         */
         const patientToImmediatePersonAsync =
             await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
                 patientReferences,
+                securityTags,
             });
             // convert to patientReference -> PersonUuid
+            /**@type {{[key: string]: string[]}} */
             const patientReferenceToPersonUuid = {};
-            for (const [patientReference, immediatePerson] of patientToImmediatePersonAsync.entries()) {
+            for (const [patientReference, immediatePersons] of patientToImmediatePersonAsync.entries()) {
                 // reference without Patient prefix
                 const patientId = patientReference.replace(
                     PATIENT_REFERENCE_PREFIX,
@@ -375,7 +381,7 @@ class ConsentManager {
                 }
 
                 // remove Person/ prefix
-                patientReferenceToPersonUuid[`${patientId}`] = immediatePerson.replace(PERSON_REFERENCE_PREFIX, '');
+                patientReferenceToPersonUuid[`${patientId}`] = immediatePersons.map(s => s.replace(PERSON_REFERENCE_PREFIX, ''));
             }
 
         return patientReferenceToPersonUuid;

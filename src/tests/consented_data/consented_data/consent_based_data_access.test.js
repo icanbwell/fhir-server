@@ -255,6 +255,41 @@ describe('Consent Based Data Access Test', () => {
 
         });
 
+        test('Only one client Consent has provided, it should return only consented data when searching with proxy-patient with master person id', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Update proa resouce to use proxy patient as reference
+            let proaObservationResourceCopy = deepcopy(proaObservationResource);
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, clientPersonResource, masterPatientResource,
+                    client1PersonResource, client1ConsentResource, client1ObservationResource,
+                    xyzObservationResource,
+                    clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResourceCopy])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // Get Observation for a specific person
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse([expectedClintObservation]);
+
+            // Should return only client-1 resources
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
+                .set(client1Headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
+
+        });
+
         test('Should not be able to access resource if proxy-patient references is not present', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -363,6 +398,41 @@ describe('Consent Based Data Access Test', () => {
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientWithConsentForClient1Json);
+        });
+
+        test('Should be able to access observation based on patient searched using proxy-person', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            const consentGivenResourceCopy = deepcopy(consentGivenResource);
+            delete consentGivenResourceCopy.provision.actor[1];
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource,
+                    client1PersonResource, client1ConsentResource, client1ObservationResource,
+                    xyzObservationResource,
+                    highmarkPatientResource,
+                    highmarkObservationResource,
+                    client1PatientResource, xyzPatientResource
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Patient/?id=person.bdc02b42-ad3a-4e8b-a607-6210316cf58e&_sort=_uuid&_rewritePatientReference=0')
+                .set(client1Headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(3);
+            const patientIds = JSON.parse(resp.text).map((r) => r.id);
+
+            resp = await request
+                 .get(`/4_0_0/Observation/?patient=${patientIds.map(id => `Patient/${id}`).join(',')}`)
+                 .set(client1Headers);
+
+            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson, expectedHighMarkObservationJson]);
         });
 
         test('Consent has provided, search on basis of proxy-person, consent query should not contain proxy-patient', async () => {

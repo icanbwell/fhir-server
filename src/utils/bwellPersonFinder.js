@@ -46,15 +46,15 @@ class BwellPersonFinder {
 
     /**
      * finds immediate person Ids associated with patientsIds
-     * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean }} options List of patient and proxy-patient References
-     * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as next level persons-id
+     * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean, securityTags?: string[] }} options List of patient and proxy-patient References
+     * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>} Returns map with key as patientId and value as next level persons-id
      */
-    async getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject }) {
+    async getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject, securityTags }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
         });
-        const patientToImmediatePersonMap = await this.getImmediatePersonIdHelperAsync({ references: patientReferences, databaseQueryManager, asObject });
+        const patientToImmediatePersonMap = await this.getImmediatePersonIdHelperAsync({ references: patientReferences, databaseQueryManager, asObject, securityTags });
         return patientToImmediatePersonMap;
     }
 
@@ -64,10 +64,11 @@ class BwellPersonFinder {
      * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} references
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
      * @property {boolean} asObject If true, will return Map of PatientReference -> Person IReference
+     * @property {string[] | undefined} securityTags
      * @param {GetImmediatePersonIdsHelperProps}
-     * @returns {Promise<Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference>} Returns a map of patientRefs -> its immediate person uuid refs
+     * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>} Returns a map of patientRefs -> array of immediate person uuid refs
      */
-    async getImmediatePersonIdHelperAsync({ references, databaseQueryManager, asObject }) {
+    async getImmediatePersonIdHelperAsync({ references, databaseQueryManager, asObject, securityTags }) {
         if (!references || Object.keys(references).length === 0) {
             return new Map();
         }
@@ -98,7 +99,7 @@ class BwellPersonFinder {
         const personIdFilter = FilterById.getListFilter(Array.from(personIds));
 
         /**
-         * @type {Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference}
+         * @type {Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]}
          */
         const patientRefToImmediatePersonRefMap = new Map();
 
@@ -111,14 +112,35 @@ class BwellPersonFinder {
          */
         const personRefToPersonRefObj = new Map();
 
+        let query = {
+            '$or': [
+                ...searchFilters,
+                personIdFilter,
+            ]
+        };
+
+        if (securityTags && securityTags.length > 0) {
+            // client security tag should match the patient
+            query = {
+                $and: [
+                    query,
+                    {
+                        'meta.security': {
+                            '$elemMatch': {
+                                'system': SecurityTagSystem.owner,
+                                'code': {
+                                    $in: securityTags
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+        }
+
         // get all persons
         let linkedPersonCursor = await databaseQueryManager.findAsync({
-            query: {
-                '$or': [
-                    ...searchFilters,
-                    personIdFilter,
-                ]
-            }
+            query,
         });
 
         while (await linkedPersonCursor.hasNext()) {
@@ -147,9 +169,9 @@ class BwellPersonFinder {
             }
 
             if (proxyPatientRef && asObject) {
-                patientRefToImmediatePersonRefMap.set(proxyPatientRef, personRefToPersonRefObj.get(personUuidRef));
+                patientRefToImmediatePersonRefMap.set(proxyPatientRef, [personRefToPersonRefObj.get(personUuidRef)]);
             } else if (proxyPatientRef){
-                patientRefToImmediatePersonRefMap.set(proxyPatientRef, personUuidRef);
+                patientRefToImmediatePersonRefMap.set(proxyPatientRef, [personUuidRef]);
             }
         }
 
@@ -157,10 +179,14 @@ class BwellPersonFinder {
         for (const [person, linkedReferences] of personRefToLinkedRefsMap.entries()) {
             if (linkedReferences && linkedReferences.length > 0) {
                 linkedReferences.forEach((currentReference) => {
+                    const immediatePersons = patientRefToImmediatePersonRefMap.get(currentReference) ?? [];
+
                     if (asObject) {
-                        patientRefToImmediatePersonRefMap.set(currentReference, personRefToPersonRefObj.get(person));
+                        immediatePersons.push(personRefToPersonRefObj.get(person));
+                        patientRefToImmediatePersonRefMap.set(currentReference, immediatePersons);
                     } else {
-                        patientRefToImmediatePersonRefMap.set(currentReference, person);
+                        immediatePersons.push(person);
+                        patientRefToImmediatePersonRefMap.set(currentReference, immediatePersons);
                     }
                 });
             }

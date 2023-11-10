@@ -493,10 +493,11 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             consentToPatientRefMap.forEach((patientReference, consentId) => {
 
                 // assign client person
-                const clientPerson = patientToClientPersonMap.get(patientReference);
+                const clientPersons = patientToClientPersonMap.get(patientReference);
 
-                if (clientPerson) {
-                    this.consentToClientPersonCache.set(consentId, clientPerson);
+                if (clientPersons && clientPersons.length > 0) {
+                    // there will only be one client person for a client patient
+                    this.consentToClientPersonCache.set(consentId, clientPersons[0]);
                 } else {
                     this.adminLogger.logger.warn(
                         `No client Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
