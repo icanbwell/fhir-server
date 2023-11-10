@@ -1,0 +1,77 @@
+{
+  "resourceType": "Consent",
+  "id": "8973d8bd-cd22-4c63-a29d-8dc9b5b4cce9",
+  "meta": {
+    "source": "client-2",
+    "lastUpdated": "2022-09-08T14:05:09.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client-2"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client-2"
+      }
+    ]
+  },
+  "status": "active",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "59284-0"
+        }
+      ]
+    }
+  ],
+  "scope": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+        "code": "patient-privacy"
+      }
+    ]
+  },
+  "patient": {
+    "reference": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
+  },
+  "dateTime": "2022-09-08T14:05:07.350Z",
+  "provision": {
+    "type": "permit",
+    "class": [
+      {
+        "code": "/dataSharingConsent"
+      }
+    ],
+    "actor": [
+      {
+        "role": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+              "code": "CST"
+            }
+          ]
+        },
+        "reference": {
+          "reference": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
+        }
+      },
+      {
+        "role": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html",
+              "code": "AUT"
+            }
+          ]
+        },
+        "reference": {
+          "reference": "Patient/person.bb4886cc-47ac-4e1a-8c92-ed19eb76337a"
+        }
+      }
+    ]
+  }
+}

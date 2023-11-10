@@ -268,6 +268,23 @@ class ConsentManager {
                                 // set the value
                                 item.queryParameterValue = newQueryParameterValue;
                             }
+                        } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
+                            const newQueryParameterValues = [];
+                            item.queryParameterValue.values.forEach((v) => {
+                                if (patientIdsWithConsent.has(v)) {
+                                    newQueryParameterValues.push(v);
+                                }
+                            });
+
+                            const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
+                            item.queryParameterValue = new QueryParameterValue({
+                                value: newValue,
+                                operator: item.queryParameterValue.operator
+                            });
+
+                            if (newQueryParameterValues.length === 0) {
+                                argsToRemove.add(item.queryParameter);
+                            }
                         }
                     });
 
@@ -286,7 +303,7 @@ class ConsentManager {
         }
 
         // Update query to include Consented data
-        if (queryWithConsent){
+        if (queryWithConsent && Object.keys(queryWithConsent).length > 0){
             query = { $or: [query, queryWithConsent]};
             // todo: if columns are not null, update the columns count by calling MongoQuerySimplifier.findColumnsInFilter({filter: query});
         }
@@ -316,7 +333,7 @@ class ConsentManager {
                 const queryParamReferences = currArg.references;
 
                 // if patient id is passed and resource type is patient
-                if (currArg.queryParameter === 'id' || currArg.queryParameter === '_id' && resourceType === 'Patient') {
+                if ((currArg.queryParameter === 'id' || currArg.queryParameter === '_id') && resourceType === 'Patient') {
                     currArg.queryParameterValue.values.forEach((value) => {
                         const {id, sourceAssigningAuthority} = IdParser.parse(value);
                         refs.push({
