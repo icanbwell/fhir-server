@@ -25,15 +25,18 @@ const xyzObservationResource = require('./fixtures/observation/xyz_observation.j
 const client1ObservationResource = require('./fixtures/observation/client_1_observation.json');
 const highmarkPatientResource = require('./fixtures/patient/highmark_patient.json');
 const highmarkObservationResource = require('./fixtures/observation/highmark_observation.json');
+const client1PatientResource = require('./fixtures/patient/client_1_patient.json');
+const xyzPatientResource = require('./fixtures/patient/xyz_patient.json');
 
 // expected
 const expectedClintObservation = require('./fixtures/expected/client_observation.json');
 const expectedProaObservation = require('./fixtures/expected/proa_observation.json');
 const expectedProaObservation2 = require('./fixtures/expected/proa_observation2.json');
-const expectedProaObservation2ProxyCopy = require('./fixtures/expected/proa_observation2_proxy_copy.json');
 const expectedClient1Observation = require('./fixtures/expected/client_1_observation.json');
 const expectedXyzObservationJson = require('./fixtures/expected/xyz_observation.json');
 const expectedHighMarkObservationJson = require('./fixtures/expected/highmark_observation.json');
+const expectedPatientWithConsentForClient1Json = require('./fixtures/expected/all_patient_related_to_client_1_consented.json');
+const expectedPatientWithoutConsentForClientJson = require('./fixtures/expected/patient_of_client_1_with_no_consent.json');
 
 const {
     commonBeforeEach,
@@ -47,7 +50,6 @@ const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartit
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
-const clientAndClient1AccessHeaders = getHeaders('user/*.read access/client-1.* access/client.*');
 
 describe('Consent Based Data Access Test', () => {
     const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
@@ -217,7 +219,7 @@ describe('Consent Based Data Access Test', () => {
             expect(resp).toHaveResponse([expectedProaObservation2]);
         });
 
-        test('Consent has provided, it should return all the data linked including multiple client-person if client has access to it and mater person proxy reference passed', async () => {
+        test('Consent has provided, it should return all consented data when searching with proxy-patient with master person id', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -236,31 +238,23 @@ describe('Consent Based Data Access Test', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-            let expectedClintObservationCopy = deepcopy(expectedClintObservation);
-            expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
-
-            let expectedClient1ObservationCopy = deepcopy(expectedClient1Observation);
-            let expectedXyzObservationCopy = deepcopy(expectedXyzObservationJson);
-            expectedClient1ObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
-            expectedXyzObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
-
             // Get Observation for a specific person
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
-                .set(clientAndClient1AccessHeaders);
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
+                .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClient1ObservationCopy, expectedProaObservation2ProxyCopy, expectedXyzObservationCopy, expectedClintObservationCopy]);
+            expect(resp).toHaveResponse([expectedProaObservation, expectedClintObservation]);
 
             // Should return only client-1 resources
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClient1ObservationCopy, expectedXyzObservationCopy]);
+            expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
 
         });
 
-        test('Should not be able to access resource if proxy-person references is not present', async () => {
+        test('Should not be able to access resource if proxy-patient references is not present', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -314,6 +308,60 @@ describe('Consent Based Data Access Test', () => {
             // noinspection JSUnresolvedFunction
             // console.log(JSON.stringify(JSON.parse(resp.text), null, '\t'));
             expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson, expectedHighMarkObservationJson]);
+        });
+
+        test('Should not be able to access patient of xyz and highmark if client-1 doesn\'t have consent', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            const consentGivenResourceCopy = deepcopy(consentGivenResource);
+            delete consentGivenResourceCopy.provision.actor[1];
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, client1PatientResource, xyzPatientResource, highmarkPatientResource,
+                    client1PersonResource, client1ObservationResource,
+                    xyzObservationResource,
+                    highmarkObservationResource
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Patient?_id=69e5e0ca-27dd-4560-9963-590e6ca4abd3,0afee0eb-4984-46ea-8052-63fad42e4817,44001f52-99f5-4246-9c9a-d7ed1c1c8b39&_sort=_uuid&_debug=1&_bundle=1')
+                .set(client1Headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientWithoutConsentForClientJson);
+        });
+
+        test('Should be able to access patient of xyz and highmark if client-1 have consent', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            const consentGivenResourceCopy = deepcopy(consentGivenResource);
+            delete consentGivenResourceCopy.provision.actor[1];
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource,
+                    client1PersonResource, client1ConsentResource, client1ObservationResource,
+                    xyzObservationResource,
+                    highmarkPatientResource,
+                    highmarkObservationResource,
+                    client1PatientResource, xyzPatientResource
+                ])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Patient/?id=69e5e0ca-27dd-4560-9963-590e6ca4abd3,0afee0eb-4984-46ea-8052-63fad42e4817,44001f52-99f5-4246-9c9a-d7ed1c1c8b39&_sort=_uuid&_bundle=1&_debug=1')
+                .set(client1Headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientWithConsentForClient1Json);
         });
     });
 });

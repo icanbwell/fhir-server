@@ -45,29 +45,29 @@ class BwellPersonFinder {
     }
 
     /**
-     * finds client person Ids associated with patientsIds
+     * finds immediate person Ids associated with patientsIds
      * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean }} options List of patient and proxy-patient References
      * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as next level persons-id
      */
-    async getClientPersonIdAsync({ patientReferences, asObject }) {
+    async getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
         });
-        const patientToClientPersonMap = await this.getClientPersonIdsHelperAsync({ references: patientReferences, databaseQueryManager, asObject });
-        return patientToClientPersonMap;
+        const patientToImmediatePersonMap = await this.getImmediatePersonIdHelperAsync({ references: patientReferences, databaseQueryManager, asObject });
+        return patientToImmediatePersonMap;
     }
 
     /**
-     * Finds client person for given references and returns a map of `reference -> clientPerson Uuid Ref`
-     * @typedef {Object} GetClientPersonIdsHelperProps
+     * Finds immediate person for given references and returns a map of `reference -> person Uuid Ref`
+     * @typedef {Object} GetImmediatePersonIdsHelperProps
      * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} references
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
-     * @property {boolean} asObject If true, will return Map of PatientReference -> ClientPerson IReference
-     * @param {GetClientPersonIdsHelperProps}
-     * @returns {Promise<Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference>}Returns a map of patientRefs -> client person uuid refs
+     * @property {boolean} asObject If true, will return Map of PatientReference -> Person IReference
+     * @param {GetImmediatePersonIdsHelperProps}
+     * @returns {Promise<Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference>} Returns a map of patientRefs -> its immediate person uuid refs
      */
-    async getClientPersonIdsHelperAsync({ references, databaseQueryManager, asObject }) {
+    async getImmediatePersonIdHelperAsync({ references, databaseQueryManager, asObject }) {
         if (!references || Object.keys(references).length === 0) {
             return new Map();
         }
@@ -100,7 +100,7 @@ class BwellPersonFinder {
         /**
          * @type {Map<string, string> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference}
          */
-        const patientRefToClientPersonRefMap = new Map();
+        const patientRefToImmediatePersonRefMap = new Map();
 
         /**
          * @type {Map<string, string[]>}
@@ -147,26 +147,26 @@ class BwellPersonFinder {
             }
 
             if (proxyPatientRef && asObject) {
-                patientRefToClientPersonRefMap.set(proxyPatientRef, personRefToPersonRefObj.get(personUuidRef));
+                patientRefToImmediatePersonRefMap.set(proxyPatientRef, personRefToPersonRefObj.get(personUuidRef));
             } else if (proxyPatientRef){
-                patientRefToClientPersonRefMap.set(proxyPatientRef, personUuidRef);
+                patientRefToImmediatePersonRefMap.set(proxyPatientRef, personUuidRef);
             }
         }
 
         // build map of patient to person
-        for (const [clientPerson, linkedReferences] of personRefToLinkedRefsMap.entries()) {
+        for (const [person, linkedReferences] of personRefToLinkedRefsMap.entries()) {
             if (linkedReferences && linkedReferences.length > 0) {
                 linkedReferences.forEach((currentReference) => {
                     if (asObject) {
-                        patientRefToClientPersonRefMap.set(currentReference, personRefToPersonRefObj.get(clientPerson));
+                        patientRefToImmediatePersonRefMap.set(currentReference, personRefToPersonRefObj.get(person));
                     } else {
-                        patientRefToClientPersonRefMap.set(currentReference, clientPerson);
+                        patientRefToImmediatePersonRefMap.set(currentReference, person);
                     }
                 });
             }
         }
 
-        return patientRefToClientPersonRefMap;
+        return patientRefToImmediatePersonRefMap;
     }
 
     /**

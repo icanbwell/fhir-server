@@ -486,8 +486,8 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
             }
 
-            // find client person
-            const patientToClientPersonMap = await this.bwellPersonFinder.getClientPersonIdAsync({ patientReferences, asObject: true });
+            // find person
+            const patientToClientPersonMap = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject: true });
 
             // build cache
             consentToPatientRefMap.forEach((patientReference, consentId) => {

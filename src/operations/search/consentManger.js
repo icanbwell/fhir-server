@@ -11,6 +11,7 @@ const { logError } = require('../common/logging');
 const { SearchFilterFromReference } = require('../query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { IdParser } = require('../../utils/idParser');
 
 class ConsentManager {
     /**
@@ -61,17 +62,17 @@ class ConsentManager {
     }
 
     /**
-     * @description Fetches all the consent resources linked to a clientPerson ids.
+     * @description Fetches all the consent resources linked to a person ids.
      * @typedef {Object} ConsentQueryOptions
      * @property {string[]} ownerTags
-     * @property {string[] | undefined} clientPersonIds
+     * @property {string[] | undefined} personIds
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources({ownerTags, clientPersonIds}) {
+    async getConsentResources({ownerTags, personIds}) {
 
-        // get all consents where provision.actor.reference is of proxy-person with valid code
-        let proxyPersonReferences = clientPersonIds.map(
+        // get all consents where provision.actor.reference is of proxy-patient with valid code
+        let proxyPersonReferences = personIds.map(
             (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
         );
 
@@ -161,32 +162,32 @@ class ConsentManager {
                 await this.validatePatientIdsAsync(patientReferences);
 
                 /**
-                 * Get personRef to clientPersonUuid
+                 * Get personRef to personUuidRef
                  * @type {{[key: string]: string}}
                  */
-                const patientIdToClientPersonUuid = await this
-                    .getPatientToClientPersonMapAsync({ patientReferences });
+                const patientIdToImmediatePersonUuid = await this
+                    .getPatientToImmediatePersonMapAsync({ patientReferences });
                 /**
                  * @type {Set<string>}
                  */
-                const clientPersonUuids = new Set();
+                const immediatePersonUuids = new Set();
                 /**
                  * Reverse map
                  * @type {Map<string, Set<string>>}
                  */
-                const clientPersonToInputPatientId = new Map();
-                Object.entries(patientIdToClientPersonUuid).forEach(([patientId, clientPerson]) => {
-                    if (!clientPersonToInputPatientId.has(clientPerson)) {
-                        clientPersonToInputPatientId.set(clientPerson, new Set());
+                const immediatePersonToInputPatientId = new Map();
+                Object.entries(patientIdToImmediatePersonUuid).forEach(([patientId, person]) => {
+                    if (!immediatePersonToInputPatientId.has(person)) {
+                        immediatePersonToInputPatientId.set(person, new Set());
                     }
-                    clientPersonToInputPatientId.get(clientPerson).add(patientId);
-                    clientPersonUuids.add(clientPerson);
+                    immediatePersonToInputPatientId.get(person).add(patientId);
+                    immediatePersonUuids.add(person);
                 });
 
-                // Get Consent for each client person
+                // Get Consent for each person
                 const consentResources = await this.getConsentResources({
                     ownerTags: securityTags,
-                    clientPersonIds: [...clientPersonUuids],
+                    personIds: [...immediatePersonUuids],
                 });
 
                 /**
@@ -203,9 +204,9 @@ class ConsentManager {
                         if (proxyPersonActor?.reference?._uuid) {
                             /**@type {string} */
                             const uuidRef = proxyPersonActor.reference._uuid;
-                            const clientPersonUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
-                            if (clientPersonToInputPatientId.has(clientPersonUuid)) {
-                                clientPersonToInputPatientId.get(clientPersonUuid).forEach((patientId) => {
+                            const personUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
+                            if (immediatePersonToInputPatientId.has(personUuid)) {
+                                immediatePersonToInputPatientId.get(personUuid).forEach((patientId) => {
                                     patientIdsWithConsent.add(patientId);
                                 });
                             }
@@ -311,6 +312,18 @@ class ConsentManager {
         idReferenceMap = parsedArgs.parsedArgItems
             .reduce((/**@type {import('../query/filters/searchFilterFromReference').IReferences}*/refs, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
                 const queryParamReferences = currArg.references;
+
+                // if patient id is passed and resource type is patient
+                if (currArg.queryParameter === 'id' || currArg.queryParameter === '_id' && resourceType === 'Patient') {
+                    currArg.queryParameterValue.values.forEach((value) => {
+                        const {id, sourceAssigningAuthority} = IdParser.parse(value);
+                        refs.push({
+                            resourceType,
+                            id,
+                            sourceAssigningAuthority
+                        });
+                    });
+                }
                 // if modifier is 'not' then skip the addition
                 if (currArg.modifiers.some((v) => modifiersToSkip.includes(v))) {
                     return refs;
@@ -336,26 +349,30 @@ class ConsentManager {
     /**
      * @typedef {Object} GetPatientToPersonParams - Function Options
      * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} patientReferences - Array of references
+     *
+     * Get patient to person map based on passed patient references
      * @param {GetPatientToPersonParams} options
      * @returns {Promise<{[key: string]: string}>}
      */
-    async getPatientToClientPersonMapAsync({ patientReferences }) {
-        const patientToClientPersonAsync =
-            await this.bwellPersonFinder.getClientPersonIdAsync({
+    async getPatientToImmediatePersonMapAsync({ patientReferences }) {
+
+        // TODO: filter out all proxy patient references so that it will not come in the map
+        const patientToImmediatePersonAsync =
+            await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
                 patientReferences,
             });
-            // convert to patientReference -> clientPersonUuid
-            const patientReferenceToClientPersonUuid = {};
-            for (const [patientReference, clientPerson] of patientToClientPersonAsync.entries()) {
+            // convert to patientReference -> PersonUuid
+            const patientReferenceToPersonUuid = {};
+            for (const [patientReference, immediatePerson] of patientToImmediatePersonAsync.entries()) {
                 // reference without Patient prefix
                 const patientId = patientReference.replace(
                     PATIENT_REFERENCE_PREFIX,
                     '',
                 );
                 // remove Person/ prefix
-                patientReferenceToClientPersonUuid[`${patientId}`] = clientPerson.replace(PERSON_REFERENCE_PREFIX, '');
+                patientReferenceToPersonUuid[`${patientId}`] = immediatePerson.replace(PERSON_REFERENCE_PREFIX, '');
             }
-        return patientReferenceToClientPersonUuid;
+        return patientReferenceToPersonUuid;
     }
 
     /**

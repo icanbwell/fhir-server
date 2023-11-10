@@ -60,7 +60,7 @@ describe('Patient Tests', () => {
             });
         });
 
-        test('search observation by proxy-person stream error should be handled correctly', async () => {
+        test('search observation by proxy-patient stream error should be handled correctly', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
