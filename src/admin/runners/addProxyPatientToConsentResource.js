@@ -106,11 +106,24 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             },
         });
 
+        Object.defineProperty(this, 'consentToPatientWithMultiplePerson', {
+            enumerable: true,
+            get: function () {
+                return this.cache.get('consentToPatientWithMultiplePerson');
+            },
+            set(value) {
+                this.cache.set('consentToPatientWithMultiplePerson', value);
+            },
+        });
+
         /**@type {Map<string, { id: string; sourceAssigningAuthority: string}} */
         this.consentToImmediatePersonCache = new Map();
 
         /**@type {Map<string, string>} */
         this.consentWithNoPerson = new Map();
+
+        /**@type {Map<string, string>} */
+        this.consentToPatientWithMultiplePerson = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
     }
@@ -186,6 +199,13 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     `Consent Resources without Person: ${this.consentWithNoPerson.size}`,
                     {
                         consentWithNoPerson: Object.fromEntries(this.consentWithNoPerson),
+                    }
+                );
+
+                this.adminLogger.logInfo(
+                    `Consent Resources with patient linked to multiple person: ${this.consentToPatientWithMultiplePerson.size}`,
+                    {
+                        consentToPatientWithMultiplePerson: Object.fromEntries(this.consentToPatientWithMultiplePerson),
                     }
                 );
             }
@@ -503,8 +523,10 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                             patientReference,
                             immediatePersons,
                         });
+                        this.consentToPatientWithMultiplePerson(consentId, patientReference);
+                    } else {
+                        this.consentToImmediatePersonCache.set(consentId, immediatePersons[0]);
                     }
-                    this.consentToImmediatePersonCache.set(consentId, immediatePersons[0]);
                 } else {
                     this.adminLogger.logger.warn(
                         `No Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
