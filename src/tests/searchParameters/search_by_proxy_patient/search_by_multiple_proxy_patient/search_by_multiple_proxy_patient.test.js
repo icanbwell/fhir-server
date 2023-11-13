@@ -132,7 +132,7 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedMultiplePerson);
         });
 
-        test('search patient by proxy-person should work correctly', async () => {
+        test('search patient by proxy-patient should work correctly', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -166,7 +166,7 @@ describe('Patient Tests', () => {
 
         });
 
-        test('search patient by proxy-person should return empty result when person is not present', async () => {
+        test('search patient by proxy-patient should return empty result when person is not present', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -201,7 +201,7 @@ describe('Patient Tests', () => {
 
         });
 
-        test('search observation by proxy-person should work correctly with multiple proxy persons', async () => {
+        test('search observation by proxy-patient should work correctly with multiple proxy persons', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -238,7 +238,7 @@ describe('Patient Tests', () => {
 
         });
 
-        test('search observation by proxy-person should also include resources with directly linked proxy-patient', async () => {
+        test('search observation by proxy-patient should also include resources with directly linked proxy-patient', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -276,7 +276,7 @@ describe('Patient Tests', () => {
 
         });
 
-        test('search observation by proxy-person should return 0 entries if wrong proxy-person is passed', async () => {
+        test('search observation by proxy-patient should return 0 entries if wrong proxy-patient is passed', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -314,7 +314,7 @@ describe('Patient Tests', () => {
 
         });
 
-        test('search observation by proxy-person should work correctly when some proxy-person-id are non existent', async () => {
+        test('search observation by proxy-patient should work correctly when some proxy-patient-id are non existent', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -387,7 +387,7 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedObservationWithRewritePatientReferenceFalse);
         });
 
-        test('search patient by proxy-person should work correctly when _rewritePatientReference is false', async () => {
+        test('search patient by proxy-patient should work correctly when _rewritePatientReference is false', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;

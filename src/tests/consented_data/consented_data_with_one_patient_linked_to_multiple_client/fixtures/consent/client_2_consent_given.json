@@ -1,17 +1,17 @@
 {
   "resourceType": "Consent",
-  "id": "35d6a817-6e77-4be9-b060-025d31e58cf6",
+  "id": "8973d8bd-cd22-4c63-a29d-8dc9b5b4cce9",
   "meta": {
-    "source": "proa",
+    "source": "client-2",
     "lastUpdated": "2022-09-08T14:05:09.000Z",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "proa"
+        "code": "client-2"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "proa"
+        "code": "client-2"
       }
     ]
   },
@@ -35,7 +35,7 @@
     ]
   },
   "patient": {
-    "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
+    "reference": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
   },
   "dateTime": "2022-09-08T14:05:07.350Z",
   "provision": {
@@ -56,7 +56,7 @@
           ]
         },
         "reference": {
-          "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
+          "reference": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
         }
       },
       {
@@ -69,8 +69,7 @@
           ]
         },
         "reference": {
-          "reference": "Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57",
-          "_sourceAssigningAuthority": "bwell"
+          "reference": "Patient/person.bb4886cc-47ac-4e1a-8c92-ed19eb76337a"
         }
       }
     ]

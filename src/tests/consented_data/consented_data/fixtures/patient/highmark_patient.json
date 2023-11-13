@@ -1,0 +1,29 @@
+{
+  "resourceType": "Patient",
+  "id": "44001f52-99f5-4246-9c9a-d7ed1c1c8b39",
+  "meta": {
+      "source": "proa",
+      "security": [
+          {
+              "system": "https://www.icanbwell.com/access",
+              "code": "highmark"
+          },
+          {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "highmark"
+          }
+      ]
+  },
+  "birthDate": "2017-01-01",
+  "gender": "female",
+  "name": [
+      {
+          "use": "usual",
+          "text": "t",
+          "family": "PATIENT1",
+          "given": ["SHYLA"],
+          "prefix": [],
+          "suffix": []
+      }
+  ]
+}

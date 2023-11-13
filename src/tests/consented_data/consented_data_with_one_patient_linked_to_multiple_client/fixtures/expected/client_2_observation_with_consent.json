@@ -1,0 +1,248 @@
+[
+  {
+    "resourceType": "Observation",
+    "id": "2f6efea1-1226-4505-a20f-f84dac7a8de6",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-11-10T14:39:41.000Z",
+      "source": "/patients",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "highmark"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "highmark"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "highmark"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "highmark"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "2f6efea1-1226-4505-a20f-f84dac7a8de6"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "2f6efea1-1226-4505-a20f-f84dac7a8de6"
+      }
+    ],
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/cql/library",
+          "code": "BMI001"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/libraryVersion",
+          "code": "1.0.0"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/rule",
+          "code": "InAgeCohort"
+        }
+      ]
+    },
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/b380829e-9715-4183-bdaf-803f80c377fe"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/b380829e-9715-4183-bdaf-803f80c377fe"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "highmark"
+        }
+      ],
+      "reference": "Patient/b380829e-9715-4183-bdaf-803f80c377fe"
+    },
+    "effectivePeriod": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2021-12-31T00:00:00.000Z"
+    },
+    "issued": "2021-01-01T12:00:00Z",
+    "valueBoolean": false
+  },
+  {
+    "resourceType": "Observation",
+    "id": "73154bf1-fa99-4421-82b6-e62f6d2e7d08",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-11-10T14:39:41.000Z",
+      "source": "/patients",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client-2"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client-2"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "client-2"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "client-2"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "73154bf1-fa99-4421-82b6-e62f6d2e7d08"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "73154bf1-fa99-4421-82b6-e62f6d2e7d08"
+      }
+    ],
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/cql/library",
+          "code": "BMI001"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/libraryVersion",
+          "code": "1.0.0"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/rule",
+          "code": "InAgeCohort"
+        }
+      ]
+    },
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "client-2"
+        }
+      ],
+      "reference": "Patient/209765b6-d2e8-49e4-80ab-8b9739d19d52"
+    },
+    "effectivePeriod": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2021-12-31T00:00:00.000Z"
+    },
+    "issued": "2021-01-01T12:00:00Z",
+    "valueBoolean": false
+  },
+  {
+    "resourceType": "Observation",
+    "id": "9408975d-6fba-42c6-99dd-5be0e16e5f6f",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-11-10T14:39:41.000Z",
+      "source": "/patients",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "xyz"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "xyz"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "xyz"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "xyz"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "9408975d-6fba-42c6-99dd-5be0e16e5f6f"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "9408975d-6fba-42c6-99dd-5be0e16e5f6f"
+      }
+    ],
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/cql/library",
+          "code": "BMI001"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/libraryVersion",
+          "code": "1.0.0"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/rule",
+          "code": "InAgeCohort"
+        }
+      ]
+    },
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/0c0a2e9a-06e3-421f-98f0-2b370822762a"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/0c0a2e9a-06e3-421f-98f0-2b370822762a"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "xyz"
+        }
+      ],
+      "reference": "Patient/0c0a2e9a-06e3-421f-98f0-2b370822762a"
+    },
+    "effectivePeriod": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2021-12-31T00:00:00.000Z"
+    },
+    "issued": "2021-01-01T12:00:00Z",
+    "valueBoolean": false
+  }
+]
