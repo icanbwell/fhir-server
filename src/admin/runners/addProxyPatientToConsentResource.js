@@ -86,31 +86,31 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          */
         this.cache = new Map();
 
-        Object.defineProperty(this, 'consentToClientPersonCache', {
+        Object.defineProperty(this, 'consentToImmediatePersonCache', {
             enumerable: true,
             get: function () {
-                return this.cache.get('consentToClientPersonCache');
+                return this.cache.get('consentToImmediatePersonCache');
             },
             set(value) {
-                this.cache.set('consentToClientPersonCache', value);
+                this.cache.set('consentToImmediatePersonCache', value);
             },
         });
 
-        Object.defineProperty(this, 'consentWithNoClientPerson', {
+        Object.defineProperty(this, 'consentWithNoPerson', {
             enumerable: true,
             get: function () {
-                return this.cache.get('consentWithNoClientPerson');
+                return this.cache.get('consentWithNoPerson');
             },
             set(value) {
-                this.cache.set('consentWithNoClientPerson', value);
+                this.cache.set('consentWithNoPerson', value);
             },
         });
 
         /**@type {Map<string, { id: string; sourceAssigningAuthority: string}} */
-        this.consentToClientPersonCache = new Map();
+        this.consentToImmediatePersonCache = new Map();
 
         /**@type {Map<string, string>} */
-        this.consentWithNoClientPerson = new Map();
+        this.consentWithNoPerson = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
     }
@@ -183,9 +183,9 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
             } finally {
                 this.adminLogger.logInfo(
-                    `Consent Resources without clientPerson: ${this.consentWithNoClientPerson.size}`,
+                    `Consent Resources without Person: ${this.consentWithNoPerson.size}`,
                     {
-                        consentWithNoClientPerson: Object.fromEntries(this.consentWithNoClientPerson),
+                        consentWithNoPerson: Object.fromEntries(this.consentWithNoPerson),
                     }
                 );
             }
@@ -260,22 +260,22 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             return resource;
         }
 
-        // get the clientPerson id from the cache
-        const clientPerson = this.consentToClientPersonCache.get(resource._uuid);
+        // get the person id from the cache
+        const immediatePerson = this.consentToImmediatePersonCache.get(resource._uuid);
 
-        if (!clientPerson) {
+        if (!immediatePerson) {
             this.adminLogger.logger.warn(
-                `No Client Person found in cache for consentUuid: '${resource._uuid}'`
+                `No Immediate Person found in cache for consentUuid: '${resource._uuid}'`
             );
-            this.consentWithNoClientPerson.set(resource._uuid, resource.patient._uuid);
+            this.consentWithNoPerson.set(resource._uuid, resource.patient._uuid);
             return resource;
         }
 
-        const clientProxyPatientReference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${clientPerson.id.replace(
+        const proxyPatientReference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${immediatePerson.id.replace(
             PERSON_REFERENCE_PREFIX,
             ''
         )}`;
-        let wrongClientPersonActor;
+        let wrongPersonActor;
 
         /**@type {boolean} */
         const isAlreadyPresent = provisionActor.some((actor) => {
@@ -296,14 +296,14 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
 
             if (alreadyPresent) {
-                if (actor.reference._uuid !== clientProxyPatientReference) {
-                    wrongClientPersonActor = actor;
+                if (actor.reference._uuid !== proxyPatientReference) {
+                    wrongPersonActor = actor;
                     this.adminLogger.logger.warn(
-                        `[addProxyPersonReference] Wrong Proxy Person '${actor.reference._uuid}' present instead of ${clientProxyPatientReference} for ${resource._uuid}`
+                        `[addProxyPersonReference] Wrong Proxy Person '${actor.reference._uuid}' present instead of ${proxyPatientReference} for ${resource._uuid}`
                     );
                 } else {
                     this.adminLogger.logger.warn(
-                        `[addProxyPersonReference] Proxy Person '${clientProxyPatientReference}' already present for ${resource._uuid}`
+                        `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
                     );
                 }
             }
@@ -312,10 +312,10 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
         if (isAlreadyPresent) {
             // proxy-patient reference is already present
-            if (wrongClientPersonActor) {
-                wrongClientPersonActor.reference = {
-                    reference: clientProxyPatientReference,
-                    _sourceAssigningAuthority: clientPerson.sourceAssigningAuthority,
+            if (wrongPersonActor) {
+                wrongPersonActor.reference = {
+                    reference: proxyPatientReference,
+                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority,
                 };
                  // call the presave
                  resource = await this.preSaveManager.preSaveAsync(resource);
@@ -333,8 +333,8 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     ],
                 },
                 reference: {
-                    reference: clientProxyPatientReference,
-                    _sourceAssigningAuthority: clientPerson.sourceAssigningAuthority,
+                    reference: proxyPatientReference,
+                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority,
                 },
             });
 
@@ -420,7 +420,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * Caches consent to client person
+     * Caches consent to person
      * @param {{limit: number; skip: number; mongoConfig: any; startFromId: string | undefined }} params
      */
     async cacheConsentToPersonUuidRef({ mongoConfig, limit, skip, startFromId }) {
@@ -487,20 +487,27 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             }
 
             // find person
-            const patientToClientPersonMap = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject: true });
+            const patientToPersonMap = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject: true });
 
             // build cache
             consentToPatientRefMap.forEach((patientReference, consentId) => {
 
-                // assign client person
-                const clientPersons = patientToClientPersonMap.get(patientReference);
+                // assign person
+                const immediatePersons = patientToPersonMap.get(patientReference);
 
-                if (clientPersons && clientPersons.length > 0) {
+                if (immediatePersons && immediatePersons.length > 0) {
                     // there will only be one client person for a client patient
-                    this.consentToClientPersonCache.set(consentId, clientPersons[0]);
+                    if (immediatePersons.length > 1) {
+                        this.adminLogger.logger.warn(`Multiple persons linked with patient '${patientReference}'`, {
+                            consentId,
+                            patientReference,
+                            immediatePersons,
+                        });
+                    }
+                    this.consentToImmediatePersonCache.set(consentId, immediatePersons[0]);
                 } else {
                     this.adminLogger.logger.warn(
-                        `No client Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
+                        `No Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
                         {
                             consentId,
                             patientReference,
@@ -511,7 +518,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
             // cache
             this.adminLogger.logInfo(
-                `Cached ${this.consentToClientPersonCache.size} out of ${consentToPatientRefMap.size} resources`
+                `Cached ${this.consentToImmediatePersonCache.size} out of ${consentToPatientRefMap.size} resources`
             );
         } catch (e) {
             console.log(e);
