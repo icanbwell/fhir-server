@@ -523,7 +523,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                             patientReference,
                             immediatePersons,
                         });
-                        this.consentToPatientWithMultiplePerson(consentId, patientReference);
+                        this.consentToPatientWithMultiplePerson.set(consentId, patientReference);
                     } else {
                         this.consentToImmediatePersonCache.set(consentId, immediatePersons[0]);
                     }
