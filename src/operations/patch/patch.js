@@ -324,7 +324,6 @@ class PatchOperation {
                     await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc: resource
                     });
-                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
 

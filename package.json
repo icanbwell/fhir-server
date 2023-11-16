@@ -163,6 +163,7 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "mongodb": "^5.8.0",
+    "node-cron": "^3.0.3",
     "object-hash": "^2.2.0, <3",
     "object-sizeof": "^2.6.3",
     "openai": "^4.0.1",

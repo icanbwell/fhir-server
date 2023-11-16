@@ -196,19 +196,14 @@ class DatabaseBulkInserter extends EventEmitter {
         }
         // add this operation to the list of operations for this collection
         operationsByResourceTypeMap.get(resourceType).push(
-            new BulkInsertUpdateEntry({
-                    id: resource.id,
-                    uuid: resource._uuid,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                    resourceType,
-                    resource,
-                    operation,
-                    operationType,
-                    patches,
-                    isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
-                    isUpdateOperation: operationType === 'replace' || operationType === 'merge'
-                }
-            )
+            this.getOperationForResourceAsync({
+                requestId,
+                resourceType,
+                doc: resource,
+                operationType,
+                operation,
+                patches
+            })
         );
     }
 
@@ -253,6 +248,50 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             )
         );
+    }
+
+    /**
+     * Inserts item into collection without checking if item exists
+     * @typedef {Object} getOperationForResourceAsyncParam
+     * @property {string} requestId
+     * @property {string} resourceType
+     * @property {Resource} doc
+     * @property {string} operationType
+     * @property {import('mongodb').AnyBulkWriteOperation} operation
+     * @property {MergePatchEntry[]|null} patches
+     *
+     * @param {getOperationForResourceAsyncParam}
+     * @returns {BulkInsertUpdateEntry}
+     */
+    getOperationForResourceAsync({requestId, resourceType, doc, operationType, operation, patches}) {
+        try {
+            assertTypeEquals(doc, Resource);
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+            if (doc._id) {
+                logInfo('_id still present', {args: {
+                    source: 'DatabaseBulkInserter.getOperationForResourceAsync',
+                    doc
+                }});
+            }
+
+            return new BulkInsertUpdateEntry({
+                id: doc.id,
+                uuid: doc._uuid,
+                sourceAssigningAuthority: doc._sourceAssigningAuthority,
+                requestId,
+                resourceType,
+                resource: doc,
+                operation,
+                operationType,
+                patches,
+                isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
+                isUpdateOperation: operationType === 'replace' || operationType === 'merge',
+            });
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -328,62 +367,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     patches: null
                 });
             }
-            if (doc._id) {
-                logInfo('_id still present', {args: {
-                    source: 'DatabaseBulkInserter.insertOneAsync',
-                    doc: doc
-                }});
-            }
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
-        }
-    }
-
-    /**
-     * Inserts item into collection without checking if item exists
-     * @param {string} requestId
-     * @param {string} resourceType
-     * @param {Resource} doc
-     * @returns {Promise<void>}
-     */
-    async insertOnlyAsync({requestId, resourceType, doc}) {
-        try {
-            assertTypeEquals(doc, Resource);
-            if (!doc.meta) {
-                doc.meta = new Meta({});
-            }
-            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
-                doc.meta.versionId = '1';
-            }
-            doc = await this.preSaveManager.preSaveAsync(doc);
-
-            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
-            /**
-             * @type {Map<string, BulkInsertUpdateEntry[]>}
-             */
-            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
-            await logVerboseAsync({
-                source: 'DatabaseBulkInserter.insertOneAsync',
-                args:
-                    {
-                        message: 'start',
-                        bufferLength: operationsByResourceTypeMap.size
-                    }
-            });
-
-            this.addOperationForResourceType({
-                requestId,
-                resourceType,
-                resource: doc,
-                operation: {
-                    insertOne: {
-                        document: doc.toJSONInternal()
-                    }
-                },
-                operationType: 'insert',
-            });
             if (doc._id) {
                 logInfo('_id still present', {args: {
                     source: 'DatabaseBulkInserter.insertOneAsync',
@@ -672,20 +655,26 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Executes all the operations in bulk
-     * @param {string} base_version
-     * @param {string} requestId
-     * @param {string} currentDate
-     * @param {string} method
-     * @param {string} userRequestId
+     * @typedef {Object} executeAsyncParams
+     * @property {string} base_version
+     * @property {string} requestId
+     * @property {string} currentDate
+     * @property {string} method
+     * @property {string} userRequestId
+     * @property {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
+     *
+     * @param {executeAsyncParams}
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync({requestId, currentDate, base_version, method, userRequestId}) {
+    async executeAsync({requestId, currentDate, base_version, method, userRequestId, operationsMap}) {
         assertIsValid(requestId, 'requestId is null');
         try {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
-            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+            const operationsByResourceTypeMap = operationsMap ?
+                operationsMap : this.getOperationsByResourceTypeMap({requestId});
+
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
                 args:
@@ -711,11 +700,13 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 ));
 
-            await this.executeHistoryInPostRequestAsync(
-                {
-                    requestId, currentDate, base_version, method, userRequestId
-                }
-            );
+            if (!operationsMap) {
+                await this.executeHistoryInPostRequestAsync(
+                    {
+                        requestId, currentDate, base_version, method, userRequestId
+                    }
+                );
+            }
 
             operationsByResourceTypeMap.clear();
 
