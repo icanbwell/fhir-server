@@ -7,7 +7,7 @@ const {isColumnDateType} = require('../../common/isColumnDateType');
 const {BaseFilter} = require('./baseFilter');
 
 function isPeriodField(fieldString) {
-    return fieldString === 'period' || fieldString === 'effectivePeriod';
+    return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
 }
 
 /**
