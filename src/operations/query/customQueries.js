@@ -969,6 +969,12 @@ const customFilterQueries = {
             'target': ['Patient']
         })
     },
+    'Task': {
+        'period': new SearchParameterDefinition({
+            'type': fhirFilterTypes.period,
+            'field': 'executionPeriod'
+        })
+    },
     'TerminologyCapabilities': {
         'name': new SearchParameterDefinition({
             'type': fhirFilterTypes.string,
