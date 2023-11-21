@@ -1,0 +1,7 @@
+service:
+  name: FHIR
+  team:
+  jira_project: Server
+  grafana_dashboard:
+  sentry_project:
+  opsgenie_service:
