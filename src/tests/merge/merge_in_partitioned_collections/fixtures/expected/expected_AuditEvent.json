@@ -1021,7 +1021,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_08.find({'$and':[{'recorded':{'$gt':ISODate('2021-04-02T00:00:00.000Z')}},{'recorded':{'$lt':ISODate('2021-10-02T00:00:00.000Z')}}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.AuditEvent_4_0_0_2021_08.find({'recorded':{'$gt':ISODate('2021-04-02T00:00:00.000Z'),'$lt':ISODate('2021-10-02T00:00:00.000Z')}}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
