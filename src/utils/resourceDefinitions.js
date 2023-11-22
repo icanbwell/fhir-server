@@ -34,6 +34,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/careteam.html'
     },
     {
+        name: 'ChargeItem',
+        description: 'The resource ChargeItem describes the provision of healthcare provider products for a certain patient, therefore referring not only to the product, but containing in addition details of the provision, like date, time, amounts and participating organizations and persons. Main Usage of the ChargeItem is to enable the billing process and internal cost allocation.',
+        url: 'https://hl7.org/FHIR/chargeItem.html'
+    },
+    {
         name: 'Communication',
         description: 'An occurrence of information being transmitted; e.g. an alert that was sent to a responsible provider, a public health agency that was notified about a reportable condition.',
         url: 'https://hl7.org/FHIR/communication.html'

@@ -17,7 +17,9 @@
                 <% if (lineItem) { %>
                     <tr>
                         <td>
-                            <%= lineItem.chargeItemReference.reference; %>
+                            <a href="/4_0_0/<%= lineItem.chargeItemReference.reference; %>">
+                                <%= lineItem.chargeItemReference.reference; %>
+                            </a>
                         </td>
                         <td>
                             <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: lineItem.chargeItemCodeableConcept, name: "Code", searchParameter: ''}); %>
