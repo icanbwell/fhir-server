@@ -505,6 +505,18 @@ class ConfigManager {
     }
 
     /**
+     * whether to enable graphql playground
+     * @returns {boolean}
+     */
+    get enableGraphQLPlayground() {
+        if (env.ENABLE_GRAPHQL_PLAYGROUND === null || env.ENABLE_GRAPHQL_PLAYGROUND === undefined) {
+            return true;
+        }
+
+        return isTrue(env.ENABLE_GRAPHQL_PLAYGROUND);
+    }
+
+    /**
      * whether to read audit event data from archive
      * @returns {boolean}
      */
