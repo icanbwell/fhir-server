@@ -11,6 +11,7 @@ const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
 const {buildSubgraphSchema} = require('@apollo/subgraph');
 
+const {ApolloServerPluginLandingPageDisabled} = require('@apollo/server/plugin/disabled');
 const {
     ApolloServerPluginLandingPageLocalDefault,
     // ApolloServerPluginLandingPageProductionDefault
@@ -23,6 +24,9 @@ const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRe
 const contentType = require('content-type');
 const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+
 /**
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<e.Router>}
@@ -32,21 +36,32 @@ const graphql = async (fnGetContainer) => {
     const typeDefs = mergeTypeDefs(typesArray);
 
     /**
+     * @type {import('../../utils/simpleContainer')}
+     */
+    const container = fnGetContainer();
+    /**
+     * @type {import('../../utils/configManager')}
+     */
+    const configManagerInstance = container.configManager;
+
+    /**
      * @type {import('apollo-server-plugin-base').PluginDefinition[]}
      */
     const plugins = [
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
-        // eslint-disable-next-line new-cap
-        ApolloServerPluginLandingPageLocalDefault({
-            embed: {
-                runTelemetry: false
-            },
-        }),
+        configManagerInstance.enableGraphQLPlayground ?
+            // eslint-disable-next-line new-cap
+            ApolloServerPluginLandingPageLocalDefault({
+                embed: {
+                    runTelemetry: false
+                },
+            })
+            // eslint-disable-next-line new-cap
+            : ApolloServerPluginLandingPageDisabled(),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphql'),
         getAddRequestIdToResponseHeadersPlugin(),
-        // ApolloServerPluginLandingPageDisabled()
         getValidateMissingVariableValuesPlugin(),
     ];
 
@@ -57,7 +72,6 @@ const graphql = async (fnGetContainer) => {
      * @return {Promise<GraphQLContext>}
      */
     async function getContext({req, res}) {
-        const container = fnGetContainer();
 
         /**
          * @type {import('content-type').ContentType}
@@ -114,17 +128,26 @@ const graphql = async (fnGetContainer) => {
             schema: buildSubgraphSchema({ typeDefs, resolvers }),
             // typeDefs: typeDefs,
             // resolvers: resolvers,
-            introspection: true,
+            introspection: configManagerInstance.enableGraphQLPlayground,
             cache: 'bounded',
             plugins: plugins,
-            // formatError: (formattedError, error) => {
-            //     // if (unwrapResolverError(error) instanceof ForbiddenError) {
-            //     //     return {message: 'Internal server error'};
-            //     // }
-            //     // Otherwise return the formatted error. This error can also
-            //     // be manipulated in other ways, as long as it's returned.
-            //     return formattedError;
-            // },
+            formatError: (formattedError, _error) => {
+                // Formatting the error message returned from GraphQL when GraphQL Playground(Currently case of production environment) is disabled.
+                if (formattedError.message.startsWith('This operation has been blocked as a potential Cross-Site Request Forgery (CSRF)')) {
+                    return new OperationOutcome({
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'not-found',
+                                details: { text: 'Page not found' }
+                            })
+                        ]
+                    }).toJSON();
+                }
+
+                // Otherwise return the formatted error.
+                return formattedError;
+            },
             stringifyResult: (value) => {
                 return JSON.stringify(value, null, 2);
             },

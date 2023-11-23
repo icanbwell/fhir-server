@@ -59,6 +59,7 @@ services:
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       DD_TRACE_ENABLED: 'False'
+      ENABLE_GRAPHQL_PLAYGROUND: '1'
       ENABLE_CONSENTED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       OPENSEARCH_VECTORSTORE_URL: 'http://elasticsearch:9200'
