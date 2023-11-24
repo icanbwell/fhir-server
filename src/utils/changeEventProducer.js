@@ -88,7 +88,6 @@ class ChangeEventProducer extends BasePostSaveHandler {
 
     /**
      * This map stores an entry per message id
-     * @param {string} requestId
      * @return {Map<string, Object>} id, resource
      */
     getPatientMessageMap() {
@@ -97,7 +96,6 @@ class ChangeEventProducer extends BasePostSaveHandler {
 
     /**
      * This map stores an entry per consent id
-     * @param {string} requestId
      * @return {Map<string, Object>} id, resource
      */
     getConsentMessageMap() {

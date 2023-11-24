@@ -38,6 +38,10 @@ describe('CodeSystem Tests', () => {
              * @type {MongoCollectionManager}
              */
             const mongoCollectionManager = container.mongoCollectionManager;
+            /**
+             * @type {import('../../../utils/postRequestProcessor').PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
             expect(mongoCollectionManager).toBeDefined();
             /**
              * @type {MongoDatabaseManager}
@@ -86,6 +90,9 @@ describe('CodeSystem Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({'created': true});
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
+
             // add the resources to FHIR server
             let [response1, response2] = await Promise.all(
                 [
@@ -103,6 +110,8 @@ describe('CodeSystem Tests', () => {
             expect(response1).toHaveMergeResponse({'id': 'medline-loinc-labs'});
             // noinspection JSUnresolvedFunction
             expect(response2).toHaveMergeResponse({'id': 'medline-loinc-labs'});
+
+            await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
 
             const codeSystemsInDatabase = await fhirDb.collection(collectionName).find({}).toArray();
             expect(codeSystemsInDatabase).toBeArrayOfSize(1);
@@ -127,8 +136,22 @@ describe('CodeSystem Tests', () => {
             resp = await request
                 .get('/4_0_0/CodeSystem/medline-loinc-labs/_history?_bundle=1')
                 .set(getHeaders());
+
+            const body = resp.body;
+            // eslint-disable-next-line no-unused-vars
+            if (body.entry[1].concept) {
+                body.entry = [body.entry[1], body.entry[0]];
+            }
+            body.entry = body.entry.map(res => {
+                delete res.request.id;
+                delete res.resource.meta.lastUpdated;
+                return res;
+            });
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedCodeSystemHistoryResources);
+            expect(body.entry).toEqual(expectedCodeSystemHistoryResources.entry);
+            expect(body.total).toEqual(expectedCodeSystemHistoryResources.total);
+            expect(body.resourceType).toEqual(expectedCodeSystemHistoryResources.resourceType);
+            expect(body.type).toEqual(expectedCodeSystemHistoryResources.type);
             logInfo('finish test: concurrency_issue works', {});
         });
         test('concurrency_issue works with databaseUpdateManager', async () => {

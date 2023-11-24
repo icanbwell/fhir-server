@@ -46,6 +46,10 @@ describe('GraphQL Patient Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
             /**
              * @type {MongoDatabaseManager}
@@ -101,6 +105,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
             // clear out audit table
             await internalAuditEventCollection.deleteMany({});
@@ -129,8 +134,7 @@ describe('GraphQL Patient Tests', () => {
 
             // check that the audit entry is made
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
-            const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
-            console.log(auditLogs);
+            await auditLogger.flushAsync();
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
         });
         test('GraphQL Update General Practitioner for Patient (unauthenticated)', async () => {

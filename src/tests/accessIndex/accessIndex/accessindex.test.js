@@ -91,6 +91,11 @@ describe('AuditEvent Tests', () => {
             const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            await auditLogger.flushAsync();
+            /**
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
@@ -161,6 +166,11 @@ describe('AuditEvent Tests', () => {
              */
             const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            await auditLogger.flushAsync();
             /**
              * @type {MongoDatabaseManager}
              */
@@ -283,6 +293,11 @@ describe('AuditEvent Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = getTestContainer().auditLogger;
+            await auditLogger.flushAsync();
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
