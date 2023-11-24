@@ -171,8 +171,7 @@ class SearchStreamingOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
-                    personIdFromJwtToken,
-                    parsedArgs
+                    personIdFromJwtToken, parsedArgs, method
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

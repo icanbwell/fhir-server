@@ -286,12 +286,16 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new PatientProxyQueryRewriter({
-                personToPatientIdsExpander: c.personToPatientIdsExpander,
-                configManager: c.configManager,
-            }),
             new ReferenceQueryRewriter(),
-        ]
+        ],
+        methodSpecificQueryRewriters: {
+            'GET': [
+                new PatientProxyQueryRewriter({
+                    personToPatientIdsExpander: c.personToPatientIdsExpander,
+                    configManager: c.configManager,
+                })
+            ]
+        }
     }));
 
     container.register('searchManager', (c) => new SearchManager(

@@ -199,6 +199,7 @@ class PatchOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
+                method
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version },

@@ -319,7 +319,8 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs: childParseArgs
+                parsedArgs: childParseArgs,
+                method: requestInfo.method
             });
 
             if (filterProperty) {
@@ -561,7 +562,8 @@ class GraphHelper {
                     resourceType: relatedResourceType,
                     useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                    parsedArgs: relatedResourceParsedArgs
+                    parsedArgs: relatedResourceParsedArgs,
+                    method: requestInfo.method,
                 }
             );
 
@@ -1261,7 +1263,8 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs
+                parsedArgs,
+                method: requestInfo.method
             });
 
             /**

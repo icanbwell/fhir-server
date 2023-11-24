@@ -271,9 +271,10 @@ class FhirOperationsManager {
      * @param {Object} args
      * @param {string} resourceType
      * @param {Object|undefined} [headers]
+     * @param {string} method
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType, headers}) {
+    async getParsedArgsAsync({args, resourceType, headers, method}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
@@ -282,28 +283,9 @@ class FhirOperationsManager {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType
+                base_version, parsedArgs, resourceType, method
             }
         );
-        if (headers) {
-            parsedArgs.headers = headers;
-        }
-        return parsedArgs;
-    }
-
-    /**
-     * Parse arguments
-     * Doesn't expand proxy-patient id passed in params.
-     * @param {Object} args
-     * @param {string} resourceType
-     * @param {Object|undefined} [headers]
-     * @return {Promise<ParsedArgs>}
-     */
-    async getParsedArgsWithoutProxyExpanderAsync({args, resourceType, headers}) {
-        /**
-         * @type {ParsedArgs}
-         */
-        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
         if (headers) {
             parsedArgs.headers = headers;
         }
@@ -328,7 +310,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.searchBundleOperation.searchBundleAsync(
@@ -360,7 +342,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.searchStreamingOperation.searchStreamingAsync(
@@ -411,7 +393,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.searchByIdOperation.searchByIdAsync(
@@ -443,8 +425,8 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
-            args: combined_args, resourceType, headers: req.headers
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers, method: req.method
         });
 
         return await this.createOperation.createAsync(
@@ -472,8 +454,8 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
-                args: combined_args, resourceType, headers: req.headers
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.updateOperation.updateAsync(
@@ -501,8 +483,8 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
-                args: combined_args, resourceType, headers: req.headers
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.mergeOperation.mergeAsync(
@@ -532,7 +514,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: 'GET'
             }
         );
 
@@ -604,8 +586,8 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
-                args: combined_args, resourceType, headers: req.headers
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.removeOperation.removeAsync(
@@ -632,8 +614,8 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
-                args: combined_args, resourceType, headers: req.headers
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.removeOperation.removeAsync(
@@ -662,7 +644,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.searchByVersionIdOperation.searchByVersionIdAsync(
@@ -691,7 +673,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
 
@@ -721,7 +703,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.historyByIdOperation.historyByIdAsync(
@@ -749,8 +731,8 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsWithoutProxyExpanderAsync({
-                args: combined_args, resourceType, headers: req.headers
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.patchOperation.patchAsync(
@@ -778,7 +760,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
         return await this.validateOperation.validateAsync(
@@ -807,7 +789,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: 'GET'
             }
         );
 
@@ -864,7 +846,7 @@ class FhirOperationsManager {
          * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgsAsync({
-                args: combined_args, resourceType, headers: req.headers
+                args: combined_args, resourceType, headers: req.headers, method: req.method
             }
         );
 

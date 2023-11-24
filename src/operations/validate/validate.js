@@ -103,6 +103,8 @@ class ValidateOperation {
             scope,
             /** @type {string} */
             path,
+            /** @type {string} */
+            method
         } = requestInfo;
 
         /**
@@ -146,7 +148,8 @@ class ValidateOperation {
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
-                        parsedArgs
+                        parsedArgs,
+                        method
                     }
                 );
 

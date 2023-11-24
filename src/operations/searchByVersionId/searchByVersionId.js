@@ -106,6 +106,8 @@ class SearchByVersionIdOperation {
             user,
             /** @type {string | null} */
             scope,
+            /** @type {string} */
+            method,
             // /** @type {string} */
             // requestId
         } = requestInfo;
@@ -148,7 +150,8 @@ class SearchByVersionIdOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                useHistoryTable: true
+                useHistoryTable: true,
+                method
             });
 
             const queryForVersionId = {

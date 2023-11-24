@@ -274,7 +274,8 @@ class UpdateOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
-                parsedArgs
+                parsedArgs,
+                method
             });
 
             // Get current record

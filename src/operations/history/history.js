@@ -135,6 +135,8 @@ class HistoryOperation {
             isUser,
             /** @type {string} */
             personIdFromJwtToken,
+            /** @type {string} */
+            method,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -171,7 +173,8 @@ class HistoryOperation {
             useAccessIndex,
             personIdFromJwtToken,
             parsedArgs,
-            useHistoryTable: true
+            useHistoryTable: true,
+            method
         });
 
         // noinspection JSValidateTypes

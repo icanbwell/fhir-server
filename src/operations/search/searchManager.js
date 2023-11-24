@@ -171,7 +171,8 @@ class SearchManager {
             useAccessIndex,
             personIdFromJwtToken,
             parsedArgs,
-            useHistoryTable
+            useHistoryTable,
+            method
         }
     ) {
         try {
@@ -272,7 +273,8 @@ class SearchManager {
                 base_version,
                 query,
                 columns,
-                resourceType
+                resourceType,
+                method
             }));
             return {base_version, query, columns};
         } catch (e) {
