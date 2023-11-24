@@ -137,21 +137,7 @@ describe('CodeSystem Tests', () => {
                 .get('/4_0_0/CodeSystem/medline-loinc-labs/_history?_bundle=1')
                 .set(getHeaders());
 
-            const body = resp.body;
-            // eslint-disable-next-line no-unused-vars
-            if (body.entry[1].concept) {
-                body.entry = [body.entry[1], body.entry[0]];
-            }
-            body.entry = body.entry.map(res => {
-                delete res.request.id;
-                delete res.resource.meta.lastUpdated;
-                return res;
-            });
-            // noinspection JSUnresolvedFunction
-            expect(body.entry).toEqual(expectedCodeSystemHistoryResources.entry);
-            expect(body.total).toEqual(expectedCodeSystemHistoryResources.total);
-            expect(body.resourceType).toEqual(expectedCodeSystemHistoryResources.resourceType);
-            expect(body.type).toEqual(expectedCodeSystemHistoryResources.type);
+            expect(resp).toHaveResponse(expectedCodeSystemHistoryResources);
             logInfo('finish test: concurrency_issue works', {});
         });
         test('concurrency_issue works with databaseUpdateManager', async () => {
