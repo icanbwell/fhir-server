@@ -549,8 +549,9 @@ class ConfigManager {
      * returns cron expression for postRequest processes
      * @returns {string}
      */
-    get cronExpression() {
-        return env.CRON_EXPRESSION || '*/5 * * * * *';
+    get postRequestFlushTime() {
+        // default cron expression is to run the function every 5 sec
+        return env.POST_REQUEST_FLUSH_TIME || '*/5 * * * * *';
     }
 
     /**
