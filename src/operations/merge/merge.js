@@ -269,12 +269,6 @@ class MergeOperation {
                     userRequestId,
                 });
 
-            // flush any event handlers
-            this.postRequestProcessor.add({
-                requestId,
-                fnTask: async () => await this.postSaveProcessor.flushAsync({requestId})
-            });
-
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
@@ -287,11 +281,9 @@ class MergeOperation {
                 res1.uuid ? res2.uuid ? res1.uuid.localeCompare(res2.uuid) : 1 : -1
             );
 
-            await this.mergeManager.logAuditEntriesForMergeResults(
-                {
-                    requestInfo, requestId, base_version, parsedArgs, mergeResults,
-                    method
-                });
+            await this.mergeManager.logAuditEntriesForMergeResults({
+                requestInfo, requestId, base_version, parsedArgs, mergeResults
+            });
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

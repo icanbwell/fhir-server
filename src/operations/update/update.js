@@ -404,18 +404,22 @@ class UpdateOperation {
                 }
 
                 if (resourceType !== 'AuditEvent') {
-                    // log access to audit logs
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            operation: currentOperationName,
-                            args: parsedArgs.getRawArgs(),
-                            ids: [resource_incoming['id']]
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync(
+                                {
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: currentOperationName,
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: [resource_incoming['id']]
+                                }
+                            );
                         }
-                    );
-                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                    });
                 }
 
                 // changing the attachment._file_id to attachment.data for response
@@ -442,7 +446,6 @@ class UpdateOperation {
                         await this.postSaveProcessor.afterSaveAsync({
                             requestId, eventType: 'U', resourceType, doc
                         });
-                        await this.postSaveProcessor.flushAsync({requestId});
                     }
                 });
 

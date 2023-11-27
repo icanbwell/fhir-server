@@ -14,11 +14,10 @@ class BasePostSaveHandler {
 
     /**
      * flushes the change event buffer
-     * @param {string} requestId
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async flushAsync({requestId}) {
+    async flushAsync() {
     }
 }
 

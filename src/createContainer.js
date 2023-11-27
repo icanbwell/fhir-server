@@ -210,7 +210,7 @@ const createContainer = function () {
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             bwellPersonFinder: c.bwellPersonFinder,
-            requestSpecificCache: c.requestSpecificCache
+            configManager: c.configManager
         }
     ));
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
@@ -333,7 +333,8 @@ const createContainer = function () {
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -386,7 +387,9 @@ const createContainer = function () {
     container.register('auditLogger', (c) => new AuditLogger(
             {
                 postRequestProcessor: c.postRequestProcessor,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.databaseBulkInserter,
+                configManager: c.configManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -421,7 +424,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -433,7 +437,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -448,7 +453,8 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
             configManager: c.configManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -521,7 +527,8 @@ const createContainer = function () {
             configManager: c.configManager,
             r4SearchQueryCreator: c.r4SearchQueryCreator,
             r4ArgsParser: c.r4ArgsParser,
-            queryRewriterManager: c.queryRewriterManager
+            queryRewriterManager: c.queryRewriterManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -788,7 +795,8 @@ const createContainer = function () {
         handlers: [
             c.changeEventProducer,
             c.fhirSummaryWriter
-        ]
+        ],
+        configManager: c.configManager
     }));
 
     return container;

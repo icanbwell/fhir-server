@@ -26,6 +26,7 @@ const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {isUuid} = require('../../utils/uid.util');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class MergeManager {
     /**
@@ -41,6 +42,7 @@ class MergeManager {
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor(
         {
@@ -54,7 +56,8 @@ class MergeManager {
             preSaveManager,
             configManager,
             mongoFilterGenerator,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            postRequestProcessor
         }
     ) {
         /**
@@ -118,6 +121,12 @@ class MergeManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -813,7 +822,6 @@ class MergeManager {
      * @param {string} base_version
      * @param {ParsedArgs} parsedArgs
      * @param {MergeResultEntry[]} mergeResults
-     * @param {string} method
      * @returns {Promise<void>}
      */
     async logAuditEntriesForMergeResults(
@@ -822,53 +830,63 @@ class MergeManager {
             requestId,
             base_version,
             parsedArgs,
-            mergeResults,
-            method
+            mergeResults
         }
     ) {
         try {
             assertIsValid(requestInfo);
-            /**
-             * merge results grouped by resourceType
-             * @type {Object}
-             */
-            const groupByResourceType = groupByLambda(mergeResults, mergeResult => {
-                return mergeResult.resourceType;
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    /**
+                     * merge results grouped by resourceType
+                     * @type {Object}
+                     */
+                    const groupByResourceType = groupByLambda(mergeResults, (mergeResult) => {
+                        return mergeResult.resourceType;
+                    });
+
+                    for (const [resourceType, mergeResultsForResourceType] of Object.entries(
+                        groupByResourceType
+                    )) {
+                        if (resourceType !== 'AuditEvent') {
+                            // we don't log queries on AuditEvent itself
+                            /**
+                             * @type {MergeResultEntry[]}
+                             */
+                            const createdItems = mergeResultsForResourceType.filter(
+                                (r) => r.created === true
+                            );
+                            /**
+                             * @type {MergeResultEntry[]}
+                             */
+                            const updatedItems = mergeResultsForResourceType.filter(
+                                (r) => r.updated === true
+                            );
+                            if (createdItems && createdItems.length > 0) {
+                                await this.auditLogger.logAuditEntryAsync({
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: 'create',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: createdItems.map((r) => r.id),
+                                });
+                            }
+                            if (updatedItems && updatedItems.length > 0) {
+                                await this.auditLogger.logAuditEntryAsync({
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: 'update',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: updatedItems.map((r) => r.id),
+                                });
+                            }
+                        }
+                    }
+                },
             });
-
-            for (const [resourceType, mergeResultsForResourceType] of Object.entries(groupByResourceType)) {
-                if (resourceType !== 'AuditEvent') { // we don't log queries on AuditEvent itself
-                    /**
-                     * @type {MergeResultEntry[]}
-                     */
-                    const createdItems = mergeResultsForResourceType.filter(r => r.created === true);
-                    /**
-                     * @type {MergeResultEntry[]}
-                     */
-                    const updatedItems = mergeResultsForResourceType.filter(r => r.updated === true);
-                    if (createdItems && createdItems.length > 0) {
-                        await this.auditLogger.logAuditEntryAsync(
-                            {
-                                requestInfo, base_version, resourceType,
-                                operation: 'create', args: parsedArgs.getRawArgs(),
-                                ids: createdItems.map(r => r.id)
-                            }
-                        );
-                    }
-                    if (updatedItems && updatedItems.length > 0) {
-                        await this.auditLogger.logAuditEntryAsync(
-                            {
-                                requestInfo, base_version, resourceType,
-                                operation: 'update', args: parsedArgs.getRawArgs(),
-                                ids: updatedItems.map(r => r.id)
-                            }
-                        );
-                    }
-                }
-            }
-
-            const currentDate = moment.utc().format('YYYY-MM-DD');
-            await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId: requestInfo.userRequestId});
         } catch (e) {
             throw new RethrownError({
                 error: e

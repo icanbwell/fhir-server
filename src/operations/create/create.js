@@ -242,14 +242,17 @@ class CreateOperation {
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
-
-                await this.auditLogger.logAuditEntryAsync(
-                    {
-                        requestInfo, base_version, resourceType,
-                        operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.auditLogger.logAuditEntryAsync(
+                            {
+                                requestInfo, base_version, resourceType,
+                                operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                            }
+                        );
                     }
-                );
-                await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                });
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
@@ -295,7 +298,6 @@ class CreateOperation {
                     await this.postSaveProcessor.afterSaveAsync({
                         requestId, eventType: 'U', resourceType, doc
                     });
-                    await this.postSaveProcessor.flushAsync({requestId});
                 }
             });
 

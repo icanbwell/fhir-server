@@ -1,7 +1,6 @@
 const {ForbiddenError, NotFoundError, BadRequestError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
-const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('../search/searchManager');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -16,6 +15,7 @@ const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchByIdOperation {
@@ -31,6 +31,7 @@ class SearchByIdOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor(
         {
@@ -43,7 +44,8 @@ class SearchByIdOperation {
             scopesValidator,
             enrichmentManager,
             configManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            postRequestProcessor
         }
     ) {
         /**
@@ -99,6 +101,12 @@ class SearchByIdOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -133,8 +141,6 @@ class SearchByIdOperation {
             scope,
             /** @type {string} */
             requestId,
-            /**@type {string} */ userRequestId,
-            /** @type {string} */ method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -238,15 +244,18 @@ class SearchByIdOperation {
                     )
                 )[0];
                 if (resourceType !== 'AuditEvent') {
-                    // log access to audit logs
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo, base_version, resourceType,
-                            operation: 'read', args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync(
+                                {
+                                    requestInfo, base_version, resourceType,
+                                    operation: 'read', args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                                }
+                            );
                         }
-                    );
-                    const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                    });
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {

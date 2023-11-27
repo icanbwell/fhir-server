@@ -1,6 +1,8 @@
-const {assertTypeEquals} = require('../utils/assertType');
+const cron = require('node-cron');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {BasePostSaveHandler} = require('../utils/basePostSaveHandler');
 const {RethrownError} = require('../utils/rethrownError');
+const {ConfigManager} = require('../utils/configManager');
 
 /**
  * @classdesc This class holds all the tasks to run after we insert/update a resource
@@ -8,11 +10,16 @@ const {RethrownError} = require('../utils/rethrownError');
 class PostSaveProcessor {
     /**
      * Constructor
-     * @param {BasePostSaveHandler[]} handlers
+     * @typedef params
+     * @property {BasePostSaveHandler[]} handlers
+     * @property {ConfigManager} configManager
+     *
+     * @param {params}
      */
     constructor(
         {
-            handlers
+            handlers,
+            configManager
         }
     ) {
         /**
@@ -22,6 +29,17 @@ class PostSaveProcessor {
         for (const handler of handlers) {
             assertTypeEquals(handler, BasePostSaveHandler);
         }
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        assertIsValid(cron.validate(this.configManager.cronExpression), 'Invalid cron expression');
+        cron.schedule(this.configManager.cronExpression, async () => {
+            await this.flushAsync();
+        });
     }
 
     /**
@@ -46,12 +64,11 @@ class PostSaveProcessor {
 
     /**
      * flushes the change event buffer
-     * @param {string} requestId
      * @return {Promise<void>}
      */
-    async flushAsync({requestId}) {
+    async flushAsync() {
         for (const handler of this.handlers) {
-            await handler.flushAsync({requestId});
+            await handler.flushAsync();
         }
     }
 }

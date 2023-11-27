@@ -544,6 +544,22 @@ class ConfigManager {
     get mergeParallelChunkSize() {
         return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
     }
+
+    /**
+     * returns cron expression for postRequest processes
+     * @returns {string}
+     */
+    get cronExpression() {
+        return env.CRON_EXPRESSION || '*/5 * * * * *';
+    }
+
+    /**
+     * returns the buffer size for post request processes
+     * @returns {number}
+     */
+    get postRequestBatchSize() {
+        return parseInt(env.POST_REQUEST_BATCH_SIZE) || 50;
+    }
 }
 
 module.exports = {

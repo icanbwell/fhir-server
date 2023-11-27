@@ -4,7 +4,6 @@ const {isTrue} = require('../../utils/isTrue');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const moment = require('moment-timezone');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
@@ -15,6 +14,7 @@ const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 
 class SearchStreamingOperation {
@@ -27,6 +27,7 @@ class SearchStreamingOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor(
         {
@@ -36,7 +37,8 @@ class SearchStreamingOperation {
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            configManager
+            configManager,
+            postRequestProcessor
         }
     ) {
         /**
@@ -79,6 +81,12 @@ class SearchStreamingOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -124,8 +132,6 @@ class SearchStreamingOperation {
             requestId,
             /** @type {string} */
             userRequestId,
-            /** @type {string} */
-            method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -350,20 +356,23 @@ class SearchStreamingOperation {
                         accepts: requestInfo.accept,
                     });
 
-                if (resourceIds.length > 0) {
-                    // log access to audit logs
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            operation: 'read',
-                            args: parsedArgs.getRawArgs(),
-                            ids: resourceIds
+                if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync(
+                                {
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: 'read',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: resourceIds
+                                }
+                            );
                         }
-                    );
-                    const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                    });
                 }
             } else { // no records found
                 if (useNdJson) {

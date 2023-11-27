@@ -7,53 +7,6 @@
         "url": "/4_0_0/CodeSystem/medline-loinc-labs"
       },
       "resource": {
-        "content": "fragment",
-        "id": "medline-loinc-labs",
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "medline-loinc-labs"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "dabb6ef3-7207-5719-98df-fd520be27e48"
-          }
-        ],
-        "meta": {
-          "security": [
-            {
-              "code": "medlineplus",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "medlineplus",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "medlineplus",
-              "system": "https://www.icanbwell.com/vendor"
-            },
-            {
-              "code": "medlineplus",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "https://connect.medlineplus.gov/service",
-          "versionId": "1"
-        },
-        "resourceType": "CodeSystem",
-        "status": "active"
-      }
-    },
-    {
-      "id": "dabb6ef3-7207-5719-98df-fd520be27e48",
-      "request": {
-        "method": "POST",
-        "url": "/4_0_0/CodeSystem/medline-loinc-labs"
-      },
-      "resource": {
         "caseSensitive": true,
         "concept": [
           {
@@ -639,6 +592,53 @@
           "resourceType": "OperationOutcome"
         },
         "status": "200"
+      }
+    },
+    {
+      "id": "dabb6ef3-7207-5719-98df-fd520be27e48",
+      "request": {
+        "method": "POST",
+        "url": "/4_0_0/CodeSystem/medline-loinc-labs"
+      },
+      "resource": {
+        "content": "fragment",
+        "id": "medline-loinc-labs",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "medline-loinc-labs"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "dabb6ef3-7207-5719-98df-fd520be27e48"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://connect.medlineplus.gov/service",
+          "versionId": "1"
+        },
+        "resourceType": "CodeSystem",
+        "status": "active"
       }
     }
   ],

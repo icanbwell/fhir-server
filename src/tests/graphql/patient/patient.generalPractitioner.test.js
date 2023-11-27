@@ -48,6 +48,11 @@ describe('GraphQL Patient Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
+
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
             /**
              * @type {MongoDatabaseManager}
@@ -104,6 +109,7 @@ describe('GraphQL Patient Tests', () => {
 
             expect(requestId).not.toBeUndefined();
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             const auditEntries = await internalAuditEventCollection.find({}).toArray();
             console.log(JSON.stringify(auditEntries));
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
@@ -134,6 +140,7 @@ describe('GraphQL Patient Tests', () => {
 
             // check that the audit entry is made
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
             logInfo('', {auditLogs});
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);

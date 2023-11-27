@@ -4,7 +4,6 @@ const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
@@ -16,6 +15,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchBundleOperation {
@@ -29,6 +29,7 @@ class SearchBundleOperation {
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor(
         {
@@ -39,7 +40,8 @@ class SearchBundleOperation {
             scopesValidator,
             bundleManager,
             configManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            postRequestProcessor
         }
     ) {
         /**
@@ -88,6 +90,12 @@ class SearchBundleOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -135,9 +143,6 @@ class SearchBundleOperation {
              * @type {string}
              */
             requestId,
-            /**@type {string} */ userRequestId,
-            /** @type {string} */ method,
-            /** @type {boolean} */ isGraphql
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');
@@ -279,22 +284,23 @@ class SearchBundleOperation {
                     }
                 );
 
-                if (resources.length > 0) {
-                    // log access to audit logs
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            operation: 'read',
-                            args: parsedArgs.getRawArgs(),
-                            ids: resources.map((r) => r['id'])
+                if (resources.length > 0 && resourceType !== 'AuditEvent') {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync(
+                                {
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: 'read',
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: resources.map((r) => r['id'])
+                                }
+                            );
                         }
-                    );
-                    const currentDate = moment.utc().format('YYYY-MM-DD');
-                    if (!isGraphql) {
-                        await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
-                    }
+                    });
                 }
             }
 
