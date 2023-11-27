@@ -15,12 +15,12 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {ConfigManager} = require('../../utils/configManager');
-const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
+const {GRIDFS: {DELETE, RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
 
 class PatchOperation {
     /**
@@ -199,6 +199,7 @@ class PatchOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
+                operation: WRITE
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 { resourceType, base_version },

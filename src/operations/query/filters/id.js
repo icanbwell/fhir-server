@@ -1,4 +1,4 @@
-const {isUuid, generateUUIDv5} = require('../../../utils/uid.util');
+const {isUuid} = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
 const {IdParser} = require('../../../utils/idParser');
 const { FieldMapper } = require('./fieldMapper');
@@ -64,24 +64,21 @@ class FilterById extends BaseFilter {
      * Generate filter based of field and values
      * @param {string} field
      * @param {string[]} values
-     * @param {import('./fieldMapper')} fieldMapper
+     * @param {import('./fieldMapper').FieldMapper} fieldMapper
      * @returns {Array<Object>}
      */
     static filterByItems(field, values, fieldMapper) {
         const filters = [];
         /**
-         * 3 types of values are possible
-         * 1. uuid, 2. sourceId, 3. sourceId and sourceAssigningAuthority
+         * 2 types of values are possible
+         * 1. uuid, 2. sourceId
          */
         let /**@type {string[]}*/uuids = [], /**@type {string[]}*/sourceIds = [];
 
         values.forEach((value) => {
-            const {id, sourceAssigningAuthority} = IdParser.parse(value);
+            const {id} = IdParser.parse(value);
             if (isUuid(id)) {
                 uuids.push(id);
-            } else if (sourceAssigningAuthority) {
-                const generatedUuid = generateUUIDv5(`${id}|${sourceAssigningAuthority}`);
-                uuids.push(generatedUuid);
             } else {
                 sourceIds.push(id);
             }

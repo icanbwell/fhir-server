@@ -104,7 +104,7 @@ const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
-
+const {READ} = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -286,12 +286,16 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new PatientProxyQueryRewriter({
-                personToPatientIdsExpander: c.personToPatientIdsExpander,
-                configManager: c.configManager,
-            }),
             new ReferenceQueryRewriter(),
-        ]
+        ],
+        operationSpecificQueryRewriters: {
+            [READ]: [
+                new PatientProxyQueryRewriter({
+                    personToPatientIdsExpander: c.personToPatientIdsExpander,
+                    configManager: c.configManager,
+                })
+            ]
+        }
     }));
 
     container.register('searchManager', (c) => new SearchManager(

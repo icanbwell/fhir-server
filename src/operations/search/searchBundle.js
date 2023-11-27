@@ -16,7 +16,7 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 class SearchBundleOperation {
     /**
@@ -181,8 +181,7 @@ class SearchBundleOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
-                    personIdFromJwtToken,
-                    parsedArgs
+                    personIdFromJwtToken, parsedArgs, operation: READ
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

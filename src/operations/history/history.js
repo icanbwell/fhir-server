@@ -15,7 +15,7 @@ const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 class HistoryOperation {
     /**
@@ -171,7 +171,8 @@ class HistoryOperation {
             useAccessIndex,
             personIdFromJwtToken,
             parsedArgs,
-            useHistoryTable: true
+            useHistoryTable: true,
+            operation: READ
         });
 
         // noinspection JSValidateTypes
