@@ -1,12 +1,9 @@
 const {RethrownError} = require('../utils/rethrownError');
 
 /**
- * @typedef methodSpecificQueryRewritersType
- * @property {import('./rewriters/queryRewriter').QueryRewriter[]} GET
- * @property {import('./rewriters/queryRewriter').QueryRewriter[]} POST
- * @property {import('./rewriters/queryRewriter').QueryRewriter[]} DELETE
- * @property {import('./rewriters/queryRewriter').QueryRewriter[]} PUT
- * @property {import('./rewriters/queryRewriter').QueryRewriter[]} PATCH
+ * @typedef OperationSpecificQueryRewritersType
+ * @property {import('./rewriters/queryRewriter').QueryRewriter[]} READ
+ * @property {import('./rewriters/queryRewriter').QueryRewriter[]} WRITE
  */
 
 class QueryRewriterManager {
@@ -14,19 +11,19 @@ class QueryRewriterManager {
      * constructor
      * @typedef params
      * @property {import('./rewriters/queryRewriter').QueryRewriter[]} queryRewriters
-     * @property {methodSpecificQueryRewritersType} methodSpecificQueryRewriters
+     * @property {OperationSpecificQueryRewritersType} operationSpecificQueryRewriters
      *
      * @param {params}
      */
-    constructor({queryRewriters, methodSpecificQueryRewriters}) {
+    constructor({queryRewriters, operationSpecificQueryRewriters}) {
         /**
          * @type {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
         this.queryRewriters = queryRewriters;
         /**
-         * @type {methodSpecificQueryRewritersType}
+         * @type {OperationSpecificQueryRewritersType}
          */
-        this.methodSpecificQueryRewriters = methodSpecificQueryRewriters;
+        this.operationSpecificQueryRewriters = operationSpecificQueryRewriters;
     }
 
     /**
@@ -36,18 +33,18 @@ class QueryRewriterManager {
      * @property {import('mongodb').Document} query
      * @property {Set} columns
      * @property {string} resourceType
-     * @property {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} method
+     * @property {'READ'|'WRITE'} operation
      *
      * @param {rewriteQueryAsyncParams}
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
-    async rewriteQueryAsync({base_version, query, columns, resourceType, method}) {
+    async rewriteQueryAsync({base_version, query, columns, resourceType, operation}) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
         const queryRewriters = [
             ...this.queryRewriters,
-            ...(this.methodSpecificQueryRewriters[`${method}`] || [])
+            ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
         ];
         for (const queryRewriter of queryRewriters) {
             try {
@@ -72,19 +69,19 @@ class QueryRewriterManager {
      * @property {string} base_version
      * @property {ParsedArgs} parsedArgs
      * @property {string} resourceType
-     * @property {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} method
+     * @property {'READ'|'WRITE'} operation
      *
      * @param {rewriteArgsAsyncParams}
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType, method}) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType, operation}) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
         const queryRewriters = [
             ...this.queryRewriters,
-            ...(this.methodSpecificQueryRewriters[`${method}`] || [])
+            ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
         ];
         for (const queryRewriter of queryRewriters) {
             parsedArgs = await queryRewriter.rewriteArgsAsync({base_version, parsedArgs, resourceType});

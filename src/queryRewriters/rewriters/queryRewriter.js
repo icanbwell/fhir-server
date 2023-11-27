@@ -8,11 +8,11 @@ class QueryRewriter {
      * @param {import('mongodb').Document} query
      * @param {Set} columns
      * @param {string} resourceType
-     * @param {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} method
+     * @param {'READ'|'WRITE'} operation
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteQueryAsync({base_version, query, columns, resourceType, method}) {
+    async rewriteQueryAsync({base_version, query, columns, resourceType, operation}) {
         return {query, columns};
     }
 
@@ -21,11 +21,11 @@ class QueryRewriter {
      * @param {string} base_version
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @param {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} method
+     * @param {'READ'|'WRITE'} operation
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType, method}) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType, operation}) {
         return parsedArgs;
     }
 }

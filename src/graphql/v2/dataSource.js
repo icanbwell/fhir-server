@@ -1,7 +1,7 @@
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const {REFERENCE_EXTENSION_DATA_MAP} = require('../../constants');
+const {REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ }} = require('../../constants');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
@@ -474,7 +474,7 @@ class FhirDataSource {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType, method: 'GET'
+                base_version, parsedArgs, resourceType, operation: READ
             }
         );
         if (headers) {

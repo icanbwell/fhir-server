@@ -206,4 +206,8 @@ module.exports = {
     CONSENT_OF_LINKED_PERSON_INDEX: 'consent_of_linked_person',
     EXTERNAL_REQUEST_RETRY_COUNT: 3,
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
+    OPERATIONS: {
+        READ: 'READ',
+        WRITE: 'WRITE',
+    }
 };
