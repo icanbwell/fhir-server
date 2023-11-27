@@ -36,8 +36,8 @@ class PostSaveProcessor {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
-        assertIsValid(cron.validate(this.configManager.cronExpression), 'Invalid cron expression');
-        cron.schedule(this.configManager.cronExpression, async () => {
+        assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
+        cron.schedule(this.configManager.postRequestFlushTime, async () => {
             await this.flushAsync();
         });
     }
