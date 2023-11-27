@@ -15,7 +15,7 @@ const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 class HistoryOperation {
     /**
@@ -135,8 +135,6 @@ class HistoryOperation {
             isUser,
             /** @type {string} */
             personIdFromJwtToken,
-            /** @type {string} */
-            method,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -174,7 +172,7 @@ class HistoryOperation {
             personIdFromJwtToken,
             parsedArgs,
             useHistoryTable: true,
-            method
+            operation: READ
         });
 
         // noinspection JSValidateTypes

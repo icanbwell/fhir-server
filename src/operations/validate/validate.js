@@ -15,6 +15,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {isTrue} = require('../../utils/isTrue');
 const {SearchManager} = require('../search/searchManager');
 const deepcopy = require('deepcopy');
+const {READ} = require('../../constants').OPERATIONS;
 
 
 class ValidateOperation {
@@ -103,8 +104,6 @@ class ValidateOperation {
             scope,
             /** @type {string} */
             path,
-            /** @type {string} */
-            method
         } = requestInfo;
 
         /**
@@ -149,7 +148,7 @@ class ValidateOperation {
                         useAccessIndex,
                         personIdFromJwtToken,
                         parsedArgs,
-                        method
+                        operation: READ
                     }
                 );
 

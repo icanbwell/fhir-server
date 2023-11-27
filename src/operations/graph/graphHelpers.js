@@ -35,7 +35,7 @@ const { logError } = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 
 /**
@@ -320,7 +320,7 @@ class GraphHelper {
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 parsedArgs: childParseArgs,
-                method: requestInfo.method
+                operation: READ
             });
 
             if (filterProperty) {
@@ -563,7 +563,7 @@ class GraphHelper {
                     useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                     parsedArgs: relatedResourceParsedArgs,
-                    method: requestInfo.method,
+                    operation: READ
                 }
             );
 
@@ -1264,7 +1264,7 @@ class GraphHelper {
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 parsedArgs,
-                method: requestInfo.method
+                operation: READ
             });
 
             /**

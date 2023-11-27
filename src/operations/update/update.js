@@ -23,7 +23,7 @@ const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
 
 /**
  * Update Operation
@@ -275,7 +275,7 @@ class UpdateOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                method
+                operation: WRITE
             });
 
             // Get current record

@@ -15,6 +15,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const {READ} = require('../../constants').OPERATIONS;
 
 
 class SearchStreamingOperation {
@@ -171,7 +172,7 @@ class SearchStreamingOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
-                    personIdFromJwtToken, parsedArgs, method
+                    personIdFromJwtToken, parsedArgs, operation: READ
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

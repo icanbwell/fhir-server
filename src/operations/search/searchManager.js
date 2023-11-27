@@ -159,6 +159,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
+     * @param {'READ'|'WRITE'} operation
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync(
@@ -172,7 +173,7 @@ class SearchManager {
             personIdFromJwtToken,
             parsedArgs,
             useHistoryTable,
-            method
+            operation
         }
     ) {
         try {
@@ -274,7 +275,7 @@ class SearchManager {
                 query,
                 columns,
                 resourceType,
-                method
+                operation
             }));
             return {base_version, query, columns};
         } catch (e) {

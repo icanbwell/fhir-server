@@ -16,7 +16,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 class SearchByIdOperation {
     /**
@@ -184,7 +184,7 @@ class SearchByIdOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                method
+                operation: READ
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
