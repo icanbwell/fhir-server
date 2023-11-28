@@ -126,5 +126,9 @@ extend type Query {
         explain query but not run it
         """
         _explain: Boolean
+        """
+        allows to set index to be used
+        """
+        _setIndexHint: String
     ): RiskAssessmentBundle
 }

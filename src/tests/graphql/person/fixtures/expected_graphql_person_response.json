@@ -62,17 +62,17 @@
       "profile": null,
       "security": [
         {
-          "code": "bwell",
+          "code": "test",
           "id": null,
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "bwell",
+          "code": "test",
           "id": null,
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "bwell",
+          "code": "test",
           "id": null,
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
@@ -167,17 +167,17 @@
       "profile": null,
       "security": [
         {
-          "code": "walgreens",
+          "code": "test",
           "id": null,
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "walgreens",
+          "code": "test",
           "id": null,
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "walgreens",
+          "code": "test",
           "id": null,
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
