@@ -30,10 +30,10 @@ const flushBuffer = async (fnGetContainer) => {
     const auditLogger = container.auditLogger;
     await auditLogger.flushAsync();
     /**
-     * @type {import('../utils/changeEventProducer').ChangeEventProducer}
+     * @type {import('./dataLayer/postSaveProcessor').PostSaveProcessor}
      */
-    const changeEventProducer = container.changeEventProducer;
-    await changeEventProducer.flushAsync();
+    const postSaveProcessor = container.postSaveProcessor;
+    await postSaveProcessor.flushAsync();
 };
 
 /**
