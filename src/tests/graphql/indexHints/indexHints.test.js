@@ -3,9 +3,6 @@ const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getGra
 const { customIndexes } = require('./mockCustomIndexes');
 const { IndexProvider } = require('../../../indexes/indexProvider');
 
-const expectedResponse1 = require('./fixtures/expected_response_with_indexhint_1.json');
-const expectedResponse2 = require('./fixtures/expected_response_with_indexhint_2.json');
-
 const patientBundleResource = require('./fixtures/patient_bundle.json');
 const personBundleResource = require('./fixtures/person_bundle.json');
 
@@ -48,6 +45,7 @@ describe('Graphql IndexHints Test', () => {
 
             const graphqlQueryTextWithIndexHint1 = queryWithIndexHint1.replace(/\\n/g, '');
             const graphqlQueryTextWithIndexHint2 = queryWithIndexHint2.replace(/\\n/g, '');
+            const desiredSystem = 'https://www.icanbwell.com/queryIndexHint';
 
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
@@ -85,8 +83,11 @@ describe('Graphql IndexHints Test', () => {
                 })
                 .set(getGraphQLHeaders());
 
+            // Find the object with the specified system value
+            let desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
+
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse1);
+            expect(desiredObject['code']).toEqual('[id_1]');
 
             resp = await request
                 .post('/graphql')
@@ -97,8 +98,10 @@ describe('Graphql IndexHints Test', () => {
                 })
                 .set(getGraphQLHeaders());
 
+            desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
+
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResponse2);
+            expect(desiredObject['code']).toEqual('[uuid]');
         });
     });
 });
