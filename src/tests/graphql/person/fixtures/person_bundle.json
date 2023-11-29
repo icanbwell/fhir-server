@@ -12,11 +12,11 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/access",
-              "code": "test"
+              "code": "bwell"
             },
             {
               "system": "https://www.icanbwell.com/owner",
-              "code": "test"
+              "code": "bwell"
             }
           ]
         },
@@ -105,11 +105,11 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/owner",
-              "code": "test"
+              "code": "walgreens"
             },
             {
               "system": "https://www.icanbwell.com/access",
-              "code": "test"
+              "code": "walgreens"
             }
           ]
         },
@@ -233,11 +233,11 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/access",
-              "code": "test"
+              "code": "walgreens"
             },
             {
               "system": "https://www.icanbwell.com/owner",
-              "code": "test"
+              "code": "walgreens"
             }
           ]
         },

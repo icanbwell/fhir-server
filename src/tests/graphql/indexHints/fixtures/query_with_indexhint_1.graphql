@@ -1,5 +1,5 @@
 query {
-    person(
+    patient(
         identifier: {
             value: {
                 system: "http://www.walgreens.com/profileid"
@@ -36,12 +36,6 @@ query {
                     extension {
                         id
                         url
-                    }
-                    assurance
-                    target {
-                        ... on Patient {
-                            id
-                        }
                     }
                 }
                 implicitRules
