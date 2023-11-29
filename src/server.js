@@ -14,6 +14,29 @@ const { createTerminus } = require('@godaddy/terminus');
 require('./middleware/errorHandler');
 
 /**
+ * @param {() => import('../utils/simpleContainer').SimpleContainer} fnGetContainer
+ * @returns {Promise<void>}
+ */
+const flushBuffer = async (fnGetContainer) => {
+    logInfo('Flushing buffer before exiting the process');
+    /**
+     * @type {import('../utils/simpleContainer').SimpleContainer}
+     */
+    const container = fnGetContainer();
+
+    /**
+     * @type {import('../utils/auditLogger').AuditLogger}
+     */
+    const auditLogger = container.auditLogger;
+    await auditLogger.flushAsync();
+    /**
+     * @type {import('../utils/changeEventProducer').ChangeEventProducer}
+     */
+    const changeEventProducer = container.changeEventProducer;
+    await changeEventProducer.flushAsync();
+};
+
+/**
  * Creates the http server
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<import('http').Server>}
@@ -67,6 +90,7 @@ async function createServer(fnGetContainer) {
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
             logInfo('Beginning shutdown of server', {});
+            await flushBuffer(fnGetContainer);
             await logSystemEventAsync({
                 event: 'shutdown',
                 message: 'Beginning shutdown of server',
