@@ -454,8 +454,6 @@ describe('Consent Based Data Access Test', () => {
             resp = await request
                 .get('/4_0_0/Patient/?id=person.bdc02b42-ad3a-4e8b-a607-6210316cf58e&_sort=_uuid&_rewritePatientReference=0')
                 .set(client1Headers);
-            // expect(resp.body.length).toEqual(1);
-            console.log('================================================', resp.body.length);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(3);
             const patientIds = JSON.parse(resp.text).map((r) => r.id);
