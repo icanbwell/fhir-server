@@ -87,7 +87,7 @@ const {ChatGPTLangChainManager} = require('./chatgpt/managers/chatgptLangChainMa
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
-const {ConsentManager} = require('./operations/search/consentManger');
+const {ProaConsentManager} = require('./operations/search/proaConsentManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
@@ -216,7 +216,7 @@ const createContainer = function () {
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator,
     }));
-    container.register('consentManager', (c) => new ConsentManager({
+    container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
         patientFilterManager: c.patientFilterManager,
@@ -312,7 +312,7 @@ const createContainer = function () {
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
-                consentManager: c.consentManager,
+                proaConsentManager: c.proaConsentManager,
                 searchQueryBuilder: c.searchQueryBuilder
             }
         )

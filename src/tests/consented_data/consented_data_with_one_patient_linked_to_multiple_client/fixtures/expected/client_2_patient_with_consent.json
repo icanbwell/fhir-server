@@ -18,6 +18,10 @@
               "code": "xyz"
             },
             {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            },
+            {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "xyz"
             }
@@ -116,6 +120,10 @@
               "code": "highmark"
             },
             {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            },
+            {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "highmark"
             }
@@ -153,7 +161,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'_uuid':{'$in':['628b9366-9e47-4cd6-8a50-9343230e6cf8','209765b6-d2e8-49e4-80ab-8b9739d19d52','0c0a2e9a-06e3-421f-98f0-2b370822762a','b380829e-9715-4183-bdaf-803f80c377fe','c42615d2-6a68-4cdd-af63-6646a2169f3c','ab4426c7-8326-4400-90a9-66d24fbe2e97','person.08f1b73a-e27c-456d-8a61-277f164a9a57']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client-2'}}}]},{'_uuid':{'$in':['209765b6-d2e8-49e4-80ab-8b9739d19d52','0c0a2e9a-06e3-421f-98f0-2b370822762a','b380829e-9715-4183-bdaf-803f80c377fe']}}]}, {}).sort({'id':1}).limit(1000)"
+        "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'_uuid':{'$in':['628b9366-9e47-4cd6-8a50-9343230e6cf8','209765b6-d2e8-49e4-80ab-8b9739d19d52','0c0a2e9a-06e3-421f-98f0-2b370822762a','b380829e-9715-4183-bdaf-803f80c377fe','c42615d2-6a68-4cdd-af63-6646a2169f3c','ab4426c7-8326-4400-90a9-66d24fbe2e97','person.08f1b73a-e27c-456d-8a61-277f164a9a57']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client-2'}}}]},{'$and':[{'_uuid':{'$in':['209765b6-d2e8-49e4-80ab-8b9739d19d52','0c0a2e9a-06e3-421f-98f0-2b370822762a','b380829e-9715-4183-bdaf-803f80c377fe']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':'proa'}}}]}]}, {}).sort({'id':1}).limit(1000)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",

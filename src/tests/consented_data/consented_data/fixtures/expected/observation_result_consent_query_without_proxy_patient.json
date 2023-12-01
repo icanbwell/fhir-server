@@ -22,6 +22,10 @@
               "code": "proa"
             },
             {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            },
+            {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
               "code": "proa"
             }
@@ -174,7 +178,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Patient/person.33226ded-51e8-590e-8342-1197955a2af7']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Group/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Group/fde7f82b-b1e4-4a25-9a58-83b6921414cc']}}]}, {}).sort({'_uuid':1,'id':1}).limit(100)"
+        "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Patient/person.33226ded-51e8-590e-8342-1197955a2af7']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'subject._uuid':{'$in':['Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Group/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6','Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc','Group/fde7f82b-b1e4-4a25-9a58-83b6921414cc']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':'proa'}}}]}]}, {}).sort({'_uuid':1,'id':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",

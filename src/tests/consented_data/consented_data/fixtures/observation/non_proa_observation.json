@@ -1,6 +1,6 @@
 {
     "resourceType": "Observation",
-    "id": "3edf7c95-2f8c-45b6-b6e2-21fd2f8ac2b4",
+    "id": "3158b5b8-3c3a-4438-9c81-211d824d174b",
     "meta": {
         "lastUpdated": "2021-12-15T15:30:30+00:00",
         "source": "/patients",
@@ -15,10 +15,6 @@
             },
             {
                 "system": "https://www.icanbwell.com/vendor",
-                "code": "proa"
-            },
-            {
-                "system": "https://www.icanbwell.com/connectionType",
                 "code": "proa"
             }
         ]
@@ -41,7 +37,7 @@
         ]
     },
     "subject": {
-        "reference": "Patient/ede65c66-66ae-42ef-a19d-871065c2421d"
+        "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
     },
     "effectivePeriod": {
         "start": "2021-01-01T00:00:00.000Z",

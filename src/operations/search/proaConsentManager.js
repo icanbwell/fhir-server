@@ -13,7 +13,7 @@ const { ReferenceParser } = require('../../utils/referenceParser');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { IdParser } = require('../../utils/idParser');
 
-class ConsentManager {
+class ProaConsentManager {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
@@ -298,6 +298,22 @@ class ConsentManager {
                         base_version,
                         parsedArgs: consentParsedArgs,
                     }).query;
+
+                    const proaDataOnlyQuery = {
+                        'meta.security': {
+                            $elemMatch: {
+                                'system': 'https://www.icanbwell.com/connectionType',
+                                'code': 'proa'
+                            }
+                        }
+                    };
+                    // update query to return proa data only
+                    queryWithConsent = {
+                        $and: [
+                            queryWithConsent,
+                            proaDataOnlyQuery
+                        ]
+                    };
                 }
             }
         }
@@ -473,7 +489,7 @@ class ConsentManager {
                 idsWithMultipleResources.map((s) => `'${s}'`).join(','),
                 ']'
             ].join('');
-            logError(`ConsentManager.validatePatientIdsAsync: Bad Request, ${message}`);
+            logError(`ProaConsentManager.validatePatientIdsAsync: Bad Request, ${message}`);
             throw new BadRequestError(new Error(message), { patientIds: idsWithMultipleResources });
         }
 
@@ -483,5 +499,5 @@ class ConsentManager {
 }
 
 module.exports = {
-    ConsentManager
+    ProaConsentManager
 };

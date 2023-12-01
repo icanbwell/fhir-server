@@ -279,8 +279,8 @@ class ConfigManager {
      * Specifies whether to Consent based data access enabled.
      * @return {boolean}
      */
-    get enableConsentedDataAccess() {
-        return isTrue(env.ENABLE_CONSENTED_DATA_ACCESS);
+    get enableConsentedProaDataAccess() {
+        return isTrue(env.ENABLE_CONSENTED_PROA_DATA_ACCESS);
     }
 
     /**

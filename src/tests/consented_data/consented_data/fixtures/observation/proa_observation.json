@@ -16,6 +16,10 @@
             {
                 "system": "https://www.icanbwell.com/vendor",
                 "code": "proa"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
             }
         ]
     },
