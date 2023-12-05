@@ -8,6 +8,7 @@ const clientPatientResource = require('./fixtures/patient/client_patient.json');
 const proaPatientResource = require('./fixtures/patient/proa_patient.json');
 const clientObservationResource = require('./fixtures/observation/client_observation.json');
 const proaObservationResource = require('./fixtures/observation/proa_observation.json');
+const nonProaObservationResource = require('./fixtures/observation/non_proa_observation.json');
 const consentGivenResource = require('./fixtures/consent/consent_given.json');
 const consentDeniedResource = require('./fixtures/consent/consent_denied.json');
 const masterPersonResource2 = require('./fixtures/person/master_person2.json');
@@ -114,6 +115,35 @@ describe('Consent Based Data Access Test', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservationCopy, expectedClintObservationCopy]);
+        });
+
+        test('Consent has provided to Client but proa data doesnot have connection type', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, clientPersonResource, masterPatientResource,
+                    clientPatientResource, proaPatientResource, clientObservationResource, nonProaObservationResource, consentGivenResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            let expectedClintObservationCopy = deepcopy(expectedClintObservation);
+            expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+            let expectedProaObservationCopy = deepcopy(expectedProaObservation);
+            expectedProaObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+
+            // Get Observation for a specific person, client have access to read both proa and client resources
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57&_sort=_uuid')
+                .set(headers);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse([expectedClintObservationCopy]);
+            expect(resp.body.length).toEqual(1);
         });
 
         test('Consent has created but denied access to Client', async () => {

@@ -19,6 +19,10 @@
         "code": "highmark"
       },
       {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      },
+      {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
         "code": "highmark"
       }

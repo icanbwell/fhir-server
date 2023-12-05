@@ -28,7 +28,7 @@ const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
-const {ConsentManager} = require('../search/consentManger');
+const {ProaConsentManager} = require('./proaConsentManager');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
@@ -47,7 +47,7 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
-     * @param {ConsentManager} consentManager
+     * @param {ProaConsentManager} proaConsentManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
@@ -64,7 +64,7 @@ class SearchManager {
             scopesManager,
             databaseAttachmentManager,
             fhirResourceWriterFactory,
-            consentManager,
+            proaConsentManager,
             searchQueryBuilder
         }
     ) {
@@ -135,10 +135,10 @@ class SearchManager {
         assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
 
         /**
-         * @type {ConsentManager}
+         * @type {ProaConsentManager}
          */
-        this.consentManager = consentManager;
-        assertTypeEquals(consentManager, ConsentManager);
+        this.proaConsentManager = proaConsentManager;
+        assertTypeEquals(proaConsentManager, ProaConsentManager);
 
         /**
          * @type {SearchQueryBuilder}
@@ -217,9 +217,9 @@ class SearchManager {
                     resourceType, securityTags, query, useAccessIndex
                 });
 
-                // Update Query for Consent based data access
-                if (this.configManager.enableConsentedDataAccess) {
-                    query = await this.consentManager.getQueryForPatientsWithConsent({
+                // Update Query for Consent based proa data access
+                if (this.configManager.enableConsentedProaDataAccess) {
+                    query = await this.proaConsentManager.getQueryForPatientsWithConsent({
                         base_version,
                         resourceType,
                         parsedArgs,

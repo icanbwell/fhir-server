@@ -19,6 +19,10 @@
         "code": "xyz"
       },
       {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      },
+      {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
         "code": "xyz"
       }

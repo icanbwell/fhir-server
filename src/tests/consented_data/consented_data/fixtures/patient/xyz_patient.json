@@ -11,6 +11,10 @@
       {
         "system": "https://www.icanbwell.com/owner",
         "code": "xyz"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
       }
     ]
   },
