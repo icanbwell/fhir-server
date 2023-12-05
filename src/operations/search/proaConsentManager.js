@@ -299,11 +299,14 @@ class ProaConsentManager {
                         parsedArgs: consentParsedArgs,
                     }).query;
 
+                    // Construct the query for 'meta.security' considering all allowed connection types
                     const proaDataOnlyQuery = {
                         'meta.security': {
                             $elemMatch: {
                                 'system': 'https://www.icanbwell.com/connectionType',
-                                'code': 'proa'
+                                'code': {
+                                    $in: this.configManager.getConsentConnectionTypesList
+                                }
                             }
                         }
                     };

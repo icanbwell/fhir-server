@@ -284,6 +284,14 @@ class ConfigManager {
     }
 
     /**
+     * Specifies allowed connection types for consent data sharing
+     * @return {string[]}
+     */
+    get getConsentConnectionTypesList() {
+        return env.CONSENT_CONNECTION_TYPES_LIST ? env.CONSENT_CONNECTION_TYPES_LIST.split(',') : ['proa'];
+    }
+
+    /**
      * Specifies "provision.class.code" for the Data sharing Consent
      * @return {string[]}
      */
