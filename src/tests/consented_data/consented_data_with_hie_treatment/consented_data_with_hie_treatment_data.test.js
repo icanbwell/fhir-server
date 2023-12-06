@@ -8,6 +8,7 @@ const clientNonLinkedObservationResource = require('./fixtures/observation/clien
 
 const proaPatientResource = require('./fixtures/patient/proa_patient.json');
 const proaObservationResource = require('./fixtures/observation/proa_observation.json');
+const proaObservation1Resource = require('./fixtures/observation/proa_observation_1.json');
 const hipaaObservationResource = require('./fixtures/observation/hipaa_observation.json');
 
 const client1PersonResource = require('./fixtures/person/client_1_person.json');
@@ -96,8 +97,9 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             // Add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
-                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
-                    clientObservationResource, proaObservationResource, hipaaObservationResource, consentGivenResource])
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    proaPatientResource, clientObservationResource, proaObservationResource, hipaaObservationResource,
+                    consentGivenResource, proaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -108,6 +110,8 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(3);
+            // Here client observation & hipaa, proa connection type observations are expected, and not the one with
+            // different connection type linked to proaPatientResource
             expect(respIds).toEqual(expect.arrayContaining(
                 [clientObservationResource.id, hipaaObservationResource.id, proaObservationResource.id]
             ));
@@ -276,7 +280,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([hipaaObservationResource.id, proaObservationResource.id]));
         });
 
-        test('Ref of client-1 person: no data should be there, regardless of consent', async () => {
+        test('Ref of client-1 person: no data for other client should be there, regardless of consent', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });

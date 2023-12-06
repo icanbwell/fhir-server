@@ -26,8 +26,6 @@ const {ScopesManager} = require('../security/scopesManager');
 const {GetCursorResult} = require('./getCursorResult');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {PatientFilterManager} = require('../../fhir/patientFilterManager');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {QueryParameterValue} = require('../query/queryParameterValue');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
@@ -355,105 +353,13 @@ class SearchManager {
                     });
 
                 // Create a Set from the keys of patientIdToImmediatePersonUuid
-                const patientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
+                const allowedPatientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
 
-                if (patientIds.size > 0) {
-                    /**
-                     * Clone of the original parsed arguments
-                     * @type {ParsedArgs}
-                     * */
-                    const updatedParsedArgs = parsedArgs.clone();
-
-                    /**@type {Set<string>} */
-                    const argsToRemove = new Set();
-
-                    updatedParsedArgs
-                    .parsedArgItems
-                    .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
-                        // if property is related to patient
-                        if (
-                            item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
-                        ) {
-                            /**@type {string[]} */
-                            const newQueryParamValues = [];
-
-                            // update the query-param values
-                            item.references.forEach((ref) => {
-                                if (ref.resourceType === 'Patient') {
-                                    // build the reference without any resourceType, as patientIds may include id|sourceAssigningAuthority
-                                    const patientRef = ReferenceParser.createReference({
-                                        id: ref.id,
-                                        sourceAssigningAuthority: ref.sourceAssigningAuthority,
-                                        resourceType: 'Patient'
-                                    });
-                                    if (patientIds.has(ref.id)) {
-                                        newQueryParamValues.push(patientRef);
-                                    }
-                                } else if (ref.resourceType){
-                                    // add the original reference
-                                    newQueryParamValues.push(ReferenceParser.createReference(ref));
-                                }
-                            });
-                            if (newQueryParamValues.length === 0) {
-                                argsToRemove.add(item.queryParameter);
-                            } else {
-                                // rebuild the query value
-                                const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
-                                const newQueryParameterValue = new QueryParameterValue({
-                                    value: newValue,
-                                    operator: item.queryParameterValue.operator
-                                });
-                                // set the value
-                                item.queryParameterValue = newQueryParameterValue;
-                            }
-                        } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
-                            const newQueryParameterValues = [];
-                            item.queryParameterValue.values.forEach((v) => {
-                                if (patientIds.has(v)) {
-                                    newQueryParameterValues.push(v);
-                                }
-                            });
-
-                            const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
-                            item.queryParameterValue = new QueryParameterValue({
-                                value: newValue,
-                                operator: item.queryParameterValue.operator
-                            });
-
-                            if (newQueryParameterValues.length === 0) {
-                                argsToRemove.add(item.queryParameter);
-                            }
-                        }
+                if (allowedPatientIds.size > 0) {
+                    const allowedConnectionTypesList = this.configManager.getHIETreatmentConnectionTypesList;
+                    queryWithHIETreatmentData = this.proaConsentManager.getConnectionTypeFilteredQuery({
+                        base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
                     });
-
-                    // remove all empty args
-                    argsToRemove.forEach((arg) => updatedParsedArgs.remove(arg));
-
-                    // reconstruct the query
-                    queryWithHIETreatmentData = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
-                        resourceType,
-                        useHistoryTable,
-                        base_version,
-                        parsedArgs: updatedParsedArgs,
-                    }).query;
-
-                    const updatedConnectionTypesListQuery = {
-                        'meta.security': {
-                            $elemMatch: {
-                                'system': 'https://www.icanbwell.com/connectionType',
-                                'code': {
-                                    $in: this.configManager.getHIETreatmentConnectionTypesList
-                                }
-                            }
-                        }
-                    };
-                    // update query to return HIE/Treatment related data
-                    queryWithHIETreatmentData = {
-                        $and: [
-                            queryWithHIETreatmentData,
-                            updatedConnectionTypesListQuery
-                        ]
-                    };
                 }
             }
         }

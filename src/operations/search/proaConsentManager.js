@@ -196,7 +196,7 @@ class ProaConsentManager {
                  * (Proxy) Patient Refs which have provided consent to view data
                  * @type {Set<string>}
                  */
-                let patientIdsWithConsent = new Set();
+                let allowedPatientIds = new Set();
                 consentResources.forEach((consent) => {
                     if (Array.isArray(consent?.provision?.actor)) {
                         const proxyPersonActor = consent.provision.actor.find((a) => {
@@ -209,114 +209,17 @@ class ProaConsentManager {
                             const personUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
                             if (immediatePersonToInputPatientId.has(personUuid)) {
                                 immediatePersonToInputPatientId.get(personUuid).forEach((patientId) => {
-                                    patientIdsWithConsent.add(patientId);
+                                    allowedPatientIds.add(patientId);
                                 });
                             }
                         }
                     }
                 });
-                if (patientIdsWithConsent.size > 0) {
-                    /**
-                     * Clone of the original parsed arguments
-                     * @type {ParsedArgs}
-                     * */
-                    const consentParsedArgs = parsedArgs.clone();
-
-                    /**@type {Set<string>} */
-                    const argsToRemove = new Set();
-
-                    consentParsedArgs
-                    .parsedArgItems
-                    .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
-                        // if property is related to patient
-                        if (
-                            item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
-                        ) {
-                            /**@type {string[]} */
-                            const newQueryParamValues = [];
-
-                            // update the query-param values
-                            item.references.forEach((ref) => {
-                                if (ref.resourceType === 'Patient') {
-                                    // build the reference without any resourceType, as patientIdsWithConsent may include id|sourceAssigningAuthority
-                                    const patientRef = ReferenceParser.createReference({
-                                        id: ref.id,
-                                        sourceAssigningAuthority: ref.sourceAssigningAuthority,
-                                    });
-                                    if (patientIdsWithConsent.has(patientRef)) {
-                                        newQueryParamValues.push(patientRef);
-                                    }
-                                    // skip adding patient without consent
-                                } else if (ref.resourceType){
-                                    // add the original reference
-                                    const refString = ReferenceParser.createReference(ref);
-                                    newQueryParamValues.push(refString);
-                                }
-                            });
-
-                            if (newQueryParamValues.length === 0) {
-                                // if all the ids doesn't have consent then remove the queryParam
-                                argsToRemove.add(item.queryParameter);
-                            } else {
-                                // rebuild the query value
-                                const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
-                                const newQueryParameterValue = new QueryParameterValue({
-                                    value: newValue,
-                                    operator: item.queryParameterValue.operator,
-                                });
-
-                                // set the value
-                                item.queryParameterValue = newQueryParameterValue;
-                            }
-                        } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
-                            const newQueryParameterValues = [];
-                            item.queryParameterValue.values.forEach((v) => {
-                                if (patientIdsWithConsent.has(v)) {
-                                    newQueryParameterValues.push(v);
-                                }
-                            });
-
-                            const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
-                            item.queryParameterValue = new QueryParameterValue({
-                                value: newValue,
-                                operator: item.queryParameterValue.operator
-                            });
-
-                            if (newQueryParameterValues.length === 0) {
-                                argsToRemove.add(item.queryParameter);
-                            }
-                        }
+                const allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
+                if (allowedPatientIds.size > 0) {
+                    queryWithConsent = this.getConnectionTypeFilteredQuery({
+                        base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
                     });
-
-                    // remove all empty args
-                    argsToRemove.forEach((arg) => consentParsedArgs.remove(arg));
-
-                    // reconstruct the query
-                    queryWithConsent = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
-                        resourceType,
-                        useHistoryTable,
-                        base_version,
-                        parsedArgs: consentParsedArgs,
-                    }).query;
-
-                    // Construct the query for 'meta.security' considering all allowed connection types
-                    const proaDataOnlyQuery = {
-                        'meta.security': {
-                            $elemMatch: {
-                                'system': 'https://www.icanbwell.com/connectionType',
-                                'code': {
-                                    $in: this.configManager.getConsentConnectionTypesList
-                                }
-                            }
-                        }
-                    };
-                    // update query to return proa data only
-                    queryWithConsent = {
-                        $and: [
-                            queryWithConsent,
-                            proaDataOnlyQuery
-                        ]
-                    };
                 }
             }
         }
@@ -328,6 +231,123 @@ class ProaConsentManager {
         }
 
         return query;
+    }
+
+    /**
+     * Rewrite the query for filtered patient ids.
+     * Removes all the patient ids from the query-param that are not included in allowedPatientIds
+     * and return mongo query from it.
+     * @typedef {Object} RewriteConsentedQuery2
+     * @property {string} base_version Base Version
+     * @property {string} resourceType Resource Type
+     * @property {string[]} allowedPatientIds Allowed patient ids
+     * @property {ParsedArgs} parsedArgs Args
+     * @property {string[]} allowedConnectionTypesList Allowed connection types list
+     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
+     * @param {RewriteConsentedQuery2} param
+     */
+    getConnectionTypeFilteredQuery({base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable}){
+        /**
+         * Clone of the original parsed arguments
+         * @type {ParsedArgs}
+         * */
+        const updatedParsedArgs = parsedArgs.clone();
+
+        /**@type {Set<string>} */
+        const argsToRemove = new Set();
+
+        updatedParsedArgs
+        .parsedArgItems
+        .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
+            // if property is related to patient
+            if (
+                item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
+            ) {
+                /**@type {string[]} */
+                const newQueryParamValues = [];
+
+                // update the query-param values
+                item.references.forEach((ref) => {
+                    if (ref.resourceType === 'Patient') {
+                        // build the reference without any resourceType, as allowedPatientIds may include id|sourceAssigningAuthority
+                        const patientRef = ReferenceParser.createReference({
+                            id: ref.id,
+                            sourceAssigningAuthority: ref.sourceAssigningAuthority,
+                            resourceType: 'Patient'
+                        });
+                        if (allowedPatientIds.has(ref.id)) {
+                            newQueryParamValues.push(patientRef);
+                        }
+                        // skip adding patient without consent
+                    } else if (ref.resourceType){
+                        // add the original reference
+                        newQueryParamValues.push(ReferenceParser.createReference(ref));
+                    }
+                });
+
+                if (newQueryParamValues.length === 0) {
+                    // if all the ids doesn't have consent then remove the queryParam
+                    argsToRemove.add(item.queryParameter);
+                } else {
+                    // rebuild the query value
+                    const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
+                    const newQueryParameterValue = new QueryParameterValue({
+                        value: newValue,
+                        operator: item.queryParameterValue.operator,
+                    });
+
+                    // set the value
+                    item.queryParameterValue = newQueryParameterValue;
+                }
+            } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
+                const newQueryParameterValues = [];
+                item.queryParameterValue.values.forEach((v) => {
+                    if (allowedPatientIds.has(v)) {
+                        newQueryParameterValues.push(v);
+                    }
+                });
+
+                const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
+                item.queryParameterValue = new QueryParameterValue({
+                    value: newValue,
+                    operator: item.queryParameterValue.operator
+                });
+
+                if (newQueryParameterValues.length === 0) {
+                    argsToRemove.add(item.queryParameter);
+                }
+            }
+        });
+
+        // remove all empty args
+        argsToRemove.forEach((arg) => updatedParsedArgs.remove(arg));
+
+        // reconstruct the query
+        let filteredQuery = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+            resourceType,
+            useHistoryTable,
+            base_version,
+            parsedArgs: updatedParsedArgs,
+        }).query;
+
+        // Construct the query for 'meta.security' considering all allowed connection types
+        const connectionTypeQuery = {
+            'meta.security': {
+                $elemMatch: {
+                    'system': 'https://www.icanbwell.com/connectionType',
+                    'code': {
+                        $in: allowedConnectionTypesList
+                    }
+                }
+            }
+        };
+
+        return {
+            $and: [
+                filteredQuery,
+                connectionTypeQuery
+            ]
+        };
     }
 
     /**
