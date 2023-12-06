@@ -292,6 +292,14 @@ class ConfigManager {
     }
 
     /**
+     * Specifies allowed connection types for HIE/Treatment related data
+     * @return {string[]}
+     */
+    get getHIETreatmentConnectionTypesList() {
+        return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
+    }
+
+    /**
      * Specifies "provision.class.code" for the Data sharing Consent
      * @return {string[]}
      */

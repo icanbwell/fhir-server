@@ -313,7 +313,8 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 proaConsentManager: c.proaConsentManager,
-                searchQueryBuilder: c.searchQueryBuilder
+                searchQueryBuilder: c.searchQueryBuilder,
+                patientFilterManager: c.patientFilterManager
             }
         )
     );

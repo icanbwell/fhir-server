@@ -24,6 +24,10 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
 const {GetCursorResult} = require('./getCursorResult');
+const {ParsedArgs} = require('../query/parsedArgs');
+const {PatientFilterManager} = require('../../fhir/patientFilterManager');
+const {ReferenceParser} = require('../../utils/referenceParser');
+const {QueryParameterValue} = require('../query/queryParameterValue');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
@@ -49,6 +53,7 @@ class SearchManager {
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {ProaConsentManager} proaConsentManager
      * @param {SearchQueryBuilder} searchQueryBuilder
+     * @param {PatientFilterManager} patientFilterManager
      */
     constructor(
         {
@@ -65,7 +70,8 @@ class SearchManager {
             databaseAttachmentManager,
             fhirResourceWriterFactory,
             proaConsentManager,
-            searchQueryBuilder
+            searchQueryBuilder,
+            patientFilterManager
         }
     ) {
         /**
@@ -145,6 +151,12 @@ class SearchManager {
          */
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -228,6 +240,14 @@ class SearchManager {
                         useHistoryTable
                     });
                 }
+                query = await this.updateQueryToIncludeHIETreatmentData({
+                    base_version,
+                    resourceType,
+                    parsedArgs,
+                    securityTags,
+                    query,
+                    useHistoryTable
+                });
             }
             if (hasPatientScope) {
                 shouldUpdateColumns = true;
@@ -294,6 +314,160 @@ class SearchManager {
                 }
             );
         }
+    }
+
+    /**
+     * Rewrite the query to include HIE/Treatment related data linked to the client person and return mongo query from it.
+     * @typedef {Object} RewriteConsentedQuery
+     * @property {string} base_version Base Version
+     * @property {string} resourceType Resource Type
+     * @property {ParsedArgs} parsedArgs Args
+     * @property {string[]} securityTags security Tags
+     * @property {import('mongodb').Document} query
+     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
+     * @param {RewriteConsentedQuery} param
+     */
+    async updateQueryToIncludeHIETreatmentData({ base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable,}) {
+        if (!parsedArgs) {
+            return query;
+        }
+
+        assertTypeEquals(parsedArgs, ParsedArgs);
+
+        let queryWithHIETreatmentData;
+        // 1. Check resourceType is specific to Patient
+        if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
+            // 2. Get (proxy) patient IDs from parsedArgs
+            const patientReferences = this.proaConsentManager.getResourceReferencesFromFilter('Patient', parsedArgs);
+            if (patientReferences && patientReferences.length > 0) {
+                /**
+                 * Validate if multiple resources are present for passed patient-ids
+                */
+                await this.proaConsentManager.validatePatientIdsAsync(patientReferences);
+
+                /**
+                 * Get patient id to personUuidRef which includes filtered patients based on provided security tags
+                 * @type {{[key: string]: string[]}}
+                 */
+                const patientIdToImmediatePersonUuid =
+                    await this.proaConsentManager.getPatientToImmediatePersonMapAsync({
+                        patientReferences, securityTags
+                    });
+
+                // Create a Set from the keys of patientIdToImmediatePersonUuid
+                const patientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
+
+                if (patientIds.size > 0) {
+                    /**
+                     * Clone of the original parsed arguments
+                     * @type {ParsedArgs}
+                     * */
+                    const updatedParsedArgs = parsedArgs.clone();
+
+                    /**@type {Set<string>} */
+                    const argsToRemove = new Set();
+
+                    updatedParsedArgs
+                    .parsedArgItems
+                    .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
+                        // if property is related to patient
+                        if (
+                            item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
+                        ) {
+                            /**@type {string[]} */
+                            const newQueryParamValues = [];
+
+                            // update the query-param values
+                            item.references.forEach((ref) => {
+                                if (ref.resourceType === 'Patient') {
+                                    // build the reference without any resourceType, as patientIds may include id|sourceAssigningAuthority
+                                    const patientRef = ReferenceParser.createReference({
+                                        id: ref.id,
+                                        sourceAssigningAuthority: ref.sourceAssigningAuthority,
+                                        resourceType: 'Patient'
+                                    });
+                                    if (patientIds.has(ref.id)) {
+                                        newQueryParamValues.push(patientRef);
+                                    }
+                                } else if (ref.resourceType){
+                                    // add the original reference
+                                    newQueryParamValues.push(ReferenceParser.createReference(ref));
+                                }
+                            });
+                            if (newQueryParamValues.length === 0) {
+                                argsToRemove.add(item.queryParameter);
+                            } else {
+                                // rebuild the query value
+                                const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
+                                const newQueryParameterValue = new QueryParameterValue({
+                                    value: newValue,
+                                    operator: item.queryParameterValue.operator
+                                });
+                                // set the value
+                                item.queryParameterValue = newQueryParameterValue;
+                            }
+                        } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
+                            const newQueryParameterValues = [];
+                            item.queryParameterValue.values.forEach((v) => {
+                                if (patientIds.has(v)) {
+                                    newQueryParameterValues.push(v);
+                                }
+                            });
+
+                            const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
+                            item.queryParameterValue = new QueryParameterValue({
+                                value: newValue,
+                                operator: item.queryParameterValue.operator
+                            });
+
+                            if (newQueryParameterValues.length === 0) {
+                                argsToRemove.add(item.queryParameter);
+                            }
+                        }
+                    });
+
+                    // remove all empty args
+                    argsToRemove.forEach((arg) => updatedParsedArgs.remove(arg));
+
+                    // reconstruct the query
+                    queryWithHIETreatmentData = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+                        resourceType,
+                        useHistoryTable,
+                        base_version,
+                        parsedArgs: updatedParsedArgs,
+                    }).query;
+
+                    const updatedConnectionTypesListQuery = {
+                        'meta.security': {
+                            $elemMatch: {
+                                'system': 'https://www.icanbwell.com/connectionType',
+                                'code': {
+                                    $in: this.configManager.getHIETreatmentConnectionTypesList
+                                }
+                            }
+                        }
+                    };
+                    // update query to return HIE/Treatment related data
+                    queryWithHIETreatmentData = {
+                        $and: [
+                            queryWithHIETreatmentData,
+                            updatedConnectionTypesListQuery
+                        ]
+                    };
+                }
+            }
+        }
+        // Update query to include HIE/Treatment related data
+        if (queryWithHIETreatmentData && Object.keys(queryWithHIETreatmentData).length > 0){
+            if (!Object.keys(query).length){
+                query = { $or: [] };
+            }
+            else if (!query['$or']?.length){
+                query = { $or: [query]};
+            }
+            query = { $or: [...query['$or'], queryWithHIETreatmentData]};
+        }
+        return query;
     }
 
     /**
