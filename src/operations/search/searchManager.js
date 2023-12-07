@@ -24,13 +24,13 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
 const {GetCursorResult} = require('./getCursorResult');
-const {ParsedArgs} = require('../query/parsedArgs');
 const {PatientFilterManager} = require('../../fhir/patientFilterManager');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 const {ProaConsentManager} = require('./proaConsentManager');
+const {DataSharingManager} = require('./dataSharingManager');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
@@ -50,6 +50,7 @@ class SearchManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {ProaConsentManager} proaConsentManager
+     * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {PatientFilterManager} patientFilterManager
      */
@@ -68,6 +69,7 @@ class SearchManager {
             databaseAttachmentManager,
             fhirResourceWriterFactory,
             proaConsentManager,
+            dataSharingManager,
             searchQueryBuilder,
             patientFilterManager
         }
@@ -143,6 +145,12 @@ class SearchManager {
          */
         this.proaConsentManager = proaConsentManager;
         assertTypeEquals(proaConsentManager, ProaConsentManager);
+
+        /**
+         * @type {DataSharingManager}
+         */
+        this.dataSharingManager = dataSharingManager;
+        assertTypeEquals(dataSharingManager, DataSharingManager);
 
         /**
          * @type {SearchQueryBuilder}
@@ -227,9 +235,8 @@ class SearchManager {
                     resourceType, securityTags, query, useAccessIndex
                 });
 
-                // Update Query for Consent based proa data access
-                if (this.configManager.enableConsentedProaDataAccess) {
-                    query = await this.proaConsentManager.getQueryForPatientsWithConsent({
+                if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
+                    query = await this.dataSharingManager.updateQueryConsideringDataSharing({
                         base_version,
                         resourceType,
                         parsedArgs,
@@ -238,14 +245,6 @@ class SearchManager {
                         useHistoryTable
                     });
                 }
-                query = await this.updateQueryToIncludeHIETreatmentData({
-                    base_version,
-                    resourceType,
-                    parsedArgs,
-                    securityTags,
-                    query,
-                    useHistoryTable
-                });
             }
             if (hasPatientScope) {
                 shouldUpdateColumns = true;
@@ -312,68 +311,6 @@ class SearchManager {
                 }
             );
         }
-    }
-
-    /**
-     * Rewrite the query to include HIE/Treatment related data linked to the client person and return mongo query from it.
-     * @typedef {Object} RewriteConsentedQuery
-     * @property {string} base_version Base Version
-     * @property {string} resourceType Resource Type
-     * @property {ParsedArgs} parsedArgs Args
-     * @property {string[]} securityTags security Tags
-     * @property {import('mongodb').Document} query
-     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
-     * @param {RewriteConsentedQuery} param
-     */
-    async updateQueryToIncludeHIETreatmentData({ base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable,}) {
-        if (!parsedArgs) {
-            return query;
-        }
-
-        assertTypeEquals(parsedArgs, ParsedArgs);
-
-        let queryWithHIETreatmentData;
-        // 1. Check resourceType is specific to Patient
-        if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
-            // 2. Get (proxy) patient IDs from parsedArgs
-            const patientReferences = this.proaConsentManager.getResourceReferencesFromFilter('Patient', parsedArgs);
-            if (patientReferences && patientReferences.length > 0) {
-                /**
-                 * Validate if multiple resources are present for passed patient-ids
-                */
-                await this.proaConsentManager.validatePatientIdsAsync(patientReferences);
-
-                /**
-                 * Get patient id to personUuidRef which includes filtered patients based on provided security tags
-                 * @type {{[key: string]: string[]}}
-                 */
-                const patientIdToImmediatePersonUuid =
-                    await this.proaConsentManager.getPatientToImmediatePersonMapAsync({
-                        patientReferences, securityTags
-                    });
-
-                // Create a Set from the keys of patientIdToImmediatePersonUuid
-                const allowedPatientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
-
-                if (allowedPatientIds.size > 0) {
-                    const allowedConnectionTypesList = this.configManager.getHIETreatmentConnectionTypesList;
-                    queryWithHIETreatmentData = this.proaConsentManager.getConnectionTypeFilteredQuery({
-                        base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
-                    });
-                }
-            }
-        }
-        // Update query to include HIE/Treatment related data
-        if (queryWithHIETreatmentData && Object.keys(queryWithHIETreatmentData).length > 0){
-            if (!Object.keys(query).length){
-                query = { $or: [] };
-            }
-            else if (!query['$or']?.length){
-                query = { $or: [query]};
-            }
-            query = { $or: [...query['$or'], queryWithHIETreatmentData]};
-        }
-        return query;
     }
 
     /**

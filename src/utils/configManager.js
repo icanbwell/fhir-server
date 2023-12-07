@@ -284,7 +284,7 @@ class ConfigManager {
     }
 
     /**
-     * Specifies allowed connection types for consent data sharing
+     * Specifies allowed connection types for consent data sharing.
      * @return {string[]}
      */
     get getConsentConnectionTypesList() {
@@ -292,7 +292,15 @@ class ConfigManager {
     }
 
     /**
-     * Specifies allowed connection types for HIE/Treatment related data
+     * Specifies whether to enable HIE/Treatment related data access.
+     * @return {boolean}
+     */
+    get enableHIETreatmentRelatedDataAccess() {
+        return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
+    }
+
+    /**
+     * Specifies allowed connection types for HIE/Treatment related data.
      * @return {string[]}
      */
     get getHIETreatmentConnectionTypesList() {
