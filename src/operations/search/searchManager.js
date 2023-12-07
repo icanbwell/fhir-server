@@ -29,6 +29,7 @@ const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentM
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 const {ProaConsentManager} = require('./proaConsentManager');
+const {DataSharingManager} = require('./dataSharingManager');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 
@@ -48,6 +49,7 @@ class SearchManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {ProaConsentManager} proaConsentManager
+     * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
@@ -65,7 +67,8 @@ class SearchManager {
             databaseAttachmentManager,
             fhirResourceWriterFactory,
             proaConsentManager,
-            searchQueryBuilder
+            dataSharingManager,
+            searchQueryBuilder,
         }
     ) {
         /**
@@ -141,10 +144,17 @@ class SearchManager {
         assertTypeEquals(proaConsentManager, ProaConsentManager);
 
         /**
+         * @type {DataSharingManager}
+         */
+        this.dataSharingManager = dataSharingManager;
+        assertTypeEquals(dataSharingManager, DataSharingManager);
+
+        /**
          * @type {SearchQueryBuilder}
          */
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -217,9 +227,8 @@ class SearchManager {
                     resourceType, securityTags, query, useAccessIndex
                 });
 
-                // Update Query for Consent based proa data access
-                if (this.configManager.enableConsentedProaDataAccess) {
-                    query = await this.proaConsentManager.getQueryForPatientsWithConsent({
+                if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
+                    query = await this.dataSharingManager.updateQueryConsideringDataSharing({
                         base_version,
                         resourceType,
                         parsedArgs,

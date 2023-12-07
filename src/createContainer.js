@@ -88,6 +88,7 @@ const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWrit
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
 const {ProaConsentManager} = require('./operations/search/proaConsentManager');
+const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
@@ -223,6 +224,14 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
     }));
+    container.register('dataSharingManager', (c) => new DataSharingManager({
+        databaseQueryFactory: c.databaseQueryFactory,
+        configManager: c.configManager,
+        patientFilterManager: c.patientFilterManager,
+        searchQueryBuilder: c.searchQueryBuilder,
+        bwellPersonFinder: c.bwellPersonFinder,
+        proaConsentManager: c.proaConsentManager,
+    }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
             configManager: c.configManager,
@@ -313,7 +322,8 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 proaConsentManager: c.proaConsentManager,
-                searchQueryBuilder: c.searchQueryBuilder
+                dataSharingManager: c.dataSharingManager,
+                searchQueryBuilder: c.searchQueryBuilder,
             }
         )
     );
