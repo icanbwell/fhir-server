@@ -96,6 +96,11 @@ class DataSharingManager {
             resourceType, parsedArgs, securityTags
         });
 
+        // Return original query if no patient ids found.
+        if (patientIdToImmediatePersonUuid && !Object.keys(patientIdToImmediatePersonUuid).length) {
+            return query;
+        }
+
         /**
          * List of allowed connection types. Fetched from env variable.
          * @type {string[]}
@@ -144,21 +149,14 @@ class DataSharingManager {
         }
 
         // Logic to update original query to consider above 2 cases.
-        if (queryWithConsentedData || queryWithHIETreatmentData) {
-            if (!Object.keys(query).length){
-                query = { $or: [] };
-            }
-            else if (!query['$or']?.length){
-                query = { $or: [query]};
-            }
+        if (queryWithConsentedData && queryWithHIETreatmentData) {
+            query = { $or: [query, queryWithConsentedData, queryWithHIETreatmentData] };
         }
-
-        if (queryWithConsentedData){
-            query = { $or: [...query['$or'], queryWithConsentedData]};
+        else if (queryWithConsentedData){
+            query = { $or: [query, queryWithConsentedData] };
         }
-
-        if (queryWithHIETreatmentData){
-            query = { $or: [...query['$or'], queryWithHIETreatmentData]};
+        else if (queryWithHIETreatmentData){
+            query = { $or: [query, queryWithHIETreatmentData] };
         }
         return query;
     }
@@ -186,6 +184,7 @@ class DataSharingManager {
                 // 3.Validate if multiple resources are present for passed patient-ids
                 await this.validatePatientIdsAsync(patientReferences);
 
+                // 4. Creating patient id to immediate person map with owner same as in security tags provided.
                 patientIdToImmediatePersonUuid = await this.getPatientToImmediatePersonMapAsync({
                     patientReferences, securityTags
                 });

@@ -324,7 +324,6 @@ const createContainer = function () {
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
                 searchQueryBuilder: c.searchQueryBuilder,
-                patientFilterManager: c.patientFilterManager
             }
         )
     );

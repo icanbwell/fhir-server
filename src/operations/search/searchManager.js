@@ -24,7 +24,6 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
 const {GetCursorResult} = require('./getCursorResult');
-const {PatientFilterManager} = require('../../fhir/patientFilterManager');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
@@ -52,7 +51,6 @@ class SearchManager {
      * @param {ProaConsentManager} proaConsentManager
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
-     * @param {PatientFilterManager} patientFilterManager
      */
     constructor(
         {
@@ -71,7 +69,6 @@ class SearchManager {
             proaConsentManager,
             dataSharingManager,
             searchQueryBuilder,
-            patientFilterManager
         }
     ) {
         /**
@@ -158,11 +155,6 @@ class SearchManager {
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
 
-        /**
-         * @type {PatientFilterManager}
-         */
-        this.patientFilterManager = patientFilterManager;
-        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
