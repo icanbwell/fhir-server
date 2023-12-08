@@ -11,6 +11,10 @@ const proaObservationResource = require('./fixtures/observation/proa_observation
 const proaObservation1Resource = require('./fixtures/observation/proa_observation_1.json');
 const hipaaObservationResource = require('./fixtures/observation/hipaa_observation.json');
 
+const hipaaPatientResource = require('./fixtures/patient/hipaa_patient.json');
+const hipaaObservation1Resource = require('./fixtures/observation/hipaa_observation_1.json');
+const proaObservation2Resource = require('./fixtures/observation/proa_observation_2.json');
+
 const client1PersonResource = require('./fixtures/person/client_1_person.json');
 const client1PatientResource = require('./fixtures/patient/client_1_patient.json');
 const client1ObservationResource = require('./fixtures/observation/client_1_observation.json');
@@ -66,7 +70,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id]));
         });
 
-        test('Ref of master person: Get hipaa data only for proa patient, even without consent for proa patient', async () => {
+        test('Ref of master person: Get hipaa data only for hipaa patient, and not for proa patient', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -75,7 +79,8 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
-                    clientObservationResource, proaObservationResource, hipaaObservationResource, clientNonLinkedObservationResource])
+                    clientObservationResource, proaObservationResource, hipaaObservationResource, clientNonLinkedObservationResource,
+                    hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -86,10 +91,10 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(2);
-            expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id, hipaaObservationResource.id]));
+            expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id, hipaaObservation1Resource.id]));
         });
 
-        test('Ref of master person: Get hipaa & proa data for proa patient, when consent provided', async () => {
+        test('Ref of master person: Get hipaa & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -99,7 +104,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
                     proaPatientResource, clientObservationResource, proaObservationResource, hipaaObservationResource,
-                    consentGivenResource, proaObservation1Resource])
+                    consentGivenResource, proaObservation1Resource, hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -127,7 +132,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
                     clientObservationResource, proaObservationResource, hipaaObservationResource, consentGivenResource,
-                    client1PersonResource, client1PatientResource, client1ObservationResource])
+                    client1PersonResource, client1PatientResource, client1ObservationResource, hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -150,7 +155,8 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
-                    clientObservationResource, proaObservationResource, hipaaObservationResource])
+                    clientObservationResource, proaObservationResource, hipaaObservationResource, proaObservation2Resource,
+                    hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -164,7 +170,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id, hipaaObservationResource.id]));
         });
 
-        test('Ref of client person: Get hipaa & proa data for proa patient, when consent provided', async () => {
+        test('Ref of client person: Get hipaa & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -173,7 +179,8 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
-                    clientObservationResource, proaObservationResource, hipaaObservationResource, consentGivenResource])
+                    clientObservationResource, proaObservationResource, hipaaObservationResource, consentGivenResource,
+                    hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -220,7 +227,8 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
-                    clientObservationResource, proaObservationResource, hipaaObservationResource, consentGivenResource])
+                    clientObservationResource, proaObservationResource, hipaaObservationResource, consentGivenResource,
+                    hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -234,7 +242,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id]));
         });
 
-        test('Ref of proa patient: Get hipaa data only, even without consent', async () => {
+        test('Ref of proa patient: Get no data when no consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -243,7 +251,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
-                    clientObservationResource, proaObservationResource, hipaaObservationResource])
+                    clientObservationResource, proaObservationResource, hipaaObservationResource, hipaaPatientResource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -253,11 +261,10 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([hipaaObservationResource.id]));
+            expect(respIds.length).toEqual(0);
         });
 
-        test('Ref of proa patient: Get hipaa & proa data, when consent provided', async () => {
+        test('Ref of proa patient: Get proa data only, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -276,8 +283,8 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
-            expect(respIds.length).toEqual(2);
-            expect(respIds).toEqual(expect.arrayContaining([hipaaObservationResource.id, proaObservationResource.id]));
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual(expect.arrayContaining([proaObservationResource.id]));
         });
 
         test('Ref of client-1 person: no data for other client should be there, regardless of consent', async () => {
