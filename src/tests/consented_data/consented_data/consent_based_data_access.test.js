@@ -263,7 +263,7 @@ describe('Consent Based Data Access Test', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, clientPersonResource, masterPatientResource,
                     client1PersonResource, client1ConsentResource, client1ObservationResource,
-                    xyzObservationResource,
+                    xyzPatientResource, xyzObservationResource,
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResourceCopy, consentGivenResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -298,7 +298,7 @@ describe('Consent Based Data Access Test', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource, clientPersonResource, masterPatientResource,
                     client1PersonResource, client1ConsentResource, client1ObservationResource,
-                    xyzObservationResource,
+                    xyzPatientResource, xyzObservationResource,
                     clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResourceCopy])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -359,9 +359,7 @@ describe('Consent Based Data Access Test', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send([masterPersonResource,
                     client1PersonResource, client1ConsentResource, client1ObservationResource,
-                    xyzObservationResource,
-                    highmarkPatientResource,
-                    highmarkObservationResource
+                    xyzPatientResource, xyzObservationResource, highmarkPatientResource, highmarkObservationResource
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -372,7 +370,6 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/69e5e0ca-27dd-4560-9963-590e6ca4abd3,Patient/0afee0eb-4984-46ea-8052-63fad42e4817|xyz,Patient/44001f52-99f5-4246-9c9a-d7ed1c1c8b39&_sort=_uuid')
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
-            // console.log(JSON.stringify(JSON.parse(resp.text), null, '\t'));
             expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson, expectedHighMarkObservationJson]);
         });
 

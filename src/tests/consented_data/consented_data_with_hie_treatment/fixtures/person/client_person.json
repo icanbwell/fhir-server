@@ -39,6 +39,13 @@
                 "type": "Patient"
             },
             "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc",
+                "type": "Patient"
+            },
+            "assurance": "level4"
         }
     ]
 }

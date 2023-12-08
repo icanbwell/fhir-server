@@ -89,10 +89,11 @@ class DataSharingManager {
         assertTypeEquals(parsedArgs, ParsedArgs);
 
         /**
-         * Get patient id to personUuidRef which includes filtered patients based on provided security tags.
+         * Get patient id to personUuidRef which includes filtered patients based on provided security tags
+         * and patient id to connection type map.
          * @type {{[key: string]: string[]}}
          */
-        const patientIdToImmediatePersonUuid = await this.validateAndGetPatientToImmediatePersonMap({
+        const { patientIdToImmediatePersonUuid, patientIdToConnectionTypeMap } = await this.getValidatedPatientIdsMap({
             resourceType, parsedArgs, securityTags
         });
 
@@ -129,8 +130,9 @@ class DataSharingManager {
                 patientIdToImmediatePersonUuid,
                 securityTags
             });
+            allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
+            this.filterPatientsByConnectionType({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList });
             if (allowedPatientIds.size > 0) {
-                allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
                 queryWithConsentedData = this.getConnectionTypeFilteredQuery({
                     base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
                 });
@@ -140,8 +142,9 @@ class DataSharingManager {
         // Case when HIE/Treatment related data access is enabled.
         if (this.configManager.enableHIETreatmentRelatedDataAccess) {
             allowedPatientIds = new Set(Object.keys(patientIdToImmediatePersonUuid));
+            allowedConnectionTypesList = this.configManager.getHIETreatmentConnectionTypesList;
+            this.filterPatientsByConnectionType({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList });
             if (allowedPatientIds.size > 0) {
-                allowedConnectionTypesList = this.configManager.getHIETreatmentConnectionTypesList;
                 queryWithHIETreatmentData = this.getConnectionTypeFilteredQuery({
                     base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
                 });
@@ -162,35 +165,44 @@ class DataSharingManager {
     }
 
     /**
-     * Function to fetch & validate patient references and return patient id to immediate person map.
-     * @typedef {Object} PatientToImmediatePersonMap
+     * Function to fetch & validate patient references and return patient id to immediate person and patient id to connection type map.
+     * @typedef {Object} ValidatedPatientIdsMap
      * @property {string} resourceType Resource Type
      * @property {ParsedArgs} parsedArgs Args
      * @property {string[]} securityTags security Tags
-     * @param {PatientToImmediatePersonMap} param
+     * @param {ValidatedPatientIdsMap} param
      */
-    async validateAndGetPatientToImmediatePersonMap({ resourceType, parsedArgs, securityTags,}) {
+    async getValidatedPatientIdsMap({ resourceType, parsedArgs, securityTags,}) {
         /**
          * Patient id to immediate person map.
          * @type {{[key: string]: string[]}}
          */
         let patientIdToImmediatePersonUuid = {};
+        /**
+         * Patient id to corresponding connection type map.
+         * @type {Map<string, string[]>}
+         */
+        let patientIdToConnectionTypeMap = new Map();
 
-        // 1. Check resourceType is specific to Patient
+        // 1. Check resourceType is specific to Patient.
         if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
-            // 2. Get (proxy) patient IDs from parsedArgs
+            // 2. Get (proxy) patient IDs from parsedArgs.
             const patientReferences = this.getResourceReferencesFromFilter('Patient', parsedArgs);
             if (patientReferences && patientReferences.length > 0) {
-                // 3.Validate if multiple resources are present for passed patient-ids
-                await this.validatePatientIdsAsync(patientReferences);
+                let patientsList;
+                // 3. Get patients using patientReferences and patient to connectionType map.
+                ({ patientsList, patientIdToConnectionTypeMap } = await this.getPatientsAndConnectionTypeMap({ patientReferences }));
 
-                // 4. Creating patient id to immediate person map with owner same as in security tags provided.
+                // 4. Validate if multiple resources are present for the passed patients.
+                await this.validatePatientIdsAsync({ patientsList, patientReferences });
+
+                // 5. Creating patient id to immediate person map with owner same as in security tags provided.
                 patientIdToImmediatePersonUuid = await this.getPatientToImmediatePersonMapAsync({
                     patientReferences, securityTags
                 });
             }
         }
-        return patientIdToImmediatePersonUuid;
+        return { patientIdToImmediatePersonUuid, patientIdToConnectionTypeMap };
     }
 
     /**
@@ -406,28 +418,34 @@ class DataSharingManager {
         return patientReferenceToPersonUuid;
     }
 
+
     /**
-     * For array of patientIds passed, checks if there are more than two resources for
-     * any id. If its there, then throws a bad-request error else returns true
+     * Function to filter patients based on allowed connection types.
+     * @typedef {Object} FilterPatientsByConnectionType
+     * @property {Set<string>} allowedPatientIds allowed patient ids
+     * @property {Map<string, string[]>} patientIdToConnectionTypeMap patient id to connection type map
+     * @property {string[]} allowedConnectionTypesList allowed connection types list
+     * @param {FilterPatientsByConnectionType} param
+     */
+    filterPatientsByConnectionType({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList }) {
+        allowedPatientIds.forEach((patientId) => {
+            if (!patientIdToConnectionTypeMap.has(patientId) ||
+                !allowedConnectionTypesList.includes(patientIdToConnectionTypeMap.get(patientId))) {
+                allowedPatientIds.delete(patientId);
+            }
+        });
+    }
+
+    /**
+     * For array of patient references passed, fetch & return patients list and patient id to connection type map.
      * @param {import('../query/filters/searchFilterFromReference').IReferences} references Passed PatientIds in query.
      */
-    async validatePatientIdsAsync(references) {
+    async getPatientsAndConnectionTypeMap({ patientReferences }) {
         /**
-         * PatientId -> No of Patient Resources
-         * @type {Map<string, number>}
-         * */
-        const patientIdToCount = new Map();
-        /**@type {Set<string>} */
-        const idsWithMultipleResourcesSet = new Set();
-
-        references.forEach((ref) => {
-            const { id, sourceAssigningAuthority } = ref;
-            /** for uuid -> uuid, and for id and sourceAssigningAuthority -> id|sourceAssigningAuthority  */
-            const idWithSourceAssigningAuthority = ReferenceParser.createReference({ id, sourceAssigningAuthority });
-            // initial count as zero
-            patientIdToCount.set(idWithSourceAssigningAuthority, 0);
-        });
-
+         * Patient id to corresponding connection type map.
+         * @type {Map<string, string[]>}
+         */
+        let patientIdToConnectionTypeMap = new Map();
 
         const query = this.databaseQueryFactory.createQuery({
             resourceType: 'Patient',
@@ -437,13 +455,47 @@ class DataSharingManager {
         // find all patients for given array of ids.
         const cursor = await query.findAsync({
             query: {
-                '$or': SearchFilterFromReference.buildFilter(references, null),
+                '$or': SearchFilterFromReference.buildFilter(patientReferences, null),
             },
-            options: { projection: { id: 1, _sourceId: 1, _uuid: 1 } }
+            options: { projection: { id: 1, _sourceId: 1, _uuid: 1, meta: { security: 1 } } }
         });
+
+        let patientsList = [];
 
         while (await cursor.hasNext()) {
             const patient = await cursor.next();
+            patientsList.push(patient);
+            const connectionTypeSecurityTag = patient?.meta?.security?.find(
+                item => item.system === 'https://www.icanbwell.com/connectionType'
+            );
+            if (connectionTypeSecurityTag) {
+                patientIdToConnectionTypeMap.set(patient.id, connectionTypeSecurityTag.code);
+            }
+        }
+        return { patientsList, patientIdToConnectionTypeMap };
+    }
+
+    /**
+     * For array of patients passed, checks if there are more than two resources for
+     * any id. If its there, then throws a bad-request error else returns true
+     */
+    async validatePatientIdsAsync({ patientsList, patientReferences }) {
+        /**
+         * PatientId -> No of Patient Resources
+         * @type {Map<string, number>}
+         * */
+        const patientIdToCount = new Map();
+        /**@type {Set<string>} */
+        const idsWithMultipleResourcesSet = new Set();
+        patientReferences.forEach((ref) => {
+            const { id, sourceAssigningAuthority } = ref;
+            /** for uuid -> uuid, and for id and sourceAssigningAuthority -> id|sourceAssigningAuthority  */
+            const idWithSourceAssigningAuthority = ReferenceParser.createReference({ id, sourceAssigningAuthority });
+            // initial count as zero
+            patientIdToCount.set(idWithSourceAssigningAuthority, 0);
+        });
+
+        patientsList.forEach((patient) => {
             /**
              * PatientIdsSet can have sourceId as well as uuid so check both of them.
              * One of them will be present inside the set
@@ -465,7 +517,7 @@ class DataSharingManager {
                 // update the count
                 patientIdToCount.set(patientId, count);
             }
-        }
+        });
 
         /**@type {string[]} */
         const idsWithMultipleResources = Array.from(idsWithMultipleResourcesSet);
