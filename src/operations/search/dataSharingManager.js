@@ -194,7 +194,7 @@ class DataSharingManager {
                 ({ patientsList, patientIdToConnectionTypeMap } = await this.getPatientsAndConnectionTypeMap({ patientReferences }));
 
                 // 4. Validate if multiple resources are present for the passed patients.
-                await this.validatePatientIdsAsync({ patientsList });
+                await this.validatePatientIdsAsync({ patientsList, patientReferences });
 
                 // 5. Creating patient id to immediate person map with owner same as in security tags provided.
                 patientIdToImmediatePersonUuid = await this.getPatientToImmediatePersonMapAsync({
@@ -476,10 +476,10 @@ class DataSharingManager {
     }
 
     /**
-     * For array of patientIds passed, checks if there are more than two resources for
+     * For array of patients passed, checks if there are more than two resources for
      * any id. If its there, then throws a bad-request error else returns true
      */
-    async validatePatientIdsAsync({ patientsList }) {
+    async validatePatientIdsAsync({ patientsList, patientReferences }) {
         /**
          * PatientId -> No of Patient Resources
          * @type {Map<string, number>}
@@ -487,21 +487,12 @@ class DataSharingManager {
         const patientIdToCount = new Map();
         /**@type {Set<string>} */
         const idsWithMultipleResourcesSet = new Set();
-
-        patientsList.forEach((patient) => {
-            let patientId;
-            if (patient._uuid) {
-                patientId = patient._uuid;
-            }
-            else if (patient._sourceId && patient._sourceAssigningAuthority) {
-                patientId = `${patient._sourceId}|${patient._sourceAssigningAuthority}`;
-            }
-            else if (patient._sourceId) {
-                patientId = patient._sourceId;
-            }
-
+        patientReferences.forEach((ref) => {
+            const { id, sourceAssigningAuthority } = ref;
+            /** for uuid -> uuid, and for id and sourceAssigningAuthority -> id|sourceAssigningAuthority  */
+            const idWithSourceAssigningAuthority = ReferenceParser.createReference({ id, sourceAssigningAuthority });
             // initial count as zero
-            patientIdToCount.set(patientId, 0);
+            patientIdToCount.set(idWithSourceAssigningAuthority, 0);
         });
 
         patientsList.forEach((patient) => {
