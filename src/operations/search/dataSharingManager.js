@@ -4,7 +4,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
@@ -13,6 +13,7 @@ const { ReferenceParser } = require('../../utils/referenceParser');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const { IdParser } = require('../../utils/idParser');
 const {ProaConsentManager} = require('./proaConsentManager');
+const { isUuid } = require('../../utils/uid.util');
 
 class DataSharingManager {
     /**
@@ -89,11 +90,11 @@ class DataSharingManager {
         assertTypeEquals(parsedArgs, ParsedArgs);
 
         /**
-         * Get patient id to personUuidRef which includes filtered patients based on provided security tags
-         * and patient id to connection type map.
+         * Get patient id to personUuidRef which includes filtered patients based on provided security tags,
+         * patient id to connection type map and patients list.
          * @type {{[key: string]: string[]}}
          */
-        const { patientIdToImmediatePersonUuid, patientIdToConnectionTypeMap } = await this.getValidatedPatientIdsMap({
+        const { patientIdToImmediatePersonUuid, patientIdToConnectionTypeMap, patientsList } = await this.getValidatedPatientIdsMap({
             resourceType, parsedArgs, securityTags
         });
 
@@ -134,7 +135,7 @@ class DataSharingManager {
             this.filterPatientsByConnectionType({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList });
             if (allowedPatientIds.size > 0) {
                 queryWithConsentedData = this.getConnectionTypeFilteredQuery({
-                    base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
+                    base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable, patientsList
                 });
             }
         }
@@ -146,7 +147,7 @@ class DataSharingManager {
             this.filterPatientsByConnectionType({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList });
             if (allowedPatientIds.size > 0) {
                 queryWithHIETreatmentData = this.getConnectionTypeFilteredQuery({
-                    base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable
+                    base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable, patientsList
                 });
             }
         }
@@ -183,26 +184,33 @@ class DataSharingManager {
          * @type {Map<string, string[]>}
          */
         let patientIdToConnectionTypeMap = new Map();
+        let patientsList;
 
         // 1. Check resourceType is specific to Patient.
         if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
             // 2. Get (proxy) patient IDs from parsedArgs.
             const patientReferences = this.getResourceReferencesFromFilter('Patient', parsedArgs);
             if (patientReferences && patientReferences.length > 0) {
-                let patientsList;
                 // 3. Get patients using patientReferences and patient to connectionType map.
                 ({ patientsList, patientIdToConnectionTypeMap } = await this.getPatientsAndConnectionTypeMap({ patientReferences }));
 
                 // 4. Validate if multiple resources are present for the passed patients.
                 await this.validatePatientIdsAsync({ patientsList, patientReferences });
 
-                // 5. Creating patient id to immediate person map with owner same as in security tags provided.
+                // 5. Update patientReferences to contain uuid only.
+                patientReferences.forEach(patientReference => {
+                    if (patientReference.id && !patientReference.id.includes(PERSON_PROXY_PREFIX) && !isUuid(patientReference.id)){
+                        patientReference.id = patientsList.find(patient => patient.id === patientReference.id)._uuid;
+                    }
+                });
+
+                // 6. Creating patient id to immediate person map with owner same as in security tags provided.
                 patientIdToImmediatePersonUuid = await this.getPatientToImmediatePersonMapAsync({
                     patientReferences, securityTags
                 });
             }
         }
-        return { patientIdToImmediatePersonUuid, patientIdToConnectionTypeMap };
+        return { patientIdToImmediatePersonUuid, patientIdToConnectionTypeMap, patientsList };
     }
 
     /**
@@ -216,9 +224,10 @@ class DataSharingManager {
      * @property {ParsedArgs} parsedArgs Args
      * @property {string[]} allowedConnectionTypesList Allowed connection types list
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
+     * @property {any[]} patientsList List of patients containing id, _sourceId, _uuid & meta.security
      * @param {RewriteDataSharingQuery2} param
      */
-    getConnectionTypeFilteredQuery({base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable}){
+    getConnectionTypeFilteredQuery({base_version, resourceType, allowedPatientIds, parsedArgs, allowedConnectionTypesList, useHistoryTable, patientsList}){
         /**
          * Clone of the original parsed arguments
          * @type {ParsedArgs}
@@ -247,7 +256,15 @@ class DataSharingManager {
                             sourceAssigningAuthority: ref.sourceAssigningAuthority,
                             resourceType: 'Patient'
                         });
-                        if (allowedPatientIds.has(ref.id)) {
+                        // Check for id as well as uuid.
+                        if (
+                            allowedPatientIds.has(ref.id) ||
+                            (
+                                !isUuid(ref.id) &&
+                                !ref.id.includes(PERSON_PROXY_PREFIX) &&
+                                allowedPatientIds.has(patientsList.find(patient => patient.id === ref.id)._uuid)
+                            )
+                        ) {
                             newQueryParamValues.push(patientRef);
                         }
                         // skip adding patient without consent
@@ -469,7 +486,7 @@ class DataSharingManager {
                 item => item.system === 'https://www.icanbwell.com/connectionType'
             );
             if (connectionTypeSecurityTag) {
-                patientIdToConnectionTypeMap.set(patient.id, connectionTypeSecurityTag.code);
+                patientIdToConnectionTypeMap.set(patient._uuid, connectionTypeSecurityTag.code);
             }
         }
         return { patientsList, patientIdToConnectionTypeMap };
