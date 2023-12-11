@@ -200,7 +200,10 @@ class DataSharingManager {
                 // 5. Update patientReferences to contain uuid only.
                 patientReferences.forEach(patientReference => {
                     if (patientReference.id && !patientReference.id.includes(PERSON_PROXY_PREFIX) && !isUuid(patientReference.id)){
-                        patientReference.id = patientsList.find(patient => patient.id === patientReference.id)._uuid;
+                        let searchedPatient = patientsList.find(patient => patient.id === patientReference.id);
+                        if (searchedPatient) {
+                            patientReference.id = searchedPatient._uuid;
+                        }
                     }
                 });
 
