@@ -174,6 +174,7 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
+                doc = await this.preSaveManager.preSaveAsync(doc);
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
                     {$and: [{_uuid: doc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
