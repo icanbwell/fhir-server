@@ -250,6 +250,7 @@ class ResourceMerger {
 
     /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
+     * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
      * @param {MergeResourceAsyncProp}
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */

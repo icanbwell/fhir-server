@@ -174,21 +174,22 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
-                const previousVersionId = parseInt(doc.meta.versionId) - 1;
+                const updatedDoc = await this.preSaveManager.preSaveAsync(doc.clone());
+                const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
-                    {$and: [{_uuid: doc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
-                    {_uuid: doc._uuid};
-                docVersionsTested.push(doc);
-                const updateResult = await collection.replaceOne(filter, doc.toJSONInternal());
+                    {$and: [{_uuid: updatedDoc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
+                    {_uuid: updatedDoc._uuid};
+                docVersionsTested.push(updatedDoc);
+                const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
                 await logTraceSystemEventAsync(
                     {
-                        event: 'replaceOneAsync: Merging' + `_${doc.resourceType}`,
+                        event: 'replaceOneAsync: Merging' + `_${updatedDoc.resourceType}`,
                         message: 'Merging existing resource',
                         args: {
-                            id: doc.id,
-                            uuid: doc._uuid,
-                            resourceType: doc.resourceType,
-                            doc,
+                            id: updatedDoc.id,
+                            uuid: updatedDoc._uuid,
+                            resourceType: updatedDoc.resourceType,
+                            updatedDoc,
                             resourceInDatabase,
                             patches,
                             updatedResource,
