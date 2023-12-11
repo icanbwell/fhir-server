@@ -95,7 +95,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      */
     async processRecordAsync(doc) {
         const operations = [];
-        if (!doc.meta || !doc.meta.security) {
+        if (!doc.meta || !doc.meta.security || !doc.link) {
             return operations;
         }
         assertIsValid(doc.resourceType);
@@ -161,7 +161,13 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = {
+                    $and: [
+                        { 'link.target.reference': { $gte: '0' } },
+                        { 'link.target._uuid': { $eq: null } },
+                    ],
+                };
+
                 if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {
