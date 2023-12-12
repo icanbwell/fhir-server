@@ -25,7 +25,7 @@ const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartit
 
 
 const headers = getHeaders('user/*.read access/client.*');
-const client1Headers = getHeaders('user/*.read access/client-1.*');
+const client1Headers = getHeaders('user/*.read access/client1.*');
 
 describe('Data sharing test cases for different scenarios', () => {
     const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');

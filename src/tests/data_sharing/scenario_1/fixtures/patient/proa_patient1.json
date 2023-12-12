@@ -2,15 +2,15 @@
     "resourceType": "Patient",
     "id": "123456",
     "meta": {
-        "source": "proa",
+        "source": "client-1",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "proa"
+                "code": "client-1"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "proa"
+                "code": "client-1"
             },
             {
                 "system": "https://www.icanbwell.com/connectionType",
