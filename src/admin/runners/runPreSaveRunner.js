@@ -163,7 +163,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                  */
                 let query = {
                     $and: [
-                        { 'link.target.reference': { $gte: '0' } },
+                        { 'link.target.reference': { $exists: true } },
                         { 'link.target._uuid': { $eq: null } },
                     ],
                 };
