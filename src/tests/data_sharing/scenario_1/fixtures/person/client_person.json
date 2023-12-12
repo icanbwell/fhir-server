@@ -1,0 +1,58 @@
+{
+    "resourceType": "Person",
+    "id": "c12345",
+    "meta": {
+        "source": "client",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "official",
+            "family": "Irving",
+            "given": [
+                "Lloyd"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc|proa",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/bb7872e6-b7ac-470e-bde3-e85cee9d1ce6",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/a9098577-9af1-53c6-a1ee-be268d9a6ae8",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        }
+    ]
+}
