@@ -1,5 +1,5 @@
 // This test case contains bwell master person & patient along with client person linked with master person.
-// Client person is further linked with 4 patients: 2 client patients & 2 proa patient.
+// Client person is further linked with 4 patients: 1 client patient, 1 client_1 patient & 2 proa patient.
 // All patients further have observations resources linked with.
 // This file covers all possible scenarios of this data set, including where consent is included & not included.
 
@@ -31,6 +31,7 @@ const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartit
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
+const client_1Headers = getHeaders('user/*.read access/client_1.*');
 
 describe('Data sharing test cases for different scenarios', () => {
     const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
@@ -118,6 +119,72 @@ describe('Data sharing test cases for different scenarios', () => {
             ]));
         });
 
+        test('Ref of master person: Get client_1 patient data only as client_1 header provided', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
+                    clientPatient1Resource, clientObservationResource, clientObservation1Resource, proaObservationResource,
+                    consentGivenResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .set(client_1Headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([clientObservation1Resource.id]);
+        });
+
+        test('Ref of master person: Get Client patient & proa patient data, consent provided, and later consent revoked.', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
+                    clientPatient1Resource, clientObservationResource, clientObservation1Resource, proaObservationResource,
+                    consentGivenResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(3);
+            expect(respIds).toEqual(expect.arrayContaining([
+                clientObservationResource.id, clientObservation1Resource.id, proaObservationResource.id
+            ]));
+
+            resp = await request.post('/4_0_0/Person/1/$merge').send([
+                {...consentGivenResource, status: 'inactive'}, consentDeniedResource
+                ]).set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({updated: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
+                .set(headers);
+            const respIds1 = resp.body.map(item => item.id);
+
+            expect(respIds1.length).toEqual(2);
+            expect(respIds1).toEqual(expect.arrayContaining([
+                clientObservationResource.id, clientObservation1Resource.id
+            ]));
+        });
+
         test('Ref of master person: Get client & proa data, when consent provided, here proa patient has id and not uuid', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -171,6 +238,32 @@ describe('Data sharing test cases for different scenarios', () => {
             ));
         });
 
+        test('Ref of client person(uuid): Get client only, when consent not provided', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
+                    clientPatient1Resource, clientObservationResource, clientObservation1Resource, proaObservationResource,
+                    proaIDPatientResource, proaIDObservationResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(2);
+            expect(respIds).toEqual(expect.arrayContaining(
+                [clientObservationResource.id, clientObservation1Resource.id]
+            ));
+        });
+
         test('Ref of client person: Get client only, when consent denied provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -197,6 +290,32 @@ describe('Data sharing test cases for different scenarios', () => {
             ));
         });
 
+        test('Ref of client person(uuid): Get client only, when consent denied provided', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
+                    clientPatient1Resource, clientObservationResource, clientObservation1Resource, proaObservationResource,
+                    consentDeniedResource, proaIDPatientResource, proaIDObservationResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(2);
+            expect(respIds).toEqual(expect.arrayContaining(
+                [clientObservationResource.id, clientObservation1Resource.id]
+            ));
+        });
+
         test('Ref of client person: Get client & proa data both, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -214,6 +333,32 @@ describe('Data sharing test cases for different scenarios', () => {
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.c12345')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(4);
+            expect(respIds).toEqual(expect.arrayContaining(
+                [clientObservationResource.id, clientObservation1Resource.id, proaObservationResource.id, proaIDObservationResource.id]
+            ));
+        });
+
+        test('Ref of client person(uuid): Get client & proa data both, when consent provided', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource, proaPatientResource,
+                    clientPatient1Resource, clientObservationResource, clientObservation1Resource, proaObservationResource,
+                    consentGivenResource, proaIDPatientResource, proaIDObservationResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7')
                 .set(headers);
             const respIds = resp.body.map(item => item.id);
 
@@ -267,7 +412,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([clientObservationResource.id]));
+            expect(respIds).toEqual([clientObservationResource.id]);
         });
 
         test('Ref of client patient 1: Only data of client patient must be returned, regardless of consent', async () => {
@@ -291,7 +436,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([clientObservation1Resource.id]));
+            expect(respIds).toEqual([clientObservation1Resource.id]);
         });
 
         test('Ref of proa patient: Get no data when no consent provided', async () => {
@@ -361,7 +506,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([proaObservationResource.id]));
+            expect(respIds).toEqual([proaObservationResource.id]);
         });
 
         test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with UUID', async () => {
@@ -385,7 +530,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id]));
+            expect(respIds).toEqual([proaIDObservationResource.id]);
         });
 
         test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id & source assigning authority', async () => {
@@ -409,7 +554,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id]));
+            expect(respIds).toEqual([proaIDObservationResource.id]);
         });
 
         test('Ref of proa patient: Get proa observation with ID, when consent provided & proa patient searched with id only', async () => {
@@ -433,7 +578,7 @@ describe('Data sharing test cases for different scenarios', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id]));
+            expect(respIds).toEqual([proaIDObservationResource.id]);
         });
     });
 });
