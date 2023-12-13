@@ -1031,7 +1031,8 @@ class SearchManager {
                 fnBundle,
                 defaultSortId,
                 highWaterMark: highWaterMark,
-                configManager: this.configManager
+                configManager: this.configManager,
+                response: res
             }
         );
 
@@ -1057,6 +1058,7 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
                 configManager: this.configManager,
+                response: res,
             }
         );
         /**
@@ -1081,6 +1083,7 @@ class SearchManager {
             databaseAttachmentManager: this.databaseAttachmentManager,
             highWaterMark: highWaterMark,
             configManager: this.configManager,
+            response: res,
         });
 
 

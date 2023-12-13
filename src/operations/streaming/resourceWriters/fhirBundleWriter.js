@@ -18,9 +18,10 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {string} defaultSortId
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
-    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager}) {
-        super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark});
+    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response}) {
+        super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark, response});
         /**
          * @type {function (string | null, number): Bundle}
          * @private
@@ -41,7 +42,6 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @private
          */
         this._first = true;
-        this.push('{"entry":[');
         /**
          * @type {string | null}
          * @private
@@ -91,7 +91,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
-                    this.push(resourceJson, encoding);
+                    this.push('{"entry":[' + resourceJson, encoding);
                 } else {
                     // add comma at the beginning to make it legal json
                     this.push(',' + resourceJson, encoding);
@@ -147,7 +147,9 @@ class FhirBundleWriter extends FhirResourceWriterBase {
         if (this._first) {
             // write the beginning json
             this._first = false;
-            this.push(operationOutcomeJson);
+            // this is an unexpected error so set statuscode 500
+            this.response.statusCode = 500;
+            this.push('{"entry":[' + operationOutcomeJson);
         } else {
             // add comma at the beginning to make it legal json
             this.push(',' + operationOutcomeJson);
