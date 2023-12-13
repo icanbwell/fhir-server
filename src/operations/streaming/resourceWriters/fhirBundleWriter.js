@@ -187,6 +187,10 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             if (this.configManager.logStreamSteps) {
                 logInfo('FhirBundleWriter _flush', {output});
             }
+            if (this._first) {
+                this._first = false;
+                this.push('{"entry":[');
+            }
             this.push(output); // skip the first "}"
         } catch (e) {
             // don't let error past this since we're streaming so we can't send errors to http client

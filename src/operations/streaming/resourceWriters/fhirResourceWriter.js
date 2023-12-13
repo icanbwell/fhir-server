@@ -94,6 +94,10 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         if (this.configManager.logStreamSteps) {
             logInfo('FhirResourceWriter _flush', {});
         }
+        if (this._first) {
+            this._first = false;
+            this.push('[');
+        }
         // write ending json
         this.push(']');
         this.push(null);
