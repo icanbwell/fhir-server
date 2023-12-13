@@ -248,41 +248,34 @@ class DataSharingManager {
                 item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
             ) {
                 /**@type {string[]} */
-                const newQueryParamValues = [];
+                const newQueryParameterValues = [];
 
                 // update the query-param values
                 item.references.forEach((ref) => {
                     if (ref.resourceType === 'Patient') {
-                        // build the reference without any resourceType, as allowedPatientIds may include id|sourceAssigningAuthority
-                        const patientRef = ReferenceParser.createReference({
-                            id: ref.id,
-                            sourceAssigningAuthority: ref.sourceAssigningAuthority,
-                            resourceType: 'Patient'
-                        });
-                        // Check for id as well as uuid.
-                        if (
-                            allowedPatientIds.has(ref.id) ||
-                            (
-                                !isUuid(ref.id) &&
-                                !ref.id.includes(PERSON_PROXY_PREFIX) &&
-                                allowedPatientIds.has(patientsList.find(patient => patient.id === ref.id)._uuid)
-                            )
-                        ) {
-                            newQueryParamValues.push(patientRef);
+                        // Check if ref.id is uuid or sourceId.
+                        if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
+                            newQueryParameterValues.push(`Patient/${ref.id}`);
+                        }
+                        else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
+                            let refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
+                            if (refUUID && allowedPatientIds.has(refUUID)) {
+                                newQueryParameterValues.push(`Patient/${refUUID}`);
+                            }
                         }
                         // skip adding patient without consent
                     } else if (ref.resourceType){
                         // add the original reference
-                        newQueryParamValues.push(ReferenceParser.createReference(ref));
+                        newQueryParameterValues.push(ReferenceParser.createReference(ref));
                     }
                 });
 
-                if (newQueryParamValues.length === 0) {
+                if (newQueryParameterValues.length === 0) {
                     // if all the ids doesn't have consent then remove the queryParam
                     argsToRemove.add(item.queryParameter);
                 } else {
                     // rebuild the query value
-                    const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
+                    const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
                     const newQueryParameterValue = new QueryParameterValue({
                         value: newValue,
                         operator: item.queryParameterValue.operator,
@@ -293,9 +286,15 @@ class DataSharingManager {
                 }
             } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
                 const newQueryParameterValues = [];
-                item.queryParameterValue.values.forEach((v) => {
-                    if (allowedPatientIds.has(v)) {
-                        newQueryParameterValues.push(v);
+                item.queryParameterValue.values.forEach((id) => {
+                    if (isUuid(id) && allowedPatientIds.has(id)) {
+                        newQueryParameterValues.push(id);
+                    }
+                    else if (!isUuid(id) && !id.includes(PERSON_PROXY_PREFIX)) {
+                        let refUUID = patientsList.find(patient => patient.id === id)?._uuid;
+                        if (refUUID && allowedPatientIds.has(refUUID)) {
+                            newQueryParameterValues.push(refUUID);
+                        }
                     }
                 });
 
