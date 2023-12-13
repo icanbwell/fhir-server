@@ -257,7 +257,7 @@ class DataSharingManager {
                         if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
                             newQueryParameterValues.push(`Patient/${ref.id}`);
                         }
-                        else if (!isUuid(ref.id && !ref.id.includes(PERSON_PROXY_PREFIX))) {
+                        else if (!isUuid(ref.id) && !ref.id.includes(PERSON_PROXY_PREFIX)) {
                             let refUUID = patientsList.find(patient => patient.id === ref.id)?._uuid;
                             if (refUUID && allowedPatientIds.has(refUUID)) {
                                 newQueryParameterValues.push(`Patient/${refUUID}`);
@@ -290,7 +290,7 @@ class DataSharingManager {
                     if (isUuid(id) && allowedPatientIds.has(id)) {
                         newQueryParameterValues.push(id);
                     }
-                    else if (!isUuid(id && !id.includes(PERSON_PROXY_PREFIX))) {
+                    else if (!isUuid(id) && !id.includes(PERSON_PROXY_PREFIX)) {
                         let refUUID = patientsList.find(patient => patient.id === id)?._uuid;
                         if (refUUID && allowedPatientIds.has(refUUID)) {
                             newQueryParameterValues.push(refUUID);
