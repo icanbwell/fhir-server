@@ -21,6 +21,9 @@ const hipaaPatientResource = require('./fixtures/patient/hipaa_patient.json');
 const hipaaObservation1Resource = require('./fixtures/observation/hipaa_observation_1.json');
 const proaObservation2Resource = require('./fixtures/observation/proa_observation_2.json');
 
+const hipaaPatient1Resource = require('./fixtures/patient/hipaa_patient1.json');
+const hipaaPatient2Resource = require('./fixtures/patient/hipaa_patient2.json');
+
 const client1PersonResource = require('./fixtures/person/client_1_person.json');
 const client1PatientResource = require('./fixtures/patient/client_1_patient.json');
 const client1ObservationResource = require('./fixtures/observation/client_1_observation.json');
@@ -492,6 +495,84 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
 
             expect(respIds.length).toEqual(1);
             expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id]));
+        });
+
+        test('Ref of hipaa patient 1(uuid): Get patient data even without consent.', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    proaPatientResource, clientObservationResource, proaObservationResource, hipaaObservationResource,
+                    proaObservation1Resource, hipaaPatientResource, hipaaObservation1Resource, proaIDPatientResource,
+                    proaIDObservationResource, duplicateClientPatientResource, duplicateClientObservationResource,
+                    hipaaPatient1Resource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/patient?id=bb7862e6-b7ac-470e-bde3-e85cee9d1ca7')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([hipaaPatient1Resource.id]);
+        });
+
+        test('Ref of hipaa patient 2: Get patient data even without consent.', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    proaPatientResource, clientObservationResource, proaObservationResource, hipaaObservationResource,
+                    proaObservation1Resource, hipaaPatientResource, hipaaObservation1Resource, proaIDPatientResource,
+                    proaIDObservationResource, duplicateClientPatientResource, duplicateClientObservationResource,
+                    hipaaPatient1Resource, hipaaPatient2Resource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/patient?id=223344')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([hipaaPatient2Resource.id]);
+        });
+
+        test('Ref of hipaa patient 2(with source assigning authority): Get patient data even without consent.', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    proaPatientResource, clientObservationResource, proaObservationResource, hipaaObservationResource,
+                    proaObservation1Resource, hipaaPatientResource, hipaaObservation1Resource, proaIDPatientResource,
+                    proaIDObservationResource, duplicateClientPatientResource, duplicateClientObservationResource,
+                    hipaaPatient1Resource, hipaaPatient2Resource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/patient?id=223344|abc')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(1);
+            expect(respIds).toEqual([hipaaPatient2Resource.id]);
         });
     });
 });

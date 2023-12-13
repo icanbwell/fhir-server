@@ -53,6 +53,20 @@
                 "type": "Patient"
             },
             "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ca7",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/c16629c7-e26e-5d6f-8e75-fd4581211100",
+                "type": "Patient"
+            },
+            "assurance": "level4"
         }
     ]
 }
