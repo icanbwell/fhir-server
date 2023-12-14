@@ -123,7 +123,7 @@
     "@json2csv/transforms": "^7.0.2",
     "@mongodb-js/zstd": "^1.1.0",
     "@opensearch-project/opensearch": "^2.3.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.39.2",
+    "@opentelemetry/auto-instrumentations-node": "0.39.3",
     "@opentelemetry/exporter-metrics-otlp-grpc": "^0.44.0",
     "@opentelemetry/exporter-trace-otlp-grpc": "^0.44.0",
     "@opentelemetry/resources": "^1.17.0",
