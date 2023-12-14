@@ -127,7 +127,7 @@ module.exports = {
                 },
                 include: [
                     'Account_4_0_0', 'AdverseEvent_4_0_0', 'Basic_4_0_0', 'CarePlan_4_0_0', 'CareTeam_4_0_0', 'ChargeItem_4_0_0',
-                    'ClinicalImpression_4_0_0', 'Condition_4_0_0', 'Contract_4_0_0', 'CommunicationRequest_4_0_0',
+                    'ClinicalImpression_4_0_0', 'Condition_4_0_0', 'Contract_4_0_0', 'Communication_4_0_0', 'CommunicationRequest_4_0_0',
                     'Composition_4_0_0', 'DeviceRequest_4_0_0', 'DeviceUseStatement_4_0_0', 'DiagnosticReport_4_0_0',
                     'DocumentManifest_4_0_0', 'DocumentReference_4_0_0', 'Encounter_4_0_0', 'Flag_4_0_0', 'Goal_4_0_0', 'GuidanceResponse_4_0_0',
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
