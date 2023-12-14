@@ -105,6 +105,7 @@ const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
 const {ProfileUrlMapper} = require('./utils/profileMapper');
 const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
+const {HiddenMetaTagEnrichmentProvider} = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
 const {READ} = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -133,6 +134,7 @@ const createContainer = function () {
 
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
+            new HiddenMetaTagEnrichmentProvider(),
             new IdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
                 configManager: c.configManager,
