@@ -99,7 +99,8 @@ class PatientFilterManager {
             'Binary',
             'ValueSet',
             'ChargeItemDefinition',
-            'Questionnaire'
+            'Questionnaire',
+            'Bundle'
         ];
     }
 
