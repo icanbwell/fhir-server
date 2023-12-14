@@ -18,6 +18,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {ResourcePreparer} resourcePreparer
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
     constructor(
         {
@@ -29,7 +30,8 @@ class ResourcePreparerTransform extends Transform {
             signal,
             resourcePreparer,
             highWaterMark,
-            configManager
+            configManager,
+            response,
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -61,6 +63,10 @@ class ResourcePreparerTransform extends Transform {
          * @type {ResourcePreparer}
          */
         this.resourcePreparer = resourcePreparer;
+        /**
+         * @type {import('http').ServerResponse}
+         */
+        this.response = response;
 
         /**
          * @type {ConfigManager}
@@ -160,6 +166,8 @@ class ResourcePreparerTransform extends Transform {
                     ...error, message: `Error occurred while streaming response for chunk: ${chunk.id}`
                 },
             });
+            // this is an unexpected error so set statuscode 500
+            this.response.statusCode = 500;
             this.push(operationOutcome);
             callback();
         }

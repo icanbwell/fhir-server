@@ -19,6 +19,7 @@ class MongoReadableStream extends Readable {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
     constructor(
         {
@@ -26,7 +27,8 @@ class MongoReadableStream extends Readable {
             signal,
             databaseAttachmentManager,
             highWaterMark,
-            configManager
+            configManager,
+            response
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -56,6 +58,10 @@ class MongoReadableStream extends Readable {
          * @type {boolean}
          */
         this.isFetchingData = false; // Track if data is currently being fetched
+        /**
+         * @type {import('http').ServerResponse}
+         */
+        this.response = response;
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -131,6 +137,8 @@ class MongoReadableStream extends Readable {
                         message: 'Error occurred while streaming response',
                     }
                 });
+                // this is an unexpected error so set statuscode 500
+                this.response.statusCode = 500;
                 this.push(operationOutcome);
                 return;
             }

@@ -13,15 +13,15 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {string} contentType
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
-    constructor({signal, contentType, highWaterMark, configManager}) {
-        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark});
+    constructor({signal, contentType, highWaterMark, configManager, response}) {
+        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark, response});
         /**
          * @type {boolean}
          * @private
          */
         this._first = true;
-        this.push('[');
         /**
          * @type {AbortSignal}
          * @private
@@ -57,7 +57,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
-                    this.push(resourceJson, encoding);
+                    this.push('[' + resourceJson, encoding);
                 } else {
                     // add comma at the beginning to make it legal json
                     this.push(',' + resourceJson, encoding);
@@ -94,6 +94,10 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         if (this.configManager.logStreamSteps) {
             logInfo('FhirResourceWriter _flush', {});
         }
+        if (this._first) {
+            this._first = false;
+            this.push('[');
+        }
         // write ending json
         this.push(']');
         this.push(null);
@@ -110,7 +114,9 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         if (this._first) {
             // write the beginning json
             this._first = false;
-            this.push(operationOutcomeJson, encoding);
+            // this is an unexpected error so set statuscode 500
+            this.response.statusCode = 500;
+            this.push('[' + operationOutcomeJson, encoding);
         } else {
             // add comma at the beginning to make it legal json
             this.push(',' + operationOutcomeJson, encoding);
