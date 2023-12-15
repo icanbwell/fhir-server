@@ -1,0 +1,52 @@
+{
+    "resourceType": "Observation",
+    "id": "3158b5b8-3c3a-4438-9c81-211d824d174b",
+    "meta": {
+        "lastUpdated": "2021-12-15T15:30:30+00:00",
+        "source": "client-1",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client-1"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client-1"
+            },
+            {
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "client-1"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "hipaa"
+            }
+        ]
+    },
+    "status": "final",
+    "code": {
+        "coding": [
+            {
+                "system": "http://www.icanbwell.com/cql/library",
+                "code": "BMI001"
+            },
+            {
+                "system": "http://www.icanbwell.com/cql/libraryVersion",
+                "code": "1.0.0"
+            },
+            {
+                "system": "http://www.icanbwell.com/cql/rule",
+                "code": "InAgeCohort"
+            }
+        ]
+    },
+    "subject": {
+        "reference": "Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6"
+    },
+    "effectivePeriod": {
+        "start": "2021-01-01T00:00:00.000Z",
+        "end": "2021-12-31T00:00:00.000Z"
+    },
+    "issued": "2021-01-01T12:00:00Z",
+    "valueBoolean": false
+}

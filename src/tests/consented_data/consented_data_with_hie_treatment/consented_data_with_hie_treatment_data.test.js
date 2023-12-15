@@ -447,6 +447,31 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             expect(resp).toHaveStatusCode(400);
         });
 
+        test('Ref of proa patient & duplicate patient with source respective source assigning authority: Get Observations of both patients.', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send([masterPersonResource, masterPatientResource, clientPersonResource, clientPatientResource,
+                    proaPatientResource, clientObservationResource, proaObservationResource, hipaaObservationResource,
+                    consentGivenResource, proaObservation1Resource, hipaaPatientResource, hipaaObservation1Resource, proaIDPatientResource,
+                    proaIDObservationResource, duplicateClientPatientResource, duplicateClientObservationResource])
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation?patient=Patient/123456|proa,Patient/123456|client')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(2);
+            expect(respIds).toEqual(expect.arrayContaining([proaIDObservationResource.id, duplicateClientObservationResource.id]));
+        });
+
         test('Ref of client patient: Get observation of client patient only and not proa, even it has same ID.', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -469,7 +494,7 @@ describe('Consent Based Data Access Along With HIE Treatment Data Test', () => {
             const respIds = resp.body.map(item => item.id);
 
             expect(respIds.length).toEqual(1);
-            expect(respIds).toEqual(expect.arrayContaining([duplicateClientObservationResource.id]));
+            expect(respIds).toEqual([duplicateClientObservationResource.id]);
         });
 
         test('Ref of proa patient: Get observation of proa patient only and not client, even it has same ID.', async () => {

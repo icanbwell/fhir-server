@@ -38,7 +38,7 @@ const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const client_1Headers = getHeaders('user/*.read access/client_1.*');
 
-describe('Data Sharing Scenario - 2', () => {
+describe('Data sharing test cases for different scenarios', () => {
     const cursorSpy = jest.spyOn(DatabasePartitionedCursor.prototype, 'hint');
 
     beforeEach(async () => {
@@ -50,7 +50,7 @@ describe('Data Sharing Scenario - 2', () => {
         await commonAfterEach();
     });
 
-    describe('Data sharing test cases for different scenarios', () => {
+    describe('Data Sharing Scenario - 2', () => {
         test('Ref of master person: Get Client patient data only, no proa data as no consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
