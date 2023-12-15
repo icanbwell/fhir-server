@@ -84,9 +84,6 @@ class DataSharingManager {
      * @param {RewriteDataSharingQuery} param
      */
     async updateQueryConsideringDataSharing({ base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable,}) {
-        if (!parsedArgs) {
-            return query;
-        }
         assertTypeEquals(parsedArgs, ParsedArgs);
 
         /**
@@ -237,22 +234,19 @@ class DataSharingManager {
          * */
         const updatedParsedArgs = parsedArgs.clone();
 
-        /**@type {Set<string>} */
-        const argsToRemove = new Set();
-
         updatedParsedArgs
         .parsedArgItems
         .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
             // if property is related to patient
             if (
-                item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
+                item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient') && resourceType !== 'Patient'
             ) {
                 /**@type {string[]} */
                 const newQueryParameterValues = [];
 
                 // update the query-param values
                 item.references.forEach((ref) => {
-                    if (ref.resourceType === 'Patient') {
+                    if (!ref.resourceType || ref.resourceType === 'Patient') {
                         // Check if ref.id is uuid or sourceId.
                         if (isUuid(ref.id) && allowedPatientIds.has(ref.id)) {
                             newQueryParameterValues.push(`Patient/${ref.id}`);
@@ -263,27 +257,18 @@ class DataSharingManager {
                                 newQueryParameterValues.push(`Patient/${refUUID}`);
                             }
                         }
-                        // skip adding patient without consent
-                    } else if (ref.resourceType){
-                        // add the original reference
-                        newQueryParameterValues.push(ReferenceParser.createReference(ref));
                     }
                 });
 
-                if (newQueryParameterValues.length === 0) {
-                    // if all the ids doesn't have consent then remove the queryParam
-                    argsToRemove.add(item.queryParameter);
-                } else {
-                    // rebuild the query value
-                    const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
-                    const newQueryParameterValue = new QueryParameterValue({
-                        value: newValue,
-                        operator: item.queryParameterValue.operator,
-                    });
+                // rebuild the query value
+                const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
+                const newQueryParameterValue = new QueryParameterValue({
+                    value: newValue,
+                    operator: item.queryParameterValue.operator,
+                });
 
-                    // set the value
-                    item.queryParameterValue = newQueryParameterValue;
-                }
+                // set the value
+                item.queryParameterValue = newQueryParameterValue;
             } else if ((item.queryParameter === 'id' || item.queryParameter === '_id') && resourceType === 'Patient') {
                 const newQueryParameterValues = [];
                 item.queryParameterValue.values.forEach((id) => {
@@ -303,15 +288,8 @@ class DataSharingManager {
                     value: newValue,
                     operator: item.queryParameterValue.operator
                 });
-
-                if (newQueryParameterValues.length === 0) {
-                    argsToRemove.add(item.queryParameter);
-                }
             }
         });
-
-        // remove all empty args
-        argsToRemove.forEach((arg) => updatedParsedArgs.remove(arg));
 
         /**
          * Reconstructed query.
@@ -521,21 +499,21 @@ class DataSharingManager {
              * @type {string | null}
              */
             let patientId;
-            if (
-                // cover all the possible cases
-                (patient._uuid && (patientId = patient._uuid) && patientIdToCount.has(patientId)) ||
-                (patient._sourceId && patient._sourceAssigningAuthority && (patientId = `${patient._sourceId}|${patient._sourceAssigningAuthority}`) && patientIdToCount.has(patientId)) ||
-                (patient._sourceId && (patientId = patient._sourceId) && patientIdToCount.has(patientId))
-            ) {
-                let count = patientIdToCount.get(patientId) + 1;
-                // this means duplicate resource is present
-                if (count > 1) {
-                    idsWithMultipleResourcesSet.add(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
-                }
-
-                // update the count
-                patientIdToCount.set(patientId, count);
+            // cover all the possible cases
+            if (patient._uuid && patientIdToCount.has(patient._uuid)) {
+                patientId = patient._uuid;
+            } else {
+                patientId = patient._sourceId;
             }
+
+            let count = patientIdToCount.get(patientId) + 1;
+            // this means duplicate resource is present
+            if (count > 1) {
+                idsWithMultipleResourcesSet.add(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
+            }
+
+            // update the count
+            patientIdToCount.set(patientId, count);
         });
 
         /**@type {string[]} */

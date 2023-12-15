@@ -16,6 +16,8 @@ const proaObservationResource = require('./fixtures/observation/proa_observation
 const proaPatient1Resource = require('./fixtures/patient/proa_patient1.json');
 const proaObservation1Resource = require('./fixtures/observation/proa_observation1.json');
 
+const activityDefinitionResource = require('./fixtures/activity_definition/activity_definition_resource.json');
+
 const consentGivenResource = require('./fixtures/consent/consent_given.json');
 const consentDeniedResource = require('./fixtures/consent/consent_denied.json');
 
@@ -27,7 +29,6 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
-
 
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client1.*');
@@ -579,6 +580,42 @@ describe('Data sharing test cases for different scenarios', () => {
 
             expect(respIds.length).toEqual(1);
             expect(respIds).toEqual([proaObservation1Resource.id]);
+        });
+
+        test('Search for ActivityDefinition resource which is not a patient related resource', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request.post('/4_0_0/ActivityDefinition/$merge').send([activityDefinitionResource]).set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/ActivityDefinition')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(1);
+        });
+
+        test('Search for Observation resource without patient in query param', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+
+            // Add the resources to FHIR server
+            let resp = await request.post('/4_0_0/ActivityDefinition/$merge').send([clientObservationResource]).set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation')
+                .set(headers);
+            const respIds = resp.body.map(item => item.id);
+
+            expect(respIds.length).toEqual(1);
         });
     });
 });
