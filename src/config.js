@@ -175,7 +175,6 @@ delete accessLogsQueryParams['w'];
 accessLogsMongoConfig.options = {
     ...options,
     ...accessLogsQueryParams,
-    useUnifiedTopology: true,
     writeConcern: { w: accessLogsWriteConcern },
     maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
     minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1,
