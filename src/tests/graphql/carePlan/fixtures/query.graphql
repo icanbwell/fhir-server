@@ -34,6 +34,16 @@ query {
                         }
                     }
                 }
+                careTeam {
+                    ... on CareTeam {
+                        extension {
+                            id
+                            url
+                            valueString
+                            valueUri
+                        }
+                    }
+                }
             }
         }
     }
