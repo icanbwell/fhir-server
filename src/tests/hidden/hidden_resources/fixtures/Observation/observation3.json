@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "source": "http://medstarhealth.org/provider",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "medstar"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "vital-signs",
+          "display": "Vital Signs",
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "code": "8310-5",
+        "display": "Body temperature",
+        "system": "http://loinc.org"
+      }
+    ],
+    "text": "Body temperature"
+  },
+  "effectiveDateTime": "2023-12-12T08:00:00+00:00",
+  "id": "3",
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "display": "Example Patient",
+    "reference": "Patient/example"
+  },
+  "valueQuantity": {
+    "code": "[degF]",
+    "system": "http://unitsofmeasure.org",
+    "unit": "F",
+    "value": 98.59999999999994
+  }
+}

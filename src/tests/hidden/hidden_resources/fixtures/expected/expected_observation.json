@@ -1,0 +1,155 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8302-2",
+              "display": "Body height",
+              "system": "http://loinc.org"
+            }
+          ]
+        },
+        "id": "1",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "18ba3527-77e0-5ae6-a872-181654110d28"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://medstarhealth.org/provider",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "valueQuantity": {
+          "code": "[in_i]",
+          "system": "http://unitsofmeasure.org",
+          "unit": "inch",
+          "value": 70.00000000000001
+        }
+      }
+    },
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "vital-signs",
+                "display": "Vital Signs",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "code": "8310-5",
+              "display": "Body temperature",
+              "system": "http://loinc.org"
+            }
+          ],
+          "text": "Body temperature"
+        },
+        "effectiveDateTime": "2023-12-12T08:00:00+00:00",
+        "id": "3",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "3"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c1468873-33ed-5f95-973a-472fd4fa93a2"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://medstarhealth.org/provider",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "display": "Example Patient",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/example"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/3d12cb9a-a247-572d-a029-98a1b8df6d20"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
+          "reference": "Patient/example"
+        },
+        "valueQuantity": {
+          "code": "[degF]",
+          "system": "http://unitsofmeasure.org",
+          "unit": "F",
+          "value": 98.59999999999994
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
