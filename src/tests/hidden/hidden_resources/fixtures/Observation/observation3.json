@@ -10,6 +10,14 @@
         "system": "https://www.icanbwell.com/owner",
         "code": "medstar"
       }
+    ],
+    "tag": [
+      {
+        "code": "not-hidden",
+        "display": "Not Hidden",
+        "id": "not-hidden",
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+      }
     ]
   },
   "category": [

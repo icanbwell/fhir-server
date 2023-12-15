@@ -115,6 +115,14 @@
             }
           ],
           "source": "http://medstarhealth.org/provider",
+          "tag": [
+            {
+              "code": "not-hidden",
+              "display": "Not Hidden",
+              "id": "not-hidden",
+              "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+            }
+          ],
           "versionId": "1"
         },
         "resourceType": "Observation",
