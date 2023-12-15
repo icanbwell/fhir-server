@@ -47,7 +47,10 @@
               "valueUri": null
             }
           ]
-        }
+        },
+        "careTeam": [
+            null
+        ]
     },
     {
         "activity": [
@@ -94,7 +97,10 @@
             }
           ]
         },
-        "author": null
+        "author": null,
+        "careTeam": [
+            null
+        ]
     },
     {
         "activity": [
@@ -126,7 +132,19 @@
             "start": "2020-02-29T21:35:29-05:00"
         },
         "encounter": null,
-        "author": null
+        "author": null,
+        "careTeam": [
+           {
+            "extension": [
+                {
+                    "id": "referenceDisplay",
+                    "url": "https://www.icanbwell.com/referenceDisplay",
+                    "valueString": "Care team display",
+                    "valueUri": null
+                }
+            ]
+           } 
+        ]
     },
     {
         "activity": [
@@ -172,7 +190,10 @@
             "start": "1974-02-07T21:21:20-04:00"
         },
         "encounter": null,
-        "author": null
+        "author": null,
+        "careTeam": [
+            null
+        ]
     },
     {
         "activity": [
@@ -204,6 +225,9 @@
             "start": "1982-03-25T20:21:20-05:00"
         },
         "encounter": null,
-        "author": null
+        "author": null,
+        "careTeam": [
+            null
+        ]
     }
 ]
