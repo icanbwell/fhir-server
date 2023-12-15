@@ -140,7 +140,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         };
 
         if (!this.dryRun) {
-            await this.adminLogger.logInfo(`Deleting data graph for ${resource}/${uuid}`);
+            this.adminLogger.logInfo(`Deleting data graph for ${resource}/${uuid}`);
         }
 
         let bundleEntries;
@@ -166,7 +166,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             if (this.dryRun) {
                 this.writeStream.write(`\t"/4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true",\n`);
             }
-            await this.adminLogger.logInfo(
+            this.adminLogger.logInfo(
                 this.dryRun ?
                     `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true` :
                     `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}`
@@ -193,7 +193,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 }
             });
         } else {
-            await this.adminLogger.logInfo(`${resource} with _uuid: ${uuid} doesn't exists`);
+            this.adminLogger.logInfo(`${resource} with _uuid: ${uuid} doesn't exists`);
         }
     }
 
@@ -211,7 +211,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                  * @type {string}
                  */
                 const resource = collectionName.replace('_4_0_0', '');
-                await this.adminLogger.logInfo(
+                this.adminLogger.logInfo(
                     this.dryRun ?
                     `Printing Everything url for ${resource} resource` :
                     `Starting loop for ${resource} resource`
@@ -226,29 +226,29 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                     );
                 }
                 if (!this.dryRun) {
-                    await this.adminLogger.logInfo(`Finished loop for ${resource} resource`);
+                    this.adminLogger.logInfo(`Finished loop for ${resource} resource`);
                 }
             }
-            if (this.dryRun) {
-                await this.adminLogger.logInfo(`To be deleted count: ${Array.from(this.resourceDeletedCount)}`);
+            if (!this.dryRun) {
+                this.adminLogger.logInfo(`Deleted count: ${Array.from(this.resourceDeletedCount)}`);
+                this.adminLogger.logInfo(`Updated count: ${Array.from(this.resourceUpdatedCount)}`);
             } else {
-                await this.adminLogger.logInfo(`Deleted count: ${Array.from(this.resourceDeletedCount)}`);
-                await this.adminLogger.logInfo(`Updated count: ${Array.from(this.resourceUpdatedCount)}`);
+                this.adminLogger.logInfo(`To be deleted count: ${Array.from(this.resourceDeletedCount)}`);
             }
             if (this.dryRun) {
                 this.writeStream.write(']\n');
             }
-            await this.adminLogger.logInfo('Finished script');
-            await this.adminLogger.logInfo('Shutting down');
+            this.adminLogger.logInfo('Finished script');
+            this.adminLogger.logInfo('Shutting down');
             await this.shutdown();
-            await this.adminLogger.logInfo('Shutdown finished');
+            this.adminLogger.logInfo('Shutdown finished');
 
             if (this.dryRun) {
                 this.writeStream.close();
                 return new Promise(resolve => this.writeStream.on('close', resolve));
             }
         } catch (e) {
-            await this.adminLogger.logError(`ERROR: ${e.message} ${e.stack}`);
+            this.adminLogger.logError(`ERROR: ${e.message} ${e.stack}`);
         }
     }
 }
