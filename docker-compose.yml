@@ -9,9 +9,6 @@ services:
       dockerfile: Dockerfile
       args:
         NODE_ENV: development
-    env_file:
-      - .env
-    #        mem_limit: 1g  # Set a memory limit of 1GB
     environment:
       SERVER_PORT: 3000
       MONGO_DB_NAME: fhir
@@ -85,7 +82,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:5.0.18
+    image: mongo:5.0.23
     ports:
       - '27017:27017'
     environment:
@@ -103,7 +100,7 @@ services:
   #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
 
   zookeeper:
-    image: 'docker.io/bitnami/zookeeper:3.8.0'
+    image: zookeeper:3.9.1
     ports:
       - '2181:2181'
     environment:
@@ -113,7 +110,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: 'docker.io/bitnami/kafka:3.2.1'
+    image: bitnami/kafka:3.5.2
     ports:
       - '9092:9092'
     environment:
@@ -137,17 +134,17 @@ services:
           '--list',
         ]
 
-  kafkaUI:
-    image: 'obsidiandynamics/kafdrop:3.30.0'
-    ports:
-      - '9000:9000'
-    environment:
-      - KAFKA_BROKERCONNECT=kafka:9092
-      - 'JVM_OPTS=-Xms32M -Xmx64M'
-      - SERVER_SERVLET_CONTEXTPATH=/
+#  kafkaUI:
+  #    image: obsidiandynamics/kafdrop:4.0.1
+  #    ports:
+  #      - '9000:9000'
+  #    environment:
+  #      - KAFKA_BROKERCONNECT=kafka:9092
+  #      - 'JVM_OPTS=-Xms32M -Xmx64M'
+  #      - SERVER_SERVLET_CONTEXTPATH=/
 
   hapi-fhir-server:
-    image: hapiproject/hapi:v6.6.0
+    image: hapiproject/hapi:v6.10.1
     ports:
       - "3001:8080"
 
@@ -155,7 +152,7 @@ services:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
     # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
     # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch:2.9.0
+    image: opensearchproject/opensearch:2.11.1
     container_name: elasticsearch
     environment:
       - cluster.name=odfe-cluster

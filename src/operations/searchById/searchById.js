@@ -15,7 +15,7 @@ const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 class SearchByIdOperation {
@@ -244,6 +244,9 @@ class SearchByIdOperation {
                         }
                     )
                 )[0];
+                if (!resource) {
+                    throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
+                }
                 if (resourceType !== 'AuditEvent') {
                     this.postRequestProcessor.add({
                         requestId,
@@ -291,5 +294,3 @@ class SearchByIdOperation {
 module.exports = {
     SearchByIdOperation
 };
-
-

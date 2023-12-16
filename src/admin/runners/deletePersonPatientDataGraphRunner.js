@@ -82,7 +82,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
 
         if (this.dryRun) {
             /**
-             * @type {require('fs').writeStream}
+             * @type {import('fs').writeStream}
              */
             this.writeStream = fs.createWriteStream(`everythingLinks-${generateUUID()}.txt`, { flags: 'w' });
 
@@ -229,11 +229,11 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                     this.adminLogger.logInfo(`Finished loop for ${resource} resource`);
                 }
             }
-            if (!this.dryRun) {
+            if (this.dryRun) {
+                this.adminLogger.logInfo(`To be deleted count: ${Array.from(this.resourceDeletedCount)}`);
+            } else {
                 this.adminLogger.logInfo(`Deleted count: ${Array.from(this.resourceDeletedCount)}`);
                 this.adminLogger.logInfo(`Updated count: ${Array.from(this.resourceUpdatedCount)}`);
-            } else {
-                this.adminLogger.logInfo(`To be deleted count: ${Array.from(this.resourceDeletedCount)}`);
             }
             if (this.dryRun) {
                 this.writeStream.write(']\n');

@@ -7,11 +7,11 @@ class AdminLogger {
         this.logger.defaultMeta = { ...parentLogger.defaultMeta, logger: 'admin' };
     }
 
-    async logInfo(message, args) {
+    logInfo(message, args) {
         this.logger.info(message, args);
     }
 
-    async logError(message, args) {
+    logError(message, args) {
         this.logger.error(message, args);
     }
 }
