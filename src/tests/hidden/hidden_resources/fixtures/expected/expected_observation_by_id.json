@@ -1,0 +1,68 @@
+{
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "vital-signs",
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "code": "8302-2",
+        "display": "Body height",
+        "system": "http://loinc.org"
+      }
+    ]
+  },
+  "id": "2",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "2"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "034ef9e0-007c-54a7-a0be-a06db20b9ea9"
+    }
+  ],
+  "meta": {
+    "security": [
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://medstarhealth.org/provider",
+    "tag": [
+      {
+        "code": "hidden",
+        "display": "Hidden",
+        "id": "hidden",
+        "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/server-behavior"
+      }
+    ],
+    "versionId": "1"
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "valueQuantity": {
+    "code": "cm",
+    "system": "http://unitsofmeasure.org",
+    "unit": "cm",
+    "value": 177.8
+  }
+}

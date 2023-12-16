@@ -274,7 +274,7 @@
     },
     "careTeam": [
       {
-        "reference": "CareTeam/69ec5d17-8402-626e-8044-035dcb92dfbb"
+        "display": "Care team display"
       }
     ],
     "addresses": [
