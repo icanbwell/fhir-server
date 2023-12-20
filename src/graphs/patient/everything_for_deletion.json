@@ -48,14 +48,6 @@
     {
       "target": [
         {
-          "type": "AuditEvent",
-          "params": "patient={ref}"
-        }
-      ]
-    },
-    {
-      "target": [
-        {
           "type": "Basic",
           "params": "patient={ref}"
         }
