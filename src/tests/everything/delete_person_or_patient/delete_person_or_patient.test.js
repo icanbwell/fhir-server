@@ -8,6 +8,7 @@ const patient2Resource = require('./fixtures/Patient/patient2.json');
 
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
+const unlinkedObservationResource = require('./fixtures/Observation/unlinked_observation.json');
 
 // expected
 const expectedPatientDeletedResources = require('./fixtures/expected/expected_Patient_deleted.json');
@@ -80,6 +81,12 @@ describe('Delete Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(unlinkedObservationResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // First get patient everything
@@ -98,6 +105,13 @@ describe('Delete Person and Patient $everything Tests', () => {
             // make sure the topLevel Person is not deleted
             resp = await request
                 .get('/4_0_0/Person/personTopLevel')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
+            // make sure the unlinked observation is not deleted
+            resp = await request
+                .get('/4_0_0/Observation/unlinked-observation')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);

@@ -1,16 +1,16 @@
 {
     "resourceType": "Patient",
-    "id": "patient2",
+    "id": "patient3",
     "meta": {
         "source": "http://healthsystem1health.org/provider",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "healthsystem2"
+                "code": "healthsystem1"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "healthsystem2"
+                "code": "healthsystem1"
             }
         ]
     },
@@ -21,9 +21,19 @@
             "use": "usual",
             "text": "t",
             "family": "PATIENT1",
-            "given": ["SHYLA"],
+            "given": [
+                "SHYLA"
+            ],
             "prefix": [],
             "suffix": []
+        }
+    ],
+    "link": [
+        {
+            "other": {
+                "reference": "Patient/patient1|healthsystem1"
+            },
+            "type": "seealso"
         }
     ]
 }
