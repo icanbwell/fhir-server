@@ -1,0 +1,12 @@
+{
+    "resourceType": "SubscriptionTopic",
+    "id": "1",
+    "meta": {
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "abcd"
+            }
+        ]
+    }
+}
