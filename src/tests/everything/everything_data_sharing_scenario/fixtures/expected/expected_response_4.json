@@ -1,0 +1,46 @@
+{
+    "entry": [],
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "timestamp": "2023-12-21T05:57:17.1717Z",
+    "total": 0,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Person/c12345/$everything"
+        }
+    ],
+    "meta": {
+        "tag": [
+            {
+                "display": "db.Person_4_0_0.find({'$and':[{'_sourceId':'c12345'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'health-service'}}}]}, {'_id':0}) ",
+                "system": "https://www.icanbwell.com/query"
+            },
+            {
+                "code": "Person_4_0_0",
+                "system": "https://www.icanbwell.com/queryCollection"
+            },
+            {
+                "display": "[{'projection':{'_id':0}}]",
+                "system": "https://www.icanbwell.com/queryOptions"
+            },
+            {
+                "display": "[]",
+                "system": "https://www.icanbwell.com/queryFields"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime"
+            },
+            {
+                "display": "{'useTwoStepSearchOptimization':undefined}",
+                "system": "https://www.icanbwell.com/queryOptimization"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple"
+            }
+        ]
+    }
+}

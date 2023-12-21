@@ -1,0 +1,157 @@
+{
+    "entry": [
+        {
+            "id": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2023-12-21T06:59:31.000Z",
+                    "source": "health-service-1",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "health-service-1"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "health-service-1"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "health-service-1"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                    }
+                ],
+                "name": [
+                    {
+                        "use": "usual",
+                        "text": "t",
+                        "family": "PATIENT1",
+                        "given": [
+                            "SHYLA"
+                        ]
+                    }
+                ],
+                "gender": "female",
+                "birthDate": "2017-01-01"
+            }
+        },
+        {
+            "id": "b59f86b9-5307-506a-bb6c-3eb555ace5o2",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "b59f86b9-5307-506a-bb6c-3eb555ace5o2",
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2023-12-21T06:59:31.000Z",
+                    "source": "/patients",
+                    "security": [
+                        {
+                            "system": "https://www.icanbwell.com/owner",
+                            "code": "health-service-1"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/access",
+                            "code": "health-service-1"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/vendor",
+                            "code": "health-service-1"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/connectionType",
+                            "code": "proa"
+                        },
+                        {
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "code": "health-service-1"
+                        }
+                    ]
+                },
+                "identifier": [
+                    {
+                        "id": "sourceId",
+                        "system": "https://www.icanbwell.com/sourceId",
+                        "value": "b59f86b9-5307-506a-bb6c-3eb555ace5o2"
+                    },
+                    {
+                        "id": "uuid",
+                        "system": "https://www.icanbwell.com/uuid",
+                        "value": "87a16982-ea4c-5008-9981-3f1470bd254f"
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://www.icanbwell.com/cql/library",
+                            "code": "BMI001"
+                        },
+                        {
+                            "system": "http://www.icanbwell.com/cql/libraryVersion",
+                            "code": "1.0.0"
+                        },
+                        {
+                            "system": "http://www.icanbwell.com/cql/rule",
+                            "code": "InAgeCohort"
+                        }
+                    ]
+                },
+                "subject": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "health-service-1"
+                        }
+                    ],
+                    "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                },
+                "effectivePeriod": {
+                    "start": "2021-01-01T00:00:00.000Z",
+                    "end": "2021-12-31T00:00:00.000Z"
+                },
+                "issued": "2021-01-01T12:00:00Z",
+                "valueBoolean": false
+            }
+        }
+    ],
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "timestamp": "2023-12-21T06:59:49.4949Z",
+    "total": 2,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8/$everything"
+        }
+    ]
+}
