@@ -1450,15 +1450,15 @@ class GraphHelper {
                         );
                     }
                 }
-                /**
-                 * @type {string[]}
-                 */
-                const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
-                bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
-                    e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
-                        accessCodes, requestInfo.user, requestInfo.scope, e.resource
-                    )
-                );
+                // /**
+                //  * @type {string[]}
+                //  */
+                // const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+                // bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
+                //     e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                //         accessCodes, requestInfo.user, requestInfo.scope, e.resource
+                //     )
+                // );
 
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
