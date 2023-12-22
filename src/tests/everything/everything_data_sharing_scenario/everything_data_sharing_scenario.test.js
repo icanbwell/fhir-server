@@ -355,7 +355,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ch7/$everything?_debug=true')
+                .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
@@ -380,7 +380,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ch7/$everything?_debug=true')
+                .get('/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything?_debug=true')
                 .set(healthService2Header);
 
             // noinspection JSUnresolvedFunction

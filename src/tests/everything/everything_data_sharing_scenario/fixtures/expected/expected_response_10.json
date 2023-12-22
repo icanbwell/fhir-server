@@ -7,13 +7,13 @@
     "link": [
         {
             "relation": "self",
-            "url": "http://localhost:3000/4_0_0/Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ch7/$everything"
+            "url": "http://localhost:3000/4_0_0/Patient/d4c639de-f892-5b89-a63c-f64f0f2d69d1/$everything"
         }
     ],
     "meta": {
         "tag": [
             {
-                "display": "db.Patient_4_0_0.find({'$and':[{'_sourceId':'bb7862e6-b7ac-470e-bde3-e85cee9d1ch7'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {'_id':0}) ",
+                "display": "db.Patient_4_0_0.find({'$and':[{'_uuid':'d4c639de-f892-5b89-a63c-f64f0f2d69d1'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {'_id':0}) ",
                 "system": "https://www.icanbwell.com/query"
             },
             {
