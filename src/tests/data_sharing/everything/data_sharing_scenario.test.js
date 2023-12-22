@@ -68,7 +68,7 @@ describe('Data sharing test cases for different scenarios', () => {
     });
 
     describe('Data Sharing Scenario for everything endpoint', () => {
-        test('Everything operation on client person: Get client data only, & not proa & hie patient data, even when consent not provided', async () => {
+        test('Everything operation on client person: Get client & hie data only & no proa data. when consent not provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -92,7 +92,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse1Resource);
         });
 
-        test('Everything operation on client person: Get client data only, & not proa & hie patient data, when consent denied provided', async () => {
+        test('Everything operation on client person: Get client and hie data only, & no proa data, when consent denied', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -116,7 +116,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse2Resource);
         });
 
-        test('Everything operation on client person: Get client data only, & not proa & hie patient data, even when consent provided', async () => {
+        test('Everything operation on client person: Get client, proa & hie patient data, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -238,7 +238,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse6Resource);
         });
 
-        test('Everything operation on proa patient-1: Get linked client person only, with different access token, only when consent provided', async () => {
+        test('Everything operation on proa patient-1: Get linked client person and prod data, when consent provided', async () => {
             // Here access token 'client' is provided & consent is provided. So even we are fetching proa patient, we get linked client person.
             // If consent is not provided here, then this client person would not come.
             const request = await createTestRequest((c) => {
@@ -289,7 +289,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse8Resource);
         });
 
-        test('Everything operation on proa patient-2: Get linked client person only, with different access token, even consent provided', async () => {
+        test('Everything operation on proa patient-2: Get linked client person and proa data, with different access token and consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -338,7 +338,7 @@ describe('Data sharing test cases for different scenarios', () => {
             expect(resp).toHaveResponse(expectedResponse9Resource);
         });
 
-        test('Everything operation on hie/treatment patient: Get linked client person only, with different access token, even consent provided', async () => {
+        test('Everything operation on hie/treatment patient: Get linked client person and hie data, with different access token, when consent provided', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
