@@ -145,6 +145,9 @@ services:
 
   hapi-fhir-server:
     image: hapiproject/hapi:v6.10.1
+    container_name: hapi-fhir-server
+    environment:
+      - hapi.fhir.enable_repository_validating_interceptor=true
     ports:
       - "3001:8080"
 
