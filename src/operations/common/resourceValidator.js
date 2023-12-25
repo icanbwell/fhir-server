@@ -15,9 +15,10 @@ const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structur
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const { BadRequestError } = require('../../utils/httpErrors');
-const { logError } = require('./logging');
-const { RethrownError } = require('../../utils/rethrownError');
+const {BadRequestError} = require('../../utils/httpErrors');
+const {logError} = require('./logging');
+const {RethrownError} = require('../../utils/rethrownError');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 
 class ResourceValidator {
     /**
@@ -160,7 +161,7 @@ class ResourceValidator {
 
         if (profile) {
             // save profile in remote server
-            await this.upsertProfileInRemoteServer({ profile });
+            await this.upsertProfileInRemoteServer({profile});
         }
 
         // upsert profiles contained in metaProfiles
@@ -169,7 +170,19 @@ class ResourceValidator {
              * @type {string[]}
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
-            await this.upsertProfileInRemoteServer({ profile: metaProfiles, resourceType: resourceToValidateJson.resourceType });
+            await this.upsertProfileInRemoteServer({
+                profile: metaProfiles,
+                resourceType: resourceToValidateJson.resourceType
+            });
+        }
+        if (!resourceToValidateJson.meta) {
+            resourceToValidateJson.meta = {};
+        }
+        if (!resourceToValidateJson.meta.profile) {
+            resourceToValidateJson.meta.profile = [];
+        }
+        if (profile && !resourceToValidateJson.meta.profile.includes(profile)) {
+            resourceToValidateJson.meta.profile.push(profile);
         }
 
         /**
@@ -191,9 +204,9 @@ class ResourceValidator {
         if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
             operationOutcome.issue = new OperationOutcomeIssue({
                 'code': 'informational',
-                'details': {
+                'details': new CodeableConcept({
                     'text': 'OK'
-                },
+                }),
                 'expression': [
                     'Practitioner'
                 ],
@@ -209,7 +222,7 @@ class ResourceValidator {
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer({ profile, resourceType }) {
+    async upsertProfileInRemoteServer({profile, resourceType}) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
@@ -219,9 +232,9 @@ class ResourceValidator {
         /**
          * Upsert profile in HAPI Fhir
          */
-        const updateRemoteFhirProfileTask = async ({ profileJson }) => {
+        const updateRemoteFhirProfileTask = async ({profileJson}) => {
             try {
-                await this.remoteFhirValidator.updateProfileAsync({ profileJson });
+                await this.remoteFhirValidator.updateProfileAsync({profileJson});
             } catch (error) {
                 logError(
                     `Error occurred while updating profile in hapi server with id: '${profileJson.id}'`,
@@ -254,23 +267,23 @@ class ResourceValidator {
          * @type {{ location: string, profile: string }[]}
          */
         let invalidProfileUrls = [];
-        const fetchProfileFromUrl = async ({ profileUrl, index }) => {
+        const fetchProfileFromUrl = async ({profileUrl, index}) => {
             /**
              * @type {{[k: string]: any} | null}
              */
             const profileJson = await this.remoteFhirValidator
-                .fetchProfileAsync({ url: profileUrl })
+                .fetchProfileAsync({url: profileUrl})
                 .catch((error) => {
                     if (error.response && error.response.status === 404) {
                         // push error if 404
-                        if (!resourceType) {
+                        if (resourceType) {
                             invalidProfileUrls.push({
-                                location: 'profile',
+                                location: `${resourceType}.meta.profile[${index}]`,
                                 profile: profileUrl,
                             });
                         } else {
                             invalidProfileUrls.push({
-                                location: `${resourceType}.meta.profile[${index}]`,
+                                location: 'profile',
                                 profile: profileUrl,
                             });
                         }
@@ -282,12 +295,12 @@ class ResourceValidator {
                 });
 
             if (profileJson) {
-                const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
+                const profileResourceNew = this.createProfileResourceFromJson({profileJson});
                 await databaseUpdateManager.replaceOneAsync({
                     doc: profileResourceNew,
                 });
 
-                profileJsonToUpdate.push({ profileJson: profileResourceNew.toJSON(), profileUrl });
+                profileJsonToUpdate.push({profileJson: profileResourceNew.toJSON(), profileUrl});
             }
         };
 
@@ -301,7 +314,7 @@ class ResourceValidator {
 
         // check if profile already exist in database
         const cursor = await databaseQueryManager.findAsync({
-            query: { url: { $in: profiles } },
+            query: {url: {$in: profiles}},
         });
 
         while (await cursor.hasNext()) {
@@ -310,7 +323,7 @@ class ResourceValidator {
              */
             const profileJson = await cursor.next();
             const profileUrl = profileJson.url;
-            profileJsonToUpdate.push({ profileJson: profileJson.toJSON(), profileUrl });
+            profileJsonToUpdate.push({profileJson: profileJson.toJSON(), profileUrl});
             profilesToFetchFromRemote.delete(profileUrl);
         }
 
@@ -319,7 +332,7 @@ class ResourceValidator {
 
         // concurrently load the profiles form their url
         await async.eachLimit(
-            Array.from(profilesToFetchFromRemote).map((p, index) => ({ profileUrl: p, index })),
+            Array.from(profilesToFetchFromRemote).map((p, index) => ({profileUrl: p, index})),
             concurrencyLimit,
             fetchProfileFromUrl
         );
@@ -341,7 +354,7 @@ class ResourceValidator {
      * @param {{ profileJson: Record<string, any>}} params
      * @returns {StructureDefinition}
      */
-    createProfileResourceFromJson({ profileJson }) {
+    createProfileResourceFromJson({profileJson}) {
         const profileResourceNew = new StructureDefinition(profileJson);
         if (!profileResourceNew.meta) {
             profileResourceNew.meta = new Meta({});
