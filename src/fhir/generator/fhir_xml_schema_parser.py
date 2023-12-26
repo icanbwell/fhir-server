@@ -13,13 +13,25 @@ from lxml.objectify import ObjectifiedElement
 
 @dataclasses.dataclass
 class SmartName:
+    """
+    This class is used to store multiple name representations of a FHIR entity
+    """
+
+    # the original name
     name: str
+    # the cleaned name
     cleaned_name: str
+    # the name in snake case
     snake_case_name: str
 
 
 @dataclasses.dataclass
 class FhirValueSetConcept:
+    """
+    This class stores a value set concept
+
+    """
+
     code: str
     display: Optional[str]
     cleaned_display: Optional[str]
@@ -30,11 +42,20 @@ class FhirValueSetConcept:
 
 @dataclasses.dataclass
 class FhirValueSet:
+    """
+    This class stores a value set
+    """
+
     id_: str
+    # original name
     name: str
+    # name in fhir schema
     fhir_name: str
+    # name formatted in snake case
     name_snake_case: str
+    # name cleaned for use in javascript
     cleaned_name: str
+    # list of concepts associated with this valueset
     concepts: List[FhirValueSetConcept]
     url: str
     value_set_url: str
@@ -45,6 +66,10 @@ class FhirValueSet:
 
 @dataclasses.dataclass
 class FhirCodeableType:
+    """
+    This class represents a codeable type
+    """
+
     codeable_type: str
     path: str
     codeable_type_url: str
@@ -53,12 +78,21 @@ class FhirCodeableType:
 
 @dataclasses.dataclass
 class FhirReferenceType:
+    """
+    This class represents a reference type
+    """
+
+    # list of resources that can be the target of this reference
     target_resources: List[str]
     path: str
 
 
 @dataclasses.dataclass
 class FhirProperty:
+    """
+    This class represents a property of a FHIR entity
+    """
+
     name: str
     fhir_name: str
     javascript_clean_name: str
@@ -69,8 +103,11 @@ class FhirProperty:
     is_list: bool
     documentation: List[str]
     fhir_type: Optional[str]
+
+    # if this property is a reference, this is the list of target resources
     reference_target_resources: List[SmartName]
     reference_target_resources_names: List[str]
+
     is_back_bone_element: bool
     is_basic_type: bool
     codeable_type: Optional[SmartName]
@@ -84,6 +121,14 @@ class FhirProperty:
 
 @dataclasses.dataclass
 class FhirEntity:
+    """
+    This class stores a fhir entity which can be:
+    1. Resource
+    2. Backbone Element
+    3. Complex Type
+
+    """
+
     fhir_name: str
     cleaned_name: str
     name_snake_case: str
@@ -95,7 +140,10 @@ class FhirEntity:
     base_type_list: List[str]
     source: str
     is_value_set: bool = False
+
+    # if this entity is a value set, this is the list of concepts
     value_set_concepts: Optional[List[FhirValueSetConcept]] = None
+
     value_set_url: Optional[str] = None
     is_basic_type: bool = False
     value_set_url_list: Optional[Set[str]] = None
@@ -113,6 +161,11 @@ logger = logging.getLogger(__name__)
 
 
 class FhirXmlSchemaParser:
+    """
+    This class parses the FHIR XML schema and generates the FHIR classes
+
+    """
+
     cleaned_type_mapping: Dict[str, str] = {
         "boolean": "Boolean",
         # "date": "date",
@@ -161,6 +214,13 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def camel_to_snake(name: str) -> str:
+        """
+        Converts a camel case name to snake case
+
+
+        :param name: original name
+        :return: converted name
+        """
         # name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
         # return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
         # format for node.js
@@ -168,27 +228,36 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def generate_classes(filter_to_resource: Optional[str] = None) -> List[FhirEntity]:
+        """
+        Generates the FHIR classes from the FHIR XML schema
+
+
+        :param filter_to_resource: (Optional) If set, only generate classes for this resource
+        :return:
+        """
         data_dir: Path = Path(__file__).parent.joinpath("./")
         fhir_entities: List[FhirEntity] = []
 
-        # first read fhir-all.xsd to get a list of resources
+        # first read fhir-all.xsd to get a list of resource_file_names
         fhir_xsd_all_file: Path = (
             data_dir.joinpath("xsd")
             .joinpath("definitions.xml")
             .joinpath("fhir-all-xsd")
             .joinpath("fhir-all.xsd")
         )
-        resources: List[str] = ["fhir-base.xsd"]
+        resource_file_names: List[str] = ["fhir-base.xsd"]
 
+        # read the fhir-all.xsd file to get a list of file names for the resource_file_names
         with open(fhir_xsd_all_file, "rb") as file:
             contents = file.read()
             root: ObjectifiedElement = objectify.fromstring(contents)
             resource_item: ObjectifiedElement
             for resource_item in root["include"]:
-                resources.append(resource_item.get("schemaLocation"))
+                resource_file_names.append(resource_item.get("schemaLocation"))
 
+        # Now read each resource file
         resource_xsd_file_name: str
-        for resource_xsd_file_name in resources:
+        for resource_xsd_file_name in resource_file_names:
             if (
                     filter_to_resource
                     and not resource_xsd_file_name.startswith(filter_to_resource)
@@ -201,10 +270,12 @@ class FhirXmlSchemaParser:
                 .joinpath("fhir-all-xsd")
                 .joinpath(resource_xsd_file_name)
             )
+            # generate resource entity classes from the resource file
             fhir_entities.extend(
                 FhirXmlSchemaParser._generate_classes_for_resource(resource_xsd_file)
             )
 
+        # now the resource entity classes have been generated, we can do some post processing
         for fhir_entity in fhir_entities:
             logger.info(f"2nd pass: setting flags on {fhir_entity.fhir_name}")
             if fhir_entity.fhir_name == "Resource":
@@ -219,6 +290,7 @@ class FhirXmlSchemaParser:
             if fhir_entity.type_
         }
 
+        # set types on properties that are not set
         for fhir_entity in fhir_entities:
             logger.info(f"3rd pass: setting property types on {fhir_entity.fhir_name}")
             # set types on properties that are not set
@@ -240,6 +312,7 @@ class FhirXmlSchemaParser:
                     fhir_property.is_resource = property_fhir_entity.is_resource
                     fhir_property.is_extension = property_fhir_entity.is_extension
 
+        # now set the base types
         for fhir_entity in fhir_entities:
             logger.info(
                 f"4th pass: inheriting properties from base {fhir_entity.fhir_name}"
@@ -266,9 +339,10 @@ class FhirXmlSchemaParser:
                     if "Resource" in fhir_entity.base_type_list:
                         fhir_entity.is_resource = True
 
-        # and the target resources for references
+        # and the target resource_file_names for references
         FhirXmlSchemaParser.process_types_for_references(fhir_entities)
 
+        # Read all the value sets
         value_sets: List[FhirValueSet] = FhirXmlSchemaParser.get_value_sets()
 
         # and the target types for codeable concepts
@@ -305,25 +379,13 @@ class FhirXmlSchemaParser:
             ]
         )
 
-        # update types
-        # cleaned_type_mapping: Dict[str, str] = {
-        #     "boolean": "FhirBoolean",
-        #     "date": "FhirDate",
-        #     "dateTime": "FhirDateTime",
-        #     "integer": "FhirInteger",
-        #     "string": "FhirString",
-        # }
-        # for fhir_entity in fhir_entities:
-        #     if fhir_entity.fhir_name in cleaned_type_mapping.keys():
-        #         fhir_entity.fhir_name = cleaned_type_mapping[fhir_entity.fhir_name]
-
         exclude_entities: List[str] = []
 
         fhir_entities = [
             f for f in fhir_entities if f.cleaned_name not in exclude_entities
         ]
 
-        # cleaned names
+        # clean the names
         for fhir_entity in fhir_entities:
             if fhir_entity.fhir_name in FhirXmlSchemaParser.cleaned_type_mapping:
                 fhir_entity.cleaned_name = FhirXmlSchemaParser.cleaned_type_mapping[
@@ -369,9 +431,20 @@ class FhirXmlSchemaParser:
     def process_types_for_codeable_concepts(
             fhir_entities: List[FhirEntity], value_sets: List[FhirValueSet]
     ) -> None:
+        """
+        Sets the codeable types on the properties of the fhir entities
+
+
+        :param fhir_entities: list of fhir entities
+        :param value_sets: list of value sets
+        :return:
+        """
+        # first get the codeable types
         codeable_types: List[
             FhirCodeableType
         ] = FhirXmlSchemaParser.get_types_for_codeable_concepts()
+
+        # for each codeable type, find the corresponding fhir entity
         codeable_type: FhirCodeableType
         for codeable_type in codeable_types:
             name_parts: List[str] = codeable_type.path.split(".")
@@ -506,9 +579,20 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def process_types_for_references(fhir_entities: List[FhirEntity]) -> None:
+        """
+        Sets the target resource_file_names for references
+
+
+        :param fhir_entities: list of fhir entities
+        :return:
+        """
+
+        # first get the types for references
         references: List[
             FhirReferenceType
         ] = FhirXmlSchemaParser.get_types_for_references()
+
+        # for each reference, find the corresponding fhir entity
         reference: FhirReferenceType
         for reference in references:
             name_parts: List[str] = reference.path.split(".")
@@ -613,6 +697,13 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def _generate_classes_for_resource(resource_xsd_file: Path) -> List[FhirEntity]:
+        """
+        Generates the FHIR classes from the FHIR XML schema for a single resource
+
+
+        :param resource_xsd_file: full path to each resource file
+        :return: list of fhir entities
+        """
         logger.info(f"++++++ PROCESSING FILE {resource_xsd_file.name} +++++++++ ")
         with open(resource_xsd_file, "rb") as file:
             contents = file.read()
@@ -621,6 +712,8 @@ class FhirXmlSchemaParser:
             # pprint(result)
         fhir_entities: List[FhirEntity] = []
         complex_types: ObjectifiedElement = root["complexType"]
+
+        # for each complex type, generate the entity
         complex_type: ObjectifiedElement
         for complex_type in complex_types:
             complex_type_name: str = complex_type.get("name")
@@ -703,6 +796,14 @@ class FhirXmlSchemaParser:
             entity_name: str,
             inner_complex_type: ObjectifiedElement,
     ) -> List[FhirProperty]:
+        """
+        Generates properties for a resource
+
+
+        :param entity_name: name of the resource
+        :param inner_complex_type: complex type
+        :return:
+        """
         logger.debug(f"Processing properties for {entity_name}")
         properties: List[ObjectifiedElement] = []
         attributes: Optional[ObjectifiedElement] = (
@@ -820,6 +921,13 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def fix_graphql_keywords(name: str) -> str:
+        """
+        Fixeds the names to make them legal in GraphQL
+
+
+        :param name: original name
+        :return: fixed name
+        """
         result: str = (
             name
             if name
@@ -834,11 +942,24 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def fix_javascript_keywords(name: str) -> str:
+        """
+        Fixeds the names to make them legal in JavaScript
+
+
+        :param name: original name
+        :return: fixed name
+        """
         result: str = FhirXmlSchemaParser.javascript_cleaned_type_mapping.get(name, name)
         return result
 
     @staticmethod
     def get_all_property_types() -> List[FhirProperty]:
+        """
+        Gets all the property types
+
+
+        :return: list of fhir properties
+        """
         data_dir: Path = Path(__file__).parent.joinpath("./")
 
         # first read fhir-all.xsd to get a list of resources
@@ -900,7 +1021,13 @@ class FhirXmlSchemaParser:
             return fhir_properties
 
     @staticmethod
-    def get_list_of_resources():
+    def get_list_of_resources() -> List[str]:
+        """
+        Gets a list of all resources with Resource as base.
+
+
+        :return:
+        """
         data_dir: Path = Path(__file__).parent.joinpath("./")
         # first read fhir-base.xsd to get a list of resources
         fhir_base_all_resources: Path = (
@@ -913,7 +1040,7 @@ class FhirXmlSchemaParser:
         with open(fhir_base_all_resources, "rb") as resources_file:
             file_contents = resources_file.read()
             root_dir: objectify.ObjectifiedElement = objectify.fromstring(file_contents)
-        resources_list = []
+        resources_list: List[str] = []
         for resource_container in root_dir.xpath("//xs:complexType[@name='ResourceContainer']", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
             for choice in resource_container.xpath(".//xs:choice/xs:element", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
                 resources_list.append(choice.get("ref"))
@@ -924,6 +1051,12 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def get_types_for_references() -> List[FhirReferenceType]:
+        """
+        Reads the list of types for references from the FHIR XML schema
+
+
+        :return: list of fhir reference types
+        """
         data_dir: Path = Path(__file__).parent.joinpath("./")
         # List of resources to be used for reference any types.
         resources_list = FhirXmlSchemaParser.get_list_of_resources()
@@ -993,6 +1126,12 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def get_types_for_codeable_concepts() -> List[FhirCodeableType]:
+        """
+        Reads the list of types for codeable concepts from the FHIR XML schema
+
+
+        :return: list of fhir codeable types
+        """
         data_dir: Path = Path(__file__).parent.joinpath("./")
 
         # first read fhir-all.xsd to get a list of resources
@@ -1064,6 +1203,11 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def get_value_sets() -> List[FhirValueSet]:
+        """
+        Reads the list of value sets from the FHIR XML schema valuesets.xml
+
+        :return: list of fhir value sets
+        """
         data_dir: Path = Path(__file__).parent.joinpath("./")
 
         fhir_value_sets: List[FhirValueSet] = []
@@ -1228,6 +1372,15 @@ class FhirXmlSchemaParser:
     def create_concept(
             concept: ObjectifiedElement, source: str, value_set_url: str
     ) -> FhirValueSetConcept:
+        """
+        Creates a concept from the XML schema
+
+
+        :param concept: concept node
+        :param source:
+        :param value_set_url:
+        :return:
+        """
         code: str = concept["code"].get("value")
         display_value: str = (
             concept["display"].get("value") if hasattr(concept, "display") else code
@@ -1249,6 +1402,13 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def clean_name(display: str) -> str:
+        """
+        Cleans the name to make it legal in GraphQL
+
+
+        :param display: original name
+        :return:
+        """
         cleaned_display: str = "".join(
             [c[:1].upper() + c[1:] for c in display.split(" ")]
         )
@@ -1261,6 +1421,16 @@ class FhirXmlSchemaParser:
         is_code_system: bool, is_value_set: bool, value_set_entry_resource: ObjectifiedElement,
         value_set_entry: Dict[str, Any]
     ) -> ObjectifiedElement:
+        """
+        Gets the value set from the XML schema
+
+
+        :param is_code_system:
+        :param is_value_set:
+        :param value_set_entry_resource:
+        :param value_set_entry:
+        :return:
+        """
         value_set: ObjectifiedElement = None
         if is_value_set:
             value_set = value_set_entry_resource["ValueSet"]
@@ -1272,6 +1442,13 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def get_v3_code_systems(data_dir: Path) -> List[FhirValueSet]:
+        """
+        Read value sets from v3-codesystems.xml
+
+
+        :param data_dir: top level data directory
+        :return:
+        """
         fhir_value_sets: List[FhirValueSet] = []
 
         value_sets_json_file: Path = (
@@ -1411,6 +1588,13 @@ class FhirXmlSchemaParser:
 
     @staticmethod
     def get_v2_code_systems(data_dir: Path) -> List[FhirValueSet]:
+        """
+        Reads the list of v2 code systems from the FHIR XML schema v2-tables.xml
+
+
+        :param data_dir: top level data directory
+        :return:
+        """
         fhir_value_sets: List[FhirValueSet] = []
 
         value_sets_json_file: Path = (
