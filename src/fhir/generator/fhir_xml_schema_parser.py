@@ -195,6 +195,8 @@ class FhirXmlSchemaParser:
         "import": "import_",
         "extends": "extends_",
         "function": "function_",
+        "package": "package_",
+        "case": "case_",
         # "integer": "Int",
         # "positiveInt": "Int",
         # "decimal": "decimal",
