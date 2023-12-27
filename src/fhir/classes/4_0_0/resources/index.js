@@ -4,6 +4,7 @@ const domainresource = require('./domainResource');
 const resource = require('./resource');
 const account = require('./account');
 const activitydefinition = require('./activityDefinition');
+const administrableproductdefinition = require('./administrableProductDefinition');
 const adverseevent = require('./adverseEvent');
 const allergyintolerance = require('./allergyIntolerance');
 const appointment = require('./appointment');
@@ -20,9 +21,11 @@ const careteam = require('./careTeam');
 const catalogentry = require('./catalogEntry');
 const chargeitem = require('./chargeItem');
 const chargeitemdefinition = require('./chargeItemDefinition');
+const citation = require('./citation');
 const claim = require('./claim');
 const claimresponse = require('./claimResponse');
 const clinicalimpression = require('./clinicalImpression');
+const clinicalusedefinition = require('./clinicalUseDefinition');
 const codesystem = require('./codeSystem');
 const communication = require('./communication');
 const communicationrequest = require('./communicationRequest');
@@ -44,7 +47,6 @@ const deviceusestatement = require('./deviceUseStatement');
 const diagnosticreport = require('./diagnosticReport');
 const documentmanifest = require('./documentManifest');
 const documentreference = require('./documentReference');
-const effectevidencesynthesis = require('./effectEvidenceSynthesis');
 const encounter = require('./encounter');
 const endpoint = require('./endpoint');
 const enrollmentrequest = require('./enrollmentRequest');
@@ -52,6 +54,7 @@ const enrollmentresponse = require('./enrollmentResponse');
 const episodeofcare = require('./episodeOfCare');
 const eventdefinition = require('./eventDefinition');
 const evidence = require('./evidence');
+const evidencereport = require('./evidenceReport');
 const evidencevariable = require('./evidenceVariable');
 const examplescenario = require('./exampleScenario');
 const explanationofbenefit = require('./explanationOfBenefit');
@@ -67,12 +70,14 @@ const immunization = require('./immunization');
 const immunizationevaluation = require('./immunizationEvaluation');
 const immunizationrecommendation = require('./immunizationRecommendation');
 const implementationguide = require('./implementationGuide');
+const ingredient = require('./ingredient');
 const insuranceplan = require('./insurancePlan');
 const invoice = require('./invoice');
 const library = require('./library');
 const linkage = require('./linkage');
 const list = require('./list');
 const location = require('./location');
+const manufactureditemdefinition = require('./manufacturedItemDefinition');
 const measure = require('./measure');
 const measurereport = require('./measureReport');
 const media = require('./media');
@@ -82,27 +87,20 @@ const medicationdispense = require('./medicationDispense');
 const medicationknowledge = require('./medicationKnowledge');
 const medicationrequest = require('./medicationRequest');
 const medicationstatement = require('./medicationStatement');
-const medicinalproduct = require('./medicinalProduct');
-const medicinalproductauthorization = require('./medicinalProductAuthorization');
-const medicinalproductcontraindication = require('./medicinalProductContraindication');
-const medicinalproductindication = require('./medicinalProductIndication');
-const medicinalproductingredient = require('./medicinalProductIngredient');
-const medicinalproductinteraction = require('./medicinalProductInteraction');
-const medicinalproductmanufactured = require('./medicinalProductManufactured');
-const medicinalproductpackaged = require('./medicinalProductPackaged');
-const medicinalproductpharmaceutical = require('./medicinalProductPharmaceutical');
-const medicinalproductundesirableeffect = require('./medicinalProductUndesirableEffect');
+const medicinalproductdefinition = require('./medicinalProductDefinition');
 const messagedefinition = require('./messageDefinition');
 const messageheader = require('./messageHeader');
 const molecularsequence = require('./molecularSequence');
 const namingsystem = require('./namingSystem');
 const nutritionorder = require('./nutritionOrder');
+const nutritionproduct = require('./nutritionProduct');
 const observation = require('./observation');
 const observationdefinition = require('./observationDefinition');
 const operationdefinition = require('./operationDefinition');
 const operationoutcome = require('./operationOutcome');
 const organization = require('./organization');
 const organizationaffiliation = require('./organizationAffiliation');
+const packagedproductdefinition = require('./packagedProductDefinition');
 const parameters = require('./parameters');
 const patient = require('./patient');
 const paymentnotice = require('./paymentNotice');
@@ -115,6 +113,7 @@ const procedure = require('./procedure');
 const provenance = require('./provenance');
 const questionnaire = require('./questionnaire');
 const questionnaireresponse = require('./questionnaireResponse');
+const regulatedauthorization = require('./regulatedAuthorization');
 const relatedperson = require('./relatedPerson');
 const requestgroup = require('./requestGroup');
 const researchdefinition = require('./researchDefinition');
@@ -122,7 +121,6 @@ const researchelementdefinition = require('./researchElementDefinition');
 const researchstudy = require('./researchStudy');
 const researchsubject = require('./researchSubject');
 const riskassessment = require('./riskAssessment');
-const riskevidencesynthesis = require('./riskEvidenceSynthesis');
 const schedule = require('./schedule');
 const searchparameter = require('./searchParameter');
 const servicerequest = require('./serviceRequest');
@@ -132,13 +130,9 @@ const specimendefinition = require('./specimenDefinition');
 const structuredefinition = require('./structureDefinition');
 const structuremap = require('./structureMap');
 const subscription = require('./subscription');
+const subscriptiontopic = require('./subscriptionTopic');
 const substance = require('./substance');
-const substancenucleicacid = require('./substanceNucleicAcid');
-const substancepolymer = require('./substancePolymer');
-const substanceprotein = require('./substanceProtein');
-const substancereferenceinformation = require('./substanceReferenceInformation');
-const substancesourcematerial = require('./substanceSourceMaterial');
-const substancespecification = require('./substanceSpecification');
+const substancedefinition = require('./substanceDefinition');
 const supplydelivery = require('./supplyDelivery');
 const supplyrequest = require('./supplyRequest');
 const task = require('./task');
@@ -154,6 +148,7 @@ module.exports = {
     resource,
     account,
     activitydefinition,
+    administrableproductdefinition,
     adverseevent,
     allergyintolerance,
     appointment,
@@ -170,9 +165,11 @@ module.exports = {
     catalogentry,
     chargeitem,
     chargeitemdefinition,
+    citation,
     claim,
     claimresponse,
     clinicalimpression,
+    clinicalusedefinition,
     codesystem,
     communication,
     communicationrequest,
@@ -194,7 +191,6 @@ module.exports = {
     diagnosticreport,
     documentmanifest,
     documentreference,
-    effectevidencesynthesis,
     encounter,
     endpoint,
     enrollmentrequest,
@@ -202,6 +198,7 @@ module.exports = {
     episodeofcare,
     eventdefinition,
     evidence,
+    evidencereport,
     evidencevariable,
     examplescenario,
     explanationofbenefit,
@@ -217,12 +214,14 @@ module.exports = {
     immunizationevaluation,
     immunizationrecommendation,
     implementationguide,
+    ingredient,
     insuranceplan,
     invoice,
     library,
     linkage,
     list,
     location,
+    manufactureditemdefinition,
     measure,
     measurereport,
     media,
@@ -232,27 +231,20 @@ module.exports = {
     medicationknowledge,
     medicationrequest,
     medicationstatement,
-    medicinalproduct,
-    medicinalproductauthorization,
-    medicinalproductcontraindication,
-    medicinalproductindication,
-    medicinalproductingredient,
-    medicinalproductinteraction,
-    medicinalproductmanufactured,
-    medicinalproductpackaged,
-    medicinalproductpharmaceutical,
-    medicinalproductundesirableeffect,
+    medicinalproductdefinition,
     messagedefinition,
     messageheader,
     molecularsequence,
     namingsystem,
     nutritionorder,
+    nutritionproduct,
     observation,
     observationdefinition,
     operationdefinition,
     operationoutcome,
     organization,
     organizationaffiliation,
+    packagedproductdefinition,
     parameters,
     patient,
     paymentnotice,
@@ -265,6 +257,7 @@ module.exports = {
     provenance,
     questionnaire,
     questionnaireresponse,
+    regulatedauthorization,
     relatedperson,
     requestgroup,
     researchdefinition,
@@ -272,7 +265,6 @@ module.exports = {
     researchstudy,
     researchsubject,
     riskassessment,
-    riskevidencesynthesis,
     schedule,
     searchparameter,
     servicerequest,
@@ -282,13 +274,9 @@ module.exports = {
     structuredefinition,
     structuremap,
     subscription,
+    subscriptiontopic,
     substance,
-    substancenucleicacid,
-    substancepolymer,
-    substanceprotein,
-    substancereferenceinformation,
-    substancesourcematerial,
-    substancespecification,
+    substancedefinition,
     supplydelivery,
     supplyrequest,
     task,

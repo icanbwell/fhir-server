@@ -15,7 +15,7 @@ Device
 */
 class Device extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -103,7 +103,7 @@ class Device extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -520,7 +520,7 @@ class Device extends Resource {
         });
 
         /**
-         * @description The model number for the device.
+         * @description The manufacturer's model number for the device.
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'modelNumber', {
@@ -538,7 +538,7 @@ class Device extends Resource {
         });
 
         /**
-         * @description The part number of the device.
+         * @description The part number or catalog number of the device.
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'partNumber', {
@@ -780,7 +780,7 @@ class Device extends Resource {
         });
 
         /**
-         * @description The parent device.
+         * @description The device that this device is attached to or is part of.
          * @property {Reference|undefined}
         */
         Object.defineProperty(this, 'parent', {
@@ -918,7 +918,7 @@ class Device extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],

@@ -17,7 +17,7 @@ MedicationRequest
 */
 class MedicationRequest extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -26,9 +26,9 @@ class MedicationRequest extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {Identifier[]|undefined} [identifier],
-     * @param {code} status,
+     * @param {medicationrequestStatus} status,
      * @param {CodeableConcept|undefined} [statusReason],
-     * @param {code} intent,
+     * @param {medicationRequestIntent} intent,
      * @param {CodeableConcept[]|undefined} [category],
      * @param {code|undefined} [priority],
      * @param {Boolean|undefined} [doNotPerform],
@@ -121,7 +121,7 @@ class MedicationRequest extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -328,7 +328,7 @@ class MedicationRequest extends Resource {
         /**
          * @description A code specifying the current state of the order.  Generally, this will be
     active or completed state.
-         * @property {code}
+         * @property {medicationrequestStatus}
         */
         Object.defineProperty(this, 'status', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -340,7 +340,9 @@ class MedicationRequest extends Resource {
                     this.__data.status = undefined;
                     return;
                 }
-                this.__data.status = valueProvided;
+                const medicationrequestStatus = require('../complex_types/medicationrequestStatus.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.status = FhirResourceCreator.create(valueProvided, medicationrequestStatus);
             }
         });
 
@@ -366,7 +368,7 @@ class MedicationRequest extends Resource {
 
         /**
          * @description Whether the request is a proposal, plan, or an original order.
-         * @property {code}
+         * @property {medicationRequestIntent}
         */
         Object.defineProperty(this, 'intent', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -378,7 +380,9 @@ class MedicationRequest extends Resource {
                     this.__data.intent = undefined;
                     return;
                 }
-                this.__data.intent = valueProvided;
+                const medicationRequestIntent = require('../complex_types/medicationRequestIntent.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.intent = FhirResourceCreator.create(valueProvided, medicationRequestIntent);
             }
         });
 
@@ -1129,7 +1133,7 @@ class MedicationRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -1138,9 +1142,9 @@ class MedicationRequest extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {Identifier[]|undefined} [identifier],
-     * @param {code} status,
+     * @param {medicationrequestStatus} status,
      * @param {CodeableConcept|undefined} [statusReason],
-     * @param {code} intent,
+     * @param {medicationRequestIntent} intent,
      * @param {CodeableConcept[]|undefined} [category],
      * @param {code|undefined} [priority],
      * @param {Boolean|undefined} [doNotPerform],
@@ -1304,9 +1308,9 @@ class MedicationRequest extends Resource {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.map(v => v.toJSON()),
-            status: this.status,
+            status: this.status && this.status.toJSON(),
             statusReason: this.statusReason && this.statusReason.toJSON(),
-            intent: this.intent,
+            intent: this.intent && this.intent.toJSON(),
             category: this.category && this.category.map(v => v.toJSON()),
             priority: this.priority,
             doNotPerform: this.doNotPerform,
@@ -1352,7 +1356,9 @@ class MedicationRequest extends Resource {
             if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.statusReason) {await this.statusReason.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.intent) {await this.intent.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.reportedReference) {await this.reportedReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.medicationCodeableConcept) {await this.medicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -1396,9 +1402,9 @@ class MedicationRequest extends Resource {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
-            status: this.status,
+            status: this.status && this.status.toJSONInternal(),
             statusReason: this.statusReason && this.statusReason.toJSONInternal(),
-            intent: this.intent,
+            intent: this.intent && this.intent.toJSONInternal(),
             category: this.category && this.category.map(v => v.toJSONInternal()),
             priority: this.priority,
             doNotPerform: this.doNotPerform,

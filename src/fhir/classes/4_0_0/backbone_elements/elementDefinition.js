@@ -60,6 +60,7 @@ class ElementDefinition extends Element {
      * @param {Annotation|undefined} [defaultValueAnnotation],
      * @param {Attachment|undefined} [defaultValueAttachment],
      * @param {CodeableConcept|undefined} [defaultValueCodeableConcept],
+     * @param {CodeableReference|undefined} [defaultValueCodeableReference],
      * @param {Coding|undefined} [defaultValueCoding],
      * @param {ContactPoint|undefined} [defaultValueContactPoint],
      * @param {Quantity|undefined} [defaultValueCount],
@@ -72,6 +73,7 @@ class ElementDefinition extends Element {
      * @param {Quantity|undefined} [defaultValueQuantity],
      * @param {Range|undefined} [defaultValueRange],
      * @param {Ratio|undefined} [defaultValueRatio],
+     * @param {RatioRange|undefined} [defaultValueRatioRange],
      * @param {Reference|undefined} [defaultValueReference],
      * @param {SampledData|undefined} [defaultValueSampledData],
      * @param {Signature|undefined} [defaultValueSignature],
@@ -85,7 +87,6 @@ class ElementDefinition extends Element {
      * @param {TriggerDefinition|undefined} [defaultValueTriggerDefinition],
      * @param {UsageContext|undefined} [defaultValueUsageContext],
      * @param {Dosage|undefined} [defaultValueDosage],
-     * @param {Meta|undefined} [defaultValueMeta],
      * @param {markdown|undefined} [meaningWhenMissing],
      * @param {String|undefined} [orderMeaning],
      * @param {base64Binary|undefined} [fixedBase64Binary],
@@ -112,6 +113,7 @@ class ElementDefinition extends Element {
      * @param {Annotation|undefined} [fixedAnnotation],
      * @param {Attachment|undefined} [fixedAttachment],
      * @param {CodeableConcept|undefined} [fixedCodeableConcept],
+     * @param {CodeableReference|undefined} [fixedCodeableReference],
      * @param {Coding|undefined} [fixedCoding],
      * @param {ContactPoint|undefined} [fixedContactPoint],
      * @param {Quantity|undefined} [fixedCount],
@@ -124,6 +126,7 @@ class ElementDefinition extends Element {
      * @param {Quantity|undefined} [fixedQuantity],
      * @param {Range|undefined} [fixedRange],
      * @param {Ratio|undefined} [fixedRatio],
+     * @param {RatioRange|undefined} [fixedRatioRange],
      * @param {Reference|undefined} [fixedReference],
      * @param {SampledData|undefined} [fixedSampledData],
      * @param {Signature|undefined} [fixedSignature],
@@ -137,7 +140,6 @@ class ElementDefinition extends Element {
      * @param {TriggerDefinition|undefined} [fixedTriggerDefinition],
      * @param {UsageContext|undefined} [fixedUsageContext],
      * @param {Dosage|undefined} [fixedDosage],
-     * @param {Meta|undefined} [fixedMeta],
      * @param {base64Binary|undefined} [patternBase64Binary],
      * @param {Boolean|undefined} [patternBoolean],
      * @param {canonical|undefined} [patternCanonical],
@@ -162,6 +164,7 @@ class ElementDefinition extends Element {
      * @param {Annotation|undefined} [patternAnnotation],
      * @param {Attachment|undefined} [patternAttachment],
      * @param {CodeableConcept|undefined} [patternCodeableConcept],
+     * @param {CodeableReference|undefined} [patternCodeableReference],
      * @param {Coding|undefined} [patternCoding],
      * @param {ContactPoint|undefined} [patternContactPoint],
      * @param {Quantity|undefined} [patternCount],
@@ -174,6 +177,7 @@ class ElementDefinition extends Element {
      * @param {Quantity|undefined} [patternQuantity],
      * @param {Range|undefined} [patternRange],
      * @param {Ratio|undefined} [patternRatio],
+     * @param {RatioRange|undefined} [patternRatioRange],
      * @param {Reference|undefined} [patternReference],
      * @param {SampledData|undefined} [patternSampledData],
      * @param {Signature|undefined} [patternSignature],
@@ -187,7 +191,6 @@ class ElementDefinition extends Element {
      * @param {TriggerDefinition|undefined} [patternTriggerDefinition],
      * @param {UsageContext|undefined} [patternUsageContext],
      * @param {Dosage|undefined} [patternDosage],
-     * @param {Meta|undefined} [patternMeta],
      * @param {ElementDefinitionExample[]|undefined} [example],
      * @param {date|undefined} [minValueDate],
      * @param {dateTime|undefined} [minValueDateTime],
@@ -263,6 +266,7 @@ class ElementDefinition extends Element {
             defaultValueAnnotation,
             defaultValueAttachment,
             defaultValueCodeableConcept,
+            defaultValueCodeableReference,
             defaultValueCoding,
             defaultValueContactPoint,
             defaultValueCount,
@@ -275,6 +279,7 @@ class ElementDefinition extends Element {
             defaultValueQuantity,
             defaultValueRange,
             defaultValueRatio,
+            defaultValueRatioRange,
             defaultValueReference,
             defaultValueSampledData,
             defaultValueSignature,
@@ -288,7 +293,6 @@ class ElementDefinition extends Element {
             defaultValueTriggerDefinition,
             defaultValueUsageContext,
             defaultValueDosage,
-            defaultValueMeta,
             meaningWhenMissing,
             orderMeaning,
             fixedBase64Binary,
@@ -315,6 +319,7 @@ class ElementDefinition extends Element {
             fixedAnnotation,
             fixedAttachment,
             fixedCodeableConcept,
+            fixedCodeableReference,
             fixedCoding,
             fixedContactPoint,
             fixedCount,
@@ -327,6 +332,7 @@ class ElementDefinition extends Element {
             fixedQuantity,
             fixedRange,
             fixedRatio,
+            fixedRatioRange,
             fixedReference,
             fixedSampledData,
             fixedSignature,
@@ -340,7 +346,6 @@ class ElementDefinition extends Element {
             fixedTriggerDefinition,
             fixedUsageContext,
             fixedDosage,
-            fixedMeta,
             patternBase64Binary,
             patternBoolean,
             patternCanonical,
@@ -365,6 +370,7 @@ class ElementDefinition extends Element {
             patternAnnotation,
             patternAttachment,
             patternCodeableConcept,
+            patternCodeableReference,
             patternCoding,
             patternContactPoint,
             patternCount,
@@ -377,6 +383,7 @@ class ElementDefinition extends Element {
             patternQuantity,
             patternRange,
             patternRatio,
+            patternRatioRange,
             patternReference,
             patternSampledData,
             patternSignature,
@@ -390,7 +397,6 @@ class ElementDefinition extends Element {
             patternTriggerDefinition,
             patternUsageContext,
             patternDosage,
-            patternMeta,
             example,
             minValueDate,
             minValueDateTime,
@@ -1295,6 +1301,26 @@ class ElementDefinition extends Element {
 
         /**
          * @description None
+         * @property {CodeableReference|undefined}
+        */
+        Object.defineProperty(this, 'defaultValueCodeableReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.defaultValueCodeableReference,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCodeableReference = undefined;
+                    return;
+                }
+                const CodeableReference = require('../complex_types/codeableReference.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueCodeableReference = FhirResourceCreator.create(valueProvided, CodeableReference);
+            }
+        });
+
+        /**
+         * @description None
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'defaultValueCoding', {
@@ -1530,6 +1556,26 @@ class ElementDefinition extends Element {
                 const Ratio = require('../complex_types/ratio.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.defaultValueRatio = FhirResourceCreator.create(valueProvided, Ratio);
+            }
+        });
+
+        /**
+         * @description None
+         * @property {RatioRange|undefined}
+        */
+        Object.defineProperty(this, 'defaultValueRatioRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.defaultValueRatioRange,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRatioRange = undefined;
+                    return;
+                }
+                const RatioRange = require('../complex_types/ratioRange.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueRatioRange = FhirResourceCreator.create(valueProvided, RatioRange);
             }
         });
 
@@ -1790,26 +1836,6 @@ class ElementDefinition extends Element {
                 const Dosage = require('../backbone_elements/dosage.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.defaultValueDosage = FhirResourceCreator.create(valueProvided, Dosage);
-            }
-        });
-
-        /**
-         * @description None
-         * @property {Meta|undefined}
-        */
-        Object.defineProperty(this, 'defaultValueMeta', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.defaultValueMeta,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.defaultValueMeta = undefined;
-                    return;
-                }
-                const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.defaultValueMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -2296,6 +2322,26 @@ class ElementDefinition extends Element {
 
         /**
          * @description None
+         * @property {CodeableReference|undefined}
+        */
+        Object.defineProperty(this, 'fixedCodeableReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.fixedCodeableReference,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedCodeableReference = undefined;
+                    return;
+                }
+                const CodeableReference = require('../complex_types/codeableReference.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fixedCodeableReference = FhirResourceCreator.create(valueProvided, CodeableReference);
+            }
+        });
+
+        /**
+         * @description None
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'fixedCoding', {
@@ -2531,6 +2577,26 @@ class ElementDefinition extends Element {
                 const Ratio = require('../complex_types/ratio.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.fixedRatio = FhirResourceCreator.create(valueProvided, Ratio);
+            }
+        });
+
+        /**
+         * @description None
+         * @property {RatioRange|undefined}
+        */
+        Object.defineProperty(this, 'fixedRatioRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.fixedRatioRange,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedRatioRange = undefined;
+                    return;
+                }
+                const RatioRange = require('../complex_types/ratioRange.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fixedRatioRange = FhirResourceCreator.create(valueProvided, RatioRange);
             }
         });
 
@@ -2791,26 +2857,6 @@ class ElementDefinition extends Element {
                 const Dosage = require('../backbone_elements/dosage.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.fixedDosage = FhirResourceCreator.create(valueProvided, Dosage);
-            }
-        });
-
-        /**
-         * @description None
-         * @property {Meta|undefined}
-        */
-        Object.defineProperty(this, 'fixedMeta', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.fixedMeta,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.fixedMeta = undefined;
-                    return;
-                }
-                const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.fixedMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -3258,6 +3304,26 @@ class ElementDefinition extends Element {
 
         /**
          * @description None
+         * @property {CodeableReference|undefined}
+        */
+        Object.defineProperty(this, 'patternCodeableReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.patternCodeableReference,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternCodeableReference = undefined;
+                    return;
+                }
+                const CodeableReference = require('../complex_types/codeableReference.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.patternCodeableReference = FhirResourceCreator.create(valueProvided, CodeableReference);
+            }
+        });
+
+        /**
+         * @description None
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'patternCoding', {
@@ -3493,6 +3559,26 @@ class ElementDefinition extends Element {
                 const Ratio = require('../complex_types/ratio.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.patternRatio = FhirResourceCreator.create(valueProvided, Ratio);
+            }
+        });
+
+        /**
+         * @description None
+         * @property {RatioRange|undefined}
+        */
+        Object.defineProperty(this, 'patternRatioRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.patternRatioRange,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternRatioRange = undefined;
+                    return;
+                }
+                const RatioRange = require('../complex_types/ratioRange.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.patternRatioRange = FhirResourceCreator.create(valueProvided, RatioRange);
             }
         });
 
@@ -3753,26 +3839,6 @@ class ElementDefinition extends Element {
                 const Dosage = require('../backbone_elements/dosage.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.patternDosage = FhirResourceCreator.create(valueProvided, Dosage);
-            }
-        });
-
-        /**
-         * @description None
-         * @property {Meta|undefined}
-        */
-        Object.defineProperty(this, 'patternMeta', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.patternMeta,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.patternMeta = undefined;
-                    return;
-                }
-                const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.patternMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -4358,6 +4424,7 @@ class ElementDefinition extends Element {
             defaultValueAnnotation,
             defaultValueAttachment,
             defaultValueCodeableConcept,
+            defaultValueCodeableReference,
             defaultValueCoding,
             defaultValueContactPoint,
             defaultValueCount,
@@ -4370,6 +4437,7 @@ class ElementDefinition extends Element {
             defaultValueQuantity,
             defaultValueRange,
             defaultValueRatio,
+            defaultValueRatioRange,
             defaultValueReference,
             defaultValueSampledData,
             defaultValueSignature,
@@ -4383,7 +4451,6 @@ class ElementDefinition extends Element {
             defaultValueTriggerDefinition,
             defaultValueUsageContext,
             defaultValueDosage,
-            defaultValueMeta,
             meaningWhenMissing,
             orderMeaning,
             fixedBase64Binary,
@@ -4410,6 +4477,7 @@ class ElementDefinition extends Element {
             fixedAnnotation,
             fixedAttachment,
             fixedCodeableConcept,
+            fixedCodeableReference,
             fixedCoding,
             fixedContactPoint,
             fixedCount,
@@ -4422,6 +4490,7 @@ class ElementDefinition extends Element {
             fixedQuantity,
             fixedRange,
             fixedRatio,
+            fixedRatioRange,
             fixedReference,
             fixedSampledData,
             fixedSignature,
@@ -4435,7 +4504,6 @@ class ElementDefinition extends Element {
             fixedTriggerDefinition,
             fixedUsageContext,
             fixedDosage,
-            fixedMeta,
             patternBase64Binary,
             patternBoolean,
             patternCanonical,
@@ -4460,6 +4528,7 @@ class ElementDefinition extends Element {
             patternAnnotation,
             patternAttachment,
             patternCodeableConcept,
+            patternCodeableReference,
             patternCoding,
             patternContactPoint,
             patternCount,
@@ -4472,6 +4541,7 @@ class ElementDefinition extends Element {
             patternQuantity,
             patternRange,
             patternRatio,
+            patternRatioRange,
             patternReference,
             patternSampledData,
             patternSignature,
@@ -4485,7 +4555,6 @@ class ElementDefinition extends Element {
             patternTriggerDefinition,
             patternUsageContext,
             patternDosage,
-            patternMeta,
             example,
             minValueDate,
             minValueDateTime,
@@ -4572,6 +4641,7 @@ class ElementDefinition extends Element {
             defaultValueAnnotation: this.defaultValueAnnotation && this.defaultValueAnnotation.toJSON(),
             defaultValueAttachment: this.defaultValueAttachment && this.defaultValueAttachment.toJSON(),
             defaultValueCodeableConcept: this.defaultValueCodeableConcept && this.defaultValueCodeableConcept.toJSON(),
+            defaultValueCodeableReference: this.defaultValueCodeableReference && this.defaultValueCodeableReference.toJSON(),
             defaultValueCoding: this.defaultValueCoding && this.defaultValueCoding.toJSON(),
             defaultValueContactPoint: this.defaultValueContactPoint && this.defaultValueContactPoint.toJSON(),
             defaultValueCount: this.defaultValueCount && this.defaultValueCount.toJSON(),
@@ -4584,6 +4654,7 @@ class ElementDefinition extends Element {
             defaultValueQuantity: this.defaultValueQuantity && this.defaultValueQuantity.toJSON(),
             defaultValueRange: this.defaultValueRange && this.defaultValueRange.toJSON(),
             defaultValueRatio: this.defaultValueRatio && this.defaultValueRatio.toJSON(),
+            defaultValueRatioRange: this.defaultValueRatioRange && this.defaultValueRatioRange.toJSON(),
             defaultValueReference: this.defaultValueReference && this.defaultValueReference.toJSON(),
             defaultValueSampledData: this.defaultValueSampledData && this.defaultValueSampledData.toJSON(),
             defaultValueSignature: this.defaultValueSignature && this.defaultValueSignature.toJSON(),
@@ -4597,7 +4668,6 @@ class ElementDefinition extends Element {
             defaultValueTriggerDefinition: this.defaultValueTriggerDefinition && this.defaultValueTriggerDefinition.toJSON(),
             defaultValueUsageContext: this.defaultValueUsageContext && this.defaultValueUsageContext.toJSON(),
             defaultValueDosage: this.defaultValueDosage && this.defaultValueDosage.toJSON(),
-            defaultValueMeta: this.defaultValueMeta && this.defaultValueMeta.toJSON(),
             meaningWhenMissing: this.meaningWhenMissing,
             orderMeaning: this.orderMeaning,
             fixedBase64Binary: this.fixedBase64Binary,
@@ -4624,6 +4694,7 @@ class ElementDefinition extends Element {
             fixedAnnotation: this.fixedAnnotation && this.fixedAnnotation.toJSON(),
             fixedAttachment: this.fixedAttachment && this.fixedAttachment.toJSON(),
             fixedCodeableConcept: this.fixedCodeableConcept && this.fixedCodeableConcept.toJSON(),
+            fixedCodeableReference: this.fixedCodeableReference && this.fixedCodeableReference.toJSON(),
             fixedCoding: this.fixedCoding && this.fixedCoding.toJSON(),
             fixedContactPoint: this.fixedContactPoint && this.fixedContactPoint.toJSON(),
             fixedCount: this.fixedCount && this.fixedCount.toJSON(),
@@ -4636,6 +4707,7 @@ class ElementDefinition extends Element {
             fixedQuantity: this.fixedQuantity && this.fixedQuantity.toJSON(),
             fixedRange: this.fixedRange && this.fixedRange.toJSON(),
             fixedRatio: this.fixedRatio && this.fixedRatio.toJSON(),
+            fixedRatioRange: this.fixedRatioRange && this.fixedRatioRange.toJSON(),
             fixedReference: this.fixedReference && this.fixedReference.toJSON(),
             fixedSampledData: this.fixedSampledData && this.fixedSampledData.toJSON(),
             fixedSignature: this.fixedSignature && this.fixedSignature.toJSON(),
@@ -4649,7 +4721,6 @@ class ElementDefinition extends Element {
             fixedTriggerDefinition: this.fixedTriggerDefinition && this.fixedTriggerDefinition.toJSON(),
             fixedUsageContext: this.fixedUsageContext && this.fixedUsageContext.toJSON(),
             fixedDosage: this.fixedDosage && this.fixedDosage.toJSON(),
-            fixedMeta: this.fixedMeta && this.fixedMeta.toJSON(),
             patternBase64Binary: this.patternBase64Binary,
             patternBoolean: this.patternBoolean,
             patternCanonical: this.patternCanonical,
@@ -4674,6 +4745,7 @@ class ElementDefinition extends Element {
             patternAnnotation: this.patternAnnotation && this.patternAnnotation.toJSON(),
             patternAttachment: this.patternAttachment && this.patternAttachment.toJSON(),
             patternCodeableConcept: this.patternCodeableConcept && this.patternCodeableConcept.toJSON(),
+            patternCodeableReference: this.patternCodeableReference && this.patternCodeableReference.toJSON(),
             patternCoding: this.patternCoding && this.patternCoding.toJSON(),
             patternContactPoint: this.patternContactPoint && this.patternContactPoint.toJSON(),
             patternCount: this.patternCount && this.patternCount.toJSON(),
@@ -4686,6 +4758,7 @@ class ElementDefinition extends Element {
             patternQuantity: this.patternQuantity && this.patternQuantity.toJSON(),
             patternRange: this.patternRange && this.patternRange.toJSON(),
             patternRatio: this.patternRatio && this.patternRatio.toJSON(),
+            patternRatioRange: this.patternRatioRange && this.patternRatioRange.toJSON(),
             patternReference: this.patternReference && this.patternReference.toJSON(),
             patternSampledData: this.patternSampledData && this.patternSampledData.toJSON(),
             patternSignature: this.patternSignature && this.patternSignature.toJSON(),
@@ -4699,7 +4772,6 @@ class ElementDefinition extends Element {
             patternTriggerDefinition: this.patternTriggerDefinition && this.patternTriggerDefinition.toJSON(),
             patternUsageContext: this.patternUsageContext && this.patternUsageContext.toJSON(),
             patternDosage: this.patternDosage && this.patternDosage.toJSON(),
-            patternMeta: this.patternMeta && this.patternMeta.toJSON(),
             example: this.example && this.example.map(v => v.toJSON()),
             minValueDate: this.minValueDate,
             minValueDateTime: this.minValueDateTime,
@@ -4748,6 +4820,7 @@ class ElementDefinition extends Element {
             if (this.defaultValueAnnotation) {await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueAttachment) {await this.defaultValueAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueCodeableConcept) {await this.defaultValueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.defaultValueCodeableReference) {await this.defaultValueCodeableReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueCoding) {await this.defaultValueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueContactPoint) {await this.defaultValueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueCount) {await this.defaultValueCount.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4760,6 +4833,7 @@ class ElementDefinition extends Element {
             if (this.defaultValueQuantity) {await this.defaultValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueRange) {await this.defaultValueRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueRatio) {await this.defaultValueRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.defaultValueRatioRange) {await this.defaultValueRatioRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueReference) {await this.defaultValueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueSampledData) {await this.defaultValueSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueSignature) {await this.defaultValueSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4773,12 +4847,12 @@ class ElementDefinition extends Element {
             if (this.defaultValueTriggerDefinition) {await this.defaultValueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueUsageContext) {await this.defaultValueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueDosage) {await this.defaultValueDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueMeta) {await this.defaultValueMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedAddress) {await this.fixedAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedAge) {await this.fixedAge.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedAnnotation) {await this.fixedAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedAttachment) {await this.fixedAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedCodeableConcept) {await this.fixedCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.fixedCodeableReference) {await this.fixedCodeableReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedCoding) {await this.fixedCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedContactPoint) {await this.fixedContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedCount) {await this.fixedCount.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4791,6 +4865,7 @@ class ElementDefinition extends Element {
             if (this.fixedQuantity) {await this.fixedQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedRange) {await this.fixedRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedRatio) {await this.fixedRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.fixedRatioRange) {await this.fixedRatioRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedReference) {await this.fixedReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedSampledData) {await this.fixedSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedSignature) {await this.fixedSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4804,12 +4879,12 @@ class ElementDefinition extends Element {
             if (this.fixedTriggerDefinition) {await this.fixedTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedUsageContext) {await this.fixedUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fixedDosage) {await this.fixedDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedMeta) {await this.fixedMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternAddress) {await this.patternAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternAge) {await this.patternAge.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternAnnotation) {await this.patternAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternAttachment) {await this.patternAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternCodeableConcept) {await this.patternCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.patternCodeableReference) {await this.patternCodeableReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternCoding) {await this.patternCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternContactPoint) {await this.patternContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternCount) {await this.patternCount.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4822,6 +4897,7 @@ class ElementDefinition extends Element {
             if (this.patternQuantity) {await this.patternQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternRange) {await this.patternRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternRatio) {await this.patternRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.patternRatioRange) {await this.patternRatioRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternReference) {await this.patternReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternSampledData) {await this.patternSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternSignature) {await this.patternSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4835,7 +4911,6 @@ class ElementDefinition extends Element {
             if (this.patternTriggerDefinition) {await this.patternTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternUsageContext) {await this.patternUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternDosage) {await this.patternDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternMeta) {await this.patternMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.example) {await async.each(this.example, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.minValueQuantity) {await this.minValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxValueQuantity) {await this.maxValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4895,6 +4970,7 @@ class ElementDefinition extends Element {
             defaultValueAnnotation: this.defaultValueAnnotation && this.defaultValueAnnotation.toJSONInternal(),
             defaultValueAttachment: this.defaultValueAttachment && this.defaultValueAttachment.toJSONInternal(),
             defaultValueCodeableConcept: this.defaultValueCodeableConcept && this.defaultValueCodeableConcept.toJSONInternal(),
+            defaultValueCodeableReference: this.defaultValueCodeableReference && this.defaultValueCodeableReference.toJSONInternal(),
             defaultValueCoding: this.defaultValueCoding && this.defaultValueCoding.toJSONInternal(),
             defaultValueContactPoint: this.defaultValueContactPoint && this.defaultValueContactPoint.toJSONInternal(),
             defaultValueCount: this.defaultValueCount && this.defaultValueCount.toJSONInternal(),
@@ -4907,6 +4983,7 @@ class ElementDefinition extends Element {
             defaultValueQuantity: this.defaultValueQuantity && this.defaultValueQuantity.toJSONInternal(),
             defaultValueRange: this.defaultValueRange && this.defaultValueRange.toJSONInternal(),
             defaultValueRatio: this.defaultValueRatio && this.defaultValueRatio.toJSONInternal(),
+            defaultValueRatioRange: this.defaultValueRatioRange && this.defaultValueRatioRange.toJSONInternal(),
             defaultValueReference: this.defaultValueReference && this.defaultValueReference.toJSONInternal(),
             defaultValueSampledData: this.defaultValueSampledData && this.defaultValueSampledData.toJSONInternal(),
             defaultValueSignature: this.defaultValueSignature && this.defaultValueSignature.toJSONInternal(),
@@ -4920,7 +4997,6 @@ class ElementDefinition extends Element {
             defaultValueTriggerDefinition: this.defaultValueTriggerDefinition && this.defaultValueTriggerDefinition.toJSONInternal(),
             defaultValueUsageContext: this.defaultValueUsageContext && this.defaultValueUsageContext.toJSONInternal(),
             defaultValueDosage: this.defaultValueDosage && this.defaultValueDosage.toJSONInternal(),
-            defaultValueMeta: this.defaultValueMeta && this.defaultValueMeta.toJSONInternal(),
             meaningWhenMissing: this.meaningWhenMissing,
             orderMeaning: this.orderMeaning,
             fixedBase64Binary: this.fixedBase64Binary,
@@ -4947,6 +5023,7 @@ class ElementDefinition extends Element {
             fixedAnnotation: this.fixedAnnotation && this.fixedAnnotation.toJSONInternal(),
             fixedAttachment: this.fixedAttachment && this.fixedAttachment.toJSONInternal(),
             fixedCodeableConcept: this.fixedCodeableConcept && this.fixedCodeableConcept.toJSONInternal(),
+            fixedCodeableReference: this.fixedCodeableReference && this.fixedCodeableReference.toJSONInternal(),
             fixedCoding: this.fixedCoding && this.fixedCoding.toJSONInternal(),
             fixedContactPoint: this.fixedContactPoint && this.fixedContactPoint.toJSONInternal(),
             fixedCount: this.fixedCount && this.fixedCount.toJSONInternal(),
@@ -4959,6 +5036,7 @@ class ElementDefinition extends Element {
             fixedQuantity: this.fixedQuantity && this.fixedQuantity.toJSONInternal(),
             fixedRange: this.fixedRange && this.fixedRange.toJSONInternal(),
             fixedRatio: this.fixedRatio && this.fixedRatio.toJSONInternal(),
+            fixedRatioRange: this.fixedRatioRange && this.fixedRatioRange.toJSONInternal(),
             fixedReference: this.fixedReference && this.fixedReference.toJSONInternal(),
             fixedSampledData: this.fixedSampledData && this.fixedSampledData.toJSONInternal(),
             fixedSignature: this.fixedSignature && this.fixedSignature.toJSONInternal(),
@@ -4972,7 +5050,6 @@ class ElementDefinition extends Element {
             fixedTriggerDefinition: this.fixedTriggerDefinition && this.fixedTriggerDefinition.toJSONInternal(),
             fixedUsageContext: this.fixedUsageContext && this.fixedUsageContext.toJSONInternal(),
             fixedDosage: this.fixedDosage && this.fixedDosage.toJSONInternal(),
-            fixedMeta: this.fixedMeta && this.fixedMeta.toJSONInternal(),
             patternBase64Binary: this.patternBase64Binary,
             patternBoolean: this.patternBoolean,
             patternCanonical: this.patternCanonical,
@@ -4997,6 +5074,7 @@ class ElementDefinition extends Element {
             patternAnnotation: this.patternAnnotation && this.patternAnnotation.toJSONInternal(),
             patternAttachment: this.patternAttachment && this.patternAttachment.toJSONInternal(),
             patternCodeableConcept: this.patternCodeableConcept && this.patternCodeableConcept.toJSONInternal(),
+            patternCodeableReference: this.patternCodeableReference && this.patternCodeableReference.toJSONInternal(),
             patternCoding: this.patternCoding && this.patternCoding.toJSONInternal(),
             patternContactPoint: this.patternContactPoint && this.patternContactPoint.toJSONInternal(),
             patternCount: this.patternCount && this.patternCount.toJSONInternal(),
@@ -5009,6 +5087,7 @@ class ElementDefinition extends Element {
             patternQuantity: this.patternQuantity && this.patternQuantity.toJSONInternal(),
             patternRange: this.patternRange && this.patternRange.toJSONInternal(),
             patternRatio: this.patternRatio && this.patternRatio.toJSONInternal(),
+            patternRatioRange: this.patternRatioRange && this.patternRatioRange.toJSONInternal(),
             patternReference: this.patternReference && this.patternReference.toJSONInternal(),
             patternSampledData: this.patternSampledData && this.patternSampledData.toJSONInternal(),
             patternSignature: this.patternSignature && this.patternSignature.toJSONInternal(),
@@ -5022,7 +5101,6 @@ class ElementDefinition extends Element {
             patternTriggerDefinition: this.patternTriggerDefinition && this.patternTriggerDefinition.toJSONInternal(),
             patternUsageContext: this.patternUsageContext && this.patternUsageContext.toJSONInternal(),
             patternDosage: this.patternDosage && this.patternDosage.toJSONInternal(),
-            patternMeta: this.patternMeta && this.patternMeta.toJSONInternal(),
             example: this.example && this.example.map(v => v.toJSONInternal()),
             minValueDate: this.minValueDate,
             minValueDateTime: this.minValueDateTime,

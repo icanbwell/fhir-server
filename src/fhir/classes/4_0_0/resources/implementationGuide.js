@@ -16,7 +16,7 @@ ImplementationGuide
 */
 class ImplementationGuide extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -92,7 +92,7 @@ class ImplementationGuide extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -585,7 +585,7 @@ class ImplementationGuide extends Resource {
          * @description The version(s) of the FHIR specification that this ImplementationGuide targets
     - e.g. describes how to use. The value of this element is the formal version
     of the specification, without the revision number, e.g.
-    [publication].[major].[minor], which is 4.0.1. for this version.
+    [publication].[major].[minor], which is 4.3.0-cibuild. for this version.
          * @property {code[]}
         */
         Object.defineProperty(this, 'fhirVersion', {
@@ -800,7 +800,7 @@ class ImplementationGuide extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],

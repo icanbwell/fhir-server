@@ -34,7 +34,7 @@ MedicationStatement
 */
 class MedicationStatement extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -45,7 +45,7 @@ class MedicationStatement extends Resource {
      * @param {Identifier[]|undefined} [identifier],
      * @param {Reference[]|undefined} [basedOn],
      * @param {Reference[]|undefined} [partOf],
-     * @param {code} status,
+     * @param {MedicationStatementStatusCodes} status,
      * @param {CodeableConcept[]|undefined} [statusReason],
      * @param {CodeableConcept|undefined} [category],
      * @param {CodeableConcept|undefined} [medicationCodeableConcept],
@@ -108,7 +108,7 @@ class MedicationStatement extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -356,7 +356,7 @@ class MedicationStatement extends Resource {
          * @description A code representing the patient or other source's judgment about the state of
     the medication used that this statement is about.  Generally, this will be
     active or completed.
-         * @property {code}
+         * @property {MedicationStatementStatusCodes}
         */
         Object.defineProperty(this, 'status', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -368,7 +368,9 @@ class MedicationStatement extends Resource {
                     this.__data.status = undefined;
                     return;
                 }
-                this.__data.status = valueProvided;
+                const MedicationStatementStatusCodes = require('../complex_types/medicationStatementStatusCodes.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.status = FhirResourceCreator.create(valueProvided, MedicationStatementStatusCodes);
             }
         });
 
@@ -786,7 +788,7 @@ class MedicationStatement extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -797,7 +799,7 @@ class MedicationStatement extends Resource {
      * @param {Identifier[]|undefined} [identifier],
      * @param {Reference[]|undefined} [basedOn],
      * @param {Reference[]|undefined} [partOf],
-     * @param {code} status,
+     * @param {MedicationStatementStatusCodes} status,
      * @param {CodeableConcept[]|undefined} [statusReason],
      * @param {CodeableConcept|undefined} [category],
      * @param {CodeableConcept|undefined} [medicationCodeableConcept],
@@ -918,7 +920,7 @@ class MedicationStatement extends Resource {
             identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
             partOf: this.partOf && this.partOf.map(v => v.toJSON()),
-            status: this.status,
+            status: this.status && this.status.toJSON(),
             statusReason: this.statusReason && this.statusReason.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSON(),
@@ -951,6 +953,7 @@ class MedicationStatement extends Resource {
             if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.basedOn) {await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.partOf) {await async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.statusReason) {await async.each(this.statusReason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.medicationCodeableConcept) {await this.medicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -985,7 +988,7 @@ class MedicationStatement extends Resource {
             identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
             basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
             partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
-            status: this.status,
+            status: this.status && this.status.toJSONInternal(),
             statusReason: this.statusReason && this.statusReason.map(v => v.toJSONInternal()),
             category: this.category && this.category.toJSONInternal(),
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
