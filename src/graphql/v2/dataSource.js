@@ -90,7 +90,7 @@ class FhirDataSource {
                 resourceType,
                 /** @type {string} */
                 id,
-            } = ResourceWithId.getResourceTypeAndIdFromReference(key);
+            } = ResourceWithId.getResourceTypeAndIdFromReference(key) || {};
             /**
              * resources with this resourceType and id
              * @type {Resource[]}
@@ -135,6 +135,10 @@ class FhirDataSource {
                         /** @type {string[]} **/
                         references,
                     ] = groupKeysByResourceTypeKey;
+
+                    if (!resourceType) {
+                        return [];
+                    }
                     /**
                      * @type {string[]}
                      */
@@ -222,12 +226,16 @@ class FhirDataSource {
         const referenceValue = ['Person', 'Practitioner'].includes(
             ResourceWithId.getResourceTypeFromReference(reference.reference)
         ) ? reference.reference : (reference._uuid || reference.reference);
+        const referenceObj = ResourceWithId.getResourceTypeAndIdFromReference(referenceValue);
+        if (!referenceObj) {
+            return null;
+        }
         const {
             /** @type {string} **/
             resourceType,
             /** @type {string} **/
             id,
-        } = ResourceWithId.getResourceTypeAndIdFromReference(referenceValue);
+        } = referenceObj;
         try {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
