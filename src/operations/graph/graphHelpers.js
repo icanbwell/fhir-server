@@ -319,6 +319,7 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                requestId: requestInfo.requestId,
                 parsedArgs: childParseArgs,
                 operation: READ
             });
@@ -562,6 +563,7 @@ class GraphHelper {
                     resourceType: relatedResourceType,
                     useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    requestId: requestInfo.requestId,
                     parsedArgs: relatedResourceParsedArgs,
                     operation: READ
                 }
@@ -1263,6 +1265,7 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                requestId: requestInfo.requestId,
                 parsedArgs,
                 operation: READ
             });

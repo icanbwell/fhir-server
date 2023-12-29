@@ -181,6 +181,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            requestId,
             parsedArgs,
             useHistoryTable,
             operation
@@ -234,7 +235,8 @@ class SearchManager {
                         parsedArgs,
                         securityTags,
                         query,
-                        useHistoryTable
+                        useHistoryTable,
+                        requestId
                     });
                 }
             }

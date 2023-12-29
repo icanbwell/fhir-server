@@ -233,6 +233,7 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
+        requestSpecificCache: c.requestSpecificCache,
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
