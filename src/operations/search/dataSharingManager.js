@@ -81,6 +81,15 @@ class DataSharingManager {
     }
 
     /**
+     * Returns data sharing manager.
+     * @param {string} requestId
+     * @returns {Map<string, Resource[]>}
+     */
+    getDataSharingManagerCache({requestId}) {
+        return this.requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
+    }
+
+    /**
      * Update the query to consider data sharing logic, which includes HIE/Treatment related data linked to the client person
      * and consented data(PROA only) and return mongo query from it.
      * @typedef {Object} RewriteDataSharingQuery
@@ -96,7 +105,7 @@ class DataSharingManager {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId){
-            everythingCacheMap = this.requestSpecificCache.getMap({ requestId, name: 'EverythingEndpoint' });
+            everythingCacheMap = this.getDataSharingManagerCache({requestId});
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
@@ -125,7 +134,7 @@ class DataSharingManager {
             }
         }
 
-        const { patientIdToConnectionTypeMap } = await this.getPatientIDToConnectionTypeMap({ patientsList });
+        const patientIdToConnectionTypeMap = await this.getPatientIDToConnectionTypeMap({ patientsList });
 
         /**
          * List of allowed connection types. Fetched from env variable.
@@ -211,7 +220,7 @@ class DataSharingManager {
             const patientReferences = this.getResourceReferencesFromFilter('Patient', parsedArgs);
             if (patientReferences && patientReferences.length > 0) {
                 // 3. Get patients using patientReferences.
-                ({ patientsList } = await this.getPatientsList({ patientReferences }));
+                patientsList = await this.getPatientsList({ patientReferences });
 
                 // 4. Validate if multiple resources are present for the passed patients.
                 await this.validatePatientIdsAsync({ patientsList, patientReferences });
@@ -483,7 +492,7 @@ class DataSharingManager {
             const patient = await cursor.next();
             patientsList.push(patient);
         }
-        return { patientsList };
+        return patientsList;
     }
 
     /**
@@ -504,7 +513,7 @@ class DataSharingManager {
                 patientIdToConnectionTypeMap.set(patient._uuid, connectionTypeSecurityTag.code);
             }
         });
-        return { patientIdToConnectionTypeMap };
+        return patientIdToConnectionTypeMap;
     }
 
     /**
