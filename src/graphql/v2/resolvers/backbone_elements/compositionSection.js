@@ -37,7 +37,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.focusV2);
+                parent.focus);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -57,7 +57,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.entryV2);
+                parent.entry);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
