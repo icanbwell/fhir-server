@@ -159,11 +159,19 @@ class DataSharingManager {
 
         // Case when consented proa data access is enabled.
         if (this.configManager.enableConsentedProaDataAccess) {
-            // Filter Patients which have provided consent to view data.
-            allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
-                patientIdToImmediatePersonUuid,
-                securityTags
-            });
+            if (everythingCacheMap?.has('allowedPatientIds')) {
+                allowedPatientIds = everythingCacheMap.get('allowedPatientIds');
+            }
+            else {
+                // Filter Patients which have provided consent to view data.
+                allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
+                    patientIdToImmediatePersonUuid,
+                    securityTags
+                });
+                if (requestId) {
+                    everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
+                }
+            }
             allowedConnectionTypesList = this.configManager.getConsentConnectionTypesList;
             this.filterPatientsByConnectionType({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList });
             if (allowedPatientIds.size > 0 && allowedConnectionTypesList.length) {
