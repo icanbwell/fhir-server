@@ -32,7 +32,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.supportingPatientInformationV2);
+                parent.supportingPatientInformation);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

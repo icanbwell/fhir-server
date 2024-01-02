@@ -32,7 +32,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.requestV2);
+                parent.request);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -62,7 +62,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.responseV2);
+                parent.response);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

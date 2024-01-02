@@ -6,14 +6,28 @@
                     "code": {
                         "text": "Joint mobility exercises"
                     }
-                }
+                },
+                "outcomeReference": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ],
+                "outcomeReferenceV2": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ]
             },
             {
                 "detail": {
                     "code": {
                         "text": "Heat therapy"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             }
         ],
         "category": [
@@ -29,24 +43,24 @@
             "start": "2021-02-13T20:21:20-05:00"
         },
         "encounter": {
-          "extension": [
-            {
-              "id": "referenceDisplay",
-              "url": "https://www.icanbwell.com/referenceDisplay",
-              "valueString": "Visit with Dr. Who",
-              "valueUri": null
-            }
-          ]
+            "extension": [
+                {
+                    "id": "referenceDisplay",
+                    "url": "https://www.icanbwell.com/referenceDisplay",
+                    "valueString": "Visit with Dr. Who",
+                    "valueUri": null
+                }
+            ]
         },
         "author": {
-          "extension": [
-            {
-              "id": "referenceDisplay",
-              "url": "https://www.icanbwell.com/referenceDisplay",
-              "valueString": "Annis955 Hamill307",
-              "valueUri": null
-            }
-          ]
+            "extension": [
+                {
+                    "id": "referenceDisplay",
+                    "url": "https://www.icanbwell.com/referenceDisplay",
+                    "valueString": "Annis955 Hamill307",
+                    "valueUri": null
+                }
+            ]
         },
         "careTeam": [
             null
@@ -59,14 +73,28 @@
                     "code": {
                         "text": "Airborne precautions (procedure)"
                     }
-                }
+                },
+                "outcomeReference": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ],
+                "outcomeReferenceV2": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ]
             },
             {
                 "detail": {
                     "code": {
                         "text": "Personal protective equipment (physical object)"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             }
         ],
         "category": [
@@ -82,20 +110,20 @@
             "start": "2020-02-29T20:33:52-05:00"
         },
         "encounter": {
-          "extension": [
-            {
-              "id": "referenceDisplay",
-              "url": "https://www.icanbwell.com/referenceDisplay",
-              "valueString": "Visit with another Dr. Who",
-              "valueUri": null
-            },
-            {
-              "id": "referenceType",
-              "url": "https://www.icanbwell.com/referenceType",
-              "valueString": null,
-              "valueUri": "Encounter"
-            }
-          ]
+            "extension": [
+                {
+                    "id": "referenceDisplay",
+                    "url": "https://www.icanbwell.com/referenceDisplay",
+                    "valueString": "Visit with another Dr. Who",
+                    "valueUri": null
+                },
+                {
+                    "id": "referenceType",
+                    "url": "https://www.icanbwell.com/referenceType",
+                    "valueString": null,
+                    "valueUri": "Encounter"
+                }
+            ]
         },
         "author": null,
         "careTeam": [
@@ -109,14 +137,28 @@
                     "code": {
                         "text": "Airborne precautions (procedure)"
                     }
-                }
+                },
+                "outcomeReference": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ],
+                "outcomeReferenceV2": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ]
             },
             {
                 "detail": {
                     "code": {
                         "text": "Isolation of infected patient (procedure)"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             }
         ],
         "category": [
@@ -134,16 +176,16 @@
         "encounter": null,
         "author": null,
         "careTeam": [
-           {
-            "extension": [
-                {
-                    "id": "referenceDisplay",
-                    "url": "https://www.icanbwell.com/referenceDisplay",
-                    "valueString": "Care team display",
-                    "valueUri": null
-                }
-            ]
-           } 
+            {
+                "extension": [
+                    {
+                        "id": "referenceDisplay",
+                        "url": "https://www.icanbwell.com/referenceDisplay",
+                        "valueString": "Care team display",
+                        "valueUri": null
+                    }
+                ]
+            }
         ]
     },
     {
@@ -153,28 +195,46 @@
                     "code": {
                         "text": "Prescribed activity/exercise education"
                     }
-                }
+                },
+                "outcomeReference": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ],
+                "outcomeReferenceV2": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ]
             },
             {
                 "detail": {
                     "code": {
                         "text": "Counseling about alcohol consumption"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             },
             {
                 "detail": {
                     "code": {
                         "text": "Dietary approaches to stop hypertension diet"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             },
             {
                 "detail": {
                     "code": {
                         "text": "Smoking cessation education"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             }
         ],
         "category": [
@@ -202,14 +262,28 @@
                     "code": {
                         "text": "Diabetic diet"
                     }
-                }
+                },
+                "outcomeReference": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ],
+                "outcomeReferenceV2": [
+                    {
+                        "id": "b59f86b9-5307-506a-bb6c-3eb555ace522",
+                        "resourceType": "Observation"
+                    }
+                ]
             },
             {
                 "detail": {
                     "code": {
                         "text": "Exercise therapy"
                     }
-                }
+                },
+                "outcomeReference": null,
+                "outcomeReferenceV2": null
             }
         ],
         "category": [
