@@ -32,6 +32,8 @@ const {ProaConsentManager} = require('./proaConsentManager');
 const {DataSharingManager} = require('./dataSharingManager');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { getResource } = require('../../operations/common/getResource');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 
 class SearchManager {
     /**
@@ -644,8 +646,20 @@ class SearchManager {
              * @type {import('mongodb').Document}
              */
             const projection = {};
+            /**
+             * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+             */
+            const Resource = getResource(VERSIONS['4_0_0'], resourceType);
+            /**
+             * @type {string[]}
+             */
+            const allowedProperties = Object.getOwnPropertyNames(new Resource({}));
             for (const property of properties_to_return_list) {
-                projection[`${property}`] = 1;
+                if (allowedProperties.includes(property)) {
+                    projection[`${property}`] = 1;
+                } else {
+                    throw new BadRequestError(new Error(`Unsupported property '${property}' for the specified resource type.`));
+                }
             }
             // this is a hack for the CQL Evaluator since it does not request these fields but expects them
             if (resourceType === 'Library') {
