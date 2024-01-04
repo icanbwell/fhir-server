@@ -134,8 +134,8 @@ class QuestionnaireResponseItem extends Element {
         });
 
         /**
-         * @description A reference to an [[[ElementDefinition]]] that provides the details for the
-    item.
+         * @description A reference to an [ElementDefinition](elementdefinition.html) that provides
+    the details for the item.
          * @property {uri|undefined}
         */
         Object.defineProperty(this, 'definition', {

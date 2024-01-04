@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
+ * #%L
+ * org.hl7.fhir.r5
+ * %%
+ * Copyright (C) 2014 - 2019 Health Level 7
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+/*
   Copyright (c) 2011+, HL7, Inc.
   All rights reserved.
   
@@ -27,7 +47,7 @@
   POSSIBILITY OF SUCH DAMAGE.
   
 
-  Generated on Fri, Nov 1, 2019 09:29+1100 for FHIR v4.0.1 
+  Generated on Sat, May 28, 2022 12:47+1000 for FHIR v4.3.0 
 
   Note: the schemas &amp; schematrons do not contain all of the rules about what makes resources
   valid. Implementers will still need to be familiar with the content of the specification and with
@@ -305,11 +325,10 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="CarePlanActivityKind-list">
+  <xs:simpleType name="CarePlanActivityKindEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="Appointment">
         <xs:annotation>
-          <xs:documentation xml:lang="en">Appointment</xs:documentation>
           <xs:documentation xml:lang="en">Appointment</xs:documentation>
           <xs:documentation xml:lang="it">Appuntamento</xs:documentation>
           <xs:documentation xml:lang="fr">RendezVous</xs:documentation>
@@ -320,7 +339,6 @@
       <xs:enumeration value="CommunicationRequest">
         <xs:annotation>
           <xs:documentation xml:lang="en">CommunicationRequest</xs:documentation>
-          <xs:documentation xml:lang="en">CommunicationRequest</xs:documentation>
           <xs:documentation xml:lang="it">RichiestaDiComunicazione</xs:documentation>
           <xs:documentation xml:lang="fr">DemandeDeCommunication</xs:documentation>
           <xs:documentation xml:lang="es">ComunicaciónRequerimiento</xs:documentation>
@@ -329,7 +347,6 @@
       </xs:enumeration>
       <xs:enumeration value="DeviceRequest">
         <xs:annotation>
-          <xs:documentation xml:lang="en">DeviceRequest</xs:documentation>
           <xs:documentation xml:lang="en">DeviceRequest</xs:documentation>
           <xs:documentation xml:lang="it">RichiestaDispositivo</xs:documentation>
           <xs:documentation xml:lang="fr">DemandeUtilisationDispositif</xs:documentation>
@@ -340,7 +357,6 @@
       <xs:enumeration value="MedicationRequest">
         <xs:annotation>
           <xs:documentation xml:lang="en">MedicationRequest</xs:documentation>
-          <xs:documentation xml:lang="en">MedicationRequest</xs:documentation>
           <xs:documentation xml:lang="fr">PrescriptionMédicamenteuseTODO</xs:documentation>
           <xs:documentation xml:lang="zh">药物请求</xs:documentation>
           <xs:documentation xml:lang="es">PrescripciónMedicaciónTODO  /PrescripcionMedicamento</xs:documentation>
@@ -348,7 +364,6 @@
       </xs:enumeration>
       <xs:enumeration value="NutritionOrder">
         <xs:annotation>
-          <xs:documentation xml:lang="en">NutritionOrder</xs:documentation>
           <xs:documentation xml:lang="en">NutritionOrder</xs:documentation>
           <xs:documentation xml:lang="fr">OrdreNutrition</xs:documentation>
           <xs:documentation xml:lang="es">OrdenNutrición</xs:documentation>
@@ -358,14 +373,12 @@
       <xs:enumeration value="Task">
         <xs:annotation>
           <xs:documentation xml:lang="en">Task</xs:documentation>
-          <xs:documentation xml:lang="en">Task</xs:documentation>
           <xs:documentation xml:lang="es">Tarea</xs:documentation>
           <xs:documentation xml:lang="zh">任务</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="ServiceRequest">
         <xs:annotation>
-          <xs:documentation xml:lang="en">ServiceRequest</xs:documentation>
           <xs:documentation xml:lang="en">ServiceRequest</xs:documentation>
           <xs:documentation xml:lang="it">RichiestaDiServizio</xs:documentation>
           <xs:documentation xml:lang="fr">DemandeService</xs:documentation>
@@ -376,7 +389,6 @@
       <xs:enumeration value="VisionPrescription">
         <xs:annotation>
           <xs:documentation xml:lang="en">VisionPrescription</xs:documentation>
-          <xs:documentation xml:lang="en">VisionPrescription</xs:documentation>
           <xs:documentation xml:lang="fr">PrescriptionVision</xs:documentation>
           <xs:documentation xml:lang="es">PrescripcionDeVision</xs:documentation>
           <xs:documentation xml:lang="zh">视力处方</xs:documentation>
@@ -386,16 +398,16 @@
   </xs:simpleType>
   <xs:complexType name="CarePlanActivityKind">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Resource types defined as part of FHIR that can be represented as in-line definitions of a care plan activity.</xs:documentation>
+      <xs:documentation xml:lang="en"></xs:documentation>
       <xs:documentation xml:lang="en">If the element is present, it must have either a @value, an @id, or extensions</xs:documentation>
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="CarePlanActivityKind-list" use="optional"/>
+        <xs:attribute name="value" type="CarePlanActivityKindEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="CarePlanActivityStatus-list">
+  <xs:simpleType name="CarePlanActivityStatusEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="not-started">
         <xs:annotation>
@@ -446,16 +458,16 @@
   </xs:simpleType>
   <xs:complexType name="CarePlanActivityStatus">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Codes that reflect the current state of a care plan activity within its overall life cycle.</xs:documentation>
+      <xs:documentation xml:lang="en"></xs:documentation>
       <xs:documentation xml:lang="en">If the element is present, it must have either a @value, an @id, or extensions</xs:documentation>
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="CarePlanActivityStatus-list" use="optional"/>
+        <xs:attribute name="value" type="CarePlanActivityStatusEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="CarePlanIntent-list">
+  <xs:simpleType name="CarePlanIntentEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="proposal">
         <xs:annotation>
@@ -481,16 +493,16 @@
   </xs:simpleType>
   <xs:complexType name="CarePlanIntent">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Codes indicating the degree of authority/intentionality associated with a care plan.</xs:documentation>
+      <xs:documentation xml:lang="en"></xs:documentation>
       <xs:documentation xml:lang="en">If the element is present, it must have either a @value, an @id, or extensions</xs:documentation>
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="CarePlanIntent-list" use="optional"/>
+        <xs:attribute name="value" type="CarePlanIntentEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="RequestStatus-list">
+  <xs:simpleType name="RequestStatusEnum">
     <xs:restriction base="code-primitive">
       <xs:enumeration value="draft">
         <xs:annotation>
@@ -531,12 +543,12 @@
   </xs:simpleType>
   <xs:complexType name="RequestStatus">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Indicates whether the plan is currently being acted upon, represents future intentions or is now a historical record.</xs:documentation>
+      <xs:documentation xml:lang="en"></xs:documentation>
       <xs:documentation xml:lang="en">If the element is present, it must have either a @value, an @id, or extensions</xs:documentation>
     </xs:annotation>
     <xs:complexContent>
       <xs:extension base="Element">
-        <xs:attribute name="value" type="RequestStatus-list" use="optional"/>
+        <xs:attribute name="value" type="RequestStatusEnum" use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

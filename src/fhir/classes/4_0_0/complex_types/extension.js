@@ -42,6 +42,7 @@ class Extension extends Element {
      * @param {Annotation|undefined} [valueAnnotation],
      * @param {Attachment|undefined} [valueAttachment],
      * @param {CodeableConcept|undefined} [valueCodeableConcept],
+     * @param {CodeableReference|undefined} [valueCodeableReference],
      * @param {Coding|undefined} [valueCoding],
      * @param {ContactPoint|undefined} [valueContactPoint],
      * @param {Quantity|undefined} [valueCount],
@@ -54,6 +55,7 @@ class Extension extends Element {
      * @param {Quantity|undefined} [valueQuantity],
      * @param {Range|undefined} [valueRange],
      * @param {Ratio|undefined} [valueRatio],
+     * @param {RatioRange|undefined} [valueRatioRange],
      * @param {Reference|undefined} [valueReference],
      * @param {SampledData|undefined} [valueSampledData],
      * @param {Signature|undefined} [valueSignature],
@@ -67,7 +69,6 @@ class Extension extends Element {
      * @param {TriggerDefinition|undefined} [valueTriggerDefinition],
      * @param {UsageContext|undefined} [valueUsageContext],
      * @param {Dosage|undefined} [valueDosage],
-     * @param {Meta|undefined} [valueMeta],
     */
     constructor(
         {
@@ -98,6 +99,7 @@ class Extension extends Element {
             valueAnnotation,
             valueAttachment,
             valueCodeableConcept,
+            valueCodeableReference,
             valueCoding,
             valueContactPoint,
             valueCount,
@@ -110,6 +112,7 @@ class Extension extends Element {
             valueQuantity,
             valueRange,
             valueRatio,
+            valueRatioRange,
             valueReference,
             valueSampledData,
             valueSignature,
@@ -123,7 +126,6 @@ class Extension extends Element {
             valueTriggerDefinition,
             valueUsageContext,
             valueDosage,
-            valueMeta,
         }
     ) {
         super({});
@@ -633,6 +635,26 @@ class Extension extends Element {
 
         /**
          * @description None
+         * @property {CodeableReference|undefined}
+        */
+        Object.defineProperty(this, 'valueCodeableReference', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.valueCodeableReference,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueCodeableReference = undefined;
+                    return;
+                }
+                const CodeableReference = require('../complex_types/codeableReference.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueCodeableReference = FhirResourceCreator.create(valueProvided, CodeableReference);
+            }
+        });
+
+        /**
+         * @description None
          * @property {Coding|undefined}
         */
         Object.defineProperty(this, 'valueCoding', {
@@ -868,6 +890,26 @@ class Extension extends Element {
                 const Ratio = require('../complex_types/ratio.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.valueRatio = FhirResourceCreator.create(valueProvided, Ratio);
+            }
+        });
+
+        /**
+         * @description None
+         * @property {RatioRange|undefined}
+        */
+        Object.defineProperty(this, 'valueRatioRange', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.valueRatioRange,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueRatioRange = undefined;
+                    return;
+                }
+                const RatioRange = require('../complex_types/ratioRange.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueRatioRange = FhirResourceCreator.create(valueProvided, RatioRange);
             }
         });
 
@@ -1131,26 +1173,6 @@ class Extension extends Element {
             }
         });
 
-        /**
-         * @description None
-         * @property {Meta|undefined}
-        */
-        Object.defineProperty(this, 'valueMeta', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.valueMeta,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueMeta = undefined;
-                    return;
-                }
-                const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.valueMeta = FhirResourceCreator.create(valueProvided, Meta);
-            }
-        });
-
 
 
 
@@ -1183,6 +1205,7 @@ class Extension extends Element {
             valueAnnotation,
             valueAttachment,
             valueCodeableConcept,
+            valueCodeableReference,
             valueCoding,
             valueContactPoint,
             valueCount,
@@ -1195,6 +1218,7 @@ class Extension extends Element {
             valueQuantity,
             valueRange,
             valueRatio,
+            valueRatioRange,
             valueReference,
             valueSampledData,
             valueSignature,
@@ -1208,7 +1232,6 @@ class Extension extends Element {
             valueTriggerDefinition,
             valueUsageContext,
             valueDosage,
-            valueMeta,
         });
 
     }
@@ -1250,6 +1273,7 @@ class Extension extends Element {
             valueAnnotation: this.valueAnnotation && this.valueAnnotation.toJSON(),
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
+            valueCodeableReference: this.valueCodeableReference && this.valueCodeableReference.toJSON(),
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueContactPoint: this.valueContactPoint && this.valueContactPoint.toJSON(),
             valueCount: this.valueCount && this.valueCount.toJSON(),
@@ -1262,6 +1286,7 @@ class Extension extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueRange: this.valueRange && this.valueRange.toJSON(),
             valueRatio: this.valueRatio && this.valueRatio.toJSON(),
+            valueRatioRange: this.valueRatioRange && this.valueRatioRange.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
             valueSampledData: this.valueSampledData && this.valueSampledData.toJSON(),
             valueSignature: this.valueSignature && this.valueSignature.toJSON(),
@@ -1275,7 +1300,6 @@ class Extension extends Element {
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSON(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
-            valueMeta: this.valueMeta && this.valueMeta.toJSON(),
         });
     }
 
@@ -1291,6 +1315,7 @@ class Extension extends Element {
             if (this.valueAnnotation) {await this.valueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueAttachment) {await this.valueAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueCodeableConcept) {await this.valueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.valueCodeableReference) {await this.valueCodeableReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueCoding) {await this.valueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueContactPoint) {await this.valueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueCount) {await this.valueCount.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -1303,6 +1328,7 @@ class Extension extends Element {
             if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueRange) {await this.valueRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueRatio) {await this.valueRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.valueRatioRange) {await this.valueRatioRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueReference) {await this.valueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueSampledData) {await this.valueSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueSignature) {await this.valueSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -1316,7 +1342,6 @@ class Extension extends Element {
             if (this.valueTriggerDefinition) {await this.valueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueUsageContext) {await this.valueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueDosage) {await this.valueDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueMeta) {await this.valueMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 
     /**
@@ -1353,6 +1378,7 @@ class Extension extends Element {
             valueAnnotation: this.valueAnnotation && this.valueAnnotation.toJSONInternal(),
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
+            valueCodeableReference: this.valueCodeableReference && this.valueCodeableReference.toJSONInternal(),
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueContactPoint: this.valueContactPoint && this.valueContactPoint.toJSONInternal(),
             valueCount: this.valueCount && this.valueCount.toJSONInternal(),
@@ -1365,6 +1391,7 @@ class Extension extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
             valueRatio: this.valueRatio && this.valueRatio.toJSONInternal(),
+            valueRatioRange: this.valueRatioRange && this.valueRatioRange.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
             valueSampledData: this.valueSampledData && this.valueSampledData.toJSONInternal(),
             valueSignature: this.valueSignature && this.valueSignature.toJSONInternal(),
@@ -1378,7 +1405,6 @@ class Extension extends Element {
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSONInternal(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSONInternal(),
             valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
-            valueMeta: this.valueMeta && this.valueMeta.toJSONInternal(),
         };
 
 

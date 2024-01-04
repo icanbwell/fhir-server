@@ -11,8 +11,9 @@ const async = require('async');
 PlanDefinition.Action
     This resource allows for the definition of various types of plans as a
     sharable, consumable, and executable artifact. The resource is general enough
-    to support the description of a broad range of clinical artifacts such as
-    clinical decision support rules, order sets and protocols.
+    to support the description of a broad range of clinical and non-clinical
+    artifacts such as clinical decision support rules, order sets, protocols, and
+    drug quality specifications.
 */
 class PlanDefinitionAction extends Element {
     /**
@@ -30,6 +31,7 @@ class PlanDefinitionAction extends Element {
      * @param {id[]|undefined} [goalId],
      * @param {CodeableConcept|undefined} [subjectCodeableConcept],
      * @param {Reference|undefined} [subjectReference],
+     * @param {canonical|undefined} [subjectCanonical],
      * @param {TriggerDefinition[]|undefined} [trigger],
      * @param {PlanDefinitionCondition[]|undefined} [condition],
      * @param {DataRequirement[]|undefined} [input],
@@ -70,6 +72,7 @@ class PlanDefinitionAction extends Element {
             goalId,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             trigger,
             condition,
             input,
@@ -192,7 +195,9 @@ class PlanDefinitionAction extends Element {
         });
 
         /**
-         * @description The title of the action displayed to a user.
+         * @description The textual description of the action displayed to a user. For example, when
+    the action is a test to be performed, the title would be the title of the test
+    such as Assay by HPLC.
          * @property {String|undefined}
         */
         Object.defineProperty(this, 'title', {
@@ -268,8 +273,10 @@ class PlanDefinitionAction extends Element {
         });
 
         /**
-         * @description A code that provides meaning for the action or action group. For example, a
-    section may have a LOINC code for the section of a documentation template.
+         * @description A code that provides a meaning, grouping, or classification for the action or
+    action group. For example, a section may have a LOINC code for the section of
+    a documentation template. In pharmaceutical quality, an action (Test) such as
+    pH could be classified as a physical property.
          * @property {CodeableConcept[]|undefined}
         */
         Object.defineProperty(this, 'code', {
@@ -332,7 +339,10 @@ class PlanDefinitionAction extends Element {
 
         /**
          * @description Identifies goals that this action supports. The reference must be to a goal
-    element defined within this plan definition.
+    element defined within this plan definition. In pharmaceutical quality, a goal
+    represents acceptance criteria (Goal) for a given action (Test), so the goalId
+    would be the unique id of a defined goal element establishing the acceptance
+    criteria for the action.
          * @property {id[]|undefined}
         */
         Object.defineProperty(this, 'goalId', {
@@ -386,6 +396,24 @@ class PlanDefinitionAction extends Element {
                 const Reference = require('../complex_types/reference.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.subjectReference = FhirResourceCreator.create(valueProvided, Reference);
+            }
+        });
+
+        /**
+         * @description None
+         * @property {canonical|undefined}
+        */
+        Object.defineProperty(this, 'subjectCanonical', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.subjectCanonical,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectCanonical = undefined;
+                    return;
+                }
+                this.__data.subjectCanonical = valueProvided;
             }
         });
 
@@ -859,6 +887,7 @@ class PlanDefinitionAction extends Element {
             goalId,
             subjectCodeableConcept,
             subjectReference,
+            subjectCanonical,
             trigger,
             condition,
             input,
@@ -910,6 +939,7 @@ class PlanDefinitionAction extends Element {
             goalId: this.goalId,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSON(),
             subjectReference: this.subjectReference && this.subjectReference.toJSON(),
+            subjectCanonical: this.subjectCanonical,
             trigger: this.trigger && this.trigger.map(v => v.toJSON()),
             condition: this.condition && this.condition.map(v => v.toJSON()),
             input: this.input && this.input.map(v => v.toJSON()),
@@ -986,6 +1016,7 @@ class PlanDefinitionAction extends Element {
             goalId: this.goalId,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSONInternal(),
             subjectReference: this.subjectReference && this.subjectReference.toJSONInternal(),
+            subjectCanonical: this.subjectCanonical,
             trigger: this.trigger && this.trigger.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.map(v => v.toJSONInternal()),
             input: this.input && this.input.map(v => v.toJSONInternal()),

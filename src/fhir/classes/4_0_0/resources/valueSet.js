@@ -10,13 +10,13 @@ const async = require('async');
 ValueSet
     A ValueSet resource instance specifies a set of codes drawn from one or more
     code systems, intended for use in a particular context. Value sets link
-    between [[[CodeSystem]]] definitions and their use in [coded
+    between [CodeSystem](codesystem.html) definitions and their use in [coded
     elements](terminologies.html).
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class ValueSet extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -88,7 +88,7 @@ class ValueSet extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -751,7 +751,7 @@ class ValueSet extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],

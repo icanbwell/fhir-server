@@ -15,7 +15,7 @@ MessageDefinition
 */
 class MessageDefinition extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -45,7 +45,7 @@ class MessageDefinition extends Resource {
      * @param {uri|undefined} [eventUri],
      * @param {code|undefined} [category],
      * @param {MessageDefinitionFocus[]|undefined} [focus],
-     * @param {code|undefined} [responseRequired],
+     * @param {messageheaderResponseRequest|undefined} [responseRequired],
      * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
      * @param {canonical[]|undefined} [graph],
      * @param {Object|undefined} [_access]
@@ -101,7 +101,7 @@ class MessageDefinition extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -722,7 +722,7 @@ class MessageDefinition extends Resource {
         /**
          * @description Declare at a message definition level whether a response is required or only
     upon error or success, or never.
-         * @property {code|undefined}
+         * @property {messageheaderResponseRequest|undefined}
         */
         Object.defineProperty(this, 'responseRequired', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -734,7 +734,9 @@ class MessageDefinition extends Resource {
                     this.__data.responseRequired = undefined;
                     return;
                 }
-                this.__data.responseRequired = valueProvided;
+                const messageheaderResponseRequest = require('../complex_types/messageheaderResponseRequest.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.responseRequired = FhirResourceCreator.create(valueProvided, messageheaderResponseRequest);
             }
         });
 
@@ -761,9 +763,10 @@ class MessageDefinition extends Resource {
 
         /**
          * @description Canonical reference to a GraphDefinition. If a URL is provided, it is the
-    canonical reference to a [[[GraphDefinition]]] that it controls what resources
-    are to be added to the bundle when building the document. The GraphDefinition
-    can also specify profiles that apply to the various resources.
+    canonical reference to a [GraphDefinition](graphdefinition.html) that it
+    controls what resources are to be added to the bundle when building the
+    document. The GraphDefinition can also specify profiles that apply to the
+    various resources.
          * @property {canonical[]|undefined}
         */
         Object.defineProperty(this, 'graph', {
@@ -898,7 +901,7 @@ class MessageDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -928,7 +931,7 @@ class MessageDefinition extends Resource {
      * @param {uri|undefined} [eventUri],
      * @param {code|undefined} [category],
      * @param {MessageDefinitionFocus[]|undefined} [focus],
-     * @param {code|undefined} [responseRequired],
+     * @param {messageheaderResponseRequest|undefined} [responseRequired],
      * @param {MessageDefinitionAllowedResponse[]|undefined} [allowedResponse],
      * @param {canonical[]|undefined} [graph],
      * @param {Object|undefined} [_access]
@@ -1067,7 +1070,7 @@ class MessageDefinition extends Resource {
             eventUri: this.eventUri,
             category: this.category,
             focus: this.focus && this.focus.map(v => v.toJSON()),
-            responseRequired: this.responseRequired,
+            responseRequired: this.responseRequired && this.responseRequired.toJSON(),
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSON()),
             graph: this.graph,
         });
@@ -1090,6 +1093,7 @@ class MessageDefinition extends Resource {
             if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.eventCoding) {await this.eventCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.focus) {await async.each(this.focus, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.responseRequired) {await this.responseRequired.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.allowedResponse) {await async.each(this.allowedResponse, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
@@ -1131,7 +1135,7 @@ class MessageDefinition extends Resource {
             eventUri: this.eventUri,
             category: this.category,
             focus: this.focus && this.focus.map(v => v.toJSONInternal()),
-            responseRequired: this.responseRequired,
+            responseRequired: this.responseRequired && this.responseRequired.toJSONInternal(),
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSONInternal()),
             graph: this.graph,
         };

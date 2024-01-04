@@ -8,13 +8,13 @@ const async = require('async');
 
 /**
 EvidenceVariable
-    The EvidenceVariable resource describes a "PICO" element that knowledge
-    (evidence, assertion, recommendation) is about.
+    The EvidenceVariable resource describes an element that knowledge (Evidence)
+    is about.
     If the element is present, it must have either a @value, an @id, or extensions
 */
 class EvidenceVariable extends Resource {
     /**
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -31,24 +31,21 @@ class EvidenceVariable extends Resource {
      * @param {String|undefined} [subtitle],
      * @param {code} status,
      * @param {dateTime|undefined} [date],
-     * @param {String|undefined} [publisher],
-     * @param {ContactDetail[]|undefined} [contact],
      * @param {markdown|undefined} [description],
      * @param {Annotation[]|undefined} [note],
      * @param {UsageContext[]|undefined} [useContext],
-     * @param {CodeableConcept[]|undefined} [jurisdiction],
-     * @param {markdown|undefined} [copyright],
-     * @param {date|undefined} [approvalDate],
-     * @param {date|undefined} [lastReviewDate],
-     * @param {Period|undefined} [effectivePeriod],
-     * @param {CodeableConcept[]|undefined} [topic],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
      * @param {ContactDetail[]|undefined} [author],
      * @param {ContactDetail[]|undefined} [editor],
      * @param {ContactDetail[]|undefined} [reviewer],
      * @param {ContactDetail[]|undefined} [endorser],
      * @param {RelatedArtifact[]|undefined} [relatedArtifact],
-     * @param {code|undefined} [type],
-     * @param {EvidenceVariableCharacteristic[]} characteristic,
+     * @param {Boolean|undefined} [actual],
+     * @param {code|undefined} [characteristicCombination],
+     * @param {EvidenceVariableCharacteristic[]|undefined} [characteristic],
+     * @param {code|undefined} [handling],
+     * @param {EvidenceVariableCategory[]|undefined} [category],
      * @param {Object|undefined} [_access]
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
@@ -73,24 +70,21 @@ class EvidenceVariable extends Resource {
             subtitle,
             status,
             date,
-            publisher,
-            contact,
             description,
             note,
             useContext,
-            jurisdiction,
-            copyright,
-            approvalDate,
-            lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            type,
+            actual,
+            characteristicCombination,
             characteristic,
+            handling,
+            category,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -104,7 +98,7 @@ class EvidenceVariable extends Resource {
         /**
          * @description The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
-         * @property {id|undefined}
+         * @property {String|undefined}
         */
         Object.defineProperty(this, 'id', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -474,46 +468,6 @@ class EvidenceVariable extends Resource {
         });
 
         /**
-         * @description The name of the organization or individual that published the evidence
-    variable.
-         * @property {String|undefined}
-        */
-        Object.defineProperty(this, 'publisher', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.publisher,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.publisher = undefined;
-                    return;
-                }
-                this.__data.publisher = valueProvided;
-            }
-        });
-
-        /**
-         * @description Contact details to assist a user in finding and communicating with the
-    publisher.
-         * @property {ContactDetail[]|undefined}
-        */
-        Object.defineProperty(this, 'contact', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.contact,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = undefined;
-                    return;
-                }
-                const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
-            }
-        });
-
-        /**
          * @description A free text natural language description of the evidence variable from a
     consumer's perspective.
          * @property {markdown|undefined}
@@ -577,124 +531,42 @@ class EvidenceVariable extends Resource {
         });
 
         /**
-         * @description A legal or geographic region in which the evidence variable is intended to be
-    used.
-         * @property {CodeableConcept[]|undefined}
+         * @description The name of the organization or individual that published the evidence
+    variable.
+         * @property {String|undefined}
         */
-        Object.defineProperty(this, 'jurisdiction', {
+        Object.defineProperty(this, 'publisher', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.jurisdiction,
+            get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = undefined;
+                    this.__data.publisher = undefined;
                     return;
                 }
-                const CodeableConcept = require('../complex_types/codeableConcept.js');
+                this.__data.publisher = valueProvided;
+            }
+        });
+
+        /**
+         * @description Contact details to assist a user in finding and communicating with the
+    publisher.
+         * @property {ContactDetail[]|undefined}
+        */
+        Object.defineProperty(this, 'contact', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.contact,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = undefined;
+                    return;
+                }
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
-            }
-        });
-
-        /**
-         * @description A copyright statement relating to the evidence variable and/or its contents.
-    Copyright statements are generally legal restrictions on the use and
-    publishing of the evidence variable.
-         * @property {markdown|undefined}
-        */
-        Object.defineProperty(this, 'copyright', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.copyright,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copyright = undefined;
-                    return;
-                }
-                this.__data.copyright = valueProvided;
-            }
-        });
-
-        /**
-         * @description The date on which the resource content was approved by the publisher. Approval
-    happens once when the content is officially approved for usage.
-         * @property {date|undefined}
-        */
-        Object.defineProperty(this, 'approvalDate', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.approvalDate,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.approvalDate = undefined;
-                    return;
-                }
-                this.__data.approvalDate = valueProvided;
-            }
-        });
-
-        /**
-         * @description The date on which the resource content was last reviewed. Review happens
-    periodically after approval but does not change the original approval date.
-         * @property {date|undefined}
-        */
-        Object.defineProperty(this, 'lastReviewDate', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.lastReviewDate,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lastReviewDate = undefined;
-                    return;
-                }
-                this.__data.lastReviewDate = valueProvided;
-            }
-        });
-
-        /**
-         * @description The period during which the evidence variable content was or is planned to be
-    in active use.
-         * @property {Period|undefined}
-        */
-        Object.defineProperty(this, 'effectivePeriod', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.effectivePeriod,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectivePeriod = undefined;
-                    return;
-                }
-                const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.effectivePeriod = FhirResourceCreator.create(valueProvided, Period);
-            }
-        });
-
-        /**
-         * @description Descriptive topics related to the content of the EvidenceVariable. Topics
-    provide a high-level categorization grouping types of EvidenceVariables that
-    can be useful for filtering and searching.
-         * @property {CodeableConcept[]|undefined}
-        */
-        Object.defineProperty(this, 'topic', {
-            // https://www.w3schools.com/js/js_object_es5.asp
-            enumerable: true,
-            configurable: true,
-            get: () => this.__data.topic,
-            set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topic = undefined;
-                    return;
-                }
-                const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
-                this.__data.topic = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
+                this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -804,27 +676,46 @@ class EvidenceVariable extends Resource {
         });
 
         /**
-         * @description The type of evidence element, a population, an exposure, or an outcome.
-         * @property {code|undefined}
+         * @description True if the actual variable measured, false if a conceptual representation of
+    the intended variable.
+         * @property {Boolean|undefined}
         */
-        Object.defineProperty(this, 'type', {
+        Object.defineProperty(this, 'actual', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.type,
+            get: () => this.__data.actual,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = undefined;
+                    this.__data.actual = undefined;
                     return;
                 }
-                this.__data.type = valueProvided;
+                this.__data.actual = valueProvided;
+            }
+        });
+
+        /**
+         * @description Used to specify if two or more characteristics are combined with OR or AND.
+         * @property {code|undefined}
+        */
+        Object.defineProperty(this, 'characteristicCombination', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.characteristicCombination,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.characteristicCombination = undefined;
+                    return;
+                }
+                this.__data.characteristicCombination = valueProvided;
             }
         });
 
         /**
          * @description A characteristic that defines the members of the evidence element. Multiple
     characteristics are applied with "and" semantics.
-         * @property {EvidenceVariableCharacteristic[]}
+         * @property {EvidenceVariableCharacteristic[]|undefined}
         */
         Object.defineProperty(this, 'characteristic', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -839,6 +730,45 @@ class EvidenceVariable extends Resource {
                 const EvidenceVariableCharacteristic = require('../backbone_elements/evidenceVariableCharacteristic.js');
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
                 this.__data.characteristic = FhirResourceCreator.createArray(valueProvided, EvidenceVariableCharacteristic);
+            }
+        });
+
+        /**
+         * @description Used for an outcome to classify.
+         * @property {code|undefined}
+        */
+        Object.defineProperty(this, 'handling', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.handling,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.handling = undefined;
+                    return;
+                }
+                this.__data.handling = valueProvided;
+            }
+        });
+
+        /**
+         * @description A grouping (or set of values) described along with other groupings to specify
+    the set of groupings allowed for the variable.
+         * @property {EvidenceVariableCategory[]|undefined}
+        */
+        Object.defineProperty(this, 'category', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.category,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = undefined;
+                    return;
+                }
+                const EvidenceVariableCategory = require('../backbone_elements/evidenceVariableCategory.js');
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.category = FhirResourceCreator.createArray(valueProvided, EvidenceVariableCategory);
             }
         });
 
@@ -916,24 +846,21 @@ class EvidenceVariable extends Resource {
             subtitle,
             status,
             date,
-            publisher,
-            contact,
             description,
             note,
             useContext,
-            jurisdiction,
-            copyright,
-            approvalDate,
-            lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            type,
+            actual,
+            characteristicCombination,
             characteristic,
+            handling,
+            category,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -962,7 +889,7 @@ class EvidenceVariable extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @param {id|undefined} [id],
+     * @param {String|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
@@ -979,24 +906,21 @@ class EvidenceVariable extends Resource {
      * @param {String|undefined} [subtitle],
      * @param {code} status,
      * @param {dateTime|undefined} [date],
-     * @param {String|undefined} [publisher],
-     * @param {ContactDetail[]|undefined} [contact],
      * @param {markdown|undefined} [description],
      * @param {Annotation[]|undefined} [note],
      * @param {UsageContext[]|undefined} [useContext],
-     * @param {CodeableConcept[]|undefined} [jurisdiction],
-     * @param {markdown|undefined} [copyright],
-     * @param {date|undefined} [approvalDate],
-     * @param {date|undefined} [lastReviewDate],
-     * @param {Period|undefined} [effectivePeriod],
-     * @param {CodeableConcept[]|undefined} [topic],
+     * @param {String|undefined} [publisher],
+     * @param {ContactDetail[]|undefined} [contact],
      * @param {ContactDetail[]|undefined} [author],
      * @param {ContactDetail[]|undefined} [editor],
      * @param {ContactDetail[]|undefined} [reviewer],
      * @param {ContactDetail[]|undefined} [endorser],
      * @param {RelatedArtifact[]|undefined} [relatedArtifact],
-     * @param {code|undefined} [type],
-     * @param {EvidenceVariableCharacteristic[]} characteristic,
+     * @param {Boolean|undefined} [actual],
+     * @param {code|undefined} [characteristicCombination],
+     * @param {EvidenceVariableCharacteristic[]|undefined} [characteristic],
+     * @param {code|undefined} [handling],
+     * @param {EvidenceVariableCategory[]|undefined} [category],
      * @param {Object|undefined} [_access]
      * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
@@ -1022,24 +946,21 @@ class EvidenceVariable extends Resource {
             subtitle,
             status,
             date,
-            publisher,
-            contact,
             description,
             note,
             useContext,
-            jurisdiction,
-            copyright,
-            approvalDate,
-            lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            type,
+            actual,
+            characteristicCombination,
             characteristic,
+            handling,
+            category,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -1064,24 +985,21 @@ class EvidenceVariable extends Resource {
             subtitle,
             status,
             date,
-            publisher,
-            contact,
             description,
             note,
             useContext,
-            jurisdiction,
-            copyright,
-            approvalDate,
-            lastReviewDate,
-            effectivePeriod,
-            topic,
+            publisher,
+            contact,
             author,
             editor,
             reviewer,
             endorser,
             relatedArtifact,
-            type,
+            actual,
+            characteristicCombination,
             characteristic,
+            handling,
+            category,
             _access,
             _sourceAssigningAuthority,
             _uuid,
@@ -1124,24 +1042,21 @@ class EvidenceVariable extends Resource {
             subtitle: this.subtitle,
             status: this.status,
             date: this.date,
-            publisher: this.publisher,
-            contact: this.contact && this.contact.map(v => v.toJSON()),
             description: this.description,
             note: this.note && this.note.map(v => v.toJSON()),
             useContext: this.useContext && this.useContext.map(v => v.toJSON()),
-            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
-            copyright: this.copyright,
-            approvalDate: this.approvalDate,
-            lastReviewDate: this.lastReviewDate,
-            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
-            topic: this.topic && this.topic.map(v => v.toJSON()),
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSON()),
             author: this.author && this.author.map(v => v.toJSON()),
             editor: this.editor && this.editor.map(v => v.toJSON()),
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSON()),
             endorser: this.endorser && this.endorser.map(v => v.toJSON()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
-            type: this.type,
+            actual: this.actual,
+            characteristicCombination: this.characteristicCombination,
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
+            handling: this.handling,
+            category: this.category && this.category.map(v => v.toJSON()),
         });
     }
 
@@ -1157,18 +1072,16 @@ class EvidenceVariable extends Resource {
             if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.useContext) {await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.effectivePeriod) {await this.effectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.topic) {await async.each(this.topic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.author) {await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.editor) {await async.each(this.editor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.reviewer) {await async.each(this.reviewer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.endorser) {await async.each(this.endorser, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.relatedArtifact) {await async.each(this.relatedArtifact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.characteristic) {await async.each(this.characteristic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**
@@ -1196,24 +1109,21 @@ class EvidenceVariable extends Resource {
             subtitle: this.subtitle,
             status: this.status,
             date: this.date,
-            publisher: this.publisher,
-            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
             description: this.description,
             note: this.note && this.note.map(v => v.toJSONInternal()),
             useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
-            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
-            copyright: this.copyright,
-            approvalDate: this.approvalDate,
-            lastReviewDate: this.lastReviewDate,
-            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
-            topic: this.topic && this.topic.map(v => v.toJSONInternal()),
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
             author: this.author && this.author.map(v => v.toJSONInternal()),
             editor: this.editor && this.editor.map(v => v.toJSONInternal()),
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSONInternal()),
             endorser: this.endorser && this.endorser.map(v => v.toJSONInternal()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
-            type: this.type,
+            actual: this.actual,
+            characteristicCombination: this.characteristicCombination,
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
+            handling: this.handling,
+            category: this.category && this.category.map(v => v.toJSONInternal()),
         };
 
 

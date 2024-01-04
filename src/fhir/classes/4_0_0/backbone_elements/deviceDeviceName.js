@@ -109,7 +109,7 @@ class DeviceDeviceName extends Element {
         });
 
         /**
-         * @description The name of the device.
+         * @description The name that identifies the device.
          * @property {String}
         */
         Object.defineProperty(this, 'name', {

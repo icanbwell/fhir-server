@@ -114,7 +114,7 @@ class CodeSystemFilter extends Element {
 
         /**
          * @description The code that identifies this filter when it is used as a filter in
-    [[[ValueSet]]].compose.include.filter.
+    [ValueSet](valueset.html#).compose.include.filter.
          * @property {code}
         */
         Object.defineProperty(this, 'code', {
