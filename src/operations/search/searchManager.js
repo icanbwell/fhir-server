@@ -33,6 +33,7 @@ const {DataSharingManager} = require('./dataSharingManager');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 
 class SearchManager {
     /**
@@ -640,13 +641,19 @@ class SearchManager {
          * @type {string[]}
          */
         const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
-        const Resource = getResource('4_0_0', resourceType);
-        const allowedProperties = Object.getOwnPropertyNames(new Resource({}));
         if (properties_to_return_list && properties_to_return_list.length > 0) {
             /**
              * @type {import('mongodb').Document}
              */
             const projection = {};
+            /**
+             * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+             */
+            const Resource = getResource(VERSIONS['4_0_0'], resourceType);
+            /**
+             * @type {string[]}
+             */
+            const allowedProperties = Object.getOwnPropertyNames(new Resource({}));
             for (const property of properties_to_return_list) {
                 if (allowedProperties.includes(property)) {
                     projection[`${property}`] = 1;
