@@ -1,8 +1,6 @@
 {
   "fhirVersion": "4.0.0",
-  "format": [
-    "application/fhir+json"
-  ],
+  "format": ["application/fhir+json"],
   "implementation": {
     "description": "FHIR Test Server (R4)"
   },
@@ -13,6 +11,174 @@
     {
       "mode": "server",
       "operation": [
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
+        },
         {
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
@@ -28209,6 +28375,166 @@
             }
           ],
           "type": "Subscription"
+        },
+        {
+          "conditionalDelete": "not-supported",
+          "interaction": [
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "vread"
+            },
+            {
+              "code": "create"
+            },
+            {
+              "code": "update"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "history-type"
+            },
+            {
+              "code": "history-instance"
+            }
+          ],
+          "profile": {
+            "reference": "http://hl7.org/fhir/SubscriptionStatus.html"
+          },
+          "searchParam": [
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-content",
+              "name": "_content",
+              "type": "string"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-id",
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-lastUpdated",
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-profile",
+              "name": "_profile",
+              "type": "reference"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-query",
+              "name": "_query",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-security",
+              "name": "_security",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-source",
+              "name": "_source",
+              "type": "uri"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-tag",
+              "name": "_tag",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/DomainResource-text",
+              "name": "_text",
+              "type": "string"
+            }
+          ],
+          "type": "SubscriptionStatus"
+        },
+        {
+          "conditionalDelete": "not-supported",
+          "interaction": [
+            {
+              "code": "search-type"
+            },
+            {
+              "code": "read"
+            },
+            {
+              "code": "vread"
+            },
+            {
+              "code": "create"
+            },
+            {
+              "code": "update"
+            },
+            {
+              "code": "delete"
+            },
+            {
+              "code": "history-type"
+            },
+            {
+              "code": "history-instance"
+            }
+          ],
+          "profile": {
+            "reference": "http://hl7.org/fhir/SubscriptionTopic.html"
+          },
+          "searchParam": [
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-content",
+              "name": "_content",
+              "type": "string"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-id",
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-lastUpdated",
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-profile",
+              "name": "_profile",
+              "type": "reference"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-query",
+              "name": "_query",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-security",
+              "name": "_security",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-source",
+              "name": "_source",
+              "type": "uri"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/Resource-tag",
+              "name": "_tag",
+              "type": "token"
+            },
+            {
+              "definition": "http://hl7.org/fhir/SearchParameter/DomainResource-text",
+              "name": "_text",
+              "type": "string"
+            }
+          ],
+          "type": "SubscriptionTopic"
         },
         {
           "conditionalDelete": "not-supported",
