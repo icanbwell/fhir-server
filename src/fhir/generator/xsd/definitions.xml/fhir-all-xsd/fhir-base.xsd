@@ -499,6 +499,8 @@
       <xs:element ref="StructureDefinition"/>
       <xs:element ref="StructureMap"/>
       <xs:element ref="Subscription"/>
+      <xs:element ref="SubscriptionStatus"/>
+      <xs:element ref="SubscriptionTopic"/>
       <xs:element ref="Substance"/>
       <xs:element ref="SubstanceNucleicAcid"/>
       <xs:element ref="SubstancePolymer"/>

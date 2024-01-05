@@ -133,6 +133,8 @@
 # import StructureDefinition from "./resources/structureDefinition.graphql"
 # import StructureMap from "./resources/structureMap.graphql"
 # import Subscription from "./resources/subscription.graphql"
+# import SubscriptionStatus from "./resources/subscriptionStatus.graphql"
+# import SubscriptionTopic from "./resources/subscriptionTopic.graphql"
 # import Substance from "./resources/substance.graphql"
 # import SubstanceNucleicAcid from "./resources/substanceNucleicAcid.graphql"
 # import SubstancePolymer from "./resources/substancePolymer.graphql"

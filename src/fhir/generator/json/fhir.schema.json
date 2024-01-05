@@ -135,6 +135,8 @@
       "StructureDefinition": "#/definitions/StructureDefinition",
       "StructureMap": "#/definitions/StructureMap",
       "Subscription": "#/definitions/Subscription",
+      "SubscriptionStatus": "#/definitions/SubscriptionStatus",
+      "SubscriptionTopic": "#/definitions/SubscriptionTopic",
       "Substance": "#/definitions/Substance",
       "SubstanceNucleicAcid": "#/definitions/SubstanceNucleicAcid",
       "SubstancePolymer": "#/definitions/SubstancePolymer",
@@ -543,6 +545,12 @@
     },
     {
       "$ref": "#/definitions/Subscription"
+    },
+    {
+      "$ref": "#/definitions/SubscriptionStatus"
+    },
+    {
+      "$ref": "#/definitions/SubscriptionTopic"
     },
     {
       "$ref": "#/definitions/Substance"
@@ -985,6 +993,12 @@
         },
         {
           "$ref": "#/definitions/Subscription"
+        },
+        {
+          "$ref": "#/definitions/SubscriptionStatus"
+        },
+        {
+          "$ref": "#/definitions/SubscriptionTopic"
         },
         {
           "$ref": "#/definitions/Substance"
@@ -53275,6 +53289,698 @@
         },
         "_header": {
           "description": "Extensions for header",
+          "items": {
+            "$ref": "#/definitions/Element"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubscriptionStatus": {
+      "description": "The SubscriptionStatus resource describes the state of a Subscription during notifications.",
+      "properties": {
+        "resourceType": {
+          "description": "This is a SubscriptionStatus resource",
+          "const": "SubscriptionStatus"
+        },
+        "id": {
+          "description": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+          "$ref": "#/definitions/string"
+        },
+        "meta": {
+          "description": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+          "$ref": "#/definitions/Meta"
+        },
+        "implicitRules": {
+          "description": "A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc.",
+          "$ref": "#/definitions/uri"
+        },
+        "_implicitRules": {
+          "description": "Extensions for implicitRules",
+          "$ref": "#/definitions/Element"
+        },
+        "language": {
+          "description": "The base language in which the resource is written.",
+          "$ref": "#/definitions/code"
+        },
+        "_language": {
+          "description": "Extensions for language",
+          "$ref": "#/definitions/Element"
+        },
+        "text": {
+          "description": "A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it \"clinically safe\" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety.",
+          "$ref": "#/definitions/Narrative"
+        },
+        "contained": {
+          "description": "These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope.",
+          "items": {
+            "$ref": "#/definitions/ResourceList"
+          },
+          "type": "array"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "status": {
+          "description": "The status of the subscription, which marks the server state for managing the subscription.",
+          "$ref": "#/definitions/code"
+        },
+        "_status": {
+          "description": "Extensions for status",
+          "$ref": "#/definitions/Element"
+        },
+        "type": {
+          "description": "The type of event being conveyed with this notificaiton.",
+          "$ref": "#/definitions/code"
+        },
+        "_type": {
+          "description": "Extensions for type",
+          "$ref": "#/definitions/Element"
+        },
+        "eventsSinceSubscriptionStart": {
+          "description": "The total number of actual events which have been generated since the Subscription was created (inclusive of this notification) - regardless of how many have been successfully communicated.  This number is NOT incremented for handshake and heartbeat notifications.",
+          "$ref": "#/definitions/string"
+        },
+        "_eventsSinceSubscriptionStart": {
+          "description": "Extensions for eventsSinceSubscriptionStart",
+          "$ref": "#/definitions/Element"
+        },
+        "notificationEvent": {
+          "description": "Detailed information about events relevant to this subscription notification.",
+          "items": {
+            "$ref": "#/definitions/SubscriptionStatus_NotificationEvent"
+          },
+          "type": "array"
+        },
+        "subscription": {
+          "description": "The reference to the Subscription which generated this notification.",
+          "$ref": "#/definitions/Reference"
+        },
+        "topic": {
+          "description": "The reference to the SubscriptionTopic for the Subscription which generated this notification.",
+          "$ref": "#/definitions/canonical"
+        },
+        "error": {
+          "description": "A record of errors that occurred when the server processed a notification.",
+          "items": {
+            "$ref": "#/definitions/CodeableConcept"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "subscription",
+        "resourceType"
+      ]
+    },
+    "SubscriptionStatus_NotificationEvent": {
+      "description": "The SubscriptionStatus resource describes the state of a Subscription during notifications.",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "eventNumber": {
+          "description": "The sequential number of this event in this subscription context. Note that this value is a 64-bit integer value, encoded as a string.",
+          "$ref": "#/definitions/string"
+        },
+        "_eventNumber": {
+          "description": "Extensions for eventNumber",
+          "$ref": "#/definitions/Element"
+        },
+        "timestamp": {
+          "description": "The actual time this event occured on the server.",
+          "$ref": "#/definitions/instant"
+        },
+        "_timestamp": {
+          "description": "Extensions for timestamp",
+          "$ref": "#/definitions/Element"
+        },
+        "focus": {
+          "description": "The focus of this event. While this will usually be a reference to the focus resource of the event, it MAY contain a reference to a non-FHIR object.",
+          "$ref": "#/definitions/Reference"
+        },
+        "additionalContext": {
+          "description": "Additional context information for this event. Generally, this will contain references to additional resources included with the event (e.g., the Patient relevant to an Encounter), however it MAY refer to non-FHIR objects.",
+          "items": {
+            "$ref": "#/definitions/Reference"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubscriptionTopic": {
+      "description": "Describes a stream of resource state changes or events and annotated with labels useful to filter projections from this topic.",
+      "properties": {
+        "resourceType": {
+          "description": "This is a SubscriptionTopic resource",
+          "const": "SubscriptionTopic"
+        },
+        "id": {
+          "description": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+          "$ref": "#/definitions/string"
+        },
+        "meta": {
+          "description": "The metadata about the resource. This is content that is maintained by the infrastructure. Changes to the content might not always be associated with version changes to the resource.",
+          "$ref": "#/definitions/Meta"
+        },
+        "implicitRules": {
+          "description": "A reference to a set of rules that were followed when the resource was constructed, and which must be understood when processing the content. Often, this is a reference to an implementation guide that defines the special rules along with other profiles etc.",
+          "$ref": "#/definitions/uri"
+        },
+        "_implicitRules": {
+          "description": "Extensions for implicitRules",
+          "$ref": "#/definitions/Element"
+        },
+        "language": {
+          "description": "The base language in which the resource is written.",
+          "$ref": "#/definitions/code"
+        },
+        "_language": {
+          "description": "Extensions for language",
+          "$ref": "#/definitions/Element"
+        },
+        "text": {
+          "description": "A human-readable narrative that contains a summary of the resource and can be used to represent the content of the resource to a human. The narrative need not encode all the structured data, but is required to contain sufficient detail to make it \"clinically safe\" for a human to just read the narrative. Resource definitions may define what content should be represented in the narrative to ensure clinical safety.",
+          "$ref": "#/definitions/Narrative"
+        },
+        "contained": {
+          "description": "These resources do not have an independent existence apart from the resource that contains them - they cannot be identified independently, and nor can they have their own independent transaction scope.",
+          "items": {
+            "$ref": "#/definitions/ResourceList"
+          },
+          "type": "array"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the resource and that modifies the understanding of the element that contains it and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer is allowed to define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "url": {
+          "description": "An absolute URI that is used to identify this subscription topic when it is referenced in a specification, model, design or an instance; also called its canonical identifier. This SHOULD be globally unique and SHOULD be a literal address at which at which an authoritative instance of this subscription topic is (or will be) published. This URL can be the target of a canonical reference. It SHALL remain the same when the subscription topic is stored on different servers.",
+          "$ref": "#/definitions/uri"
+        },
+        "_url": {
+          "description": "Extensions for url",
+          "$ref": "#/definitions/Element"
+        },
+        "identifier": {
+          "description": "Business identifiers assigned to this subscription topic by the performer and/or other systems.  These identifiers remain constant as the resource is updated and propagates from server to server.",
+          "items": {
+            "$ref": "#/definitions/Identifier"
+          },
+          "type": "array"
+        },
+        "version": {
+          "description": "The identifier that is used to identify this version of the subscription topic when it is referenced in a specification, model, design or instance. This is an arbitrary value managed by the Topic author and is not expected to be globally unique. For example, it might be a timestamp (e.g. yyyymmdd) if a managed version is not available. There is also no expectation that versions are orderable.",
+          "$ref": "#/definitions/string"
+        },
+        "_version": {
+          "description": "Extensions for version",
+          "$ref": "#/definitions/Element"
+        },
+        "title": {
+          "description": "A short, descriptive, user-friendly title for the SubscriptionTopic, for example, \"admission\".",
+          "$ref": "#/definitions/string"
+        },
+        "_title": {
+          "description": "Extensions for title",
+          "$ref": "#/definitions/Element"
+        },
+        "derivedFrom": {
+          "description": "The canonical URL pointing to another FHIR-defined SubscriptionTopic that is adhered to in whole or in part by this SubscriptionTopic.",
+          "items": {
+            "$ref": "#/definitions/canonical"
+          },
+          "type": "array"
+        },
+        "status": {
+          "description": "The current state of the SubscriptionTopic.",
+          "$ref": "#/definitions/code"
+        },
+        "_status": {
+          "description": "Extensions for status",
+          "$ref": "#/definitions/Element"
+        },
+        "experimental": {
+          "description": "A flag to indicate that this TopSubscriptionTopicic is authored for testing purposes (or education/evaluation/marketing), and is not intended to be used for genuine usage.",
+          "$ref": "#/definitions/boolean"
+        },
+        "_experimental": {
+          "description": "Extensions for experimental",
+          "$ref": "#/definitions/Element"
+        },
+        "date": {
+          "description": "For draft definitions, indicates the date of initial creation.  For active definitions, represents the date of activation.  For withdrawn definitions, indicates the date of withdrawal.",
+          "$ref": "#/definitions/dateTime"
+        },
+        "_date": {
+          "description": "Extensions for date",
+          "$ref": "#/definitions/Element"
+        },
+        "publisher": {
+          "description": "Helps establish the \"authority/credibility\" of the SubscriptionTopic.  May also allow for contact.",
+          "$ref": "#/definitions/string"
+        },
+        "_publisher": {
+          "description": "Extensions for publisher",
+          "$ref": "#/definitions/Element"
+        },
+        "contact": {
+          "description": "Contact details to assist a user in finding and communicating with the publisher.",
+          "items": {
+            "$ref": "#/definitions/ContactDetail"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "A free text natural language description of the Topic from the consumer\u0027s perspective.",
+          "$ref": "#/definitions/markdown"
+        },
+        "_description": {
+          "description": "Extensions for description",
+          "$ref": "#/definitions/Element"
+        },
+        "useContext": {
+          "description": "The content was developed with a focus and intent of supporting the contexts that are listed. These terms may be used to assist with indexing and searching of code system definitions.",
+          "items": {
+            "$ref": "#/definitions/UsageContext"
+          },
+          "type": "array"
+        },
+        "jurisdiction": {
+          "description": "A jurisdiction in which the Topic is intended to be used.",
+          "items": {
+            "$ref": "#/definitions/CodeableConcept"
+          },
+          "type": "array"
+        },
+        "purpose": {
+          "description": "Explains why this Topic is needed and why it has been designed as it has.",
+          "$ref": "#/definitions/markdown"
+        },
+        "_purpose": {
+          "description": "Extensions for purpose",
+          "$ref": "#/definitions/Element"
+        },
+        "copyright": {
+          "description": "A copyright statement relating to the SubscriptionTopic and/or its contents. Copyright statements are generally legal restrictions on the use and publishing of the SubscriptionTopic.",
+          "$ref": "#/definitions/markdown"
+        },
+        "_copyright": {
+          "description": "Extensions for copyright",
+          "$ref": "#/definitions/Element"
+        },
+        "approvalDate": {
+          "description": "The date on which the asset content was approved by the publisher. Approval happens once when the content is officially approved for usage.",
+          "$ref": "#/definitions/date"
+        },
+        "_approvalDate": {
+          "description": "Extensions for approvalDate",
+          "$ref": "#/definitions/Element"
+        },
+        "lastReviewDate": {
+          "description": "The date on which the asset content was last reviewed. Review happens periodically after that, but doesn\u0027t change the original approval date.",
+          "$ref": "#/definitions/date"
+        },
+        "_lastReviewDate": {
+          "description": "Extensions for lastReviewDate",
+          "$ref": "#/definitions/Element"
+        },
+        "effectivePeriod": {
+          "description": "The period during which the SubscriptionTopic content was or is planned to be effective.",
+          "$ref": "#/definitions/Period"
+        },
+        "resourceTrigger": {
+          "description": "A definition of a resource-based event that triggers a notification based on the SubscriptionTopic. The criteria may be just a human readable description and/or a full FHIR search string or FHIRPath expression. Multiple triggers are considered OR joined (e.g., a resource update matching ANY of the definitions will trigger a notification).",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopic_ResourceTrigger"
+          },
+          "type": "array"
+        },
+        "eventTrigger": {
+          "description": "Event definition which can be used to trigger the SubscriptionTopic.",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopic_EventTrigger"
+          },
+          "type": "array"
+        },
+        "canFilterBy": {
+          "description": "List of properties by which Subscriptions on the SubscriptionTopic can be filtered. May be defined Search Parameters (e.g., Encounter.patient) or parameters defined within this SubscriptionTopic context (e.g., hub.event).",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopic_CanFilterBy"
+          },
+          "type": "array"
+        },
+        "notificationShape": {
+          "description": "List of properties to describe the shape (e.g., resources) included in notifications from this Subscription Topic.",
+          "items": {
+            "$ref": "#/definitions/SubscriptionTopic_NotificationShape"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "resourceType"
+      ]
+    },
+    "SubscriptionTopic_ResourceTrigger": {
+      "description": "Describes a stream of resource state changes or events and annotated with labels useful to filter projections from this topic.",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "The human readable description of this resource trigger for the SubscriptionTopic -  for example, \"An Encounter enters the \u0027in-progress\u0027 state\".",
+          "$ref": "#/definitions/markdown"
+        },
+        "_description": {
+          "description": "Extensions for description",
+          "$ref": "#/definitions/Element"
+        },
+        "resource": {
+          "description": "URL of the Resource that is the type used in this resource trigger.  Relative URLs are relative to the StructureDefinition root of the implemented FHIR version (e.g., http://hl7.org/fhir/StructureDefinition). For example, \"Patient\" maps to http://hl7.org/fhir/StructureDefinition/Patient.  For more information, see \u003ca href\u003d\"elementdefinition-definitions.html#ElementDefinition.type.code\"\u003eElementDefinition.type.code\u003c/a\u003e.",
+          "$ref": "#/definitions/uri"
+        },
+        "_resource": {
+          "description": "Extensions for resource",
+          "$ref": "#/definitions/Element"
+        },
+        "supportedInteraction": {
+          "description": "The FHIR RESTful interaction which can be used to trigger a notification for the SubscriptionTopic. Multiple values are considered OR joined (e.g., CREATE or UPDATE).",
+          "items": {
+            "$ref": "#/definitions/code"
+          },
+          "type": "array"
+        },
+        "_supportedInteraction": {
+          "description": "Extensions for supportedInteraction",
+          "items": {
+            "$ref": "#/definitions/Element"
+          },
+          "type": "array"
+        },
+        "queryCriteria": {
+          "description": "The FHIR query based rules that the server should use to determine when to trigger a notification for this subscription topic.",
+          "$ref": "#/definitions/SubscriptionTopic_QueryCriteria"
+        },
+        "fhirPathCriteria": {
+          "description": "The FHIRPath based rules that the server should use to determine when to trigger a notification for this topic.",
+          "$ref": "#/definitions/string"
+        },
+        "_fhirPathCriteria": {
+          "description": "Extensions for fhirPathCriteria",
+          "$ref": "#/definitions/Element"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubscriptionTopic_QueryCriteria": {
+      "description": "Describes a stream of resource state changes or events and annotated with labels useful to filter projections from this topic.",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "previous": {
+          "description": "The FHIR query based rules are applied to the previous resource state (e.g., state before an update).",
+          "$ref": "#/definitions/string"
+        },
+        "_previous": {
+          "description": "Extensions for previous",
+          "$ref": "#/definitions/Element"
+        },
+        "resultForCreate": {
+          "description": "For \"create\" interactions, should the \"previous\" criteria count as an automatic pass or an automatic fail.",
+          "$ref": "#/definitions/code"
+        },
+        "_resultForCreate": {
+          "description": "Extensions for resultForCreate",
+          "$ref": "#/definitions/Element"
+        },
+        "current": {
+          "description": "The FHIR query based rules are applied to the current resource state (e.g., state after an update).",
+          "$ref": "#/definitions/string"
+        },
+        "_current": {
+          "description": "Extensions for current",
+          "$ref": "#/definitions/Element"
+        },
+        "resultForDelete": {
+          "description": "For \"delete\" interactions, should the \"current\" criteria count as an automatic pass or an automatic fail.",
+          "$ref": "#/definitions/code"
+        },
+        "_resultForDelete": {
+          "description": "Extensions for resultForDelete",
+          "$ref": "#/definitions/Element"
+        },
+        "requireBoth": {
+          "description": "If set to true, both current and previous criteria must evaluate true to  trigger a notification for this topic.  Otherwise a notification for this topic will be triggered if either one evaluates to true.",
+          "$ref": "#/definitions/boolean"
+        },
+        "_requireBoth": {
+          "description": "Extensions for requireBoth",
+          "$ref": "#/definitions/Element"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubscriptionTopic_EventTrigger": {
+      "description": "Describes a stream of resource state changes or events and annotated with labels useful to filter projections from this topic.",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "The human readable description of an event to trigger a notification for the SubscriptionTopic - for example, \"Patient Admission, as defined in HL7v2 via message ADT^A01\". Multiple values are considered OR joined (e.g., matching any single event listed).",
+          "$ref": "#/definitions/markdown"
+        },
+        "_description": {
+          "description": "Extensions for description",
+          "$ref": "#/definitions/Element"
+        },
+        "event": {
+          "description": "A well-defined event which can be used to trigger notifications from the SubscriptionTopic.",
+          "$ref": "#/definitions/CodeableConcept"
+        },
+        "resource": {
+          "description": "URL of the Resource that is the focus type used in this event trigger.  Relative URLs are relative to the StructureDefinition root of the implemented FHIR version (e.g., http://hl7.org/fhir/StructureDefinition). For example, \"Patient\" maps to http://hl7.org/fhir/StructureDefinition/Patient.  For more information, see \u003ca href\u003d\"elementdefinition-definitions.html#ElementDefinition.type.code\"\u003eElementDefinition.type.code\u003c/a\u003e.",
+          "$ref": "#/definitions/uri"
+        },
+        "_resource": {
+          "description": "Extensions for resource",
+          "$ref": "#/definitions/Element"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "event"
+      ]
+    },
+    "SubscriptionTopic_CanFilterBy": {
+      "description": "Describes a stream of resource state changes or events and annotated with labels useful to filter projections from this topic.",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "Description of how this filtering parameter is intended to be used.",
+          "$ref": "#/definitions/markdown"
+        },
+        "_description": {
+          "description": "Extensions for description",
+          "$ref": "#/definitions/Element"
+        },
+        "resource": {
+          "description": "URL of the Resource that is the type used in this filter. This is the \"focus\" of the topic (or one of them if there are more than one). It will be the same, a generality, or a specificity of SubscriptionTopic.resourceTrigger.resource or SubscriptionTopic.eventTrigger.resource when they are present.",
+          "$ref": "#/definitions/uri"
+        },
+        "_resource": {
+          "description": "Extensions for resource",
+          "$ref": "#/definitions/Element"
+        },
+        "filterParameter": {
+          "description": "Either the canonical URL to a search parameter (like \"http://hl7.org/fhir/SearchParameter/encounter-patient\") or topic-defined parameter (like \"hub.event\") which is a label for the filter.",
+          "$ref": "#/definitions/string"
+        },
+        "_filterParameter": {
+          "description": "Extensions for filterParameter",
+          "$ref": "#/definitions/Element"
+        },
+        "filterDefinition": {
+          "description": "Either the canonical URL to a search parameter (like \"http://hl7.org/fhir/SearchParameter/encounter-patient\") or the officially-defined URI for a shared filter concept (like \"http://example.org/concepts/shared-common-event\").",
+          "$ref": "#/definitions/uri"
+        },
+        "_filterDefinition": {
+          "description": "Extensions for filterDefinition",
+          "$ref": "#/definitions/Element"
+        },
+        "modifier": {
+          "description": "Allowable operators to apply when determining matches (Search Modifiers).  If the filterParameter is a SearchParameter, this list of modifiers SHALL be a strict subset of the modifiers defined on that SearchParameter.",
+          "items": {
+            "$ref": "#/definitions/code"
+          },
+          "type": "array"
+        },
+        "_modifier": {
+          "description": "Extensions for modifier",
+          "items": {
+            "$ref": "#/definitions/Element"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubscriptionTopic_NotificationShape": {
+      "description": "Describes a stream of resource state changes or events and annotated with labels useful to filter projections from this topic.",
+      "properties": {
+        "id": {
+          "description": "Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+          "$ref": "#/definitions/string"
+        },
+        "extension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension.",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "modifierExtension": {
+          "description": "May be used to represent additional information that is not part of the basic definition of the element and that modifies the understanding of the element in which it is contained and/or the understanding of the containing element\u0027s descendants. Usually modifier elements provide negation or qualification. To make the use of extensions safe and manageable, there is a strict set of governance applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. Applications processing a resource are required to check for modifier extensions.\n\nModifier extensions SHALL NOT change the meaning of any elements on Resource or DomainResource (including cannot change the meaning of modifierExtension itself).",
+          "items": {
+            "$ref": "#/definitions/Extension"
+          },
+          "type": "array"
+        },
+        "resource": {
+          "description": "URL of the Resource that is the type used in this shape. This is the \"focus\" of the topic (or one of them if there are more than one) and the root resource for this shape definition. It will be the same, a generality, or a specificity of SubscriptionTopic.resourceTrigger.resource or SubscriptionTopic.eventTrigger.resource when they are present.",
+          "$ref": "#/definitions/uri"
+        },
+        "_resource": {
+          "description": "Extensions for resource",
+          "$ref": "#/definitions/Element"
+        },
+        "include": {
+          "description": "Search-style _include directives, rooted in the resource for this shape. Servers SHOULD include resources listed here, if they exist and the user is authorized to receive them.  Clients SHOULD be prepared to receive these additional resources, but SHALL function properly without them.",
+          "items": {
+            "$ref": "#/definitions/string"
+          },
+          "type": "array"
+        },
+        "_include": {
+          "description": "Extensions for include",
+          "items": {
+            "$ref": "#/definitions/Element"
+          },
+          "type": "array"
+        },
+        "revInclude": {
+          "description": "Search-style _revinclude directives, rooted in the resource for this shape. Servers SHOULD include resources listed here, if they exist and the user is authorized to receive them.  Clients SHOULD be prepared to receive these additional resources, but SHALL function properly without them.",
+          "items": {
+            "$ref": "#/definitions/string"
+          },
+          "type": "array"
+        },
+        "_revInclude": {
+          "description": "Extensions for revInclude",
           "items": {
             "$ref": "#/definitions/Element"
           },
