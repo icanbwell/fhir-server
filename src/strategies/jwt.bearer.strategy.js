@@ -271,9 +271,10 @@ const verify = (request, jwt_payload, done) => {
                 });
             }
         } else if (
+            tokenUse === 'access' &&
             scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
             scopes.some(s => s.toLowerCase().startsWith('user/')) &&
-            tokenUse === 'access'
+            scopes.some(s => s.toLowerCase().startsWith('access/'))
         ) {
             isUser = true;
             return parseUserInfoFromPayload(
