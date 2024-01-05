@@ -164,7 +164,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {#        {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt"] %}#}
 {#                this.__data.{{ property.name }} = value;#}
     {% endif %}
-    {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if not property.is_code and (property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
                 const {FhirResourceCreator} = require('../../../fhirResourceCreator');
         {% if property.is_list %}
                 this.__data.{{ property.name }} = FhirResourceCreator.createArray(valueProvided, {{ property.cleaned_type | replace(".","") }});
@@ -380,7 +380,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         {%  endif %}
 {% for property in fhir_entity.properties %}
 {% if not property.is_v2_supported %}
-    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if not property.is_code and (property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
         {% if property.is_list %}
             {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.map(v => v.toJSON()),
         {%  else %}
@@ -392,7 +392,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% endif %}
 {% endfor %}
 {% for extra_property in extra_properties_for_json %}
-    {%  if extra_property.is_resource or extra_property.is_extension or extra_property.cleaned_type == "ResourceContainer" or extra_property.fhir_type == "BackboneElement" or extra_property.is_complex or extra_property.fhir_type == "Element" %}
+    {%  if not extra_property.is_code and (extra_property.is_resource or extra_property.is_extension or extra_property.cleaned_type == "ResourceContainer" or extra_property.fhir_type == "BackboneElement" or extra_property.is_complex or extra_property.fhir_type == "Element") %}
         {% if extra_property.is_list %}
             {{ extra_property.name -}}: this.{{ extra_property.name }} && this.{{ extra_property.name -}}.map(v => v.toJSON()),
         {%  else %}
@@ -416,7 +416,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% else %}
 {% for property in fhir_entity.properties %}
 {% if not property.is_v2_supported %}
-    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if not property.is_code and (property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
         {% if property.is_list %}
             if (this.{{ property.name }}) {await async.each(this.{{ property.name -}}, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
         {%  else %}
@@ -440,7 +440,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         {%  endif %}
 {% for property in fhir_entity.properties %}
 {% if not property.is_v2_supported %}
-    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if not property.is_code and (property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element") %}
         {% if property.is_list %}
             {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.map(v => v.toJSONInternal()),
         {%  else %}

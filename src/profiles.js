@@ -10713,6 +10713,186 @@ const profiles = {
         }
       ],
     },
+    SubscriptionStatus: {
+      service: './src/services/subscriptionstatus/subscriptionstatus.service.js',
+      versions: [VERSIONS['4_0_0']],
+      operation: [
+        {
+          name: 'everything',
+          route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/:id/$everything',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'merge',
+          route: '/:id/$merge',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'merge',
+          route: '/$merge',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'validate',
+          route: '/$validate',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
+        },
+        {
+          name: 'validate',
+          route: '/:id/$validate',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
+        },
+        {
+          name: 'graph',
+          route: '/$graph',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'graph',
+          route: '/:id/$graph',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'graph',
+          route: '/$graph',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'graph',
+          route: '/:id/$graph',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'expand',
+          route: '/:id/$expand',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        }
+      ],
+    },
+    SubscriptionTopic: {
+      service: './src/services/subscriptiontopic/subscriptiontopic.service.js',
+      versions: [VERSIONS['4_0_0']],
+      operation: [
+        {
+          name: 'everything',
+          route: '/:id/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/:id/$everything',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'everything',
+          route: '/$everything',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'merge',
+          route: '/:id/$merge',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'merge',
+          route: '/$merge',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'validate',
+          route: '/$validate',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
+        },
+        {
+          name: 'validate',
+          route: '/:id/$validate',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/resource-operation-validate.html',
+        },
+        {
+          name: 'graph',
+          route: '/$graph',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'graph',
+          route: '/:id/$graph',
+          method: 'POST',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'graph',
+          route: '/$graph',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'graph',
+          route: '/:id/$graph',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/resource-operation-graph.html',
+        },
+        {
+          name: 'expand',
+          route: '/:id/$expand',
+          method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        }
+      ],
+    },
     Substance: {
       service: './src/services/substance/substance.service.js',
       versions: [VERSIONS['4_0_0']],

@@ -107,7 +107,10 @@ class R4ArgsParser {
             /**
              * @type {SearchParameterDefinition}
              */
-            let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
+            let propertyObj;
+            if (searchParameterQueries[`${resourceType}`]) {
+                propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
+            }
             if (!propertyObj) {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
             }
