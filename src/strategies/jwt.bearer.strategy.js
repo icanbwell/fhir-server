@@ -276,13 +276,11 @@ const verify = (request, jwt_payload, done) => {
             scopes.some(s => s.toLowerCase().startsWith('user/')) &&
             scopes.some(s => s.toLowerCase().startsWith('access/'))
         ) {
-            // access_token with patient scope and with person/patient IDs
             isUser = true;
-            return parseUserInfoFromPayload(
-                {
-                    username, subject, isUser, jwt_payload, done, client_id, scope
-                }
-            );
+            const context = {};
+            context['username'] = username;
+            context['personIdFromJwtToken'] = username;
+            return done(null, {id: client_id, isUser, name: username, username: username}, {scope, context});
         } else {
             return parseUserInfoFromPayload(
                 {
