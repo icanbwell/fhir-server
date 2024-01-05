@@ -270,9 +270,9 @@ const verify = (request, jwt_payload, done) => {
                     logError('Error in parsing token for patient scope', error);
                 });
             }
-        } if (
+        } else if (
             scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
-            scopes.every(s => s.toLowerCase().startsWith('user/')) &&
+            scopes.some(s => s.toLowerCase().startsWith('user/')) &&
             tokenUse === 'access'
         ) {
             isUser = true;
