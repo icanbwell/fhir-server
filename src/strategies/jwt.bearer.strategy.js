@@ -276,6 +276,7 @@ const verify = (request, jwt_payload, done) => {
             scopes.some(s => s.toLowerCase().startsWith('user/')) &&
             scopes.some(s => s.toLowerCase().startsWith('access/'))
         ) {
+            // access_token with patient scope and with person/patient IDs
             isUser = true;
             return parseUserInfoFromPayload(
                 {
