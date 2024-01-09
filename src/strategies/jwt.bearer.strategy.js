@@ -228,7 +228,7 @@ const verify = (request, jwt_payload, done) => {
         /**
          * @type {string}
          */
-        const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
+        const subject = jwt_payload.sub ? jwt_payload.sub : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
 
         /**
          * @type {string}
@@ -280,6 +280,8 @@ const verify = (request, jwt_payload, done) => {
             const context = {};
             context['username'] = username;
             context['personIdFromJwtToken'] = username;
+            context['isUser'] = isUser;
+            context['subject'] = subject;
             return done(null, {id: client_id, isUser, name: username, username: username}, {scope, context});
         } else {
             return parseUserInfoFromPayload(
