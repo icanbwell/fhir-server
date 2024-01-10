@@ -6,7 +6,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const {logDebug, logError, logInfo} = require('../operations/common/logging');
+const {logDebug, logError} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
@@ -228,7 +228,7 @@ const verify = (request, jwt_payload, done) => {
         /**
          * @type {string}
          */
-        const subject = jwt_payload.sub ? jwt_payload.sub : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
+        const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
 
         /**
          * @type {string}
@@ -252,7 +252,6 @@ const verify = (request, jwt_payload, done) => {
         ) {
             // we were passed an access token for a user and now need to get the user's info from our
             // OpenID Connect provider
-            logInfo('access_token to id_token flow still in-use');
             isUser = true;
             const authorizationHeader = request.header('Authorization');
             // get token from either the request or the cookie
@@ -270,19 +269,6 @@ const verify = (request, jwt_payload, done) => {
                     logError('Error in parsing token for patient scope', error);
                 });
             }
-        } else if (
-            tokenUse === 'access' &&
-            scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
-            scopes.some(s => s.toLowerCase().startsWith('user/')) &&
-            scopes.some(s => s.toLowerCase().startsWith('access/'))
-        ) {
-            isUser = true;
-            const context = {};
-            context['username'] = username;
-            context['personIdFromJwtToken'] = username;
-            context['isUser'] = isUser;
-            context['subject'] = subject;
-            return done(null, {id: client_id, isUser, name: username, username: username}, {scope, context});
         } else {
             return parseUserInfoFromPayload(
                 {
