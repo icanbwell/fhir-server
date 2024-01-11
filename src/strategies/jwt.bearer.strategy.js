@@ -207,7 +207,7 @@ const verify = (request, jwt_payload, done) => {
          * @type {boolean}
          */
         let isUser = false;
-        if (jwt_payload['cognito:username']) {
+        if (jwt_payload['cognito:username'] || jwt_payload['custom:bwellFhirPersonId']) {
             isUser = true;
         }
         const client_id = jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
