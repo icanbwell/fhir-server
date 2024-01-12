@@ -1,8 +1,9 @@
 const {Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError} = require('kafkajs');
-const {assertIsValid} = require('./assertType');
+const {assertIsValid, assertTypeEquals} = require('./assertType');
 const {logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync} = require('../operations/common/systemEventLogging');
 const env = require('var');
 const {RethrownError} = require('./rethrownError');
+const {ConfigManager} = require('./configManager');
 
 /**
  * @typedef KafkaClientMessage
@@ -19,24 +20,65 @@ const {RethrownError} = require('./rethrownError');
  */
 class KafkaClient {
     /**
-     * constructor
-     * @param {string|undefined} clientId
-     * @param {string[]|undefined} brokers
-     * @param {boolean} ssl
-     * @param {import('kafkajs').SASLOptions} sasl
+     * @param {ConfigManager} configManager
      */
-    constructor({clientId, brokers, ssl, sasl}) {
-        this.init(clientId, brokers, ssl, sasl);
+    constructor({ configManager }) {
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * This connected property will denote if the producer is connect or not
+         * @type {boolean}
+         */
+        this.producerConnected = false;
+
+        this.init(this.getConfigAsync());
+    }
+
+    /**
+     * returns config for kafka
+     * @return {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
+     */
+    getConfigAsync() {
+        const sasl = this.configManager.kafkaUseSasl ? {
+            // https://kafka.js.org/docs/configuration#sasl
+            mechanism: this.configManager.kafkaAuthMechanism,
+            authorizationIdentity: this.configManager.kafkaIdentity, // UserId or RoleId
+            username: this.configManager.kafkaUserName || null,
+            password: this.configManager.kafkaPassword || null,
+            accessKeyId: this.configManager.kafkaAccessKeyId || null,
+            secretAccessKey: this.configManager.kafkaAccessKeySecret || null
+        } : null;
+        if (this.configManager.kafkaUseSasl) {
+            if (!this.userName || !this.password) {
+                this.userName = env.KAFKA_SASL_USERNAME;
+                this.password = env.KAFKA_SASL_PASSWORD;
+            }
+            sasl.username = this.userName;
+            sasl.password = this.password;
+        }
+        return {
+            clientId: this.configManager.kafkaClientId,
+            brokers: this.configManager.kafkaBrokers,
+            ssl: this.configManager.kafkaUseSsl || null,
+            sasl: sasl,
+        };
     }
 
     /**
      * init
-     * @param {string} clientId
-     * @param {string[]} brokers
-     * @param {boolean} ssl
-     * @param {import('kafkajs').SASLOptions} sasl
+     * @typedef {Object} InitProps
+     * @property {string} clientId
+     * @property {string[]} brokers
+     * @property {boolean} ssl
+     * @property {import('kafkajs').SASLOptions} sasl
+     *
+     * @param {InitProps}
      */
-    init(clientId, brokers, ssl, sasl) {
+    init({ clientId, brokers, ssl, sasl }) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
@@ -70,6 +112,9 @@ class KafkaClient {
          * @type {import('kafkajs').Kafka}
          */
         this.client = new Kafka(config);
+
+        // Note: Might create some warning while retrying to send messages due to invalid client
+        this.producer = this.client.producer();
     }
 
     /**
@@ -109,7 +154,12 @@ class KafkaClient {
                                 brokers: reorderedBrokers,
                             }
                         });
-                        this.init(this.clientId, reorderedBrokers, this.ssl, this.sasl);
+                        this.init({
+                            clientId: this.clientId,
+                            brokers: reorderedBrokers,
+                            ssl: this.ssl,
+                            sasl: this.sasl,
+                        });
                         // should retry again
                         shouldRetry = true;
                     } else {
@@ -131,19 +181,17 @@ class KafkaClient {
      * @return {Promise<void>}
      */
     async sendMessagesAsyncHelper(topic, messages) {
-        /**
-         * @type {import('kafkajs').Producer}
-         */
-        const producer = this.client.producer();
-
-        try {
-            await producer.connect();
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in sendMessageAsync()',
-                error: e,
-                config: this.client.config
-            });
+        if (!this.producerConnected) {
+            try {
+                await this.producer.connect();
+                this.producerConnected = true;
+            } catch (e) {
+                throw new RethrownError({
+                    message: 'Error in connecting producer to kafka',
+                    error: e,
+                    config: this.client.config
+                });
+            }
         }
         try {
             /**
@@ -175,7 +223,7 @@ class KafkaClient {
             /**
              * @type {import('kafkajs').RecordMetadata[]}
              */
-            const result = await producer.send({
+            const result = await this.producer.send({
                 topic: topic,
                 messages: kafkaMessages,
             });
@@ -201,8 +249,6 @@ class KafkaClient {
                 error: e
             });
             throw e;
-        } finally {
-            await producer.disconnect();
         }
     }
 

@@ -90,6 +90,10 @@ async function createServer(fnGetContainer) {
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
             logInfo('Beginning shutdown of server', {});
+            if (container.kafkaClient?.producerConnected) {
+                logInfo('Disconnecting Kafka producer', {});
+                await container.kafkaClient.producer.disconnect();
+            }
             await flushBuffer(fnGetContainer);
             await logSystemEventAsync({
                 event: 'shutdown',
