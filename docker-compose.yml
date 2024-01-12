@@ -32,7 +32,7 @@ services:
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
-      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json'
+      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json,https://cognito-idp.us-east-1.amazonaws.com/us-east-1_OI7rVn21w/.well-known/jwks.json'
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
       #      HASH_REFERENCE: 1
