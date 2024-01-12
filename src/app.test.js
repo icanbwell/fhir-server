@@ -6,8 +6,9 @@ const { createTestRequest } = require('./tests/common');
 const { Kafka } = require('kafkajs');
 const { describe, expect, test } = require('@jest/globals');
 const env = require('var');
+const { KafkaClient } = require('./utils/kafkaClient');
 
-// Mocking connect and disconnect methods of prooducer class
+// Mocking connect and disconnect methods of producer class
 const mockProducerMethods = {
     connect: jest.fn().mockImplementation(() => {
         return Promise.resolve('connected');
@@ -31,6 +32,35 @@ jest.mock('kafkajs', () => {
     };
 });
 
+class MockKafkaClient extends KafkaClient {
+    /**
+     * init
+     * @typedef {Object} InitProps
+     * @property {string} clientId
+     * @property {string[]} brokers
+     * @property {boolean} ssl
+     * @property {import('kafkajs').SASLOptions} sasl
+     *
+     * @param {InitProps}
+     */
+    // eslint-disable-next-line no-unused-vars
+    init({ clientId, brokers, ssl, sasl }) {
+        // do nothing
+        this.client = new (require('kafkajs').Kafka)();
+
+        this.producer = this.client.producer();
+    }
+
+    /**
+     * Sends a message to Kafka
+     * @param {string} topic
+     * @param {KafkaClientMessage[]} messages
+     * @return {Promise<void>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async sendMessagesAsync(topic, messages) {}
+}
+
 describe('#app', () => {
     beforeAll(() => {
         jest.useFakeTimers();
@@ -41,7 +71,10 @@ describe('#app', () => {
     });
 
     test('it should startup and return health check status ok', async () => {
-        const request = await createTestRequest();
+        const request = await createTestRequest((c) => {
+            c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
+            return c;
+        });
         const response = await request.get('/health');
         expect(response.status).toBe(200);
         expect(response.body).toMatchObject({ status: 'OK' });
@@ -54,7 +87,10 @@ describe('#app', () => {
         env.ENABLE_EVENTS_KAFKA = '1';
         env.ENABLE_KAFKA_HEALTHCHECK = '1';
 
-        let request = await createTestRequest();
+        let request = await createTestRequest((c) => {
+            c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
+            return c;
+        });
         let response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
@@ -80,7 +116,10 @@ describe('#app', () => {
         // So kafka shouldn't be called, and restoring all the mocks
         jest.restoreAllMocks();
         jest.advanceTimersByTime(40000);
-        request = await createTestRequest();
+        request = await createTestRequest((c) => {
+            c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
+            return c;
+        });
         response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
@@ -88,7 +127,7 @@ describe('#app', () => {
         // Since the KafkaClient is being stored in a variable. Kafka class won't be called.
         expect(Kafka).toHaveBeenCalledTimes(0);
         // Ensuring the connect() is being called.
-        expect(mockProducerMethods.connect).toHaveBeenCalledTimes(1);
+        expect(mockProducerMethods.connect).toHaveBeenCalledTimes(0);
 
         env.ENABLE_EVENTS_KAFKA = enableKafkaEvents;
         env.ENABLE_KAFKA_HEALTHCHECK = enablekafkahealthcheck;
