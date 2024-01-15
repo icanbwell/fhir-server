@@ -118,6 +118,15 @@ class KafkaClient {
     }
 
     /**
+     * Disconnects the kafka producer
+     */
+    async disconnect() {
+        if (this.producerConnected) {
+            await this.producer.disconnect();
+        }
+    }
+
+    /**
      * Sends a message to Kafka
      * @param {string} topic
      * @param {KafkaClientMessage[]} messages
