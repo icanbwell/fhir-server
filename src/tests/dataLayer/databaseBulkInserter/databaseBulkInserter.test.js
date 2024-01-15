@@ -32,7 +32,7 @@ const {Collection} = require('mongodb');
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
      * Constructor
-     * @param {KafkaClientFactory} kafkaClientFactory
+     * @param {KafkaClient} kafkaClient
      * @param {ResourceManager} resourceManager
      * @param {string} patientChangeTopic
      * @param {string} consentChangeTopic
@@ -41,7 +41,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {ConfigManager} configManager
      */
     constructor({
-                    kafkaClientFactory,
+                    kafkaClient,
                     resourceManager,
                     patientChangeTopic,
                     consentChangeTopic,
@@ -50,7 +50,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     configManager
                 }) {
         super({
-            kafkaClientFactory,
+            kafkaClient,
             resourceManager,
             patientChangeTopic,
             consentChangeTopic,
@@ -82,7 +82,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -197,7 +197,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -264,7 +264,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -398,7 +398,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -867,7 +867,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -1325,7 +1325,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -1585,7 +1585,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClientFactory: c.kafkaClientFactory,
+                            kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',

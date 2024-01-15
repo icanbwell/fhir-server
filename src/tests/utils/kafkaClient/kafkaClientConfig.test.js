@@ -1,7 +1,7 @@
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {KafkaClientFactory} = require('../../../utils/kafkaClientFactory');
 const {ConfigManager} = require('../../../utils/configManager');
+const {KafkaClient} = require('../../../utils/kafkaClient');
 
 class MockConfigManager extends ConfigManager {
 
@@ -29,7 +29,7 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-describe('kafkaClientFactory Tests', () => {
+describe('kafkaClientConfig Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -38,15 +38,15 @@ describe('kafkaClientFactory Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Patient kafkaClientFactory Tests', () => {
-        test('kafkaClientFactory returns correct confif', async () => {
+    describe('Patient kafkaClientConfig Tests', () => {
+        test('kafkaClient returns correct config', async () => {
             /**
-             * @type {KafkaClientFactory}
+             * @type {KafkaClient}
              */
-            const kafkaClientFactory = new KafkaClientFactory({
+            const kafkaClient = new KafkaClient({
                 configManager: new MockConfigManager()
             });
-            const kafkaClientConfig = await kafkaClientFactory.getKafkaClientConfigAsync();
+            const kafkaClientConfig = kafkaClient.getConfigAsync();
             expect(kafkaClientConfig).toStrictEqual({
                 'clientId': 'kafka_client_id',
                 'brokers': [
