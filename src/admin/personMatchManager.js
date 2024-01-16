@@ -77,17 +77,17 @@ class PersonMatchManager {
 
         const source = sourceType === 'Patient' ?
             await patientDatabaseQueryManager.findOneAsync({
-                query: {id: sourceId}
+                query: {_uuid: sourceId}
             }) :
             await personDatabaseQueryManager.findOneAsync({
-                query: {id: sourceId}
+                query: {_uuid: sourceId}
             });
         const target = targetType === 'Patient' ?
             await patientDatabaseQueryManager.findOneAsync({
-                query: {id: targetId}
+                query: {_uuid: targetId}
             }) :
             await personDatabaseQueryManager.findOneAsync({
-                query: {id: targetId}
+                query: {_uuid: targetId}
             });
         if (!source) {
             return new OperationOutcome({
