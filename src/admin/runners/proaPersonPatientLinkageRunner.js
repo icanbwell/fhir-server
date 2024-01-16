@@ -222,17 +222,19 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 const doc = await cursor.next();
                 if (doc && doc.id) {
                     doc.link?.forEach((ref) => {
-                        if (!personToMasterPersonMap.has(ref.target?._uuid)) {
-                            personToMasterPersonMap.set(ref.target?._uuid, []);
+                        if (ref?.target?._uuid) {
+                            if (!personToMasterPersonMap.has(ref.target._uuid)) {
+                                personToMasterPersonMap.set(ref.target._uuid, []);
+                            }
+                            personToMasterPersonMap.get(ref.target._uuid).push({
+                                id: doc.id,
+                                _uuid: doc._uuid,
+                                owner:
+                                    doc.meta?.security?.find(
+                                        (item) => item.system === SecurityTagSystem.owner
+                                    )?.code || '',
+                            });
                         }
-                        personToMasterPersonMap.get(ref.target?._uuid).push({
-                            id: doc.id,
-                            _uuid: doc._uuid,
-                            owner:
-                                doc.meta?.security?.find(
-                                    (item) => item.system === SecurityTagSystem.owner
-                                )?.code || '',
-                        });
                     });
                 }
             }
