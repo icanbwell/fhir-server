@@ -44,6 +44,7 @@ async function main() {
     // now add our class
     container.register('proaPersonPatientLinkageRunner', (c) => new ProaPersonPatientLinkageRunner(
         {
+            personMatchManager: c.personMatchManager,
             mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             preSaveManager: c.preSaveManager,
