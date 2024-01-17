@@ -86,7 +86,7 @@ const getOrCreateOpenIdClientIssuerAsync = async () => {
             logError('AUTH_ISSUER environment variable is not set', {});
         }
         const issuerUrl = env.AUTH_ISSUER;
-        openIdClientIssuer = await Issuer.discover(issuerUrl);
+        openIdClientIssuer = await Issuer.discover(issuer='https://cognito-idp.us-east-1.amazonaws.com/us-east-1_mixX1bw0I');
     }
     return openIdClientIssuer;
 };
@@ -109,7 +109,7 @@ const getUserInfoAsync = async (accessToken) => {
      * @type {import('openid-client').BaseClient}
      */
     const client = new issuer.Client({
-        client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
+        client_id: '7a60832ba7fdkdd645hbj7fbde',
     }); // => Client
 
     if (!client) {
