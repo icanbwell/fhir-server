@@ -74,21 +74,21 @@ const getExternalJwksAsync = async () => {
  * stores the openid client issuer
  * @type {import('openid-client').Issuer<import('openid-client').BaseClient>}
  */
-let openIdClientIssuer = null;
+// let openIdClientIssuer = null;
 
 /**
  * Gets or creates an OpenID client issuer
  * @return {Promise<import('openid-client').Issuer<import('openid-client').BaseClient>>}
  */
-const getOrCreateOpenIdClientIssuerAsync = async () => {
-    if (!openIdClientIssuer) {
-        if (!env.AUTH_ISSUER) {
-            logError('AUTH_ISSUER environment variable is not set', {});
-        }
-        const issuerUrl = env.AUTH_ISSUER;
-        openIdClientIssuer = await Issuer.discover(issuer='https://cognito-idp.us-east-1.amazonaws.com/us-east-1_mixX1bw0I');
-    }
-    return openIdClientIssuer;
+const getOrCreateOpenIdClientIssuerAsync = async (iss) => {
+    // if (!openIdClientIssuer) {
+    //     if (!env.AUTH_ISSUER) {
+    //         logError('AUTH_ISSUER environment variable is not set', {});
+    //     }
+    //     const issuerUrl = env.AUTH_ISSUER;
+    //     openIdClientIssuer = await Issuer.discover(iss);
+    // }
+    return await Issuer.discover(iss);
 };
 
 /**
@@ -96,25 +96,25 @@ const getOrCreateOpenIdClientIssuerAsync = async () => {
  * @param {string} accessToken
  * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
  */
-const getUserInfoAsync = async (accessToken) => {
-    const issuer = await getOrCreateOpenIdClientIssuerAsync();
-    if (!issuer) {
-        return undefined;
-    }
-    if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
-        logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
-    }
+const getUserInfoAsync = async (accessToken, iss, clientId) => {
+    const issuer = await getOrCreateOpenIdClientIssuerAsync(iss);
+    // if (!issuer) {
+    //     return undefined;
+    // }
+    // if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
+    //     logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
+    // }
 
     /**
      * @type {import('openid-client').BaseClient}
      */
     const client = new issuer.Client({
-        client_id: '7a60832ba7fdkdd645hbj7fbde',
+        client_id: clientId,
     }); // => Client
 
-    if (!client) {
-        return undefined;
-    }
+    // if (!client) {
+    //     return undefined;
+    // }
     return await client.userinfo(accessToken);
 };
 
@@ -257,7 +257,7 @@ const verify = (request, jwt_payload, done) => {
             // get token from either the request or the cookie
             const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
             if (accessToken) {
-                return getUserInfoAsync(accessToken).then(
+                return getUserInfoAsync(accessToken, jwt_payload.iss, jwt_payload.client_id).then(
                     (id_token_payload) => {
                         return parseUserInfoFromPayload(
                             {
