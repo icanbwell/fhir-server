@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { RethrownError } = require('../../utils/rethrownError');
+const { ReferenceParser } = require('../../utils/referenceParser');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 
@@ -119,7 +120,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             resource.link?.forEach((ref) => {
                 this.personsUuidLinkedToProaPatient.add(resource._uuid);
                 const refTargetUuid = ref?.target?._uuid;
-                const [prefix, targetIdWithoutPrefix] = refTargetUuid ? refTargetUuid.split('/') : [null, null];
+                const { id: targetIdWithoutPrefix, resourceType: prefix } = ReferenceParser.parseReference(refTargetUuid);
 
                 // Check for proa person based on connection type or owner [checking resource type also in this case]
                 if (
