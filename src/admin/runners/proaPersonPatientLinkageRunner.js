@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { RethrownError } = require('../../utils/rethrownError');
+const { ReferenceParser } = require('../../utils/referenceParser');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 
@@ -29,23 +30,23 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
          * @type {Set<string>}
          */
         this.personsUuidLinkedToProaPatient = new Set();
+
+        /**
+         * @type {Map<string, { id: string, owner: string }>}
+         */
+        this.proaPatientUUIDToIdOwnerMap = new Map();
     }
     /**
-     * Fetch proa patient uuid to id map
+     * Fetch proa patient uuid to id & owner map
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
-     * @returns {Map<string, string>}
      */
     async getProaPatientsIdMap({ mongoConfig }) {
         this.adminLogger.logInfo('Fetching Proa patients from db');
         const collectionName = 'Patient_4_0_0';
         /**
-         * @type {Map<string, string>}
-         */
-        const proaPatientUUIDToIDMap = new Map();
-        /**
          * @type {Object}
          */
-        let projection = { id: 1, _uuid: 1 };
+        let projection = { id: 1, _uuid: 1, meta: 1 };
         /**
          * @type {require('mongodb').collection}
          */
@@ -75,7 +76,13 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             while (await cursor.hasNext()) {
                 const doc = await cursor.next();
                 if (doc && doc.id) {
-                    proaPatientUUIDToIDMap.set(doc._uuid, doc.id);
+                    this.proaPatientUUIDToIdOwnerMap.set(doc._uuid, {
+                        id: doc.id,
+                        owner:
+                            doc.meta?.security?.find(
+                                (item) => item.system === SecurityTagSystem.owner
+                            )?.code || '',
+                    });
                 }
             }
             this.adminLogger.logInfo('Successfully fetched Proa patients from db');
@@ -89,7 +96,6 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             await session.endSession();
             await client.close();
         }
-        return proaPatientUUIDToIDMap;
     }
 
     /**
@@ -107,9 +113,22 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             let isProaPerson = resource.meta?.security?.find(
                 (item) => item.system === SecurityTagSystem.connectionType && item.code === 'proa'
             );
+            const resourceOwner =
+                resource.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)
+                    ?.code || '';
+
             resource.link?.forEach((ref) => {
                 this.personsUuidLinkedToProaPatient.add(resource._uuid);
-                if (isProaPerson) {
+                const refTargetUuid = ref?.target?._uuid;
+                const { id: targetIdWithoutPrefix, resourceType: prefix } = ReferenceParser.parseReference(refTargetUuid);
+
+                // Check for proa person based on connection type or owner [checking resource type also in this case]
+                if (
+                    isProaPerson ||
+                    (resourceOwner ===
+                        this.proaPatientUUIDToIdOwnerMap.get(targetIdWithoutPrefix)?.owner &&
+                        (prefix === 'Patient' || ref?.target?.type === 'Patient'))
+                ) {
                     if (!this.proaPatientToProaPersonMap.has(ref.target?._uuid)) {
                         this.proaPatientToProaPersonMap.set(ref.target?._uuid, []);
                     }
@@ -266,18 +285,19 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
              * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
-            let proaPatientUUIDToIDMap;
 
             try {
                 const startFromIdContainer = this.createStartFromIdContainer();
-                proaPatientUUIDToIDMap = await this.getProaPatientsIdMap({ mongoConfig });
+                await this.getProaPatientsIdMap({ mongoConfig });
 
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
                 const query = {
                     'link.target._uuid': {
-                        $in: [...proaPatientUUIDToIDMap.keys()].map((uuid) => `Patient/${uuid}`),
+                        $in: [...this.proaPatientUUIDToIdOwnerMap.keys()].map(
+                            (uuid) => `Patient/${uuid}`
+                        ),
                     },
                 };
 
@@ -326,7 +346,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 'Proa Patient ID| Proa Patient UUID| Proa Person ID| Proa Person UUID| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner|' +
                     '\n'
             );
-            for (const [uuid, id] of proaPatientUUIDToIDMap.entries()) {
+            for (const [uuid, otherDetails] of this.proaPatientUUIDToIdOwnerMap.entries()) {
                 // Fetch Proa person data
                 const proaPersonInfo = this.proaPatientToProaPersonMap.get(`Patient/${uuid}`) || [];
                 const proaPersonAppendedIds = proaPersonInfo?.map((obj) => obj.id).join(', ');
@@ -356,7 +376,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 );
 
                 this.writeStream.write(
-                    `${id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                    `${otherDetails.id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
                         proaPersonAppendedUuids || ''
                     }| ${consolidatedProaMasterPersonInfo.ids || ''}| ${
                         consolidatedProaMasterPersonInfo.uuids || ''
