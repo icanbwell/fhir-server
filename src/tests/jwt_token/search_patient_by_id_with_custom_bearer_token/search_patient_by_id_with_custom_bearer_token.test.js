@@ -10,7 +10,8 @@ const {
     getHeadersWithCustomToken,
     createTestRequest,
     getUnAuthenticatedHeaders,
-    getFullAccessToken
+    getFullAccessToken,
+    getHeadersWithCustomPayload
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
@@ -55,6 +56,22 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);
+        });
+
+        test('search without client id doesn\'t works', async () => {
+            const request = await createTestRequest();
+            const headers = getHeadersWithCustomPayload({
+                custom_client_id: undefined,
+                customscope: 'access/*.* patient/*.* openid/*.*',
+                groups: ['access/*.*'],
+                token_use: 'access',
+            });
+
+            // search without client id throws 401 error and doesn't hang
+            await request
+                .get('/4_0_0/Patient')
+                .set(headers)
+                .expect(401);
         });
     });
 
