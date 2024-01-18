@@ -257,7 +257,7 @@ const verify = (request, jwt_payload, done) => {
             // get token from either the request or the cookie
             const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
             if (accessToken) {
-                return getUserInfoAsync(accessToken, jwt_payload.iss, jwt_payload.client_id).then(
+                return getUserInfoAsync(accessToken, jwt_payload.iss, client_id).then(
                     (id_token_payload) => {
                         return parseUserInfoFromPayload(
                             {
