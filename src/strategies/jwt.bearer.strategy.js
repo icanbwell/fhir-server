@@ -69,25 +69,11 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
-
-/**
- * stores the openid client issuer
- * @type {import('openid-client').Issuer<import('openid-client').BaseClient>}
- */
-// let openIdClientIssuer = null;
-
 /**
  * Gets or creates an OpenID client issuer
  * @return {Promise<import('openid-client').Issuer<import('openid-client').BaseClient>>}
  */
 const getOrCreateOpenIdClientIssuerAsync = async (iss) => {
-    // if (!openIdClientIssuer) {
-    //     if (!env.AUTH_ISSUER) {
-    //         logError('AUTH_ISSUER environment variable is not set', {});
-    //     }
-    //     const issuerUrl = env.AUTH_ISSUER;
-    //     openIdClientIssuer = await Issuer.discover(iss);
-    // }
     return await Issuer.discover(iss);
 };
 
@@ -98,12 +84,6 @@ const getOrCreateOpenIdClientIssuerAsync = async (iss) => {
  */
 const getUserInfoAsync = async (accessToken, iss, clientId) => {
     const issuer = await getOrCreateOpenIdClientIssuerAsync(iss);
-    // if (!issuer) {
-    //     return undefined;
-    // }
-    // if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
-    //     logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
-    // }
 
     /**
      * @type {import('openid-client').BaseClient}
@@ -112,9 +92,6 @@ const getUserInfoAsync = async (accessToken, iss, clientId) => {
         client_id: clientId,
     }); // => Client
 
-    // if (!client) {
-    //     return undefined;
-    // }
     return await client.userinfo(accessToken);
 };
 
@@ -267,6 +244,7 @@ const verify = (request, jwt_payload, done) => {
                     }
                 ).catch(error => {
                     logError('Error in parsing token for patient scope', error);
+                    return done(null, false);
                 });
             }
         } else {
