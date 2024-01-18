@@ -21,7 +21,6 @@ Sentry.init({
 
 const main = async function () {
     try {
-        Sentry.captureException(new Error('Test dev'));
         initialize();
         const container = createContainer();
         await createServer(() => container);

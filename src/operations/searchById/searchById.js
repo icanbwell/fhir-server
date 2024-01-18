@@ -17,6 +17,7 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { captureException } = require('../common/sentry');
 
 class SearchByIdOperation {
     /**
@@ -117,6 +118,7 @@ class SearchByIdOperation {
      * @return {Resource}
      */
     async searchByIdAsync({requestInfo, parsedArgs, resourceType}) {
+        captureException(new Error('Test dev'));
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
