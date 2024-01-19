@@ -202,15 +202,25 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 masterPersonUuids.push(masterPerson._uuid);
                 masterPersonOwners.push(masterPerson.owner);
                 if (this.patientPersonMatching) {
-                    const matchingResult = await this.personMatchManager.personMatchAsync({
-                        sourceId: personInfo._uuid,
-                        sourceType: 'Person',
-                        targetId: masterPerson._uuid,
-                        targetType: 'Person',
-                    });
-                    masterPersonMatching.push(
-                        (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A'
-                    );
+                    try {
+                        const matchingResult = await this.personMatchManager.personMatchAsync({
+                            sourceId: personInfo._uuid,
+                            sourceType: 'Person',
+                            targetId: masterPerson._uuid,
+                            targetType: 'Person',
+                        });
+                        masterPersonMatching.push(
+                            (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) ||
+                                'N/A'
+                        );
+                    } catch (e) {
+                        this.adminLogger.logError(`ERROR: ${e.message}`, {
+                            stack: e.stack,
+                            sourceId: `Person/${personInfo._uuid}`,
+                            targetId: `Person/${masterPerson._uuid}`,
+                        });
+                        masterPersonMatching.push('N/A');
+                    }
                 }
             }
 
@@ -315,16 +325,25 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
     async getProaPatientToPersonMatch(patientUuid, personInfo) {
         const proaPersonMatchingScores = [];
         for (const person of personInfo) {
-            const matchingResult = await this.personMatchManager.personMatchAsync({
-                sourceId: patientUuid,
-                sourceType: 'Patient',
-                targetId: person._uuid,
-                targetType: 'Person',
-            });
+            try {
+                const matchingResult = await this.personMatchManager.personMatchAsync({
+                    sourceId: patientUuid,
+                    sourceType: 'Patient',
+                    targetId: person._uuid,
+                    targetType: 'Person',
+                });
 
-            proaPersonMatchingScores.push(
-                (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A'
-            );
+                proaPersonMatchingScores.push(
+                    (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A'
+                );
+            } catch (e) {
+                this.adminLogger.logError(`ERROR: ${e.message}`, {
+                    stack: e.stack,
+                    sourceId: `Patient/${patientUuid}`,
+                    targetId: `Person/${person._uuid}`,
+                });
+                proaPersonMatchingScores.push('N/A');
+            }
         }
         return proaPersonMatchingScores.join(', ');
     }
