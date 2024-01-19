@@ -44,6 +44,7 @@ async function main() {
     // now add our class
     container.register('proaPersonPatientLinkageRunner', (c) => new ProaPersonPatientLinkageRunner(
         {
+            personMatchManager: c.personMatchManager,
             mongoCollectionManager: c.mongoCollectionManager,
             mongoDatabaseManager: c.mongoDatabaseManager,
             preSaveManager: c.preSaveManager,
@@ -56,7 +57,8 @@ async function main() {
             adminLogger,
             limit: parameters.limit,
             useTransaction: parameters.useTransaction ? true : false,
-            skip: parameters.skip
+            skip: parameters.skip,
+            patientPersonMatching: parameters.patientPersonMatching ? true : false,
         }
     )
     );
@@ -75,6 +77,12 @@ async function main() {
  * To run this:
  * nvm use
  * node src/admin/scripts/proaPersonPatientLinkage.js
+ * node src/admin/scripts/proaPersonPatientLinkage.js --patientPersonMatching
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --batchSize=10000 --after 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --batchSize=10000 --before 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --skip 200000
  */
 main().catch(reason => {
     console.error(reason);
