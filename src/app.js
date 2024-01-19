@@ -177,11 +177,23 @@ function createApp({fnGetContainer, trackMetrics}) {
         }
     );
 
-    // log every incoming request
+    // log every incoming request and every outgoing response
     app.use(async (req, res, next) => {
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
         logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        const startTime = new Date().getTime();
+        res.on('finish', () => {
+            const finishTime = new Date().getTime();
+            logInfo('Request Completed', {
+                status: res.statusCode,
+                responseTime: `${(finishTime - startTime) / 1000}s`,
+                requestUrl: reqPath,
+                method: reqMethod,
+                userAgent: req.headers['user-agent'],
+                scope: req.authInfo && req.authInfo.scope,
+            });
+        });
         next();
     });
 
