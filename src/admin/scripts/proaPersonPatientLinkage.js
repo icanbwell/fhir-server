@@ -23,7 +23,6 @@ async function main() {
     const parameters = CommandLineParser.parseCommandLine();
     let currentDateTime = new Date();
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    const patientPersonMatching = parameters.patientPersonMatching;
 
     /**
      * @type {Date|undefined}
@@ -59,7 +58,7 @@ async function main() {
             limit: parameters.limit,
             useTransaction: parameters.useTransaction ? true : false,
             skip: parameters.skip,
-            patientPersonMatching,
+            patientPersonMatching: parameters.patientPersonMatching ? true : false,
         }
     )
     );
@@ -79,6 +78,11 @@ async function main() {
  * nvm use
  * node src/admin/scripts/proaPersonPatientLinkage.js
  * node src/admin/scripts/proaPersonPatientLinkage.js --patientPersonMatching
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --batchSize=10000 --after 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --batchSize=10000 --before 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --skip 200000
  */
 main().catch(reason => {
     console.error(reason);

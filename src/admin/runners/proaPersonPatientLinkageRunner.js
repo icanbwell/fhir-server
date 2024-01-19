@@ -12,8 +12,12 @@ const { assertTypeEquals } = require('../../utils/assertType');
  */
 class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
     /**
-     * @param {Object} args
-     * @param {PersonMatchManager} personMatchManager
+     * @typedef {Object} constructorProps
+     * @property {Object} args
+     * @property {PersonMatchManager} personMatchManager
+     * @property {boolean} patientPersonMatching
+     *
+     * @param {constructorProps}
      */
     constructor({ personMatchManager, patientPersonMatching, ...args }) {
         super(args);
@@ -24,7 +28,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
         assertTypeEquals(personMatchManager, PersonMatchManager);
 
         /**
-         * @type {boolean|undefined}
+         * @type {boolean}
          */
         this.patientPersonMatching = patientPersonMatching;
 
@@ -184,7 +188,8 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @returns { ids: string, uuids: string, owners: string, matchingResult: string }
      */
     async fetchMasterPersonInfo(personInfoList, personToMasterPersonMap) {
-        const clientMasterPersonInfo = await personInfoList.map(async (personInfo) => {
+        const clientMasterPersonInfo = [];
+        for (const personInfo of personInfoList) {
             const masterPersons = personToMasterPersonMap.get(`Person/${personInfo._uuid}`) || [];
             const masterPersonIds = [];
             const masterPersonUuids = [];
@@ -214,13 +219,13 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             const owners = masterPersonOwners.join(', ') || 'null';
             const matchingResult = masterPersonMatching.join(', ') || 'null';
 
-            return {
+            clientMasterPersonInfo.push({
                 ids: masterPersons.length > 1 ? `[${ids}]` : ids,
                 uuids: masterPersons.length > 1 ? `[${uuids}]` : uuids,
                 owners: masterPersons.length > 1 ? `[${owners}]` : owners,
                 matchingResult: masterPersons.length > 1 ? `[${matchingResult}]` : matchingResult,
-            };
-        });
+            });
+        }
 
         const ids = clientMasterPersonInfo.map((info) => info.ids).join(', ');
         const uuids = clientMasterPersonInfo.map((info) => info.uuids).join(', ');
@@ -405,7 +410,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         '\n'
                 );
             }
-            for (const [uuid, id] of proaPatientUUIDToIDMap.entries()) {
+            for (const [uuid, otherDetails] of this.proaPatientUUIDToIdOwnerMap.entries()) {
                 // Fetch Proa person data
                 const proaPersonInfo = this.proaPatientToProaPersonMap.get(`Patient/${uuid}`) || [];
                 const proaPersonAppendedIds = proaPersonInfo?.map((obj) => obj.id).join(', ');
@@ -442,7 +447,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     const proaPatientClientPersonMatchingResult =
                         await this.getProaPatientToPersonMatch(uuid, clientPersonInfo);
                     this.writeStream.write(
-                        `${id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                        `${otherDetails.id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
                             proaPersonAppendedUuids || ''
                         }| ${proaPatientProaPersonMatchingResult || ''}| ${
                             consolidatedProaMasterPersonInfo.ids || ''
@@ -460,7 +465,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     );
                 } else {
                     this.writeStream.write(
-                        `${id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                        `${otherDetails.id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
                             proaPersonAppendedUuids || ''
                         }| ${consolidatedProaMasterPersonInfo.ids || ''}| ${
                             consolidatedProaMasterPersonInfo.uuids || ''

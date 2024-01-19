@@ -157,6 +157,15 @@ class PersonMatchManager {
                 }
             ).toJSON();
         }
+
+        // Convert Date object to string
+        if (source[0].birthDate instanceof Date) {
+            source[0].birthDate = source[0].birthDate.toISOString().split('T')[0];
+        }
+        if (target[0].birthDate instanceof Date) {
+            target[0].birthDate = target[0].birthDate.toISOString().split('T')[0];
+        }
+
         const parameters = {
             'resourceType': 'Parameters',
             'parameter': [
