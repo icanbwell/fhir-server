@@ -23,6 +23,7 @@ async function main() {
     const parameters = CommandLineParser.parseCommandLine();
     let currentDateTime = new Date();
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const patientPersonMatching = parameters.patientPersonMatching;
 
     /**
      * @type {Date|undefined}
@@ -57,7 +58,8 @@ async function main() {
             adminLogger,
             limit: parameters.limit,
             useTransaction: parameters.useTransaction ? true : false,
-            skip: parameters.skip
+            skip: parameters.skip,
+            patientPersonMatching,
         }
     )
     );
@@ -76,6 +78,7 @@ async function main() {
  * To run this:
  * nvm use
  * node src/admin/scripts/proaPersonPatientLinkage.js
+ * node src/admin/scripts/proaPersonPatientLinkage.js --patientPersonMatching
  */
 main().catch(reason => {
     console.error(reason);

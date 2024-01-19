@@ -15,13 +15,18 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @param {Object} args
      * @param {PersonMatchManager} personMatchManager
      */
-    constructor({ personMatchManager, ...args }) {
+    constructor({ personMatchManager, patientPersonMatching, ...args }) {
         super(args);
         /**
          * @type {PersonMatchManager}
          */
         this.personMatchManager = personMatchManager;
         assertTypeEquals(personMatchManager, PersonMatchManager);
+
+        /**
+         * @type {boolean|undefined}
+         */
+        this.patientPersonMatching = patientPersonMatching;
 
         this.writeStream = fs.createWriteStream('proa_person_patient_linkage_report.csv');
 
@@ -187,17 +192,21 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             const masterPersonMatching = [];
 
             for (let i = 0; i < masterPersons.length; i++) {
-                const masterPerson = masterPersons[i];
+                const masterPerson = masterPersons[parseInt(i)];
                 masterPersonIds.push(masterPerson.id);
                 masterPersonUuids.push(masterPerson._uuid);
                 masterPersonOwners.push(masterPerson.owner);
-                const matchingResult = await this.personMatchManager.personMatchAsync({
-                    sourceId: personInfo._uuid,
-                    sourceType: 'Person',
-                    targetId: masterPerson._uuid,
-                    targetType: 'Person',
-                });
-                masterPersonMatching.push(matchingResult?.entry[0]?.search.score);
+                if (this.patientPersonMatching) {
+                    const matchingResult = await this.personMatchManager.personMatchAsync({
+                        sourceId: personInfo._uuid,
+                        sourceType: 'Person',
+                        targetId: masterPerson._uuid,
+                        targetType: 'Person',
+                    });
+                    masterPersonMatching.push(
+                        (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A'
+                    );
+                }
             }
 
             const ids = masterPersonIds.join(', ') || 'null';
@@ -293,6 +302,29 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
     }
 
     /**
+     * Fetch proa patient to all linked person-matching result value
+     * @param {string} patientUuid
+     * @param {{ id: string; _uuid: string; }[]} proaPersonInfo
+     * @returns {string}
+     */
+    async getProaPatientToPersonMatch(patientUuid, personInfo) {
+        const proaPersonMatchingScores = [];
+        for (const person of personInfo) {
+            const matchingResult = await this.personMatchManager.personMatchAsync({
+                sourceId: patientUuid,
+                sourceType: 'Patient',
+                targetId: person._uuid,
+                targetType: 'Person',
+            });
+
+            proaPersonMatchingScores.push(
+                (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A'
+            );
+        }
+        return proaPersonMatchingScores.join(', ');
+    }
+
+    /**
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
@@ -362,11 +394,18 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
 
             this.adminLogger.logInfo('Started creating CSV file.');
             // Write the CSV content to a file
-            this.writeStream.write(
-                'Proa Patient ID| Proa Patient UUID| Proa Person ID| Proa Person UUID| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Proa Person - Master Person Match Percentage| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner| Proa Patient - Client Person Match Percentage|' +
-                    '\n'
-            );
-            for (const [uuid, otherDetails] of this.proaPatientUUIDToIdOwnerMap.entries()) {
+            if (this.patientPersonMatching) {
+                this.writeStream.write(
+                    'Proa Patient ID| Proa Patient UUID| Proa Person ID| Proa Person UUID| Proa Patient - Proa Person Match Percentage| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Proa Person - Proa Master Person Matching| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner| Proa Patient - Client Person Matching|' +
+                        '\n'
+                );
+            } else {
+                this.writeStream.write(
+                    'Proa Patient ID| Proa Patient UUID| Proa Person ID| Proa Person UUID| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner|' +
+                        '\n'
+                );
+            }
+            for (const [uuid, id] of proaPatientUUIDToIDMap.entries()) {
                 // Fetch Proa person data
                 const proaPersonInfo = this.proaPatientToProaPersonMap.get(`Patient/${uuid}`) || [];
                 const proaPersonAppendedIds = proaPersonInfo?.map((obj) => obj.id).join(', ');
@@ -389,40 +428,51 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     ?.map((obj) => obj.owner)
                     .join(', ');
 
-                // Fetching proa patient to all linked client persons matching result value
-                const matchingScores = [];
-                for (const clientPerson of clientPersonInfo) {
-                    const matchingResult = await this.personMatchManager.personMatchAsync({
-                        sourceId: uuid,
-                        sourceType: 'Patient',
-                        targetId: clientPerson._uuid,
-                        targetType: 'Person',
-                    });
-                    matchingScores.push(matchingResult?.entry[0]?.search?.score || 'N/A');
-                }
-                const proaPatientClientPersonMatchingResult = matchingScores.join(', ');
-
                 // Fetch Client master person data
                 const consolidatedClientMasterPersonInfo = await this.fetchMasterPersonInfo(
                     clientPersonInfo,
                     personToMasterPersonMap
                 );
 
-                this.writeStream.write(
-                    `${otherDetails.id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
-                        proaPersonAppendedUuids || ''
-                    }| ${consolidatedProaMasterPersonInfo.ids || ''}| ${
-                        consolidatedProaMasterPersonInfo.uuids || ''
-                    }| ${consolidatedProaMasterPersonInfo.owners || ''}| ${
-                        consolidatedProaMasterPersonInfo.matchingResult
-                    }| ${clientPersonAppendedIds || ''}| ${clientPersonAppendedUuids || ''}| ${
-                        clientPersonAppendedOwners || ''
-                    }| ${consolidatedClientMasterPersonInfo.ids || ''}| ${
-                        consolidatedClientMasterPersonInfo.uuids || ''
-                    }| ${consolidatedClientMasterPersonInfo.owners || ''}| ${
-                        proaPatientClientPersonMatchingResult || ''
-                    }|` + '\n'
-                );
+                if (this.patientPersonMatching) {
+                    // Fetching proa patient to all linked proa persons matching result value
+                    const proaPatientProaPersonMatchingResult =
+                        await this.getProaPatientToPersonMatch(uuid, proaPersonInfo);
+                    // Fetching proa patient to all linked client persons matching result value
+                    const proaPatientClientPersonMatchingResult =
+                        await this.getProaPatientToPersonMatch(uuid, clientPersonInfo);
+                    this.writeStream.write(
+                        `${id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                            proaPersonAppendedUuids || ''
+                        }| ${proaPatientProaPersonMatchingResult || ''}| ${
+                            consolidatedProaMasterPersonInfo.ids || ''
+                        }| ${consolidatedProaMasterPersonInfo.uuids || ''}| ${
+                            consolidatedProaMasterPersonInfo.owners
+                        }| ${consolidatedProaMasterPersonInfo.matchingResult}| ${
+                            clientPersonAppendedIds || ''
+                        }| ${clientPersonAppendedUuids || ''}| ${
+                            clientPersonAppendedOwners || ''
+                        }| ${consolidatedClientMasterPersonInfo.ids || ''}| ${
+                            consolidatedClientMasterPersonInfo.uuids || ''
+                        }| ${consolidatedClientMasterPersonInfo.owners || ''}| ${
+                            proaPatientClientPersonMatchingResult || ''
+                        }|` + '\n'
+                    );
+                } else {
+                    this.writeStream.write(
+                        `${id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                            proaPersonAppendedUuids || ''
+                        }| ${consolidatedProaMasterPersonInfo.ids || ''}| ${
+                            consolidatedProaMasterPersonInfo.uuids || ''
+                        }| ${consolidatedProaMasterPersonInfo.owners || ''}| ${
+                            clientPersonAppendedIds || ''
+                        }| ${clientPersonAppendedUuids || ''}| ${
+                            clientPersonAppendedOwners || ''
+                        }| ${consolidatedClientMasterPersonInfo.ids || ''}| ${
+                            consolidatedClientMasterPersonInfo.uuids || ''
+                        }| ${consolidatedClientMasterPersonInfo.owners || ''}|` + '\n'
+                    );
+                }
             }
 
             this.adminLogger.logInfo('CSV file created successfully.');
