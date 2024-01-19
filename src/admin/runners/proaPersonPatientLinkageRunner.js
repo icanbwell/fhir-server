@@ -240,8 +240,9 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
         const ids = clientMasterPersonInfo.map((info) => info.ids).join(', ');
         const uuids = clientMasterPersonInfo.map((info) => info.uuids).join(', ');
         const owners = clientMasterPersonInfo.map((info) => info.owners).join(', ');
+        const matchingResult = clientMasterPersonInfo.map((info) => info.matchingResult).join(', ');
 
-        return { ids, uuids, owners };
+        return { ids, uuids, owners, matchingResult };
     }
 
     /**
