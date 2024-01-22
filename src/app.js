@@ -114,6 +114,10 @@ function createApp({fnGetContainer, trackMetrics}) {
         const startTime = new Date().getTime();
         res.on('finish', () => {
             const finishTime = new Date().getTime();
+            const altId = req.authInfo?.context?.username ||
+                req.authInfo?.context?.subject ||
+                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
+
             logInfo('Request Completed', {
                 status: res.statusCode,
                 responseTime: `${(finishTime - startTime) / 1000}s`,
@@ -121,6 +125,7 @@ function createApp({fnGetContainer, trackMetrics}) {
                 method: reqMethod,
                 userAgent: req.headers['user-agent'],
                 scope: req.authInfo?.scope,
+                altId,
             });
         });
         next();
