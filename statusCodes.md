@@ -2,7 +2,7 @@
 |-------------|--------------------------------------------------------|
 | 200         | You should receive the expected response as per the request.                   |
 | 201         | Resource is created.                                   |
-| 400         | Post request with invalid data is sent. Response body contains issues present in the data. |
+| 400         | Post request with invalid data is sent. Response body contains issues present in the request data. |
 | 401         | Unauthorized Access.                                   |
 | 403         | Your token does not have access to this FHIR resource. |
 | 404         | The URL you are trying to access doesn't exist.           |
