@@ -54,6 +54,10 @@ For example:
 
 [Contributing](CONTRIBUTING.md)
 
+## Status Codes
+
+[Status Codes](statusCodes.md)
+
 ## Continous Integration
 
 This project has continuous integration set up so GitHub will automatically run tests on your Pull Requests.
