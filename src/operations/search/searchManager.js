@@ -28,8 +28,12 @@ const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
-const {ConsentManager} = require('../search/consentManger');
+const {ProaConsentManager} = require('./proaConsentManager');
+const {DataSharingManager} = require('./dataSharingManager');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { getResource } = require('../../operations/common/getResource');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 
 class SearchManager {
     /**
@@ -46,7 +50,8 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
-     * @param {ConsentManager} consentManager
+     * @param {ProaConsentManager} proaConsentManager
+     * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
@@ -63,8 +68,9 @@ class SearchManager {
             scopesManager,
             databaseAttachmentManager,
             fhirResourceWriterFactory,
-            consentManager,
-            searchQueryBuilder
+            proaConsentManager,
+            dataSharingManager,
+            searchQueryBuilder,
         }
     ) {
         /**
@@ -134,16 +140,23 @@ class SearchManager {
         assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
 
         /**
-         * @type {ConsentManager}
+         * @type {ProaConsentManager}
          */
-        this.consentManager = consentManager;
-        assertTypeEquals(consentManager, ConsentManager);
+        this.proaConsentManager = proaConsentManager;
+        assertTypeEquals(proaConsentManager, ProaConsentManager);
+
+        /**
+         * @type {DataSharingManager}
+         */
+        this.dataSharingManager = dataSharingManager;
+        assertTypeEquals(dataSharingManager, DataSharingManager);
 
         /**
          * @type {SearchQueryBuilder}
          */
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
+
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -158,6 +171,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
+     * @param {'READ'|'WRITE'} operation
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync(
@@ -169,8 +183,10 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            requestId,
             parsedArgs,
-            useHistoryTable
+            useHistoryTable,
+            operation
         }
     ) {
         try {
@@ -194,7 +210,10 @@ class SearchManager {
              * @type {Set}
              */
             let columns;
-
+            /**
+             * @type {boolean}
+             */
+            let shouldUpdateColumns = false;
             // eslint-disable-next-line no-useless-catch
             ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
                 base_version,
@@ -205,24 +224,26 @@ class SearchManager {
 
             // JWT has access tag in scope i.e API call from a specific client
             if (securityTags && securityTags.length > 0) {
+                shouldUpdateColumns = true;
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
                 });
 
-                // Update Query for Consent based data access
-                if (this.configManager.enableConsentedDataAccess) {
-                    query = await this.consentManager.getQueryForPatientsWithConsent({
+                if (this.configManager.enableConsentedProaDataAccess || this.configManager.enableHIETreatmentRelatedDataAccess) {
+                    query = await this.dataSharingManager.updateQueryConsideringDataSharing({
                         base_version,
                         resourceType,
                         parsedArgs,
                         securityTags,
                         query,
-                        useHistoryTable
+                        useHistoryTable,
+                        requestId
                     });
                 }
             }
             if (hasPatientScope) {
+                shouldUpdateColumns = true;
                 /**
                  * @type {string[]}
                  */
@@ -257,11 +278,17 @@ class SearchManager {
                 }
             }
 
+            if (shouldUpdateColumns) {
+                // update the columns set
+                columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
+            }
+
             ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
                 base_version,
                 query,
                 columns,
-                resourceType
+                resourceType,
+                operation
             }));
             return {base_version, query, columns};
         } catch (e) {
@@ -487,12 +514,14 @@ class SearchManager {
                 {
                     query, extraInfo
                 });
+            const indexName = parsedArgs['_setIndexHint'];
             const __ret = this.setIndexHint(
                 {
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
                     columns,
                     cursor,
-                    user
+                    user,
+                    indexName,
                 }
             );
             indexHint = __ret.indexHint;
@@ -617,9 +646,20 @@ class SearchManager {
              * @type {import('mongodb').Document}
              */
             const projection = {};
+            /**
+             * @type {import('../../fhir/classes/4_0_0/resources/resource')}
+             */
+            const Resource = getResource(VERSIONS['4_0_0'], resourceType);
+            /**
+             * @type {string[]}
+             */
+            const allowedProperties = Object.getOwnPropertyNames(new Resource({}));
             for (const property of properties_to_return_list) {
-                projection[`${property}`] = 1;
-                columns.add(property);
+                if (allowedProperties.includes(property)) {
+                    projection[`${property}`] = 1;
+                } else {
+                    throw new BadRequestError(new Error(`Unsupported property '${property}' for the specified resource type.`));
+                }
             }
             // this is a hack for the CQL Evaluator since it does not request these fields but expects them
             if (resourceType === 'Library') {
@@ -903,6 +943,7 @@ class SearchManager {
      * @param {Set} columns
      * @param {DatabasePartitionedCursor} cursor
      * @param {string | null} user
+     * @param {string | undefined} indexName
      * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
      */
     setIndexHint(
@@ -910,11 +951,12 @@ class SearchManager {
             mongoCollectionName,
             columns,
             cursor,
-            user
+            user,
+            indexName
         }
     ) {
         let _cursor = cursor;
-        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
+        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
         if (indexHint) {
             _cursor = _cursor.hint({indexHint});
             logDebug(
@@ -1005,7 +1047,8 @@ class SearchManager {
                 fnBundle,
                 defaultSortId,
                 highWaterMark: highWaterMark,
-                configManager: this.configManager
+                configManager: this.configManager,
+                response: res
             }
         );
 
@@ -1031,6 +1074,7 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
                 configManager: this.configManager,
+                response: res,
             }
         );
         /**
@@ -1055,6 +1099,7 @@ class SearchManager {
             databaseAttachmentManager: this.databaseAttachmentManager,
             highWaterMark: highWaterMark,
             configManager: this.configManager,
+            response: res,
         });
 
 

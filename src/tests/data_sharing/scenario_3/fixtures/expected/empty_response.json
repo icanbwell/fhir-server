@@ -1,0 +1,53 @@
+{
+    "entry": [],
+    "resourceType": "Bundle",
+    "meta": {
+        "tag": [
+            {
+                "system": "https://www.icanbwell.com/query",
+                "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'id':1}).limit(1000)"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryCollection",
+                "code": "Patient_4_0_0"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptions",
+                "display": "{'limit':1000,'sort':{'id':1}}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryFields",
+                "display": "['link.other._uuid','_uuid','meta.security.system','meta.security.code','id']"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryTime",
+                "display": "0.405"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryOptimization",
+                "display": "{'useTwoStepSearchOptimization':false}"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryDatabase",
+                "code": "fhir"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplain",
+                "display": "[{\"explainVersion\":\"1\",\"queryPlanner\":{\"namespace\":\"fhir.Patient_4_0_0\",\"indexFilterSet\":false,\"parsedQuery\":{\"$or\":[{\"$and\":[{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"client\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/access\"}}]}}},{\"_uuid\":{\"$eq\":\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\"}},{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}}]},{\"$and\":[{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"proa\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/connectionType\"}}]}}},{\"_uuid\":{\"$eq\":\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\"}},{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}}]}]},\"maxIndexedOrSolutionsReached\":false,\"maxIndexedAndSolutionsReached\":false,\"maxScansToExplodeReached\":false,\"winningPlan\":{\"stage\":\"SUBPLAN\",\"inputStage\":{\"stage\":\"SORT\",\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":1000,\"type\":\"simple\",\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$or\":[{\"$and\":[{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}},{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"proa\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/connectionType\"}}]}}}]},{\"$and\":[{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}},{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"client\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/access\"}}]}}}]}]},\"inputStage\":{\"stage\":\"IXSCAN\",\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\\\", \\\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\\\"]\"]}}}}},\"rejectedPlans\":[]},\"executionStats\":{\"executionSuccess\":true,\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1,\"executionStages\":{\"stage\":\"SUBPLAN\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":2,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"inputStage\":{\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":3,\"advanced\":0,\"needTime\":2,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"sortPattern\":{\"id\":1},\"memLimit\":104857600,\"limitAmount\":1000,\"type\":\"simple\",\"totalDataSizeSorted\":0,\"usedDisk\":false,\"inputStage\":{\"stage\":\"FETCH\",\"filter\":{\"$or\":[{\"$and\":[{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}},{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"proa\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/connectionType\"}}]}}}]},{\"$and\":[{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}},{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"client\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/access\"}}]}}}]}]},\"nReturned\":0,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":0,\"needTime\":1,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"docsExamined\":1,\"alreadyHasObj\":0,\"inputStage\":{\"stage\":\"IXSCAN\",\"nReturned\":1,\"executionTimeMillisEstimate\":0,\"works\":2,\"advanced\":1,\"needTime\":0,\"needYield\":0,\"saveState\":0,\"restoreState\":0,\"isEOF\":1,\"keyPattern\":{\"_uuid\":1},\"indexName\":\"uuid\",\"isMultiKey\":false,\"multiKeyPaths\":{\"_uuid\":[]},\"isUnique\":true,\"isSparse\":false,\"isPartial\":false,\"indexVersion\":2,\"direction\":\"forward\",\"indexBounds\":{\"_uuid\":[\"[\\\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\\\", \\\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\\\"]\"]},\"keysExamined\":1,\"seeks\":1,\"dupsTested\":0,\"dupsDropped\":0}}}},\"allPlansExecution\":[]},\"command\":{\"find\":\"Patient_4_0_0\",\"filter\":{\"$or\":[{\"$and\":[{\"link.other._uuid\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"},{\"_uuid\":\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\"},{\"meta.security\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"client\"}}}]},{\"$and\":[{\"$and\":[{\"link.other._uuid\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"},{\"_uuid\":\"fde7f82b-b1e4-4a25-9a58-83b6921414cc\"}]},{\"meta.security\":{\"$elemMatch\":{\"system\":\"https://www.icanbwell.com/connectionType\",\"code\":{\"$in\":[\"proa\"]}}}}]}]},\"sort\":{\"id\":1},\"limit\":1000,\"maxTimeMS\":3600000,\"$db\":\"fhir\"},\"serverInfo\":{\"host\":\"uid00017-jtg\",\"port\":42651,\"version\":\"5.0.19\",\"gitVersion\":\"0736b66d8cf64847cbd71c5472b0d6f19b1f5daa\"},\"serverParameters\":{\"internalQueryFacetBufferSizeBytes\":104857600,\"internalQueryFacetMaxOutputDocSizeBytes\":104857600,\"internalLookupStageIntermediateDocumentMaxSizeBytes\":104857600,\"internalDocumentSourceGroupMaxMemoryBytes\":104857600,\"internalQueryMaxBlockingSortMemoryUsageBytes\":104857600,\"internalQueryProhibitBlockingMergeOnMongoS\":0,\"internalQueryMaxAddToSetBytes\":104857600,\"internalDocumentSourceSetWindowFieldsMaxMemoryBytes\":104857600},\"ok\":1,\"$clusterTime\":{\"clusterTime\":{\"$timestamp\":\"7312759150943928354\"},\"signature\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"keyId\":0}},\"operationTime\":{\"$timestamp\":\"7312759150943928354\"}}]"
+            },
+            {
+                "system": "https://www.icanbwell.com/queryExplainSimple",
+                "display": "[{\"step\":{\"children\":[{\"children\":[{\"children\":[{\"step\":{\"stepNo\":1,\"stage\":\"IXSCAN\",\"friendlyStage\":\"scanning index keys\",\"indexName\":\"uuid\",\"keysExamined\":1,\"nReturned\":1,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"FETCH\",\"friendlyStage\":\"retrieving documents\",\"filter\":{\"$or\":[{\"$and\":[{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}},{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"proa\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/connectionType\"}}]}}}]},{\"$and\":[{\"link.other._uuid\":{\"$eq\":\"Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc\"}},{\"meta.security\":{\"$elemMatch\":{\"$and\":[{\"code\":{\"$eq\":\"client\"}},{\"system\":{\"$eq\":\"https://www.icanbwell.com/access\"}}]}}}]}]},\"docsExamined\":1,\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SORT\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}}],\"step\":{\"stepNo\":1,\"stage\":\"SUBPLAN\",\"nReturned\":0,\"executionTimeMillisEstimate\":0}},\"executionStats\":{\"nReturned\":0,\"executionTimeMillis\":0,\"totalKeysExamined\":1,\"totalDocsExamined\":1},\"query\":\"db.Patient_4_0_0.find({'$or':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'id':1}).limit(1000)\"}]"
+            }
+        ]
+    },
+    "type": "searchset",
+    "timestamp": "2023-12-15T10:00:20.2020Z",
+    "total": 0,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/Patient?id=fde7f82b-b1e4-4a25-9a58-83b6921414cc&link=Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc&_debug=true&_bundle=1"
+        }
+    ]
+}

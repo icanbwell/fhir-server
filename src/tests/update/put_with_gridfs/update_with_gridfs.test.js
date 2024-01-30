@@ -45,6 +45,11 @@ describe('GridFS update tests', () => {
                 .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
 
             expect(originalResource.length).toEqual(1);
+            expect(originalResource[0].content.length).toEqual(2);
+            expect(originalResource[0].content[0].attachment.data).toBeUndefined();
+            expect(originalResource[0].content[0].attachment._file_id).toBeDefined();
+            expect(originalResource[0].content[1].attachment.data).toBeUndefined();
+            expect(originalResource[0].content[1].attachment._file_id).toBeDefined();
 
             resp = await request
                 .put(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -52,27 +57,47 @@ describe('GridFS update tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp._body.content[0].attachment._file_id).toBeUndefined();
+            const documentReferenceInResp = resp.body;
+            expect(documentReferenceInResp.content.length).toEqual(2);
+            expect(documentReferenceInResp.content[0].attachment._file_id).toBeUndefined();
+            expect(documentReferenceInResp.content[0].attachment.data).toBeDefined();
+            expect(documentReferenceInResp.content[0].attachment.data).toEqual(updatedDocumentReferenceData.content[0].attachment.data);
 
-            expect(resp._body.content[0].attachment.data).toBeDefined();
+            expect(documentReferenceInResp.content[1].attachment._file_id).toBeUndefined();
+            expect(documentReferenceInResp.content[1].attachment.data).toBeDefined();
+            expect(documentReferenceInResp.content[1].attachment.data).toEqual(updatedDocumentReferenceData.content[1].attachment.data);
 
-            expect(resp._body.content[0].attachment.data).toEqual(updatedDocumentReferenceData.content[0].attachment.data);
+            const documentReferenceInDb = await fhirDb.collection(documentReferenceCollection)
+                .find({ id: documentReferenceInResp.id }, { projection: { content: 1 }}).toArray();
 
-            const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+            expect(documentReferenceInDb.length).toEqual(1);
+            expect(documentReferenceInDb[0].content.length).toEqual(2);
+            expect(documentReferenceInDb[0].content[0].attachment.data).toBeUndefined();
+            expect(documentReferenceInDb[0].content[0].attachment._file_id).toBeDefined();
+            expect(documentReferenceInDb[0].content[1].attachment.data).toBeUndefined();
+            expect(documentReferenceInDb[0].content[1].attachment._file_id).toBeDefined();
 
-            expect(documentReference.length).toEqual(1);
+            expect(documentReferenceInDb[0].content[0].attachment._file_id).not.toEqual(
+                originalResource[0].content[0].attachment._file_id
+            );
+            expect(documentReferenceInDb[0].content[1].attachment._file_id).toEqual(
+                originalResource[0].content[1].attachment._file_id
+            );
 
-            expect(documentReference[0].content[0].attachment.data).toBeUndefined();
-
-            expect(documentReference[0].content[0].attachment._file_id).toBeDefined();
-
-            const originalFile = await fhirDb.collection('fs.files')
+            const originalFile1 = await fhirDb.collection('fs.files')
                 .find({ _id: new ObjectId(originalResource[0].content[0].attachment._file_id) }).toArray();
+            expect(originalFile1.length).toEqual(1);
+            expect(originalFile1[0].metadata.active).toEqual(false);
 
-            expect(originalFile.length).toEqual(1);
+            const originalFile2 = await fhirDb.collection('fs.files')
+                .find({ _id: new ObjectId(originalResource[0].content[1].attachment._file_id) }).toArray();
+            expect(originalFile2.length).toEqual(1);
+            expect(originalFile2[0].metadata.active).toEqual(true);
 
-            expect(originalFile[0].metadata.active).toEqual(false);
+            const newFile1 = await fhirDb.collection('fs.files')
+                .find({ _id: new ObjectId(documentReferenceInDb[0].content[0].attachment._file_id) }).toArray();
+            expect(newFile1.length).toEqual(1);
+            expect(newFile1[0].metadata.active).toEqual(true);
         });
 
         test("update with same data doesn't delete file", async () => {
@@ -105,6 +130,11 @@ describe('GridFS update tests', () => {
                 .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
 
             expect(originalResource.length).toEqual(1);
+            expect(originalResource[0].content.length).toEqual(2);
+            expect(originalResource[0].content[0].attachment.data).toBeUndefined();
+            expect(originalResource[0].content[0].attachment._file_id).toBeDefined();
+            expect(originalResource[0].content[1].attachment.data).toBeUndefined();
+            expect(originalResource[0].content[1].attachment._file_id).toBeDefined();
 
             resp = await request
                 .put(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -112,27 +142,42 @@ describe('GridFS update tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp._body.content[0].attachment._file_id).toBeUndefined();
+            const documentReferenceInResp = resp.body;
+            expect(documentReferenceInResp.content.length).toEqual(2);
+            expect(documentReferenceInResp.content[0].attachment._file_id).toBeUndefined();
+            expect(documentReferenceInResp.content[0].attachment.data).toBeDefined();
+            expect(documentReferenceInResp.content[0].attachment.data).toEqual(documentReferenceData.content[0].attachment.data);
 
-            expect(resp._body.content[0].attachment.data).toBeDefined();
+            expect(documentReferenceInResp.content[1].attachment._file_id).toBeUndefined();
+            expect(documentReferenceInResp.content[1].attachment.data).toBeDefined();
+            expect(documentReferenceInResp.content[1].attachment.data).toEqual(documentReferenceData.content[1].attachment.data);
 
-            expect(resp._body.content[0].attachment.data).toEqual(documentReferenceData.content[0].attachment.data);
+            const documentReferenceInDb = await fhirDb.collection(documentReferenceCollection)
+                .find({ id: documentReferenceInResp.id }, { projection: { content: 1 }}).toArray();
 
-            const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+            expect(documentReferenceInDb.length).toEqual(1);
+            expect(documentReferenceInDb[0].content.length).toEqual(2);
+            expect(documentReferenceInDb[0].content[0].attachment.data).toBeUndefined();
+            expect(documentReferenceInDb[0].content[0].attachment._file_id).toBeDefined();
+            expect(documentReferenceInDb[0].content[1].attachment.data).toBeUndefined();
+            expect(documentReferenceInDb[0].content[1].attachment._file_id).toBeDefined();
 
-            expect(documentReference.length).toEqual(1);
+            expect(documentReferenceInDb[0].content[0].attachment._file_id).toEqual(
+                originalResource[0].content[0].attachment._file_id
+            );
+            expect(documentReferenceInDb[0].content[1].attachment._file_id).toEqual(
+                originalResource[0].content[1].attachment._file_id
+            );
 
-            expect(documentReference[0].content[0].attachment.data).toBeUndefined();
-
-            expect(documentReference[0].content[0].attachment._file_id).toBeDefined();
-
-            const originalFile = await fhirDb.collection('fs.files')
+            const originalFile1 = await fhirDb.collection('fs.files')
                 .find({ _id: new ObjectId(originalResource[0].content[0].attachment._file_id) }).toArray();
+            expect(originalFile1.length).toEqual(1);
+            expect(originalFile1[0].metadata.active).toEqual(true);
 
-            expect(originalFile.length).toEqual(1);
-
-            expect(originalFile[0].metadata.active).toEqual(true);
+            const originalFile2 = await fhirDb.collection('fs.files')
+                .find({ _id: new ObjectId(originalResource[0].content[1].attachment._file_id) }).toArray();
+            expect(originalFile2.length).toEqual(1);
+            expect(originalFile2[0].metadata.active).toEqual(true);
         });
 
         test('Removal of data works', async () => {
@@ -165,6 +210,11 @@ describe('GridFS update tests', () => {
                 .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
 
             expect(originalResource.length).toEqual(1);
+            expect(originalResource[0].content.length).toEqual(2);
+            expect(originalResource[0].content[0].attachment.data).toBeUndefined();
+            expect(originalResource[0].content[0].attachment._file_id).toBeDefined();
+            expect(originalResource[0].content[1].attachment.data).toBeUndefined();
+            expect(originalResource[0].content[1].attachment._file_id).toBeDefined();
 
             resp = await request
                 .put(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -172,25 +222,28 @@ describe('GridFS update tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp._body.content[0].attachment._file_id).toBeUndefined();
+            const documentReferenceInResp = resp.body;
+            expect(documentReferenceInResp.content.length).toEqual(1);
+            expect(documentReferenceInResp.content[0].attachment._file_id).toBeUndefined();
+            expect(documentReferenceInResp.content[0].attachment.data).toBeUndefined();
 
-            expect(resp._body.content[0].attachment.data).toBeUndefined();
-
-            const documentReference = await fhirDb.collection(documentReferenceCollection)
+            const documentReferenceInDb = await fhirDb.collection(documentReferenceCollection)
                 .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
 
-            expect(documentReference.length).toEqual(1);
+            expect(documentReferenceInDb.length).toEqual(1);
+            expect(documentReferenceInDb[0].content.length).toEqual(1);
+            expect(documentReferenceInDb[0].content[0].attachment.data).toBeUndefined();
+            expect(documentReferenceInDb[0].content[0].attachment._file_id).toBeUndefined();
 
-            expect(documentReference[0].content[0].attachment.data).toBeUndefined();
-
-            expect(documentReference[0].content[0].attachment._file_id).toBeUndefined();
-
-            const originalFile = await fhirDb.collection('fs.files')
+            const originalFile1 = await fhirDb.collection('fs.files')
                 .find({ _id: new ObjectId(originalResource[0].content[0].attachment._file_id) }).toArray();
+            expect(originalFile1.length).toEqual(1);
+            expect(originalFile1[0].metadata.active).toEqual(false);
 
-            expect(originalFile.length).toEqual(1);
-
-            expect(originalFile[0].metadata.active).toEqual(false);
+            const originalFile2 = await fhirDb.collection('fs.files')
+                .find({ _id: new ObjectId(originalResource[0].content[1].attachment._file_id) }).toArray();
+            expect(originalFile2.length).toEqual(1);
+            expect(originalFile2[0].metadata.active).toEqual(false);
         });
     });
 });

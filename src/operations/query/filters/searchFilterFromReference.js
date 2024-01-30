@@ -3,7 +3,8 @@ const { ReferenceParser } = require('../../../utils/referenceParser');
 
 /**
  * Map of id -> id, resourceType and sourceAssigningAuthority
- * @typedef {{ id: string; resourceType: string; sourceAssigningAuthority: string | undefined }[]} IReferences
+ * @typedef {{ id: string; resourceType: string; sourceAssigningAuthority: string | undefined }} IReference
+ * @typedef {IReference[]} IReferences
  */
 
 /**

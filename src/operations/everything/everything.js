@@ -66,19 +66,10 @@ class EverythingOperation {
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
 
-        const currentOperationName = 'everything';
         /**
          * @type {number}
          */
         const startTime = Date.now();
-        await this.scopesValidator.verifyHasValidScopesAsync({
-            requestInfo,
-            parsedArgs,
-            resourceType,
-            startTime,
-            action: currentOperationName,
-            accessRequested: 'read'
-        });
 
         try {
             return await this.everythingBundleAsync({
@@ -95,7 +86,7 @@ class EverythingOperation {
                     args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
-                    action: currentOperationName,
+                    action: 'everything',
                     error: err
                 });
             throw err;

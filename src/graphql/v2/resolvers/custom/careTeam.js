@@ -78,7 +78,7 @@ module.exports = {
                  */
                 const container = context.container;
                 assertTypeEquals(container, SimpleContainer);
-                const patients = await context.dataApi.getResources(
+                const patients = await context.dataApi.getResourcesForMutation(
                     parent,
                     {
                         ...args,

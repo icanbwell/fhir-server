@@ -1,9 +1,10 @@
 const {Transform} = require('stream');
-const {logInfo} = require('../common/logging');
+const {logInfo, logError} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const { captureException } = require('../common/sentry');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -17,6 +18,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {ResourcePreparer} resourcePreparer
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
     constructor(
         {
@@ -28,7 +30,8 @@ class ResourcePreparerTransform extends Transform {
             signal,
             resourcePreparer,
             highWaterMark,
-            configManager
+            configManager,
+            response,
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -60,6 +63,10 @@ class ResourcePreparerTransform extends Transform {
          * @type {ResourcePreparer}
          */
         this.resourcePreparer = resourcePreparer;
+        /**
+         * @type {import('http').ServerResponse}
+         */
+        this.response = response;
 
         /**
          * @type {ConfigManager}
@@ -83,45 +90,84 @@ class ResourcePreparerTransform extends Transform {
         try {
             const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
-            /**
-             * @type {Promise<Resource[]>[]}
-             */
-            const promises = chunks.map(chunk1 =>
-                this.processChunkAsync(chunk1)
-            );
-            Promise.all(promises).then(() => callback()).catch(
-                (reason) => {
-                    throw new RethrownError(
-                        {
-                            message: `ResourcePreparer _transform: error: ${reason}. id: ${chunk.id}`,
+            const processChunksAsync = async () => {
+                // process serially to maintain the order
+                for (const chunk1 of chunks) {
+                    try {
+                        await this.processChunkAsync(chunk1);
+                    } catch (error) {
+                        logError(
+                            `ResourcePreparer _transform: error: ${error.message || error}. id: ${
+                                chunk1.id
+                            }`,
+                            {
+                                error: error,
+                                source: 'ResourcePreparer._transform',
+                                args: {
+                                    id: chunk1.id,
+                                    stack: error?.stack,
+                                    message: error.message,
+                                },
+                            }
+                        );
+                        const rethrownError = new RethrownError({
+                            message: `ResourcePreparer _transform: error: ${error.message}. id: ${chunk1.id}`,
                             args: {
-                                id: chunk.id,
-                                chunk: chunk,
-                                reason: reason,
-                                message: reason?.message,
-                                stack: reason?.stack,
+                                id: chunk1.id,
+                                chunk: chunk1,
+                                reason: error,
+                                message: error?.message,
+                                stack: error?.stack,
                             },
-                            error: reason
-                        }
-                    );
-                });
-        } catch (e) {
-            const error = new RethrownError(
-                {
-                    message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
-                    error: e,
-                    args: {
-                        id: chunk.id,
-                        chunk: chunk
+                            error: error,
+                        });
+                        captureException(rethrownError);
+                        /**
+                         * @type {OperationOutcome}
+                         */
+                        const operationOutcome = convertErrorToOperationOutcome({
+                            error: {
+                                ...rethrownError,
+                                message: `Error occurred while streaming response for chunk: ${chunk1.id}`
+                            },
+                        });
+                        this.push(operationOutcome);
                     }
                 }
-            );
+            };
+            processChunksAsync().finally(() => {
+                callback();
+            });
+        } catch (e) {
+            logError(`ResourcePreparer _transform: error: ${e.message || e}. id: ${chunk.id}`, {
+                error: e,
+                source: 'ResourcePreparer._transform',
+                args: {
+                    id: chunk.id,
+                    stack: e?.stack,
+                    message: e.message,
+                },
+            });
+            const error = new RethrownError({
+                message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
+                error: e,
+                args: {
+                    id: chunk.id,
+                    chunk: chunk,
+                },
+            });
+
+            captureException(error);
             /**
              * @type {OperationOutcome}
              */
             const operationOutcome = convertErrorToOperationOutcome({
-                error: error
+                error: {
+                    ...error, message: `Error occurred while streaming response for chunk: ${chunk.id}`
+                },
             });
+            // this is an unexpected error so set statuscode 500
+            this.response.statusCode = 500;
             this.push(operationOutcome);
             callback();
         }

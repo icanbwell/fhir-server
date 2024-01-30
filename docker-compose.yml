@@ -9,9 +9,6 @@ services:
       dockerfile: Dockerfile
       args:
         NODE_ENV: development
-    env_file:
-      - .env
-    #        mem_limit: 1g  # Set a memory limit of 1GB
     environment:
       SERVER_PORT: 3000
       MONGO_DB_NAME: fhir
@@ -35,7 +32,7 @@ services:
       LOGLEVEL: 'INFO'
       ENABLE_GRAPHQL: 1
       NODE_ENV: 'development'
-      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json'
+      EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json, https://cognito-idp.us-east-1.amazonaws.com/us-east-1_o71QMdxTG/.well-known/jwks.json'
       SET_INDEX_HINTS: 0
       CREATE_INDEX_ON_COLLECTION_CREATION: 1
       #      HASH_REFERENCE: 1
@@ -55,17 +52,21 @@ services:
       AUTH_CUSTOM_SCOPE: "custom:scope"
       VALIDATE_SCHEMA: "1"
       PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
-      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
+      WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com,http://localhost:5051"
       GRIDFS_RESOURCES: "DocumentReference"
       ENABLE_ACCESS_TAG_UPDATE: '0'
       DD_TRACE_ENABLED: 'False'
-      ENABLE_CONSENTED_DATA_ACCESS: '1'
+      ENABLE_GRAPHQL_PLAYGROUND: '1'
+      ENABLE_CONSENTED_PROA_DATA_ACCESS: '1'
+      ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS: '1'
       FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
       OPENSEARCH_VECTORSTORE_URL: 'http://elasticsearch:9200'
       OPENSEARCH_VECTORSTORE_INDEX: 'fhir_summaries'
       OPENSEARCH_VECTORSTORE_USERNAME: 'admin'
       OPENSEARCH_VECTORSTORE_PASSWORD: 'admin'
       WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
+      ENABLE_STATS_ENDPOINT: '1'
+      FHIR_SERVER_UI_URL: 'http://localhost:5051'
 #      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
 #      MONGO_VECTORSTORE_USERNAME: ''
 #      MONGO_VECTORSTORE_PASSWORD: ''
@@ -81,7 +82,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:5.0.18
+    image: mongo:5.0.23
     ports:
       - '27017:27017'
     environment:
@@ -99,7 +100,7 @@ services:
   #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
 
   zookeeper:
-    image: 'docker.io/bitnami/zookeeper:3.8.0'
+    image: zookeeper:3.9.1
     ports:
       - '2181:2181'
     environment:
@@ -109,7 +110,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: 'docker.io/bitnami/kafka:3.2.1'
+    image: bitnami/kafka:3.5.2
     ports:
       - '9092:9092'
     environment:
@@ -133,17 +134,17 @@ services:
           '--list',
         ]
 
-  kafkaUI:
-    image: 'obsidiandynamics/kafdrop:3.30.0'
-    ports:
-      - '9000:9000'
-    environment:
-      - KAFKA_BROKERCONNECT=kafka:9092
-      - 'JVM_OPTS=-Xms32M -Xmx64M'
-      - SERVER_SERVLET_CONTEXTPATH=/
+#  kafkaUI:
+  #    image: obsidiandynamics/kafdrop:4.0.1
+  #    ports:
+  #      - '9000:9000'
+  #    environment:
+  #      - KAFKA_BROKERCONNECT=kafka:9092
+  #      - 'JVM_OPTS=-Xms32M -Xmx64M'
+  #      - SERVER_SERVLET_CONTEXTPATH=/
 
   hapi-fhir-server:
-    image: hapiproject/hapi:v6.6.0
+    image: hapiproject/hapi:v6.10.1
     ports:
       - "3001:8080"
 
@@ -151,7 +152,7 @@ services:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
     # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
     # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch:2.9.0
+    image: opensearchproject/opensearch:2.11.1
     container_name: elasticsearch
     environment:
       - cluster.name=odfe-cluster

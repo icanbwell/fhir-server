@@ -252,28 +252,19 @@ class MyFHIRServer {
      */
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
-            // Serve static files from the React app
-            this.app.use('/', express.static(path.join(__dirname, '../web/build')));
-            // Any request that uses /web should go to React
+            // Any request to new UI should redirect to fhir-server-ui repo
             this.app.use((
                     /** @type {import('express').Request} */ req,
                     /** @type {import('express').Response} */ res,
                     /** @type {import('express').NextFunction} */ next
                 ) => {
                     if (shouldReturnHtml(req)) {
-                        if (!this.configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || this.configManager.showNewUI)) {
-                            const path1 = path.join(__dirname, '../web/build', 'index.html');
-                            // console.log(`Route: /web/*: ${path1}`);
-                            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
-                            return res.sendFile(path1);
-                        } else {
-                            return htmlRenderer({
-                                container: this.container,
-                                req,
-                                res,
-                                next
-                            });
-                        }
+                        return htmlRenderer({
+                            container: this.container,
+                            req,
+                            res,
+                            next
+                        });
                     } else {
                         next();
                     }

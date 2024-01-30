@@ -1,0 +1,16 @@
+{
+    "2.16.840.1.113883.6.96": "http://snomed.info/sct",
+    "2.16.840.1.113883.6.88": "http://www.nlm.nih.gov/research/umls/rxnorm",
+    "2.16.840.1.113883.6.1": "http://loinc.org",
+    "2.16.840.1.113883.6.12": "http://www.ama-assn.org/go/cpt",
+    "2.16.840.1.113883.6.209": "http://hl7.org/fhir/ndfrt",
+    "2.16.840.1.113883.6.69": "http://hl7.org/fhir/sid/ndc",
+    "2.16.840.1.113883.12.292": "http://hl7.org/fhir/sid/cvx",
+    "2.16.840.1.113883.6.3": "http://hl7.org/fhir/sid/icd-10",
+    "2.16.840.1.113883.6.4": "http://www.icd10data.com/icd10pcs",
+    "2.16.840.1.113883.6.42": "http://hl7.org/fhir/sid/icd-9-cm",
+    "2.16.840.1.113883.6.90": "http://hl7.org/fhir/sid/icd-10-cm",
+    "2.16.840.1.113883.15.5": "https://www.cms.gov/Medicare/Coding/place-of-service-codes/Place_of_Service_Code_Set",
+    "2.16.840.1.113883.6.68": "http://terminology.hl7.org/CodeSystem/MGPI",
+    "2.16.840.1.113883.6.253": "http://terminology.hl7.org/NamingSystem/mddid"
+}

@@ -1,0 +1,29 @@
+<% if (!Array.isArray(medias)) {
+    medias = [medias];
+} %>
+
+<% if (medias && medias.length > 0 && medias[0]) { %>
+    <div>
+        <table class="table">
+            <thead>
+            <h4><%= name; %></h4>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Link</th>
+                <th scope="col">Comment</th>
+            </tr>
+            </thead>
+            <tbody>
+                <% medias.forEach(function(media){%>
+                <% if (media) {%>
+                <tr>
+                  <td><%= media.id %></td>
+                  <td><a target="_blank" href="<%= media.link?.reference %>" rel="noreferrer"><%= media.link?.reference %></a></td>
+                  <td><%= media.comment %></td>
+                </tr>
+                <%}%>
+                <%})%>
+              </tbody>
+        </table>
+    </div>
+<% } %>

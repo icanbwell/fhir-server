@@ -86,7 +86,13 @@
           "location": {
             "display": "MEDSTAR HARBOR HOSPITAL"
           }
-        }
+        },
+        "outcomeReference": [
+          {
+            "reference": "Observation/b59f86b9-5307-506a-bb6c-3eb555ace522",
+            "display": "Test observation"
+          }
+        ]
       },
       {
         "detail": {
@@ -193,7 +199,13 @@
           "location": {
             "display": "MEDSTAR HARBOR HOSPITAL"
           }
-        }
+        },
+        "outcomeReference": [
+          {
+            "reference": "Observation/b59f86b9-5307-506a-bb6c-3eb555ace522",
+            "display": "Test observation"
+          }
+        ]
       },
       {
         "detail": {
@@ -274,7 +286,7 @@
     },
     "careTeam": [
       {
-        "reference": "CareTeam/69ec5d17-8402-626e-8044-035dcb92dfbb"
+        "display": "Care team display"
       }
     ],
     "addresses": [
@@ -299,7 +311,13 @@
           "location": {
             "display": "MEDSTAR HARBOR HOSPITAL"
           }
-        }
+        },
+        "outcomeReference": [
+          {
+            "reference": "Observation/b59f86b9-5307-506a-bb6c-3eb555ace522",
+            "display": "Test observation"
+          }
+        ]
       },
       {
         "detail": {
@@ -404,7 +422,13 @@
           "location": {
             "display": "PCP218509"
           }
-        }
+        },
+        "outcomeReference": [
+          {
+            "reference": "Observation/b59f86b9-5307-506a-bb6c-3eb555ace522",
+            "display": "Test observation"
+          }
+        ]
       },
       {
         "detail": {
@@ -545,7 +569,13 @@
           "location": {
             "display": "PCP218509"
           }
-        }
+        },
+        "outcomeReference": [
+          {
+            "reference": "Observation/b59f86b9-5307-506a-bb6c-3eb555ace522",
+            "display": "Test observation"
+          }
+        ]
       },
       {
         "detail": {

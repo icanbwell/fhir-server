@@ -1,0 +1,528 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "bodySite": [
+          {
+            "coding": [
+              {
+                "code": "30",
+                "display": "Anus",
+                "system": "urn:oid:1.2.840.114350.1.13.209.2.7.4.798276.2015"
+              }
+            ],
+            "text": "Anus"
+          }
+        ],
+        "category": {
+          "coding": [
+            {
+              "code": "387713003",
+              "display": "Surgical procedure",
+              "system": "http://snomed.info/sct"
+            }
+          ],
+          "text": "Surgical Procedures"
+        },
+        "code": {
+          "text": "Surgery"
+        },
+        "encounter": {
+          "display": "Surgery",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Encounter/evIJBKsHljAsrkzdOutjBcg3"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Encounter/6ff52674-62ad-56ac-86e2-a053312c6374"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "aetna_sandbox"
+            }
+          ],
+          "reference": "Encounter/evIJBKsHljAsrkzdOutjBcg3"
+        },
+        "id": "efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3",
+        "identifier": [
+          {
+            "system": "urn:oid:1.2.840.114350.1.13.209.2.7.2.798276",
+            "type": {
+              "text": "ORL"
+            },
+            "use": "usual",
+            "value": "516464"
+          },
+          {
+            "system": "urn:oid:1.2.840.114350.1.13.209.2.7.2.798069",
+            "type": {
+              "text": "OPE"
+            },
+            "use": "usual",
+            "value": "32416"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "5da8ccf6-420d-5e64-892e-6635ed95bb19"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3"
+          }
+        ],
+        "location": {
+          "display": "LIBERTY HOSPITAL",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Location/edMS9htyoUh5jjmzy1SZq6qaCN1sV-5DG77B1f6JktvQ3"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Location/c234ba26-a3bf-56e4-a0fc-98b77749a9cb"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "aetna_sandbox"
+            }
+          ],
+          "reference": "Location/edMS9htyoUh5jjmzy1SZq6qaCN1sV-5DG77B1f6JktvQ3"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "aetna_sandbox",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "aetna_sandbox",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "aetna_sandbox",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "proa",
+              "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+              "code": "aetna_sandbox",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Procedure/efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3",
+          "versionId": "1"
+        },
+        "outcome": {
+          "coding": [
+            {
+              "code": "1",
+              "display": "Home or Self Care",
+              "system": "urn:oid:1.2.840.114350.1.13.209.2.7.4.798276.402"
+            }
+          ],
+          "text": "Home or Self Care"
+        },
+        "performedPeriod": {
+          "end": "2019-12-13T21:49:00+00:00",
+          "start": "2019-12-13T21:31:00+00:00"
+        },
+        "performer": [
+          {
+            "actor": {
+              "display": "Jonathan R. Snyder",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Practitioner/pract15117"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Practitioner/22dbf2be-da01-5e66-bfd9-5f8ad23a6a32"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "aetna_sandbox"
+                }
+              ],
+              "reference": "Practitioner/pract15117",
+              "type": "Practitioner"
+            }
+          }
+        ],
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "code": "565.0",
+                "display": "Anal fissure, unspecified",
+                "system": "http://hl7.org/fhir/sid/icd-9-cm/diagnosis"
+              }
+            ],
+            "text": "Anal fissure, unspecified"
+          }
+        ],
+        "recorder": {
+          "display": "Derraill A. Miller",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Practitioner/e1eu4t47exP7VZqWjBIcJiZltEq7ZcluhvuY-gmqF5jk3"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Practitioner/e43b2bde-22cf-58e3-9b88-3197c8db97b7"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "aetna_sandbox"
+            }
+          ],
+          "reference": "Practitioner/e1eu4t47exP7VZqWjBIcJiZltEq7ZcluhvuY-gmqF5jk3",
+          "type": "Practitioner"
+        },
+        "report": [
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/eOMIE92oj7wCoZ5YxvEtAWn7ryFC.PAu90zHU7jDSEUg3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/2f88b52c-1948-54ce-9754-5c1d558b82a7"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/eOMIE92oj7wCoZ5YxvEtAWn7ryFC.PAu90zHU7jDSEUg3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/eXTDUeJvQkiM.96EVfZ-toH8qZr6C3dQCbNk8we3alTE3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/c770b700-34f3-514c-bf93-b854e7c93272"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/eXTDUeJvQkiM.96EVfZ-toH8qZr6C3dQCbNk8we3alTE3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/esoT0iWPkThjyVkM.spoaTdRqqX368QS2MAunyed5WlQ3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/b9f7c2af-621e-5b4c-8ec6-595c1f0ee8aa"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/esoT0iWPkThjyVkM.spoaTdRqqX368QS2MAunyed5WlQ3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/e-GJ347FqSdguRSABORBShhuMyQaqaivdNVvHOnPp3l43"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/9c0172c5-b482-5fb4-a1b0-8abec3d6c8c5"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/e-GJ347FqSdguRSABORBShhuMyQaqaivdNVvHOnPp3l43",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/elwtiHoBovBatoFCQlrKHKZtlIO2ltHDq0zal3SmStx43"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/73d75767-7943-5b22-ab6c-a1194b069947"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/elwtiHoBovBatoFCQlrKHKZtlIO2ltHDq0zal3SmStx43",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/ebBZIUvJUaanLx0pncBM8L4q0WzbZ7i4rVyfIdmhkiqs3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/2d69a488-d5de-5f34-9635-6a4524950aff"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/ebBZIUvJUaanLx0pncBM8L4q0WzbZ7i4rVyfIdmhkiqs3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/eIeJa-C4V.q.RzOY7O.KX-rHMBatkIXyGgLBQrzHXq6k3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/f2b51f9e-ec7f-54d7-974c-a3edeb107386"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/eIeJa-C4V.q.RzOY7O.KX-rHMBatkIXyGgLBQrzHXq6k3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/e.yVlSGAkboUNcZdXr19o4Zco9Hsj5eUw7B6iptt8XR03"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/5c99bae6-8483-507a-bd4e-329c5ad387fb"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/e.yVlSGAkboUNcZdXr19o4Zco9Hsj5eUw7B6iptt8XR03",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/e9k6Unq.YtLwjQk.jPPXX1v9.8yUgJroFC8PbxVvnHqA3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/97eef82c-5386-58be-a0cb-7b5111e1b95f"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/e9k6Unq.YtLwjQk.jPPXX1v9.8yUgJroFC8PbxVvnHqA3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/eWHCGn6bYZGQ2G3FL6H8n0jWv0w1oiufLR5Ido8YHv5I3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/0dfe0e60-abff-54d2-b4c5-1c076f74e0a8"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/eWHCGn6bYZGQ2G3FL6H8n0jWv0w1oiufLR5Ido8YHv5I3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/ewXUO1GRaq3UA0hZ6k6fesUK8RLww1x.rgckEQ5DVQbI3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/b86b981b-592a-5ac3-ba82-424c177a5db7"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/ewXUO1GRaq3UA0hZ6k6fesUK8RLww1x.rgckEQ5DVQbI3",
+            "type": "DocumentReference"
+          },
+          {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "DocumentReference/eJ6SEDSgtaKWtcfuNZjyZxnlF.sWQZT9Vler4JVqQgpk3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "DocumentReference/0f74c13b-cd1b-5e4f-8704-31d6c02a4d0c"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "DocumentReference/eJ6SEDSgtaKWtcfuNZjyZxnlF.sWQZT9Vler4JVqQgpk3",
+            "type": "DocumentReference"
+          }
+        ],
+        "resourceType": "Procedure",
+        "status": "completed",
+        "subject": {
+          "display": "STIKE, LIONEL Uddin",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/0000000000000015116"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/096f3a34-2338-51b2-8843-22aefde4bf31"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "aetna_sandbox"
+            }
+          ],
+          "reference": "Patient/0000000000000015116"
+        },
+        "usedReference": [
+          {
+            "display": "BUPIVACAINE (PF) 0.5 % (5 MG/ML) IJ SOLN",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Medication/eaboVeN7MkZl4b.hDgkabKw3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Medication/92ae456a-394f-5fcc-b1ed-27f2e4f6d43f"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "Medication/eaboVeN7MkZl4b.hDgkabKw3"
+          },
+          {
+            "display": "LIDOCAINE-EPINEPHRINE (PF) 1 %-1:200,000 IJ SOLN",
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Medication/eJS0-T4Q6ZZKo2rsrxVyqXw3"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Medication/53e78af3-6e8a-5a41-b44f-62ee88cc39cf"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "Medication/eJS0-T4Q6ZZKo2rsrxVyqXw3"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

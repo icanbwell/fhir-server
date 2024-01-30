@@ -161,15 +161,5 @@
   "resourceType": "Bundle",
   "type": "searchset",
   "timestamp": "2023-09-12T09:28:42.4242Z",
-  "total": 0,
-  "link": [
-    {
-      "relation": "self",
-      "url": "http://localhost:3000/4_0_0/Person/?_bundle=1&patient=Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"
-    },
-    {
-      "relation": "next",
-      "url": "http://localhost:3000/4_0_0/Person/?_bundle=1&patient=Patient%2Fperson.54808e62-6445-4bb6-8f89-b2ed7e6865d2&id%3Aabove=93f91e52-25c7-4f06-9c75-4e5c49f1096e"
-    }
-  ]
+  "total": 0
 }

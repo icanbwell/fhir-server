@@ -12,10 +12,10 @@ const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const Period = require('../fhir/classes/4_0_0/complex_types/period');
 const {BwellPersonFinder} = require('./bwellPersonFinder');
-const {RequestSpecificCache} = require('./requestSpecificCache');
-const {KafkaClientFactory} = require('./kafkaClientFactory');
+const {KafkaClient} = require('./kafkaClient');
 const {BasePostSaveHandler} = require('./basePostSaveHandler');
 const {RethrownError} = require('./rethrownError');
+const {ConfigManager} = require('./configManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -26,27 +26,30 @@ const mutex = new Mutex();
 class ChangeEventProducer extends BasePostSaveHandler {
     /**
      * Constructor
-     * @param {KafkaClientFactory} kafkaClientFactory
-     * @param {ResourceManager} resourceManager
-     * @param {string} patientChangeTopic
-     * @param {string} consentChangeTopic
-     * @param {BwellPersonFinder} bwellPersonFinder
-     * @param {RequestSpecificCache} requestSpecificCache
+     * @typedef {Object} Params
+     * @property {KafkaClient} kafkaClient
+     * @property {ResourceManager} resourceManager
+     * @property {string} patientChangeTopic
+     * @property {string} consentChangeTopic
+     * @property {BwellPersonFinder} bwellPersonFinder
+     * @property {ConfigManager} configManager
+     *
+     * @param {Params}
      */
     constructor({
-                    kafkaClientFactory,
-                    resourceManager,
-                    patientChangeTopic,
-                    consentChangeTopic,
-                    bwellPersonFinder,
-                    requestSpecificCache
-                }) {
+        kafkaClient,
+        resourceManager,
+        patientChangeTopic,
+        consentChangeTopic,
+        bwellPersonFinder,
+        configManager
+    }) {
         super();
         /**
-         * @type {KafkaClientFactory}
+         * @type {KafkaClient}
          */
-        this.kafkaClientFactory = kafkaClientFactory;
-        assertTypeEquals(kafkaClientFactory, KafkaClientFactory);
+        this.kafkaClient = kafkaClient;
+        assertTypeEquals(kafkaClient, KafkaClient);
         /**
          * @type {ResourceManager}
          */
@@ -68,28 +71,35 @@ class ChangeEventProducer extends BasePostSaveHandler {
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
         /**
-         * @type {RequestSpecificCache}
+         * @type {ConfigManager}
          */
-        this.requestSpecificCache = requestSpecificCache;
-        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {Map}
+         */
+        this.patientMessageMap = new Map();
+
+        /**
+         * @type {Map}
+         */
+        this.consentMessageMap = new Map();
     }
 
     /**
      * This map stores an entry per message id
-     * @param {string} requestId
      * @return {Map<string, Object>} id, resource
      */
-    getPatientMessageMap({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'PatientMessageMap'});
+    getPatientMessageMap() {
+        return this.patientMessageMap;
     }
 
     /**
      * This map stores an entry per consent id
-     * @param {string} requestId
      * @return {Map<string, Object>} id, resource
      */
-    getConsentMessageMap({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'ConsentMessageMap'});
+    getConsentMessageMap() {
+        return this.consentMessageMap;
     }
 
     /**
@@ -185,7 +195,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             sourceType
         });
         const key = `${patientId}`;
-        this.getPatientMessageMap({requestId}).set(key, messageJson);
+        this.getPatientMessageMap().set(key, messageJson);
     }
 
     /**
@@ -208,7 +218,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
         });
 
         const key = `${patientId}`;
-        const patientMessageMap = this.getPatientMessageMap({requestId});
+        const patientMessageMap = this.getPatientMessageMap();
         const existingMessageEntry = patientMessageMap.get(key);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
             // if existing entry is a 'create' then leave it alone
@@ -238,7 +248,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             sourceType
         });
         const key = `${id}`;
-        this.getConsentMessageMap({requestId}).set(key, messageJson);
+        this.getConsentMessageMap().set(key, messageJson);
     }
 
     /**
@@ -264,7 +274,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
         });
 
         const key = `${id}`;
-        const consentMessageMap = this.getConsentMessageMap({requestId});
+        const consentMessageMap = this.getConsentMessageMap();
         const existingMessageEntry = consentMessageMap.get(key);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
             // if existing entry is a 'create' then leave it alone
@@ -356,20 +366,26 @@ class ChangeEventProducer extends BasePostSaveHandler {
                     });
                 }
             }
+            if (this.getPatientMessageMap().size >= this.configManager.postRequestBatchSize) {
+                await this.flushAsync();
+            }
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in ChangeEventProducer.afterSaveAsync(): ', error: e
+                message: 'Error in ChangeEventProducer.afterSaveAsync(): ',
+                error: e.stack,
+                args: {
+                    message: e.message
+                }
             });
         }
     }
 
     /**
      * flushes the change event buffer
-     * @param {string} requestId
      * @return {Promise<void>}
      */
-    async flushAsync({requestId}) {
-        const patientMessageMap = this.getPatientMessageMap({requestId});
+    async flushAsync() {
+        const patientMessageMap = this.getPatientMessageMap();
         if (!env.ENABLE_EVENTS_KAFKA) {
             patientMessageMap.clear();
             return;
@@ -381,14 +397,14 @@ class ChangeEventProducer extends BasePostSaveHandler {
         // find unique events
         const fhirVersion = 'R4';
         await mutex.runExclusive(async () => {
-                const consentMessageMap = this.getConsentMessageMap({requestId});
+                const consentMessageMap = this.getConsentMessageMap();
                 const numberOfMessagesBefore = patientMessageMap.size + consentMessageMap.size;
 
                 const createKafkaClientMessageFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
                     return {
                         key: id,
                         fhirVersion: fhirVersion,
-                        requestId: requestId,
+                        requestId: messageJson?.source?.site,
                         value: JSON.stringify(messageJson),
                     };
                 };
@@ -400,12 +416,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                     patientMessageMap.entries(), createKafkaClientMessageFn
                 );
 
-                /**
-                 * @type {DummyKafkaClient|KafkaClient}
-                 */
-                const kafkaClient = await this.kafkaClientFactory.createKafkaClientAsync();
-
-                await kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
+                await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
 
                 patientMessageMap.clear();
 
@@ -417,7 +428,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                     consentMessageMap.entries(), createKafkaClientMessageFn
                 );
 
-                await kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
+                await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
 
                 consentMessageMap.clear();
 

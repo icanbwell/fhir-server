@@ -424,15 +424,5 @@
   "resourceType": "Bundle",
   "type": "searchset",
   "timestamp": "2023-09-14T12:57:19.1919Z",
-  "total": 0,
-  "link": [
-    {
-      "relation": "self",
-      "url": "http://localhost:3000/4_0_0/Observation/?patient=Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2,Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8&_format=json"
-    },
-    {
-      "relation": "next",
-      "url": "http://localhost:3000/4_0_0/Observation/?patient=Patient%2Fperson.54808e62-6445-4bb6-8f89-b2ed7e6865d2%2CPatient%2Fperson.cda43a72-b5e0-476a-a928-4d768e66d6f8&_format=json&id%3Aabove=b59f86b9-5307-506a-bb6c-3eb555ace524"
-    }
-  ]
+  "total": 0
 }

@@ -54,6 +54,10 @@ For example:
 
 [Contributing](CONTRIBUTING.md)
 
+## Status Codes
+
+[Status Codes](statusCodes.md)
+
 ## Continous Integration
 
 This project has continuous integration set up so GitHub will automatically run tests on your Pull Requests.
@@ -94,11 +98,3 @@ The FHIR server implements OAuth. You can set these environment variables:
 
 The FHIR server can optionally send change events to a Kafka queue:
 [Change Events](changeEvents.md)
-
-## Running New UI in local environment
-To run the New UI in local environment, follow these steps before running the container
-1. `cd ./src/web`
-2. `nvm use && yarn install && npm run build`
-
-Then start the container: `make up`
-

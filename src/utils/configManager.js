@@ -279,8 +279,32 @@ class ConfigManager {
      * Specifies whether to Consent based data access enabled.
      * @return {boolean}
      */
-    get enableConsentedDataAccess() {
-        return isTrue(env.ENABLE_CONSENTED_DATA_ACCESS);
+    get enableConsentedProaDataAccess() {
+        return isTrue(env.ENABLE_CONSENTED_PROA_DATA_ACCESS);
+    }
+
+    /**
+     * Specifies allowed connection types for consent data sharing.
+     * @return {string[]}
+     */
+    get getConsentConnectionTypesList() {
+        return env.CONSENT_CONNECTION_TYPES_LIST ? env.CONSENT_CONNECTION_TYPES_LIST.split(',') : ['proa'];
+    }
+
+    /**
+     * Specifies whether to enable HIE/Treatment related data access.
+     * @return {boolean}
+     */
+    get enableHIETreatmentRelatedDataAccess() {
+        return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
+    }
+
+    /**
+     * Specifies allowed connection types for HIE/Treatment related data.
+     * @return {string[]}
+     */
+    get getHIETreatmentConnectionTypesList() {
+        return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
     }
 
     /**
@@ -309,28 +333,18 @@ class ConfigManager {
     }
 
     /**
-     * whether to show the new UI or the old one
-     * @returns {boolean}
-     */
-    get showNewUI() {
-        return isTrue(env.SHOW_NEW_UI);
-    }
-
-    /**
-     * whether to disable the new UI
-     * @returns {boolean}
-     * @constructor
-     */
-    get disableNewUI() {
-        return isTrue(env.DISABLE_NEW_UI);
-    }
-
-    /**
      * url to fhir validation service e.g., http://localhost:8080/fhir/
      * @returns {string|undefined}
      */
     get fhirValidationUrl() {
         return env.FHIR_VALIDATION_URL;
+    }
+
+    /**
+     * Batch size for parallel fetching/updating profiles in HAPI Fhir
+     */
+    get batchSizeForRemoteFhir() {
+        return Number(env.REMOTE_FHIR_REQUEST_BATCH_SIZE) || 10;
     }
 
     /**
@@ -500,6 +514,76 @@ class ConfigManager {
      */
     get requestTimeoutMs() {
         return (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
+    }
+
+    /**
+     * whether to enable stats endpoint
+     * @returns {boolean}
+     */
+    get enableStatsEndpoint() {
+        if (env.ENABLE_STATS_ENDPOINT === null || env.ENABLE_STATS_ENDPOINT === undefined) {
+            return false;
+        }
+
+        return isTrue(env.ENABLE_STATS_ENDPOINT);
+    }
+
+    /**
+     * whether to enable graphql playground
+     * @returns {boolean}
+     */
+    get enableGraphQLPlayground() {
+        if (env.ENABLE_GRAPHQL_PLAYGROUND === null || env.ENABLE_GRAPHQL_PLAYGROUND === undefined) {
+            return true;
+        }
+
+        return isTrue(env.ENABLE_GRAPHQL_PLAYGROUND);
+    }
+
+    /**
+     * whether to read audit event data from archive
+     * @returns {boolean}
+     */
+    get enableAuditEventArchiveRead() {
+        if (env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === null || env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === undefined) {
+            return false;
+        }
+        return isTrue(env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ);
+    }
+
+    /**
+     * whether to rewrite patient references to proxy-patient reference
+     */
+    get rewritePatientReference() {
+        if (env.REWRITE_PATIENT_REFERENCE === null || env.REWRITE_PATIENT_REFERENCE === undefined) {
+            return true;
+        }
+        return isTrue(env.REWRITE_PATIENT_REFERENCE);
+    }
+
+    /**
+     * returns number of resources to process in parallel
+     * @returns {number}
+     */
+    get mergeParallelChunkSize() {
+        return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
+    }
+
+    /**
+     * returns cron expression for postRequest processes
+     * @returns {string}
+     */
+    get postRequestFlushTime() {
+        // default cron expression is to run the function every 5 sec
+        return env.POST_REQUEST_FLUSH_TIME || '*/5 * * * * *';
+    }
+
+    /**
+     * returns the buffer size for post request processes
+     * @returns {number}
+     */
+    get postRequestBatchSize() {
+        return parseInt(env.POST_REQUEST_BATCH_SIZE) || 50;
     }
 }
 

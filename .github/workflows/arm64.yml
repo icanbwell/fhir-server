@@ -1,0 +1,17 @@
+name: Build on macOS
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: macos-13-large
+    steps:
+      - name: Check Architecture
+        run: |
+          uname -m
+
+  arm64:
+    runs-on: macos-13-xlarge
+    steps:
+      - name: Check Architecture
+        run: |
+          uname -m          

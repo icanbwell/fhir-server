@@ -35,7 +35,7 @@ class ResourceWithId {
      */
     static getResourceTypeFromReference(reference) {
         const reference1 = this.getResourceTypeAndIdFromReference(reference);
-        return reference1.resourceType;
+        return reference1?.resourceType;
     }
 
     /**
@@ -45,7 +45,7 @@ class ResourceWithId {
      */
     static getIdFromReference(reference) {
         const reference1 = this.getResourceTypeAndIdFromReference(reference);
-        return reference1.id;
+        return reference1?.id;
     }
 }
 

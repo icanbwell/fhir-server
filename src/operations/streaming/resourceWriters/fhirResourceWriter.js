@@ -3,7 +3,8 @@ const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
+const { captureException } = require('../../common/sentry');
 
 class FhirResourceWriter extends FhirResourceWriterBase {
     /**
@@ -12,15 +13,15 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {string} contentType
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
-    constructor({signal, contentType, highWaterMark, configManager}) {
-        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark});
+    constructor({signal, contentType, highWaterMark, configManager, response}) {
+        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark, response});
         /**
          * @type {boolean}
          * @private
          */
         this._first = true;
-        this.push('[');
         /**
          * @type {AbortSignal}
          * @private
@@ -56,15 +57,26 @@ class FhirResourceWriter extends FhirResourceWriterBase {
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
-                    this.push(resourceJson, encoding);
+                    this.push('[' + resourceJson, encoding);
                 } else {
                     // add comma at the beginning to make it legal json
                     this.push(',' + resourceJson, encoding);
                 }
             }
         } catch (e) {
+            logError(`FhirResourceWriter _transform: error: ${e.message}`, {
+                error: e,
+                source: 'FhirResourceWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                    encoding,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureException(e);
             // don't let error past this since we're streaming so we can't send errors to http client
-            const operationOutcome = convertErrorToOperationOutcome({error: e});
+            const operationOutcome = convertErrorToOperationOutcome({error: {...e, message: `Error occurred while streaming response for chunk: ${chunk?.id}`}});
             this.writeOperationOutcome({operationOutcome, encoding});
         }
         callback();
@@ -82,6 +94,10 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         if (this.configManager.logStreamSteps) {
             logInfo('FhirResourceWriter _flush', {});
         }
+        if (this._first) {
+            this._first = false;
+            this.push('[');
+        }
         // write ending json
         this.push(']');
         this.push(null);
@@ -98,7 +114,9 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         if (this._first) {
             // write the beginning json
             this._first = false;
-            this.push(operationOutcomeJson, encoding);
+            // this is an unexpected error so set statuscode 500
+            this.response.statusCode = 500;
+            this.push('[' + operationOutcomeJson, encoding);
         } else {
             // add comma at the beginning to make it legal json
             this.push(',' + operationOutcomeJson, encoding);

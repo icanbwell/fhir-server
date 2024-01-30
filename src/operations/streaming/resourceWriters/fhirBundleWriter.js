@@ -4,9 +4,10 @@ const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
 const {RethrownError} = require('../../../utils/rethrownError');
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
+const { captureException } = require('../../common/sentry');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -17,9 +18,10 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {string} defaultSortId
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
-    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager}) {
-        super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark});
+    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response}) {
+        super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark, response});
         /**
          * @type {function (string | null, number): Bundle}
          * @private
@@ -40,7 +42,6 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @private
          */
         this._first = true;
-        this.push('{"entry":[');
         /**
          * @type {string | null}
          * @private
@@ -90,7 +91,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
-                    this.push(resourceJson, encoding);
+                    this.push('{"entry":[' + resourceJson, encoding);
                 } else {
                     // add comma at the beginning to make it legal json
                     this.push(',' + resourceJson, encoding);
@@ -112,7 +113,20 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     }
                 }
             );
-            this.writeErrorAsOperationOutcome({error});
+            logError(`FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`, {
+                error: e,
+                source: 'FhirBundleWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                    chunkId,
+                    encoding,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureException(error);
+
+            this.writeErrorAsOperationOutcome({error: {...error, message: `Error occurred while streaming response for chunk: ${chunkId}`}});
             callback();
         }
     }
@@ -127,13 +141,15 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @type {OperationOutcome}
          */
         const operationOutcome = convertErrorToOperationOutcome({
-            error: error
+            error: error,
         });
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
             // write the beginning json
             this._first = false;
-            this.push(operationOutcomeJson);
+            // this is an unexpected error so set statuscode 500
+            this.response.statusCode = 500;
+            this.push('{"entry":[' + operationOutcomeJson);
         } else {
             // add comma at the beginning to make it legal json
             this.push(',' + operationOutcomeJson);
@@ -171,6 +187,10 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             if (this.configManager.logStreamSteps) {
                 logInfo('FhirBundleWriter _flush', {output});
             }
+            if (this._first) {
+                this._first = false;
+                this.push('{"entry":[');
+            }
             this.push(output); // skip the first "}"
         } catch (e) {
             // don't let error past this since we're streaming so we can't send errors to http client
@@ -181,7 +201,17 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     args: {}
                 }
             );
-            this.writeErrorAsOperationOutcome({error});
+            logError(`FhirBundleWriter _flush: error: ${e.message}`, {
+                error: e,
+                source: 'FhirBundleWriter._flush',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureException(error);
+            this.writeErrorAsOperationOutcome({error: {...error, message: 'Error occurred while streaming response'}});
             this.push(']}');
         }
         this.push(null);

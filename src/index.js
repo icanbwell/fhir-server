@@ -25,6 +25,7 @@ const main = async function () {
         const container = createContainer();
         await createServer(() => container);
     } catch (e) {
+        console.log('ERROR from MAIN: ' + e);
         console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));
     }
 };

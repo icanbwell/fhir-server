@@ -132,6 +132,8 @@ const specimendefinition = require('./specimenDefinition');
 const structuredefinition = require('./structureDefinition');
 const structuremap = require('./structureMap');
 const subscription = require('./subscription');
+const subscriptionstatus = require('./subscriptionStatus');
+const subscriptiontopic = require('./subscriptionTopic');
 const substance = require('./substance');
 const substancenucleicacid = require('./substanceNucleicAcid');
 const substancepolymer = require('./substancePolymer');
@@ -282,6 +284,8 @@ module.exports = {
     structuredefinition,
     structuremap,
     subscription,
+    subscriptionstatus,
+    subscriptiontopic,
     substance,
     substancenucleicacid,
     substancepolymer,

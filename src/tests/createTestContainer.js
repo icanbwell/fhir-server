@@ -1,7 +1,7 @@
 const {createContainer} = require('../createContainer');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
-const {MockKafkaClientFactory} = require('./mocks/mockKafkaClientFactory');
 const { TestConfigManager } = require('./testConfigManager');
+const { MockKafkaClient } = require('./mocks/mockKafkaClient');
 
 /**
  * Creates a container and sets up all the services
@@ -14,11 +14,14 @@ const createTestContainer = function (fnUpdateContainer) {
      */
     let container = createContainer();
     // update any values here
-    container.register('kafkaClientFactory', (c) => new MockKafkaClientFactory(
+    container.register('kafkaClient', (c) => new MockKafkaClient(
         {
             configManager: c.configManager
         }));
-    container.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
+    container.register('mongoDatabaseManager', (c) => new TestMongoDatabaseManager({
+        configManager: c.configManager,
+    }));
+
     container.register('configManager', () => new TestConfigManager());
 
     if (fnUpdateContainer !== undefined) {

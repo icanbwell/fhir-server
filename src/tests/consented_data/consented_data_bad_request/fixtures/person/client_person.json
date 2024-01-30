@@ -32,6 +32,13 @@
                 "type": "Patient"
             },
             "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/test-patient|proa",
+                "type": "Patient"
+            },
+            "assurance": "level4"
         }
     ]
 }

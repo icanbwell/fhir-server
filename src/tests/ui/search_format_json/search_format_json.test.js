@@ -39,7 +39,6 @@ describe('Patient UI Tests', () => {
             expect(resp).toHaveResourceCount(1);
 
             const htmlHeaders = getHtmlHeaders();
-            htmlHeaders['Cookie'] = ['web2=1'];
             resp = await request
                 .get('/4_0_0/Patient/00100000000?_format=json')
                 .set(htmlHeaders);

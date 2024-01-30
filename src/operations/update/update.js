@@ -23,7 +23,7 @@ const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
 
 /**
  * Update Operation
@@ -274,7 +274,8 @@ class UpdateOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
-                parsedArgs
+                parsedArgs,
+                operation: WRITE
             });
 
             // Get current record
@@ -404,18 +405,22 @@ class UpdateOperation {
                 }
 
                 if (resourceType !== 'AuditEvent') {
-                    // log access to audit logs
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            operation: currentOperationName,
-                            args: parsedArgs.getRawArgs(),
-                            ids: [resource_incoming['id']]
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync(
+                                {
+                                    requestInfo,
+                                    base_version,
+                                    resourceType,
+                                    operation: currentOperationName,
+                                    args: parsedArgs.getRawArgs(),
+                                    ids: [resource_incoming['id']]
+                                }
+                            );
                         }
-                    );
-                    await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
+                    });
                 }
 
                 // changing the attachment._file_id to attachment.data for response
@@ -442,20 +447,32 @@ class UpdateOperation {
                         await this.postSaveProcessor.afterSaveAsync({
                             requestId, eventType: 'U', resourceType, doc
                         });
-                        await this.postSaveProcessor.flushAsync({requestId});
                     }
                 });
 
                 return result;
             } else {
-                // not modified
-                return {
-                    id: id,
+                await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
+
+                const result = {
+                    id,
                     created: false,
                     updated: false,
-                    resource_version: foundResource.meta.versionId,
-                    resource: foundResource
+                    resource_version: foundResource?.meta?.versionId,
+                    resource: foundResource,
                 };
+
+                // not modified
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    result: JSON.stringify(result, getCircularReplacer())
+                });
+
+                return result;
             }
         } catch (e) {
             if (this.configManager.logValidationFailures) {

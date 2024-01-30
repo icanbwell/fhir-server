@@ -40,12 +40,17 @@ describe('InternalAuditLog Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
             // first confirm there are no practitioners
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             // check that InternalAuditLog is created
             /**
              * @type {MongoDatabaseManager}
@@ -90,6 +95,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach((log) => {
@@ -120,6 +126,7 @@ describe('InternalAuditLog Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
@@ -155,6 +162,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp).toHaveMergeResponse({created: false, updated: false});
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
@@ -181,6 +189,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp).toHaveResourceCount(1);
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await auditLogger.flushAsync();
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);

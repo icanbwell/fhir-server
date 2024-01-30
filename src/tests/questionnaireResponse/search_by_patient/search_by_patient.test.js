@@ -32,7 +32,7 @@ describe('Questionnaire Response Tests', () => {
                 .send(questionnaireResponseBundle)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient=029260322')

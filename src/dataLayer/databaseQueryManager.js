@@ -82,8 +82,11 @@ class DatabaseQueryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     * @typedef FindOneOption
+     * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     *
+     * @param {FindOneOption} options
      * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
@@ -162,7 +165,7 @@ class DatabaseQueryManager {
                                     url: `${this._base_version}/${resource.resourceType}/${resource._uuid}`
                                 }
                             )
-                        }));
+                        }).toJSONInternal());
                     }
                 }
                 /**

@@ -15,6 +15,18 @@ query {
                             text
                         }
                     }
+                    outcomeReference {
+                        ... on Resource {
+                            id
+                            resourceType
+                        }
+                    }
+                    outcomeReferenceV2 {
+                        ... on Observation {
+                            id
+                            resourceType
+                        }
+                    }
                 }
                 encounter{
                     extension{
@@ -27,6 +39,16 @@ query {
                 author {
                     ... on Patient {
                         extension{
+                            id
+                            url
+                            valueString
+                            valueUri
+                        }
+                    }
+                }
+                careTeam {
+                    ... on CareTeam {
+                        extension {
                             id
                             url
                             valueString

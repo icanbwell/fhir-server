@@ -505,6 +505,7 @@ function toHaveMergeResponse(resp, checks) {
             if (!Array.isArray(checks)) {
                 checks = [checks];
             }
+
             for (const bodyItemIndex in body) {
                 const bodyItem = body[`${bodyItemIndex}`];
                 const expectedItem = checks[`${bodyItemIndex}`];

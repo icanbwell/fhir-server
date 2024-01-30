@@ -1,0 +1,33 @@
+{
+    "resourceType": "Patient",
+    "id": "223344",
+    "meta": {
+        "source": "abc",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "abc"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "abc"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "hipaa"
+            }
+        ]
+    },
+    "birthDate": "2017-02-01",
+    "gender": "male",
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT2",
+            "given": ["TEST"],
+            "prefix": [],
+            "suffix": []
+        }
+    ]
+}

@@ -26,6 +26,9 @@ class FhirResourceCreator {
                 throw new BadRequestError(new Error('resourceType is null'));
             }
             const ResourceCreator = getResource(VERSIONS['4_0_0'], obj.resourceType);
+            if (!ResourceCreator) {
+                throw new BadRequestError(new Error(`ResourceType ${obj.resourceType} is not supported`));
+            }
             return new ResourceCreator(obj);
         } catch (e) {
             throw new RethrownError(

@@ -5,23 +5,17 @@ const {KafkaClient} = require('./kafkaClient');
 
 class DummyKafkaClient extends KafkaClient {
     /**
-     * constructor
-     * @param {string|undefined} clientId
-     * @param {string[]|undefined} brokers
-     */
-    constructor({clientId, brokers}) {
-        super({clientId, brokers, ssl: false, sasl: null});
-    }
-
-    /**
      * init
-     * @param {string} clientId
-     * @param {string[]} brokers
-     * @param {boolean} ssl
-     * @param {import('kafkajs').SASLOptions} sasl
+     * @typedef {Object} InitProps
+     * @property {string} clientId
+     * @property {string[]} brokers
+     * @property {boolean} ssl
+     * @property {import('kafkajs').SASLOptions} sasl
+     *
+     * @param {InitProps}
      */
     // eslint-disable-next-line no-unused-vars
-    init(clientId, brokers, ssl, sasl) {
+    init({ clientId, brokers, ssl, sasl }) {
         // ok to not specify
     }
 

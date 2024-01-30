@@ -34,6 +34,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/careteam.html'
     },
     {
+        name: 'ChargeItem',
+        description: 'The resource ChargeItem describes the provision of healthcare provider products for a certain patient, therefore referring not only to the product, but containing in addition details of the provision, like date, time, amounts and participating organizations and persons. Main Usage of the ChargeItem is to enable the billing process and internal cost allocation.',
+        url: 'https://hl7.org/FHIR/chargeItem.html'
+    },
+    {
         name: 'Communication',
         description: 'An occurrence of information being transmitted; e.g. an alert that was sent to a responsible provider, a public health agency that was notified about a reportable condition.',
         url: 'https://hl7.org/FHIR/communication.html'
@@ -52,6 +57,11 @@ const resourceDefinitions = [
         name: 'Coverage',
         description: 'Financial instrument which may be used to reimburse or pay for health care products and services. Includes both insurance and self-payment.',
         url: 'https://www.hl7.org/fhir/coverage.html'
+    },
+    {
+        name: 'DiagnosticReport',
+        description: 'The findings and interpretation of diagnostic tests performed on patients, groups of patients, products, substances, devices, and locations, and/or specimens derived from these. The report includes clinical context such as requesting provider information, and some mix of atomic results, images, textual and coded interpretations, and formatted representation of diagnostic reports. The report also includes non-clinical context such as batch analysis and stability reporting of products and substances.',
+        url: 'https://www.hl7.org/fhir/diagnosticreport.html'
     },
     {
         name: 'Encounter',

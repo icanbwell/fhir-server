@@ -18,10 +18,12 @@ const deepcopy = require('deepcopy');
 const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 const invalidPractitionerResource = require('./fixtures/invalid_practitioner.json');
 const invalidPractitionerResource1 = require('./fixtures/invalid_practitioner_1.json');
+const invalidPractitionerResource2 = require('./fixtures/invalid_practitioner_2.json');
 
 const expectedInvalidPractitionerResponse = require('./expected/invalid_practitioner_response.json');
 const expected404FromProfile = require('./expected/404_from_profile_url.json');
-const expected404FromProfileInsideResource = require('./expected/404_from_profile_url_indside_resource.json');
+const expected404FromProfileInsideResource = require('./expected/404_from_profile_url_inside_resource.json');
+const expected404FromProfilesInsideResource = require('./expected/404_from_multiple_profile_url_inside_resource.json');
 
 const fhirValidationUrl = 'http://foo/fhir';
 
@@ -116,7 +118,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -189,7 +191,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -273,7 +275,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -352,7 +354,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -437,7 +439,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -516,7 +518,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -583,6 +585,101 @@ describe('Practitioner Update Tests', () => {
             expect(validationScope.isDone()).toBeFalsy();
 
             expect(resp).toHaveResponse(expected404FromProfileInsideResource,
+                resource => {
+                    delete resource.details; // has lastUpdated
+                    return resource;
+                });
+        });
+
+        test('should throw bad request for profiles present inside resource', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
+            // http://foo/fhir/StructureDefinition
+            const uploadProfileScope = nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json',
+                },
+            })
+                .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
+                .reply(200, {});
+
+            const validationScope = nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json'
+                },
+            })
+                .post(
+                    '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
+                    body => body.resourceType === 'Practitioner' && body.id === '4657'
+                )
+                .reply(200, {
+                        'resourceType': 'OperationOutcome',
+                        'issue': [
+                            {
+                                'severity': 'error',
+                                'code': 'processing',
+                                'details': {
+                                    'coding': [
+                                        {
+                                            'system': 'http://hl7.org/fhir/java-core-messageId',
+                                            'code': 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
+                                        }
+                                    ]
+                                },
+                                'diagnostics': "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+                                'location': [
+                                    'Patient.meta.profile[0]',
+                                    'Line 1, Col 2'
+                                ]
+                            }
+                        ]
+                    }
+                );
+
+            let resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/$merge')
+                .send(invalidPractitionerResource2)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // http://hl7.org/fhir/us/core/StructureDefinition/invalid
+            const getProfileScopeInternal = nock('http://hl7.org')
+                .get('/fhir/us/core/StructureDefinition/invalid')
+                .reply(404, {
+                    msg: 'URL Not found'
+                });
+
+            // http://hl7.org/fhir/us/core/StructureDefinition/invalid
+            const getProfileScopeInternal2 = nock('http://hl7.org')
+                .get('/fhir/us/core/StructureDefinition/invalid-2')
+                .reply(404, {
+                    msg: 'URL Not found'
+                });
+
+            resp = await request
+            .get('/4_0_0/Practitioner/4657/$validate')
+            .set(getHeaders());
+
+            expect(getProfileScopeInternal.isDone()).toBeTruthy();
+            expect(uploadProfileScope.isDone()).toBeFalsy();
+            expect(validationScope.isDone()).toBeFalsy();
+            expect(getProfileScopeInternal2.isDone()).toBeTruthy();
+
+            expect(resp).toHaveResponse(expected404FromProfilesInsideResource,
                 resource => {
                     delete resource.details; // has lastUpdated
                     return resource;

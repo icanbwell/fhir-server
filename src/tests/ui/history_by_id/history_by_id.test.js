@@ -37,6 +37,17 @@ describe('History UI Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+
             // now merge the modified patient.  There should be an additional history record created
             patient1Resource.birthDate = '2015-01-01';
             resp = await request
@@ -46,14 +57,6 @@ describe('History UI Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({updated: true});
 
-            /**
-             * @type {SimpleContainer}
-             */
-            const container = getTestContainer();
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.executeAsync({requestId: requestId});
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 

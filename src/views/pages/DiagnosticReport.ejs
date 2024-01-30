@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <%- include('../partials/header', {resources: resources}); %>
+
+        <main>
+            <% resources.forEach(function(fullResource, index){ const res = fullResource.resource || fullResource; %>
+            <div class="resource-item">
+                <!-- prettier-ignore -->
+                <%- include('../partials/resourceHeader', {res: res}); %>
+                <%- include('../partials/uri', {value: res.implicitRules, name: "Implicit Rules"}); %>
+                <%- include('../partials/code', {value: res.language, name: "Language"}); %>
+                <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+                <%- include('../partials/codeableConcept', {codeableConcepts: res.category, name: "Category", searchParameter: ''}); %>
+                <%- include('../partials/codeableConcept', {codeableConcepts: res.code, name: "Code", searchParameter: ''}); %>
+                <%- include('../partials/dateTime', {value: res.issued, name: "Issued Date"}); %>
+                <%- include('../partials/dateTime', {value: res.effectiveDateTime, name: "Effective Date"}); %>
+                <%- include('../partials/period', {periods: res.effectivePeriod, name: "Effective Period"}); %>
+                <%- include('../partials/nameValue', {value: res.conclusion, name: "Conclusion"}); %>
+                <%- include('../partials/codeableConcept', {codeableConcepts: res.conclusionCode, name: "Conclusion Code", searchParameter: ''}); %>
+                <%- include('../partials/attachment', {value: res.presentedForm}); %>
+                <%- include('../partials/diagnosticReportMedia', {medias: res.media, name: "Media"}); %>
+                <%- include('../partials/reference', {references: res.basedOn, name: "Based On"}); %>
+                <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
+                <%- include('../partials/reference', {references: res.resultsInterpreter, name: "Results Interpreter"}); %>
+                <%- include('../partials/reference', {references: res.specimen, name: "Specimen"}); %>
+                <%- include('../partials/reference', {references: res.result, name: "Result"}); %>
+                <%- include('../partials/reference', {references: res.imagingStudy, name: "Imaging Study"}); %>
+                <%- include('../partials/reference', {references: res.subject, name: "Subject"}); %>
+                <%- include('../partials/reference', {references: res.encounter, name: "Encounter"}); %>
+
+                <%- include('../partials/json', {res: fullResource, index: index}); %>
+            </div>
+            <% }) %>
+        </main>
+
+        <%- include('../partials/footer', {url: url, meta: meta}); %>
+    </body>
+</html>

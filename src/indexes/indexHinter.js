@@ -48,9 +48,12 @@ class IndexHinter {
      * find index for given collection and fields
      * @param {string} collectionName
      * @param {string[]} fields
+     * @param {string | undefined} indexName
      * @return {string|null}
      */
-    findIndexForFields(collectionName, fields) {
+    findIndexForFields(collectionName, fields, indexName) {
+        const isIndexName = indexName && indexName !== 'true' && indexName !== '1';
+
         if (!fields || fields.length === 0) {
             return null;
         }
@@ -69,7 +72,12 @@ class IndexHinter {
             of Object.entries(indexes)) {
             if (indexCollectionName === '*' || baseCollectionName === indexCollectionName) {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
-                    if (
+                    if (isIndexName) {
+                        if (indexName === indexConfig.options.name) {
+                            // match found
+                            return indexName;
+                        }
+                    } else if (
                         (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) &&
                         (!indexConfig.include || indexConfig.include.includes(baseCollectionName))
                     ) {

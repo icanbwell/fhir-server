@@ -8,6 +8,22 @@
     {
       "target": [
         {
+          "type": "Account",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "AdverseEvent",
+          "params": "subject={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "AllergyIntolerance",
           "params": "patient={ref}"
         }
@@ -17,6 +33,30 @@
       "target": [
         {
           "type": "Appointment",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "AppointmentResponse",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Basic",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "BodyStructure",
           "params": "patient={ref}"
         }
       ]
@@ -40,7 +80,79 @@
     {
       "target": [
         {
+          "type": "ChargeItem",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Claim",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ClaimResponse",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ClinicalImpression",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Communication",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "CommunicationRequest",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Composition",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "Condition",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Consent",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Contract",
           "params": "patient={ref}"
         }
       ]
@@ -56,7 +168,95 @@
     {
       "target": [
         {
+          "type": "CoverageEligibilityRequest",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "CoverageEligibilityResponse",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "DetectedIssue",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Device",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "DeviceRequest",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "DeviceUseStatement",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "DiagnosticReport",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "DocumentManifest",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "DocumentReference",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "Encounter",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "EnrollmentRequest",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "EpisodeOfCare",
           "params": "patient={ref}"
         }
       ]
@@ -72,7 +272,103 @@
     {
       "target": [
         {
+          "type": "FamilyMemberHistory",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Flag",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Goal",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Group",
+          "params": "member={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "GuidanceResponse",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ImagingStudy",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "Immunization",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ImmunizationEvaluation",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ImmunizationRecommendation",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Invoice",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "List",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "MeasureReport",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "MedicationAdministration",
           "params": "patient={ref}"
         }
       ]
@@ -104,6 +400,22 @@
     {
       "target": [
         {
+          "type": "MolecularSequence",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "NutritionOrder",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "Observation",
           "params": "patient={ref}"
         }
@@ -112,8 +424,8 @@
     {
       "target": [
         {
-          "type": "Procedure",
-          "params": "patient={ref}"
+          "type": "Patient",
+          "params": "link={ref}"
         }
       ]
     },
@@ -128,7 +440,111 @@
     {
       "target": [
         {
+          "type": "Procedure",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Provenance",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "QuestionnaireResponse",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "RelatedPerson",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "RequestGroup",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ResearchSubject",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "RiskAssessment",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Schedule",
+          "params": "actor={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "ServiceRequest",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "Specimen",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "SupplyDelivery",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "SupplyRequest",
+          "params": "requester={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "Task",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
+          "type": "VisionPrescription",
           "params": "patient={ref}"
         }
       ]

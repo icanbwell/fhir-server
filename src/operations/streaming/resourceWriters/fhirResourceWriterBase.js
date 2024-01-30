@@ -6,12 +6,14 @@ class FhirResourceWriterBase extends Transform {
      * @param {boolean} objectMode
      * @param {string} contentType
      * @param {number} highWaterMark
+     * @param {import('http').ServerResponse} response
      */
     constructor(
         {
             objectMode,
             contentType,
-            highWaterMark
+            highWaterMark,
+            response,
         }
     ) {
         super({objectMode: objectMode, highWaterMark: highWaterMark});
@@ -20,6 +22,11 @@ class FhirResourceWriterBase extends Transform {
          * @type {string}
          */
         this._contentType = contentType;
+
+        /**
+         * @type {import('http').ServerResponse}
+         */
+        this.response = response;
     }
 
     /**

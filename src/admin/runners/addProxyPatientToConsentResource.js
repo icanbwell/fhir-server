@@ -10,7 +10,6 @@ const {
     PERSON_PROXY_PREFIX,
     PERSON_REFERENCE_PREFIX,
     PATIENT_REFERENCE_PREFIX,
-    BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY,
     PROXY_PERSON_CONSENT_CODING,
 } = require('../../constants');
 const ConsentActor = require('../../fhir/classes/4_0_0/backbone_elements/consentActor');
@@ -87,32 +86,44 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          */
         this.cache = new Map();
 
-        Object.defineProperty(this, 'consentToMasterPersonCache', {
+        Object.defineProperty(this, 'consentToImmediatePersonCache', {
             enumerable: true,
             get: function () {
-                return this.cache.get('consentToMasterPersonCache');
+                return this.cache.get('consentToImmediatePersonCache');
             },
             set(value) {
-                this.cache.set('consentToMasterPersonCache', value);
+                this.cache.set('consentToImmediatePersonCache', value);
             },
         });
 
-        Object.defineProperty(this, 'consentWithNoBwellPerson', {
+        Object.defineProperty(this, 'consentWithNoPerson', {
             enumerable: true,
             get: function () {
-                return this.cache.get('consentWithNoBwellPerson');
+                return this.cache.get('consentWithNoPerson');
             },
             set(value) {
-                this.cache.set('consentWithNoBwellPerson', value);
+                this.cache.set('consentWithNoPerson', value);
             },
         });
 
-        // set the consentToMasterPersonCache
-        /**@type {Map<string, string>} */
-        this.consentToMasterPersonCache = new Map();
+        Object.defineProperty(this, 'consentToPatientWithMultiplePerson', {
+            enumerable: true,
+            get: function () {
+                return this.cache.get('consentToPatientWithMultiplePerson');
+            },
+            set(value) {
+                this.cache.set('consentToPatientWithMultiplePerson', value);
+            },
+        });
+
+        /**@type {Map<string, { id: string; sourceAssigningAuthority: string}} */
+        this.consentToImmediatePersonCache = new Map();
 
         /**@type {Map<string, string>} */
-        this.consentWithNoBwellPerson = new Map();
+        this.consentWithNoPerson = new Map();
+
+        /**@type {Map<string, string>} */
+        this.consentToPatientWithMultiplePerson = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
     }
@@ -126,8 +137,8 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
          */
         const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
-        // preload the consentToMasterPerson Map
-        await this.cacheConsentToBwellPersonUuidRef({
+        // preload the cache
+        await this.cacheConsentToPersonUuidRef({
             limit: this.limit,
             skip: this.skip,
             startFromId: this.startFromId,
@@ -185,9 +196,16 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
             } finally {
                 this.adminLogger.logInfo(
-                    `Consent Resources without bwellPerson: ${this.consentWithNoBwellPerson.size}`,
+                    `Consent Resources without Person: ${this.consentWithNoPerson.size}`,
                     {
-                        consentWithNoBwellPerson: Object.fromEntries(this.consentWithNoBwellPerson),
+                        consentWithNoPerson: Object.fromEntries(this.consentWithNoPerson),
+                    }
+                );
+
+                this.adminLogger.logInfo(
+                    `Consent Resources with patient linked to multiple person: ${this.consentToPatientWithMultiplePerson.size}`,
+                    {
+                        consentToPatientWithMultiplePerson: Object.fromEntries(this.consentToPatientWithMultiplePerson),
                     }
                 );
             }
@@ -262,30 +280,30 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             return resource;
         }
 
-        // get the bwellPerson id from the cache
-        const personId = this.consentToMasterPersonCache.get(resource._uuid);
-        if (!personId) {
-            this.adminLogger.logger.warn(
-                `No bwell Person found in cache for consentUuid: '${resource._uuid}'`
-            );
+        // get the person id from the cache
+        const immediatePerson = this.consentToImmediatePersonCache.get(resource._uuid);
 
-            // add to the set
-            this.consentWithNoBwellPerson.set(resource._uuid, resource.patient._uuid);
+        if (!immediatePerson) {
+            this.adminLogger.logger.warn(
+                `No Immediate Person found in cache for consentUuid: '${resource._uuid}'`
+            );
+            this.consentWithNoPerson.set(resource._uuid, resource.patient._uuid);
             return resource;
         }
 
-        const proxyPatientReference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${personId.replace(
+        const proxyPatientReference = `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${immediatePerson.id.replace(
             PERSON_REFERENCE_PREFIX,
             ''
         )}`;
+        let wrongPersonActor;
+
         /**@type {boolean} */
         const isAlreadyPresent = provisionActor.some((actor) => {
             let alreadyPresent;
             alreadyPresent =
                 actor.reference &&
                 actor.reference._uuid &&
-                typeof actor.reference._uuid === 'string' &&
-                actor.reference._uuid === proxyPatientReference;
+                typeof actor.reference._uuid === 'string';
 
             // check for coding
             alreadyPresent =
@@ -298,15 +316,31 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
 
             if (alreadyPresent) {
-                this.adminLogger.logger.warn(
-                    `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
-                );
+                if (actor.reference._uuid !== proxyPatientReference) {
+                    wrongPersonActor = actor;
+                    this.adminLogger.logger.warn(
+                        `[addProxyPersonReference] Wrong Proxy Person '${actor.reference._uuid}' present instead of ${proxyPatientReference} for ${resource._uuid}`
+                    );
+                } else {
+                    this.adminLogger.logger.warn(
+                        `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
+                    );
+                }
             }
             return alreadyPresent;
         });
 
         if (isAlreadyPresent) {
             // proxy-patient reference is already present
+            if (wrongPersonActor) {
+                wrongPersonActor.reference = {
+                    reference: proxyPatientReference,
+                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority,
+                };
+                 // call the presave
+                 resource = await this.preSaveManager.preSaveAsync(resource);
+            }
+
             return resource;
         } else {
             const actor = new ConsentActor({
@@ -320,7 +354,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 },
                 reference: {
                     reference: proxyPatientReference,
-                    _sourceAssigningAuthority: BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY,
+                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority,
                 },
             });
 
@@ -406,10 +440,10 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * Creates a single connection and returns the collection instance
+     * Caches consent to person
      * @param {{limit: number; skip: number; mongoConfig: any; startFromId: string | undefined }} params
      */
-    async cacheConsentToBwellPersonUuidRef({ mongoConfig, limit, skip, startFromId }) {
+    async cacheConsentToPersonUuidRef({ mongoConfig, limit, skip, startFromId }) {
         const collectionName = 'Consent_4_0_0';
         let projection = {
             _id: 1,
@@ -472,31 +506,41 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
             }
 
-            // for all patients, find the bwellPerson
-            const patientToPersonMap = await this.bwellPersonFinder.getBwellPersonIdsAsync({
-                patientReferences,
-            });
+            // find person
+            const patientToPersonMap = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject: true });
 
             // build cache
             consentToPatientRefMap.forEach((patientReference, consentId) => {
-                const bwellPersonUuidRef = patientToPersonMap.get(patientReference);
-                if (!bwellPersonUuidRef) {
+
+                // assign person
+                const immediatePersons = patientToPersonMap.get(patientReference);
+
+                if (immediatePersons && immediatePersons.length > 0) {
+                    // there will only be one client person for a client patient
+                    if (immediatePersons.length > 1) {
+                        this.adminLogger.logger.warn(`Multiple persons linked with patient '${patientReference}'`, {
+                            consentId,
+                            patientReference,
+                            immediatePersons,
+                        });
+                        this.consentToPatientWithMultiplePerson.set(consentId, patientReference);
+                    } else {
+                        this.consentToImmediatePersonCache.set(consentId, immediatePersons[0]);
+                    }
+                } else {
                     this.adminLogger.logger.warn(
-                        `No bwell Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
+                        `No Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
                         {
                             consentId,
                             patientReference,
                         }
                     );
-                    return;
                 }
-
-                this.consentToMasterPersonCache?.set(consentId, bwellPersonUuidRef);
             });
 
             // cache
             this.adminLogger.logInfo(
-                `Cached ${this.consentToMasterPersonCache.size} out of ${consentToPatientRefMap.size} resources`
+                `Cached ${this.consentToImmediatePersonCache.size} out of ${consentToPatientRefMap.size} resources`
             );
         } catch (e) {
             console.log(e);

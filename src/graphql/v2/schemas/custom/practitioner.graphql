@@ -1,0 +1,9 @@
+# import PractitionerRole from 'practitionerRole.graphql'
+# import Group from 'group.graphql'
+# import MeasureReport from 'measureReport.graphql'
+
+extend type Practitioner {
+    practitionerRole: [PractitionerRole]
+    group: [Group]
+    measureReport: [MeasureReport]
+}

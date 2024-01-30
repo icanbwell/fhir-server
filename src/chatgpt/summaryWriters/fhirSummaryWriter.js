@@ -168,11 +168,10 @@ class FhirSummaryWriter extends BasePostSaveHandler {
 
     /**
      * flushes the change event buffer
-     * @param {string} requestId
      * @returns {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async flushAsync({requestId}) {
+    async flushAsync() {
     }
 }
 

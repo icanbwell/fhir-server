@@ -1,0 +1,84 @@
+[
+  {
+    "resourceType": "Observation",
+    "id": "d0792955-4ff9-48ee-ba38-2f6d8a1a9a49",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-11-10T12:39:46.000Z",
+      "source": "/patients",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "client-1"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "client-1"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "client-1"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "client-1"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "d0792955-4ff9-48ee-ba38-2f6d8a1a9a49"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "d0792955-4ff9-48ee-ba38-2f6d8a1a9a49"
+      }
+    ],
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "http://www.icanbwell.com/cql/library",
+          "code": "BMI001"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/libraryVersion",
+          "code": "1.0.0"
+        },
+        {
+          "system": "http://www.icanbwell.com/cql/rule",
+          "code": "InAgeCohort"
+        }
+      ]
+    },
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/c42615d2-6a68-4cdd-af63-6646a2169f3c"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/c42615d2-6a68-4cdd-af63-6646a2169f3c"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "client-1"
+        }
+      ],
+      "reference": "Patient/c42615d2-6a68-4cdd-af63-6646a2169f3c"
+    },
+    "effectivePeriod": {
+      "start": "2021-01-01T00:00:00.000Z",
+      "end": "2021-12-31T00:00:00.000Z"
+    },
+    "issued": "2021-01-01T12:00:00Z",
+    "valueBoolean": false
+  }
+]

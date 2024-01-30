@@ -165,7 +165,7 @@ module.exports = {
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
-        'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer'
+        'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer', '_rewritePatientReference'
     ],
     REQUEST_ID_HEADER: 'x-request-id',
     KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds,
@@ -204,4 +204,10 @@ module.exports = {
         CODE: 'AUT'
     },
     CONSENT_OF_LINKED_PERSON_INDEX: 'consent_of_linked_person',
+    EXTERNAL_REQUEST_RETRY_COUNT: 3,
+    DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
+    OPERATIONS: {
+        READ: 'READ',
+        WRITE: 'WRITE',
+    }
 };

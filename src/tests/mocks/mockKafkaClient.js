@@ -3,9 +3,10 @@ const { KafkaClient } = require('../../utils/kafkaClient');
 class MockKafkaClient extends KafkaClient {
     /**
      * constructor
+     * @param {ConfigManager} configManager
      */
-    constructor() {
-        super({ clientId: undefined, brokers: [], ssl: false, sasl: null });
+    constructor({ configManager }) {
+        super({ configManager });
         /**
          * @type {KafkaClientMessage[]}
          */
@@ -15,13 +16,16 @@ class MockKafkaClient extends KafkaClient {
 
     /**
      * init
-     * @param {string} clientId
-     * @param {string[]} brokers
-     * @param {boolean} ssl
-     * @param {import('kafkajs').SASLOptions} sasl
+     * @typedef {Object} InitProps
+     * @property {string} clientId
+     * @property {string[]} brokers
+     * @property {boolean} ssl
+     * @property {import('kafkajs').SASLOptions} sasl
+     *
+     * @param {InitProps}
      */
     // eslint-disable-next-line no-unused-vars
-    init(clientId, brokers, ssl, sasl) {
+    init({ clientId, brokers, ssl, sasl }) {
         // do nothing
     }
 

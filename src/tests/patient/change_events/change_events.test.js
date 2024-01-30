@@ -38,13 +38,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
@@ -60,6 +60,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -77,13 +78,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
@@ -106,6 +107,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -127,13 +129,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
@@ -146,6 +148,7 @@ describe('Patient Change Event Tests', () => {
                 .set(getHeaders());
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             mockKafkaClient.clear();
 
             resp = await request
@@ -164,6 +167,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -187,13 +191,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
 
             let resp = await request
@@ -204,6 +208,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             mockKafkaClient.clear();
 
             resp = await request
@@ -221,6 +226,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -242,13 +248,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
 
@@ -267,6 +273,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -284,13 +291,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
 
             let resp = await request
@@ -301,6 +308,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             mockKafkaClient.clear();
 
             resp = await request
@@ -318,6 +326,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -337,13 +346,13 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
-             * @type {MockKafkaClientFactory}
+             * @type {import('../../../dataLayer/postSaveProcessor').PostSaveProcessor}
              */
-            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            const postSaveProcessor = getTestContainer().postSaveProcessor;
             /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            const mockKafkaClient = getTestContainer().kafkaClient;
             assertTypeEquals(mockKafkaClient, MockKafkaClient);
 
             let resp = await request
@@ -354,6 +363,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             mockKafkaClient.clear();
 
             resp = await request
@@ -371,6 +381,7 @@ describe('Patient Change Event Tests', () => {
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postSaveProcessor.flushAsync();
             /**
              * @type {KafkaClientMessage[]}
              */

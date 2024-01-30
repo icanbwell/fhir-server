@@ -60,7 +60,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['id','identifier']",
+        "display": "['id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

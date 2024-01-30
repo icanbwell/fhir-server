@@ -35,6 +35,7 @@ const {REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constant
 const {generateUUID} = require('./utils/uid.util');
 const {logInfo} = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
+const { handleServerError } = require('./routeHandlers/handleError');
 
 /**
  * Creates the FHIR app
@@ -98,9 +99,37 @@ function createApp({fnGetContainer, trackMetrics}) {
      * @type {SimpleContainer}
      */
     const container = fnGetContainer();
+    /**
+     * @type {import('./utils/configManager').ConfigManager}
+     */
     const configManager = container.configManager;
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
+
+    // log every incoming request and every outgoing response
+    app.use((req, res, next) => {
+        const reqPath = req.originalUrl;
+        const reqMethod = req.method.toUpperCase();
+        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        const startTime = new Date().getTime();
+        res.on('finish', () => {
+            const finishTime = new Date().getTime();
+            const altId = req.authInfo?.context?.username ||
+                req.authInfo?.context?.subject ||
+                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
+
+            logInfo('Request Completed', {
+                status: res.statusCode,
+                responseTime: `${(finishTime - startTime) / 1000}s`,
+                requestUrl: reqPath,
+                method: reqMethod,
+                userAgent: req.headers['user-agent'],
+                scope: req.authInfo?.scope,
+                altId,
+            });
+        });
+        next();
+    });
 
     // middleware to parse cookies
     app.use(cookieParser());
@@ -173,14 +202,6 @@ function createApp({fnGetContainer, trackMetrics}) {
         }
     );
 
-    // log every incoming request
-    app.use(async (req, res, next) => {
-        const reqPath = req.originalUrl;
-        const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
-        next();
-    });
-
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
@@ -229,30 +250,28 @@ function createApp({fnGetContainer, trackMetrics}) {
     // render the home page
     app.get('/', (
         /** @type {import('express').Request} */ req,
-        /** @type {import('express').Response} */ res,
-        next) => {
+        /** @type {import('express').Response} */ res
+    ) => {
         const home_options = {
             resources: resourceDefinitions,
             user: req.user,
+            url: req.url,
             nonce: httpContext.get(RESPONSE_NONCE),
         };
-        if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
-            // fall through to the handler in fhirServer.js
-            next();
-        } else {
-            return res.render(__dirname + '/views/pages/home', home_options);
-        }
+        return res.render(__dirname + '/views/pages/home', home_options);
     });
 
     app.get('/clean/:collection?', (req, res) => handleClean(
         {fnGetContainer, req, res}
     ));
 
-    app.get('/stats', (req, res) => handleStats(
+    if (configManager.enableStatsEndpoint) {
+        app.get('/stats', (req, res) => handleStats(
         {fnGetContainer, req, res}
-    ));
+        ));
+    }
 
-    app.get('/.well-known/smart-configuration', handleSmartConfiguration);
+    app.get('/.well-known/smart-configuration', handleSmartConfiguration, handleServerError);
 
     app.get('/alert', handleAlert);
 
@@ -277,8 +296,6 @@ function createApp({fnGetContainer, trackMetrics}) {
         express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
-    // serve react js and css files
-    app.use('/static', express.static(path.join(__dirname, './web/build/static')));
 
 
     if (isTrue(env.AUTH_ENABLED)) {
@@ -334,12 +351,12 @@ function createApp({fnGetContainer, trackMetrics}) {
                              * @type {PostRequestProcessor}
                              */
                             const postRequestProcessor = container1.postRequestProcessor;
-                            /**
-                             * @type {RequestSpecificCache}
-                             */
-                            const requestSpecificCache = container1.requestSpecificCache;
                             if (postRequestProcessor) {
                                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+                                /**
+                                 * @type {RequestSpecificCache}
+                                 */
+                                const requestSpecificCache = container1.requestSpecificCache;
                                 await postRequestProcessor.executeAsync({requestId});
                                 await requestSpecificCache.clearAsync({requestId});
                             }

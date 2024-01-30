@@ -1,0 +1,93 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "6e03683f-003e-4367-9ef9-f9b16313451b",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-10-27T08:51:48.000Z",
+          "source": "client",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "client"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "client"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "client"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "6e03683f-003e-4367-9ef9-f9b16313451b"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "6e03683f-003e-4367-9ef9-f9b16313451b"
+          }
+        ],
+        "name": [
+          {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "2017-01-01"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['6e03683f-003e-4367-9ef9-f9b16313451b','6e03683f-003e-4367-9ef9-f9b163134512','037373b5-1e2c-5086-b490-6191d0e13bf6','4f57767d-a120-5f87-a616-32fa132d880b']}},{'_sourceId':{'$in':['patient-1','patient-2','patient-3']}}]}, {}).sort({'id':1}).limit(1000)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "Patient_4_0_0"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'limit':1000,'sort':{'id':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['_uuid','_sourceId','id']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':false}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryDatabase",
+        "code": "fhir"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "type": "searchset",
+  "total": 0
+}

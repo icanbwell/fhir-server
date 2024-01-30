@@ -74,7 +74,8 @@ const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
 const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
-const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
+const {KafkaClient} = require('./utils/kafkaClient');
+const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
@@ -87,7 +88,8 @@ const {ChatGPTLangChainManager} = require('./chatgpt/managers/chatgptLangChainMa
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
-const {ConsentManager} = require('./operations/search/consentManger');
+const {ProaConsentManager} = require('./operations/search/proaConsentManager');
+const {DataSharingManager} = require('./operations/search/dataSharingManager');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
 const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
@@ -102,8 +104,10 @@ const {MemoryVectorStoreManager} = require('./chatgpt/vectorStores/memoryVectorS
 const {ChatGptEnrichmentProvider} = require('./enrich/providers/chatGptEnrichmentProvider');
 const {OpenAILLMFactory} = require('./chatgpt/llms/openaiLLMFactory');
 const {MongoAtlasVectorStoreManager} = require('./chatgpt/vectorStores/mongoAtlasVectorStoreManager');
-const { ProfileUrlMapper } = require('./utils/profileMapper');
-
+const {ProfileUrlMapper} = require('./utils/profileMapper');
+const {ReferenceQueryRewriter} = require('./queryRewriters/rewriters/referenceQueryRewriter');
+const {HiddenMetaTagEnrichmentProvider} = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
+const {READ} = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
@@ -114,9 +118,10 @@ const createContainer = function () {
 
     container.register('configManager', () => new ConfigManager());
 
-    container.register('kafkaClientFactory', (c) => new KafkaClientFactory({
-        configManager: c.configManager
-    }));
+    container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents ?
+        new KafkaClient({ configManager: c.configManager }) :
+        new DummyKafkaClient({ configManager: c.configManager })
+    );
 
     container.register('scopesManager', (c) => new ScopesManager(
         {
@@ -131,8 +136,11 @@ const createContainer = function () {
 
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
+            new HiddenMetaTagEnrichmentProvider(),
             new IdEnrichmentProvider(),
-            new ProxyPatientReferenceEnrichmentProvider(),
+            new ProxyPatientReferenceEnrichmentProvider({
+                configManager: c.configManager,
+            }),
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
             }),
@@ -202,23 +210,32 @@ const createContainer = function () {
     }));
     container.register('changeEventProducer', (c) => new ChangeEventProducer(
         {
-            kafkaClientFactory: c.kafkaClientFactory,
+            kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             bwellPersonFinder: c.bwellPersonFinder,
-            requestSpecificCache: c.requestSpecificCache
+            configManager: c.configManager
         }
     ));
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
         r4SearchQueryCreator: c.r4SearchQueryCreator,
     }));
-    container.register('consentManager', (c) => new ConsentManager({
+    container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
         patientFilterManager: c.patientFilterManager,
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
+    }));
+    container.register('dataSharingManager', (c) => new DataSharingManager({
+        databaseQueryFactory: c.databaseQueryFactory,
+        configManager: c.configManager,
+        patientFilterManager: c.patientFilterManager,
+        searchQueryBuilder: c.searchQueryBuilder,
+        bwellPersonFinder: c.bwellPersonFinder,
+        proaConsentManager: c.proaConsentManager,
+        requestSpecificCache: c.requestSpecificCache,
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
@@ -228,7 +245,9 @@ const createContainer = function () {
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
     }));
-    container.register('mongoDatabaseManager', () => new MongoDatabaseManager());
+    container.register('mongoDatabaseManager', (c) => new MongoDatabaseManager({
+        configManager: c.configManager,
+    }));
     container.register('indexManager', (c) => new IndexManager(
         {
             indexProvider: c.indexProvider,
@@ -281,10 +300,16 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new PatientProxyQueryRewriter({
-                personToPatientIdsExpander: c.personToPatientIdsExpander
-            })
-        ]
+            new ReferenceQueryRewriter(),
+        ],
+        operationSpecificQueryRewriters: {
+            [READ]: [
+                new PatientProxyQueryRewriter({
+                    personToPatientIdsExpander: c.personToPatientIdsExpander,
+                    configManager: c.configManager,
+                })
+            ]
+        }
     }));
 
     container.register('searchManager', (c) => new SearchManager(
@@ -301,8 +326,9 @@ const createContainer = function () {
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
-                consentManager: c.consentManager,
-                searchQueryBuilder: c.searchQueryBuilder
+                proaConsentManager: c.proaConsentManager,
+                dataSharingManager: c.dataSharingManager,
+                searchQueryBuilder: c.searchQueryBuilder,
             }
         )
     );
@@ -326,7 +352,8 @@ const createContainer = function () {
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
                 mongoFilterGenerator: c.mongoFilterGenerator,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -379,7 +406,9 @@ const createContainer = function () {
     container.register('auditLogger', (c) => new AuditLogger(
             {
                 postRequestProcessor: c.postRequestProcessor,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.databaseBulkInserter,
+                configManager: c.configManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -414,7 +443,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -426,7 +456,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                postRequestProcessor: c.postRequestProcessor
             }
         )
     );
@@ -441,7 +472,8 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
             configManager: c.configManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -514,7 +546,8 @@ const createContainer = function () {
             configManager: c.configManager,
             r4SearchQueryCreator: c.r4SearchQueryCreator,
             r4ArgsParser: c.r4ArgsParser,
-            queryRewriterManager: c.queryRewriterManager
+            queryRewriterManager: c.queryRewriterManager,
+            postRequestProcessor: c.postRequestProcessor
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -781,7 +814,8 @@ const createContainer = function () {
         handlers: [
             c.changeEventProducer,
             c.fhirSummaryWriter
-        ]
+        ],
+        configManager: c.configManager
     }));
 
     return container;

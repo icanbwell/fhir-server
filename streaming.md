@@ -36,7 +36,7 @@ async with ClientSession(timeout=ClientTimeout(total=0)) as http:
             print(f"{line }", end='\r')
 ```
 
-You can see an example at: https://github.com/icanbwell/fhir-server-performance/blob/main/simple.py
+You can see an example at: https://github.com/icanbwell/fhir-server-performance/blob/main/simple_with_progress.py
 
 ### NDJson Format
 

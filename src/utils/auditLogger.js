@@ -2,13 +2,14 @@
  * logs audit entries
  */
 const env = require('var');
+const cron = require('node-cron');
 const moment = require('moment-timezone');
 const {generateUUID} = require('./uid.util');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
 const {PostRequestProcessor} = require('./postRequestProcessor');
 const {DatabaseBulkInserter} = require('../dataLayer/databaseBulkInserter');
-const {assertTypeEquals} = require('./assertType');
+const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {SecurityTagSystem} = require('./securityTagSystem');
 const {logError} = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
@@ -19,23 +20,34 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
-const Mutex = require('async-mutex').Mutex;
+const {ConfigManager} = require('./configManager');
+const {Mutex} = require('async-mutex');
+const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const mutex = new Mutex();
 
 class AuditLogger {
     /**
      * constructor
-     * @param {PostRequestProcessor} postRequestProcessor
-     * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {string} base_version
+     * @typedef {Object} params
+     * @property {PostRequestProcessor} postRequestProcessor
+     * @property {DatabaseBulkInserter} databaseBulkInserter
+     * @property {ConfigManager} configManager
+     * @property {PreSaveManager} preSaveManager
+     * @property {string} base_version
+     *
+     * @param {params}
      */
     constructor({
                     postRequestProcessor,
                     databaseBulkInserter,
+                    configManager,
+                    preSaveManager,
                     base_version = '4_0_0'
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        assertTypeEquals(configManager, ConfigManager);
+        assertTypeEquals(preSaveManager, PreSaveManager);
         /**
          * @type {PostRequestProcessor}
          */
@@ -45,13 +57,26 @@ class AuditLogger {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         /**
-         * @type {Resource[]}
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        /**
+         * @type {{doc: import('../fhir/classes/4_0_0/resources/resource'), requestInfo: import('./fhirRequestInfo').FhirRequestInfo}[]}
          */
         this.queue = [];
         /**
          * @type {string}
          */
         this.base_version = base_version;
+
+        assertIsValid(cron.validate(this.configManager.postRequestFlushTime), 'Invalid cron expression');
+        cron.schedule(this.configManager.postRequestFlushTime, async () => {
+            await this.flushAsync();
+        });
     }
 
     /**
@@ -153,12 +178,9 @@ class AuditLogger {
      * @param {string[]} ids
      * @return {Promise<void>}
      */
-    async logAuditEntryAsync(
-        {
-            requestInfo, base_version, resourceType,
-            operation, args, ids
-        }
-    ) {
+    async logAuditEntryAsync({
+        requestInfo, base_version, resourceType, operation, args, ids
+    }) {
         if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
             return;
         }
@@ -188,53 +210,87 @@ class AuditLogger {
             }
         );
 
-        this.queue.push(doc);
+        await this.preSaveManager.preSaveAsync(doc);
+        this.queue.push({doc, requestInfo});
+
+        if (this.queue.length >= this.configManager.postRequestBufferSize) {
+            await this.flushAsync();
+        }
     }
 
     /**
      * Flush
-     * @param {string} requestId
-     * @param {string} currentDate
-     * @param {string} method
-     * @param {string} userRequestId
      * @return {Promise<void>}
      */
-    async flushAsync({requestId, currentDate, method, userRequestId}) {
-        /**
-         * Audit entries are always of resource type AuditEvent
-         * @type {string}
-         */
-        await mutex.runExclusive(async () => {
-            const resourceType = 'AuditEvent';
-            for (const /** @type {Resource} */ doc of this.queue) {
-                await this.databaseBulkInserter.insertOnlyAsync({requestId, resourceType, doc});
-            }
-            this.queue = [];
+    async flushAsync() {
+        if (this.queue.length === 0) {
+            return;
+        }
+        const release = await mutex.acquire();
+        try {
             /**
-             * @type {MergeResultEntry[]}
+             * Audit entries are always of resource type AuditEvent
+             * @type {string}
              */
-            const mergeResults = await this.databaseBulkInserter.executeAsync(
-                {
-                    requestId, currentDate, base_version: this.base_version,
+            const resourceType = 'AuditEvent';
+
+            const currentQueue = this.queue.splice(0, this.queue.length);
+            let requestId, method, userRequestId;
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+
+            /**
+             * @type {Map<string,import('../dataLayer/bulkInsertUpdateEntry').BulkInsertUpdateEntry>}
+             */
+            const operationsMap = new Map();
+            operationsMap.set(resourceType, []);
+
+            for (const {doc, requestInfo} of currentQueue) {
+                assertTypeEquals(doc, AuditEvent);
+                ({requestId, method, userRequestId} = requestInfo);
+                operationsMap.get(resourceType).push(
+                    this.databaseBulkInserter.getOperationForResourceAsync({
+                        requestId,
+                        resourceType,
+                        doc,
+                        operationType: 'insert',
+                        operation: {
+                            insertOne: {
+                                document: doc.toJSONInternal()
+                            }
+                        }
+                    })
+                );
+            }
+            if (operationsMap.get(resourceType).length > 0) {
+                /**
+                 * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
+                 */
+                const mergeResults = await this.databaseBulkInserter.executeAsync({
+                    requestId,
+                    currentDate,
+                    base_version: this.base_version,
                     method,
                     userRequestId,
-                }
-            );
-            /**
-             * @type {MergeResultEntry[]}
-             */
-            const mergeResultErrors = mergeResults.filter(m => m.issue);
-            if (mergeResultErrors.length > 0) {
-                logError('Error creating audit entries', {
-                    error: mergeResultErrors,
-                    source: 'flushAsync',
-                    args: {
-                        request: {id: requestId},
-                        errors: mergeResultErrors
-                    }
+                    operationsMap
                 });
+                /**
+                 * @type {import('../operations/common/mergeResultEntry').MergeResultEntry[]}
+                 */
+                const mergeResultErrors = mergeResults.filter(m => m.issue);
+                if (mergeResultErrors.length > 0) {
+                    logError('Error creating audit entries', {
+                        error: mergeResultErrors,
+                        source: 'flushAsync',
+                        args: {
+                            request: {id: requestId},
+                            errors: mergeResultErrors
+                        }
+                    });
+                }
             }
-        });
+        } finally {
+            release();
+        }
     }
 }
 

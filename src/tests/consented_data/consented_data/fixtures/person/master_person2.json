@@ -39,13 +39,6 @@
                 "type": "Person"
             },
             "assurance": "level4"
-        },
-        {
-            "target": {
-                "reference": "Person/p1234567|proa",
-                "type": "Person"
-            },
-            "assurance": "level4"
         }
     ]
 }

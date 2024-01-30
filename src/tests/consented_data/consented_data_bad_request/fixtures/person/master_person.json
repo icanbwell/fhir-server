@@ -28,7 +28,7 @@
     "link": [
         {
             "target": {
-                "reference": "Patient/2354",
+                "reference": "Patient/b2354",
                 "type": "Patient"
             },
             "assurance": "level4"

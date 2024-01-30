@@ -5,7 +5,6 @@ const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {R4SearchQueryCreator} = require('../query/r4');
-const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
@@ -18,6 +17,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {ParsedArgs} = require('../query/parsedArgs');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class RemoveOperation {
     /**
@@ -30,6 +30,7 @@ class RemoveOperation {
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
+     * @param {PostRequestProcessor} postRequestProcessor
      */
     constructor(
         {
@@ -41,7 +42,8 @@ class RemoveOperation {
             configManager,
             r4SearchQueryCreator,
             r4ArgsParser,
-            queryRewriterManager
+            queryRewriterManager,
+            postRequestProcessor
         }
     ) {
         /**
@@ -93,6 +95,12 @@ class RemoveOperation {
          */
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(queryRewriterManager, QueryRewriterManager);
+
+        /**
+         * @type {PostRequestProcessor}
+         */
+        this.postRequestProcessor = postRequestProcessor;
+        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
     }
 
     /**
@@ -111,7 +119,7 @@ class RemoveOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, /** @type {string|null} */ requestId, /** @type {string} */ method, /**@type {string} */ userRequestId} = requestInfo;
+        const {user, scope, /** @type {string|null} */ requestId} = requestInfo;
 
         if (parsedArgs.get('id') &&
             (
@@ -218,16 +226,20 @@ class RemoveOperation {
                     query
                 });
 
-                // log access to audit logs
-                await this.auditLogger.logAuditEntryAsync(
-                    {
-                        requestInfo, base_version, resourceType,
-                        operation: 'delete', args: parsedArgs.getRawArgs(), ids: []
-                    }
-                );
-                const currentDate = moment.utc().format('YYYY-MM-DD');
-                await this.auditLogger.flushAsync({requestId, currentDate, method, userRequestId});
-
+                if (resourceType !== 'AuditEvent') {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            // log access to audit logs
+                            await this.auditLogger.logAuditEntryAsync(
+                                {
+                                    requestInfo, base_version, resourceType,
+                                    operation: 'delete', args: parsedArgs.getRawArgs(), ids: []
+                                }
+                            );
+                        }
+                    });
+                }
             } catch (e) {
                 throw new NotAllowedError(e.message);
             }

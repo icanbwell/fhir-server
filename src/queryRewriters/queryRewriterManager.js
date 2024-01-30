@@ -1,27 +1,52 @@
 const {RethrownError} = require('../utils/rethrownError');
 
+/**
+ * @typedef OperationSpecificQueryRewritersType
+ * @property {import('./rewriters/queryRewriter').QueryRewriter[]} READ
+ * @property {import('./rewriters/queryRewriter').QueryRewriter[]} WRITE
+ */
+
 class QueryRewriterManager {
     /**
      * constructor
-     * @param {QueryRewriter[]} queryRewriters
+     * @typedef params
+     * @property {import('./rewriters/queryRewriter').QueryRewriter[]} queryRewriters
+     * @property {OperationSpecificQueryRewritersType} operationSpecificQueryRewriters
+     *
+     * @param {params}
      */
-    constructor({queryRewriters}) {
+    constructor({queryRewriters, operationSpecificQueryRewriters}) {
         /**
-         * @type {QueryRewriter[]}
+         * @type {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
         this.queryRewriters = queryRewriters;
+        /**
+         * @type {OperationSpecificQueryRewritersType}
+         */
+        this.operationSpecificQueryRewriters = operationSpecificQueryRewriters;
     }
 
     /**
      * rewrites the query
-     * @param {string} base_version
-     * @param {import('mongodb').Document} query
-     * @param {Set} columns
-     * @param {string} resourceType
+     * @typedef rewriteQueryAsyncParams
+     * @property {string} base_version
+     * @property {import('mongodb').Document} query
+     * @property {Set} columns
+     * @property {string} resourceType
+     * @property {'READ'|'WRITE'} operation
+     *
+     * @param {rewriteQueryAsyncParams}
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
-    async rewriteQueryAsync({base_version, query, columns, resourceType}) {
-        for (const queryRewriter of this.queryRewriters) {
+    async rewriteQueryAsync({base_version, query, columns, resourceType, operation}) {
+        /**
+         * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
+         */
+        const queryRewriters = [
+            ...this.queryRewriters,
+            ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
+        ];
+        for (const queryRewriter of queryRewriters) {
             try {
                 ({query, columns} = await queryRewriter.rewriteQueryAsync({
                     base_version,
@@ -40,14 +65,25 @@ class QueryRewriterManager {
 
     /**
      * rewrites the args
-     * @param {string} base_version
-     * @param {ParsedArgs} parsedArgs
-     * @param {string} resourceType
+     * @typedef rewriteArgsAsyncParams
+     * @property {string} base_version
+     * @property {ParsedArgs} parsedArgs
+     * @property {string} resourceType
+     * @property {'READ'|'WRITE'} operation
+     *
+     * @param {rewriteArgsAsyncParams}
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
-        for (const queryRewriter of this.queryRewriters) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType, operation}) {
+        /**
+         * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
+         */
+        const queryRewriters = [
+            ...this.queryRewriters,
+            ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
+        ];
+        for (const queryRewriter of queryRewriters) {
             parsedArgs = await queryRewriter.rewriteArgsAsync({base_version, parsedArgs, resourceType});
         }
         return parsedArgs;

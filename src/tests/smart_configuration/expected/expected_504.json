@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "timeout",
+      "details": {
+        "text": "Unexpected Error: Request timeout for 5000 ms while fetching Configuration"
+      }
+    }
+  ]
+}

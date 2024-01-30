@@ -10,7 +10,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 class SearchByVersionIdOperation {
     /**
@@ -148,7 +148,8 @@ class SearchByVersionIdOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                useHistoryTable: true
+                useHistoryTable: true,
+                operation: READ
             });
 
             const queryForVersionId = {

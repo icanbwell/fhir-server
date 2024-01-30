@@ -1,7 +1,7 @@
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const {REFERENCE_EXTENSION_DATA_MAP} = require('../../constants');
+const {REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ }} = require('../../constants');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
@@ -90,7 +90,7 @@ class FhirDataSource {
                 resourceType,
                 /** @type {string} */
                 id,
-            } = ResourceWithId.getResourceTypeAndIdFromReference(key);
+            } = ResourceWithId.getResourceTypeAndIdFromReference(key) || {};
             /**
              * resources with this resourceType and id
              * @type {Resource[]}
@@ -135,6 +135,10 @@ class FhirDataSource {
                         /** @type {string[]} **/
                         references,
                     ] = groupKeysByResourceTypeKey;
+
+                    if (!resourceType) {
+                        return [];
+                    }
                     /**
                      * @type {string[]}
                      */
@@ -209,8 +213,12 @@ class FhirDataSource {
         }
         if (!reference.reference) {
             let possibleResourceType = reference.type;
-            if (!possibleResourceType && info.returnType && info.returnType._types && info.returnType._types.length > 0) {
-                possibleResourceType = info.returnType._types[0].name;
+            if (!possibleResourceType && info.returnType) {
+                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0){
+                    possibleResourceType = info.returnType.ofType._types[0].name;
+                } else if (info.returnType._types && info.returnType._types.length > 0){
+                    possibleResourceType = info.returnType._types[0].name;
+                }
             }
             return this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
         }
@@ -218,12 +226,16 @@ class FhirDataSource {
         const referenceValue = ['Person', 'Practitioner'].includes(
             ResourceWithId.getResourceTypeFromReference(reference.reference)
         ) ? reference.reference : (reference._uuid || reference.reference);
+        const referenceObj = ResourceWithId.getResourceTypeAndIdFromReference(referenceValue);
+        if (!referenceObj) {
+            return null;
+        }
         const {
             /** @type {string} **/
             resourceType,
             /** @type {string} **/
             id,
-        } = ResourceWithId.getResourceTypeAndIdFromReference(referenceValue);
+        } = referenceObj;
         try {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
@@ -291,6 +303,40 @@ class FhirDataSource {
                     requestInfo: context.fhirRequestInfo,
                     resourceType,
                     parsedArgs: await this.getParsedArgsAsync(
+                        {
+                            args: args1,
+                            resourceType,
+                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                        }
+                    ),
+                    useAggregationPipeline: false
+                }
+            )
+        );
+    }
+
+    /**
+     * Finds resources with args used specifically while performing mutation
+     * @param {Resource|null} parent
+     * @param {Object} args
+     * @param {GraphQLContext} context
+     * @param {Object} info
+     * @param {string} resourceType
+     * @return {Promise<Resource[]>}
+     */
+    async getResourcesForMutation(parent, args, context, info, resourceType) {
+        // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
+        const args1 = {
+            base_version: '4_0_0',
+            _bundle: '1',
+            ...args
+        };
+        return this.unBundle(
+            await this.searchBundleOperation.searchBundleAsync(
+                {
+                    requestInfo: context.fhirRequestInfo,
+                    resourceType,
+                    parsedArgs: await this.getParsedArgsForMutationAsync(
                         {
                             args: args1,
                             resourceType,
@@ -440,7 +486,30 @@ class FhirDataSource {
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
-                base_version, parsedArgs, resourceType
+                base_version, parsedArgs, resourceType, operation: READ
+            }
+        );
+        if (headers) {
+            parsedArgs.headers = headers;
+        }
+        return parsedArgs;
+    }
+
+    /**
+     * Parse arguments
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {Object|undefined} headers
+     * @return {Promise<ParsedArgs>}
+     */
+     async getParsedArgsForMutationAsync({args, resourceType, headers}) {
+        /**
+         * @type {ParsedArgs}
+         */
+        let parsedArgs = this.r4ArgsParser.parseArgs(
+            {
+                resourceType, args,
+                useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
         if (headers) {

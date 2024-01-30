@@ -1,0 +1,15 @@
+{
+  "issue": [
+    {
+      "code": "informational",
+      "details": {
+        "text": "OK"
+      },
+      "expression": [
+        "Procedure"
+      ],
+      "severity": "information"
+    }
+  ],
+  "resourceType": "OperationOutcome"
+}

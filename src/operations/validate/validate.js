@@ -15,6 +15,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {isTrue} = require('../../utils/isTrue');
 const {SearchManager} = require('../search/searchManager');
 const deepcopy = require('deepcopy');
+const {READ} = require('../../constants').OPERATIONS;
 
 
 class ValidateOperation {
@@ -146,7 +147,8 @@ class ValidateOperation {
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,
-                        parsedArgs
+                        parsedArgs,
+                        operation: READ
                     }
                 );
 
@@ -312,6 +314,14 @@ class ValidateOperation {
         if (resourceObjectToValidate.id) {
             resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
         }
+        // If we have a bundle then fix the ids in the bundle entries
+        if (resourceObjectToValidate.resourceType === 'Bundle') {
+            for (const entry of resourceObjectToValidate.entry || []) {
+                if (entry.resource && entry.resource.id) {
+                    entry.resource.id = entry.resource.id.slice(0, 64);
+                }
+            }
+        }
         if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
             // noinspection JSValidateTypes
             resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
@@ -396,4 +406,3 @@ class ValidateOperation {
 module.exports = {
     ValidateOperation
 };
-

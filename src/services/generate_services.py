@@ -28,8 +28,9 @@ def main() -> int:
                  'QuestionnaireResponse', 'RelatedPerson', 'RequestGroup', 'ResearchDefinition',
                  'ResearchElementDefinition', 'ResearchStudy', 'ResearchSubject', 'RiskAssessment',
                  'RiskEvidenceSynthesis', 'Schedule', 'SearchParameter', 'ServiceRequest', 'Slot', 'Specimen',
-                 'SpecimenDefinition', 'StructureDefinition', 'StructureMap', 'Subscription', 'Substance',
-                 'SubstanceSpecification', 'SupplyDelivery', 'SupplyRequest', 'Task',
+                 'SpecimenDefinition', 'StructureDefinition', 'StructureMap', 'Subscription',
+                 'SubscriptionStatus', 'SubscriptionTopic',
+                 'Substance', 'SubstanceSpecification', 'SupplyDelivery', 'SupplyRequest', 'Task',
                  'TerminologyCapabilities', 'TestReport', 'TestScript', 'ValueSet', 'VerificationResult',
                  'VisionPrescription']
 

@@ -1,0 +1,15 @@
+query Totals {
+  communication {
+    entry {
+      resource {
+        about {
+          resourceType
+          ... on Resource {
+            id
+            resourceType
+          }
+        }
+      }
+    }
+  }
+}

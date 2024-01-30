@@ -35,7 +35,7 @@ const { logError } = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
 
 /**
@@ -319,7 +319,9 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs: childParseArgs
+                requestId: requestInfo.requestId,
+                parsedArgs: childParseArgs,
+                operation: READ
             });
 
             if (filterProperty) {
@@ -561,7 +563,9 @@ class GraphHelper {
                     resourceType: relatedResourceType,
                     useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                    parsedArgs: relatedResourceParsedArgs
+                    requestId: requestInfo.requestId,
+                    parsedArgs: relatedResourceParsedArgs,
+                    operation: READ
                 }
             );
 
@@ -1261,7 +1265,9 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs
+                requestId: requestInfo.requestId,
+                parsedArgs,
+                operation: READ
             });
 
             /**
@@ -1447,15 +1453,15 @@ class GraphHelper {
                         );
                     }
                 }
-                /**
-                 * @type {string[]}
-                 */
-                const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
-                bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
-                    e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
-                        accessCodes, requestInfo.user, requestInfo.scope, e.resource
-                    )
-                );
+                // /**
+                //  * @type {string[]}
+                //  */
+                // const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+                // bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
+                //     e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                //         accessCodes, requestInfo.user, requestInfo.scope, e.resource
+                //     )
+                // );
 
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
@@ -1770,7 +1776,7 @@ class GraphHelper {
                     resource: FhirResourceCreator.create({
                         id: resource.id,
                         _uuid: resource._uuid,
-                        resourceType: resultResourceType
+                        ['resourceType']: resultResourceType
                     }, ResourceContainer),
                     request: new BundleRequest(
                         {

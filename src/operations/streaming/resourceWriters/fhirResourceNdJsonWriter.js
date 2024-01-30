@@ -1,9 +1,10 @@
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
-const {logInfo} = require('../../common/logging');
+const {logInfo, logError} = require('../../common/logging');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {ConfigManager} = require('../../../utils/configManager');
+const { captureException } = require('../../common/sentry');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
@@ -13,10 +14,10 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {string} contentType
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
+     * @param {import('http').ServerResponse} response
      */
-    constructor({signal, contentType, highWaterMark, configManager}) {
-        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark});
-
+    constructor({signal, contentType, highWaterMark, configManager, response}) {
+        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark, response});
         /**
          * @type {AbortSignal}
          * @private
@@ -51,7 +52,17 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
-            const operationOutcome = convertErrorToOperationOutcome({error: e});
+            logError(`FhirResourceNdJsonWriter _transform: error: ${e.message}`, {
+                error: e,
+                source: 'FhirResourceNdJsonWriter._transform',
+                args: {
+                    stack: e.stack,
+                    message: e.message,
+                }
+            });
+            // as we are not propagating this error, send this to sentry
+            captureException(e);
+            const operationOutcome = convertErrorToOperationOutcome({error: {...e, message: `Error occurred while streaming response for chunk: ${chunk?.id}`}});
             this.writeOperationOutcome({operationOutcome, encoding});
         }
         callback();
@@ -75,6 +86,8 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
     writeOperationOutcome({operationOutcome, encoding}) {
+        // this is an unexpected error so set statuscode 500
+        this.response.statusCode = 500;
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         this.push(operationOutcomeJson + '\n', encoding);
     }

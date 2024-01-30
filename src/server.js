@@ -8,6 +8,33 @@ const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const { createTerminus } = require('@godaddy/terminus');
+/**
+ * To use uncaught error handlers, we need to import the file
+ */
+require('./middleware/errorHandler');
+
+/**
+ * @param {() => import('../utils/simpleContainer').SimpleContainer} fnGetContainer
+ * @returns {Promise<void>}
+ */
+const flushBuffer = async (fnGetContainer) => {
+    logInfo('Flushing buffer before exiting the process');
+    /**
+     * @type {import('../utils/simpleContainer').SimpleContainer}
+     */
+    const container = fnGetContainer();
+
+    /**
+     * @type {import('./dataLayer/postSaveProcessor').PostSaveProcessor}
+     */
+    const postSaveProcessor = container.postSaveProcessor;
+    await postSaveProcessor.flushAsync();
+    /**
+     * @type {import('../utils/auditLogger').AuditLogger}
+     */
+    const auditLogger = container.auditLogger;
+    await auditLogger.flushAsync();
+};
 
 /**
  * Creates the http server
@@ -15,7 +42,10 @@ const { createTerminus } = require('@godaddy/terminus');
  * @return {Promise<import('http').Server>}
  */
 async function createServer(fnGetContainer) {
-    await new MongoDatabaseManager().connectAsync();
+    const container = fnGetContainer();
+    await new MongoDatabaseManager({
+        configManager: container.configManager,
+    }).connectAsync();
 
     const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
 
@@ -60,6 +90,9 @@ async function createServer(fnGetContainer) {
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
             logInfo('Beginning shutdown of server', {});
+            logInfo('Disconnecting Kafka producer');
+            await container.kafkaClient.disconnect();
+            await flushBuffer(fnGetContainer);
             await logSystemEventAsync({
                 event: 'shutdown',
                 message: 'Beginning shutdown of server',

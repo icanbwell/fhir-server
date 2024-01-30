@@ -67,7 +67,6 @@ class HttpResponseWriter extends Writable {
         this.response.setTimeout(60 * 60 * 1000, () => {
             logger.warn('Response timeout');
         });
-        this.response.flushHeaders();
         callback();
     }
 
@@ -100,6 +99,9 @@ class HttpResponseWriter extends Writable {
                         } else {
                             logger.verbose(`HttpResponseWriter: _write ${chunk}`);
                         }
+                    }
+                    if (!this.response.headersSent) {
+                        this.response.flushHeaders();
                     }
                     this.response.write(chunk, encoding, callback);
                 }

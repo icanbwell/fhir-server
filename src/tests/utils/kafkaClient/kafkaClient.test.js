@@ -2,6 +2,17 @@ const { commonBeforeEach, commonAfterEach } = require('../../common');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const { KafkaClient } = require('../../../utils/kafkaClient');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const { ConfigManager } = require('../../../utils/configManager');
+
+class MockKafkaClient extends KafkaClient {
+    /**
+     * returns config for kafka
+     * @return {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
+     */
+    getConfigAsync() {
+        return { clientId: 'clientId', brokers: ['broker1', 'broker12'], ssl: true, sasl: false };
+    }
+}
 
 describe('kafkaClient Tests', () => {
   beforeEach(async () => {
@@ -13,8 +24,8 @@ describe('kafkaClient Tests', () => {
   });
 
   describe('mock sendMessagesAsync with retry logic', () => {
-    const sendMessagesAsyncHelperSpy = jest.spyOn(KafkaClient.prototype, 'sendMessagesAsyncHelper');
-    const initSpy = jest.spyOn(KafkaClient.prototype, 'init');
+    const sendMessagesAsyncHelperSpy = jest.spyOn(MockKafkaClient.prototype, 'sendMessagesAsyncHelper');
+    const initSpy = jest.spyOn(MockKafkaClient.prototype, 'init');
 
     afterEach(() => {
       sendMessagesAsyncHelperSpy.mockReset();
@@ -44,7 +55,7 @@ describe('kafkaClient Tests', () => {
         .mockResolvedValueOnce();
 
       try {
-        const kafkaClient = new KafkaClient({ clientId: 'clientId', brokers: ['broker1', 'broker12'], ssl: true, sasl: false });
+        const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
         await kafkaClient.sendMessagesAsync('topic', [{
           key: '1',
           value: 'Test Message'
@@ -88,7 +99,7 @@ describe('kafkaClient Tests', () => {
         }));
 
       try {
-        const kafkaClient = new KafkaClient({ clientId: 'clientId', brokers: ['broker1', 'broker12'], ssl: true, sasl: false });
+        const kafkaClient = new MockKafkaClient({ configManager: new ConfigManager() });
         await kafkaClient.sendMessagesAsync('topic', [{
           key: '1',
           value: 'Test Message'

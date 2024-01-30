@@ -32,6 +32,9 @@ const expression = require('./expression');
 const signature = require('./signature');
 const codeableconcept = require('./codeableConcept');
 const parameterdefinition = require('./parameterDefinition');
+const subscriptionnotificationtype = require('./subscriptionNotificationType');
+const interactiontrigger = require('./interactionTrigger');
+const criterianotexistsbehavior = require('./criteriaNotExistsBehavior');
 
 module.exports = {
     extension,
@@ -66,5 +69,8 @@ module.exports = {
     signature,
     codeableconcept,
     parameterdefinition,
+    subscriptionnotificationtype,
+    interactiontrigger,
+    criterianotexistsbehavior,
 };
 

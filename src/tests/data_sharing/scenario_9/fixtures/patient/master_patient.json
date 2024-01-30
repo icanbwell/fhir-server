@@ -1,0 +1,29 @@
+{
+    "resourceType": "Patient",
+    "id": "b2345",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "birthDate": "2017-01-01",
+    "gender": "female",
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["SHYLA"],
+            "prefix": [],
+            "suffix": []
+        }
+    ]
+}

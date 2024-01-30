@@ -82,6 +82,11 @@ describe('AuditEvent when all is set Tests', () => {
              */
             const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+            const auditLogger = container.auditLogger;
+            await auditLogger.flushAsync();
 
             /**
              * @type {MongoDatabaseManager}
@@ -153,6 +158,11 @@ describe('AuditEvent when all is set Tests', () => {
              */
             const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            /**
+             * @type {import('../../../utils/auditLogger').AuditLogger}
+             */
+                        const auditLogger = container.auditLogger;
+                        await auditLogger.flushAsync();
             /**
              * @type {MongoDatabaseManager}
              */

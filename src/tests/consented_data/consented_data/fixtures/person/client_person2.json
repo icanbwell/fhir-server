@@ -32,6 +32,13 @@
                 "type": "Patient"
             },
             "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Patient/ede65c66-66ae-42ef-a19d-871065c2421d|proa",
+                "type": "Patient"
+            },
+            "assurance": "level4"
         }
     ]
 }

@@ -2,6 +2,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {commonBeforeEach, commonAfterEach} = require('../../../common');
 
 const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
+const {TestConfigManager} = require('../../../testConfigManager');
 const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 
 const person1Resource = require('./fixtures/Person/person1.json');
@@ -25,10 +26,11 @@ describe('ResourceMerger Tests', () => {
 
     describe('ResourceMerger Tests', () => {
         test('ResourceMerger works with identical resources', async () => {
+            const configManager = new TestConfigManager();
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
             const resourceMerger = new ResourceMerger({
                 preSaveManager: new PreSaveManager({preSaveHandlers: []})

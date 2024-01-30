@@ -1,0 +1,970 @@
+{
+  "resourceType": "Bundle",
+  "id": "0000000000000015117",
+  "meta": {
+    "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Patient/0000000000000015117",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "aetna_sandbox"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "aetna_sandbox"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "aetna_sandbox"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      }
+    ]
+  },
+  "type": "batch",
+  "total": 7,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "0000000000000015117",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Patient/0000000000000015117",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "language": "en",
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MB"
+                }
+              ]
+            },
+            "system": "https://sources.aetna.com/patient/identifier/memberid/81",
+            "value": "300003811300",
+            "period": {
+              "start": "2020-01-01",
+              "end": "3000-01-01"
+            }
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "fdf6ee22-fa3a-5e1b-9bf0-12bc7b666908"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "text": "Mr. LIONEL Uddin STIKE M.D",
+            "family": "STIKE",
+            "given": [
+              "LIONEL Uddin"
+            ],
+            "prefix": [
+              "Mr"
+            ],
+            "suffix": [
+              "M.D"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "8765432563"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1975-04-05",
+        "address": [
+          {
+            "text": "3440 Peter Street, Windsor, CT  067346",
+            "line": [
+              "3440 Peter Street"
+            ],
+            "city": "Windsor",
+            "state": "CT",
+            "postalCode": "067346",
+            "country": "US"
+          }
+        ],
+        "communication": [
+          {
+            "language": {
+              "coding": [
+                {
+                  "system": "https://www.hl7.org/fhir/valueset-languages.html",
+                  "code": "en"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "3456789012345670304",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Coverage/3456789012345670304",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "SN"
+                }
+              ]
+            },
+            "system": "https://sources.aetna.com/coverage/identifier/membershipid/59",
+            "value": "435679010300+AE303+2021-01-01"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "8579535f-d9bf-5797-882f-86e56635f661"
+          }
+        ],
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+              "code": "PPO",
+              "display": "preferred provider organization policy"
+            }
+          ]
+        },
+        "policyHolder": {
+          "reference": "Patient/1234567890123456703",
+          "type": "Patient"
+        },
+        "subscriber": {
+          "reference": "Patient/1234567890123456703",
+          "type": "Patient"
+        },
+        "subscriberId": "435679010300",
+        "beneficiary": {
+          "reference": "Patient/1234567890123456703",
+          "type": "Patient"
+        },
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+              "code": "self"
+            }
+          ]
+        },
+        "period": {
+          "start": "2021-01-01",
+          "end": "2021-12-31"
+        },
+        "payor": [
+          {
+            "reference": "Organization/6667778889990000014",
+            "type": "Organization",
+            "display": "Aetna"
+          }
+        ],
+        "class": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                  "code": "plan",
+                  "display": "Plan"
+                }
+              ]
+            },
+            "value": "AE303",
+            "name": "Aetna Plan"
+          }
+        ],
+        "network": "Medicare - MA/NY/NJ - Full Reciprocity",
+        "costToBeneficiary": [
+          {
+            "type": {
+              "text": "Annual Physical Exams NMC - In Network"
+            },
+            "valueQuantity": {
+              "value": 50,
+              "unit": "$",
+              "system": "http://aetna.com/Medicare/CostToBeneficiary/ValueQuantity/code"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ExplanationOfBenefit",
+        "id": "3332223334445550005",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/ExplanationOfBenefit/3332223334445550005",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://sources.aetna.com/EOB/identifier/claimid/62",
+            "value": "333444555004"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "81d2383a-f253-5ae6-9aee-4cc417dbb228"
+          }
+        ],
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claim-type",
+              "code": "professional-nonclinician",
+              "display": "Professional or Non-Clinician"
+            }
+          ]
+        },
+        "use": "claim",
+        "patient": {
+          "reference": "Patient/1234567890123456701"
+        },
+        "billablePeriod": {
+          "start": "2020-07-20",
+          "end": "2020-07-20"
+        },
+        "created": "2020-07-22T23:24:01+00:00",
+        "insurer": {
+          "display": "Aetna Medicare"
+        },
+        "provider": {
+          "reference": "Organization/6667778889990000003"
+        },
+        "outcome": "complete",
+        "disposition": "completed",
+        "careTeam": [
+          {
+            "sequence": 1,
+            "provider": {
+              "reference": "PractitionerRole/5554443332226660003"
+            },
+            "responsible": false,
+            "role": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claimcareteamrole",
+                  "code": "referring",
+                  "display": "Referring provider"
+                }
+              ]
+            }
+          }
+        ],
+        "supportingInfo": [
+          {
+            "sequence": 1,
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory",
+                  "code": "attendingnetworkcontractingstatus",
+                  "display": "attendingnetworkcontractingstatus"
+                }
+              ]
+            },
+            "code": {
+              "coding": [
+                {
+                  "code": "contracted",
+                  "display": "contracted"
+                }
+              ]
+            }
+          },
+          {
+            "sequence": 2,
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory",
+                  "code": "referringnetworkcontractingstatus",
+                  "display": "referringnetworkcontractingstatus"
+                }
+              ]
+            },
+            "code": {
+              "coding": [
+                {
+                  "code": "contracted",
+                  "display": "contracted"
+                }
+              ]
+            }
+          },
+          {
+            "sequence": 3,
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory",
+                  "code": "clmrecvddate",
+                  "display": "clmrecvddate"
+                }
+              ]
+            },
+            "timingDate": "2020-07-20"
+          }
+        ],
+        "diagnosis": [
+          {
+            "sequence": 1,
+            "diagnosisCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                  "code": "122233"
+                }
+              ]
+            },
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "principal",
+                    "display": "Principal Diagnosis"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "insurance": [
+          {
+            "focal": true,
+            "coverage": {
+              "reference": "Coverage/3456789012345670101"
+            }
+          }
+        ],
+        "item": [
+          {
+            "sequence": 1,
+            "diagnosisSequence": [
+              1
+            ],
+            "category": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/ex-benefitcategory",
+                  "code": "3",
+                  "display": "Consultation"
+                }
+              ]
+            },
+            "productOrService": {
+              "coding": [
+                {
+                  "code": "S0622",
+                  "display": "PHYSICAL EXAM FOR COLLEGE, NEW OR ESTABLISHED..."
+                }
+              ]
+            },
+            "servicedPeriod": {
+              "start": "2020-07-20",
+              "end": "2020-07-20"
+            },
+            "quantity": {
+              "value": 1
+            },
+            "net": {
+              "value": 100
+            }
+          }
+        ],
+        "adjudication": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                  "code": "innetworkbenefitpaymentstatus",
+                  "display": "in network benefit payment status"
+                }
+              ]
+            }
+          }
+        ],
+        "total": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                  "code": "allowedamount",
+                  "display": "allowed amount"
+                }
+              ]
+            },
+            "amount": {
+              "value": 250
+            }
+          },
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory",
+                  "code": "deductibleamount",
+                  "display": "deductible amount"
+                }
+              ]
+            },
+            "amount": {
+              "value": 100
+            }
+          }
+        ],
+        "processNote": [
+          {
+            "text": "Print (Form)"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "fd99dd3a-527f-f639-3a1d-f8c11d8aeb12",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Encounter/fd99dd3a-527f-f639-3a1d-f8c11d8aeb12",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://sources.aetna.com/encounter/identifier/memberenctid/50063",
+            "value": "ENC3200000000A6"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7adb10fa-5600-5970-9c0a-47ebb7bbfc1a"
+          }
+        ],
+        "status": "unknown",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99234",
+                "display": "Observation or Inpatient Care Services (Including Admission and Discharge Services)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/0000000000000015117",
+          "display": "LIONEL Uddin"
+        },
+        "participant": [
+          {
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                    "code": "PPRF",
+                    "display": "primary performer"
+                  }
+                ]
+              }
+            ],
+            "period": {
+              "start": "2019-03-21T01:00:00-04:00",
+              "end": "2019-03-21T01:15:00-04:00"
+            },
+            "individual": {
+              "reference": "Practitioner/05492895-65d3-392b-9b5c-6bf70d8981f5",
+              "display": "Dr. Sarita Dibbert"
+            }
+          }
+        ],
+        "period": {
+          "start": "2019-03-21T01:00:00-04:00",
+          "end": "2019-03-21T01:15:00-04:00"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/479a099c-7fbd-3877-9f33-dace3ab7f7e6",
+              "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+            }
+          }
+        ],
+        "serviceProvider": {
+          "reference": "Organization/d09a394f-fe5e-350a-87c6-96d65e0d08f8",
+          "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Procedure/efF4v-zsK5NG3Am.Yjlo5DXePlSj77DRUgD.6wgkKIM3ljriDnAYavum4QKIJaQ9y3",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "use": "usual",
+            "type": {
+              "text": "ORL"
+            },
+            "system": "urn:oid:1.2.840.114350.1.13.209.2.7.2.798276",
+            "value": "516464"
+          },
+          {
+            "use": "usual",
+            "type": {
+              "text": "OPE"
+            },
+            "system": "urn:oid:1.2.840.114350.1.13.209.2.7.2.798069",
+            "value": "32416"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "5da8ccf6-420d-5e64-892e-6635ed95bb19"
+          }
+        ],
+        "status": "completed",
+        "category": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "387713003",
+              "display": "Surgical procedure"
+            }
+          ],
+          "text": "Surgical Procedures"
+        },
+        "code": {
+          "text": "Surgery"
+        },
+        "subject": {
+          "reference": "Patient/0000000000000015116",
+          "display": "STIKE, LIONEL Uddin"
+        },
+        "encounter": {
+          "reference": "Encounter/evIJBKsHljAsrkzdOutjBcg3",
+          "display": "Surgery"
+        },
+        "performedPeriod": {
+          "start": "2019-12-13T21:31:00+00:00",
+          "end": "2019-12-13T21:49:00+00:00"
+        },
+        "recorder": {
+          "reference": "Practitioner/e1eu4t47exP7VZqWjBIcJiZltEq7ZcluhvuY-gmqF5jk3",
+          "type": "Practitioner",
+          "display": "Derraill A. Miller"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/pract15117",
+              "type": "Practitioner",
+              "display": "Jonathan R. Snyder"
+            }
+          }
+        ],
+        "location": {
+          "reference": "Location/edMS9htyoUh5jjmzy1SZq6qaCN1sV-5DG77B1f6JktvQ3",
+          "display": "LIBERTY HOSPITAL"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-9-cm/diagnosis",
+                "code": "565.0",
+                "display": "Anal fissure, unspecified"
+              }
+            ],
+            "text": "Anal fissure, unspecified"
+          }
+        ],
+        "bodySite": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:1.2.840.114350.1.13.209.2.7.4.798276.2015",
+                "code": "30",
+                "display": "Anus"
+              }
+            ],
+            "text": "Anus"
+          }
+        ],
+        "outcome": {
+          "coding": [
+            {
+              "system": "urn:oid:1.2.840.114350.1.13.209.2.7.4.798276.402",
+              "code": "1",
+              "display": "Home or Self Care"
+            }
+          ],
+          "text": "Home or Self Care"
+        },
+        "report": [
+          {
+            "reference": "DocumentReference/eOMIE92oj7wCoZ5YxvEtAWn7ryFC.PAu90zHU7jDSEUg3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/eXTDUeJvQkiM.96EVfZ-toH8qZr6C3dQCbNk8we3alTE3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/esoT0iWPkThjyVkM.spoaTdRqqX368QS2MAunyed5WlQ3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/e-GJ347FqSdguRSABORBShhuMyQaqaivdNVvHOnPp3l43",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/elwtiHoBovBatoFCQlrKHKZtlIO2ltHDq0zal3SmStx43",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/ebBZIUvJUaanLx0pncBM8L4q0WzbZ7i4rVyfIdmhkiqs3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/eIeJa-C4V.q.RzOY7O.KX-rHMBatkIXyGgLBQrzHXq6k3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/e.yVlSGAkboUNcZdXr19o4Zco9Hsj5eUw7B6iptt8XR03",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/e9k6Unq.YtLwjQk.jPPXX1v9.8yUgJroFC8PbxVvnHqA3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/eWHCGn6bYZGQ2G3FL6H8n0jWv0w1oiufLR5Ido8YHv5I3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/ewXUO1GRaq3UA0hZ6k6fesUK8RLww1x.rgckEQ5DVQbI3",
+            "type": "DocumentReference"
+          },
+          {
+            "reference": "DocumentReference/eJ6SEDSgtaKWtcfuNZjyZxnlF.sWQZT9Vler4JVqQgpk3",
+            "type": "DocumentReference"
+          }
+        ],
+        "usedReference": [
+          {
+            "reference": "Medication/eaboVeN7MkZl4b.hDgkabKw3",
+            "display": "BUPIVACAINE (PF) 0.5 % (5 MG/ML) IJ SOLN"
+          },
+          {
+            "reference": "Medication/eJS0-T4Q6ZZKo2rsrxVyqXw3",
+            "display": "LIDOCAINE-EPINEPHRINE (PF) 1 %-1:200,000 IJ SOLN"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "pract15117",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Practitioner/pract15117",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "use": "official",
+            "system": "urn:oid:2.16.528.1.1007.3.1",
+            "value": "874635264"
+          },
+          {
+            "use": "usual",
+            "system": "urn:oid:2.16.840.1.113883.2.4.6.3",
+            "value": "567IUI51C154"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "22dbf2be-da01-5e66-bfd9-5f8ad23a6a32"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Heps",
+            "given": [
+              "Simone"
+            ],
+            "suffix": [
+              "MD"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "020556936",
+            "use": "work"
+          },
+          {
+            "system": "email",
+            "value": "S.M.Heps@bmc.nl",
+            "use": "work"
+          },
+          {
+            "system": "fax",
+            "value": "0205669283",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "use": "work",
+            "line": [
+              "Galapagosweg 91"
+            ],
+            "city": "Den Burg",
+            "postalCode": "9105 PZ",
+            "country": "NLD"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1971-11-07"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "7778889990001110602",
+        "meta": {
+          "source": "http://mock-server:1080/test_patient_access_pipeline/source/4_0_0/Observation/7778889990001110602",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/vendor",
+              "code": "aetna_sandbox"
+            },
+            {
+              "system": "https://www.icanbwell.com/connectionType",
+              "code": "proa"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://sources.aetna.com/observation/identifier/memberobsid/50053",
+            "value": "81~435679010100+2020-10-10+59408-5"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "14d38af5-33db-5f22-8479-4ae13fb802ea"
+          }
+        ],
+        "status": "unknown",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "59408-5",
+              "display": "Oxygen saturation in Arterial blood by Pulse oximetry"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1234567890123456701"
+        },
+        "effectiveDateTime": "2020-10-10",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "3151-8",
+                  "display": "Inhaled oxygen flow rate"
+                }
+              ]
+            },
+            "valueQuantity": {
+              "value": 16,
+              "unit": "l/min",
+              "system": "http://unitsofmeasure.org",
+              "code": "l/min"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "3150-0",
+                  "display": "Inhaled oxygen concentration"
+                }
+              ]
+            },
+            "dataAbsentReason": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                  "code": "unknown",
+                  "display": "Unknown"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

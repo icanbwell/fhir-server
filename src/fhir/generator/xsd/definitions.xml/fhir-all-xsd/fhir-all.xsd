@@ -159,6 +159,8 @@ Copyright (c) 2011+, HL7, Inc
   <xs:include schemaLocation="structuredefinition.xsd"/>
   <xs:include schemaLocation="structuremap.xsd"/>
   <xs:include schemaLocation="subscription.xsd"/>
+  <xs:include schemaLocation="subscriptionstatus.xsd"/>
+  <xs:include schemaLocation="subscriptiontopic.xsd"/>
   <xs:include schemaLocation="substance.xsd"/>
   <xs:include schemaLocation="substancenucleicacid.xsd"/>
   <xs:include schemaLocation="substancepolymer.xsd"/>
