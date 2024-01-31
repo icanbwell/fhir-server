@@ -210,6 +210,17 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     async processRecordAsync(doc) {
+        /**
+         * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
+         */
+        const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
+        /**
+         * @type {require('mongodb').collection}
+         */
+        const { db, session, client } = await this.createSingeConnectionAsync({
+            mongoConfig,
+            collectionName: 'Person_4_0_0'
+        });
         try {
             const operations = [];
             const linkedCounts = {
@@ -218,59 +229,74 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 linkedProaPersons: [],
                 linkedMasterPersons: []
             };
-            doc.link?.forEach((ref) => {
+            for (let i = 0; i < doc.link?.length; i++) {
+                const ref = doc.link[parseInt(i)];
                 const refTargetUuid = ref?.target?._uuid;
                 const { id: targetIdWithoutPrefix, resourceType: prefix } = ReferenceParser.parseReference(refTargetUuid);
-                if (ref?.target?._sourceAssigningAuthority === 'bwell' && prefix === 'Patient') {
-                    linkedCounts.linkedMasterPatients.push(targetIdWithoutPrefix);
-                }
-                else if (ref?.target?._sourceAssigningAuthority === 'bwell' && prefix === 'Person') {
-                    linkedCounts.linkedMasterPersons.push(targetIdWithoutPrefix);
-                }
-                else if (prefix === 'Person') {
-                    // Proa person linked to master person
-                    if (this.personsUuidLinkedToProaPatient.has(targetIdWithoutPrefix)) {
-                        linkedCounts.linkedProaPersons.push(targetIdWithoutPrefix);
+                let resource;
+                try {
+                    if (prefix === 'Patient') {
+                        resource = await db.collection('Patient_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
+                        if (resource?.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)?.code === 'bwell') {
+                            linkedCounts.linkedMasterPatients.push(targetIdWithoutPrefix);
+                        }
                     } else {
-                        // Client person linked to master person
-                        linkedCounts.linkedClientPersons.push(targetIdWithoutPrefix);
+                        resource = await db.collection('Person_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
+                        if (resource?.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)?.code === 'bwell') {
+                            linkedCounts.linkedMasterPersons.push(targetIdWithoutPrefix);
+                        } else {
+                            // Proa person linked to master person
+                            if (this.personsUuidLinkedToProaPatient.has(targetIdWithoutPrefix)) {
+                                linkedCounts.linkedProaPersons.push(targetIdWithoutPrefix);
+                            } else {
+                                // Client person linked to master person
+                                linkedCounts.linkedClientPersons.push(targetIdWithoutPrefix);
+                            }
+                        }
                     }
+                } catch (e) {
+                    throw new RethrownError({
+                        message: `Error fetching resource , ${e.message}`,
+                        error: e,
+                        source: 'ProaPatientClientPersonLinkRunner.processRecordAsync',
+                    });
                 }
-            });
+            }
+            const proaPersonToProaPatientArray = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]) ?? [];
+            const { id: proaPatientUUID, sourceAssigningAuthority } = proaPersonToProaPatientArray[0] ?? {};
+            const proaPatientUUIDWithoutPrefix = proaPatientUUID?.startsWith('Patient/') ? proaPatientUUID.substring('Patient/'.length) : proaPatientUUID;
             if (linkedCounts.linkedMasterPersons.length) {
-                this.writeStreamError.write(`${doc._uuid}| Master person is linked with other master persons having id: ${linkedCounts.linkedMasterPersons}| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person is linked with other master persons having ids as mentioned| ${linkedCounts.linkedMasterPersons}| \n`);
             }
             else if (!linkedCounts.linkedMasterPatients.length) {
-                this.writeStreamError.write(`${doc._uuid}| Master person does not have any linked master patient| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person does not have any linked master patient| ${''}| \n`);
             }
             else if (linkedCounts.linkedMasterPatients.length > 1) {
-                this.writeStreamError.write(`${doc._uuid}| Master person have multiple linked master patients: ${linkedCounts.linkedMasterPatients}| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person have multiple linked master patients having ids as mentioned| ${linkedCounts.linkedMasterPatients}| \n`);
             }
             else if (!linkedCounts.linkedClientPersons.length) {
-                this.writeStreamError.write(`${doc._uuid}| Master person does not have any linked client person| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person does not have any linked client person| ${''}| \n`);
             }
             else if (linkedCounts.linkedClientPersons.length > 1) {
-                this.writeStreamError.write(`${doc._uuid}| Master person have multiple linked client persons: ${linkedCounts.linkedClientPersons}| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person have multiple linked client persons having ids as mentioned| ${linkedCounts.linkedClientPersons}| \n`);
             }
             else if (linkedCounts.linkedProaPersons.length > 1) {
-                this.writeStreamError.write(`${doc._uuid}| Master person have multiple linked proa persons: ${linkedCounts.linkedProaPersons}| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person have multiple linked proa persons having ids as mentioned| ${linkedCounts.linkedProaPersons}| \n`);
             }
             else if (this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).length > 1) {
-                this.writeStreamError.write(`${doc._uuid}| Master person have proa person with uuid: ${linkedCounts.linkedProaPersons[0]} which further have multiple linked proa patients of ids: ${this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).map(obj => obj.id)}| \n`);
+                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Proa person linked to master person have multiple linked proa patients having ids as mentioned| ${this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).map(obj => obj.id)}| \n`);
             }
             else if (this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).length === 1) {
-                const [{ id: proaPatientUUID, sourceAssigningAuthority }] = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]);
-                const proaPatientUUIDWithoutPrefix = proaPatientUUID.startsWith('Patient/') ? proaPatientUUID.substring('Patient/'.length) : proaPatientUUID;
                 const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({ proaPatientUUID, clientPersonUUID: linkedCounts.linkedClientPersons[0] });
                 if (this.proaPatientToClientPersonMap.get(proaPatientUUID)?.includes(linkedCounts.linkedClientPersons[0])) {
-                    this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| ''| Already linked| \n`);
+                    this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Already linked| \n`);
                 }
                 else {
                     if (!this.linkClientPersonToProaPatient) {
-                        this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| ''| \n`);
+                        this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| \n`);
                     }
                     else {
-                        this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| ''| \n`);
+                        this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| \n`);
                         let updatedResource = {
                             'link': {
                                 'target': {
@@ -323,6 +349,9 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 },
                 source: 'ProaPatientClientPersonLinkRunner.processRecordAsync',
             });
+        } finally {
+            await session.endSession();
+            await client.close();
         }
     }
 
@@ -372,11 +401,11 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 await this.getProaPatientsIdMap({ mongoConfig });
                 await this.getPersonsMapFromProaPatient({ mongoConfig });
                 this.writeStream.write(
-                    'Proa Patient UUID| Proa Person UUID| Proa Master Person UUID| Client Person UUID| Proa Patient - Client Person Matching| Linked/Can be linked| Already linked|' +
+                    'Proa Patient UUID| Proa Person UUID| Proa Master Person UUID| Client Person UUID| Proa Patient - Client Person Matching| Already linked / Can be linked / Linked|' +
                         '\n'
                 );
                 this.writeStreamError.write(
-                    'Master Person UUID| Data Issue|' +
+                    'Proa Patient UUID| Proa Person UUID| Master Person UUID| Data Issue| Ids having data issue|' +
                     '\n'
                 );
                 /**
