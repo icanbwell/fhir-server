@@ -11,7 +11,7 @@ const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
 const {buildSubgraphSchema} = require('@apollo/subgraph');
 
-const {ApolloServerPluginLandingPageDisabled} = require('@apollo/server/plugin/disabled');
+const {ApolloServerPluginLandingPageDisabled, ApolloServerPluginInlineTraceDisabled} = require('@apollo/server/plugin/disabled');
 const {
     ApolloServerPluginLandingPageLocalDefault,
     // ApolloServerPluginLandingPageProductionDefault
@@ -63,6 +63,8 @@ const graphql = async (fnGetContainer) => {
         getApolloServerLoggingPlugin('graphql'),
         getAddRequestIdToResponseHeadersPlugin(),
         getValidateMissingVariableValuesPlugin(),
+        // eslint-disable-next-line new-cap
+        ApolloServerPluginInlineTraceDisabled(),
     ];
 
     /**

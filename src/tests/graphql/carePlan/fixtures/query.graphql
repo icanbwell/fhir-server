@@ -15,6 +15,18 @@ query {
                             text
                         }
                     }
+                    outcomeReference {
+                        ... on Resource {
+                            id
+                            resourceType
+                        }
+                    }
+                    outcomeReferenceV2 {
+                        ... on Observation {
+                            id
+                            resourceType
+                        }
+                    }
                 }
                 encounter{
                     extension{

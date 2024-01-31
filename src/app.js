@@ -106,6 +106,31 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
+    // log every incoming request and every outgoing response
+    app.use((req, res, next) => {
+        const reqPath = req.originalUrl;
+        const reqMethod = req.method.toUpperCase();
+        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        const startTime = new Date().getTime();
+        res.on('finish', () => {
+            const finishTime = new Date().getTime();
+            const altId = req.authInfo?.context?.username ||
+                req.authInfo?.context?.subject ||
+                ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
+
+            logInfo('Request Completed', {
+                status: res.statusCode,
+                responseTime: `${(finishTime - startTime) / 1000}s`,
+                requestUrl: reqPath,
+                method: reqMethod,
+                userAgent: req.headers['user-agent'],
+                scope: req.authInfo?.scope,
+                altId,
+            });
+        });
+        next();
+    });
+
     // middleware to parse cookies
     app.use(cookieParser());
 
@@ -176,14 +201,6 @@ function createApp({fnGetContainer, trackMetrics}) {
             next();
         }
     );
-
-    // log every incoming request
-    app.use(async (req, res, next) => {
-        const reqPath = req.originalUrl;
-        const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
-        next();
-    });
 
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));

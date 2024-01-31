@@ -17,7 +17,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.refV2);
+                parent.ref);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

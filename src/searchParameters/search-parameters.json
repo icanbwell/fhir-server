@@ -951,6 +951,8 @@
                     "StructureDefinition",
                     "StructureMap",
                     "Subscription",
+                    "SubscriptionStatus",
+                    "SubscriptionTopic",
                     "Substance",
                     "SubstanceNucleicAcid",
                     "SubstancePolymer",
@@ -71856,6 +71858,440 @@
                 "type": "uri",
                 "expression": "Subscription.channel.endpoint",
                 "xpath": "f:Subscription/f:channel/f:endpoint",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-date",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-date",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-date",
+                "version": "4.3.0",
+                "name": "date",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Date status first applied",
+                "code": "date",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "date",
+                "expression": "SubscriptionTopic.date",
+                "xpath": "f:SubscriptionTopic/f:date",
+                "xpathUsage": "normal",
+                "comparator": [
+                    "eq",
+                    "ne",
+                    "gt",
+                    "ge",
+                    "lt",
+                    "le",
+                    "sa",
+                    "eb",
+                    "ap"
+                ]
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-derived-or-self",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-derived-or-self",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-derived-or-self",
+                "version": "4.3.0",
+                "name": "derived-or-self",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "A server defined search that matches either the url or derivedFrom",
+                "code": "derived-or-self",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "uri",
+                "expression": "SubscriptionTopic.url | SubscriptionTopic.derivedFrom",
+                "xpath": "f:SubscriptionTopic/f:url | f:SubscriptionTopic/f:derivedFrom",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-identifier",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-identifier",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "trial-use"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-identifier",
+                "version": "4.3.0",
+                "name": "identifier",
+                "status": "draft",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Business Identifier for SubscriptionTopic",
+                "code": "identifier",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "token",
+                "expression": "SubscriptionTopic.identifier",
+                "xpath": "f:SubscriptionTopic/f:identifier",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-resource",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-resource",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-resource",
+                "version": "4.3.0",
+                "name": "resource",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Allowed Data type or Resource (reference to definition) for this definition, searches resourceTrigger, eventTrigger, and notificationShape for matches.",
+                "code": "resource",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "uri",
+                "expression": "SubscriptionTopic.resourceTrigger.resource",
+                "xpath": "f:SubscriptionTopic/f:resourceTrigger/f:resource",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-status",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-status",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-status",
+                "version": "4.3.0",
+                "name": "status",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "draft | active | retired | unknown",
+                "code": "status",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "token",
+                "expression": "SubscriptionTopic.status",
+                "xpath": "f:SubscriptionTopic/f:status",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-title",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-title",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-title",
+                "version": "4.3.0",
+                "name": "title",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Name for this SubscriptionTopic (Human friendly)",
+                "code": "title",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "string",
+                "expression": "SubscriptionTopic.title",
+                "xpath": "f:SubscriptionTopic/f:title",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-trigger-description",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-trigger-description",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-trigger-description",
+                "version": "4.3.0",
+                "name": "trigger-description",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Text representation of the trigger",
+                "code": "trigger-description",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "string",
+                "expression": "SubscriptionTopic.resourceTrigger.description",
+                "xpath": "f:SubscriptionTopic/f:resourceTrigger/f:description",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-url",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-url",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-url",
+                "version": "4.3.0",
+                "name": "url",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Logical canonical URL to reference this SubscriptionTopic (globally unique)",
+                "code": "url",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "uri",
+                "expression": "SubscriptionTopic.url",
+                "xpath": "f:SubscriptionTopic/f:url",
+                "xpathUsage": "normal"
+            }
+        },
+        {
+            "fullUrl": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-version",
+            "resource": {
+                "resourceType": "SearchParameter",
+                "id": "SubscriptionTopic-version",
+                "extension": [
+                    {
+                        "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+                        "valueCode": "normative"
+                    }
+                ],
+                "url": "http://hl7.org/fhir/SearchParameter/SubscriptionTopic-version",
+                "version": "4.3.0",
+                "name": "version",
+                "status": "active",
+                "experimental": false,
+                "date": "2022-05-28T12:47:40+10:00",
+                "publisher": "Health Level Seven International (FHIR Infrastructure)",
+                "contact": [
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://hl7.org/fhir"
+                            }
+                        ]
+                    },
+                    {
+                        "telecom": [
+                            {
+                                "system": "url",
+                                "value": "http://www.hl7.org/Special/committees/fiwg/index.cfm"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Business version of the SubscriptionTopic",
+                "code": "version",
+                "base": [
+                    "SubscriptionTopic"
+                ],
+                "type": "token",
+                "expression": "SubscriptionTopic.version",
+                "xpath": "f:SubscriptionTopic/f:version",
                 "xpathUsage": "normal"
             }
         },

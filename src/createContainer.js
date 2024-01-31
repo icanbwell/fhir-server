@@ -74,7 +74,8 @@ const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
 const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
-const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
+const {KafkaClient} = require('./utils/kafkaClient');
+const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
@@ -117,9 +118,10 @@ const createContainer = function () {
 
     container.register('configManager', () => new ConfigManager());
 
-    container.register('kafkaClientFactory', (c) => new KafkaClientFactory({
-        configManager: c.configManager
-    }));
+    container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents ?
+        new KafkaClient({ configManager: c.configManager }) :
+        new DummyKafkaClient({ configManager: c.configManager })
+    );
 
     container.register('scopesManager', (c) => new ScopesManager(
         {
@@ -208,7 +210,7 @@ const createContainer = function () {
     }));
     container.register('changeEventProducer', (c) => new ChangeEventProducer(
         {
-            kafkaClientFactory: c.kafkaClientFactory,
+            kafkaClient: c.kafkaClient,
             resourceManager: c.resourceManager,
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
@@ -233,6 +235,7 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
+        requestSpecificCache: c.requestSpecificCache,
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {

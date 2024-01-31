@@ -58,6 +58,18 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithIdAndMetaFields);
+
+            // Passing non root level field in _elements, error with 400 status code is expected.
+            resp = await request
+                .get('/4_0_0/Person?_elements=meta,id,address.state')
+                .set(getHeaders());
+            expect(resp).toHaveStatusCode(400);
+
+            // Passing invalid field in _elements, error with 400 status code is expected.
+            resp = await request
+                .get('/4_0_0/Person?_elements=meta,id,xyz')
+                .set(getHeaders());
+            expect(resp).toHaveStatusCode(400);
         });
 
         test('Person search by setting useAccessIndex to true', async () => {

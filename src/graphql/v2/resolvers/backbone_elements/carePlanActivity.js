@@ -22,7 +22,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.outcomeReferenceV2);
+                parent.outcomeReference);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

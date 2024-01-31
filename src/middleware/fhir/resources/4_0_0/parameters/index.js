@@ -240,6 +240,10 @@ const structuremap = require('./structuremap.parameters.js');
 
 const subscription = require('./subscription.parameters.js');
 
+const subscriptionstatus = require('./subscriptionstatus.parameters.js');
+
+const subscriptiontopic = require('./subscriptiontopic.parameters.js');
+
 const substance = require('./substance.parameters.js');
 
 const substancespecification = require('./substancespecification.parameters.js');
@@ -383,6 +387,8 @@ module.exports = {
   structuredefinition,
   structuremap,
   subscription,
+  subscriptionstatus,
+  subscriptiontopic,
   substance,
   substancespecification,
   supplydelivery,

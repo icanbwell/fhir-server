@@ -12,7 +12,7 @@ const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const Period = require('../fhir/classes/4_0_0/complex_types/period');
 const {BwellPersonFinder} = require('./bwellPersonFinder');
-const {KafkaClientFactory} = require('./kafkaClientFactory');
+const {KafkaClient} = require('./kafkaClient');
 const {BasePostSaveHandler} = require('./basePostSaveHandler');
 const {RethrownError} = require('./rethrownError');
 const {ConfigManager} = require('./configManager');
@@ -27,7 +27,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
     /**
      * Constructor
      * @typedef {Object} Params
-     * @property {KafkaClientFactory} kafkaClientFactory
+     * @property {KafkaClient} kafkaClient
      * @property {ResourceManager} resourceManager
      * @property {string} patientChangeTopic
      * @property {string} consentChangeTopic
@@ -37,7 +37,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {Params}
      */
     constructor({
-        kafkaClientFactory,
+        kafkaClient,
         resourceManager,
         patientChangeTopic,
         consentChangeTopic,
@@ -46,10 +46,10 @@ class ChangeEventProducer extends BasePostSaveHandler {
     }) {
         super();
         /**
-         * @type {KafkaClientFactory}
+         * @type {KafkaClient}
          */
-        this.kafkaClientFactory = kafkaClientFactory;
-        assertTypeEquals(kafkaClientFactory, KafkaClientFactory);
+        this.kafkaClient = kafkaClient;
+        assertTypeEquals(kafkaClient, KafkaClient);
         /**
          * @type {ResourceManager}
          */
@@ -416,12 +416,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                     patientMessageMap.entries(), createKafkaClientMessageFn
                 );
 
-                /**
-                 * @type {DummyKafkaClient|KafkaClient}
-                 */
-                const kafkaClient = await this.kafkaClientFactory.createKafkaClientAsync();
-
-                await kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
+                await this.kafkaClient.sendMessagesAsync(this.patientChangeTopic, patientMessages);
 
                 patientMessageMap.clear();
 
@@ -433,7 +428,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                     consentMessageMap.entries(), createKafkaClientMessageFn
                 );
 
-                await kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
+                await this.kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
 
                 consentMessageMap.clear();
 

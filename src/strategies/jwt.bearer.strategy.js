@@ -69,26 +69,12 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
-
-/**
- * stores the openid client issuer
- * @type {import('openid-client').Issuer<import('openid-client').BaseClient>}
- */
-let openIdClientIssuer = null;
-
 /**
  * Gets or creates an OpenID client issuer
  * @return {Promise<import('openid-client').Issuer<import('openid-client').BaseClient>>}
  */
-const getOrCreateOpenIdClientIssuerAsync = async () => {
-    if (!openIdClientIssuer) {
-        if (!env.AUTH_ISSUER) {
-            logError('AUTH_ISSUER environment variable is not set', {});
-        }
-        const issuerUrl = env.AUTH_ISSUER;
-        openIdClientIssuer = await Issuer.discover(issuerUrl);
-    }
-    return openIdClientIssuer;
+const getOrCreateOpenIdClientIssuerAsync = async (iss) => {
+    return await Issuer.discover(iss);
 };
 
 /**
@@ -96,25 +82,16 @@ const getOrCreateOpenIdClientIssuerAsync = async () => {
  * @param {string} accessToken
  * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
  */
-const getUserInfoAsync = async (accessToken) => {
-    const issuer = await getOrCreateOpenIdClientIssuerAsync();
-    if (!issuer) {
-        return undefined;
-    }
-    if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
-        logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
-    }
+const getUserInfoAsync = async (accessToken, iss, clientId) => {
+    const issuer = await getOrCreateOpenIdClientIssuerAsync(iss);
 
     /**
      * @type {import('openid-client').BaseClient}
      */
     const client = new issuer.Client({
-        client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
+        client_id: clientId,
     }); // => Client
 
-    if (!client) {
-        return undefined;
-    }
     return await client.userinfo(accessToken);
 };
 
@@ -207,7 +184,7 @@ const verify = (request, jwt_payload, done) => {
          * @type {boolean}
          */
         let isUser = false;
-        if (jwt_payload['cognito:username']) {
+        if (jwt_payload['cognito:username'] || jwt_payload['custom:bwellFhirPersonId']) {
             isUser = true;
         }
         const client_id = jwt_payload.client_id ? jwt_payload.client_id : jwt_payload[env.AUTH_CUSTOM_CLIENT_ID];
@@ -257,7 +234,7 @@ const verify = (request, jwt_payload, done) => {
             // get token from either the request or the cookie
             const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
             if (accessToken) {
-                return getUserInfoAsync(accessToken).then(
+                return getUserInfoAsync(accessToken, jwt_payload.iss, client_id).then(
                     (id_token_payload) => {
                         return parseUserInfoFromPayload(
                             {
@@ -267,6 +244,7 @@ const verify = (request, jwt_payload, done) => {
                     }
                 ).catch(error => {
                     logError('Error in parsing token for patient scope', error);
+                    return done(null, false);
                 });
             }
         } else {
