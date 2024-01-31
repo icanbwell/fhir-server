@@ -232,6 +232,10 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
             for (let i = 0; i < doc.link?.length; i++) {
                 const ref = doc.link[parseInt(i)];
                 const refTargetUuid = ref?.target?._uuid;
+                if (!refTargetUuid) {
+                    this.adminLogger.logError(`Invalid reference present in Master person having UUID: ${doc._uuid}`);
+                    continue;
+                }
                 const { id: targetIdWithoutPrefix, resourceType: prefix } = ReferenceParser.parseReference(refTargetUuid);
                 let resource;
                 try {
