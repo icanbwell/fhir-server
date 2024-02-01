@@ -8,7 +8,7 @@ const { PersonMatchManager } = require('../personMatchManager');
 const { assertTypeEquals } = require('../../utils/assertType');
 
 /**
- * @classdesc Find person patient linkage for connection type 'proa'
+ * @classdesc Find person patient linkage for the specified connection type
  */
 class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
     /**
@@ -16,10 +16,11 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @property {Object} args
      * @property {PersonMatchManager} personMatchManager
      * @property {boolean} patientPersonMatching
+     * @property {string} connectionType
      *
      * @param {constructorProps}
      */
-    constructor({ personMatchManager, patientPersonMatching, ...args }) {
+    constructor({ personMatchManager, patientPersonMatching, connectionType, ...args }) {
         super(args);
         /**
          * @type {PersonMatchManager}
@@ -31,6 +32,11 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.patientPersonMatching = patientPersonMatching;
+
+        /**
+         * @type {string}
+         */
+        this.connectionType = connectionType;
 
         this.writeStream = fs.createWriteStream('proa_person_patient_linkage_report.csv');
 
@@ -81,9 +87,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 'meta.security': {
                     $elemMatch: {
                         system: SecurityTagSystem.connectionType,
-                        code: {
-                            $in: ['proa'],
-                        },
+                        code: this.connectionType,
                     },
                 },
             };
@@ -129,7 +133,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
              */
             let resource = FhirResourceCreator.create(doc);
             let isProaPerson = resource.meta?.security?.find(
-                (item) => item.system === SecurityTagSystem.connectionType && item.code === 'proa'
+                (item) => item.system === SecurityTagSystem.connectionType && item.code === this.connectionType
             );
             const resourceOwner =
                 resource.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)
