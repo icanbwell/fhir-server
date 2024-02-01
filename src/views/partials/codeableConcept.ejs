@@ -21,7 +21,7 @@
                         <td><%= codeableConcept.text || coding.display; %></td>
                         <% if (searchParameter) { %>
                             <td>
-                                <a href="/4_0_0/<%= resourceType; %>?<%= searchParameter; %>=<%= coding.system; %>|"><%= coding.system; %></a>
+                                <a href="/4_0_0/<%= resourceType; %>?<%= searchParameter; %>=<%= coding.system; %>|&_keepOldUI=1"><%= coding.system; %></a>
                             </td>
                             <td>
                                 <% if (coding.system === 'http://www.ama-assn.org/go/cpt'){ %>
@@ -39,7 +39,7 @@
                                 <% } else { %>
                                     <%= coding.code; %>
                                 <% } %>
-                                [<a href="/4_0_0/<%= resourceType; %>?<%= searchParameter; %>=<%= coding.system; %>|<%= coding.code; %>">Search</a>]
+                                [<a href="/4_0_0/<%= resourceType; %>?<%= searchParameter; %>=<%= coding.system; %>|<%= coding.code; %>&_keepOldUI=1">Search</a>]
                             </td>
                         <% } else { %>
                             <td><%= coding.system; %></td>

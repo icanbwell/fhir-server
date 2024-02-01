@@ -22,8 +22,8 @@
         <tr>
           <td><%= name.id %></td>
           <td><%= name.use %></td>
-          <td><a title="Search for <%= name.family %>" href="/4_0_0/<%= resourceType %>?family=<%= name.family %>"><%= name.family %></a></td>
-          <td><% if (name.given) { %><% name.given.forEach(function(given){ %> <a title="Search for <%= given %>" href="/4_0_0/<%= resourceType %>?given=<%= given %>"><%= given %></a> <%})%> <%}%></td>
+          <td><a title="Search for <%= name.family %>" href="/4_0_0/<%= resourceType %>?family=<%= name.family %>&_keepOldUI=1"><%= name.family %></a></td>
+          <td><% if (name.given) { %><% name.given.forEach(function(given){ %> <a title="Search for <%= given %>" href="/4_0_0/<%= resourceType %>?given=<%= given %>&_keepOldUI=1"><%= given %></a> <%})%> <%}%></td>
           <td><%= name.text %></td>
           <td><% if (name.period) { %> <%= name.period.start %> <%}%></td>
           <td><% if (name.period) { %> <%= name.period.end %> <%}%></td>

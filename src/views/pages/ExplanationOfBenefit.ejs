@@ -407,7 +407,7 @@
                                 <td><%= item.sequence; %></td>
                                 <td>
                                     <% if (item.provider && item.provider.reference){ %>
-                                        <a href="/4_0_0/<%= item.provider.reference; %>"
+                                        <a href="/4_0_0/<%= item.provider.reference; %>?_keepOldUI=1"
                                         ><%= item.provider.reference; %></a
                                         >
                                     <% } %>
@@ -441,7 +441,7 @@
                             <tr>
                                 <td><%= item.focal; %></td>
                                 <td>
-                                    <a href="/4_0_0/<%= item.coverage.reference; %>"
+                                    <a href="/4_0_0/<%= item.coverage.reference; %>?_keepOldUI=1"
                                     ><%= item.coverage.reference; %></a
                                     >
                                 </td>

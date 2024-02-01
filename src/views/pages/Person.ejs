@@ -64,20 +64,18 @@
                 <a href="/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=json">/4_0_0/Person/<%= res.id; %>
                     /$everything?contained=true&_format=jso</a>
             </div>
-            <% if (admin) { %>
                 <hr>
                 <div>
                     <h3>Admin Functions</h3>
                     <div>
                         <h4>Connected Person-Patient Graph</h4>
-                        <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+                        <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>&_keepOldUI=1">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
                     </div>
                     <div>
                         <h4>Delete all data</h4>
-                        <a href="/admin/deletePersonDataGraph?id=<%= res.id; %>">/admin/deletePersonDataGraph?id=<%= res.id; %></a>
+                        <a href="/admin/deletePersonDataGraph?id=<%= res.id; %>&_keepOldUI=1">/admin/deletePersonDataGraph?id=<%= res.id; %></a>
                     </div>
                 </div>
-            <% } %>
 
             <%- include('../partials/json', {res: fullResource, index: index}); %>
         </div>
