@@ -157,7 +157,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     this.proaPatientToProaPersonMap
                         .get(ref.target?._uuid)
                         .push({ id: resource.id, _uuid: resource._uuid });
-                } else {
+                } else if (resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service') {
                     if (!this.proaPatientToClientPersonMap.has(ref.target?._uuid)) {
                         this.proaPatientToClientPersonMap.set(ref.target?._uuid, []);
                     }
