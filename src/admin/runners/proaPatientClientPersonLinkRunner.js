@@ -17,10 +17,11 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
      * @property {Object} args
      * @property {PersonMatchManager} personMatchManager
      * @property {boolean} linkClientPersonToProaPatient
+     * @property {string} connectionType
      *
      * @param {constructorProps}
      */
-    constructor({ personMatchManager, linkClientPersonToProaPatient, ...args }) {
+    constructor({ personMatchManager, linkClientPersonToProaPatient, connectionType, ...args }) {
         super(args);
         /**
          * @type {PersonMatchManager}
@@ -35,6 +36,11 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.linkClientPersonToProaPatient = linkClientPersonToProaPatient;
+
+        /**
+         * @type {string}
+         */
+        this.connectionType = connectionType;
 
         /**
          * @type {Map<string, { id: string, sourceAssigningAuthority: string }[]>}
@@ -84,9 +90,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 'meta.security': {
                     $elemMatch: {
                         system: SecurityTagSystem.connectionType,
-                        code: {
-                            $in: ['proa'],
-                        },
+                        code: this.connectionType,
                     },
                 },
             };
@@ -158,7 +162,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 const resource = await cursor.next();
                 if (resource && resource.id) {
                     let isProaPerson = resource.meta?.security?.find(
-                        (item) => item.system === SecurityTagSystem.connectionType && item.code === 'proa'
+                        (item) => item.system === SecurityTagSystem.connectionType && item.code === this.connectionType
                     );
                     const resourceOwner =
                         resource.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)

@@ -59,6 +59,7 @@ async function main() {
             useTransaction: parameters.useTransaction ? true : false,
             skip: parameters.skip,
             patientPersonMatching: parameters.patientPersonMatching ? true : false,
+            connectionType: parameters.connectionType || 'proa',
         }
     )
     );
@@ -77,7 +78,7 @@ async function main() {
  * To run this:
  * nvm use
  * node src/admin/scripts/proaPersonPatientLinkage.js
- * node src/admin/scripts/proaPersonPatientLinkage.js --patientPersonMatching
+ * node src/admin/scripts/proaPersonPatientLinkage.js --patientPersonMatching --connectionType=humanapi
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --batchSize=10000 --after 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --batchSize=10000 --before 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPersonPatientLinkage.js --limit 10
