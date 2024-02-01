@@ -256,7 +256,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                             // Proa person linked to master person
                             if (this.personsUuidLinkedToProaPatient.has(targetIdWithoutPrefix)) {
                                 linkedCounts.linkedProaPersons.push(targetIdWithoutPrefix);
-                            } else {
+                            } else if (resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service') {
                                 // Client person linked to master person
                                 linkedCounts.linkedClientPersons.push(targetIdWithoutPrefix);
                             }
