@@ -67,6 +67,7 @@ describe('Proa patient client persons linking tests', () => {
                         adminLogger: new AdminLogger(),
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
+                        connectionType: 'proa',
                     })
             );
 
@@ -112,6 +113,7 @@ describe('Proa patient client persons linking tests', () => {
                         adminLogger: new AdminLogger(),
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
+                        connectionType: 'proa',
                     })
             );
 
@@ -157,6 +159,7 @@ describe('Proa patient client persons linking tests', () => {
                         adminLogger: new AdminLogger(),
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
+                        connectionType: 'proa',
                     })
             );
 
