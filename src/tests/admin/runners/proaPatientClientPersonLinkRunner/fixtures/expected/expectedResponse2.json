@@ -1,0 +1,91 @@
+{
+    "birthDate": "2024-01-18",
+    "gender": "male",
+    "id": "c123456",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "c123456"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "0893291d-0b0c-55c2-86d5-66bfbb7f34fd"
+        }
+    ],
+    "link": [
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client-1"
+                    }
+                ],
+                "reference": "Patient/bb7762e6-b7ac-470e-bde3-e85cee9d1ce6",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client"
+                    }
+                ],
+                "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8|client"
+            }
+        }
+    ],
+    "meta": {
+        "versionId": "1",
+        "source": "https://www.icanbwell.com/enterprise-person-service",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client-1"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client-1"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client-1"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "official",
+            "family": "Irving",
+            "given": ["Lloyd"]
+        }
+    ],
+    "resourceType": "Person"
+}
