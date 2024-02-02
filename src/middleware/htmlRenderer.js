@@ -15,7 +15,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
 const sanitize = require('sanitize-filename');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
-const {logError} = require('../operations/common/logging');
+const {logError, logInfo} = require('../operations/common/logging');
 const { RESPONSE_NONCE } = require('../constants');
 
 /**
@@ -46,14 +46,18 @@ const extractResources = (parsedData) => {
 
 /**
  * middleware to render HTML
- * @param {SimpleContainer} container
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
+ * @typedef {Object} HtmlRendererProps
+ * @property {SimpleContainer} container
+ * @property {import('express').Request} req
+ * @property {import('express').Response} res
+ * @property {import('express').NextFunction} next
+ *
+ * @param {HtmlRendererProps}
  */
 const htmlRenderer = ({container, req, res, next}) => {
     const parts = req.url.split(/[/?,&]+/);
     if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0' && shouldReturnHtml(req)) {
+        logInfo('Rendering Old UI', { path: req.originalUrl });
         // If the request is from a browser for HTML then return HTML page instead of json
         const resourceName = parts[2];
         // override the json function, so we can intercept the data being sent the client

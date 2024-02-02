@@ -22,10 +22,10 @@
                                 <td><%= codeableConceptWithValue[codePropertyName].text %></td>
                                 <% if (searchParameter) { %>
                                     <td>
-                                        <a href="/4_0_0/<%= resourceType %>?<%= searchParameter %>=<%= coding.system %>|"><%= coding.system %></a>
+                                        <a href="/4_0_0/<%= resourceType %>?<%= searchParameter %>=<%= coding.system %>|&_keepOldUI=1"><%= coding.system %></a>
                                     </td>
                                     <td>
-                                        <a href="/4_0_0/<%= resourceType %>?<%= searchParameter %>=<%= coding.system %>|<%= coding.code %>"><%= coding.code %></a>
+                                        <a href="/4_0_0/<%= resourceType %>?<%= searchParameter %>=<%= coding.system %>|<%= coding.code %>&_keepOldUI=1"><%= coding.code %></a>
                                     </td>
                                 <% } else { %>
                                     <td><%= coding.system %></td>

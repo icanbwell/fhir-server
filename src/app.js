@@ -36,6 +36,7 @@ const {generateUUID} = require('./utils/uid.util');
 const {logInfo} = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
+const { shouldReturnHtml } = require('./utils/requestHelpers.js');
 
 /**
  * Creates the FHIR app
@@ -136,6 +137,24 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     // middleware to parse user agent string
     app.use(useragent.express());
+
+    // redirect to new fhir-ui if header content-type is text/html and _keepOldUI is not set
+    app.use((req, res, next) => {
+        if (shouldReturnHtml(req)) {
+            const reqPath = req.originalUrl;
+            // check if _keepOldUI flag is passed
+            const keepOldUI = isTrue(req.query['_keepOldUI']);
+            // check if this is home page, resource page, or admin page
+            const isResourceUrl = reqPath === '/' || reqPath.includes('4_0_0') || reqPath.includes('admin');
+            // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
+            if (isTrue(env.REDIRECT_TO_NEW_UI) && !keepOldUI && isResourceUrl) {
+                logInfo('Redirecting to new UI', { path: reqPath });
+                res.redirect(`${env.FHIR_SERVER_UI_URL}${reqPath}`);
+                return;
+            }
+        }
+        next();
+    });
 
     // middleware for oAuth
     app.use(passport.initialize());

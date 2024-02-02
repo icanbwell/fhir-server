@@ -75,7 +75,7 @@ async function synchronizeIndexesAsync(
 
     // return response and then continue processing
     const nonce = httpContext.get(RESPONSE_NONCE);
-    const htmlContent = `<!DOCTYPE html><html><body><script nonce=${nonce}>setTimeout(function(){window.location.href = "/admin/indexProblems";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>`;
+    const htmlContent = `<!DOCTYPE html><html><body><script nonce=${nonce}>setTimeout(function(){window.location.href = "/admin/indexProblems?_keepOldUI=1";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>`;
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();

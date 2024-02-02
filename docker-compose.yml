@@ -67,6 +67,7 @@ services:
       WRITE_FHIR_SUMMARY_TO_VECTORSTORE: '1'
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
+      REDIRECT_TO_NEW_UI: '1'
 #      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
 #      MONGO_VECTORSTORE_USERNAME: ''
 #      MONGO_VECTORSTORE_PASSWORD: ''
