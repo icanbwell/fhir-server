@@ -58,7 +58,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
         this.personsUuidLinkedToProaPatient = new Set();
 
         /**
-         * @type {Map<string, { id: string, owner: string }>}
+         * @type {Map<string, { id: string, owner: string, sourceAssigningAuthority: string }>}
          */
         this.proaPatientUUIDToIdOwnerMap = new Map();
     }
@@ -107,6 +107,9 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                             doc.meta?.security?.find(
                                 (item) => item.system === SecurityTagSystem.owner
                             )?.code || '',
+                        sourceAssigningAuthority: doc.meta?.security?.find(
+                            (item) => item.system === SecurityTagSystem.sourceAssigningAuthority
+                        )?.code || '',
                     });
                 }
             }
@@ -164,8 +167,8 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                     let isProaPerson = resource.meta?.security?.find(
                         (item) => item.system === SecurityTagSystem.connectionType && item.code === this.connectionType
                     );
-                    const resourceOwner =
-                        resource.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)
+                    const resourceSourceAssigningAuthority =
+                        resource.meta?.security?.find((item) => item.system === SecurityTagSystem.sourceAssigningAuthority)
                             ?.code || '';
 
                     resource.link?.forEach((ref) => {
@@ -175,8 +178,8 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                         // Check for proa person based on connection type or owner [checking resource type also in this case]
                         if (
                             isProaPerson ||
-                            (resourceOwner ===
-                                this.proaPatientUUIDToIdOwnerMap.get(targetIdWithoutPrefix)?.owner &&
+                            (resourceSourceAssigningAuthority ===
+                                this.proaPatientUUIDToIdOwnerMap.get(targetIdWithoutPrefix)?.sourceAssigningAuthority &&
                                 (prefix === 'Patient' || ref?.target?.type === 'Patient'))
                         ) {
                             this.personsUuidLinkedToProaPatient.add(resource._uuid);
