@@ -20,7 +20,8 @@ class FilterBySecurityTag extends BaseFilter {
                     target: value,
                     type: 'value',
                     field: this.fieldMapper.getFieldName(field),
-                    required: 'email'
+                    required: 'email',
+                    resourceType: this.resourceType
                 }
             );
         } else if (this.propertyObj.fieldFilter === '[system/@value=\'phone\']') {
@@ -29,7 +30,8 @@ class FilterBySecurityTag extends BaseFilter {
                     target: value,
                     type: 'value',
                     field: this.fieldMapper.getFieldName(field),
-                    required: 'phone'
+                    required: 'phone',
+                    resourceType: this.resourceType
                 }
             );
         } else if (field === 'identifier') {
@@ -39,6 +41,7 @@ class FilterBySecurityTag extends BaseFilter {
                     target: value,
                     type: 'value',
                     field: this.fieldMapper.getFieldName(field),
+                    resourceType: this.resourceType
                 }
             );
         } else if (
@@ -59,7 +62,8 @@ class FilterBySecurityTag extends BaseFilter {
                         {
                             target: value,
                             type: 'code',
-                            field: this.fieldMapper.getFieldName(field)
+                            field: this.fieldMapper.getFieldName(field),
+                            resourceType: this.resourceType
                         }
                     );
                 }
@@ -69,7 +73,8 @@ class FilterBySecurityTag extends BaseFilter {
                     {
                         target: value,
                         type: 'code',
-                        field: this.fieldMapper.getFieldName(field)
+                        field: this.fieldMapper.getFieldName(field),
+                        resourceType: this.resourceType
                     }
                 );
             }
@@ -80,14 +85,16 @@ class FilterBySecurityTag extends BaseFilter {
                         {
                             target: value,
                             type: 'code',
-                            field: this.fieldMapper.getFieldName(field)
+                            field: this.fieldMapper.getFieldName(field),
+                            resourceType: this.resourceType
                         }
                     ),
                     tokenQueryBuilder(
                         {
                             target: value,
                             type: 'code',
-                            field: this.fieldMapper.getFieldName(`${field}.coding`)
+                            field: this.fieldMapper.getFieldName(`${field}.coding`),
+                            resourceType: this.resourceType
                         }
                     ),
                 ],
