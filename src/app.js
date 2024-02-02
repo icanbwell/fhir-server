@@ -140,18 +140,20 @@ function createApp({fnGetContainer, trackMetrics}) {
 
     // redirect to new fhir-ui if header content-type is text/html and _keepOldUI is not set
     app.use((req, res, next) => {
-        const reqPath = req.originalUrl;
-        // check if _keepOldUI flag is passed
-        const keepOldUI = isTrue(req.query['_keepOldUI']);
-        // check if this is home page, resource page, or admin page
-        const isResourceUrl = reqPath === '/' || reqPath.includes('4_0_0') || reqPath.includes('admin');
-        // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-        if (isTrue(env.REDIRECT_TO_NEW_UI) && !keepOldUI && isResourceUrl && shouldReturnHtml(req)) {
-            logInfo('Redirecting to new UI', { path: reqPath });
-            res.redirect(`${env.FHIR_SERVER_UI_URL}${reqPath}`);
-        } else {
-            next();
+        if (shouldReturnHtml(req)) {
+            const reqPath = req.originalUrl;
+            // check if _keepOldUI flag is passed
+            const keepOldUI = isTrue(req.query['_keepOldUI']);
+            // check if this is home page, resource page, or admin page
+            const isResourceUrl = reqPath === '/' || reqPath.includes('4_0_0') || reqPath.includes('admin');
+            // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
+            if (isTrue(env.REDIRECT_TO_NEW_UI) && !keepOldUI && isResourceUrl) {
+                logInfo('Redirecting to new UI', { path: reqPath });
+                res.redirect(`${env.FHIR_SERVER_UI_URL}${reqPath}`);
+                return;
+            }
         }
+        next();
     });
 
     // middleware for oAuth
