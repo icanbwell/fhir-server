@@ -40,7 +40,7 @@ describe('Proa patient client persons linking tests', () => {
     });
 
     describe('Test cases for linking of proa patient & client person', () => {
-        test('Proa patient not linked to client person as the master person has multiple proa persons linked', async () => {
+        test('Proa patient not linked to client person as the master person does not have any master patient linked', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest();
             const container = getTestContainer();
@@ -176,6 +176,15 @@ describe('Proa patient client persons linking tests', () => {
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResponse2);
+
+            resp = await request
+                .get(`/4_0_0/Person/_history?id=${clientPerson1._uuid}`)
+                .set(getHeaders())
+                .expect(200);
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(2);
+            delete resp.body.entry[1].resource.meta.lastUpdated;
+            expect(resp.body.entry[1].resource).toEqual(expectedResponse2);
         });
     });
 });

@@ -58,7 +58,8 @@
                         "valueString": "client"
                     }
                 ],
-                "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8|client"
+                "reference": "Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce8|client",
+                "type": "Patient"
             }
         }
     ],
