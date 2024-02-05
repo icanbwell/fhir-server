@@ -7,6 +7,10 @@ const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { PersonMatchManager } = require('../personMatchManager');
 const { assertTypeEquals } = require('../../utils/assertType');
+const { generateUUID } = require('../../utils/uid.util');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
 
 /**
  * @classdesc Linking of Proa Patient with Client Person
@@ -18,10 +22,12 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
      * @property {PersonMatchManager} personMatchManager
      * @property {boolean} linkClientPersonToProaPatient
      * @property {string} connectionType
+     * @property {boolean} getPersonMatchingScore
+     * @property {ResourceLocatorFactory} resourceLocatorFactory
      *
      * @param {constructorProps}
      */
-    constructor({ personMatchManager, linkClientPersonToProaPatient, connectionType, ...args }) {
+    constructor({ personMatchManager, linkClientPersonToProaPatient, connectionType, getPersonMatchingScore, resourceLocatorFactory, ...args }) {
         super(args);
         /**
          * @type {PersonMatchManager}
@@ -43,6 +49,17 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
         this.connectionType = connectionType;
 
         /**
+         * @type {boolean}
+         */
+        this.getPersonMatchingScore = getPersonMatchingScore;
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
          * @type {Map<string, { id: string, sourceAssigningAuthority: string }[]>}
          */
         this.proaPersonToProaPatientMap = new Map();
@@ -58,9 +75,20 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
         this.personsUuidLinkedToProaPatient = new Set();
 
         /**
-         * @type {Map<string, { id: string, owner: string, sourceAssigningAuthority: string }>}
+         * @type {Set<string>}
+         */
+        this.alreadyProcessedProaPatients = new Set();
+
+        /**
+         * @type {Map<string, { id: string, sourceAssigningAuthority: string }>}
          */
         this.proaPatientUUIDToIdOwnerMap = new Map();
+
+        /**
+         * @type {string}
+         * Generates a unique uuid that is used for operations
+         */
+        this.uniqueRequestId = generateUUID();
     }
 
     /**
@@ -103,10 +131,6 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 if (doc && doc.id) {
                     this.proaPatientUUIDToIdOwnerMap.set(doc._uuid, {
                         id: doc.id,
-                        owner:
-                            doc.meta?.security?.find(
-                                (item) => item.system === SecurityTagSystem.owner
-                            )?.code || '',
                         sourceAssigningAuthority: doc.meta?.security?.find(
                             (item) => item.system === SecurityTagSystem.sourceAssigningAuthority
                         )?.code || '',
@@ -189,7 +213,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                             this.proaPersonToProaPatientMap
                                 .get(resource._uuid)
                                 .push({ id: ref?.target?._uuid, sourceAssigningAuthority: ref?.target?._sourceAssigningAuthority });
-                        } else {
+                        } else if (resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service') {
                             if (!this.proaPatientToClientPersonMap.has(ref.target?._uuid)) {
                                 this.proaPatientToClientPersonMap.set(ref.target?._uuid, []);
                             }
@@ -260,6 +284,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                             if (this.personsUuidLinkedToProaPatient.has(targetIdWithoutPrefix)) {
                                 linkedCounts.linkedProaPersons.push(targetIdWithoutPrefix);
                             } else if (resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service') {
+                                this.clientPerson = resource;
                                 // Client person linked to master person
                                 linkedCounts.linkedClientPersons.push(targetIdWithoutPrefix);
                             }
@@ -273,79 +298,87 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                     });
                 }
             }
-            const proaPersonToProaPatientArray = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]) ?? [];
-            const { id: proaPatientUUID, sourceAssigningAuthority } = proaPersonToProaPatientArray[0] ?? {};
-            const proaPatientUUIDWithoutPrefix = proaPatientUUID?.startsWith('Patient/') ? proaPatientUUID.substring('Patient/'.length) : proaPatientUUID;
-            if (linkedCounts.linkedMasterPersons.length) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person is linked with other master persons having ids as mentioned| ${linkedCounts.linkedMasterPersons}| \n`);
-            }
-            else if (!linkedCounts.linkedMasterPatients.length) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person does not have any linked master patient| ${''}| \n`);
-            }
-            else if (linkedCounts.linkedMasterPatients.length > 1) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person have multiple linked master patients having ids as mentioned| ${linkedCounts.linkedMasterPatients}| \n`);
-            }
-            else if (!linkedCounts.linkedClientPersons.length) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person does not have any linked client person| ${''}| \n`);
-            }
-            else if (linkedCounts.linkedClientPersons.length > 1) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person have multiple linked client persons having ids as mentioned| ${linkedCounts.linkedClientPersons}| \n`);
-            }
-            else if (linkedCounts.linkedProaPersons.length > 1) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Master person have multiple linked proa persons having ids as mentioned| ${linkedCounts.linkedProaPersons}| \n`);
-            }
-            else if (this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).length > 1) {
-                this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| Proa person linked to master person have multiple linked proa patients having ids as mentioned| ${this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).map(obj => obj.id)}| \n`);
-            }
-            else if (this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[0]).length === 1) {
-                const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({ proaPatientUUID, clientPersonUUID: linkedCounts.linkedClientPersons[0] });
-                if (this.proaPatientToClientPersonMap.get(proaPatientUUID)?.includes(linkedCounts.linkedClientPersons[0])) {
-                    this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Already linked| \n`);
-                }
-                else {
-                    if (!this.linkClientPersonToProaPatient) {
-                        this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| \n`);
+            for (let i = 0; i < linkedCounts.linkedProaPersons.length; i++) {
+                const proaPatients = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[parseInt(i)]) ?? [];
+                for (let j = 0; j < proaPatients.length; j++) {
+                    if (this.alreadyProcessedProaPatients.has(proaPatients[parseInt(j)].id)){
+                        continue;
+                    }
+                    this.alreadyProcessedProaPatients.add(proaPatients[parseInt(j)].id);
+                    const { id: proaPatientUUID, sourceAssigningAuthority } = proaPatients[parseInt(j)];
+                    const proaPatientUUIDWithoutPrefix = proaPatientUUID?.startsWith('Patient/') ? proaPatientUUID.substring('Patient/'.length) : proaPatientUUID;
+                    if (linkedCounts.linkedMasterPersons.length) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person is linked with other master persons having ids as mentioned| ${linkedCounts.linkedMasterPersons}| \n`);
+                    }
+                    else if (!linkedCounts.linkedMasterPatients.length) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person does not have any linked master patient| ${''}| \n`);
+                    }
+                    else if (linkedCounts.linkedMasterPatients.length > 1) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person have multiple linked master patients having ids as mentioned| ${linkedCounts.linkedMasterPatients}| \n`);
+                    }
+                    else if (!linkedCounts.linkedClientPersons.length) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person does not have any linked client person| ${''}| \n`);
+                    }
+                    else if (linkedCounts.linkedClientPersons.length > 1) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person have multiple linked client persons having ids as mentioned| ${linkedCounts.linkedClientPersons}| \n`);
+                    }
+                    // Case when nothing is linked to client person, i.e. no client patient also
+                    else if (!this.clientPerson.link) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Client person linked to master person does not have any client patient linked| ${linkedCounts.linkedClientPersons[0]}| \n`);
                     }
                     else {
-                        this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[0]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| \n`);
-                        let updatedResource = {
-                            'link': {
-                                'target': {
-                                    'extension': [
-                                        {
-                                            'id': 'sourceId',
-                                            'url': 'https://www.icanbwell.com/sourceId',
-                                            'valueString': proaPatientUUID
-                                        },
-                                        {
-                                            'id': 'uuid',
-                                            'url': 'https://www.icanbwell.com/uuid',
-                                            'valueString': proaPatientUUID
-                                        },
-                                        {
-                                            'id': 'sourceAssigningAuthority',
-                                            'url': 'https://www.icanbwell.com/sourceAssigningAuthority',
-                                            'valueString': sourceAssigningAuthority
-                                        }
-                                    ],
-                                    'reference': `${proaPatientUUID}|${sourceAssigningAuthority}`,
-                                    '_sourceAssigningAuthority': sourceAssigningAuthority,
-                                    '_uuid': proaPatientUUID,
-                                    '_sourceId': proaPatientUUID
-                                }
+                        const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({ proaPatientUUID, clientPersonUUID: linkedCounts.linkedClientPersons[0] });
+                        if (this.proaPatientToClientPersonMap.get(proaPatientUUID)?.includes(linkedCounts.linkedClientPersons[0])) {
+                            this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Already linked| \n`);
+                        }
+                        else {
+                            if (!this.linkClientPersonToProaPatient) {
+                                this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| \n`);
                             }
-                        };
-                        const patches = compare({}, updatedResource);
-                        const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
-                        if (Object.keys(updateOperation).length > 0) {
-                            operations.push({
-                                updateOne: {
-                                    filter: {
-                                        _uuid: linkedCounts.linkedClientPersons[0],
-                                    },
-                                    update: updateOperation,
-                                },
-                            });
+                            else {
+                                this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| \n`);
+                                let updatedResource = {
+                                    'link': {
+                                        'target': {
+                                            'extension': [
+                                                {
+                                                    'id': 'sourceId',
+                                                    'url': 'https://www.icanbwell.com/sourceId',
+                                                    'valueString': proaPatientUUID
+                                                },
+                                                {
+                                                    'id': 'uuid',
+                                                    'url': 'https://www.icanbwell.com/uuid',
+                                                    'valueString': proaPatientUUID
+                                                },
+                                                {
+                                                    'id': 'sourceAssigningAuthority',
+                                                    'url': 'https://www.icanbwell.com/sourceAssigningAuthority',
+                                                    'valueString': sourceAssigningAuthority
+                                                }
+                                            ],
+                                            'reference': `${proaPatientUUID}|${sourceAssigningAuthority}`,
+                                            'type': 'Patient',
+                                            '_sourceAssigningAuthority': sourceAssigningAuthority,
+                                            '_uuid': proaPatientUUID,
+                                            '_sourceId': proaPatientUUID
+                                        }
+                                    }
+                                };
+                                const patches = compare({}, updatedResource);
+                                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
+                                if (Object.keys(updateOperation).length > 0) {
+                                    operations.push({
+                                        updateOne: {
+                                            filter: {
+                                                _uuid: linkedCounts.linkedClientPersons[0],
+                                            },
+                                            update: updateOperation,
+                                        },
+                                    });
+                                }
+                                await this.createHistoryForUpdatedResource('Person', patches, updatedResource);
+                            }
                         }
                     }
                 }
@@ -367,6 +400,70 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
     }
 
     /**
+     * Create History for updated resource
+     * @param {string} resourceType
+     * @param {MergePatchEntry[]} patches
+     * @param {Object} updatedResource
+     */
+    async createHistoryForUpdatedResource(resourceType, patches, updatedResource) {
+        const base_version = VERSIONS['4_0_0'];
+
+        // Append new link in client person class object
+        this.clientPerson.link = this.clientPerson.link.concat(updatedResource.link);
+        const document = {
+            id: this.clientPerson._uuid,
+            resource: this.clientPerson,
+            request: {
+                id: this.uniqueRequestId,
+                method: 'PUT',
+                url: `/${base_version}/${resourceType}/${this.clientPerson.id}`
+            },
+            response: patches ?
+                {
+                    status: '200',
+                    outcome:
+                    {
+                        resourceType: 'OperationOutcome',
+                        issue: patches.map(
+                            p => ({
+                                severity: 'information',
+                                code: 'informational',
+                                diagnostics: JSON.stringify(p, getCircularReplacer())
+                            })
+                        )
+                    }
+                } : null
+        };
+
+        /**
+         * @type {ResourceLocator}
+         */
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+            resourceType, base_version
+        });
+        const historyCollectionName = await resourceLocator.getHistoryCollectionNameAsync(this.clientPerson.resource || this.clientPerson);
+        try {
+            this.adminLogger.logInfo(`Creating resource for ${historyCollectionName}`);
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+             */
+            const historyCollection = await resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
+
+            /**
+             * @type {import('mongodb').BulkWriteResult}
+             */
+            await historyCollection.insertOne(document);
+            this.adminLogger.logInfo(`Successfully created history resource for ${historyCollectionName}`);
+        } catch (e) {
+            throw new RethrownError({
+                message: `Error creating history resource for collection ${historyCollectionName}, ${e.message}`,
+                error: e,
+                source: 'ProaPatientClientPersonLinkRunner.createHistoryForUpdatedResource',
+            });
+        }
+    }
+
+    /**
      * Fetch client person to proa patient matching result value
      * @param {string} patientUuid
      * @param {{ id: string; _uuid: string; }[]} proaPersonInfo
@@ -374,21 +471,23 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
      */
     async getClientPersonToProaPatientMatch({ proaPatientUUID, clientPersonUUID }) {
         let score = 'N/A';
-        try {
-            const matchingResult = await this.personMatchManager.personMatchAsync({
-                sourceId: proaPatientUUID,
-                sourceType: 'Patient',
-                targetId: clientPersonUUID,
-                targetType: 'Person',
-            });
+        if (this.getPersonMatchingScore) {
+            try {
+                const matchingResult = await this.personMatchManager.personMatchAsync({
+                    sourceId: proaPatientUUID,
+                    sourceType: 'Patient',
+                    targetId: clientPersonUUID,
+                    targetType: 'Person',
+                });
 
-            score = (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A';
-        } catch (e) {
-            this.adminLogger.logError(`ERROR: ${e.message}`, {
-                stack: e.stack,
-                sourceId: `Patient/${proaPatientUUID}`,
-                targetId: `Person/${clientPersonUUID}`,
-            });
+                score = (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A';
+            } catch (e) {
+                this.adminLogger.logError(`ERROR: ${e.message}`, {
+                    stack: e.stack,
+                    sourceId: `Patient/${proaPatientUUID}`,
+                    targetId: `Person/${clientPersonUUID}`,
+                });
+            }
         }
         return score;
     }
@@ -412,7 +511,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 await this.getProaPatientsIdMap({ mongoConfig });
                 await this.getPersonsMapFromProaPatient({ mongoConfig });
                 this.writeStream.write(
-                    'Proa Patient UUID| Proa Person UUID| Proa Master Person UUID| Client Person UUID| Proa Patient - Client Person Matching| Already linked / Can be linked / Linked|' +
+                    'Proa Patient UUID| Proa Person UUID| Proa Master Person UUID| Client Person UUID| Proa Patient - Client Person Matching| Proa Patient-Client Person linking status|' +
                         '\n'
                 );
                 this.writeStreamError.write(
