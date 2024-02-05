@@ -1,0 +1,78 @@
+{
+  "resourceType": "Encounter",
+  "id": "1",
+  "meta": {
+    "source": "https://www.icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "client_code"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "client_code"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "client_code"
+      }
+    ]
+  },
+  "status": "finished",
+  "class": {
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "code": "AMB"
+  },
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "185349003",
+          "display": "Encounter for 'check-up'"
+        }
+      ],
+      "text": "Encounter for 'check-up'"
+    }
+  ],
+  "subject": {
+    "reference": "Patient/1"
+  },
+  "participant": [
+    {
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+              "code": "PPRF",
+              "display": "primary performer"
+            }
+          ],
+          "text": "primary performer"
+        }
+      ],
+      "period": {
+        "start": "2016-10-17T10:17:57+00:00",
+        "end": "2016-10-17T10:46:19+00:00"
+      },
+      "individual": {
+        "reference": "Practitioner/1"
+      }
+    }
+  ],
+  "period": {
+    "start": "2016-10-17T10:17:57+00:00",
+    "end": "2016-10-17T10:46:19+00:00"
+  },
+  "location": [
+    {
+      "location": {
+        "reference": "Location/1"
+      }
+    }
+  ],
+  "serviceProvider": {
+    "reference": "Organization/1"
+  }
+}

@@ -8,6 +8,7 @@ const {escapeRegExp} = require('./regexEscaper');
 const {UrlParser} = require('./urlParser');
 const {ReferenceParser} = require('./referenceParser');
 const {BadRequestError} = require('./httpErrors');
+const {FhirTypesManager} = require('../fhir/fhirTypesManager');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
@@ -99,11 +100,15 @@ const nameQueryBuilder = function ({target}) {
 
 /**
  * @name tokenQueryBuilder
- * @param {?string} target what we are searching for
- * @param {string} type codeable concepts use a code field and identifiers use a value
- * @param {string} field path to system and value from field
- * @param {string|undefined} [required] the required system if specified
- * @param {boolean|undefined} [exists_flag] whether to check for existence
+ * @typedef {Object} TokenQueryBuilderProps
+ * @property {?string} target what we are searching for
+ * @property {string} type codeable concepts use a code field and identifiers use a value
+ * @property {string} field path to system and value from field
+ * @property {string|undefined} [required] the required system if specified
+ * @property {boolean|undefined} [exists_flag] whether to check for existence
+ * @property {string} resourceType whether to check for existence
+ *
+ * @param {TokenQueryBuilderProps}
  * @return {JSON} queryBuilder
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
@@ -113,7 +118,7 @@ const nameQueryBuilder = function ({target}) {
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryBuilder = function ({target, type, field, required, exists_flag}) {
+const tokenQueryBuilder = function ({target, type, field, required, exists_flag, resourceType}) {
     let queryBuilder = {};
     let system = '';
     let value;
@@ -160,9 +165,18 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag}
     }
 
     if (system && value) {
-        // $elemMatch so we match on BOTH system and value in the same array element
-        queryBuilder = {};
-        queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+        // check if the field is an array field
+        const fhirTypesManager = new FhirTypesManager();
+        const fieldData = fhirTypesManager.getDataForField({resourceType, field});
+        if (fieldData?.max !== '1') {
+            // $elemMatch so we match on BOTH system and value in the same array element
+            queryBuilder = {};
+            queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+        } else {
+            queryBuilder = {
+                $and: Object.entries(queryBuilder).map(([k, v]) => ({[k]: v}))
+            };
+        }
     }
     return queryBuilder;
 };
@@ -951,8 +965,9 @@ const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
  * @param {string} target What we're querying for
  * @param {string} field1 contains the path and search type
  * @param {string} field2 contains the path and search type
+ * @param {string} resourceType
  */
-const compositeQueryBuilder = function ({target, field1, field2}) {
+const compositeQueryBuilder = function ({target, field1, field2, resourceType}) {
     const composite = [];
     let temp = {};
     const [target1, target2] = target.split(/[$,]/);
@@ -969,8 +984,8 @@ const compositeQueryBuilder = function ({target, field1, field2}) {
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder({target: target1, type: 'code', field: path1})]},
-                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1})]},
+                    {$and: [tokenQueryBuilder({target: target1, type: 'code', field: path1, resourceType})]},
+                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1, resourceType})]},
                 ],
             });
             break;
@@ -1034,8 +1049,8 @@ const compositeQueryBuilder = function ({target, field1, field2}) {
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder({target: target2, type: 'code', field: path2})]},
-                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2})]},
+                    {$and: [tokenQueryBuilder({target: target2, type: 'code', field: path2, resourceType})]},
+                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2, resourceType})]},
                 ],
             });
             break;
