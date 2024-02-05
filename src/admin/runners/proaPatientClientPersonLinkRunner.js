@@ -284,6 +284,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                             if (this.personsUuidLinkedToProaPatient.has(targetIdWithoutPrefix)) {
                                 linkedCounts.linkedProaPersons.push(targetIdWithoutPrefix);
                             } else if (resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service') {
+                                this.clientPerson = resource;
                                 // Client person linked to master person
                                 linkedCounts.linkedClientPersons.push(targetIdWithoutPrefix);
                             }
@@ -297,42 +298,45 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                     });
                 }
             }
-            this.clientPerson = null;
             for (let i = 0; i < linkedCounts.linkedProaPersons.length; i++) {
-                const proaPatients = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[i]) ?? [];
+                const proaPatients = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[parseInt(i)]) ?? [];
                 for (let j = 0; j < proaPatients.length; j++) {
-                    if (this.alreadyProcessedProaPatients.has(proaPatients[j].id)){
+                    if (this.alreadyProcessedProaPatients.has(proaPatients[parseInt(j)].id)){
                         continue;
                     }
-                    this.alreadyProcessedProaPatients.add(proaPatients[j].id);
-                    const { id: proaPatientUUID, sourceAssigningAuthority } = proaPatients[j];
+                    this.alreadyProcessedProaPatients.add(proaPatients[parseInt(j)].id);
+                    const { id: proaPatientUUID, sourceAssigningAuthority } = proaPatients[parseInt(j)];
                     const proaPatientUUIDWithoutPrefix = proaPatientUUID?.startsWith('Patient/') ? proaPatientUUID.substring('Patient/'.length) : proaPatientUUID;
                     if (linkedCounts.linkedMasterPersons.length) {
-                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| Master person is linked with other master persons having ids as mentioned| ${linkedCounts.linkedMasterPersons}| \n`);
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person is linked with other master persons having ids as mentioned| ${linkedCounts.linkedMasterPersons}| \n`);
                     }
                     else if (!linkedCounts.linkedMasterPatients.length) {
-                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| Master person does not have any linked master patient| ${''}| \n`);
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person does not have any linked master patient| ${''}| \n`);
                     }
                     else if (linkedCounts.linkedMasterPatients.length > 1) {
-                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| Master person have multiple linked master patients having ids as mentioned| ${linkedCounts.linkedMasterPatients}| \n`);
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person have multiple linked master patients having ids as mentioned| ${linkedCounts.linkedMasterPatients}| \n`);
                     }
                     else if (!linkedCounts.linkedClientPersons.length) {
-                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| Master person does not have any linked client person| ${''}| \n`);
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person does not have any linked client person| ${''}| \n`);
                     }
                     else if (linkedCounts.linkedClientPersons.length > 1) {
-                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| Master person have multiple linked client persons having ids as mentioned| ${linkedCounts.linkedClientPersons}| \n`);
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Master person have multiple linked client persons having ids as mentioned| ${linkedCounts.linkedClientPersons}| \n`);
+                    }
+                    // Case when nothing is linked to client person, i.e. no client patient also
+                    else if (!this.clientPerson.link) {
+                        this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| Client person linked to master person does not have any client patient linked| ${linkedCounts.linkedClientPersons[0]}| \n`);
                     }
                     else {
                         const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({ proaPatientUUID, clientPersonUUID: linkedCounts.linkedClientPersons[0] });
                         if (this.proaPatientToClientPersonMap.get(proaPatientUUID)?.includes(linkedCounts.linkedClientPersons[0])) {
-                            this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Already linked| \n`);
+                            this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Already linked| \n`);
                         }
                         else {
                             if (!this.linkClientPersonToProaPatient) {
-                                this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| \n`);
+                                this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| \n`);
                             }
                             else {
-                                this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| \n`);
+                                this.writeStream.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[parseInt(i)]}| ${doc._uuid}| ${linkedCounts.linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| \n`);
                                 let updatedResource = {
                                     'link': {
                                         'target': {
@@ -373,10 +377,7 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                                         },
                                     });
                                 }
-                                const result = await this.createHistoryForUpdatedResource('Person', linkedCounts.linkedClientPersons[0], patches, updatedResource);
-                                if (result === 'missingClientPatient') {
-                                    this.writeStreamError.write(`${proaPatientUUIDWithoutPrefix}| ${linkedCounts.linkedProaPersons[i]}| ${doc._uuid}| Client person linked to master person does not have any client patient linked| ${linkedCounts.linkedClientPersons[0]}| \n`);
-                                }
+                                await this.createHistoryForUpdatedResource('Person', patches, updatedResource);
                             }
                         }
                     }
@@ -401,57 +402,11 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
     /**
      * Create History for updated resource
      * @param {string} resourceType
-     * @param {string} resourceUUID
      * @param {MergePatchEntry[]} patches
      * @param {Object} updatedResource
      */
-    async createHistoryForUpdatedResource(resourceType, resourceUUID, patches, updatedResource) {
+    async createHistoryForUpdatedResource(resourceType, patches, updatedResource) {
         const base_version = VERSIONS['4_0_0'];
-        const collectionName = `${resourceType}_${base_version}`;
-
-        if (!this.clientPerson) {
-            this.adminLogger.logInfo(`Fetching resource for ${collectionName} from db to create history`);
-            /**
-             * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
-             */
-            const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
-            /**
-             * @type {require('mongodb').collection}
-             */
-            const { collection, session, client } = await this.createSingeConnectionAsync({
-                mongoConfig,
-                collectionName,
-            });
-            try {
-                /**
-                 * @type {import('mongodb').Filter<import('mongodb').Document>}
-                 */
-                const query = { '_uuid': resourceUUID };
-
-                /**
-                 * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
-                 */
-                const cursor = collection.find(query);
-                while (await cursor.hasNext()) {
-                    const resource = await cursor.next();
-                    // Case when nothing is linked to client person, i.e. no client patient also
-                    if (!resource.link) {
-                        return 'missingClientPatient';
-                    }
-                    this.clientPerson = resource;
-                }
-                this.adminLogger.logInfo(`Successfully fetched doc for ${collectionName} from db`);
-            } catch (e) {
-                throw new RethrownError({
-                    message: `Error fetching uuid for collection ${collectionName}, ${e.message}`,
-                    error: e,
-                    source: 'ProaPatientClientPersonLinkRunner.createHistoryForUpdatedResource',
-                });
-            } finally {
-                await session.endSession();
-                await client.close();
-            }
-        }
 
         // Append new link in client person class object
         this.clientPerson.link = this.clientPerson.link.concat(updatedResource.link);
