@@ -75,11 +75,6 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
         this.personsUuidLinkedToProaPatient = new Set();
 
         /**
-         * @type {Set<string>}
-         */
-        this.alreadyProcessedProaPatients = new Set();
-
-        /**
          * @type {Map<string, { id: string, sourceAssigningAuthority: string }>}
          */
         this.proaPatientUUIDToIdOwnerMap = new Map();
@@ -260,6 +255,10 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
                 linkedProaPersons: [],
                 linkedMasterPersons: []
             };
+            /**
+             * @type {Set<string>}
+             */
+            const alreadyProcessedProaPatients = new Set();
             for (let i = 0; i < doc.link?.length; i++) {
                 const ref = doc.link[parseInt(i)];
                 const refTargetUuid = ref?.target?._uuid;
@@ -301,10 +300,10 @@ class ProaPatientClientPersonLinkRunner extends BaseBulkOperationRunner {
             for (let i = 0; i < linkedCounts.linkedProaPersons.length; i++) {
                 const proaPatients = this.proaPersonToProaPatientMap.get(linkedCounts.linkedProaPersons[parseInt(i)]) ?? [];
                 for (let j = 0; j < proaPatients.length; j++) {
-                    if (this.alreadyProcessedProaPatients.has(proaPatients[parseInt(j)].id)){
+                    if (alreadyProcessedProaPatients.has(proaPatients[parseInt(j)].id)){
                         continue;
                     }
-                    this.alreadyProcessedProaPatients.add(proaPatients[parseInt(j)].id);
+                    alreadyProcessedProaPatients.add(proaPatients[parseInt(j)].id);
                     const { id: proaPatientUUID, sourceAssigningAuthority } = proaPatients[parseInt(j)];
                     const proaPatientUUIDWithoutPrefix = proaPatientUUID?.startsWith('Patient/') ? proaPatientUUID.substring('Patient/'.length) : proaPatientUUID;
                     if (linkedCounts.linkedMasterPersons.length) {
