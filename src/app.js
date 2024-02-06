@@ -145,7 +145,7 @@ function createApp({fnGetContainer, trackMetrics}) {
             // check if _keepOldUI flag is passed
             const keepOldUI = isTrue(req.query['_keepOldUI']);
             // check if this is home page, resource page, or admin page
-            const isResourceUrl = reqPath === '/' || reqPath.includes('4_0_0') || reqPath.includes('admin');
+            const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0') || reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
             if (isTrue(env.REDIRECT_TO_NEW_UI) && !keepOldUI && isResourceUrl) {
                 logInfo('Redirecting to new UI', { path: reqPath });
