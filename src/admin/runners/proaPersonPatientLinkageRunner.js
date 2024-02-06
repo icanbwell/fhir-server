@@ -107,6 +107,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         sourceAssigningAuthority: doc.meta?.security?.find(
                             (item) => item.system === SecurityTagSystem.sourceAssigningAuthority
                         )?.code || '',
+                        lastUpdated: new Date(doc.meta.lastUpdated).toISOString()
                     });
                 }
             }
@@ -428,12 +429,12 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             // Write the CSV content to a file
             if (this.patientPersonMatching) {
                 this.writeStream.write(
-                    'Proa Patient ID| Proa Patient UUID| Proa Person ID| Proa Person UUID| Proa Patient - Proa Person Match Percentage| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Proa Person - Proa Master Person Matching| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner| Proa Patient - Client Person Matching|' +
+                    'Proa Patient ID| Proa Patient UUID| Proa Patient lastUpdated| Proa Person ID| Proa Person UUID| Proa Patient - Proa Person Match Percentage| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Proa Person - Proa Master Person Matching| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner| Proa Patient - Client Person Matching|' +
                         '\n'
                 );
             } else {
                 this.writeStream.write(
-                    'Proa Patient ID| Proa Patient UUID| Proa Person ID| Proa Person UUID| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner|' +
+                    'Proa Patient ID| Proa Patient UUID| Proa Patient lastUpdated| Proa Person ID| Proa Person UUID| Proa Master Person ID| Proa Master Person UUID| Proa Master Person Owner| Client Person ID| Client Person UUID| Client Person Owner| Client Master Person ID| Client Master Person UUID| Client Master Person Owner|' +
                         '\n'
                 );
             }
@@ -474,7 +475,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     const proaPatientClientPersonMatchingResult =
                         await this.getProaPatientToPersonMatch(uuid, clientPersonInfo);
                     this.writeStream.write(
-                        `${otherDetails.id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                        `${otherDetails.id}| ${uuid}| ${otherDetails.lastUpdated}| ${proaPersonAppendedIds || ''}| ${
                             proaPersonAppendedUuids || ''
                         }| ${proaPatientProaPersonMatchingResult || ''}| ${
                             consolidatedProaMasterPersonInfo.ids || ''
@@ -492,7 +493,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     );
                 } else {
                     this.writeStream.write(
-                        `${otherDetails.id}| ${uuid}| ${proaPersonAppendedIds || ''}| ${
+                        `${otherDetails.id}| ${uuid}| ${otherDetails.lastUpdated}| ${proaPersonAppendedIds || ''}| ${
                             proaPersonAppendedUuids || ''
                         }| ${consolidatedProaMasterPersonInfo.ids || ''}| ${
                             consolidatedProaMasterPersonInfo.uuids || ''
