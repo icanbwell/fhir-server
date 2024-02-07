@@ -301,7 +301,7 @@ class DatabaseUpdateManager {
                     url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
                 }
             )
-        }));
+        }).toJSONInternal());
     }
 }
 
