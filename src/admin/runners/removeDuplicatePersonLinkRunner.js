@@ -205,7 +205,9 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     _id: '$uuid',
                 },
             },
-        ]);
+        ],
+        {allowDiskUse: true}
+        );
         let uuidList = [];
         // Remove duplicates and update in batches.
         while (await result.hasNext()) {
