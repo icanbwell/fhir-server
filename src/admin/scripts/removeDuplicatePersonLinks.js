@@ -1,3 +1,9 @@
+const path = require('path');
+const dotenv = require('dotenv');
+const pathToEnv = path.resolve(__dirname, '.env');
+dotenv.config({
+    path: pathToEnv
+});
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
@@ -30,6 +36,7 @@ async function main() {
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager,
+            preSaveManager: c.preSaveManager,
             personUuids: personUuids,
             limit: parameters.limit,
             skip: parameters.skip,
