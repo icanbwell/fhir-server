@@ -1,0 +1,57 @@
+{
+    "_id": {
+        "$oid": "658d1a317380e6f33d8b4e81"
+    },
+    "_uuid": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8",
+    "_access": {
+        "client": 1
+    },
+    "_sourceAssigningAuthority": "client",
+    "_sourceId": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8",
+    "birthDate": "2017-01-01",
+    "gender": "female",
+    "id": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "bb7862e6-b7ac-470e-bde3-e85cee9d1ce8"
+        }
+    ],
+    "meta": {
+        "versionId": "1",
+        "source": "client",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "client"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "client"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["SHYLA"]
+        }
+    ],
+    "resourceType": "Patient"
+}

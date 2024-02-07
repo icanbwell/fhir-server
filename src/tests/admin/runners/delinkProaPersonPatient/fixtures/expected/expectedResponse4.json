@@ -1,0 +1,103 @@
+{
+    "resourceType": "Person",
+    "id": "08f1b73a-e27c-456d-8a61-277f164a9a57",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": "2024-02-07T05:12:13.000Z",
+        "source": "bwell",
+        "security": [
+            { "system": "https://www.icanbwell.com/access", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/owner", "code": "bwell" },
+            { "system": "https://www.icanbwell.com/sourceAssigningAuthority", "code": "bwell" }
+        ]
+    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "08f1b73a-e27c-456d-8a61-277f164a9a57"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "08f1b73a-e27c-456d-8a61-277f164a9a57"
+        }
+    ],
+    "name": [{ "use": "official", "family": "Irving", "given": ["Lloyd"] }],
+    "gender": "male",
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/b2345"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/31de42ef-6268-5786-966b-fe18f1efaf63"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Patient/b2345",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/c12345"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/33226ded-51e8-590e-8342-1197955a2af7"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client"
+                    }
+                ],
+                "reference": "Person/c12345|client",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/c123456"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/0893291d-0b0c-55c2-86d5-66bfbb7f34fd"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "client-1"
+                    }
+                ],
+                "reference": "Person/c123456|client-1",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        }
+    ]
+}
