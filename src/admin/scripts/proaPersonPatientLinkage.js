@@ -34,6 +34,13 @@ async function main() {
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
+    /**
+     * @type {string[]}
+     */
+    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
+        parameters.clientSourceAssigningAuthorities.split(',') :
+        ['bwell_demo'];
+
     const adminLogger = new AdminLogger();
 
     adminLogger.logInfo(`[${currentDateTime}] Running proaPersonPatientLinkageReference script`);
@@ -60,6 +67,7 @@ async function main() {
             skip: parameters.skip,
             patientPersonMatching: parameters.patientPersonMatching ? true : false,
             connectionType: parameters.connectionType || 'proa',
+            clientSourceAssigningAuthorities,
         }
     )
     );
