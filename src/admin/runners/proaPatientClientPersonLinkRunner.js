@@ -10,6 +10,7 @@ const { generateUUID } = require('../../utils/uid.util');
 const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 
 /**
  * @classdesc Linking of Proa Patient with Client Person
@@ -126,7 +127,12 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     });
 
                     resource.link?.forEach((ref) => {
-                        const refTargetUuid = ref?.target?._uuid;
+                        const refTargetUuid = ref?.target?.extension?.find(
+                            e => e.url === IdentifierSystem.uuid
+                        )?.valueString;
+                        const refTargetSourceAssigningAuthority = ref?.target?.extension?.find(
+                            e => e.url === SecurityTagSystem.sourceAssigningAuthority
+                        )?.valueString;
                         const {
                             id: targetIdWithoutPrefix,
                             resourceType: prefix,
@@ -144,17 +150,17 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                                 this.proaPersonToProaPatientMap.set(resource._uuid, []);
                             }
                             this.proaPersonToProaPatientMap.get(resource._uuid).push({
-                                id: ref?.target?._uuid,
-                                sourceAssigningAuthority: ref?.target?._sourceAssigningAuthority
+                                id: refTargetUuid,
+                                sourceAssigningAuthority: refTargetSourceAssigningAuthority
                             });
                         } else if (
                             resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service' ||
                             this.clientSourceAssigningAuthorities.includes(resourceSourceAssigningAuthority)
                         ) {
-                            if (!this.proaPatientToClientPersonMap.has(ref.target?._uuid)) {
-                                this.proaPatientToClientPersonMap.set(ref.target?._uuid, []);
+                            if (!this.proaPatientToClientPersonMap.has(refTargetUuid)) {
+                                this.proaPatientToClientPersonMap.set(refTargetUuid, []);
                             }
-                            this.proaPatientToClientPersonMap.get(ref.target?._uuid).push(resource._uuid);
+                            this.proaPatientToClientPersonMap.get(refTargetUuid).push(resource._uuid);
                         }
                     });
                 }
