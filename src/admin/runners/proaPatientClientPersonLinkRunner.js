@@ -216,6 +216,13 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         }
                     } else {
                         resource = await db.collection('Person_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
+                        this.personDataMap.set(resource._uuid, {
+                            id: resource._uuid,
+                            sourceAssigningAuthority: resource.meta.security.find(
+                                s => s.system === SecurityTagSystem.sourceAssigningAuthority
+                            )?.code,
+                            lastUpdated: new Date(resource.meta?.lastUpdated).toISOString(),
+                        });
                         if (resource?.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)?.code === 'bwell') {
                             linkedMasterPersons.push(targetIdWithoutPrefix);
                         } else {
@@ -332,25 +339,27 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({
                             proaPatientUUID, clientPersonUUID: linkedClientPersons[0]
                         });
+                        const clientPersonData = this.personDataMap.get(linkedClientPersons[0]);
                         this.writeStream.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
-                            `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| `
+                            `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
+                            `${clientPersonData.id}| ${clientPersonData.sourceAssigningAuthority}| ${clientPersonData.lastUpdated}| `
                         );
                         if (this.proaPatientToClientPersonMap.get(proaPatientUUID)?.includes(linkedClientPersons[0])) {
                             this.writeStream.write(
-                                `${linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Already linked| \n`
+                                `${proaPatientClientPersonMatchingScore}| Already linked| \n`
                             );
                         }
                         else {
                             if (!this.linkClientPersonToProaPatient) {
                                 this.writeStream.write(
-                                    `${linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Can be linked| \n`
+                                    `${proaPatientClientPersonMatchingScore}| Can be linked| \n`
                                 );
                             }
                             else {
                                 this.writeStream.write(
-                                    `${linkedClientPersons[0]}| ${proaPatientClientPersonMatchingScore}| Linked| \n`
+                                    `${proaPatientClientPersonMatchingScore}| Linked| \n`
                                 );
                                 let updatedResource = {
                                     'link': {
