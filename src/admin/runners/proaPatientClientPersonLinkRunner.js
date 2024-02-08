@@ -332,7 +332,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({
                             proaPatientUUID, clientPersonUUID: linkedClientPersons[0]
                         });
-                        this.writeStream.wrproaPatientData.idite(
+                        this.writeStream.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| `
