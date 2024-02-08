@@ -34,6 +34,13 @@ async function main() {
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
+    /**
+     * @type {string[]}
+     */
+    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
+        parameters.clientSourceAssigningAuthorities.split(',') :
+        ['bwell_demo'];
+
     const adminLogger = new AdminLogger();
 
     adminLogger.logInfo(`[${currentDateTime}] Running proaPatientClientPersonLink script`);
@@ -61,6 +68,7 @@ async function main() {
             linkClientPersonToProaPatient: parameters.linkClientPersonToProaPatient ? true : false,
             connectionType: parameters.connectionType || 'proa',
             getPersonMatchingScore: parameters.getPersonMatchingScore ? true : false,
+            clientSourceAssigningAuthorities,
         }
     )
     );

@@ -68,6 +68,7 @@ describe('Proa patient client persons linking tests', () => {
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
                         connectionType: 'proa',
+                        clientSourceAssigningAuthorities: ['client'],
                     })
             );
 
@@ -114,6 +115,7 @@ describe('Proa patient client persons linking tests', () => {
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
                         connectionType: 'proa',
+                        clientSourceAssigningAuthorities: ['client'],
                     })
             );
 
@@ -160,6 +162,7 @@ describe('Proa patient client persons linking tests', () => {
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
                         connectionType: 'proa',
+                        clientSourceAssigningAuthorities: ['client-1'],
                     })
             );
 
