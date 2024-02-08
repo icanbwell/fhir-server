@@ -109,7 +109,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 const doc = await cursor.next();
                 if (doc && doc.id) {
                     this.proaPatientUUIDToIdOwnerMap.set(doc._uuid, {
-                        id: doc._uuid,
+                        id: doc.id,
                         owner:
                             doc.meta?.security?.find(
                                 (item) => item.system === SecurityTagSystem.owner
