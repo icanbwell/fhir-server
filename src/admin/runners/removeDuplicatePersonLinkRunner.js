@@ -12,7 +12,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {PreSaveManager} preSaveManager
-     * @param {number} minLinks
      * @param {Object} personUuids
      * @param {number} limit
      * @param {number} skip
@@ -29,7 +28,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             personUuids,
             limit,
             skip,
-            minLinks,
             batchSize,
             ownerCode,
             uuidGreaterThan
@@ -47,11 +45,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
-
-        /**
-         * @type {number}
-         */
-        this.minLinks = minLinks;
 
         /**
          * @type {Object}
@@ -83,6 +76,9 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
          */
         this.uuidGreaterThan = uuidGreaterThan;
 
+        /**
+         * @type {string}
+         */
         this.collectionName = 'Person_4_0_0';
     }
 
@@ -93,10 +89,16 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @returns
      */
     async removeDuplicateLinks(resource) {
-        const links = resource.link.map(link => JSON.stringify(link));
-        const uniqueLinkSet = [...new Set(links)];
-        const uniqueLinks = uniqueLinkSet.map(linkString => JSON.parse(linkString));
-        resource.link = uniqueLinks;
+        const linkSet = new Set();
+        resource.link = resource.link.reduce((uniqueLinks, link) => {
+            let reference = link?.target?._uuid;
+            if (!linkSet.has(reference)) {
+                linkSet.add(reference);
+                uniqueLinks.push(link);
+            }
+            return uniqueLinks;
+        }, []);
+
         return resource;
     }
 
@@ -113,12 +115,12 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
          */
         const currentResource = FhirResourceCreator.create(doc);
         let resource = currentResource.clone();
+
+        resource = await this.preSaveManager.preSaveAsync(resource);
         /**
          * @type {Resource}
          */
-        const updatedResource = await this.preSaveManager.preSaveAsync(
-            await this.removeDuplicateLinks(resource)
-        );
+        const updatedResource = await this.removeDuplicateLinks(resource);
         // for speed, first check if the incoming resource is exactly the same
         const updatedResourceJsonInternal = updatedResource.toJSONInternal();
         const currentResourceJsonInternal = currentResource.toJSONInternal();
@@ -160,7 +162,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                 },
             );
         } catch (e) {
-            this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+            this.adminLogger.logError(`Got error ${e.message}.  At ${this.startFromIdContainer.startFromId}`);
         }
     }
     /**
