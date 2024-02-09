@@ -305,6 +305,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
             while (await cursor.hasNext()) {
                 const patient = await cursor.next();
+                if (!patient) {
+                    continue;
+                }
 
                 const sourceAssigningAuthority = patient.meta.security.find(
                     (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
@@ -413,6 +416,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
             while (await cursor.hasNext()) {
                 const person = await cursor.next();
+                if (!person) {
+                    continue;
+                }
 
                 const sourceAssigningAuthority = person.meta.security.find(
                     (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
@@ -542,17 +548,18 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 const patientCollection = db.collection(this.patientCollectionName);
 
                 const patientData = await patientCollection.findOne({ _uuid: otherUuid });
+                if (patientData) {
+                    const sourceAssigningAuthority = patientData.meta.security.find(
+                        (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
+                    )?.code;
 
-                const sourceAssigningAuthority = patientData.meta.security.find(
-                    (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
-                )?.code;
-
-                // If sourceAssigningAuthority is bwell then it is master patient
-                if (sourceAssigningAuthority === 'bwell') {
-                    if (!this.masterPersonToMasterPatientMap.has(masterPersonUuid)) {
-                        this.masterPersonToMasterPatientMap.set(masterPersonUuid, []);
+                    // If sourceAssigningAuthority is bwell then it is master patient
+                    if (sourceAssigningAuthority === 'bwell') {
+                        if (!this.masterPersonToMasterPatientMap.has(masterPersonUuid)) {
+                            this.masterPersonToMasterPatientMap.set(masterPersonUuid, []);
+                        }
+                        this.masterPersonToMasterPatientMap.get(masterPersonUuid).push(patientData._uuid);
                     }
-                    this.masterPersonToMasterPatientMap.get(masterPersonUuid).push(patientData._uuid);
                 }
             } else if (otherResourceType === 'Person') {
                 // Check if this is proa person
@@ -567,40 +574,42 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     const personCollection = db.collection(this.personCollectionName);
                     const personData = await personCollection.findOne({ _uuid: otherUuid });
 
-                    const sourceAssigningAuthority = personData.meta.security.find(
-                        (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
-                    )?.code;
+                    if (personData) {
+                        const sourceAssigningAuthority = personData.meta.security.find(
+                            (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
+                        )?.code;
 
-                    // Check if this is client person
-                    if (
-                        this.clientSourceAssigningAuthorities.includes(sourceAssigningAuthority) ||
-                        personData.meta.source === this.clientPersonSource
-                    ) {
-                        // Filter client patients
-                        const clientPatients = personData.link?.reduce((uuids, link) => {
-                            const uuidReference = link?.target?.extension?.find(
-                                e => e.url === IdentifierSystem.uuid
-                            )?.valueString || '';
-                            const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
-                            if (resourceType === 'Patient' && !this.proaPatientDataMap.has(uuid)) {
-                                uuids.push(uuid);
+                        // Check if this is client person
+                        if (
+                            this.clientSourceAssigningAuthorities.includes(sourceAssigningAuthority) ||
+                            personData.meta.source === this.clientPersonSource
+                        ) {
+                            // Filter client patients
+                            const clientPatients = personData.link?.reduce((uuids, link) => {
+                                const uuidReference = link.target.extension.find(
+                                    e => e.url === IdentifierSystem.uuid
+                                )?.valueString;
+                                const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
+                                if (resourceType === 'Patient' && !this.proaPatientDataMap.has(uuid)) {
+                                    uuids.push(uuid);
+                                }
+                                return uuids;
+                            }, []);
+
+                            this.clientPersonToClientPatientMap.set(personData._uuid, clientPatients || []);
+
+                            // Store client person information
+                            this.personDataMap.set(personData._uuid, {
+                                uuid: personData._uuid,
+                                sourceAssigningAuthority,
+                                lastUpdated: new Date(personData.meta.lastUpdated).toISOString(),
+                            });
+
+                            if (!this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
+                                this.masterPersonToClientPersonMap.set(masterPersonUuid, []);
                             }
-                            return uuids;
-                        }, []);
-
-                        this.clientPersonToClientPatientMap.set(personData._uuid, clientPatients || []);
-
-                        // Store client person information
-                        this.personDataMap.set(personData._uuid, {
-                            uuid: personData._uuid,
-                            sourceAssigningAuthority,
-                            lastUpdated: new Date(personData.meta.lastUpdated).toISOString(),
-                        });
-
-                        if (!this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
-                            this.masterPersonToClientPersonMap.set(masterPersonUuid, []);
+                            this.masterPersonToClientPersonMap.get(masterPersonUuid).push(personData._uuid);
                         }
-                        this.masterPersonToClientPersonMap.get(masterPersonUuid).push(personData._uuid);
                     }
                 }
             }
@@ -653,6 +662,10 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
             while (await cursor.hasNext()) {
                 const person = await cursor.next();
+
+                if (!person) {
+                    continue;
+                }
 
                 const sourceAssigningAuthority = person.meta.security.find(
                     (s) => s.system === SecurityTagSystem.sourceAssigningAuthority
