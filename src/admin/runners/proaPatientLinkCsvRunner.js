@@ -768,40 +768,18 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 relatedClientPatients.forEach(relatedClientPatient => {
                                     message += relatedClientPatient.length > 1 ?
                                         'Client Person with multiple client patients found (Added Client Person Uuids), ' :
+                                        relatedClientPatient.length === 1 ? 'Valid Client Person' :
                                         'Client Person without client patients found (Added Client Person Uuids), ';
                                 });
                                 errorRecordUuids = clientPersonUuids;
                             }
 
-                            const relatedProaPersons = this.masterPersonToProaPersonMap.get(masterPersonUuid);
-                            const relatedProaPatients = [];
-                            relatedProaPersons.forEach((proaPerson) => {
-                                relatedProaPatients.push(...this.proaPersonToProaPatientMap.get(proaPerson));
-                            });
-
-                            const patientUuids = relatedProaPatients
-                                .filter(p => this.proaPatientDataMap.has(p))
-                                .join(', ');
-                            const patientSourceAssigningAuthorities = relatedProaPatients
-                                .filter(p => this.proaPatientDataMap.has(p))
-                                .map((p) => this.proaPatientDataMap.get(p).sourceAssigningAuthority)
-                                .join(', ');
-                            const patientLastUpdated = relatedProaPatients
-                                .filter(p => this.proaPatientDataMap.has(p))
-                                .map((p) => this.proaPatientDataMap.get(p).lastUpdated)
-                                .join(', ');
-
                             this.writeErrorCases({
-                                patientData: {
-                                    uuid: patientUuids,
-                                    sourceAssigningAuthority: patientSourceAssigningAuthorities,
-                                    lastUpdated: patientLastUpdated,
-                                },
+                                patientData: this.proaPatientDataMap.get(proaPatientUuid),
                                 message,
                                 errorRecordUuids,
                             });
-
-                            relatedProaPatients.forEach((patientUuid) => this.proaPatientDataMap.delete(patientUuid));
+                            this.proaPatientDataMap.delete(proaPatientUuid);
                         }
                     });
                 }
@@ -862,8 +840,11 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     message,
                 });
             } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
-                const message = 'Client Person Already Linked';
                 const clientPersonUuids = this.proaPatientToClientPersonMap.get(proaPatientUuid);
+                let message = '';
+                clientPersonUuids.forEach(() => {
+                    message += 'Client Person Already Linked';
+                });
 
                 this.writeData({
                     proaPatientData,
