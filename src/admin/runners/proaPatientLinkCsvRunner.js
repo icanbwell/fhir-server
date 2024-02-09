@@ -431,7 +431,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 // get all related proa patient from person links
                 person.link.forEach((link) => {
                     const uuidReference =
-                        link.target.extension.find((e) => e.url === IdentifierSystem.uuid)?.valueString || '';
+                        link?.target?.extension?.find((e) => e.url === IdentifierSystem.uuid)?.valueString || '';
 
                     const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
 
@@ -578,9 +578,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     ) {
                         // Filter client patients
                         const clientPatients = personData.link?.reduce((uuids, link) => {
-                            const uuidReference = link.target.extension.find(
+                            const uuidReference = link?.target?.extension?.find(
                                 e => e.url === IdentifierSystem.uuid
-                            )?.valueString;
+                            )?.valueString || '';
                             const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
                             if (resourceType === 'Patient' && !this.proaPatientDataMap.has(uuid)) {
                                 uuids.push(uuid);
@@ -666,7 +666,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
                 for (const link of person.link) {
                     const uuidReference =
-                        link.target.extension.find((e) => e.url === IdentifierSystem.uuid)?.valueString || '';
+                        link?.target?.extension?.find((e) => e.url === IdentifierSystem.uuid)?.valueString || '';
 
                     const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
 
