@@ -383,12 +383,13 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
              return null;
          }
          let questionaire = null;
+         // TODO:
         /**
          * Get questionaireResponse from consent.sourceReference.reference
          * Get questionaire from questionaireResponse.questionaire
          * Questionaire must start with 'https://fhir.icanbwell.com/4_0_0/Questionnaire/'
-         * Questionaire must have a questionaire.item, where item.linkId is $in('/dataSharingConsent', '/hipaaConsent')
-         * else, return null questionaire
+         * Check against questionaire cache, if not found
+         * return null questionaire
          */
         return questionaire;
     }
