@@ -212,19 +212,19 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      */
     writeData({ proaPatientData, proaPersonData, masterPersonsData, clientPersonsData, message }) {
         const masterPersonData = {
-            uuid: masterPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(),
+            uuid: masterPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(', '),
             sourceAssigningAuthority: masterPersonsData
                 .reduce((arr, d) => arr.push(d.sourceAssigningAuthority) && arr, [])
-                .join(),
-            lastUpdated: masterPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(),
+                .join(', '),
+            lastUpdated: masterPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', '),
         };
 
         const clientPersonData = {
-            uuid: clientPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(),
+            uuid: clientPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(', '),
             sourceAssigningAuthority: clientPersonsData
                 .reduce((arr, d) => arr.push(d.sourceAssigningAuthority) && arr, [])
-                .join(),
-            lastUpdated: clientPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(),
+                .join(', '),
+            lastUpdated: clientPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', '),
         };
 
         this.writeStream.write(
@@ -256,7 +256,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
     writeErrorCases({ patientData, message, errorRecordUuids }) {
         this.writeErrorStream.write(
             `${patientData.uuid}| ${patientData.sourceAssigningAuthority}| ${patientData.lastUpdated}| ` +
-                `${message}| ${errorRecordUuids}|\n`,
+                `${message}| ${errorRecordUuids.join(', ')}|\n`,
             (err) => {
                 if (err) {
                     this.adminLogger.logError(`Error while writing to error stream: ${err.message}`, {
@@ -711,7 +711,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     this.writeErrorCases({
                         patientData: this.proaPatientDataMap.get(proaPatientUuid),
                         message: 'Proa Person Not Attached to Master Person',
-                        errorRecordUuids: proaPersonUuid,
+                        errorRecordUuids: [proaPersonUuid],
                     });
 
                     this.proaPatientDataMap.delete(proaPatientUuid);
@@ -750,12 +750,12 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 message = this.masterPersonToMasterPatientMap.has(masterPersonUuid) ?
                                     'Master Person with multiple Master Patients found (Added Master Person Uuid)' :
                                     'Master Person without Master Patient found (Added Master Person Uuid)';
-                                errorRecordUuids = masterPersonUuid;
+                                errorRecordUuids = [masterPersonUuid];
                             } else {
                                 relatedClientPatients.forEach(relatedClientPatient => {
                                     message += relatedClientPatient.length > 1 ?
-                                        'Client Person with multiple client patients found (Added Client Person Uuids)' :
-                                        'Client Person without client patients found (Added Client Person Uuids)';
+                                        'Client Person with multiple client patients found (Added Client Person Uuids), ' :
+                                        'Client Person without client patients found (Added Client Person Uuids), ';
                                 });
                                 errorRecordUuids = clientPersonUuids;
                             }
@@ -766,13 +766,13 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 relatedProaPatients.push(...this.proaPersonToProaPatientMap.get(proaPerson));
                             });
 
-                            const patientUuids = relatedProaPatients.join();
+                            const patientUuids = relatedProaPatients.join(', ');
                             const patientSourceAssigningAuthorities = relatedProaPatients
                                 .map((p) => this.proaPatientDataMap.get(p).sourceAssigningAuthority)
-                                .join();
+                                .join(', ');
                             const patientLastUpdated = relatedProaPatients
                                 .map((p) => this.proaPatientDataMap.get(p).lastUpdated)
-                                .join();
+                                .join(', ');
 
                             this.writeErrorCases({
                                 patientData: {
