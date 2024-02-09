@@ -37,9 +37,15 @@ async function main() {
     container.register('proaPatientLinkCsvRunner', (c) => new ProaPatientLinkCsvRunner({
         mongoCollectionManager: c.mongoCollectionManager,
         mongoDatabaseManager: c.mongoDatabaseManager,
+        mergeManager: c.mergeManager,
+        databaseBulkInserter: c.databaseBulkInserter,
+        postRequestProcessor: c.postRequestProcessor,
+        requestSpecificCache: c.requestSpecificCache,
         adminLogger,
         batchSize,
         clientSourceAssigningAuthorities,
+        skipAlreadyLinked: parameters.skipAlreadyLinked ? true : false,
+        linkClientPersonToProaPatient: parameters.linkClientPersonToProaPatient ? true : false,
     }));
 
     /**
@@ -58,6 +64,8 @@ async function main() {
  * node src/admin/scripts/proaPatientLinkCsv.js
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --clientSourceAssigningAuthorities client
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --skipAlreadyLinked
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientLinkCsv.js --linkClientPersonToProaPatient
  */
 main().catch(reason => {
     console.error(reason);
