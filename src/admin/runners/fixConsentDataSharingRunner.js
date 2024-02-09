@@ -195,6 +195,17 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             return resource;
         }
 
+        category.coding.forEach((coding) => {
+            if (Array.isArray(coding)) {
+                if (coding[0].id === 'bwell-consent-type' &&
+                    coding[0].system === 'http://www.icanbwell.com/consent-category' &&
+                    coding[0].code && coding[0].display) {
+                    //coding already set correctly
+                    return resource;
+                }
+            }
+        });
+
         await this.lookupCategoryCoding({resource, category, questionaire});
 
         // setting the value
@@ -217,11 +228,19 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         if (!questionaire) {
             return null;
         }
-        //TODO
-        /**
-         * Get the code from the questionaire.items, where item.linkId is $in('/dataSharingConsent', '/hipaaConsent')
-         * and add it to the category array, if needed
-         */
+        let coding = {};
+        const item = questionaire.item;
+        item.code.forEach((code) => {
+            if (code.id === 'code-category') {
+                coding.id = 'bwell-consent-type';
+                coding.system = 'http://www.icanbwell.com/consent-category';
+                coding.code = code.code;
+                coding.display = code.display;
+            }
+        });
+        let codingArray = [];
+        codingArray.push(coding);
+        category.push(codingArray);
         return category;
     }
 
@@ -270,11 +289,16 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         if (!questionaire) {
             return null;
         }
-         //TODO
-        /**
-        * Get the code from the questionaire.item, where item.linkId is $in('/dataSharingConsent', '/hipaaConsent')
-        * use the code with ID 'code-display' and add it to the provision as class array.
-         */
+
+        let qClass = {};
+        const item = questionaire.item;
+        item.code.forEach((code) => {
+            if (code.id === 'code-display') {
+                qClass.code = code.code;
+                qClass.display = code.display;
+            }
+        });
+        provisionClass.push(qClass);
         return provisionClass;
     }
 
@@ -305,10 +329,15 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
             while (await cursor.hasNext()) {
                 const questionaire = await cursor.next();
-                // TODO: Check that questionaire.item.linkId $in('/dataSharingConsent', '/hipaaConsent')
-                this.questionaireValues.set(questionaire._uuid, questionaire.item);
-                this.adminLogger.logInfo(
-                `Cached ${questionaire._uuid} with items ${questionaire.item}`);
+                // only cache if questionaire is datasharing type
+                questionaire.item.forEach((item) => {
+                    if (item.linkId === '/dataSharingConsent' ||
+                        item.linkId === '/hipaaConsent') {
+                        this.questionaireValues.set(questionaire._uuid, item);
+                        this.adminLogger.logInfo(
+                            `Cached ${questionaire._uuid} with item ${item}`);
+                    }
+                });
             }
         } catch (e) {
             console.log(e);
@@ -334,6 +363,13 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         let query = {};
         const properties = ['_uuid', 'patient'];
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
+
+        // only those without provision.class considered
+        query.$and.push({
+            ['provision.class']: {
+                $exists: false,
+            }
+        });
 
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
