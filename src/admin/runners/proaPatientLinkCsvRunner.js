@@ -731,6 +731,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 }
                 // Check if related master persons are valid
                 else {
+                    let deleteProaPatient = false;
                     this.proaPersonToMasterPersonMap.get(proaPersonUuid).forEach((masterPersonUuid) => {
                         // Check if related client person has multiple client patient or no client patient
                         const clientPersonUuids = this.masterPersonToClientPersonMap.get(masterPersonUuid) || [];
@@ -779,9 +780,12 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 message,
                                 errorRecordUuids,
                             });
-                            this.proaPatientDataMap.delete(proaPatientUuid);
+                            deleteProaPatient = true;
                         }
                     });
+                    if (deleteProaPatient) {
+                        this.proaPatientDataMap.delete(proaPatientUuid);
+                    }
                 }
             }
         });
