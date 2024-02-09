@@ -829,9 +829,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         this.proaPatientToClientPersonMap.has(proaPatientUuid) &&
                         this.proaPatientToClientPersonMap.get(proaPatientUuid).includes(uuid)
                     ) {
-                        message += 'Client Person Already Linked';
+                        message += 'Client Person Already Linked, ';
                     } else {
-                        message += 'Client Person Not Linked';
+                        message += 'Client Person Not Linked, ';
                     }
                 });
 
