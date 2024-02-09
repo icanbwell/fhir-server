@@ -353,22 +353,19 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         hasProaConnectionType,
         patientUuid,
     }) {
-        // Master person checks
-        if (personSourceAssigningAuthority === 'bwell') {
-            if (!this.proaPatientToMasterPersonMap.has(patientUuid)) {
-                this.proaPatientToMasterPersonMap.set(patientUuid, []);
-            }
-            this.proaPatientToMasterPersonMap.get(patientUuid).push(personUuid);
-        }
-        // Proa person checks
-        else if (
-            hasProaConnectionType ||
-            personSourceAssigningAuthority === this.proaPatientDataMap.get(patientUuid).sourceAssigningAuthority
-        ) {
+        // Proa ConnectionType check
+        if (hasProaConnectionType) {
             if (!this.proaPatientToProaPersonMap.has(patientUuid)) {
                 this.proaPatientToProaPersonMap.set(patientUuid, []);
             }
             this.proaPatientToProaPersonMap.get(patientUuid).push(personUuid);
+        }
+        // Master person checks
+        else if (personSourceAssigningAuthority === 'bwell') {
+            if (!this.proaPatientToMasterPersonMap.has(patientUuid)) {
+                this.proaPatientToMasterPersonMap.set(patientUuid, []);
+            }
+            this.proaPatientToMasterPersonMap.get(patientUuid).push(personUuid);
         }
         // Client person checks
         else if (
@@ -379,6 +376,15 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 this.proaPatientToClientPersonMap.set(patientUuid, []);
             }
             this.proaPatientToClientPersonMap.get(patientUuid).push(personUuid);
+        }
+        // Proa person checks
+        else if (
+            personSourceAssigningAuthority === this.proaPatientDataMap.get(patientUuid).sourceAssigningAuthority
+        ) {
+            if (!this.proaPatientToProaPersonMap.has(patientUuid)) {
+                this.proaPatientToProaPersonMap.set(patientUuid, []);
+            }
+            this.proaPatientToProaPersonMap.get(patientUuid).push(personUuid);
         }
     }
 
