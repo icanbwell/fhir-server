@@ -835,7 +835,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 const masterPersonUuids = this.proaPersonToMasterPersonMap.get(proaPersonUuid);
                 const clientPersonUuids = [];
                 masterPersonUuids.forEach((masterPersonUuid) => {
-                    clientPersonUuids.push(...this.masterPersonToClientPersonMap.get(masterPersonUuid));
+                    if (this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
+                        clientPersonUuids.push(...this.masterPersonToClientPersonMap.get(masterPersonUuid));
+                    }
                 });
 
                 let message = '';
@@ -854,9 +856,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
                 this.writeData({
                     proaPatientData,
-                    proaPersonData: this.personDataMap.get(proaPersonUuid),
-                    masterPersonsData: masterPersonUuids.map((uuid) => this.personDataMap.get(uuid)),
-                    clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.get(uuid)),
+                    proaPersonData: this.personDataMap.has(proaPersonUuid) && this.personDataMap.get(proaPersonUuid),
+                    masterPersonsData: masterPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
+                    clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     message,
                 });
             } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
@@ -867,7 +869,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPatientData,
                     proaPersonData: { uuid: '', sourceAssigningAuthority: '', lastUpdated: ''},
                     masterPersonsData: [],
-                    clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.get(uuid)),
+                    clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     message,
                 });
             }
