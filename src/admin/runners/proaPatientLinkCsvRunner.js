@@ -577,15 +577,18 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         personData.meta.source === this.clientPersonSource
                     ) {
                         // Filter client patients
-                        const clientPatients = personData.link?.reduce((links, ref) => {
-                            const { resourceType } = ReferenceParser.parseReference(ref.target.reference);
-                            if (resourceType === 'Patient') {
-                                links.push(ref.target.reference);
+                        const clientPatients = personData.link?.reduce((uuids, link) => {
+                            const uuidReference = link.target.extension.find(
+                                e => e.url === IdentifierSystem.uuid
+                            )?.valueString;
+                            const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
+                            if (resourceType === 'Patient' && !this.proaPatientDataMap.has(uuid)) {
+                                uuids.push(uuid);
                             }
-                            return links;
+                            return uuids;
                         }, []);
 
-                        this.clientPersonToClientPatientMap.set(personData._uuid, clientPatients);
+                        this.clientPersonToClientPatientMap.set(personData._uuid, clientPatients || []);
 
                         // Store client person information
                         this.personDataMap.set(personData._uuid, {
@@ -661,7 +664,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     lastUpdated: new Date(person.meta.lastUpdated).toISOString(),
                 });
 
-                // get all related proa patient from person links
                 for (const link of person.link) {
                     const uuidReference =
                         link.target.extension.find((e) => e.url === IdentifierSystem.uuid)?.valueString || '';
@@ -720,9 +722,16 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         // Check if related client person has multiple client patient or no client patient
                         const clientPersonUuids = this.masterPersonToClientPersonMap.get(masterPersonUuid) || [];
                         const relatedClientPatients = [];
+                        let isClientPersonValid = true;
                         clientPersonUuids.forEach((personUuid) => {
                             if (this.clientPersonToClientPatientMap.has(personUuid)) {
-                                relatedClientPatients.push(...(this.clientPersonToClientPatientMap.get(personUuid) || []));
+                                if (
+                                    !this.clientPersonToClientPatientMap.has(personUuid) ||
+                                    this.clientPersonToClientPatientMap.get(personUuid).length > 1
+                                ) {
+                                    isClientPersonValid = false;
+                                }
+                                relatedClientPatients.push(this.clientPersonToClientPatientMap.get(personUuid));
                             }
                         });
 
@@ -730,8 +739,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         if (
                             !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
                             this.masterPersonToMasterPatientMap.get(masterPersonUuid).length > 1 ||
-                            relatedClientPatients.length === 0 ||
-                            relatedClientPatients.length > 1
+                            !isClientPersonValid
                         ) {
                             let message = '';
                             let errorRecordUuids = [];
@@ -744,9 +752,11 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                     'Master Person without Master Patient found (Added Master Person Uuid)';
                                 errorRecordUuids = masterPersonUuid;
                             } else {
-                                message = relatedClientPatients.length > 1 ?
-                                    'Client Person with multiple client patients found (Added Client Person Uuids)' :
-                                    'Client Person without client patients found (Added Client Person Uuids)';
+                                relatedClientPatients.forEach(relatedClientPatient => {
+                                    message += relatedClientPatient.length > 1 ?
+                                        'Client Person with multiple client patients found (Added Client Person Uuids)' :
+                                        'Client Person without client patients found (Added Client Person Uuids)';
+                                });
                                 errorRecordUuids = clientPersonUuids;
                             }
 
