@@ -779,11 +779,15 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 relatedProaPatients.push(...this.proaPersonToProaPatientMap.get(proaPerson));
                             });
 
-                            const patientUuids = relatedProaPatients.join(', ');
+                            const patientUuids = relatedProaPatients
+                                .filter(p => this.proaPatientDataMap.has(p))
+                                .join(', ');
                             const patientSourceAssigningAuthorities = relatedProaPatients
+                                .filter(p => this.proaPatientDataMap.has(p))
                                 .map((p) => this.proaPatientDataMap.get(p).sourceAssigningAuthority)
                                 .join(', ');
                             const patientLastUpdated = relatedProaPatients
+                                .filter(p => this.proaPatientDataMap.has(p))
                                 .map((p) => this.proaPatientDataMap.get(p).lastUpdated)
                                 .join(', ');
 
