@@ -2,9 +2,9 @@ const fs = require('fs');
 
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
+const { ReferenceParser } = require('../../utils/referenceParser');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
-const { ReferenceParser } = require('../../utils/referenceParser');
 
 /**
  * @typedef {Object} MongoConfigType
@@ -28,6 +28,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @property {MongoCollectionManager} mongoCollectionManager
      * @property {number} batchSize
      * @property {string[]} clientSourceAssigningAuthorities
+     * @property {boolean} skipAlreadyLinked
      *
      * @param {ConstructorProps}
      */
@@ -37,6 +38,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         mongoCollectionManager,
         batchSize,
         clientSourceAssigningAuthorities,
+        skipAlreadyLinked,
     }) {
         super({
             adminLogger,
@@ -44,6 +46,11 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             batchSize,
         });
+        /**
+         * @type {boolean}
+         */
+        this.skipAlreadyLinked = skipAlreadyLinked;
+
         /**
          * @type {string}
          */
@@ -758,14 +765,14 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         // Check if master person has no master patient or multiple master patient
                         if (
                             !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
-                            this.masterPersonToMasterPatientMap.get(masterPersonUuid).length > 1 ||
+                            this.masterPersonToMasterPatientMap.get(masterPersonUuid).length !== 1 ||
                             !isClientPersonValid
                         ) {
                             let message = '';
                             let errorRecordUuids = [];
                             if (
                                 !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
-                                this.masterPersonToMasterPatientMap.get(masterPersonUuid).length > 1
+                                this.masterPersonToMasterPatientMap.get(masterPersonUuid).length !== 1
                             ) {
                                 message = this.masterPersonToMasterPatientMap.has(masterPersonUuid) ?
                                     'Master Person with multiple Master Patients found (Added Master Person Uuid)' :
@@ -817,20 +824,37 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @returns {void}
      */
     writeProaPatientDataGraph() {
-        this.proaPatientDataMap.forEach((proaPatientData, proaPatientUuid) => {
+        for (const proaPatientUuid of Array.from(this.proaPatientDataMap.keys())) {
+            const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
             if (this.proaPatientToProaPersonMap.has(proaPatientUuid)) {
                 const proaPersonUuid = this.proaPatientToProaPersonMap.get(proaPatientUuid)[0];
                 const masterPersonUuids = this.proaPersonToMasterPersonMap.get(proaPersonUuid);
-                const clientPersonUuids = [];
+                let clientPersonUuids = [];
                 masterPersonUuids.forEach((masterPersonUuid) => {
                     if (this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
                         clientPersonUuids.push(...this.masterPersonToClientPersonMap.get(masterPersonUuid));
                     }
                 });
 
+                if (this.skipAlreadyLinked) {
+                    clientPersonUuids = clientPersonUuids.reduce((uuids, clientUuid) => {
+                        if (
+                            !this.proaPatientToClientPersonMap.has(proaPatientUuid) ||
+                            !this.proaPatientToClientPersonMap.get(proaPatientUuid).includes(clientUuid)
+                        ) {
+                            uuids.push(clientUuid);
+                        }
+                        return uuids;
+                    }, []);
+
+                    if (clientPersonUuids.length === 0) {
+                        continue;
+                    }
+                }
+
                 let message = '';
 
-                clientPersonUuids.forEach((uuid) => {
+                for (const uuid of clientPersonUuids) {
                     // if client person is linked
                     if (
                         this.proaPatientToClientPersonMap.has(proaPatientUuid) &&
@@ -840,7 +864,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     } else {
                         message += 'Client Person Not Linked, ';
                     }
-                });
+                }
 
                 this.writeData({
                     proaPatientData,
@@ -851,20 +875,25 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 });
             } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
                 const clientPersonUuids = this.proaPatientToClientPersonMap.get(proaPatientUuid);
+
+                const clientPersonsData = clientPersonUuids
+                    .map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid))
+                    .filter(c => c);
+
                 let message = '';
                 clientPersonUuids.forEach(() => {
-                    message += 'Client Person Already Linked';
+                    message += 'Client Person Already Linked, ';
                 });
 
                 this.writeData({
                     proaPatientData,
                     proaPersonData: { uuid: '', sourceAssigningAuthority: '', lastUpdated: ''},
                     masterPersonsData: [],
-                    clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
+                    clientPersonsData,
                     message,
                 });
             }
-        });
+        }
     }
 }
 
