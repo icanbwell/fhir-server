@@ -72,14 +72,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         /**@type {Map<string, Resource> */
         this.questionnaireIdToResource = new Map();
 
-        /**@type {Map<string, Resource> */
-        this.questionnaireUUIDToResource = new Map();
-
         /**@type {Map<string, string>} */
         this.questionnaireResponseToQuestionnaireId = new Map();
-
-        /**@type {Map<string, string>} */
-        this.questionnaireResponseToQuestionnaireUUID = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
     }
@@ -339,7 +333,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             while (await cursor.hasNext()) {
                 const questionaire = await cursor.next();
                 this.questionnaireIdToResource.set(questionaire.id, questionaire);
-                this.questionnaireUUIDToResource.set(questionaire._uuid, questionaire);
+                this.questionnaireIdToResource.set(questionaire._uuid, questionaire);
                 // only cache if questionaire is datasharing type
                 questionaire.item?.forEach((item) => {
                     if (item.linkId === '/dataSharingConsent' ||
@@ -381,7 +375,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 if (questionnaireResponse.questionnaire) {
                     const { id } = ReferenceParser.parseReference(questionnaireResponse.questionnaire);
                     this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, id);
-                    this.questionnaireResponseToQuestionnaireUUID.set(questionnaireResponse._uuid, id);
+                    this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, id);
                 }
                 this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire id`);
             }
@@ -473,12 +467,10 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             const { id, resourceType } = ReferenceParser.parseReference(reference);
             if (resourceType === 'QuestionnaireResponse') {
                 // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
-                const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id) ||
-                    this.questionnaireResponseToQuestionnaireUUID.get(id);
-                if (questionnaireId !== undefined) {
-                    const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId) ||
-                        this.questionnaireUUIDToResource.get(questionnaireId);
-                    if (questionnaireResource !== undefined) {
+                const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
+                if (questionnaireId) {
+                    const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId);
+                    if (questionnaireResource) {
                         questionnaire.push(questionnaireResource);
                     } else {
                         this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
