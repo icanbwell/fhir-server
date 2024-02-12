@@ -3,7 +3,6 @@ const fs = require('fs');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ReferenceParser } = require('../../utils/referenceParser');
-const { generateUUID } = require('../../utils/uid.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 
@@ -131,11 +130,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
          * @type {Map<string, string[]>}
          */
         this.clientPersonToClientPatientMap = new Map();
-
-        /**
-         * @type {string}
-         */
-        this.systemRequestId = generateUUID();
     }
 
     /**
@@ -827,9 +821,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
     /**
      * Writes Proa patient data graph from all the maps
-     * @returns {Promise<void>}
+     * @returns {void}
      */
-    async writeProaPatientDataGraph() {
+    writeProaPatientDataGraph() {
         for (const proaPatientUuid of Array.from(this.proaPatientDataMap.keys())) {
             const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
             if (this.proaPatientToProaPersonMap.has(proaPatientUuid)) {
