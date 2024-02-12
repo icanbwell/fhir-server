@@ -4,7 +4,7 @@ const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const {DatabaseUpdateFactory} = require('../dataLayer/databaseUpdateFactory');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const {FhirOperationsManager} = require('../operations/fhirOperationsManager');
-const {generateUUID} = require('../utils/uid.util');
+const {generateUUID, isUuid} = require('../utils/uid.util');
 const moment = require('moment-timezone');
 const {SecurityTagSystem} = require('../utils/securityTagSystem');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
@@ -252,7 +252,7 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         let sourcePerson = await databaseQueryManager.findOneAsync({
-            query: {id: externalPersonId}
+            query: { [isUuid(externalPersonId) ? '_uuid' : 'id']: externalPersonId}
         });
         if (!sourcePerson) {
             // create it
@@ -265,7 +265,7 @@ class AdminPersonPatientLinkManager {
              * @type {Patient|null}
              */
             const patient = await patientDatabaseQueryManager.findOneAsync({
-                query: {id: patientId}
+                query: {[isUuid(patientId) ? '_uuid' : 'id']: patientId}
             });
             if (!patient) {
                 return {
