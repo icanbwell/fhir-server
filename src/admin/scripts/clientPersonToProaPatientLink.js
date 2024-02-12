@@ -21,23 +21,28 @@ async function main() {
     const parameters = CommandLineParser.parseCommandLine();
 
     /**
+     * Denotes the file path of the csv to read for getting client person and proa patient data
      * @type {string}
      */
     const csvFileName = parameters.csvFileName || 'proa_patient_link_data.csv';
 
     /**
+     * Denotes the column in the csv where proa patient uuid is stored
      * @type {number}
      */
     const proaPatientUuidColumn = parameters.proaPatientUuidColumn || 0;
     /**
+     * Denotes the cloumn in the csv where proa patient sourceAssigningAuthority is stored
      * @type {number}
      */
     const proaPatientSourceAssigningAuthorityColumn = parameters.proaPatientSourceAssigningAuthorityColumn || 1;
     /**
+     * Denotes the cloumn in the csv where client person uuid is stored
      * @type {number}
      */
     const clientUuidColumn = parameters.clientUuidColumn || 9;
     /**
+     * Denotes the column in the csv where status is stored
      * @type {number}
      */
     const statusColumn = parameters.statusColumn || 12;

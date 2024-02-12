@@ -21,6 +21,7 @@ async function main() {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
+    // Denotes the sourceAssigningAuthorities of person whom we can consider as client persons
     const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
         parameters.clientSourceAssigningAuthorities.split(',') :
         ['bwell_demo'];
@@ -40,6 +41,7 @@ async function main() {
         adminLogger,
         batchSize,
         clientSourceAssigningAuthorities,
+        // If this param is passed then all the client persons which are linked to proa patient will be skipped in csv file
         statusFilter: parameters.statusFilter ? true : false,
     }));
 
