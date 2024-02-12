@@ -200,11 +200,11 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID) || req.requestId;
         /**
          * @type {string|null}
          */
-        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID) || req.userRequestId;
         /**
          * @type {string}
          */

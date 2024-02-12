@@ -289,6 +289,7 @@ class DatabaseUpdateManager {
             doc,
         }
     ) {
+        doc = await this.preSaveManager.preSaveAsync(doc);
         const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
         const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({
