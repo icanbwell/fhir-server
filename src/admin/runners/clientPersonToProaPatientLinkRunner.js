@@ -1,3 +1,4 @@
+const path = require('path');
 const { open } = require('node:fs/promises');
 const { AdminPersonPatientLinkManager } = require('../adminPersonPatientLinkManager');
 const { AdminLogger } = require('../adminLogger');
@@ -74,6 +75,7 @@ class ClientPersonToProaPatientLinkRunner {
      * @returns {Promise<void>}
      */
     async processAsync() {
+        this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
         this.adminLogger.logInfo(`Reading file: ${this.csvFileName}`);
         try {
             const file = await open(this.csvFileName);
