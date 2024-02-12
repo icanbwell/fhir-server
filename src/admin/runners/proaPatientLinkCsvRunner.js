@@ -873,7 +873,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     message,
                 });
-            } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
+            } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid) && !this.skipAlreadyLinked) {
                 const clientPersonUuids = this.proaPatientToClientPersonMap.get(proaPatientUuid);
 
                 const clientPersonsData = clientPersonUuids
