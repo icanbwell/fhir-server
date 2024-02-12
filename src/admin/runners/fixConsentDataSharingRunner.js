@@ -7,6 +7,7 @@ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 const AvailableCollections = ['Consent_4_0_0'];
 class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
@@ -68,6 +69,18 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         /**@type {Map<string, { id: string; items: Array} */
         this.questionaireValues = new Map();
 
+        /**@type {Map<string, Resource> */
+        this.questionnaireIdToResource = new Map();
+
+        /**@type {Map<string, Resource> */
+        this.questionnaireUUIDToResource = new Map();
+
+        /**@type {Map<string, string>} */
+        this.questionnaireResponseToQuestionnaireId = new Map();
+
+        /**@type {Map<string, string>} */
+        this.questionnaireResponseToQuestionnaireUUID = new Map();
+
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
     }
 
@@ -82,6 +95,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
         // preload the cache
         await this.cacheQuestionaireValues(mongoConfig);
+        // preload the questionnaire response cache
+        await this.cacheQuestionnaireResponseToQuestionnaireId(mongoConfig);
 
         for (const collection of this.collections) {
             const startFromIdContainer = this.createStartFromIdContainer();
@@ -307,12 +322,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param mongoConfig: any; params
      */
     async cacheQuestionaireValues(mongoConfig) {
-        const collectionName = 'Questionaire_4_0_0';
-        let projection = {
-            _id: 1,
-            _uuid: 1,
-            item: 1,
-        };
+        const collectionName = 'Questionnaire_4_0_0';
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
@@ -322,15 +332,16 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         try {
             const cursor = await collection
                 .find({}, {
-                    projection,
                     session,
                 })
                 .sort({ _id: 1 });
 
             while (await cursor.hasNext()) {
                 const questionaire = await cursor.next();
+                this.questionnaireIdToResource.set(questionaire.id, questionaire);
+                this.questionnaireUUIDToResource.set(questionaire._uuid, questionaire);
                 // only cache if questionaire is datasharing type
-                questionaire.item.forEach((item) => {
+                questionaire.item?.forEach((item) => {
                     if (item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent') {
                         this.questionaireValues.set(questionaire._uuid, item);
@@ -345,6 +356,41 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 message: `Error caching collection ${collectionName}, ${e.message}`,
                 error: e,
                 source: 'FixConsentDataSharing.cacheQuestionaireValues',
+            });
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
+    }
+
+    /**
+     * Caches questionaire response
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     */
+    async cacheQuestionnaireResponseToQuestionnaireId(mongoConfig) {
+        const collectionName = 'QuestionnaireResponse_4_0_0';
+        const { collection, session, client } = await this.createSingeConnectionAsync({
+            mongoConfig,
+            collectionName,
+        });
+
+        try {
+            const cursor = await collection.find({}, { session });
+            while (await cursor.hasNext()) {
+                const questionnaireResponse = await cursor.next();
+                if (questionnaireResponse.questionnaire) {
+                    const { id } = ReferenceParser.parseReference(questionnaireResponse.questionnaire);
+                    this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, id);
+                    this.questionnaireResponseToQuestionnaireUUID.set(questionnaireResponse._uuid, id);
+                }
+                this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire id`);
+            }
+        } catch (e) {
+            console.log(e);
+            throw new RethrownError({
+                message: `Error caching collection ${collectionName}, ${e.message}`,
+                error: e,
+                source: 'FixConsentDataSharing.cacheQuestionnaireResponseToQuestionnaireId',
             });
         } finally {
             await session.endSession();
@@ -414,20 +460,35 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
-     async lookupQuestionaire(doc){
-         if (!doc) {
-             return null;
-         }
-         let questionaire = null;
-         // TODO:
-        /**
-         * Get questionaireResponse from consent.sourceReference.reference
-         * Get questionaire from questionaireResponse.questionaire
-         * Questionaire must start with 'https://fhir.icanbwell.com/4_0_0/Questionnaire/'
-         * Check against questionaire cache, if not found
-         * return null questionaire
-         */
-        return questionaire;
+    async lookupQuestionaire(doc){
+        if (!doc) {
+            return [];
+        }
+        let questionnaire = [];
+
+        // Iterate over the sourceReferences
+        doc.sourceReference?.forEach(ref => {
+            // Check if the reference starts with "QuestionnaireResponse"
+            const reference = ref.extension?.find(ext => ext.url === 'https://www.icanbwell.com/uuid')?.valueString || ref.reference;
+            const { id, resourceType } = ReferenceParser.parseReference(reference);
+            if (resourceType === 'QuestionnaireResponse') {
+                // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
+                const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id) ||
+                    this.questionnaireResponseToQuestionnaireUUID.get(id);
+                if (questionnaireId !== undefined) {
+                    const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId) ||
+                        this.questionnaireUUIDToResource.get(questionnaireId);
+                    if (questionnaireResource !== undefined) {
+                        questionnaire.push(questionnaireResource);
+                    } else {
+                        this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
+                    }
+                } else {
+                    this.adminLogger.logInfo(`Questionnaire ID not found for reference ${ref.reference}`);
+                }
+            }
+        });
+        return questionnaire;
     }
 }
 
