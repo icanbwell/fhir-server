@@ -3,12 +3,6 @@ const fs = require('fs');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { RethrownError } = require('../../utils/rethrownError');
 const { ReferenceParser } = require('../../utils/referenceParser');
-const { MergeManager } = require('../../operations/merge/mergeManager');
-const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
-const Person = require('../../fhir/classes/4_0_0/resources/person');
-const { assertTypeEquals } = require('../../utils/assertType');
 const { generateUUID } = require('../../utils/uid.util');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
@@ -33,14 +27,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @property {AdminLogger} adminLogger
      * @property {MongoDatabaseManager} mongoDatabaseManager
      * @property {MongoCollectionManager} mongoCollectionManager
-     * @property {MergeManager} mergeManager
-     * @property {DatabaseBulkInserter} databaseBulkInserter
-     * @property {PostRequestProcessor} postRequestProcessor
-     * @property {RequestSpecificCache} requestSpecificCache
      * @property {number} batchSize
      * @property {string[]} clientSourceAssigningAuthorities
      * @property {boolean} skipAlreadyLinked
-     * @property {boolean} linkClientPersonToProaPatient
      *
      * @param {ConstructorProps}
      */
@@ -48,14 +37,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         adminLogger,
         mongoDatabaseManager,
         mongoCollectionManager,
-        mergeManager,
-        databaseBulkInserter,
-        postRequestProcessor,
-        requestSpecificCache,
         batchSize,
         clientSourceAssigningAuthorities,
         skipAlreadyLinked,
-        linkClientPersonToProaPatient,
     }) {
         super({
             adminLogger,
@@ -64,38 +48,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             batchSize,
         });
         /**
-         * @type {MergeManager}
-         */
-        this.mergeManager = mergeManager;
-        assertTypeEquals(mergeManager, MergeManager);
-
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-
-        /**
-         * @type {PostRequestProcessor}
-         */
-        this.postRequestProcessor = postRequestProcessor;
-        assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        /**
-         * @type {RequestSpecificCache}
-         */
-        this.requestSpecificCache = requestSpecificCache;
-        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
-
-        /**
          * @type {boolean}
          */
         this.skipAlreadyLinked = skipAlreadyLinked;
-
-        /**
-         * @type {boolean}
-         */
-        this.linkClientPersonToProaPatient = linkClientPersonToProaPatient;
 
         /**
          * @type {string}
@@ -912,80 +867,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         this.proaPatientToClientPersonMap.get(proaPatientUuid).includes(uuid)
                     ) {
                         message += 'Client Person Already Linked, ';
-                    }
-                    else if (this.linkClientPersonToProaPatient) {
-                        message += 'Client Person Linked, ';
-
-                        const updatedResource = new Person({
-                            id: uuid,
-                            _uuid: uuid,
-                            resourceType: 'Person',
-                            meta: {
-                                source: 'test',
-                                security: [
-                                    {
-                                        system: SecurityTagSystem.owner,
-                                        code: this.personDataMap.get(uuid).sourceAssigningAuthority,
-                                    }
-                                ]
-                            },
-                            link: [
-                                {
-                                    target: {
-                                        extension: [
-                                            {
-                                                id: 'sourceId',
-                                                url: 'https://www.icanbwell.com/sourceId',
-                                                valueString: `Patient/${proaPatientUuid}`,
-                                            },
-                                            {
-                                                id: 'uuid',
-                                                url: 'https://www.icanbwell.com/uuid',
-                                                valueString: `Patient/${proaPatientUuid}`,
-                                            },
-                                            {
-                                                id: 'sourceAssigningAuthority',
-                                                url: 'https://www.icanbwell.com/sourceAssigningAuthority',
-                                                valueString: proaPatientData.sourceAssigningAuthority,
-                                            }
-                                        ],
-                                        reference: `Patient/${proaPatientUuid}|${proaPatientData.sourceAssigningAuthority}`,
-                                        _uuid: `Patient/${proaPatientUuid}`,
-                                        _sourceAssigningAuthority: proaPatientData.sourceAssigningAuthority,
-                                        _sourceId: `Patient/${proaPatientUuid}`,
-                                    }
-                                }
-                            ]
-                        });
-
-                        const currentDate = new Date().toISOString();
-                        const base_version = '4_0_0';
-
-                        await this.mergeManager.mergeResourceListAsync({
-                            resources_incoming: [updatedResource],
-                            user: 'admin',
-                            resourceType: 'Person',
-                            currentDate,
-                            requestId: this.systemRequestId,
-                            base_version,
-                            scope: 'admin',
-                        });
-
-                        await this.databaseBulkInserter.executeAsync({
-                            requestId: this.systemRequestId,
-                            currentDate,
-                            base_version,
-                            method: 'POST',
-                            userRequestId: this.systemRequestId,
-                        });
-
-                        await this.postRequestProcessor.executeAsync({
-                            requestId: this.systemRequestId,
-                        });
-
-                        await this.requestSpecificCache.clearAsync({
-                            requestId: this.systemRequestId,
-                        });
                     } else {
                         message += 'Client Person Not Linked, ';
                     }
@@ -1000,16 +881,21 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 });
             } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
                 const clientPersonUuids = this.proaPatientToClientPersonMap.get(proaPatientUuid);
+
+                const clientPersonsData = clientPersonUuids
+                    .map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid))
+                    .filter(c => c);
+
                 let message = '';
                 clientPersonUuids.forEach(() => {
-                    message += 'Client Person Already Linked';
+                    message += 'Client Person Already Linked, ';
                 });
 
                 this.writeData({
                     proaPatientData,
                     proaPersonData: { uuid: '', sourceAssigningAuthority: '', lastUpdated: ''},
                     masterPersonsData: [],
-                    clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
+                    clientPersonsData,
                     message,
                 });
             }
