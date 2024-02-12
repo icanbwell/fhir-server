@@ -28,7 +28,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @property {MongoCollectionManager} mongoCollectionManager
      * @property {number} batchSize
      * @property {string[]} clientSourceAssigningAuthorities
-     * @property {boolean} skipAlreadyLinked
+     * @property {boolean} statusFilter
      *
      * @param {ConstructorProps}
      */
@@ -38,7 +38,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         mongoCollectionManager,
         batchSize,
         clientSourceAssigningAuthorities,
-        skipAlreadyLinked,
+        statusFilter,
     }) {
         super({
             adminLogger,
@@ -49,7 +49,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         /**
          * @type {boolean}
          */
-        this.skipAlreadyLinked = skipAlreadyLinked;
+        this.statusFilter = statusFilter;
 
         /**
          * @type {string}
@@ -836,7 +836,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     }
                 });
 
-                if (this.skipAlreadyLinked) {
+                if (this.statusFilter) {
                     clientPersonUuids = clientPersonUuids.reduce((uuids, clientUuid) => {
                         if (
                             !this.proaPatientToClientPersonMap.has(proaPatientUuid) ||
@@ -877,7 +877,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     message,
                 });
-            } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid) && !this.skipAlreadyLinked) {
+            } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid) && !this.statusFilter) {
                 const clientPersonUuids = this.proaPatientToClientPersonMap.get(proaPatientUuid);
 
                 const clientPersonsData = clientPersonUuids
