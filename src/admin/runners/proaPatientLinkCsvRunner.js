@@ -161,7 +161,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             this.handlePersonRelatedErrors();
 
             this.adminLogger.logInfo('Writing Proa Patient Data Graph');
-            await this.writeProaPatientDataGraph();
+            this.writeProaPatientDataGraph();
 
             await this.handleWriteStreamClose();
         } catch (err) {
