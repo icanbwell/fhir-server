@@ -1,0 +1,77 @@
+{
+    "id": "1",
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "1"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "cb7e34dd-2684-55ac-a1ad-bb926123ffa1"
+      }
+    ],
+    "link": [
+      {
+        "target": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/cb7e34dd-2684-55ac-a1ad-bb926123ffa1"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "test"
+            }
+          ],
+          "reference": "Patient/1"
+        }
+      },
+      {
+        "target": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/0bf61676-9672-50e0-ae12-347ecddca84f"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/0bf61676-9672-50e0-ae12-347ecddca84f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "test"
+            }
+          ],
+          "reference": "Patient/0bf61676-9672-50e0-ae12-347ecddca84f"
+        }
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "test",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "test",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "test",
+      "versionId": "2"
+    },
+    "resourceType": "Person"
+  }
+  
