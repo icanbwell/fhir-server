@@ -68,6 +68,22 @@ class ClientPersonToProaPatientLinkRunner {
          * @type {string}
          */
         this.systemRequestId = generateUUID();
+
+        this.req = {
+            header: () => 'system',
+            headers: {
+                accept: '*/*',
+            },
+            user: { name: 'system' },
+            authInfo: {
+                scope: 'user/*.read user/*.write',
+            },
+            method: 'POST',
+            path: '/admin',
+            originalUrl: '/admin',
+            requestId: this.systemRequestId,
+            userRequestId: this.systemRequestId,
+        };
     }
 
     /**
@@ -102,21 +118,7 @@ class ClientPersonToProaPatientLinkRunner {
                         const res =
                             await this.adminPersonPatientLinkManager.createPersonToPatientLinkAsync(
                                 {
-                                    req: {
-                                        header: () => 'system',
-                                        headers: {
-                                            accept: '*/*',
-                                        },
-                                        user: { name: 'system' },
-                                        authInfo: {
-                                            scope: 'user/*.read user/*.write',
-                                        },
-                                        method: 'POST',
-                                        path: '/admin',
-                                        originalUrl: '/admin',
-                                        requestId: this.systemRequestId,
-                                        userRequestId: this.systemRequestId,
-                                    },
+                                    req: this.req,
                                     externalPersonId: clientUuid,
                                     patientId: `${proaPatientUuid}|${proaPatientSourceAssigningAuthority}`,
                                 }

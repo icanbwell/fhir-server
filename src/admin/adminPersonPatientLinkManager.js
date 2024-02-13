@@ -167,12 +167,15 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         const bwellPerson = await databaseQueryManager.findOneAsync({
-            query: {id: bwellPersonId}
+            query: {[isUuid(bwellPersonId) ? '_uuid' : '_sourceId']: bwellPersonId}
         });
         if (bwellPerson) {
             if (bwellPerson.link) {
                 // check if a link target already exists in bwellPerson for externalPersonId
-                if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
+                if (!bwellPerson.link.some(l => l.target && (
+                    l.target.reference === `Person/${externalPersonId}` ||
+                    l.target._uuid === `Person/${externalPersonId}`
+                ))) {
                     return {
                         'message': `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
                         'bwellPersonId': bwellPersonId,
@@ -180,7 +183,10 @@ class AdminPersonPatientLinkManager {
                     };
                 } else {
                     logInfo('link before', {'link': bwellPerson.link});
-                    bwellPerson.link = bwellPerson.link.filter(l => (l.target.reference !== `Person/${externalPersonId}`));
+                    bwellPerson.link = bwellPerson.link.filter(l => (
+                        l.target.reference !== `Person/${externalPersonId}` &&
+                        l.target._uuid !== `Person/${externalPersonId}`
+                    ));
                     logInfo('link after', {'link': bwellPerson.link});
                 }
             } else {
