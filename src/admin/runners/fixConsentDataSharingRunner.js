@@ -373,9 +373,13 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             while (await cursor.hasNext()) {
                 const questionnaireResponse = await cursor.next();
                 if (questionnaireResponse.questionnaire) {
-                    const { id } = ReferenceParser.parseReference(questionnaireResponse.questionnaire);
-                    this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, id);
-                    this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, id);
+                    const qid = questionnaireResponse.questionnaire;
+                    if (qid.startsWith('https://fhir.icanbwell.com/4_0_0/Questionnaire/')) {
+                        const point = qid.lastIndexOf('/');
+                        const uuid = qid.substring(point);
+                        this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
+                        this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
+                    }
                 }
                 this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire id`);
             }
@@ -456,9 +460,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      */
     async lookupQuestionaire(doc){
         if (!doc) {
-            return [];
+            return null;
         }
-        let questionnaire = [];
+        let questionnaire;
 
         // Iterate over the sourceReferences
         doc.sourceReference?.forEach(ref => {
@@ -471,7 +475,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 if (questionnaireId) {
                     const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId);
                     if (questionnaireResource) {
-                        questionnaire.push(questionnaireResource);
+                        questionnaire = questionnaireResource;
                     } else {
                         this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
                     }
