@@ -1,6 +1,5 @@
 {
-    "message": "Removed link from Person/1 to Patient/1|test",
-    "patientId": "1|test",
-    "personId": "1"
-  }
-  
+  "message": "Removed link from Person/1 to Patient/1|test",
+  "patientId": "1|test",
+  "personId": "1"
+}

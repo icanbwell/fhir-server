@@ -1,30 +1,30 @@
 {
-    "resourceType": "Person",
-    "id": "1",
-    "meta": {
-        "source": "test",
-        "security": [
-            {
-                "system": "https://www.icanbwell.com/owner",
-                "code": "test"
-            }
-        ]
-    },
-    "link": [
-        {
-            "target": {
-                "reference": "Patient/1"
-            }
-        },
-        {
-            "target": {
-                "reference": "Patient/1|test"
-            }
-        },
-        {
-            "target": {
-                "reference": "Patient/0bf61676-9672-50e0-ae12-347ecddca84f"
-            }
-        }
+  "resourceType": "Person",
+  "id": "1",
+  "meta": {
+    "source": "test",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "test"
+      }
     ]
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/1"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/1|test"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/0bf61676-9672-50e0-ae12-347ecddca84f"
+      }
+    }
+  ]
 }
