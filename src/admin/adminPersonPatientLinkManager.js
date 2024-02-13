@@ -167,12 +167,15 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         const bwellPerson = await databaseQueryManager.findOneAsync({
-            query: {id: bwellPersonId}
+            query: {[isUuid(bwellPersonId) ? '_uuid' : '_sourceId']: bwellPersonId}
         });
         if (bwellPerson) {
             if (bwellPerson.link) {
                 // check if a link target already exists in bwellPerson for externalPersonId
-                if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
+                if (!bwellPerson.link.some(l => l.target && (
+                    l.target.reference === `Person/${externalPersonId}` ||
+                    l.target._uuid === `Person/${externalPersonId}`
+                ))) {
                     return {
                         'message': `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
                         'bwellPersonId': bwellPersonId,
@@ -180,7 +183,10 @@ class AdminPersonPatientLinkManager {
                     };
                 } else {
                     logInfo('link before', {'link': bwellPerson.link});
-                    bwellPerson.link = bwellPerson.link.filter(l => (l.target.reference !== `Person/${externalPersonId}`));
+                    bwellPerson.link = bwellPerson.link.filter(l => (
+                        l.target.reference !== `Person/${externalPersonId}` &&
+                        l.target._uuid !== `Person/${externalPersonId}`
+                    ));
                     logInfo('link after', {'link': bwellPerson.link});
                 }
             } else {
@@ -354,6 +360,93 @@ class AdminPersonPatientLinkManager {
                 'message': `Added link from Person/${externalPersonId} to Patient/${patientId}`,
                 'patientId': patientId,
                 'externalPersonId': externalPersonId
+            };
+        }
+    }
+
+    /**
+     * removes a person to patient link
+     * @param {import('express').Request} req
+     * @param {string} personId
+     * @param {string} patientId
+     * @return {Promise<Object>}
+     */
+    async removePersonToPatientLinkAsync({req, personId, patientId}) {
+        personId = personId.replace('Person/', '');
+        patientId = patientId.replace('Patient/', '');
+
+        /**
+         * @type {import('../dataLayer/databaseQueryManager').DatabaseQueryManager}
+         */
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version: base_version
+        });
+        let requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        const {
+            requestId,
+            method
+        } = requestInfo;
+        /**
+         * @type {Person}
+         */
+        const person = await databaseQueryManager.findOneAsync({
+            query: {[isUuid(personId) ? '_uuid' : '_sourceId']: personId}
+        });
+        if (person) {
+            if (person.link) {
+                // check if a link target already exists in person for patientId
+                if (!person.link.some(l => l.target && (
+                        l.target.reference === `Patient/${patientId}` ||
+                        l.target._uuid === `Patient/${patientId}`
+                    ))
+                ) {
+                    return {
+                        'message': `No Link exists from Person/${personId} to Patient/${patientId}`,
+                        'personId': personId,
+                        'patientId': patientId
+                    };
+                } else {
+                    logInfo('link before', {'link': person.link});
+                    person.link = person.link.filter(l => (
+                        l.target.reference !== `Patient/${patientId}` &&
+                        l.target._uuid !== `Patient/${patientId}`
+                    ));
+                    logInfo('link after', {'link': person.link});
+                }
+            } else {
+                return {
+                    'message': `No Link exists from Person/${personId} to Patient/${patientId}`,
+                    'personId': personId,
+                    'patientId': patientId
+                };
+            }
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
+                resourceType: 'Person',
+                base_version: base_version
+            });
+
+            const {savedResource} = await databaseUpdateManager.replaceOneAsync({
+                doc: person,
+                smartMerge: false,
+            });
+
+            await databaseUpdateManager.postSaveAsync({
+                requestId: requestId,
+                method: method,
+                doc: savedResource
+            });
+
+            return {
+                'message': `Removed link from Person/${personId} to Patient/${patientId}`,
+                'personId': personId,
+                'patientId': patientId
+            };
+        } else {
+            return {
+                'message': `No Person found with id ${personId}`,
+                'personId': personId,
+                'patientId': patientId
             };
         }
     }

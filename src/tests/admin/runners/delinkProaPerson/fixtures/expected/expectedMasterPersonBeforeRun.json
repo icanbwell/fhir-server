@@ -1,0 +1,54 @@
+{
+  "id": "masterPerson",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "masterPerson"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "cff233a3-490d-558c-9701-820b98b03a74"
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/person1"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/4e11976c-b025-5186-b14b-fe08c8329d78"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "test"
+          }
+        ],
+        "reference": "Person/person1|test"
+      }
+    }
+  ],
+  "meta": {
+    "security": [
+      {
+        "code": "test",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "test",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "Test",
+    "versionId": "1"
+  },
+  "resourceType": "Person"
+}

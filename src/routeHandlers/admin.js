@@ -254,6 +254,27 @@ async function handleAdmin(
                     });
                 }
 
+                case 'removePersonToPatientLink': {
+                    logInfo('', {'req.query': req.query});
+                    const personId = req.query['personId'];
+                    const patientId = req.query['patientId'];
+                    if (personId && patientId) {
+                        /**
+                         * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.removePersonToPatientLinkAsync({
+                            req: req,
+                            personId,
+                            patientId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} or patientId: ${patientId} passed`
+                    });
+                }
+
                 case 'deletePatientDataGraph': {
                     logInfo('', {'req.query': req.query});
                     const patientId = req.query['id'];
