@@ -724,6 +724,8 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             const masterPersonUuids = proaPersonUuids.reduce((uuids, proaPersonUuid) => {
                 if (this.proaPersonToMasterPersonMap.has(proaPersonUuid)) {
                     uuids.push(...this.proaPersonToMasterPersonMap.get(proaPersonUuid));
+                } else {
+                    uuids.push(null);
                 }
                 return uuids;
             }, []);
@@ -733,18 +735,31 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         .filter(uuid => !masterPersonUuids.includes(uuid))
                 );
             }
-            const masterPersonsData = masterPersonUuids.map(uuid => this.personDataMap.get(uuid));
+            const masterPersonsData = masterPersonUuids.map(
+                uuid => uuid ? this.personDataMap.get(uuid) : {
+                    uuid: 'null', sourceAssigningAuthority: 'null', lastUpdated: 'null'
+                }
+            );
             // client person data
             const clientPersonUuids = masterPersonUuids.reduce((uuids, masterPersonUuid) => {
                 if (this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
                     uuids.push(...this.masterPersonToClientPersonMap.get(masterPersonUuid));
+                } else {
+                    uuids.push(null);
                 }
                 return uuids;
             }, []);
-            const clientPersonsData = clientPersonUuids.map(uuid => this.personDataMap.get(uuid));
+            const clientPersonsData = clientPersonUuids.map(
+                uuid => uuid ? this.personDataMap.get(uuid) : {
+                    uuid: 'null', sourceAssigningAuthority: 'null', lastUpdated: 'null'
+                }
+            );
 
-            // check if directly linked to master person
-            if (this.proaPatientToMasterPersonMap.has(proaPatientUuid)) {
+            // check if master person is present
+            if (
+                masterPersonUuids.filter(u => u).length === 0 ||
+                this.proaPatientToMasterPersonMap.has(proaPatientUuid)
+            ) {
                 this.writeErrorCases({
                     proaPatientData,
                     masterPersonsData,
@@ -753,114 +768,84 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     message: 'Proa Person not linked to master person',
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
+                return;
             }
-            // check if proa patient is linked to multiple proa persons
-            else if (proaPersonUuids.length > 1) {
+
+            let deleteProaPatient = false;
+            let message = '';
+            // check if every masterPerson is related to atleast one client person
+            for (const masterPersonUuid of masterPersonUuids) {
+                if (!masterPersonUuid) {
+                    message += 'null, ';
+                } else if (
+                    !this.masterPersonToClientPersonMap.has(masterPersonUuid) ||
+                    this.masterPersonToClientPersonMap.get(masterPersonUuid).length === 0
+                ) {
+                    if (
+                        !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
+                        this.masterPersonToMasterPatientMap.get(masterPersonUuid).length === 0
+                    ) {
+                        message += 'Master Person Not Linked to Client Person and Master Patient, ';
+                    } else {
+                        message += 'Master Person Not Linked to Client Person, ';
+                    }
+                    deleteProaPatient = true;
+                } else if (
+                    !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
+                    this.masterPersonToMasterPatientMap.get(masterPersonUuid).length === 0
+                ) {
+                    message += 'Master Person Not Linked to Master Patient, ';
+                    deleteProaPatient = true;
+                } else if (this.masterPersonToMasterPatientMap.get(masterPersonUuid).length > 1) {
+                    message += 'Master Person Linked to multiple Master Patients, ';
+                    deleteProaPatient = true;
+                } else {
+                    message += 'Valid Master Patient, ';
+                }
+            }
+
+            if (deleteProaPatient) {
                 this.writeErrorCases({
                     proaPatientData,
+                    proaPersonsData,
                     masterPersonsData,
                     clientPersonsData,
-                    proaPersonsData,
-                    message: 'Proa Person not linked to master person',
+                    message,
                 });
+
                 this.proaPatientDataMap.delete(proaPatientUuid);
+                return;
             }
 
-            // Check Proa Persons not related to master persons
-            if (proaPersonUuids.length === 1) {
-                if (masterPersonUuids.length === 0) {
-                    this.writeErrorCases({
-                        proaPatientData,
-                        masterPersonsData,
-                        clientPersonsData,
-                        proaPersonsData,
-                        message: 'Proa Person not linked to master person',
-                    });
+            message = '';
 
-                    this.proaPatientDataMap.delete(proaPatientUuid);
+            for (const clientPersonUuid of clientPersonUuids) {
+                if (!clientPersonUuid) {
+                    message += 'null, ';
+                } else if (
+                    !this.clientPersonToClientPatientMap.has(clientPersonUuid) ||
+                    this.clientPersonToClientPatientMap.get(clientPersonUuid).length === 0
+                ) {
+                    message += 'Client Person not Linked to Client Patient, ';
+                    deleteProaPatient = true;
+                } else if (this.clientPersonToClientPatientMap.get(clientPersonUuid).length > 1) {
+                    message += 'Client Person Linked to Multiple Client Patients, ';
+                } else {
+                    message += 'Valid Client Patient, ';
                 }
-                // Check if related master persons are valid
-                else {
-                    let deleteProaPatient = false;
-                    let message = '';
-                    // check if every masterPerson is related to atleast one client person
-                    for (const masterPersonUuid of masterPersonUuids) {
-                        if (
-                            !this.masterPersonToClientPersonMap.has(masterPersonUuid) ||
-                            this.masterPersonToClientPersonMap.get(masterPersonUuid).length === 0
-                        ) {
-                            message += 'Master Person Not Linked to Client Person, ';
-                            deleteProaPatient = true;
-                        } else {
-                            message += 'Master Person Linked to Client Person, ';
-                        }
-                    }
+            }
 
-                    if (deleteProaPatient) {
-                        this.writeErrorCases({
-                            proaPatientData,
-                            proaPersonsData,
-                            masterPersonsData,
-                            clientPersonsData,
-                            message,
-                        });
+            if (deleteProaPatient) {
+                this.writeErrorCases({
+                    proaPatientData,
+                    proaPersonsData,
+                    masterPersonsData,
+                    clientPersonsData,
+                    message,
+                });
 
-                        this.proaPatientDataMap.delete(proaPatientUuid);
-                        return;
-                    }
-
-                    masterPersonUuids.forEach((masterPersonUuid) => {
-                        // Check if related client person has multiple client patient or no client patient
-                        const relatedClientPatients = [];
-                        let isClientPersonValid = true;
-                        clientPersonUuids.forEach((personUuid) => {
-                            if (this.clientPersonToClientPatientMap.has(personUuid)) {
-                                if (
-                                    !this.clientPersonToClientPatientMap.has(personUuid) ||
-                                    this.clientPersonToClientPatientMap.get(personUuid).length > 1
-                                ) {
-                                    isClientPersonValid = false;
-                                }
-                                relatedClientPatients.push(this.clientPersonToClientPatientMap.get(personUuid));
-                            }
-                        });
-                        // Check if master person has no master patient or multiple master patient
-                        if (
-                            !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
-                            this.masterPersonToMasterPatientMap.get(masterPersonUuid).length !== 1 ||
-                            !isClientPersonValid
-                        ) {
-                            message = '';
-                            if (
-                                !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
-                                this.masterPersonToMasterPatientMap.get(masterPersonUuid).length !== 1
-                            ) {
-                                message = this.masterPersonToMasterPatientMap.has(masterPersonUuid) ?
-                                    'Master Person with multiple Master Patients found (Added Master Person Uuid)' :
-                                    'Master Person without Master Patient found (Added Master Person Uuid)';
-                            } else {
-                                relatedClientPatients.forEach(relatedClientPatient => {
-                                    message += relatedClientPatient.length > 1 ?
-                                        'Client Person with multiple client patients found (Added Client Person Uuids), ' :
-                                        relatedClientPatient.length === 1 ? 'Valid Client Person' :
-                                        'Client Person without client patients found (Added Client Person Uuids), ';
-                                });
-                            }
-
-                            this.writeErrorCases({
-                                proaPatientData,
-                                proaPersonsData,
-                                masterPersonsData,
-                                clientPersonsData,
-                                message,
-                            });
-                            deleteProaPatient = true;
-                        }
-                    });
-                    if (deleteProaPatient) {
-                        this.proaPatientDataMap.delete(proaPatientUuid);
-                    }
-                }
+                this.proaPatientDataMap.delete(proaPatientUuid);
+                return;
             }
         });
     }
