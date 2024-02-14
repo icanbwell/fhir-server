@@ -465,25 +465,27 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         let questionnaire;
 
         // Iterate over the sourceReferences
-        doc.sourceReference?.forEach(ref => {
-            // Check if the reference starts with "QuestionnaireResponse"
-            const reference = ref.extension?.find(ext => ext.url === 'https://www.icanbwell.com/uuid')?.valueString || ref.reference;
-            const { id, resourceType } = ReferenceParser.parseReference(reference);
-            if (resourceType === 'QuestionnaireResponse') {
-                // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
-                const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
-                if (questionnaireId) {
-                    const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId);
-                    if (questionnaireResource) {
-                        questionnaire = questionnaireResource;
+        if (doc.sourceReference) {
+            doc.sourceReference.forEach(ref => {
+                // Check if the reference starts with "QuestionnaireResponse"
+                const reference = ref.extension?.find(ext => ext.url === 'https://www.icanbwell.com/uuid')?.valueString || ref.reference;
+                const {id, resourceType} = ReferenceParser.parseReference(reference);
+                if (resourceType === 'QuestionnaireResponse') {
+                    // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
+                    const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
+                    if (questionnaireId) {
+                        const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId);
+                        if (questionnaireResource) {
+                            questionnaire = questionnaireResource;
+                        } else {
+                            this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
+                        }
                     } else {
-                        this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
+                        this.adminLogger.logInfo(`Questionnaire ID not found for reference ${ref.reference}`);
                     }
-                } else {
-                    this.adminLogger.logInfo(`Questionnaire ID not found for reference ${ref.reference}`);
                 }
-            }
-        });
+            });
+        }
         return questionnaire;
     }
 }
