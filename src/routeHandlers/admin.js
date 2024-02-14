@@ -2,18 +2,15 @@
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
 const {AdminLogManager} = require('../admin/adminLogManager');
-const sanitize = require('sanitize-filename');
-const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
-const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 const {assertIsValid} = require('../utils/assertType');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const {generateUUID} = require('../utils/uid.util');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const { REQUEST_ID_HEADER, RESPONSE_NONCE } = require('../constants');
+const { REQUEST_ID_HEADER } = require('../constants');
 const {logInfo} = require('../operations/common/logging');
 const httpContext = require('express-http-context');
 
@@ -42,14 +39,7 @@ async function showIndexesAsync(
             filterToProblems: filterToProblems
         }
     );
-    if (shouldReturnHtml(req)) {
-        const filePath = __dirname + '/../views/admin/pages/indexes';
-        return res.render(filePath, {
-            collections: json
-        });
-    } else {
-        return res.json(json);
-    }
+    return res.json(json);
 }
 
 /**
@@ -73,12 +63,7 @@ async function synchronizeIndexesAsync(
      */
     const indexManager = container.indexManager;
 
-    // return response and then continue processing
-    const nonce = httpContext.get(RESPONSE_NONCE);
-    const htmlContent = `<!DOCTYPE html><html><body><script nonce=${nonce}>setTimeout(function(){window.location.href = "/admin/indexProblems?_keepOldUI=1";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>`;
-    res.set('Content-Type', 'text/html');
-    res.send(Buffer.from(htmlContent));
-    res.end();
+    res.json({ message: 'Synchronization process triggered'});
     await indexManager.synchronizeIndexesWithConfigAsync({
         audit: audit
     });
@@ -95,16 +80,6 @@ async function handleAdmin(
     req,
     res
 ) {
-    /**
-     * converts bundleEntry to html
-     * @param {BundleEntry} bundleEntry
-     * @returns {string}
-     */
-    function getHtmlForBundleEntry(bundleEntry) {
-        const operation = bundleEntry.request ? `${bundleEntry.request.method} ` : '';
-        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>\n`;
-    }
-
     try {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         httpContext.set('requestId', req.id);
@@ -131,15 +106,6 @@ async function handleAdmin(
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
-                case 'searchLog':
-                case 'personPatientLink':
-                case 'patientData':
-                case 'personMatch': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
                 case 'searchLogResults': {
                     logInfo('', {'req.query': req.query});
                     const id = req.query['id'];
@@ -319,23 +285,13 @@ async function handleAdmin(
                             return res.json(json);
                         } else {
                             /**
-                             * @type {BaseResponseStreamer}
+                             * @type {FhirResponseStreamer}
                              */
-                            const responseStreamer = shouldReturnHtml(req) ?
-                                new HttpResponseStreamer({
-                                    response: res,
-                                    requestId: req.id,
-                                    title: 'Delete Patient Data Graph',
-                                    html: '<h1>Delete Patient Data Graph</h1>\n' + '<div>' +
-                                        `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                        '</div>\n',
-                                    fnGetHtmlForBundleEntry: getHtmlForBundleEntry
-                                }) :
-                                new FhirResponseStreamer({
-                                    response: res,
-                                    requestId: req.id,
-                                    bundleType: 'batch-response'
-                                });
+                            const responseStreamer = new FhirResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                bundleType: 'batch-response'
+                            });
                             await responseStreamer.startAsync();
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
@@ -388,23 +344,13 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
                         /**
-                         * @type {BaseResponseStreamer}
+                         * @type {FhirResponseStreamer}
                          */
-                        const responseStreamer = shouldReturnHtml(req) ?
-                            new HttpResponseStreamer({
-                                response: res,
-                                requestId: req.id,
-                                title: 'Delete Person Data Graph',
-                                html: '<h1>Delete Person Data Graph</h1>\n' + '<div>' +
-                                    `Started delete of ${personId}.  This may take a few seconds.  ` +
-                                    '</div>\n',
-                                fnGetHtmlForBundleEntry: getHtmlForBundleEntry
-                            }) :
-                            new FhirResponseStreamer({
-                                response: res,
-                                requestId: req.id,
-                                bundleType: 'batch-response'
-                            });
+                        const responseStreamer = new FhirResponseStreamer({
+                            response: res,
+                            requestId: req.id,
+                            bundleType: 'batch-response'
+                        });
 
                         await responseStreamer.startAsync();
                         await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
@@ -413,9 +359,6 @@ async function handleAdmin(
                             personId,
                             responseStreamer
                         });
-                        await responseStreamer.writeAsync({
-                            content: '<div>Finished</div>\n'
-                        });
                         await responseStreamer.endAsync();
                         return;
                     }
@@ -423,7 +366,6 @@ async function handleAdmin(
                         message: `No id: ${personId} passed`
                     });
                 }
-
 
                 case 'indexes': {
                     return await showIndexesAsync(
@@ -471,8 +413,7 @@ async function handleAdmin(
                 }
 
                 default: {
-                    const filePath = __dirname + '/../views/admin/pages/index';
-                    return res.render(filePath, {});
+                    return res.json({ message: 'Invalid Path' });
                 }
             }
         } else {

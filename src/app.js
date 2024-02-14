@@ -8,10 +8,8 @@ const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
-const path = require('path');
 const useragent = require('express-useragent');
 const {graphql} = require('./middleware/graphql/graphqlServer');
-const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
 const passport = require('passport');
 const {strategy} = require('./strategies/jwt.bearer.strategy');
@@ -22,7 +20,6 @@ const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHand
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
-const {handleLogout} = require('./routeHandlers/logout');
 const {handleClean} = require('./routeHandlers/clean');
 const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
@@ -50,7 +47,6 @@ function createFhirApp(fnGetContainer, app1) {
         .configureSession()
         .configureHelmet()
         .configurePassport()
-        .configureHtmlRenderer()
         .setPublicDirectory()
         .setProfileRoutes()
         .setErrorRoutes();
@@ -138,16 +134,14 @@ function createApp({fnGetContainer, trackMetrics}) {
     // middleware to parse user agent string
     app.use(useragent.express());
 
-    // redirect to new fhir-ui if header content-type is text/html and _keepOldUI is not set
+    // redirect to new fhir-ui if html is requested
     app.use((req, res, next) => {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
-            // check if _keepOldUI flag is passed
-            const keepOldUI = isTrue(req.query['_keepOldUI']);
             // check if this is home page, resource page, or admin page
             const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0') || reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI) && !keepOldUI && isResourceUrl) {
+            if (isTrue(env.REDIRECT_TO_NEW_UI) && isResourceUrl) {
                 logInfo('Redirecting to new UI', { path: reqPath });
                 res.redirect(`${env.FHIR_SERVER_UI_URL}${reqPath}`);
                 return;
@@ -171,10 +165,6 @@ function createApp({fnGetContainer, trackMetrics}) {
         Prometheus.injectMetricsRoute(app);
         Prometheus.startCollection();
     }
-
-    // Set EJS as templating engine
-    app.set('views', path.join(__dirname, '/views'));
-    app.set('view engine', 'ejs');
 
     // Used to initialize context for each request
     app.use(httpContext.middleware);
@@ -224,21 +214,6 @@ function createApp({fnGetContainer, trackMetrics}) {
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
-    app.use(express.static(path.join(__dirname, 'oauth')));
-
-    // handles when the user is redirected by the OpenIDConnect/OAuth provider
-    app.get('/authcallback', (req, res) => {
-        const state = req.query.state;
-        const resourceUrl = state ?
-            encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
-        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
-        res.redirect(
-            `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
-            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
-            `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
-        );
-    });
-
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
@@ -259,26 +234,6 @@ function createApp({fnGetContainer, trackMetrics}) {
     app.get('/ready', (req, res) => handleMemoryCheck(req, res));
 
     app.get('/version', handleVersion);
-    app.get('/logout', handleLogout);
-    app.get('/logout_action', (req, res) => {
-        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
-        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
-        res.redirect(logoutUrl);
-    });
-
-    // render the home page
-    app.get('/', (
-        /** @type {import('express').Request} */ req,
-        /** @type {import('express').Response} */ res
-    ) => {
-        const home_options = {
-            resources: resourceDefinitions,
-            user: req.user,
-            url: req.url,
-            nonce: httpContext.get(RESPONSE_NONCE),
-        };
-        return res.render(__dirname + '/views/pages/home', home_options);
-    });
 
     app.get('/clean/:collection?', (req, res) => handleClean(
         {fnGetContainer, req, res}
@@ -293,29 +248,6 @@ function createApp({fnGetContainer, trackMetrics}) {
     app.get('/.well-known/smart-configuration', handleSmartConfiguration, handleServerError);
 
     app.get('/alert', handleAlert);
-
-    app.use('/images', express.static(path.join(__dirname, 'images')));
-
-    app.use('/favicon.ico', express.static(path.join(__dirname, 'images/favicon.ico')));
-
-    app.use('/css', express.static(path.join(__dirname, 'dist/css')));
-    app.use('/js', express.static(path.join(__dirname, 'dist/js')));
-    app.use(
-        '/js',
-        express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/js'))
-    );
-    app.use(
-        '/css',
-        express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/css'))
-    );
-    app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
-    app.use('/css', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/css')));
-    app.use(
-        '/fonts',
-        express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
-    );
-    app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
-
 
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes

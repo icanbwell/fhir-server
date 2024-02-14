@@ -73,8 +73,6 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 [src/utils](src/utils): Utility functions called from other code
 
-[src/views](src/views): View templates that are shown when someone access a FHIR resource from a web browser user agent. Rendered using the middleware: [src/middleware/htmlRenderer.js](src/middleware/htmlRenderer.js). Currently we use the EJS view engine: https://ejs.co/. See [renderingViews.md](renderingViews.md) for more details.
-
 [src/app.js](src/app.js): Main entrypoint that sets up the app
 
 [src/app.test.js](src/app.test.js): simple test for the app
@@ -118,10 +116,6 @@ Note: Indexes are automatically created when a new resource type is added to the
 ## Index hinting
 
 Some mongo implementations (such as AWS DocumentDB) are not very good at selecting an index to serve a query. Hence we've added an index hinting feature that compares the columns in the query with the existing indexes and adds a hint to mongo to use that index. This feature can be turned on by setting the `SET_INDEX_HINTS` environment variable.
-
-## How to add/update custom rendering views
-
-[renderingViews.md](renderingViews.md)
 
 ## IoC (Inversion of Control)
 
@@ -295,14 +289,3 @@ Output:
 ```
 {"dd":{"service":"bwell-fhir-server","version":"0.0.1"},"level":"info","logger":"admin","message":"Logger Message","timestamp":"Feb-10-2023 10:10:10+00:00"}
 ```
-
-## Search UI
-Search Form is rendered by [src/views/partials/searchForm.ejs](src/views/partials/searchForm.ejs)
-
-When the user presses the Search button, this script [src/dist/js/search.js](src/dist/js/search.js) bundles up 
-the user entered values and sends to `/_search` endpoint on the server.
-
-The results are shown by [src/views/pages/SearchResult.ejs](src/views/pages/SearchResult.ejs).
-
-Clicking on the search results is handled by [src/dist/js/searchResults.js](src/dist/js/searchResults.js).
-Helper functions are in [src/utils/searchForm.util.js](src/utils/searchForm.util.js).

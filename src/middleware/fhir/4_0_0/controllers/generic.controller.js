@@ -1,5 +1,4 @@
 const {isTrue} = require('../../../../utils/isTrue');
-const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
@@ -95,7 +94,7 @@ class GenericController {
                 const stream = (this.configManager.streamResponse || isTrue(req.query._streamResponse));
 
                 // if stream option is set, and we are not returning HTML then stream the data to client
-                if (stream && !shouldReturnHtml(req)) {
+                if (stream) {
                     await this.fhirOperationsManager.searchStreaming(
                         req.sanitized_args,
                         {

@@ -4,7 +4,6 @@
 
 const compression = require('compression');
 const env = require('var');
-const {htmlRenderer} = require('../middleware/htmlRenderer');
 const {isTrue} = require('../utils/isTrue');
 const {
     resolveSchema,
@@ -21,7 +20,6 @@ const contentType = require('content-type');
 const httpContext = require('express-http-context');
 const {REQUEST_ID_TYPE} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-const {shouldReturnHtml} = require('../utils/requestHelpers');
 const {ConfigManager} = require('../utils/configManager');
 
 class MyFHIRServer {
@@ -245,34 +243,6 @@ class MyFHIRServer {
     //
     //     return this;
     // }
-
-    /**
-     * Configures HTML renderer for rendering HTML pages in browser
-     * @return {MyFHIRServer}
-     */
-    configureHtmlRenderer() {
-        if (isTrue(env.RENDER_HTML)) {
-            // Any request to new UI should redirect to fhir-server-ui repo
-            this.app.use((
-                    /** @type {import('express').Request} */ req,
-                    /** @type {import('express').Response} */ res,
-                    /** @type {import('express').NextFunction} */ next
-                ) => {
-                    if (shouldReturnHtml(req)) {
-                        return htmlRenderer({
-                            container: this.container,
-                            req,
-                            res,
-                            next
-                        });
-                    } else {
-                        next();
-                    }
-                }
-            );
-        }
-        return this;
-    }
 
     /**
      * Sets up routes to catch and show errors
