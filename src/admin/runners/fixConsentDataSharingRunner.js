@@ -466,7 +466,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         // Iterate over the sourceReferences
         if (doc.sourceReference) {
-            doc.sourceReference.entries().forEach(ref => {
+                const ref = doc.sourceReference.reference;
                 // Check if the reference starts with "QuestionnaireResponse"
                 const reference = ref.extension?.find(ext => ext.url === 'https://www.icanbwell.com/uuid')?.valueString || ref.reference;
                 const {id, resourceType} = ReferenceParser.parseReference(reference);
@@ -484,7 +484,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`Questionnaire ID not found for reference ${ref.reference}`);
                     }
                 }
-            });
         }
         return questionnaire;
     }
