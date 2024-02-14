@@ -707,9 +707,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
     /**
      * Handles the following errors
-     * - Proa Patient has multiple Proa Persons
-     * - Proa Patient is directly linked to Master Person
-     * - Proa Person not related to master person
+     * - Proa Person not linked to master person
      * - Master Person Related to multiple or No Master Patients
      * - Client Person Related to multiple or No Client Patients
      * - Master Person not linked to client person
@@ -752,7 +750,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     masterPersonsData,
                     clientPersonsData,
                     proaPersonsData,
-                    message: 'Proa Patient Directly Linked to Master Person',
+                    message: 'Proa Person not linked to master person',
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
             }
@@ -763,7 +761,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     masterPersonsData,
                     clientPersonsData,
                     proaPersonsData,
-                    message: 'Proa Patient Linked to Multiple Proa Persons',
+                    message: 'Proa Person not linked to master person',
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
             }
@@ -776,7 +774,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         masterPersonsData,
                         clientPersonsData,
                         proaPersonsData,
-                        message: 'Proa Person Not Attached to Master Person',
+                        message: 'Proa Person not linked to master person',
                     });
 
                     this.proaPatientDataMap.delete(proaPatientUuid);
