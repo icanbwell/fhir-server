@@ -756,7 +756,10 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             );
 
             // check if master person is present
-            if (masterPersonUuids.filter(u => u).length === 0) {
+            if (
+                masterPersonUuids.filter(u => u).length === 0 ||
+                this.proaPatientToMasterPersonMap.has(proaPatientUuid)
+            ) {
                 this.writeErrorCases({
                     proaPatientData,
                     masterPersonsData,
