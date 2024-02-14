@@ -148,7 +148,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             await this.getProaPatientRelatedPersons();
             this.adminLogger.logInfo('Proa Person and Client Person Data Fetched');
             this.adminLogger.logInfo('Handling Errors Related to Proa Patient');
-            this.handleProaPatientRelatedErrors();
 
             this.adminLogger.logInfo('Creating Proa Person to Proa Patient Map');
             this.createProaPersonToProaPatientMap();
@@ -158,7 +157,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             this.adminLogger.logInfo('Creating Proa Person to Master Person Map');
             this.createProaPersonToMasterPersonMap();
             this.adminLogger.logInfo('Handling Errors Related to Persons');
-            this.handlePersonRelatedErrors();
+            this.handleAllErrorCases();
 
             this.adminLogger.logInfo('Writing Proa Patient Data Graph');
             this.writeProaPatientDataGraph();
@@ -187,7 +186,11 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 'Status|\n'
         );
         this.writeErrorStream.write(
-            'Proa Patient UUID| Proa Patient SourceAssigningAuthority| Proa Patient LastUpdated| Status| Issue Data|\n'
+            'Proa Patient UUID| Proa Patient SourceAssigningAuthority| Proa Patient LastUpdated| ' +
+            'Proa Person UUID| Proa Person SourceAssigningAuthority| Proa Person LastUpdated| ' +
+            'Proa Master Person UUID| Proa Master Person SourceAssigningAuthority| Proa Master Person LastUpdated| ' +
+            'Client Person UUID| Client Person SourceAssigningAuthority| Client Person LastUpdated| ' +
+            'Status|\n'
         );
     }
 
@@ -242,7 +245,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 `${message}|\n`,
             (err) => {
                 if (err) {
-                    this.adminLogger.logError(`Error while writing to error stream: ${err.message}`, {
+                    this.adminLogger.logError(`Error while writing to data stream: ${err.message}`, {
                         stack: err.stack,
                     });
                 }
@@ -253,17 +256,46 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
     /**
      * Handles all the writes to proa_patient_link_data_errors.csv
      * @typedef {Object} WriteErrorCasesProps
-     * @property {CsvDataType} patientData
+     * @property {CsvDataType} proaPatientData
+     * @property {CsvDataType[]} proaPersonsData
+     * @property {CsvDataType[]} masterPersonsData
+     * @property {CsvDataType[]} clientPersonsData
      * @property {string} message
-     * @property {string[]} errorRecordUuids
      *
      * @param {WriteErrorCasesProps}
      * @returns {void}
      */
-    writeErrorCases({ patientData, message, errorRecordUuids }) {
+    writeErrorCases({ proaPatientData, proaPersonsData, masterPersonsData, clientPersonsData, message }) {
+        const proaPersonData = {
+            uuid: proaPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(', '),
+            sourceAssigningAuthority: proaPersonsData
+                .reduce((arr, d) => arr.push(d.sourceAssigningAuthority) && arr, [])
+                .join(', '),
+            lastUpdated: proaPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', '),
+        };
+
+        const masterPersonData = {
+            uuid: masterPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(', '),
+            sourceAssigningAuthority: masterPersonsData
+                .reduce((arr, d) => arr.push(d.sourceAssigningAuthority) && arr, [])
+                .join(', '),
+            lastUpdated: masterPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', '),
+        };
+
+        const clientPersonData = {
+            uuid: clientPersonsData.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(', '),
+            sourceAssigningAuthority: clientPersonsData
+                .reduce((arr, d) => arr.push(d.sourceAssigningAuthority) && arr, [])
+                .join(', '),
+            lastUpdated: clientPersonsData.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', '),
+        };
+
         this.writeErrorStream.write(
-            `${patientData.uuid}| ${patientData.sourceAssigningAuthority}| ${patientData.lastUpdated}| ` +
-                `${message}| ${errorRecordUuids.join(', ')}|\n`,
+            `${proaPatientData.uuid}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
+                `${proaPersonData.uuid}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
+                `${masterPersonData.uuid}| ${masterPersonData.sourceAssigningAuthority}| ${masterPersonData.lastUpdated}| ` +
+                `${clientPersonData.uuid}| ${clientPersonData.sourceAssigningAuthority}| ${clientPersonData.lastUpdated}| ` +
+                `${message}|\n`,
             (err) => {
                 if (err) {
                     this.adminLogger.logError(`Error while writing to error stream: ${err.message}`, {
@@ -482,52 +514,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * Handles the following errors
-     * - Proa Patient has multiple Proa Persons
-     * - Proa Patient is directly linked to Master Person
-     * - Proa Patient not linked to any Person
-     *
-     * @returns {void}
-     */
-    handleProaPatientRelatedErrors() {
-        Array.from(this.proaPatientDataMap.keys()).forEach((patientUuid) => {
-            // check if directly linked to master person
-            if (this.proaPatientToMasterPersonMap.has(patientUuid)) {
-                this.writeErrorCases({
-                    patientData: this.proaPatientDataMap.get(patientUuid),
-                    message: 'Proa Patient Directly Linked to Master Person (Added Master Person Uuids)',
-                    errorRecordUuids: this.proaPatientToMasterPersonMap.get(patientUuid),
-                });
-                this.proaPatientDataMap.delete(patientUuid);
-            }
-            // check if proa patient is linked to multiple proa persons
-            else if (
-                this.proaPatientToProaPersonMap.has(patientUuid) &&
-                this.proaPatientToProaPersonMap.get(patientUuid).length > 1
-            ) {
-                this.writeErrorCases({
-                    patientData: this.proaPatientDataMap.get(patientUuid),
-                    message: 'Proa Patient Linked to Multiple Proa Persons (Added Proa Person Uuids)',
-                    errorRecordUuids: this.proaPatientToProaPersonMap.get(patientUuid),
-                });
-                this.proaPatientDataMap.delete(patientUuid);
-            }
-            // check if proa patient is not related to anyone
-            else if (
-                !this.proaPatientToClientPersonMap.has(patientUuid) &&
-                !this.proaPatientToProaPersonMap.has(patientUuid)
-            ) {
-                this.writeErrorCases({
-                    patientData: this.proaPatientDataMap.get(patientUuid),
-                    message: 'Proa Patient not linked to any Person',
-                    errorRecordUuids: [],
-                });
-                this.proaPatientDataMap.delete(patientUuid);
-            }
-        });
-    }
-
-    /**
      * Creates Proa Person to Proa Patient map
      * @returns {void}
      */
@@ -721,23 +707,76 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
     /**
      * Handles the following errors
+     * - Proa Patient has multiple Proa Persons
+     * - Proa Patient is directly linked to Master Person
+     * - Proa Person not related to master person
      * - Master Person Related to multiple or No Master Patients
      * - Client Person Related to multiple or No Client Patients
-     * - Proa Person not related to master person
+     * - Master Person not linked to client person
      *
      * @returns {void}
      */
-    handlePersonRelatedErrors() {
-        // Check Proa Persons not related to master persons
+    handleAllErrorCases() {
         Array.from(this.proaPatientDataMap.keys()).forEach(proaPatientUuid => {
-            if (this.proaPatientToProaPersonMap.has(proaPatientUuid)) {
-                const proaPersonUuid = this.proaPatientToProaPersonMap.get(proaPatientUuid)[0];
+            const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
+            // proa person data
+            const proaPersonUuids = this.proaPatientToProaPersonMap.get(proaPatientUuid) ?? [];
+            const proaPersonsData = proaPersonUuids.map(uuid => this.personDataMap.get(uuid));
+            // master person data
+            const masterPersonUuids = proaPersonUuids.reduce((uuids, proaPersonUuid) => {
+                if (this.proaPersonToMasterPersonMap.has(proaPersonUuid)) {
+                    uuids.push(...this.proaPersonToMasterPersonMap.get(proaPersonUuid));
+                }
+                return uuids;
+            }, []);
+            if (this.proaPatientToMasterPersonMap.has(proaPatientUuid)) {
+                masterPersonUuids.push(
+                    ...this.proaPatientToMasterPersonMap.get(proaPatientUuid)
+                        .filter(uuid => !masterPersonUuids.includes(uuid))
+                );
+            }
+            const masterPersonsData = masterPersonUuids.map(uuid => this.personDataMap.get(uuid));
+            // client person data
+            const clientPersonUuids = masterPersonUuids.reduce((uuids, masterPersonUuid) => {
+                if (this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
+                    uuids.push(...this.masterPersonToClientPersonMap.get(masterPersonUuid));
+                }
+                return uuids;
+            }, []);
+            const clientPersonsData = clientPersonUuids.map(uuid => this.personDataMap.get(uuid));
 
-                if (!this.proaPersonToMasterPersonMap.has(proaPersonUuid)) {
+            // check if directly linked to master person
+            if (this.proaPatientToMasterPersonMap.has(proaPatientUuid)) {
+                this.writeErrorCases({
+                    proaPatientData,
+                    masterPersonsData,
+                    clientPersonsData,
+                    proaPersonsData,
+                    message: 'Proa Patient Directly Linked to Master Person',
+                });
+                this.proaPatientDataMap.delete(proaPatientUuid);
+            }
+            // check if proa patient is linked to multiple proa persons
+            else if (proaPersonUuids.length > 1) {
+                this.writeErrorCases({
+                    proaPatientData,
+                    masterPersonsData,
+                    clientPersonsData,
+                    proaPersonsData,
+                    message: 'Proa Patient Linked to Multiple Proa Persons',
+                });
+                this.proaPatientDataMap.delete(proaPatientUuid);
+            }
+
+            // Check Proa Persons not related to master persons
+            if (proaPersonUuids.length === 1) {
+                if (masterPersonUuids.length === 0) {
                     this.writeErrorCases({
-                        patientData: this.proaPatientDataMap.get(proaPatientUuid),
+                        proaPatientData,
+                        masterPersonsData,
+                        clientPersonsData,
+                        proaPersonsData,
                         message: 'Proa Person Not Attached to Master Person',
-                        errorRecordUuids: [proaPersonUuid],
                     });
 
                     this.proaPatientDataMap.delete(proaPatientUuid);
@@ -745,9 +784,35 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 // Check if related master persons are valid
                 else {
                     let deleteProaPatient = false;
-                    this.proaPersonToMasterPersonMap.get(proaPersonUuid).forEach((masterPersonUuid) => {
+                    let message = '';
+                    // check if every masterPerson is related to atleast one client person
+                    for (const masterPersonUuid of masterPersonUuids) {
+                        if (
+                            !this.masterPersonToClientPersonMap.has(masterPersonUuid) ||
+                            this.masterPersonToClientPersonMap.get(masterPersonUuid).length === 0
+                        ) {
+                            message += 'Master Person Not Linked to Client Person, ';
+                            deleteProaPatient = true;
+                        } else {
+                            message += 'Master Person Linked to Client Person, ';
+                        }
+                    }
+
+                    if (deleteProaPatient) {
+                        this.writeErrorCases({
+                            proaPatientData,
+                            proaPersonsData,
+                            masterPersonsData,
+                            clientPersonsData,
+                            message,
+                        });
+
+                        this.proaPatientDataMap.delete(proaPatientUuid);
+                        return;
+                    }
+
+                    masterPersonUuids.forEach((masterPersonUuid) => {
                         // Check if related client person has multiple client patient or no client patient
-                        const clientPersonUuids = this.masterPersonToClientPersonMap.get(masterPersonUuid) || [];
                         const relatedClientPatients = [];
                         let isClientPersonValid = true;
                         clientPersonUuids.forEach((personUuid) => {
@@ -761,15 +826,13 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 relatedClientPatients.push(this.clientPersonToClientPatientMap.get(personUuid));
                             }
                         });
-
                         // Check if master person has no master patient or multiple master patient
                         if (
                             !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
                             this.masterPersonToMasterPatientMap.get(masterPersonUuid).length !== 1 ||
                             !isClientPersonValid
                         ) {
-                            let message = '';
-                            let errorRecordUuids = [];
+                            message = '';
                             if (
                                 !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
                                 this.masterPersonToMasterPatientMap.get(masterPersonUuid).length !== 1
@@ -777,7 +840,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                 message = this.masterPersonToMasterPatientMap.has(masterPersonUuid) ?
                                     'Master Person with multiple Master Patients found (Added Master Person Uuid)' :
                                     'Master Person without Master Patient found (Added Master Person Uuid)';
-                                errorRecordUuids = [masterPersonUuid];
                             } else {
                                 relatedClientPatients.forEach(relatedClientPatient => {
                                     message += relatedClientPatient.length > 1 ?
@@ -785,13 +847,14 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                                         relatedClientPatient.length === 1 ? 'Valid Client Person' :
                                         'Client Person without client patients found (Added Client Person Uuids), ';
                                 });
-                                errorRecordUuids = clientPersonUuids;
                             }
 
                             this.writeErrorCases({
-                                patientData: this.proaPatientDataMap.get(proaPatientUuid),
+                                proaPatientData,
+                                proaPersonsData,
+                                masterPersonsData,
+                                clientPersonsData,
                                 message,
-                                errorRecordUuids,
                             });
                             deleteProaPatient = true;
                         }
@@ -877,7 +940,10 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     message,
                 });
-            } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid) && !this.skipAlreadyLinked) {
+            } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
+                if (this.skipAlreadyLinked) {
+                    continue;
+                }
                 const clientPersonUuids = this.proaPatientToClientPersonMap.get(proaPatientUuid);
 
                 const clientPersonsData = clientPersonUuids
@@ -895,6 +961,14 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     masterPersonsData: [],
                     clientPersonsData,
                     message,
+                });
+            } else {
+                this.writeData({
+                    proaPatientData,
+                    proaPersonData: { uuid: '', sourceAssigningAuthority: '', lastUpdated: ''},
+                    masterPersonsData: [],
+                    clientPersonsData: [],
+                    message: 'Proa Patient not Linked to any person',
                 });
             }
         }
