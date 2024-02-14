@@ -334,6 +334,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
             while (await cursor.hasNext()) {
                 const questionaire = await cursor.next();
+                this.adminLogger.logInfo('***Questionaire***', `${questionaire._uuid}`);
                 this.questionnaireIdToResource.set(questionaire.id, questionaire);
                 this.questionnaireIdToResource.set(questionaire._uuid, questionaire);
                 // only cache if questionaire is datasharing type
