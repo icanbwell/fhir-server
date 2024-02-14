@@ -756,6 +756,28 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             );
 
             // check if master person is present
+            if (this.proaPatientToMasterPersonMap.has(proaPatientUuid)) {
+                this.writeErrorCases({
+                    proaPatientData,
+                    masterPersonsData,
+                    clientPersonsData: [],
+                    proaPersonsData: [],
+                    message: 'Proa Patient directly linked to master person',
+                });
+                this.proaPatientDataMap.delete(proaPatientUuid);
+                return;
+            }
+            if (proaPersonUuids.length > 1) {
+                this.writeErrorCases({
+                    proaPatientData,
+                    masterPersonsData: [],
+                    clientPersonsData: [],
+                    proaPersonsData,
+                    message: 'Proa Patient linked to multiple Proa Person',
+                });
+                this.proaPatientDataMap.delete(proaPatientUuid);
+                return;
+            }
             if (
                 masterPersonUuids.filter(u => u).length === 0 ||
                 this.proaPatientToMasterPersonMap.has(proaPatientUuid)
