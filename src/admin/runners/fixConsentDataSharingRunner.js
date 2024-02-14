@@ -166,9 +166,11 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update category
+        this.adminLogger.logInfo('Adding category coding');
         resource = await this.addCategoryCodingToConsent({resource, questionaire});
 
         // Update provision
+        this.adminLogger.logInfo('adding provision class');
         resource = await this.addProvisionClassToConsent({ resource, questionaire });
 
         // for speed, first check if the incoming resource is exactly the same
@@ -355,6 +357,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         } finally {
             await session.endSession();
             await client.close();
+            const keys = Array.from(this.questionaireValues.keys());
+            this.adminLogger.logInfo('Questionaires', `${keys}`);
         }
     }
 
