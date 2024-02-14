@@ -425,7 +425,12 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 $exists: false,
             }
         });
-
+        // must have sourceReference
+        query.$and.push({
+            ['sourceReference']: {
+                $exists: true,
+            }
+        });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
             query.$and.push({
