@@ -466,7 +466,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         // Iterate over the sourceReferences
         if (doc.sourceReference) {
-            doc.sourceReference.forEach(ref => {
+            doc.sourceReference.entries().forEach(ref => {
                 // Check if the reference starts with "QuestionnaireResponse"
                 const reference = ref.extension?.find(ext => ext.url === 'https://www.icanbwell.com/uuid')?.valueString || ref.reference;
                 const {id, resourceType} = ReferenceParser.parseReference(reference);
