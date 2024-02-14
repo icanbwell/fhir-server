@@ -384,17 +384,15 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 const questionnaireResponse = await cursor.next();
                 if (questionnaireResponse.questionnaire) {
                     const qid = questionnaireResponse.questionnaire;
-                    if (qid.startsWith('https://fhir.icanbwell.com/4_0_0/Questionnaire/')) {
-                        const point = qid.lastIndexOf('/');
-                        const uuid = qid.substring(point);
-                        // only cache if questionaire is already cached
-                        if (this.questionaireValues.has(uuid)) {
-                            this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
-                            this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
-                            this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
-                        }
-                     }
-                }
+                    const point = qid.lastIndexOf('/');
+                    const uuid = qid.substring(point);
+                    // only cache if questionaire is already cached
+                    if (this.questionaireValues.has(uuid)) {
+                        this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
+                        this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
+                        this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
+                    }
+                 }
             }
         } catch (e) {
             console.log(e);
