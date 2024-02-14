@@ -339,7 +339,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 this.questionnaireIdToResource.set(questionaire._uuid, questionaire);
                 // only cache if questionaire is datasharing type
                 questionaire.item?.forEach((item) => {
-                    this.adminLogger.logInfo('Questionaire Item', { item });
+                    // this.adminLogger.logInfo('Questionaire Item', { item });
                     if (item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent') {
                         this.questionaireValues.set(questionaire._uuid, item);
