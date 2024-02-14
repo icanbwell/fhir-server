@@ -44,7 +44,7 @@
                             </td>
                             <td>
                                 <% if (agent.who) { %>
-                                    <a href="/4_0_0/<%= agent.who.reference; %>">
+                                    <a href="/4_0_0/<%= agent.who.reference; %>?_keepOldUI=1">
                                         <!-- prettier-ignore -->
                                         <% if (agent.who.display) { %><%= agent.who.display; %>
                                         <% } else { %><%= agent.who.reference; %>

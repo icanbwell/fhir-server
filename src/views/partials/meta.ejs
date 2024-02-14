@@ -6,15 +6,15 @@
     <b>Last Updated:</b><%= meta.lastUpdated %>
     <a
       title="Get <%= res.resourceType %> resources on this date"
-      href="/4_0_0/<%= res.resourceType %>?_lastUpdated=<%= new Date(meta.lastUpdated).toISOString().substring(0, 10) %>"
+      href="/4_0_0/<%= res.resourceType %>?_lastUpdated=<%= new Date(meta.lastUpdated).toISOString().substring(0, 10) %>&_keepOldUI=1"
       >[On This Date]</a
     >&nbsp;<a
       title="Get <%= res.resourceType %> resources before this date"
-      href="/4_0_0/<%= res.resourceType %>?_lastUpdated=lt<%= new Date(meta.lastUpdated).toISOString().split('.')[0]+'Z' %>"
+      href="/4_0_0/<%= res.resourceType %>?_lastUpdated=lt<%= new Date(meta.lastUpdated).toISOString().split('.')[0]+'Z' %>&_keepOldUI=1"
       >[Before This]</a
     >&nbsp;<a
       title="Get <%= res.resourceType %> resources after this date"
-      href="/4_0_0/<%= res.resourceType %>?_lastUpdated=gt<%= new Date(meta.lastUpdated).toISOString().split('.')[0]+'Z' %>"
+      href="/4_0_0/<%= res.resourceType %>?_lastUpdated=gt<%= new Date(meta.lastUpdated).toISOString().split('.')[0]+'Z' %>&_keepOldUI=1"
       >[After This]</a
     >
   </div>
@@ -22,7 +22,7 @@
   <div>
     <b>Version:</b> <%= meta.versionId %>&nbsp;<a
       title="Show history for this resource"
-      href="/4_0_0/<%= res.resourceType %>/<%= res.id %>/_history"
+      href="/4_0_0/<%= res.resourceType %>/<%= res.id %>/_history?_keepOldUI=1"
       >[History]</a
     >
   </div>
@@ -30,7 +30,7 @@
     <b>Source:</b>
     <a
       title="Filter <%= res.resourceType %> by <%= meta.source %>"
-      href="/4_0_0/<%= res.resourceType %>?source=<%= meta.source %>"
+      href="/4_0_0/<%= res.resourceType %>?source=<%= meta.source %>&_keepOldUI=1"
       ><%= meta.source %></a
     >
   </div>
@@ -50,7 +50,7 @@
         <td>
           <a
             title="Filter <%= res.resourceType %> by <%= security.code %>"
-            href="/4_0_0/<%= res.resourceType %>?_security=<%= security.system %>|<%= security.code %>"
+            href="/4_0_0/<%= res.resourceType %>?_security=<%= security.system %>|<%= security.code %>&_keepOldUI=1"
             ><%= security.code %></a
           >
         </td>

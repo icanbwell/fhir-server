@@ -8,7 +8,7 @@ searchResultRows.forEach((row) => {
 function rowClick(event) {
     const dataset = event.target.closest('tr').dataset;
     const identifier = dataset.identifier;
-    const url = window.location.pathname.replace('/_search', `/${identifier}`);
+    const url = window.location.pathname.replace('/_search', `/${identifier}?_keepOldUI=1`);
     window.open(url, '_blank');
 }
 

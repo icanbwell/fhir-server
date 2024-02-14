@@ -34,6 +34,13 @@ async function main() {
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
+    /**
+     * @type {string[]}
+     */
+    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
+        parameters.clientSourceAssigningAuthorities.split(',') :
+        ['bwell_demo'];
+
     const adminLogger = new AdminLogger();
 
     adminLogger.logInfo(`[${currentDateTime}] Running proaPatientClientPersonLink script`);
@@ -60,6 +67,8 @@ async function main() {
             skip: parameters.skip,
             linkClientPersonToProaPatient: parameters.linkClientPersonToProaPatient ? true : false,
             connectionType: parameters.connectionType || 'proa',
+            getPersonMatchingScore: parameters.getPersonMatchingScore ? true : false,
+            clientSourceAssigningAuthorities,
         }
     )
     );
@@ -78,7 +87,7 @@ async function main() {
  * To run this:
  * nvm use
  * node src/admin/scripts/proaPatientClientPersonLink.js
- * node src/admin/scripts/proaPatientClientPersonLink.js --linkClientPersonToProaPatient --connectionType=humanapi
+ * node src/admin/scripts/proaPatientClientPersonLink.js --linkClientPersonToProaPatient --connectionType=humanapi --getPersonMatchingScore
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientClientPersonLink.js --batchSize=10000 --after 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientClientPersonLink.js --batchSize=10000 --before 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/proaPatientClientPersonLink.js --limit 10

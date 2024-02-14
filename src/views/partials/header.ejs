@@ -1,6 +1,6 @@
 <header>
     <nav class="navbar px-3 pt-2">
-        <a href="/" title="Go to Home Page" class="px-3 helix-logo"></a>
+        <a href="/?_keepOldUI=1" title="Go to Home Page" class="px-3 helix-logo"></a>
         <h5 class="flex-grow-1 px-3 mb-0">Helix FHIR Server - <%= locals.deployEnvironment %></h5>
         <button
                 type="button"
@@ -53,12 +53,6 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="container-fluid">
-    <div class="alert alert-info" role="alert">
-        Want to try out the new UI? <a href="<%= process.env.FHIR_SERVER_UI_URL %><%= url %>" target="_blank" rel="noreferrer" class="alert-link">Click Here</a>
     </div>
 </div>
 

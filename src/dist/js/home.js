@@ -1,5 +1,7 @@
 function searchResource(resourceName) {
-    window.location.assign(`/4_0_0/${resourceName}/_search`);
+    const url = new URL(`/4_0_0/${resourceName}/_search`, window.location.origin);
+    url.search = new URLSearchParams('_keepOldUI=1');
+    window.location.assign(url.toString());
 }
 
 function openDox(event, url) {

@@ -1,0 +1,13 @@
+{
+    "id": "person1",
+    "resourceType": "Person",
+    "meta": {
+        "source": "Test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "test"
+            }
+        ]
+    }
+}

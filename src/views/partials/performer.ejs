@@ -20,7 +20,7 @@
                             <% performer.function.type.coding.forEach(function(coding){ %>
                                 <tr>
                                     <td>
-                                        <a href="/4_0_0/<%= performer.actor.reference; %>"><%= performer.actor.reference; %></a>
+                                        <a href="/4_0_0/<%= performer.actor.reference; %>?_keepOldUI=1"><%= performer.actor.reference; %></a>
                                     </td>
                                     <td><%= performer.function.text; %></td>
                                     <td><%= coding.system; %></td>
@@ -31,7 +31,7 @@
                 <% } else { %>
                     <tr>
                         <td>
-                            <a href="/4_0_0/<%= performer.actor.reference; %>"><%= performer.actor.reference; %></a>
+                            <a href="/4_0_0/<%= performer.actor.reference; %>?_keepOldUI=1"><%= performer.actor.reference; %></a>
                         </td>
                         <td></td>
                         <td></td>

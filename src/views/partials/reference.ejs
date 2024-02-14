@@ -6,7 +6,7 @@
         <h4><%= name %></h4>
         <% references.forEach(function(reference){ %>
             <% if (reference){ %>
-                <a href="/4_0_0/<%= reference.reference %>">
+                <a href="/4_0_0/<%= reference.reference %>?_keepOldUI=1">
                     <% if (reference.display) { %><%= reference.display %>
                     <% } else { %><%= reference.reference %>
                     <% } %>

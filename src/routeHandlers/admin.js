@@ -75,7 +75,7 @@ async function synchronizeIndexesAsync(
 
     // return response and then continue processing
     const nonce = httpContext.get(RESPONSE_NONCE);
-    const htmlContent = `<!DOCTYPE html><html><body><script nonce=${nonce}>setTimeout(function(){window.location.href = "/admin/indexProblems";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>`;
+    const htmlContent = `<!DOCTYPE html><html><body><script nonce=${nonce}>setTimeout(function(){window.location.href = "/admin/indexProblems?_keepOldUI=1";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>`;
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();
@@ -251,6 +251,27 @@ async function handleAdmin(
                     }
                     return res.json({
                         message: `No patientId: ${patientId} passed`
+                    });
+                }
+
+                case 'removePersonToPatientLink': {
+                    logInfo('', {'req.query': req.query});
+                    const personId = req.query['personId'];
+                    const patientId = req.query['patientId'];
+                    if (personId && patientId) {
+                        /**
+                         * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.removePersonToPatientLinkAsync({
+                            req: req,
+                            personId,
+                            patientId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} or patientId: ${patientId} passed`
                     });
                 }
 

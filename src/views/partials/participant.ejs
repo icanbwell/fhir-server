@@ -22,7 +22,7 @@
                             <% type.coding.forEach(function(coding){ %>
                                 <tr>
                                     <td>
-                                        <a href="/4_0_0/<%= participant.actor.reference; %>"><%= participant.actor.reference; %></a>
+                                        <a href="/4_0_0/<%= participant.actor.reference; %>?_keepOldUI=1"><%= participant.actor.reference; %></a>
                                     </td>
                                     <td><%= participant.status; %></td>
                                     <td><%= participant.type.text; %></td>
@@ -35,7 +35,7 @@
                 <% } else { %>
                     <tr>
                         <td>
-                            <a href="/4_0_0/<%= participant.actor.reference; %>"><%= participant.actor.reference; %></a>
+                            <a href="/4_0_0/<%= participant.actor.reference; %>?_keepOldUI=1"><%= participant.actor.reference; %></a>
                         </td>
                         <td><%= participant.status %></td>
                         <td></td>

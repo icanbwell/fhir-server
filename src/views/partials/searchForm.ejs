@@ -7,7 +7,7 @@ const resourceName = hasResource ? resourceDefinition.name : '';
 <% if(url && url.includes('/_search')){ %>
     <form
             class="search-form ps-3"
-            action="/4_0_0/<%= resourceName %>/_search"
+            action="/4_0_0/<%= resourceName %>/_search?_keepOldUI=1"
             id="searchForm"
             method="post"
     >

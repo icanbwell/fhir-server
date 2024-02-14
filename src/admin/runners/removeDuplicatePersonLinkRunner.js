@@ -1,8 +1,9 @@
-const { assertIsValid } = require('../../utils/assertType');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 
 class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
     /**
@@ -10,7 +11,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
-     * @param {number} minLinks
+     * @param {PreSaveManager} preSaveManager
      * @param {Object} personUuids
      * @param {number} limit
      * @param {number} skip
@@ -23,10 +24,10 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             adminLogger,
             mongoDatabaseManager,
             mongoCollectionManager,
+            preSaveManager,
             personUuids,
             limit,
             skip,
-            minLinks,
             batchSize,
             ownerCode,
             uuidGreaterThan
@@ -40,9 +41,10 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         });
 
         /**
-         * @type {number}
+         * @type {PreSaveManager}
          */
-        this.minLinks = minLinks;
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
 
         /**
          * @type {Object}
@@ -74,6 +76,9 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
          */
         this.uuidGreaterThan = uuidGreaterThan;
 
+        /**
+         * @type {string}
+         */
         this.collectionName = 'Person_4_0_0';
     }
 
@@ -84,10 +89,16 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @returns
      */
     async removeDuplicateLinks(resource) {
-        const links = resource.link.map(link => JSON.stringify(link));
-        const uniqueLinkSet = [...new Set(links)];
-        const uniqueLinks = uniqueLinkSet.map(linkString => JSON.parse(linkString));
-        resource.link = uniqueLinks;
+        const linkSet = new Set();
+        resource.link = resource.link.reduce((uniqueLinks, link) => {
+            let reference = link?.target?._uuid;
+            if (!linkSet.has(reference)) {
+                linkSet.add(reference);
+                uniqueLinks.push(link);
+            }
+            return uniqueLinks;
+        }, []);
+
         return resource;
     }
 
@@ -104,6 +115,8 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
          */
         const currentResource = FhirResourceCreator.create(doc);
         let resource = currentResource.clone();
+
+        resource = await this.preSaveManager.preSaveAsync(resource);
         /**
          * @type {Resource}
          */
@@ -142,14 +155,14 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     batchSize: this.batchSize,
                     skipExistingIds: false,
                     limit: this.limit,
-                    useTransaction: true,
+                    useTransaction: false,
                     skip: this.skip,
                     filterToIdProperty: '_uuid',
                     filterToIds: uuidList,
                 },
             );
         } catch (e) {
-            this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+            this.adminLogger.logError(`Got error ${e.message}.  At ${this.startFromIdContainer.startFromId}`);
         }
     }
     /**
@@ -169,27 +182,39 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         const personUuidQuery = this.personUuids ?
             { _uuid: { $in: this.personUuids } } :
             {};
-        // Filter to process only certain documents depending on the owner code passed.
-        const ownerFilter = this.ownerCode ?
-            { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/owner', 'code': this.ownerCode }} } :
-            {};
-        // Fetch onlu uuid that are greater than uuidGreaterThan
+
+        // Fetch only uuid that are greater than uuidGreaterThan
         const uuidGreaterThanQuery = this.uuidGreaterThan ?
             { _uuid: { $gt: this.uuidGreaterThan}} :
             {};
 
-        const result = await dbCollection.find({
-            link: {$exists: true},
-            $expr: { $gt: [{ $size: '$link' }, this.minLinks] },
-            ...personUuidQuery,
-            ...ownerFilter,
-            ...uuidGreaterThanQuery
-        }, { projection: { _uuid: 1 }}).sort({_uuid: -1}).batchSize(this.batchSize);
+        const result = dbCollection.aggregate([
+            { $unwind: '$link' },
+            {
+                $group: {
+                    _id: { link: '$link.target._uuid', _uuid: '$_uuid' },
+                    count: { $sum: 1 },
+                },
+            },
+            { $match: {
+                count: { $gt: 1 },
+                ...personUuidQuery,
+                ...uuidGreaterThanQuery,
+            } },
+            { $project: { uuid: '$_id._uuid', _id: 0 } },
+            {
+                $group: {
+                    _id: '$uuid',
+                },
+            },
+        ],
+        {allowDiskUse: true}
+        );
         let uuidList = [];
         // Remove duplicates and update in batches.
         while (await result.hasNext()) {
             let document = await result.next();
-            uuidList.push(document._uuid);
+            uuidList.push(document._id);
             if (uuidList.length === this.batchSize) {
                 await this.processBatch(uuidList);
                 uuidList = [];
