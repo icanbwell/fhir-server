@@ -336,6 +336,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 this.questionnaireIdToResource.set(questionaire._uuid, questionaire);
                 // only cache if questionaire is datasharing type
                 questionaire.item?.forEach((item) => {
+                    this.adminLogger.logInfo('Questionaire Item', { item });
                     if (item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent') {
                         this.questionaireValues.set(questionaire._uuid, item);
@@ -377,11 +378,14 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     if (qid.startsWith('https://fhir.icanbwell.com/4_0_0/Questionnaire/')) {
                         const point = qid.lastIndexOf('/');
                         const uuid = qid.substring(point);
-                        this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
-                        this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
-                    }
+                        // only cache if questionaire is already cached
+                        if (this.questionaireValues.has(uuid)) {
+                            this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
+                            this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
+                            this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
+                        }
+                     }
                 }
-                this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire id`);
             }
         } catch (e) {
             console.log(e);
