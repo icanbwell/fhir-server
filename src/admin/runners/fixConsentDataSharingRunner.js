@@ -357,8 +357,12 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         } finally {
             await session.endSession();
             await client.close();
-            const keys = Array.from(this.questionaireValues.keys());
-            this.adminLogger.logInfo('Questionaires', `${keys}`);
+            //const keys = Array.from(this.questionaireValues.keys());
+            for (const key in this.questionaireValues.keys()) {
+                this.adminLogger.logInfo('Questionaire key', `key = ${key}`);
+            }
+             //
+             // this.adminLogger.logInfo('Questionaires', `${keys}`);
         }
     }
 
