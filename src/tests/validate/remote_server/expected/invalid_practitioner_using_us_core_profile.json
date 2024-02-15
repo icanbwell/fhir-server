@@ -1,0 +1,39 @@
+{
+  "expression": [
+    "Practitioner/fe274326-fd32-4a06-a68d-9435aed8af98"
+  ],
+  "issue": [
+    {
+      "code": "processing",
+      "details": {
+        "coding": [
+          {
+            "code": "Validation_VAL_Profile_Minimum",
+            "system": "http://hl7.org/fhir/java-core-messageId"
+          }
+        ]
+      },
+      "diagnostics": "Practitioner.name: minimum required = 1, but only found 0 (from http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner|6.1.0)",
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/operationoutcome-issue-line",
+          "valueInteger": 1
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/operationoutcome-issue-col",
+          "valueInteger": 718
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/operationoutcome-message-id",
+          "valueString": "Validation_VAL_Profile_Minimum"
+        }
+      ],
+      "location": [
+        "Practitioner",
+        "Line[1] Col[718]"
+      ],
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
+}
