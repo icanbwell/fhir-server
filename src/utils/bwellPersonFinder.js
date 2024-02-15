@@ -170,7 +170,7 @@ class BwellPersonFinder {
 
             if (proxyPatientRef && asObject) {
                 patientRefToImmediatePersonRefMap.set(proxyPatientRef, [personRefToPersonRefObj.get(personUuidRef)]);
-            } else if (proxyPatientRef){
+            } else if (proxyPatientRef) {
                 patientRefToImmediatePersonRefMap.set(proxyPatientRef, [personUuidRef]);
             }
         }
@@ -256,7 +256,7 @@ class BwellPersonFinder {
 
         let foundPersonId = null;
         const isReferenceUuid = isUuid(currentSubject.replace(PERSON_REFERENCE_PREFIX, '').replace(PATIENT_REFERENCE_PREFIX, ''));
-        const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId' );
+        const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId');
 
         const linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject }});
 
@@ -284,7 +284,7 @@ class BwellPersonFinder {
      * @param {Resource} person
      * @returns {boolean}
      */
-    isBwellPerson(person){
+    isBwellPerson(person) {
         return person.meta.security &&
             person.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&
             person.meta.security.find(s => s.system === SecurityTagSystem.owner && s.code === BwellMasterPersonCode);

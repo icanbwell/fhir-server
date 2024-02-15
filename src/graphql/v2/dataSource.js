@@ -214,9 +214,9 @@ class FhirDataSource {
         if (!reference.reference) {
             let possibleResourceType = reference.type;
             if (!possibleResourceType && info.returnType) {
-                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0){
+                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0) {
                     possibleResourceType = info.returnType.ofType._types[0].name;
-                } else if (info.returnType._types && info.returnType._types.length > 0){
+                } else if (info.returnType._types && info.returnType._types.length > 0) {
                     possibleResourceType = info.returnType._types[0].name;
                 }
             }

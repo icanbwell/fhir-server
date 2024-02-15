@@ -4,7 +4,7 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 const {BaseValidator} = require('./baseValidator');
 
-class ParametersResourceValidator extends BaseValidator{
+class ParametersResourceValidator extends BaseValidator {
     /**
      * @param {Resource|Resource[]} incomingResources
      * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}

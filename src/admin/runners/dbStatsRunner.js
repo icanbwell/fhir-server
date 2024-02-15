@@ -53,7 +53,7 @@ class DatabaseStats extends BaseScriptRunner {
     filterCollections(collectionNames) {
         const filteredCollections = [];
         const listOfCollections = this.collections ? this.collections : collectionNames;
-        for ( const collection of collectionNames) {
+        for (const collection of collectionNames) {
             const groupedCollection = [];
             // If the collection is to included and also has a history table add it to the list of collections.
             if (listOfCollections.includes(collection) && !collection.endsWith('_History')) {

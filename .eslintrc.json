@@ -26,8 +26,6 @@
       "prefer-regex-literals": "off",
       "no-unneeded-ternary": "off",
       "multiline-ternary": "off",
-      "space-before-blocks": "off",
-      "space-in-parens": "off",
       "object-property-newline": "off",
       "no-mixed-operators": "off"
     }

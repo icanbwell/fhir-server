@@ -457,7 +457,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
-    async lookupQuestionaire(doc){
+    async lookupQuestionaire(doc) {
         if (!doc) {
             return null;
         }

@@ -12,12 +12,12 @@ module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     container = container || fnGetContainer();
     // check kafka connection
     try {
-        if ( await handleKafkaHealthCheck(container)) {
+        if (await handleKafkaHealthCheck(container)) {
             status = 'OK';
         } else {
             status = 'Failed';
         }
-    } catch (e){
+    } catch (e) {
         // kafka health check failed
         status = 'Failed';
     }

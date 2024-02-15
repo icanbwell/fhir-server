@@ -426,7 +426,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             resource._sourceId = expectedOriginalId;
             resource._uuid = newUuid;
 
-            if (resource.identifier && Array.isArray(resource.identifier)){
+            if (resource.identifier && Array.isArray(resource.identifier)) {
                 for (const identifier of resource.identifier) {
                     if (identifier.id === 'sourceId') {
                         identifier.value = expectedOriginalId;
@@ -797,7 +797,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         referenceFieldNames = Array.from(referenceFieldNames);
 
                         // create indexes on reference fields
-                        if (!isHistoryCollection){
+                        if (!isHistoryCollection) {
                             await this.addIndexesToCollection({collectionName, referenceFieldNames, mongoConfig});
                         }
 
@@ -816,7 +816,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             }
                         }
 
-                        if (!referenceArray.length){
+                        if (!referenceArray.length) {
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
                             collectionsFinished.push(collectionName);
                             return;
@@ -849,7 +849,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 }
                             });
 
-                            if (!referenceFieldQuery.length){
+                            if (!referenceFieldQuery.length) {
                                 this.adminLogger.logInfo('referenceFieldQuery is empty. Moving on');
                                 continue;
                             }
@@ -927,7 +927,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 await queue.drain();
                 queue.push(historyCollectionsList);
                 await queue.drain();
-                if (queueErrored){
+                if (queueErrored) {
                     this.adminLogger.logInfo('Reference processing Queue errored. Returning.');
                     return;
                 }
@@ -1280,7 +1280,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @returns {[string]}
      */
     getCurrentIds({ originalId, _sourceAssigningAuthority }) {
-        if (_sourceAssigningAuthority){
+        if (_sourceAssigningAuthority) {
             _sourceAssigningAuthority = _sourceAssigningAuthority.toString();
         }
         const sanitizedId = (`${(_sourceAssigningAuthority || '').replace(/[^A-Za-z0-9\-.]/g, '-')}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
@@ -1301,15 +1301,15 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         const currentOriginalId = this.getOriginalId({ doc, _sanitize: true });
         const expectedOriginalId = this.getOriginalId({ doc, _sanitize: false });
         let sourceAssigningAuthority = doc._sourceAssigningAuthority;
-        if (!sourceAssigningAuthority && doc.meta && doc.meta.security){
+        if (!sourceAssigningAuthority && doc.meta && doc.meta.security) {
             const authorityObj = doc.meta.security.find((obj) => obj.system === SecurityTagSystem.sourceAssigningAuthority);
-            if (authorityObj){
+            if (authorityObj) {
                 sourceAssigningAuthority = authorityObj.code;
             } else {
                 sourceAssigningAuthority = '';
             }
         }
-        if (!sourceAssigningAuthority){
+        if (!sourceAssigningAuthority) {
             sourceAssigningAuthority = '';
         }
         // current id present in the resource
@@ -1329,7 +1329,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
             // generate a new uuid based on the orginal id
             let newUUID;
-            if (isUuid(expectedOriginalId)){
+            if (isUuid(expectedOriginalId)) {
                 newUUID = expectedOriginalId;
             } else {
                 newUUID = generateUUIDv5(`${expectedOriginalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`);

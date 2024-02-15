@@ -125,7 +125,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         for await (let doc of result) {
             if (newPage) {
                 console.log(`Opening Page ${pageCount}`);
-                outputStream = await fs.createWriteStream(`${this.outputFile}_${pageCount}.json` );
+                outputStream = await fs.createWriteStream(`${this.outputFile}_${pageCount}.json`);
                 const firstWrite = writeStream(outputStream, '{ "entry" : [');
                 if (firstWrite) {
                     if (firstWrite) {

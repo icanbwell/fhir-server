@@ -16,7 +16,7 @@ class FilterById extends BaseFilter {
      * @param {String[]} values
      * @returns {{_uuid: {$in}}|{_sourceId: {$in}}|{$or: ({_uuid: {$in}}|{_sourceId: {$in}})[]}}
      */
-    static getListFilter(values){
+    static getListFilter(values) {
         if (!values || values.length === 0) {
             return { '_uuid': { $in: [] }};
         }
@@ -25,7 +25,7 @@ class FilterById extends BaseFilter {
         const filter = FilterById.filterByItems('id', values, idFieldMapper);
         let query;
 
-        if (filter.length > 1){
+        if (filter.length > 1) {
             query = {$or: filter};
         } else {
             query = filter[0];

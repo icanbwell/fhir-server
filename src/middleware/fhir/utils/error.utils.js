@@ -77,7 +77,7 @@ const insufficientScope = (message, base_version) => {
 
 const notFound = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
-    if (!ErrorConstructor){
+    if (!ErrorConstructor) {
         ErrorConstructor = getErrorConstructor('4_0_0');
     }
     const err = new ErrorConstructor({

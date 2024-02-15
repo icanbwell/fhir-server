@@ -22,7 +22,7 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
                     .map(s => s.code);
                 sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
                 // add security tags
-                if (sourceAssigningAuthorityCodes.length > 0){
+                if (sourceAssigningAuthorityCodes.length > 0) {
                     resource.meta.security.push(new Coding({
                         system: SecurityTagSystem.sourceAssigningAuthority,
                         code: sourceAssigningAuthorityCodes[0]

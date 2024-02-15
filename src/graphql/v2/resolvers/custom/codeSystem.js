@@ -44,10 +44,10 @@ module.exports = {
             // Add projection filter on the nested array i.e concept field and the graphql queried fields
             const fields = graphqlFields(info);
             let projection = {};
-            if (fields){
+            if (fields) {
                 projection = graphqlFieldsToMongoProjection(fields?.['entry']?.['resource']);
             }
-            if (args['code']){
+            if (args['code']) {
                 projection['concept'] = {
                     $filter: {
                         input: '$concept',

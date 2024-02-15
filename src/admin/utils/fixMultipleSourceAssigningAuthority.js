@@ -12,7 +12,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 function fixPractitionerResource(resource, fixMultipleOwners) {
     const security = resource.meta.security || [];
-    if (!security.length){
+    if (!security.length) {
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
         return resource;
     }
@@ -69,7 +69,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
 
 function fixResource(resource) {
     const security = resource.meta.security || [];
-    if (!security.length){
+    if (!security.length) {
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
         return resource;
     }

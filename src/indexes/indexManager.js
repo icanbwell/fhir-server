@@ -916,7 +916,7 @@ class IndexManager {
      * @param {String} collectionName
      * @returns {boolean}
      */
-    isNotSystemCollection(collectionName){
+    isNotSystemCollection(collectionName) {
         const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
         return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }

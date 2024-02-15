@@ -291,7 +291,7 @@ class BundleManager {
                 // noinspection JSCheckFunctionSignatures
                 const simpleExplanations = explanations ?
                     explanations.map(
-                        ( /** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e,
+                        (/** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e,
                           index) => explainer.quick_explain(
                             {
                                 explanation: e,

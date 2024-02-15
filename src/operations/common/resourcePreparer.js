@@ -60,7 +60,7 @@ class ResourcePreparer {
          * @type {Resource}
          */
         const element_to_return = element.create({});
-        if (properties_to_return_list){
+        if (properties_to_return_list) {
             /**
              * @type {string}
              */

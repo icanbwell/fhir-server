@@ -103,17 +103,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             let numberOfSourceDocuments, useLimit;
             // If count query does not return in 30 seconds, use skip and limit params to restrict the query
             try {
-                if (useEstimatedCount){
+                if (useEstimatedCount) {
                     numberOfSourceDocuments = await sourceCollection.estimatedDocumentCount();
                 } else {
                     numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
                 }
-            } catch (e){
-                if ((e instanceof MongoServerError) && limit){
+            } catch (e) {
+                if ((e instanceof MongoServerError) && limit) {
                     useLimit = true;
                     try {
                         numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
-                    } catch (ex){
+                    } catch (ex) {
                         numberOfSourceDocuments = limit;
                     }
                 } else {

@@ -278,7 +278,7 @@ class UpdateCollectionsRunner {
                         if (targetLastUpdated > this.updatedBefore) {
                             targetLastUpdatedGreaterThanUpdatedBefore += 1;
                             continue;
-                        } else if ( targetLastUpdated > sourceLastUpdated ) {
+                        } else if (targetLastUpdated > sourceLastUpdated) {
                             targetLastUpdatedGreaterThanSource += 1;
                             continue;
                         }

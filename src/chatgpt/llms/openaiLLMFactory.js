@@ -4,7 +4,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {LLMFactory} = require('./llmFactory');
 
-class OpenAILLMFactory extends LLMFactory{
+class OpenAILLMFactory extends LLMFactory {
     /**
      * constructor
      * @param {ConfigManager} configManager
