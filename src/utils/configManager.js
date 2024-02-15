@@ -11,8 +11,8 @@ class ConfigManager {
          * @type {string|undefined}
          */
         const partitionResourcesString = env.PARTITION_RESOURCES;
-        return partitionResourcesString ?
-            partitionResourcesString.split(',').map(s => String(s).trim()) : [];
+        return partitionResourcesString
+            ? partitionResourcesString.split(',').map(s => String(s).trim()) : [];
     }
 
     get resourcesWithAccessIndex () {

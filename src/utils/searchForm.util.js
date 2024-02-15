@@ -140,9 +140,9 @@ function getPersonForm (params) {
  * @param params
  */
  function getNPIFieldValue (params) {
-    return params.npi ? params.npi :
-           (params.identifier && params.identifier[0]) ? params.identifier[0].replace(identifierUrl, '') :
-           '';
+    return params.npi ? params.npi
+           : (params.identifier && params.identifier[0]) ? params.identifier[0].replace(identifierUrl, '')
+           : '';
 }
 
 /**

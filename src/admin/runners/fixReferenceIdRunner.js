@@ -834,8 +834,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                             // iterate over all the reference field names
                             referenceFieldNames.forEach(referenceFieldName => {
-                                const fieldName = isHistoryCollection ?
-                                    `resource.${referenceFieldName.field}._sourceId`
+                                const fieldName = isHistoryCollection
+                                    ? `resource.${referenceFieldName.field}._sourceId`
                                     : `${referenceFieldName.field}._sourceId`;
 
                                 // create $in query with the reference array if it has some references
@@ -1083,9 +1083,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 }
             };
         } else {
-            query = this.properties && this.properties.length > 0 ?
-                this.getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                this.getFilter(this.filterToRecordsWithFields);
+            query = this.properties && this.properties.length > 0
+                ? this.getFilter(this.properties.concat(this.filterToRecordsWithFields || []))
+                : this.getFilter(this.filterToRecordsWithFields);
         }
 
         if (this.startFromId) {

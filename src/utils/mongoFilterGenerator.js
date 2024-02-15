@@ -35,8 +35,8 @@ class MongoFilterGenerator {
             /**
              * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
              */
-            const sourceAssigningAuthorityFilter = securityTagStructure.sourceAssigningAuthority.length > 1 ?
-                {
+            const sourceAssigningAuthorityFilter = securityTagStructure.sourceAssigningAuthority.length > 1
+                ? {
                     $or: securityTagStructure.sourceAssigningAuthority.map(
                         sa => {
                             return {
@@ -44,8 +44,8 @@ class MongoFilterGenerator {
                             };
                         }
                     )
-                } :
-                { '_sourceAssigningAuthority': securityTagStructure.sourceAssigningAuthority[0] };
+                }
+                : { '_sourceAssigningAuthority': securityTagStructure.sourceAssigningAuthority[0] };
             filter = {
                 $and: [
                     { '_sourceId': id.toString() },

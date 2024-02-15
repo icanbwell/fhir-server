@@ -164,8 +164,8 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     getUpdateReferenceFn (proxyPatientIds, proxyPatientPersonId) {
         return (reference) => {
             if (reference.reference && proxyPatientIds.includes(reference.reference)) {
-                reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
-                    proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
+                reference.reference = proxyPatientPersonId.startsWith('Patient/')
+                    ? proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
             }
             return reference;
         };

@@ -21,9 +21,9 @@ async function main () {
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
-    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
-        parameters.clientSourceAssigningAuthorities.split(',') :
-        ['bwell_demo'];
+    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities
+        ? parameters.clientSourceAssigningAuthorities.split(',')
+        : ['bwell_demo'];
 
     const adminLogger = new AdminLogger();
 

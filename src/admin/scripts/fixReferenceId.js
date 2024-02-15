@@ -34,23 +34,23 @@ async function main () {
     /**
      * @type {string[]}
      */
-    const collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
-    const proaCollections = parameters.proaCollections ?
-        parameters.proaCollections.split(',').map(x => x.trim()) : [
+    const proaCollections = parameters.proaCollections
+        ? parameters.proaCollections.split(',').map(x => x.trim()) : [
             ...proaResources.map(collection => `${collection}_4_0_0`),
             ...proaResources.map(collection => `${collection}_4_0_0_History`)
         ];
 
-    const properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
-    const filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
-        parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
-        undefined;
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields
+        ? parameters.filterToRecordsWithFields.split(',').map(x => x.trim())
+        : undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**

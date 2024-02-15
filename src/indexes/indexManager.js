@@ -152,8 +152,8 @@ args: {
      * @returns {Promise<{collectionName: string, indexes: IndexConfig[]}>}
      */
     async getIndexesToCreateForCollectionAsync ({ collectionName }) {
-        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME ?
-            collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
+        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME
+            ? collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         // if this is a history collection then we only create an index on id
         /**
@@ -492,10 +492,10 @@ args: {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         const collection_names = [];
 
@@ -720,10 +720,10 @@ args: {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -820,10 +820,10 @@ args: {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -874,10 +874,10 @@ args: {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = audit
+            ? await this.mongoDatabaseManager.getAuditDbAsync()
+            : accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+            : await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}

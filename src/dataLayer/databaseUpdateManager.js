@@ -176,9 +176,9 @@ class DatabaseUpdateManager {
             while (runsLeft > 0) {
                 const updatedDoc = await this.preSaveManager.preSaveAsync(doc.clone());
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
-                const filter = previousVersionId > 0 ?
-                    { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] } :
-                    { _uuid: updatedDoc._uuid };
+                const filter = previousVersionId > 0
+                    ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
+                    : { _uuid: updatedDoc._uuid };
                 docVersionsTested.push(updatedDoc);
                 const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
                 await logTraceSystemEventAsync(

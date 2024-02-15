@@ -96,9 +96,9 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
-                this.useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
-                    await this.mongoDatabaseManager.getClientDbAsync();
+            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync()
+                : this.useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsDbAsync()
+                    : await this.mongoDatabaseManager.getClientDbAsync();
 
             const collections = this.collections.length > 0 ? this.collections : ['all'];
             if (this.addMissingIndexesOnly) {

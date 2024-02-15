@@ -64,8 +64,8 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
-                await this.mongoDatabaseManager.getClientDbAsync();
+            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync()
+                : await this.mongoDatabaseManager.getClientDbAsync();
             if (this.collections.length > 0 && this.collections[0] === 'all') {
                 this.collections = await this.getAllCollectionNamesAsync(
                     {

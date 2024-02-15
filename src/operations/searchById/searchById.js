@@ -210,8 +210,8 @@ class SearchByIdOperation {
                  * @type {string[]}
                  */
                 const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security ?
-                        r.meta.security
+                    r => r.meta && r.meta.security
+                        ? r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
                         : []

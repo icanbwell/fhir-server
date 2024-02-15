@@ -12,11 +12,11 @@ class FilterByMissing extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem (field, value) {
-        return isTrue(value) ?
-            {
+        return isTrue(value)
+            ? {
                 [this.fieldMapper.getFieldName(field)]: null
-            } :
-            {
+            }
+            : {
                 [this.fieldMapper.getFieldName(field)]: { $ne: null }
             };
     }

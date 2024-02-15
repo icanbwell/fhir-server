@@ -37,9 +37,9 @@ async function main () {
     /**
      * @type {string[]}
      */
-    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
-        parameters.clientSourceAssigningAuthorities.split(',') :
-        ['bwell_demo'];
+    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities
+        ? parameters.clientSourceAssigningAuthorities.split(',')
+        : ['bwell_demo'];
 
     const adminLogger = new AdminLogger();
 

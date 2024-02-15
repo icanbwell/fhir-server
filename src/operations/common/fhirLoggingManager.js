@@ -204,8 +204,8 @@ class FhirLoggingManager {
         /**
          * @type {string[]}
          */
-        const accessCodes = requestInfo.scope ?
-            this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
+        const accessCodes = requestInfo.scope
+            ? this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope)
             : [];
         /**
          * @type {string|null}
@@ -248,9 +248,9 @@ class FhirLoggingManager {
                     type: {
                         text: firstAccessCode
                     },
-                    altId: (!requestInfo.user || typeof requestInfo.user === 'string') ?
-                        requestInfo.user :
-                        requestInfo.user.name || requestInfo.user.id,
+                    altId: (!requestInfo.user || typeof requestInfo.user === 'string')
+                        ? requestInfo.user
+                        : requestInfo.user.name || requestInfo.user.id,
                     network: {
                         address: requestInfo.remoteIpAddress
                     },
@@ -292,16 +292,16 @@ class FhirLoggingManager {
                 valueString: requestInfo.contentTypeFromHeader.type
             });
         }
-        logEntry.message = error ?
-            `${error.message}: ${error.stack || ''}` :
-            message;
+        logEntry.message = error
+            ? `${error.message}: ${error.stack || ''}`
+            : message;
 
         if (requestInfo.body) {
             detail.push({
                 type: 'body',
-                valueString: (!requestInfo.body || typeof requestInfo.body === 'string') ?
-                    requestInfo.body :
-                    JSON.stringify(requestInfo.body, getCircularReplacer())
+                valueString: (!requestInfo.body || typeof requestInfo.body === 'string')
+                    ? requestInfo.body
+                    : JSON.stringify(requestInfo.body, getCircularReplacer())
             });
         }
         if (query) {

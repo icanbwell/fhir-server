@@ -129,8 +129,8 @@ class GraphOperation {
             /**
              * @type {Object|null}
              */
-            let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0 ?
-                parsedArgs.resource : body;
+            let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0
+                ? parsedArgs.resource : body;
 
             // check if this is a Parameters resourceType
             if (graphDefinitionRaw.resourceType === 'Parameters') {
@@ -182,8 +182,8 @@ class GraphOperation {
             /**
              * @type {Bundle}
              */
-            const resultBundle = (method.toLowerCase() === 'delete') ?
-                await this.graphHelper.deleteGraphAsync(
+            const resultBundle = (method.toLowerCase() === 'delete')
+                ? await this.graphHelper.deleteGraphAsync(
                     {
                         requestInfo,
                         base_version,

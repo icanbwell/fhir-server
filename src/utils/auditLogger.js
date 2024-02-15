@@ -154,8 +154,8 @@ class AuditLogger {
                     what: new Reference({
                         reference: `${resourceType}/${resourceId}`
                     }),
-                    detail: index === 0 ?
-                        Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
+                    detail: index === 0
+                        ? Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
                             return {
                                 type: key,
                                 valueString: value

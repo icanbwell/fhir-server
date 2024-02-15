@@ -48,9 +48,9 @@ class MergeValidator {
         /**
          * @type {Resource[]|Resource}
          */
-        let incomingResources = Array.isArray(incomingObjects) ?
-            incomingObjects.map(o => FhirResourceCreator.create(o)) :
-            FhirResourceCreator.create(incomingObjects);
+        let incomingResources = Array.isArray(incomingObjects)
+            ? incomingObjects.map(o => FhirResourceCreator.create(o))
+            : FhirResourceCreator.create(incomingObjects);
 
         for (const validator of this.validators) {
             const {

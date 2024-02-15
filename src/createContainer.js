@@ -118,9 +118,9 @@ const createContainer = function () {
 
     container.register('configManager', () => new ConfigManager());
 
-    container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents ?
-        new KafkaClient({ configManager: c.configManager }) :
-        new DummyKafkaClient({ configManager: c.configManager })
+    container.register('kafkaClient', (c) => c.configManager.kafkaEnableEvents
+        ? new KafkaClient({ configManager: c.configManager })
+        : new DummyKafkaClient({ configManager: c.configManager })
     );
 
     container.register('scopesManager', (c) => new ScopesManager(

@@ -167,9 +167,9 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 this.writeStream.write(`\t"/4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true",\n`);
             }
             this.adminLogger.logInfo(
-                this.dryRun ?
-                    `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true` :
-                    `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}`
+                this.dryRun
+                    ? `$everything link for resources to be deleted: /4_0_0/${resource}/$everything?id=${uuid}&_format=json&contained=true`
+                    : `Resources deleted for ${resource}/${uuid}: ${bundleEntries.entry.length}`
             );
             bundleEntries.entry.forEach((entry) => {
                 const resourceType = entry.resource.resourceType;
@@ -212,9 +212,9 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                  */
                 const resource = collectionName.replace('_4_0_0', '');
                 this.adminLogger.logInfo(
-                    this.dryRun ?
-                    `Printing Everything url for ${resource} resource` :
-                    `Starting loop for ${resource} resource`
+                    this.dryRun
+                    ? `Printing Everything url for ${resource} resource`
+                    : `Starting loop for ${resource} resource`
                 );
 
                 const uuidsToDelete = resource === 'Person' ? this.personUuids : this.patientUuids;

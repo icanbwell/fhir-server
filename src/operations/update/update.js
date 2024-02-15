@@ -293,8 +293,8 @@ class UpdateOperation {
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security ?
-                        r.meta.security
+                    r => r.meta && r.meta.security
+                        ? r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
                         : []
@@ -400,9 +400,9 @@ base_version: base_version,
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
                     throw new BadRequestError(
-                        new Error(mergeResults.length > 0 ?
-                            JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
-                            'No merge result'
+                        new Error(mergeResults.length > 0
+                            ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
+                            : 'No merge result'
                         )
                     );
                 }

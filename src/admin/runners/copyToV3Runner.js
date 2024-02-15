@@ -256,9 +256,9 @@ lastProcessedId: lastProcessedId
                     const v3DatabaseCollection = v3Database.collection(collection);
 
                     // Query to fetch documents for both history collection and normal collection that have lastUpdated greater than updatedAfter
-                    const queryToFetchDocuments = isHistoryCollection ?
-                        { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } } :
-                        { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
+                    const queryToFetchDocuments = isHistoryCollection
+                        ? { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } }
+                        : { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
                     // // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
                     const query = this._idAbove ? { $and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments] } : queryToFetchDocuments;
 

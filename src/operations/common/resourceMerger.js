@@ -201,9 +201,9 @@ class ResourceMerger {
          * @type {Meta}
          */
         const meta = new Meta(currentResource.meta);
-        meta.versionId = incrementVersion ?
-            `${parseInt(currentResource.meta.versionId) + 1}` :
-            currentResource.meta.versionId;
+        meta.versionId = incrementVersion
+            ? `${parseInt(currentResource.meta.versionId) + 1}`
+            : currentResource.meta.versionId;
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         // set the source from the incoming resource
         meta.source = original_source;
@@ -290,9 +290,9 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        const mergedObject = smartMerge ?
-            mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
-            resourceToMerge.toJSON();
+        const mergedObject = smartMerge
+            ? mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON())
+            : resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
         // this returns an array of patchecurrentResources

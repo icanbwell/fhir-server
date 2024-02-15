@@ -10,10 +10,10 @@ const {
  * @return {function} filter function for array.filter
  */
 const conformanceSearchParamsFilter = base_version => route_arg => {
-    return route_arg.conformance_hide ? // If the conformance_hide property is true, always remove this element
-        false : // Else check our versions property, there are two possible cases
+    return route_arg.conformance_hide // If the conformance_hide property is true, always remove this element
+        ? false // Else check our versions property, there are two possible cases
         // If no versions are provided, it is available for all versions
-        !route_arg.versions || // If versions are provided, make sure this arg is meant for this version
+        : !route_arg.versions || // If versions are provided, make sure this arg is meant for this version
         route_arg.versions && route_arg.versions.indexOf(base_version) > -1;
 };
 /**

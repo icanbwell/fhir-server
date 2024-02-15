@@ -57,20 +57,20 @@ class SecurityTagStructure {
     static fromDocument ({ doc }) {
         return new SecurityTagStructure(
             {
-                owner: doc.meta && doc.meta.security ?
-                    doc.meta.security
+                owner: doc.meta && doc.meta.security
+                    ? doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.owner)
                         .map(s => s.code) : [],
-                access: doc.meta && doc.meta.security ?
-                    doc.meta.security
+                access: doc.meta && doc.meta.security
+                    ? doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.access)
                         .map(s => s.code) : [],
-                vendor: doc.meta && doc.meta.security ?
-                    doc.meta.security
+                vendor: doc.meta && doc.meta.security
+                    ? doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.vendor)
                         .map(s => s.code) : [],
-                sourceAssigningAuthority: doc.meta && doc.meta.security ?
-                    doc.meta.security
+                sourceAssigningAuthority: doc.meta && doc.meta.security
+                    ? doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
                         .map(s => s.code) : []
             }

@@ -101,13 +101,13 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         const options = { session: session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS };
         let refreshTimestamp = moment(); // take note of time at operation start
         // Filter to process only certain documents depending on the owner code passed.
-        const accessFilter = this.accessCode ?
-            { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode } } } :
-            {};
+        const accessFilter = this.accessCode
+            ? { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode } } }
+            : {};
         // Fetch only docs that were lastUpdated before beforeDate
-        const beforeDateQuery = this.beforeDate ?
-            { 'meta.lastUpdated': { $lt: new Date(this.beforeDate) } } :
-            {};
+        const beforeDateQuery = this.beforeDate
+            ? { 'meta.lastUpdated': { $lt: new Date(this.beforeDate) } }
+            : {};
 
         console.log(accessFilter);
         console.log(beforeDateQuery);

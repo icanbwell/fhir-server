@@ -862,9 +862,9 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
     const regex = /([a-z]+)(.+)/;
     const match = dateQueryItem.match(regex);
 
-    const [prefix, date] = (match && match.length >= 1 && match[1]) ?
-        [match[1], dateQueryItem.slice(match[1].length)] :
-        ['eq', dateQueryItem];
+    const [prefix, date] = (match && match.length >= 1 && match[1])
+        ? [match[1], dateQueryItem.slice(match[1].length)]
+        : ['eq', dateQueryItem];
 
     // Build query for period.start
     let startQuery = {};

@@ -93,8 +93,8 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
         /**
          * @type {Extension[]}
          */
-        const extension = response.documents ?
-            response.documents.map(doc =>
+        const extension = response.documents
+            ? response.documents.map(doc =>
                 new Extension(
                     {
                         url: 'http://www.icanbwell.com/relevantDocument',

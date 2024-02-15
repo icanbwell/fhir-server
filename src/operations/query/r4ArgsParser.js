@@ -149,8 +149,8 @@ class R4ArgsParser {
             }
 
             // set type of field in propertyObj
-            propertyObj.fieldType = propertyObj.fields.length > 0 ?
-                this.fhirTypesManager.getTypeForField(
+            propertyObj.fieldType = propertyObj.fields.length > 0
+                ? this.fhirTypesManager.getTypeForField(
                     {
                         resourceType,
                         field: propertyObj.firstField

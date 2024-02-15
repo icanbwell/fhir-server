@@ -30,9 +30,9 @@ async function main () {
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
     console.log(`[${currentDateTime}] ` + 'Running script for Person_4_0_0');
 
-    const preLoadCollections = parameters.preLoadCollections ?
-        parameters.preLoadCollections.split(',').map(x => x.trim()) :
-        [];
+    const preLoadCollections = parameters.preLoadCollections
+        ? parameters.preLoadCollections.split(',').map(x => x.trim())
+        : [];
 
     // set up all the standard services in the container
     const container = createContainer();

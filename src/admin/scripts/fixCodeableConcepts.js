@@ -43,9 +43,9 @@ async function main () {
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    let collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
     if (collections[0] === 'all') {
         collections = Array.from(
@@ -56,20 +56,20 @@ async function main () {
         );
     }
 
-    const properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
-    const filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
-        parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
-        undefined;
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields
+        ? parameters.filterToRecordsWithFields.split(',').map(x => x.trim())
+        : undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const promiseConcurrency = parameters.promiseConcurrency || 10;
 
-    const oidToStandardSystemUrlMap = parameters.oidToStandardUrlMap ?
-        { ...JSON.parse(parameters.oidToStandardUrlMap), ...oidToStandardUrlMapDefault } :
-        oidToStandardUrlMapDefault;
+    const oidToStandardSystemUrlMap = parameters.oidToStandardUrlMap
+        ? { ...JSON.parse(parameters.oidToStandardUrlMap), ...oidToStandardUrlMapDefault }
+        : oidToStandardUrlMapDefault;
 
     /**
      * @type {Date|undefined}

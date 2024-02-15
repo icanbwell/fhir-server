@@ -27,9 +27,9 @@ class FieldMapper {
      * @return {string}
      */
     getFieldName (field, value) {
-        const fieldName = field === 'id' ?
-            isUuid(value) ? uuidFieldName : sourceIdFieldName :
-            field;
+        const fieldName = field === 'id'
+            ? isUuid(value) ? uuidFieldName : sourceIdFieldName
+            : field;
         return this.useHistoryTable ? `resource.${fieldName}` : fieldName;
     }
 }

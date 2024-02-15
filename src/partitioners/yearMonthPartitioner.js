@@ -62,9 +62,9 @@ class YearMonthPartitioner extends BasePartitioner {
          * @type {Object[]}
          */
         const clauses = query.$and || query || [];
-        const andClauses = Array.isArray(clauses) ?
-            clauses :
-            [clauses];
+        const andClauses = Array.isArray(clauses)
+            ? clauses
+            : [clauses];
         /**
          * @type {Object[]}
          */

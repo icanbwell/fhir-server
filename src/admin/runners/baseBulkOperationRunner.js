@@ -305,9 +305,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let operations = [];
         let previouslyCheckedId = lastCheckedId;
 
-        const numberOfDocumentsToCopy = skipExistingIds ?
-            numberOfSourceDocuments - numberOfDestinationDocuments :
-            numberOfSourceDocuments;
+        const numberOfDocumentsToCopy = skipExistingIds
+            ? numberOfSourceDocuments - numberOfDestinationDocuments
+            : numberOfSourceDocuments;
 
         /**
          * @type {number}

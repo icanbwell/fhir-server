@@ -569,9 +569,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     'meta.lastUpdated': {
                         $gt: this.afterLastUpdatedDate
                     }
-                } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                    getFilter(this.filterToRecordsWithFields);
+                } : this.properties && this.properties.length > 0
+                    ? getFilter(this.properties.concat(this.filterToRecordsWithFields || []))
+                    : getFilter(this.filterToRecordsWithFields);
 
                 if (this.startFromId) {
                     const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId) : this.startFromId;

@@ -79,18 +79,18 @@ class PersonMatchManager {
         const sourceIdQuery = isUuid(sourceId) ? { _uuid: sourceId } : { id: sourceId };
         const targetIdQuery = isUuid(targetId) ? { _uuid: targetId } : { id: targetId };
 
-        const sourceCursor = sourceType === 'Patient' ?
-            await patientDatabaseQueryManager.findAsync({
+        const sourceCursor = sourceType === 'Patient'
+            ? await patientDatabaseQueryManager.findAsync({
                 query: sourceIdQuery
-            }) :
-            await personDatabaseQueryManager.findAsync({
+            })
+            : await personDatabaseQueryManager.findAsync({
                 query: sourceIdQuery
             });
-        const targetCursor = targetType === 'Patient' ?
-            await patientDatabaseQueryManager.findAsync({
+        const targetCursor = targetType === 'Patient'
+            ? await patientDatabaseQueryManager.findAsync({
                 query: targetIdQuery
-            }) :
-            await personDatabaseQueryManager.findAsync({
+            })
+            : await personDatabaseQueryManager.findAsync({
                 query: targetIdQuery
             });
 

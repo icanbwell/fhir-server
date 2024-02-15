@@ -416,8 +416,8 @@ args: {
                                             url: `/${base_version}/${resourceType}/${doc.id}`
                                         }
                                     ),
-                                    response: patches ?
-                                        new BundleResponse(
+                                    response: patches
+                                        ? new BundleResponse(
                                             {
                                                 status: '200',
                                                 outcome: new OperationOutcome({
@@ -626,9 +626,9 @@ args: {
                         previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                     }
                 } else { // no previuous insert or update found
-                    const filter = lastVersionId && lastVersionId !== '0' ?
-                        { $and: [{ _uuid: doc._uuid }, { 'meta.versionId': `${lastVersionId}` }] } :
-                        { _uuid: doc._uuid };
+                    const filter = lastVersionId && lastVersionId !== '0'
+                        ? { $and: [{ _uuid: doc._uuid }, { 'meta.versionId': `${lastVersionId}` }] }
+                        : { _uuid: doc._uuid };
                     assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
@@ -676,8 +676,8 @@ args: {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
-            const operationsByResourceTypeMap = operationsMap ?
-                operationsMap : this.getOperationsByResourceTypeMap({ requestId });
+            const operationsByResourceTypeMap = operationsMap
+                ? operationsMap : this.getOperationsByResourceTypeMap({ requestId });
 
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
@@ -860,9 +860,9 @@ operations,
                 /**
                  * @type {string}
                  */
-                const collectionName = useHistoryCollection ?
-                    await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource) :
-                    await resourceLocator.getCollectionNameAsync(resource);
+                const collectionName = useHistoryCollection
+                    ? await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource)
+                    : await resourceLocator.getCollectionNameAsync(resource);
                 if (!(operationsByCollectionNames.has(collectionName))) {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
@@ -1191,9 +1191,9 @@ args: {
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({ requestId }).get(resourceType);
-        return operationsByResourceType ?
-            operationsByResourceType.filter(operation => operation.operationType === 'insertUniqueId') :
-            [];
+        return operationsByResourceType
+            ? operationsByResourceType.filter(operation => operation.operationType === 'insertUniqueId')
+            : [];
     }
 
     /**
@@ -1207,9 +1207,9 @@ args: {
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({ requestId }).get(resourceType);
-        return operationsByResourceType ?
-            operationsByResourceType.filter(operation => operation.isUpdateOperation) :
-            [];
+        return operationsByResourceType
+            ? operationsByResourceType.filter(operation => operation.isUpdateOperation)
+            : [];
     }
 
     /**

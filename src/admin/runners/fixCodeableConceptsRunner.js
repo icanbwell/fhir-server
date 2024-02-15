@@ -284,8 +284,8 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             for (const coding of resource.coding) {
                 if (coding.system) {
                     // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.toLowerCase().startsWith('u') ?
-                        coding.system.split(':')[2] : coding.system;
+                    const system = coding.system.toLowerCase().startsWith('u')
+                        ? coding.system.split(':')[2] : coding.system;
 
                     if (this.availableOidValues.has(system)) {
                         return true;
@@ -328,8 +328,8 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             for (const coding of resource.coding) {
                 if (coding.system) {
                     // to remove prefix urn:oid: or URN:OID:
-                    const system = coding.system.toLowerCase().startsWith('u') ?
-                        coding.system.split(':')[2] : coding.system;
+                    const system = coding.system.toLowerCase().startsWith('u')
+                        ? coding.system.split(':')[2] : coding.system;
 
                     if (this.availableOidValues.has(system)) {
                         coding.system = this.oidToStandardSystemUrlMap[`${system}`];
@@ -394,9 +394,9 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 }
             };
         } else {
-            query = this.properties && this.properties.length > 0 ?
-                this.getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                this.getFilter(this.filterToRecordsWithFields);
+            query = this.properties && this.properties.length > 0
+                ? this.getFilter(this.properties.concat(this.filterToRecordsWithFields || []))
+                : this.getFilter(this.filterToRecordsWithFields);
         }
 
         if (this.startFromId) {

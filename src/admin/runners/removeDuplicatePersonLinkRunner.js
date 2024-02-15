@@ -179,14 +179,14 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             }
         );
         // Filter to process only certain documents which match an uuid
-        const personUuidQuery = this.personUuids ?
-            { _uuid: { $in: this.personUuids } } :
-            {};
+        const personUuidQuery = this.personUuids
+            ? { _uuid: { $in: this.personUuids } }
+            : {};
 
         // Fetch only uuid that are greater than uuidGreaterThan
-        const uuidGreaterThanQuery = this.uuidGreaterThan ?
-            { _uuid: { $gt: this.uuidGreaterThan } } :
-            {};
+        const uuidGreaterThanQuery = this.uuidGreaterThan
+            ? { _uuid: { $gt: this.uuidGreaterThan } }
+            : {};
 
         const result = dbCollection.aggregate([
             { $unwind: '$link' },

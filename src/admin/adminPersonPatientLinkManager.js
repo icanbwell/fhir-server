@@ -483,10 +483,10 @@ class AdminPersonPatientLinkManager {
                 id: resourceObj.id,
                 resourceType: resourceObj.resourceType,
                 source: resourceObj.meta ? resourceObj.meta.source : null,
-                owner: resourceObj.meta && resourceObj.meta.security ?
-                    resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
-                access: resourceObj.meta && resourceObj.meta.security ?
-                    resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : []
+                owner: resourceObj.meta && resourceObj.meta.security
+                    ? resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
+                access: resourceObj.meta && resourceObj.meta.security
+                    ? resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : []
             };
         };
 
@@ -566,10 +566,10 @@ class AdminPersonPatientLinkManager {
             id: person.id,
             resourceType: person.resourceType,
             source: person.meta ? person.meta.source : null,
-            owner: person.meta && person.meta.security ?
-                person.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
-            access: person.meta && person.meta.security ?
-                person.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : []
+            owner: person.meta && person.meta.security
+                ? person.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
+            access: person.meta && person.meta.security
+                ? person.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : []
         };
         if (children.length > 0) {
             result.children = children;

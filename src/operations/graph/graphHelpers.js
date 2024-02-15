@@ -186,13 +186,13 @@ class GraphHelper {
         if (this.configManager.supportLegacyIds && supportLegacyId) {
             // concat uuids and ids so we can search both in case some reference does not have
             // _sourceAssigningAuthority set correctly
-            return Array.isArray(propertyValue) ?
-                propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference)) :
-                [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
+            return Array.isArray(propertyValue)
+                ? propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference))
+                : [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
         } else {
-            return Array.isArray(propertyValue) ?
-                propertyValue.map(a => a._uuid) :
-                [].concat([propertyValue._uuid]);
+            return Array.isArray(propertyValue)
+                ? propertyValue.map(a => a._uuid)
+                : [].concat([propertyValue._uuid]);
         }
     }
 
@@ -281,8 +281,8 @@ class GraphHelper {
                 // then the uuid will be correct so no need to include.
                 // otherwise (e.g., 'Patient/123' include reference id too to handle where the reference id
                 // was not specified with sourceAssigningAuthority.
-                return referenceResourceType === resourceType && !referenceSourceAssigningAuthority ?
-                    referenceId : null;
+                return referenceResourceType === resourceType && !referenceSourceAssigningAuthority
+                    ? referenceId : null;
             }).filter(i => i !== null);
             if (relatedReferenceIds.length === 0) {
                 return; // nothing to do

@@ -26,23 +26,23 @@ async function main () {
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        [];
+    let collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : [];
     if (parameters.collections === 'all') {
         collections = ['all'];
     }
-    const preLoadCollections = parameters.preLoadCollections ?
-        parameters.preLoadCollections.split(',').map(x => x.trim()) :
-        [];
+    const preLoadCollections = parameters.preLoadCollections
+        ? parameters.preLoadCollections.split(',').map(x => x.trim())
+        : [];
 
-    const properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
-    const filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
-        parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
-        undefined;
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields
+        ? parameters.filterToRecordsWithFields.split(',').map(x => x.trim())
+        : undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**

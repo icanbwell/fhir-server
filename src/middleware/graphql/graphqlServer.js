@@ -50,9 +50,9 @@ const graphql = async (fnGetContainer) => {
     const plugins = [
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
-        configManagerInstance.enableGraphQLPlayground ?
+        configManagerInstance.enableGraphQLPlayground
             // eslint-disable-next-line new-cap
-            ApolloServerPluginLandingPageLocalDefault({
+            ? ApolloServerPluginLandingPageLocalDefault({
                 embed: {
                     runTelemetry: false
                 }

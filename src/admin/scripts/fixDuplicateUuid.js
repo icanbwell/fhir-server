@@ -26,9 +26,9 @@ async function main () {
     /**
      * @type {string[]}
      */
-    const collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
@@ -42,9 +42,9 @@ async function main () {
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
-    const properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
     const adminLogger = new AdminLogger();
     adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);

@@ -36,9 +36,9 @@ class UuidColumnHandler extends PreSaveHandler {
              */
             const sourceAssigningAuthorityCodes = resource.meta.security.filter(
                 s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-            const idToGenerateUuid = sourceAssigningAuthorityCodes ?
-                resource.id + '|' + sourceAssigningAuthorityCodes[0] :
-                resource.id;
+            const idToGenerateUuid = sourceAssigningAuthorityCodes
+                ? resource.id + '|' + sourceAssigningAuthorityCodes[0]
+                : resource.id;
             resource._uuid = `${generateUUIDv5(idToGenerateUuid)}`;
         }
 

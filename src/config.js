@@ -161,9 +161,9 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
         db_name: String(env.ACCESS_LOGS_MONGO_DB_NAME)
     };
 } else {
-    const dbName = env.ACCESS_LOGS_MONGO_DB_NAME ?
-        String(env.ACCESS_LOGS_MONGO_DB_NAME) :
-        auditEventMongoConfig.db_name;
+    const dbName = env.ACCESS_LOGS_MONGO_DB_NAME
+        ? String(env.ACCESS_LOGS_MONGO_DB_NAME)
+        : auditEventMongoConfig.db_name;
     accessLogsMongoConfig = {
         connection: auditEventMongoConfig.connection,
         db_name: dbName

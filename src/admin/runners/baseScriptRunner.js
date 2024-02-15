@@ -87,10 +87,10 @@ class BaseScriptRunner {
      * @returns {Promise<string[]>}
      */
     async getAllCollectionNamesAsync ({ useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections }) {
-        const config = useAuditDatabase ?
-            await this.mongoDatabaseManager.getAuditConfigAsync() :
-            useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsConfigAsync() :
-            await this.mongoDatabaseManager.getClientConfigAsync();
+        const config = useAuditDatabase
+            ? await this.mongoDatabaseManager.getAuditConfigAsync()
+            : useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsConfigAsync()
+            : await this.mongoDatabaseManager.getClientConfigAsync();
 
         /**
          * @type {import('mongodb').MongoClient}

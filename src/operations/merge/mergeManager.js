@@ -753,8 +753,8 @@ scope
                     uuid: resourceToMerge._uuid,
                     created: false,
                     updated: false,
-                    issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ?
-                        validationOperationOutcome.issue[0] : null,
+                    issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0)
+                        ? validationOperationOutcome.issue[0] : null,
                     operationOutcome: validationOperationOutcome,
                     resourceType: resourceToMerge.resourceType
                 };

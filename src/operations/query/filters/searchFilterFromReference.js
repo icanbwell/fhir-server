@@ -54,8 +54,8 @@ class SearchFilterFromReference {
       } else {
         if (sourceAssigningAuthority) {
           // push ResourceType/id|sourceAssigningAuthority
-          const idToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType, sourceAssigningAuthority }) :
-            ReferenceParser.createReference({ id, sourceAssigningAuthority });
+          const idToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType, sourceAssigningAuthority })
+            : ReferenceParser.createReference({ id, sourceAssigningAuthority });
           sourceIdOrItsRefWithSourceAssigningAuthority
             .push(idToPush);
         } else {

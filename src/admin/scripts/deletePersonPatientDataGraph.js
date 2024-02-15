@@ -28,9 +28,9 @@ async function main () {
 
     const currentDateTime = new Date();
 
-    const properties = parameters.properties ?
-        parameters.properties.split(',').map((x) => x.trim()) :
-        [];
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map((x) => x.trim())
+        : [];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 

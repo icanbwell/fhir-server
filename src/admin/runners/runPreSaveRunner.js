@@ -184,9 +184,9 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: this.useAuditDatabase ?
-                                await this.mongoDatabaseManager.getAuditConfigAsync() :
-                                await this.mongoDatabaseManager.getClientConfigAsync(),
+                            config: this.useAuditDatabase
+                                ? await this.mongoDatabaseManager.getAuditConfigAsync()
+                                : await this.mongoDatabaseManager.getClientConfigAsync(),
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,

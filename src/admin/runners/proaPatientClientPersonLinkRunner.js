@@ -437,8 +437,8 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 method: 'PUT',
                 url: `/${base_version}/${resourceType}/${this.clientPerson.id}`
             },
-            response: patches ?
-                {
+            response: patches
+                ? {
                     status: '200',
                     outcome:
                         {

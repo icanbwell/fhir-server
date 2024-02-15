@@ -248,9 +248,9 @@ class BundleManager {
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
-                    code: Array.isArray(originalQuery) ?
-                        originalQuery.map(q => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|') :
-                        this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName)
+                    code: Array.isArray(originalQuery)
+                        ? originalQuery.map(q => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|')
+                        : this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',
@@ -289,18 +289,18 @@ class BundleManager {
                 });
                 const explainer = new MongoExplainPlanHelper();
                 // noinspection JSCheckFunctionSignatures
-                const simpleExplanations = explanations ?
-                    explanations.map(
+                const simpleExplanations = explanations
+                    ? explanations.map(
                         (/** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e,
                           index) => explainer.quick_explain(
                             {
                                 explanation: e,
-                                query: (Array.isArray(originalQuery) && originalQuery.length > index) ?
-                                    mongoQueryAndOptionsStringify({
+                                query: (Array.isArray(originalQuery) && originalQuery.length > index)
+                                    ? mongoQueryAndOptionsStringify({
                                         query: originalQuery[`${index}`],
                                         options: originalOptions || {}
-                                    }) :
-                                    mongoQueryAndOptionsStringify({
+                                    })
+                                    : mongoQueryAndOptionsStringify({
                                         query: originalQuery,
                                         options: originalOptions || {}
                                     })

@@ -9,11 +9,11 @@ const env = require('var');
  * @returns {OperationOutcome}
  */
 function convertErrorToOperationOutcome ({ error }) {
-    return error.issue && error.issue.length > 0 ?
-        new OperationOutcome({
+    return error.issue && error.issue.length > 0
+        ? new OperationOutcome({
             issue: error.issue
-        }) :
-        new OperationOutcome({
+        })
+        : new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',

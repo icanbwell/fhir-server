@@ -63,8 +63,8 @@ class IndexHinter {
         }
         const fieldsSet = new Set(fields);
 
-        const baseCollectionName = collectionName.endsWith('_4_0_0') ?
-            collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
+        const baseCollectionName = collectionName.endsWith('_4_0_0')
+            ? collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         const indexes = this.indexProvider.getIndexes();
         for (const [indexCollectionName,

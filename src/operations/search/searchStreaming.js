@@ -294,8 +294,8 @@ useAccessIndex,
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
-                (await cursor.explainAsync()) : [];
+            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG'))
+                ? (await cursor.explainAsync()) : [];
             if (cursor && parsedArgs['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();

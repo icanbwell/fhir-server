@@ -246,18 +246,18 @@ class SearchManager {
                 /**
                  * @type {string[]}
                  */
-                const patientIdsLinkedToPersonId = personIdFromJwtToken ?
-                    await this.getLinkedPatientsAsync(
+                const patientIdsLinkedToPersonId = personIdFromJwtToken
+                    ? await this.getLinkedPatientsAsync(
                         {
                             base_version, isUser, personIdFromJwtToken
-                        }) :
-                    [];
+                        })
+                    : [];
                 /**
                  * @type {string[]|null}
                  */
-                const allPatientIdsFromJwtToken = patientIdsFromJwtToken ?
-                    patientIdsFromJwtToken.concat(patientIdsLinkedToPersonId) :
-                    patientIdsLinkedToPersonId;
+                const allPatientIdsFromJwtToken = patientIdsFromJwtToken
+                    ? patientIdsFromJwtToken.concat(patientIdsLinkedToPersonId)
+                    : patientIdsLinkedToPersonId;
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
@@ -807,9 +807,9 @@ maxMongoTimeMS
                 .toArrayRawAsync();
             if (idResults.length > 0) {
                 // now get the documents for those ids.  We can clear all the other query parameters
-                query = idResults.length === 1 ?
-                    { id: idResults.map((r) => r.id)[0] } :
-                    { id: { $in: idResults.map((r) => r.id) } };
+                query = idResults.length === 1
+                    ? { id: idResults.map((r) => r.id)[0] }
+                    : { id: { $in: idResults.map((r) => r.id) } };
                 options = {}; // reset options since we'll be looking by id
                 originalQuery.push(query);
                 originalOptions.push(options);
@@ -916,9 +916,9 @@ signal: ac.signal,
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
     setCursorBatchSize ({ parsedArgs, cursorQuery }) {
-        const cursorBatchSize = parsedArgs['_cursorBatchSize'] ?
-            parseInt(parsedArgs['_cursorBatchSize']) :
-            parseInt(env.MONGO_BATCH_SIZE);
+        const cursorBatchSize = parsedArgs['_cursorBatchSize']
+            ? parseInt(parsedArgs['_cursorBatchSize'])
+            : parseInt(env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
             cursorQuery = cursorQuery.batchSize({ size: cursorBatchSize });
         }
@@ -1188,9 +1188,9 @@ error: new RethrownError(
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.includes('date')) {
             // Fetching all the parsed arguments for date
             const dateQueryParameterValues = parsedArgs['date'];
-            const queryParameters = Array.isArray(dateQueryParameterValues) ?
-                dateQueryParameterValues :
-                [dateQueryParameterValues];
+            const queryParameters = Array.isArray(dateQueryParameterValues)
+                ? dateQueryParameterValues
+                : [dateQueryParameterValues];
 
             const [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent] = this.getAuditEventValidDateOperationList(queryParameters);
 

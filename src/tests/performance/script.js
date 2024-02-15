@@ -35,9 +35,9 @@ async function main () {
         .on('error', (res) => {
             console.log('Response error:', res);
         })
-        .parse(accept === 'application/fhir+json' ?
-            new ResponseChunkParser().getFhirBundleParser() :
-            new ResponseChunkParser().getTextParser()
+        .parse(accept === 'application/fhir+json'
+            ? new ResponseChunkParser().getFhirBundleParser()
+            : new ResponseChunkParser().getTextParser()
         );
 
     const lines = resp.text.split('\n');

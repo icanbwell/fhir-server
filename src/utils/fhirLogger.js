@@ -171,9 +171,9 @@ class FhirLogger {
             format: winston.format.json(),
             defaultMeta: { service: env.DD_SERVICE || 'fhir-server' },
             transports: [
-                (env.LOGLEVEL === 'DEBUG') ?
-                    new NullTransport() : // the secure logger will write to console in debug mode
-                    new winston.transports.Console({
+                (env.LOGLEVEL === 'DEBUG')
+                    ? new NullTransport() // the secure logger will write to console in debug mode
+                    : new winston.transports.Console({
                         format: winston.format.json()
                     })
             ]
