@@ -1,6 +1,6 @@
 {
   "resourceType": "Person",
-  "id": "93f91e52-25c7-4f06-9c75-4e5c49f1096e",
+  "id": "95ca23e6-fd24-4fdd-afbf-a8957752059f",
   "meta": {
     "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
     "extension": [
@@ -29,11 +29,11 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "northwell"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "northwell"
+        "code": "client"
       }
     ]
   },
@@ -41,7 +41,7 @@
   "language": "english",
   "identifier": [
     {
-      "system": "http://www.walgreens.com/profileid",
+      "system": "http://www.client.com/profileid",
       "value": "1000000-a-02"
     }
   ],
@@ -93,14 +93,14 @@
     {
       "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
       "target": {
-        "reference": "Patient/northwell-1|northwell"
+        "reference": "Patient/client-3|client"
       },
       "assurance": "level4"
     },
     {
       "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
       "target": {
-        "reference": "Patient/northwell-2|northwell"
+        "reference": "Patient/client-4|client"
       },
       "assurance": "level4"
     }

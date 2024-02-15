@@ -14,12 +14,12 @@
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "PractitionerRole/c17a3261-0514-51da-a1cf-3d487e018ad4"
+                "valueString": "PractitionerRole/71848579-270b-5517-9e88-72936c2ed717"
               },
               {
                 "id": "sourceAssigningAuthority",
                 "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "valueString": "medstar"
+                "valueString": "client"
               }
             ],
             "reference": "PractitionerRole/1720233406-SCH-MPCS"
@@ -31,7 +31,7 @@
               {
                 "id": "forsystem",
                 "url": "forSystem",
-                "valueUri": "http://medstarhealth.org/IDHP"
+                "valueUri": "http://clienthealth.org/IDHP"
               },
               {
                 "id": "searchable",
@@ -60,12 +60,12 @@
                     },
                     {
                       "code": "bookable-phone",
-                      "id": "medstar-bookable-phone-value-coding",
+                      "id": "client-bookable-phone-value-coding",
                       "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic"
                     },
                     {
                       "code": "bookable-online",
-                      "id": "medstar-bookable-online-value-coding",
+                      "id": "client-bookable-online-value-coding",
                       "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic"
                     }
                   ],
@@ -81,7 +81,7 @@
             "extension": [
               {
                 "url": "for_system",
-                "valueUri": "http://medstarhealth.org/IDHP"
+                "valueUri": "http://clienthealth.org/IDHP"
               },
               {
                 "id": "availability_score",
@@ -103,17 +103,17 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "c17a3261-0514-51da-a1cf-3d487e018ad4"
+            "value": "71848579-270b-5517-9e88-72936c2ed717"
           }
         ],
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -125,19 +125,19 @@
               "system": "https://www.icanbwell.com/vendor"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "http://medstarhealth.org/provider",
+          "source": "http://clienthealth.org/provider",
           "versionId": "2"
         },
         "resourceType": "Schedule",
@@ -147,110 +147,110 @@
               {
                 "code": "NEW",
                 "display": "NEW",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "RET",
                 "display": "RET",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "REX",
                 "display": "REX",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "EV4",
                 "display": "EV4",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "ERN",
                 "display": "ERN",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "ERX",
                 "display": "ERX",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "PHN",
                 "display": "PHN",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "PHY",
                 "display": "PHY",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "MEW",
                 "display": "MEW",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "PH2",
                 "display": "PH2",
-                "system": "http://medstarhealth.org/appointment-type"
+                "system": "http://clienthealth.org/appointment-type"
               }
             ],
-            "text": "Medstar Appointment Type"
+            "text": "Client Appointment Type"
           },
           {
             "coding": [
               {
                 "code": "PrimaryCare",
                 "display": "PrimaryCare",
-                "system": "http://medstarhealth.org/protocol"
+                "system": "http://clienthealth.org/protocol"
               }
             ],
-            "text": "Medstar Protocol Departments"
+            "text": "Client Protocol Departments"
           }
         ]
       }

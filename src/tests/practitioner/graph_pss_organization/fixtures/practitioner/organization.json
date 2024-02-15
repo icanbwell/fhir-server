@@ -1,18 +1,18 @@
 {
     "resourceType": "Organization",
-    "id": "Medstar-Alias-MPF-MPCR",
+    "id": "Client-Alias-MPF-MPCR",
     "meta": {
         "versionId": "12",
         "lastUpdated": "2022-02-07T12:03:23.000Z",
-        "source": "http://medstarhealth.org/practice",
+        "source": "http://clienthealth.org/practice",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             }
         ]
     },
@@ -34,7 +34,7 @@
     "identifier": [
         {
             "use": "usual",
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "MPF-MPCR"
         }
     ],
@@ -51,8 +51,8 @@
             "text": "Healthcare Organization"
         }
     ],
-    "name": "MedStar Health Urgent Care in Federal Hill",
-    "alias": ["MedStar Urgent Care at Federal Hill", "MedStar Urgent Care in Federal Hill"],
+    "name": "Client Health Urgent Care in Federal Hill",
+    "alias": ["Client Urgent Care at Federal Hill", "Client Urgent Care in Federal Hill"],
     "telecom": [
         {
             "id": "amp-office-phone",
@@ -78,15 +78,15 @@
         }
     ],
     "partOf": {
-        "reference": "Organization/Medstar--1169180118",
-        "display": "MedStar Health Urgent Care at Federal Hill"
+        "reference": "Organization/Client--1169180118",
+        "display": "Client Health Urgent Care at Federal Hill"
     },
     "contact": [
         {
             "purpose": {
                 "coding": [
                     {
-                        "system": "http://medstarhealth.org",
+                        "system": "http://clienthealth.org",
                         "code": "Central Scheduling"
                     }
                 ]

@@ -4,15 +4,15 @@
   "meta": {
     "versionId": "2",
     "lastUpdated": "2021-04-09T09:29:24+00:00",
-    "source": "http://medstarhealth.org/provider",
+    "source": "http://clienthealth.org/provider",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -22,13 +22,13 @@
       "type": {
         "coding": [
           {
-            "system": "http://medstarhealth.org",
-            "code": "Medstar Provider-Protocol",
-            "display": "Medstar Provider-Protocol"
+            "system": "http://clienthealth.org",
+            "code": "Client Provider-Protocol",
+            "display": "Client Provider-Protocol"
           }
         ]
       },
-      "system": "http://medstarhealth.org",
+      "system": "http://clienthealth.org",
       "value": "1275501447-UHG-MMMA"
     }
   ],
@@ -36,7 +36,7 @@
     "reference": "Practitioner/1275501447"
   },
   "organization": {
-    "reference": "Organization/Medstar-Alias-UHG-MMMA"
+    "reference": "Organization/Client-Alias-UHG-MMMA"
   },
   "code": [
     {
@@ -72,7 +72,7 @@
   ],
   "location": [
     {
-      "reference": "Location/Medstar-Alias-UHG-MMMA"
+      "reference": "Location/Client-Alias-UHG-MMMA"
     }
   ],
   "healthcareService": [

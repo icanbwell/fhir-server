@@ -84,7 +84,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id&_bundle=true&_total=accurate')
-                .set(getHeaders('user/Practitioner.read access/medstar.*'));
+                .set(getHeaders('user/Practitioner.read access/client.*'));
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResourceBundle);
@@ -106,7 +106,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id&_bundle=true&_total=accurate')
-                .set(getHeaders('user/Patient.read access/medstar.*'));
+                .set(getHeaders('user/Patient.read access/client.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerNoUserScopesBundle);
         });

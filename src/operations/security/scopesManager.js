@@ -52,7 +52,7 @@ class ScopesManager {
              */
             for (const scope1 of scopes) {
                 if (scope1.startsWith('access')) {
-                    // ex: access/medstar.*
+                    // ex: access/client.*
                     /**
                      * @type {string}
                      */

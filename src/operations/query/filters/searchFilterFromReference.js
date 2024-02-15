@@ -17,7 +17,7 @@ class SearchFilterFromReference {
    * @example
    * ```js
    * const idToRefMap = {
-   *    'patientId1': { id: 'patientId1', resourceType: 'Patient', sourceAssigningAuthority: 'northwell' }
+   *    'patientId1': { id: 'patientId1', resourceType: 'Patient', sourceAssigningAuthority: 'client-1' }
    *    'bb7862e6-b7ac-470e-bde3-e85cee9d1ce6': { id: 'bb7862e6-b7ac-470e-bde3-e85cee9d1ce6', resourceType: 'Patient' }
    * }
    *
@@ -27,7 +27,7 @@ class SearchFilterFromReference {
    * }, {
    *   '$and': [
    *      { '_sourceId': { '$in': ['bb7862e6-b7ac-470e-bde3-e85cee9d1ce6']}, },
-   *      { '_sourceAssigningAuthority': 'northwell' },
+   *      { '_sourceAssigningAuthority': 'client-1' },
    *   ]
    * }]
    * ```
@@ -101,7 +101,7 @@ class SearchFilterFromReference {
               },
               {
                 [`${prop}_sourceId`]: {
-                  // for Patient/id|walgreens -> Patient/id and for id|walgreens -> id
+                  // for Patient/id|client -> Patient/id and for id|client -> id
                   '$in': idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref)),
                 }
               }

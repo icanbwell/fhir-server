@@ -1,23 +1,23 @@
 [
   {
     "resourceType": "Organization",
-    "id": "Medstar-Org-733797173",
+    "id": "Client-Org-733797173",
     "meta": {
       "source": "https://www.foo.com",
       "security": [
         {
           "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
+          "code": "client"
         },
         {
           "system": "https://www.icanbwell.com/owner",
-          "code": "medstar"
+          "code": "client"
         }
       ]
     },
-    "name": "MedStar Medical Group Dermatology at Honeygo",
+    "name": "Client Medical Group Dermatology at Honeygo",
     "alias": [
-      "MedStar Medical Group Derm at Honeygo"
+      "Client Medical Group Derm at Honeygo"
     ],
     "telecom": [
       {
@@ -31,25 +31,25 @@
     ],
     "partOf": {
       "type": "Organization",
-      "display": "MedStar Medical Group"
+      "display": "Client Medical Group"
     }
   },
   {
     "resourceType": "Organization",
-    "id": "MedStar-Medical-Group",
+    "id": "Client-Medical-Group",
     "meta": {
       "source": "https://www.foo.com",
       "security": [
         {
           "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
+          "code": "client"
         },
         {
           "system": "https://www.icanbwell.com/owner",
-          "code": "medstar"
+          "code": "client"
         }
       ]
     },
-    "name": "MedStar Medical Group"
+    "name": "Client Medical Group"
   }
 ]

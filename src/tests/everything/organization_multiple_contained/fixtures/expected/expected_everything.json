@@ -16,7 +16,7 @@
           }
         ],
         "alias": [
-          "MedStar Medical Group Derm at Honeygo"
+          "Client Medical Group Derm at Honeygo"
         ],
         "contact": [
           {
@@ -24,7 +24,7 @@
               "coding": [
                 {
                   "code": "Central Scheduling",
-                  "system": "MedstarHealth.org"
+                  "system": "ClientHealth.org"
                 }
               ]
             },
@@ -59,30 +59,30 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "60239f66-dc47-587c-87c3-1f974c2cecb4"
+            "value": "f97f1be4-e13b-5d92-a578-efe960f0aa64"
           }
         ],
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.foo.com",
           "versionId": "1"
         },
-        "name": "MedStar Medical Group Dermatology at Honeygo",
+        "name": "Client Medical Group Dermatology at Honeygo",
         "partOf": {
-          "display": "MedStar Medical Group",
+          "display": "Client Medical Group",
           "type": "Organization"
         },
         "resourceType": "Organization",
@@ -136,7 +136,7 @@
           }
         ],
         "alias": [
-          "MedStar Medical Group Derm at Honeygo"
+          "Client Medical Group Derm at Honeygo"
         ],
         "contact": [
           {
@@ -144,7 +144,7 @@
               "coding": [
                 {
                   "code": "Central Scheduling",
-                  "system": "MedstarHealth.org"
+                  "system": "ClientHealth.org"
                 }
               ]
             },
@@ -173,21 +173,21 @@
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "6f338d77-6078-5c3d-b440-c9470e416d5d"
+                "value": "5bdedbe2-0f2d-5433-b18a-b1e3ae5dcb8b"
               }
             ],
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
@@ -204,12 +204,12 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Organization/e4be0b0a-f087-571a-8d76-cf763574eec6"
+                  "valueString": "Organization/2b931c83-3cde-547f-b85c-9ace1819acd1"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
               "reference": "Organization/733797173"
@@ -232,7 +232,7 @@
             "id": "UHG-MDER",
             "identifier": [
               {
-                "system": "MedstarHealth.org",
+                "system": "ClientHealth.org",
                 "type": {
                   "coding": [
                     {
@@ -245,7 +245,7 @@
                 "value": "UHG-MDER"
               },
               {
-                "system": "MedstarHealth.org",
+                "system": "ClientHealth.org",
                 "type": {
                   "coding": [
                     {
@@ -258,7 +258,7 @@
                 "value": "UHG"
               },
               {
-                "system": "MedstarHealth.org",
+                "system": "ClientHealth.org",
                 "type": {
                   "coding": [
                     {
@@ -271,7 +271,7 @@
                 "value": "MMG DERMATOLOGY"
               },
               {
-                "system": "MedstarHealth.org",
+                "system": "ClientHealth.org",
                 "type": {
                   "coding": [
                     {
@@ -284,7 +284,7 @@
                 "value": "MDER"
               },
               {
-                "system": "MedstarHealth.org",
+                "system": "ClientHealth.org",
                 "type": {
                   "coding": [
                     {
@@ -304,7 +304,7 @@
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "4d074a5d-5e50-547e-8711-b18ccad6b19e"
+                "value": "9a524493-936d-52b6-8e9b-bd372c106774"
               }
             ],
             "managingOrganization": {
@@ -317,12 +317,12 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Organization/e4be0b0a-f087-571a-8d76-cf763574eec6"
+                  "valueString": "Organization/2b931c83-3cde-547f-b85c-9ace1819acd1"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
               "reference": "Organization/733797173",
@@ -331,15 +331,15 @@
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
@@ -388,7 +388,7 @@
                   {
                     "code": "Dermatology",
                     "display": "Dermatology",
-                    "system": "MedstarHealth.org"
+                    "system": "ClientHealth.org"
                   }
                 ],
                 "text": "practice speciality"
@@ -429,30 +429,30 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "e4be0b0a-f087-571a-8d76-cf763574eec6"
+            "value": "2b931c83-3cde-547f-b85c-9ace1819acd1"
           }
         ],
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.foo.com",
           "versionId": "1"
         },
-        "name": "MedStar Medical Group Dermatology at Honeygo",
+        "name": "Client Medical Group Dermatology at Honeygo",
         "partOf": {
-          "display": "MedStar Medical Group",
+          "display": "Client Medical Group",
           "type": "Organization"
         },
         "resourceType": "Organization",

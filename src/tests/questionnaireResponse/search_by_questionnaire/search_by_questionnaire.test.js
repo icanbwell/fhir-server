@@ -36,7 +36,7 @@ describe('Questionnaire Response Tests', () => {
 
             resp = await request
                 .get(
-                    '/4_0_0/QuestionnaireResponse?questionnaire=https://protocol-service.icanbwell.com/Questionnaire/medstar-squeeze|4.0.0'
+                    '/4_0_0/QuestionnaireResponse?questionnaire=https://protocol-service.icanbwell.com/Questionnaire/client-squeeze|4.0.0'
                 )
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

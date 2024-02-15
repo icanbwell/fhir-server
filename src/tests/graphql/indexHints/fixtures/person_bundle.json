@@ -30,7 +30,7 @@
                   }
                 ]
               },
-              "system": "http://www.walgreens.com/profileid",
+              "system": "http://www.client.com/profileid",
               "value": "healthsystemId1"
             },
             {
@@ -167,7 +167,7 @@
                   }
                 ]
               },
-              "system": "http://www.walgreens.com/profileid",
+              "system": "http://www.client.com/profileid",
               "value": "healthsystemId1"
             },
             {

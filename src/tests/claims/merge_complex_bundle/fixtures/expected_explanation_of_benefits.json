@@ -14,12 +14,12 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "PractitionerRole/9bf2a51d-6aa2-5e99-bf79-20dfd876c51d"
+                  "valueString": "PractitionerRole/3945e2c5-0c9b-5c30-80be-3777627f81fe"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
               "reference": "PractitionerRole/WPS-1811965494-20A078097100"
@@ -125,7 +125,7 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "61a6c011-ab53-556e-86fc-7a97126c8328"
+            "value": "b3668fe3-9a74-5822-acd7-12e35d0eb25c"
           }
         ],
         "insurance": [
@@ -140,12 +140,12 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Coverage/7888d466-cbb3-5a00-9fe8-462a4de09392"
+                  "valueString": "Coverage/8c8daa42-2a42-56de-a5eb-d84233ec1284"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
               "reference": "Coverage/WPS-7446041751"
@@ -163,12 +163,12 @@
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Organization/44cce4af-6804-5e85-9f39-768ef6a3daec"
+              "valueString": "Organization/05da92c1-d004-5e5a-971a-e49cda65e672"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
           "reference": "Organization/WPS-Health"
@@ -306,15 +306,15 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
@@ -332,12 +332,12 @@
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/7888d466-cbb3-5a00-9fe8-462a4de09392"
+              "valueString": "Patient/8c8daa42-2a42-56de-a5eb-d84233ec1284"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
           "reference": "Patient/WPS-7446041751"
@@ -386,12 +386,12 @@
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Organization/8b240591-3c00-58b2-ae2c-1d9f32e94efb"
+              "valueString": "Organization/45d2985f-a8bc-58f1-b015-206bf048f517"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
           "reference": "Organization/1659305654"
@@ -408,12 +408,12 @@
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Claim/833273ca-d1a6-5c6a-a0da-13e47f9b65ad"
+                  "valueString": "Claim/6298c9e4-3d05-574a-a527-d743e1bce6be"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
               "reference": "Claim/20A078097100"

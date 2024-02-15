@@ -6,11 +6,11 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "northwell"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "northwell"
+        "code": "client"
       }
     ]
   },
@@ -30,7 +30,7 @@
   ],
   "link": {
     "target": {
-      "reference": "Patient/patient1|northwell"
+      "reference": "Patient/patient1|client"
     },
     "assurance": "level3"
   }

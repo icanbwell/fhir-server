@@ -2,15 +2,15 @@
     "resourceType": "Patient",
     "id": "2",
     "meta": {
-        "source": "http://medstarhealth.org/provider",
+        "source": "http://clienthealth.org/provider",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             }
         ]
     },

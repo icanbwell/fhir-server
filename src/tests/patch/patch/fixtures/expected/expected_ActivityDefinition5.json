@@ -8,7 +8,7 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/access",
@@ -16,11 +16,11 @@
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -33,7 +33,7 @@
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "8a635bee-94ea-548b-a1f3-1e4ad96ae350"
+      "value": "87dbd0cc-8278-5716-ab44-8cc08ccbe25a"
     }
   ],
   "name": "TEST3",

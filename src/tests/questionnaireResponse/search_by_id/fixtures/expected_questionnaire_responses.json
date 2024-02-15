@@ -31,19 +31,19 @@
         "meta": {
           "security": [
             {
-              "code": "walgreens",
-              "display": "Walgreens",
+              "code": "client",
+              "display": "Client",
               "system": "https://www.icanbwell.com/owner",
               "userSelected": false
             },
             {
-              "code": "walgreens",
-              "display": "Walgreens",
+              "code": "client",
+              "display": "Client",
               "system": "https://www.icanbwell.com/access",
               "userSelected": false
             },
             {
-              "code": "walgreens",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
@@ -67,7 +67,7 @@
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "walgreens"
+              "valueString": "client"
             }
           ],
           "reference": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
@@ -88,7 +88,7 @@
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "walgreens"
+              "valueString": "client"
             }
           ],
           "reference": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"

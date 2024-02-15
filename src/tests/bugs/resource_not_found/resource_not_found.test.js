@@ -53,7 +53,7 @@ describe('Person Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
             resp = await request
-                .get('/4_0_0/Person/?_bundle=1&identifier=http://www.walgreens.com/profileid|2000017500333-02')
+                .get('/4_0_0/Person/?_bundle=1&identifier=http://www.client.com/profileid|2000017500333-02')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
@@ -75,7 +75,7 @@ describe('Person Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
             resp = await request
-                .get('/4_0_0/Person/?_bundle=1&identifier=http://www.walgreens.com/profileid|2000017500333-02')
+                .get('/4_0_0/Person/?_bundle=1&identifier=http://www.client.com/profileid|2000017500333-02')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);

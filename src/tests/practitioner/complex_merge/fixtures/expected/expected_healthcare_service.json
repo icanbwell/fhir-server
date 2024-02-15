@@ -15,25 +15,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "6f338d77-6078-5c3d-b440-c9470e416d5d"
+        "value": "5bdedbe2-0f2d-5433-b18a-b1e3ae5dcb8b"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "resourceType": "HealthcareService",
@@ -79,7 +79,7 @@
             {
               "code": "0 - 100",
               "display": "0 - 100",
-              "system": "MedstarHealth.org"
+              "system": "ClientHealth.org"
             }
           ]
         },
@@ -96,25 +96,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "4d559614-d4ed-5f67-8ae4-7bce7f08c2bb"
+        "value": "ce37f1c4-0152-5b69-99c5-fef8febe8736"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "resourceType": "HealthcareService"
@@ -197,7 +197,7 @@
     "id": "MAX-MALX",
     "identifier": [
       {
-        "system": "MedstarHealth.org",
+        "system": "ClientHealth.org",
         "use": "usual",
         "value": "MAX-MALX"
       },
@@ -209,25 +209,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "7e827ed9-327e-5554-897e-b49320c39ef1"
+        "value": "80d34997-1eed-537c-8bc5-83636c8818ae"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "name": "Primary Care",
@@ -241,12 +241,12 @@
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "Organization/7e827ed9-327e-5554-897e-b49320c39ef1"
+          "valueString": "Organization/80d34997-1eed-537c-8bc5-83636c8818ae"
         },
         {
           "id": "sourceAssigningAuthority",
           "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "valueString": "medstar"
+          "valueString": "client"
         }
       ],
       "reference": "Organization/MAX-MALX"
@@ -258,7 +258,7 @@
           {
             "code": "Family Medicine",
             "display": "Family Medicine",
-            "system": "MedstarHealth.org"
+            "system": "ClientHealth.org"
           }
         ],
         "text": "Primary Specialty"
@@ -268,7 +268,7 @@
           {
             "code": "Family Medicine",
             "display": "Family Medicine",
-            "system": "MedstarHealth.org"
+            "system": "ClientHealth.org"
           }
         ],
         "text": "Primary Specialty Group"

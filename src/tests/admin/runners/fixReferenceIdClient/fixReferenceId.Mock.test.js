@@ -17,21 +17,21 @@ const {
     getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
-const { FixReferenceIdThedacareRunner } = require('../../../../admin/runners/fixReferenceIdThedacareRunner');
+const { FixReferenceIdClientRunner } = require('../../../../admin/runners/fixReferenceIdClientRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 
-class MockFixReferenceIdThedacareRunner extends FixReferenceIdThedacareRunner {
+class MockFixReferenceIdClientRunner extends FixReferenceIdClientRunner {
     async getDataFromS3() {
         this.idCache.set('Observation', new Map());
 
         this.idCache.get('Observation').set(
-            'thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody',
-            'thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody-1'
+            'client123-12345678901234567890123-Actin--Smooth-Muscle--Antibody',
+            'client123-12345678901234567890123-Actin--Smooth-Muscle--Antibody-1'
         );
 
         this.idCache.get('Observation').set(
-            'thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody',
-            'thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2'
+            'client123-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody',
+            'client123-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2'
         );
     }
 
@@ -95,7 +95,7 @@ describe('Observation Tests', () => {
             const collections = ['all'];
             const batchSize = 1;
 
-            container.register('fixReferenceIdThedacareRunner', (c) => new MockFixReferenceIdThedacareRunner(
+            container.register('fixReferenceIdClientRunner', (c) => new MockFixReferenceIdClientRunner(
                 {
                     mongoCollectionManager: c.mongoCollectionManager,
                     collections,
@@ -107,17 +107,18 @@ describe('Observation Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger
+                    resourceMerger: c.resourceMerger,
+                    client: 'client123',
                 }
             )
             );
 
             /**
-             * @type {FixReferenceIdThedacareRunner}
+             * @type {FixReferenceIdClientRunner}
              */
-            const fixReferenceIdThedacareRunner = container.fixReferenceIdThedacareRunner;
-            assertTypeEquals(fixReferenceIdThedacareRunner, FixReferenceIdThedacareRunner);
-            await fixReferenceIdThedacareRunner.processAsync();
+            const fixReferenceIdClientRunner = container.fixReferenceIdClientRunner;
+            assertTypeEquals(fixReferenceIdClientRunner, FixReferenceIdClientRunner);
+            await fixReferenceIdClientRunner.processAsync();
 
             resp = await request
                 .get(`/4_0_0/Observation/${expectedObservation1BeforeRun.id}`)

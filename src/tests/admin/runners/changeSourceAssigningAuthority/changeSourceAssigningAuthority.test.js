@@ -92,8 +92,8 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
-                    oldSourceAssigningAuthority: 'rise',
-                    newSourceAssigningAuthority: 'rise_silver'
+                    oldSourceAssigningAuthority: 'client-1',
+                    newSourceAssigningAuthority: 'client'
                 }
             )
             );
@@ -207,8 +207,8 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
-                    oldSourceAssigningAuthority: 'rise',
-                    newSourceAssigningAuthority: 'rise_silver'
+                    oldSourceAssigningAuthority: 'client-1',
+                    newSourceAssigningAuthority: 'client'
                 }
             )
             );

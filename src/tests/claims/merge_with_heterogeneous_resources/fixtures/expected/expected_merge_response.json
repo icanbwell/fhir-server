@@ -3,24 +3,24 @@
     "created": true,
     "id": "WPS-Claim-230916613369",
     "resourceType": "ExplanationOfBenefit",
-    "sourceAssigningAuthority": "medstar",
+    "sourceAssigningAuthority": "client",
     "updated": false,
-    "uuid": "2eb828dc-51bc-5140-a85e-ae80d04a9cf1"
+    "uuid": "2b2ea9d1-73b9-58fe-8572-9f757ada9769"
   },
   {
     "created": true,
     "id": "WPS-Claim-429017018331",
     "resourceType": "ExplanationOfBenefit",
-    "sourceAssigningAuthority": "medstar",
+    "sourceAssigningAuthority": "client",
     "updated": false,
-    "uuid": "232a204b-3881-56c8-b240-a4faf159ffed"
+    "uuid": "6df8ebde-886b-5033-b053-57274a1bfb3b"
   },
   {
     "created": true,
     "id": "00100000000",
     "resourceType": "Patient",
-    "sourceAssigningAuthority": "medstar",
+    "sourceAssigningAuthority": "client",
     "updated": false,
-    "uuid": "86467a80-01a3-528c-8438-bd179b523459"
+    "uuid": "5b8e2400-af14-56e1-9518-1d18625afe93"
   }
 ]

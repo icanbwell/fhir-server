@@ -25,19 +25,19 @@
           "security": [
             {
               "system": "https://www.icanbwell.com/owner",
-              "code": "northwell"
+              "code": "client"
             },
             {
               "system": "https://www.icanbwell.com/access",
-              "code": "northwell"
+              "code": "client"
             },
             {
               "system": "https://www.icanbwell.com/vendor",
-              "code": "northwell"
+              "code": "client"
             },
             {
               "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "code": "northwell"
+              "code": "client"
             }
           ]
         },
@@ -75,17 +75,17 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/northwell-2"
+              "valueString": "Patient/client-2"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/dfd7cc6b-a5a3-5433-a5a5-3ac0d10a6572"
+              "valueString": "Patient/eb6ab41e-b40f-5ede-adf7-c96a40fafbe5"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "northwell"
+              "valueString": "client"
             }
           ],
           "reference": "Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2"

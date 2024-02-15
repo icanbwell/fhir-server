@@ -8,7 +8,7 @@ const {VERSIONS} = require('../../../../middleware/fhir/utils/constants');
 class MockAccessIndexManager extends AccessIndexManager {
     resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
         return ['AuditEvent', 'Task'].includes(resourceType) &&
-            accessCodes.every(a => a === 'medstar');
+            accessCodes.every(a => a === 'client');
     }
 }
 
@@ -20,7 +20,7 @@ class MockConfigManager extends ConfigManager {
 
 class MockIndexProvider extends IndexProvider {
     hasIndexForAccessCodes({accessCodes}) {
-        return accessCodes.every(ac => ac === 'medstar');
+        return accessCodes.every(ac => ac === 'client');
     }
 }
 
@@ -57,7 +57,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                '_security': 'https://www.icanbwell.com/access%7Cmedstar',
+                '_security': 'https://www.icanbwell.com/access%7Cclient',
                 'birthdate': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -65,7 +65,7 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
             expect(result.query.$and['1'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
-            expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cmedstar');
+            expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cclient');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
             await createTestRequest((container) => {
@@ -127,7 +127,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                '_security': 'https://www.icanbwell.com/access%7Cmedstar',
+                '_security': 'https://www.icanbwell.com/access%7Cclient',
                 'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -135,7 +135,7 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'AuditEvent', args})
             });
             expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
-            expect(result.query.$and['0']).toStrictEqual({'_access.medstar': 1});
+            expect(result.query.$and['0']).toStrictEqual({'_access.client': 1});
         });
         test('r4 works with Task and subject', async () => {
             await createTestRequest((container) => {

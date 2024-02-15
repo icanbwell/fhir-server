@@ -2,7 +2,7 @@
     "resourceType": "Person",
     "id": "9e40c66e-afd4-4106-b3f2-bf579e209dbc",
     "meta": {
-        "source": "walgreens",
+        "source": "client",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",

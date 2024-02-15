@@ -21,7 +21,7 @@ describe('mongoQuerySimplifier Tests', () => {
                             {
                                 '$and': [
                                     {
-                                        'meta.security.code': 'https://www.icanbwell.com/access%7Cmedstar'
+                                        'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                                     }
                                 ]
                             }
@@ -56,7 +56,7 @@ describe('mongoQuerySimplifier Tests', () => {
             const query = {
                 'identifier': {
                     '$elemMatch': {
-                        'system': 'http://www.walgreens.com/profileid',
+                        'system': 'http://www.client.com/profileid',
                         'value': '1000000-a-01'
                     }
                 }

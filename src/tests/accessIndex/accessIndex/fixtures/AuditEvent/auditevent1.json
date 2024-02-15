@@ -169,7 +169,7 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client1",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -177,11 +177,11 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client1",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client1",
               "system": "https://www.icanbwell.com/vendor"
             },
             {
@@ -189,11 +189,11 @@
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             },
             {
-              "code": "medstar",
+              "code": "client1",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "https://data.medstar.com/api/2.0",
+          "source": "https://data.client1.com/api/2.0",
           "versionId": "1"
         },
         "outcome": "0",
@@ -393,7 +393,7 @@
         "meta": {
           "security": [
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -401,19 +401,19 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/vendor"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "https://data.medstar.com/api/2.0",
+          "source": "https://data.client1.com/api/2.0",
           "versionId": "1"
         },
         "outcome": "0",

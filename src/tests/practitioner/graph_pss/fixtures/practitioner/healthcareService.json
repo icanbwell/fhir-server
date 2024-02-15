@@ -7,22 +7,22 @@
         "meta": {
           "versionId": "1",
           "lastUpdated": "2021-10-20T15:35:23.000Z",
-          "source": "http://medstarhealth.org/provider_appointment_type",
+          "source": "http://clienthealth.org/provider_appointment_type",
           "security": [
             {
               "system": "https://www.icanbwell.com/access",
-              "code": "medstar"
+              "code": "client"
             },
             {
               "system": "https://www.icanbwell.com/owner",
-              "code": "medstar"
+              "code": "client"
             }
           ]
         },
         "identifier": [
           {
             "use": "usual",
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "1043289440-MCS-MCPS"
           }
         ],
@@ -34,7 +34,7 @@
                 "display": "PrimaryCare"
               },
               {
-                "system": "http://medstarhealth.org/protocol",
+                "system": "http://clienthealth.org/protocol",
                 "code": "PrimaryCare",
                 "display": "PrimaryCare"
               }
@@ -56,22 +56,22 @@
         "meta": {
           "versionId": "1",
           "lastUpdated": "2021-10-20T15:35:23.000Z",
-          "source": "http://medstarhealth.org/provider_appointment_type",
+          "source": "http://clienthealth.org/provider_appointment_type",
           "security": [
             {
               "system": "https://www.icanbwell.com/access",
-              "code": "medstar"
+              "code": "client"
             },
             {
               "system": "https://www.icanbwell.com/owner",
-              "code": "medstar"
+              "code": "client"
             }
           ]
         },
         "identifier": [
           {
             "use": "usual",
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "1043289440-MCS-MCPS"
           }
         ],
@@ -83,7 +83,7 @@
                 "display": "PrimaryCare"
               },
               {
-                "system": "http://medstarhealth.org/protocol",
+                "system": "http://clienthealth.org/protocol",
                 "code": "PrimaryCare",
                 "display": "PrimaryCare"
               }

@@ -1,9 +1,9 @@
 {
   "_access": {
-    "centene": 1
+    "client": 1
   },
-  "_sourceAssigningAuthority": "centene",
-  "_sourceId": "Centene-3289",
+  "_sourceAssigningAuthority": "client",
+  "_sourceId": "Client-3289",
   "_uuid": "e1d85740-3060-509e-b9fd-006449e88271",
   "billablePeriod": {
     "end": "2021-04-21T11:00:00.000Z",
@@ -98,10 +98,10 @@
       ]
     }
   ],
-  "id": "Centene-3289",
+  "id": "Client-3289",
   "identifier": [
     {
-      "system": "https://sandbox.api.centene.com/fhir/patientaccess",
+      "system": "https://sandbox.api.client.com/fhir/patientaccess",
       "type": {
         "coding": [
           {
@@ -117,7 +117,7 @@
     {
       "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
-      "value": "Centene-3289"
+      "value": "Client-3289"
     },
     {
       "id": "uuid",
@@ -336,28 +336,28 @@
     ],
     "security": [
       {
-        "code": "centene",
+        "code": "client",
         "system": "https://www.icanbwell.com/owner"
       },
       {
-        "code": "centene",
+        "code": "client",
         "system": "https://www.icanbwell.com/access"
       },
       {
-        "code": "centene",
+        "code": "client",
         "system": "https://www.icanbwell.com/vendor"
       },
       {
-        "code": "centene",
+        "code": "client",
         "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
-    "source": "https://sandbox.api.centene.com/fhir/patientaccess",
+    "source": "https://sandbox.api.client.com/fhir/patientaccess",
     "versionId": "1"
   },
   "outcome": "partial",
   "patient": {
-    "reference": "Patient/Centene-3286"
+    "reference": "Patient/Client-3286"
   },
   "payee": {
     "party": {

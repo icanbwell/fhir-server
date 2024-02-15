@@ -14,7 +14,7 @@
                 "system": "https://www.icanbwell.com/owner"
             }
         ],
-        "source": "medstar",
+        "source": "client",
         "versionId": "1"
     },
     "identifier": [
@@ -44,7 +44,7 @@
         {
             "target": {
                 "reference": "Person/person-123-a",
-                "_sourceAssigningAuthority": "medstar",
+                "_sourceAssigningAuthority": "client",
                 "type": "Person"
             },
             "assurance": "level4"
@@ -52,7 +52,7 @@
         {
             "target": {
                 "reference": "Person/person-123-b",
-                "_sourceAssigningAuthority": "medstar",
+                "_sourceAssigningAuthority": "client",
                 "type": "Person"
             },
             "assurance": "level4"

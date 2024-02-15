@@ -6,11 +6,11 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -25,7 +25,7 @@
         ],
         "text": "Practice-Location-Department alias"
       },
-      "system": "MedstarHealth.org",
+      "system": "ClientHealth.org",
       "value": "UHG-MDER"
     },
     {
@@ -38,7 +38,7 @@
         ],
         "text": "Location mnem"
       },
-      "system": "MedstarHealth.org",
+      "system": "ClientHealth.org",
       "value": "UHG"
     },
     {
@@ -51,7 +51,7 @@
         ],
         "text": "Scheduling Department Name"
       },
-      "system": "MedstarHealth.org",
+      "system": "ClientHealth.org",
       "value": "MMG DERMATOLOGY"
     },
     {
@@ -64,7 +64,7 @@
         ],
         "text": "Scheduling Department Mnem"
       },
-      "system": "MedstarHealth.org",
+      "system": "ClientHealth.org",
       "value": "MDER"
     },
     {
@@ -77,7 +77,7 @@
         ],
         "text": "Scheduling Department Number"
       },
-      "system": "MedstarHealth.org",
+      "system": "ClientHealth.org",
       "value": "SCD"
     }
   ],
@@ -89,7 +89,7 @@
     {
       "coding": [
         {
-          "system": "MedstarHealth.org",
+          "system": "ClientHealth.org",
           "code": "Dermatology",
           "display": "Dermatology"
         }

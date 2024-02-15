@@ -2,7 +2,7 @@
     "resourceType": "Person",
     "id": "81236",
     "meta": {
-        "source": "medstar",
+        "source": "client",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
@@ -28,7 +28,7 @@
     "link": [
         {
             "target": {
-                "reference": "Person/5678|medstar",
+                "reference": "Person/5678|client",
                 "type": "Person"
             },
             "assurance": "level4"

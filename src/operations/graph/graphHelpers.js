@@ -278,7 +278,7 @@ class GraphHelper {
                     resourceType: referenceResourceType,
                     sourceAssigningAuthority: referenceSourceAssigningAuthority
                 } = ReferenceParser.parseReference(reference);
-                // if sourceAssigningAuthority is present in reference (e.g., 'Patient/123|medstar')
+                // if sourceAssigningAuthority is present in reference (e.g., 'Patient/123|client')
                 // then the uuid will be correct so no need to include.
                 // otherwise (e.g., 'Patient/123' include reference id too to handle where the reference id
                 // was not specified with sourceAssigningAuthority.

@@ -21,6 +21,20 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
+    /**
+     * @type {string}
+     */
+    const oldSourceAssigningAuthority = parameters.oldSourceAssigningAuthority;
+    if (!oldSourceAssigningAuthority) {
+        throw Error('oldSourceAssigningAuthority is a required parameter');
+    }
+    /**
+     * @type {string}
+     */
+    const newSourceAssigningAuthority = parameters.newSourceAssigningAuthority;
+    if (!newSourceAssigningAuthority) {
+        throw Error('newSourceAssigningAuthority is a required parameter');
+    }
     let currentDateTime = new Date();
     /**
      * @type {string[]}
@@ -66,8 +80,8 @@ async function main() {
             useTransaction: parameters.useTransaction ? true : false,
             skip: parameters.skip,
             startFromId: parameters.startFromId,
-            oldSourceAssigningAuthority: parameters.oldSourceAssigningAuthority || 'rise',
-            newSourceAssigningAuthority: parameters.newSourceAssigningAuthority || 'rise_silver'
+            oldSourceAssigningAuthority,
+            newSourceAssigningAuthority
         }
     )
     );
@@ -97,7 +111,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --limit 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --after 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --before 2021-12-31
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --oldSourceAssigningAuthority=rise --newSourceAssigningAuthority=rise_silver
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000 --oldSourceAssigningAuthority=client --newSourceAssigningAuthority=new_client
  */
 main().catch(reason => {
     console.error(reason);

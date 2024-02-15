@@ -1,8 +1,8 @@
 {
   "_access": {
-    "medstar": 1
+    "client": 1
   },
-  "_sourceAssigningAuthority": "medstar",
+  "_sourceAssigningAuthority": "client",
   "_sourceId": "1000000000",
   "_uuid": "86467a80-01a3-528c-8438-bd179b523459",
   "birthDate": "2017-01-01",
@@ -24,19 +24,19 @@
     "lastUpdated": {},
     "security": [
       {
-        "code": "medstar",
+        "code": "client",
         "system": "https://www.icanbwell.com/access"
       },
       {
-        "code": "medstar",
+        "code": "client",
         "system": "https://www.icanbwell.com/owner"
       },
       {
-        "code": "medstar",
+        "code": "client",
         "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
-    "source": "http://medstarhealth.org/provider",
+    "source": "http://clienthealth.org/provider",
     "versionId": "1"
   },
   "name": [

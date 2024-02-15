@@ -1,6 +1,6 @@
 {
   "resourceType": "Person",
-  "id": "2e740c0d-69ac-48d6-afdd-b2b9b37bc458",
+  "id": "client-person",
   "meta": {
     "versionId": "1",
     "source": "https://www.icanbwell.com/enterprise-person-service",
@@ -11,27 +11,22 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "bwell"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "bwell"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "bwell"
+        "code": "client"
       }
     ]
   },
   "link": [
     {
       "target": {
-        "reference": "Person/northwell-person|mps-api"
-      }
-    },
-    {
-      "target": {
-        "reference": "Patient/northwell-patient-1"
+        "reference": "Patient/patient-1"
       }
     }
   ]

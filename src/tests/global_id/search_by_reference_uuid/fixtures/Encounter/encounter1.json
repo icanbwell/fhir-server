@@ -15,11 +15,11 @@
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "walgreens"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "walgreens"
+        "code": "client"
       }
     ]
   },
@@ -72,7 +72,7 @@
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "walgreens"
+        "valueString": "client"
       }
     ],
     "reference": "Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6",
@@ -112,7 +112,7 @@
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "walgreens"
+            "valueString": "client"
           }
         ],
         "reference": "Practitioner/0000005065",
@@ -142,12 +142,12 @@
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Location/660ec00b-6d31-5e34-babe-16e43e53a9b0"
+            "valueString": "Location/e699f9bc-fa3b-560a-abe8-de0a898b4fee"
           },
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "walgreens"
+            "valueString": "client"
           }
         ],
         "reference": "Location/-1000003632",
@@ -171,7 +171,7 @@
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "walgreens"
+        "valueString": "client"
       }
     ],
     "reference": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1",

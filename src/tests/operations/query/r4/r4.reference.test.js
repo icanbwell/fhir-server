@@ -8,7 +8,7 @@ const {VERSIONS} = require('../../../../middleware/fhir/utils/constants');
 class MockAccessIndexManager extends AccessIndexManager {
     resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
         return ['AuditEvent', 'Task'].includes(resourceType) &&
-            accessCodes.every(a => a === 'medstar');
+            accessCodes.every(a => a === 'client');
     }
 }
 
@@ -20,7 +20,7 @@ class MockConfigManager extends ConfigManager {
 
 class MockIndexProvider extends IndexProvider {
     hasIndexForAccessCodes({accessCodes}) {
-        return accessCodes.every(ac => ac === 'medstar');
+        return accessCodes.every(ac => ac === 'client');
     }
 }
 
@@ -407,7 +407,7 @@ describe('r4 search Tests', () => {
             const resourceType = 'Condition';
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'patient': '123|medstar,456|medstar'
+                'patient': '123|client,456|client'
             };
             const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -416,7 +416,7 @@ describe('r4 search Tests', () => {
             expect(result.query).toStrictEqual({
                 '$and': [
                     {
-                        'subject._sourceAssigningAuthority': 'medstar'
+                        'subject._sourceAssigningAuthority': 'client'
                     },
                     {
                         'subject._sourceId': {
@@ -455,7 +455,7 @@ describe('r4 search Tests', () => {
             const resourceType = 'Condition';
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|medstar,Group/456|medstar'
+                'patient': 'Patient/123|client,Group/456|client'
             };
             const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -464,7 +464,7 @@ describe('r4 search Tests', () => {
             expect(result.query).toStrictEqual({
                 '$and': [
                     {
-                        'subject._sourceAssigningAuthority': 'medstar'
+                        'subject._sourceAssigningAuthority': 'client'
                     },
                     {
                         'subject._sourceId': {
@@ -842,7 +842,7 @@ describe('r4 search Tests', () => {
             const resourceType = 'Condition';
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'patient': '123|medstar,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                'patient': '123|client,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
             const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -861,7 +861,7 @@ describe('r4 search Tests', () => {
                     {
                         '$and': [
                             {
-                                'subject._sourceAssigningAuthority': 'medstar'
+                                'subject._sourceAssigningAuthority': 'client'
                             },
                             {
                                 'subject._sourceId': {
@@ -900,7 +900,7 @@ describe('r4 search Tests', () => {
             const resourceType = 'Condition';
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/123|medstar,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                'patient': 'Patient/123|client,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
             const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -914,7 +914,7 @@ describe('r4 search Tests', () => {
                     {
                         '$and': [
                             {
-                                'subject._sourceAssigningAuthority': 'medstar'
+                                'subject._sourceAssigningAuthority': 'client'
                             },
                             {
                                 'subject._sourceId': 'Patient/123'

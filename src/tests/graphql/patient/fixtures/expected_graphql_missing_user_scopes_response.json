@@ -13,7 +13,7 @@
           "line": 2
         }
       ],
-      "message": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Practitioner.read,access/medstar.*] failed access check to [Patient.read]",
+      "message": "None of the provided scopes matched an allowed scope.: user imran with scopes [user/Practitioner.read,access/client.*] failed access check to [Patient.read]",
       "path": [
         "patient"
       ]
