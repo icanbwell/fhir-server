@@ -37,12 +37,12 @@ async function main() {
      */
     const proaPersonUuidColumn = parameters.proaPersonUuidColumn || 3;
     /**
-     * column in which proa person uuid is present
+     * column in which proa person sourceAssigningAuthority is present
      * @type {number}
      */
     const proaPersonSAAColumn = parameters.proaPersonSAAColumn || 4;
     /**
-     * column in which proa person uuid is present
+     * column in which proa person lastUpdated is present
      * @type {number}
      */
     const proaPersonLastUpdatedColumn = parameters.proaPersonLastUpdatedColumn || 5;

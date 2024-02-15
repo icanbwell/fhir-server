@@ -143,7 +143,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(expectedMasterPersonAfterRun);
         });
 
-        test.only('Proa Person is not deleted', async () => {
+        test('Proa Person is not deleted', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest();
 

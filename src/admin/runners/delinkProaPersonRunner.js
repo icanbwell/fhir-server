@@ -96,8 +96,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             await this.handlePersonDelete();
             this.adminLogger.logInfo(`Finished Reading file: ${this.csvFileName}`);
 
-            this.errorStream.close();
-            return await new Promise((res) => this.errorStream.once('close', res));
+            await this.handleStreamClose();
         } catch (err) {
             this.adminLogger.logError(`ERROR: ${err.message}`, { stack: err.stack });
         }
@@ -114,6 +113,16 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         // error stream to write errors
         this.errorStream = fs.createWriteStream('delink_errors.csv');
         this.errorStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated| Status|\n');
+    }
+
+    handleStreamClose() {
+        this.errorStream.close();
+        this.writeStream.close();
+
+        return Promise.all([
+            new Promise((res) => this.errorStream.once('close', res)),
+            new Promise((res) => this.writeStream.once('close', res))
+        ]);
     }
 
     /**
@@ -146,11 +155,11 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 const masterPersonUuids = columns[this.masterUuidColumn].split(', ');
                 const clientUuids = columns[this.clientUuidColumn].split(', ');
 
-                for (const masterPersonUuid of masterPersonUuids) {
-                    const masterPersonData = await databaseQueryManager.findOneAsync({
-                        query: { _uuid: masterPersonUuid }, options: { projection: { _uuid: 1, link: 1 } }
-                    });
-
+                const cursor = await databaseQueryManager.findAsync({
+                    query: { _uuid: { $in: masterPersonUuids } }, options: { projection: { _uuid: 1, link: 1 } }
+                });
+                while (await cursor.hasNext()) {
+                    const masterPersonData = await cursor.next();
                     const relatedProaPersons = [];
                     const relatedClientPerson = [];
 
@@ -271,13 +280,12 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 continue;
             }
             const proaPersonUuids = columns[this.proaPersonUuidColumn].split(', ');
-            console.log(proaPersonUuids, this.proaPersonSAAColumn, this.proaPersonLastUpdatedColumn);
-            const proaPersonSAAs = columns[this.proaPersonSAAColumn].split(', ');
+            const proaPersonSAA = columns[this.proaPersonSAAColumn].split(', ');
             const proaPersonLastUpdated = columns[this.proaPersonLastUpdatedColumn].split(', ');
 
             for (let i = 0; i < proaPersonUuids.length; i++) {
                 const proaPersonUuid = proaPersonUuids[`${i}`];
-                const sourceAssigningAuthority = proaPersonSAAs[`${i}`];
+                const sourceAssigningAuthority = proaPersonSAA[`${i}`];
                 const lastUpdated = proaPersonLastUpdated[`${i}`];
 
                 await this.deletePerson({
