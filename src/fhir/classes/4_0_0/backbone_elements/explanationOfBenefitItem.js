@@ -75,7 +75,7 @@ class ExplanationOfBenefitItem extends Element {
             encounter,
             noteNumber,
             adjudication,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -706,7 +706,7 @@ class ExplanationOfBenefitItem extends Element {
             encounter,
             noteNumber,
             adjudication,
-            detail,
+            detail
         });
 
     }
@@ -749,7 +749,7 @@ class ExplanationOfBenefitItem extends Element {
             encounter: this.encounter && this.encounter.map(v => v.toJSON()),
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -816,7 +816,7 @@ class ExplanationOfBenefitItem extends Element {
             encounter: this.encounter && this.encounter.map(v => v.toJSONInternal()),
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

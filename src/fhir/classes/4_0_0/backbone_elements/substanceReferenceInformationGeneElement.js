@@ -27,7 +27,7 @@ class SubstanceReferenceInformationGeneElement extends Element {
             modifierExtension,
             type,
             element,
-            source,
+            source
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class SubstanceReferenceInformationGeneElement extends Element {
             modifierExtension,
             type,
             element,
-            source,
+            source
         });
 
     }
@@ -198,7 +198,7 @@ class SubstanceReferenceInformationGeneElement extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             element: this.element && this.element.toJSON(),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -227,7 +227,7 @@ class SubstanceReferenceInformationGeneElement extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             element: this.element && this.element.toJSONInternal(),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

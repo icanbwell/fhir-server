@@ -38,7 +38,7 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity,
             molecularFormula,
             amountQuantity,
-            amountString,
+            amountString
         }
     ) {
         super({});
@@ -288,7 +288,7 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity,
             molecularFormula,
             amountQuantity,
-            amountString,
+            amountString
         });
 
     }
@@ -313,7 +313,7 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity: this.opticalActivity && this.opticalActivity.toJSON(),
             molecularFormula: this.molecularFormula,
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSON(),
-            amountString: this.amountString,
+            amountString: this.amountString
         });
     }
 
@@ -349,7 +349,7 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity: this.opticalActivity && this.opticalActivity.toJSONInternal(),
             molecularFormula: this.molecularFormula,
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
-            amountString: this.amountString,
+            amountString: this.amountString
         };
 
 

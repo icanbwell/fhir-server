@@ -27,7 +27,7 @@ class TestReportOperation extends Element {
             modifierExtension,
             result,
             message,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -172,7 +172,7 @@ class TestReportOperation extends Element {
             modifierExtension,
             result,
             message,
-            detail,
+            detail
         });
 
     }
@@ -192,7 +192,7 @@ class TestReportOperation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             result: this.result,
             message: this.message,
-            detail: this.detail,
+            detail: this.detail
         });
     }
 
@@ -218,7 +218,7 @@ class TestReportOperation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             result: this.result,
             message: this.message,
-            detail: this.detail,
+            detail: this.detail
         };
 
 

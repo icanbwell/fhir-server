@@ -18,7 +18,7 @@ const proaResources = [
     'Encounter', 'EnrollmentRequest', 'ExplanationOfBenefit',
     'FamilyMemberHistory', 'Flag', 'Immunization', 'Location', 'MedicationDispense', 'MedicationRequest',
     'MedicationStatement', 'Observation', 'Organization', 'Patient',
-    'Person', 'Practitioner', 'PractitionerRole', 'Procedure',
+    'Person', 'Practitioner', 'PractitionerRole', 'Procedure'
 ];
 
 /**

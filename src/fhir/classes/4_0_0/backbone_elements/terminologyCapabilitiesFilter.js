@@ -27,7 +27,7 @@ class TerminologyCapabilitiesFilter extends Element {
             extension,
             modifierExtension,
             code,
-            op,
+            op
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class TerminologyCapabilitiesFilter extends Element {
             extension,
             modifierExtension,
             code,
-            op,
+            op
         });
 
     }
@@ -172,7 +172,7 @@ class TerminologyCapabilitiesFilter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
-            op: this.op,
+            op: this.op
         });
     }
 
@@ -197,7 +197,7 @@ class TerminologyCapabilitiesFilter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
-            op: this.op,
+            op: this.op
         };
 
 

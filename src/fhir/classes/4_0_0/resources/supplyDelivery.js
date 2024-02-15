@@ -65,7 +65,7 @@ class SupplyDelivery extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -595,7 +595,7 @@ class SupplyDelivery extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -673,7 +673,7 @@ class SupplyDelivery extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SupplyDelivery({
@@ -701,7 +701,7 @@ class SupplyDelivery extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -743,7 +743,7 @@ class SupplyDelivery extends Resource {
             occurrenceTiming: this.occurrenceTiming && this.occurrenceTiming.toJSON(),
             supplier: this.supplier && this.supplier.toJSON(),
             destination: this.destination && this.destination.toJSON(),
-            receiver: this.receiver && this.receiver.map(v => v.toJSON()),
+            receiver: this.receiver && this.receiver.map(v => v.toJSON())
         });
     }
 
@@ -799,7 +799,7 @@ class SupplyDelivery extends Resource {
             occurrenceTiming: this.occurrenceTiming && this.occurrenceTiming.toJSONInternal(),
             supplier: this.supplier && this.supplier.toJSONInternal(),
             destination: this.destination && this.destination.toJSONInternal(),
-            receiver: this.receiver && this.receiver.map(v => v.toJSONInternal()),
+            receiver: this.receiver && this.receiver.map(v => v.toJSONInternal())
         };
 
 

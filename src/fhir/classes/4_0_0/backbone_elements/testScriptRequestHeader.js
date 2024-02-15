@@ -26,7 +26,7 @@ class TestScriptRequestHeader extends Element {
             extension,
             modifierExtension,
             field,
-            value,
+            value
         }
     ) {
         super({});
@@ -152,7 +152,7 @@ class TestScriptRequestHeader extends Element {
             extension,
             modifierExtension,
             field,
-            value,
+            value
         });
 
     }
@@ -171,7 +171,7 @@ class TestScriptRequestHeader extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             field: this.field,
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -196,7 +196,7 @@ class TestScriptRequestHeader extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             field: this.field,
-            value: this.value,
+            value: this.value
         };
 
 

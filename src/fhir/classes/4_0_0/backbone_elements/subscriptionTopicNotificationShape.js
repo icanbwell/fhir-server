@@ -28,7 +28,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension,
             resource,
             include,
-            revInclude,
+            revInclude
         }
     ) {
         super({});
@@ -183,7 +183,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension,
             resource,
             include,
-            revInclude,
+            revInclude
         });
 
     }
@@ -203,7 +203,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             resource: this.resource,
             include: this.include,
-            revInclude: this.revInclude,
+            revInclude: this.revInclude
         });
     }
 
@@ -229,7 +229,7 @@ class SubscriptionTopicNotificationShape extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             resource: this.resource,
             include: this.include,
-            revInclude: this.revInclude,
+            revInclude: this.revInclude
         };
 
 

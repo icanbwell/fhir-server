@@ -36,7 +36,7 @@ class TestScriptCapability extends Element {
             origin,
             destination,
             link,
-            capabilities,
+            capabilities
         }
     ) {
         super({});
@@ -263,7 +263,7 @@ class TestScriptCapability extends Element {
             origin,
             destination,
             link,
-            capabilities,
+            capabilities
         });
 
     }
@@ -287,7 +287,7 @@ class TestScriptCapability extends Element {
             origin: this.origin,
             destination: this.destination,
             link: this.link,
-            capabilities: this.capabilities,
+            capabilities: this.capabilities
         });
     }
 
@@ -317,7 +317,7 @@ class TestScriptCapability extends Element {
             origin: this.origin,
             destination: this.destination,
             link: this.link,
-            capabilities: this.capabilities,
+            capabilities: this.capabilities
         };
 
 

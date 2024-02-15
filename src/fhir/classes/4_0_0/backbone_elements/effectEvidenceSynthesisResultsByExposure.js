@@ -31,7 +31,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description,
             exposureState,
             variantState,
-            riskEvidenceSynthesis,
+            riskEvidenceSynthesis
         }
     ) {
         super({});
@@ -200,7 +200,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description,
             exposureState,
             variantState,
-            riskEvidenceSynthesis,
+            riskEvidenceSynthesis
         });
 
     }
@@ -221,7 +221,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description: this.description,
             exposureState: this.exposureState,
             variantState: this.variantState && this.variantState.toJSON(),
-            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSON(),
+            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSON()
         });
     }
 
@@ -250,7 +250,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description: this.description,
             exposureState: this.exposureState,
             variantState: this.variantState && this.variantState.toJSONInternal(),
-            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSONInternal(),
+            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSONInternal()
         };
 
 

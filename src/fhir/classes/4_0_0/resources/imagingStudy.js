@@ -83,7 +83,7 @@ class ImagingStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -770,7 +770,7 @@ class ImagingStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -862,7 +862,7 @@ class ImagingStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ImagingStudy({
@@ -897,7 +897,7 @@ class ImagingStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -946,7 +946,7 @@ class ImagingStudy extends Resource {
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
             description: this.description,
-            series: this.series && this.series.map(v => v.toJSON()),
+            series: this.series && this.series.map(v => v.toJSON())
         });
     }
 
@@ -1013,7 +1013,7 @@ class ImagingStudy extends Resource {
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             description: this.description,
-            series: this.series && this.series.map(v => v.toJSONInternal()),
+            series: this.series && this.series.map(v => v.toJSONInternal())
         };
 
 

@@ -23,8 +23,8 @@ const validatorConfig = {
         warn: function warn() {
             // ok to not specify
         },
-        error: console.error.bind(console),
-    },
+        error: console.error.bind(console)
+    }
 };
 const fhirValidator = new JSONValidator(schema, validatorConfig);
 
@@ -46,10 +46,10 @@ function validateResource({resourceBody, resourceName, path, resourceObj = null}
                     code: 'invalid',
                     details: new CodeableConcept({
                         text: `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
-                            ' ResourceType does not match the endpoint you are posting to.',
-                    }),
-                }),
-            ],
+                            ' ResourceType does not match the endpoint you are posting to.'
+                    })
+                })
+            ]
         });
     }
 
@@ -64,8 +64,8 @@ function validateResource({resourceBody, resourceName, path, resourceObj = null}
                 details: new CodeableConcept({
                     text: `${path} ${elm.message} :${JSON.stringify(elm.params)}: at position ${
                         elm.dataPath ? elm.dataPath : 'root'
-                    }`,
-                }),
+                    }`
+                })
             });
         });
     }
@@ -74,12 +74,12 @@ function validateResource({resourceBody, resourceName, path, resourceObj = null}
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
             severity: 'error',
             code: 'invalid',
-            details: new CodeableConcept({text: err}),
+            details: new CodeableConcept({text: err})
         })));
     }
     if (issue && issue.length) {
         return new OperationOutcome({
-            issue: issue,
+            issue: issue
         });
     }
 

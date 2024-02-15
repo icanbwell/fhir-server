@@ -28,7 +28,7 @@ class ImplementationGuideGlobal extends Element {
             extension,
             modifierExtension,
             type,
-            profile,
+            profile
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class ImplementationGuideGlobal extends Element {
             extension,
             modifierExtension,
             type,
-            profile,
+            profile
         });
 
     }
@@ -173,7 +173,7 @@ class ImplementationGuideGlobal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         });
     }
 
@@ -198,7 +198,7 @@ class ImplementationGuideGlobal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         };
 
 

@@ -33,7 +33,7 @@ class Population extends Element {
             ageCodeableConcept,
             gender,
             race,
-            physiologicalCondition,
+            physiologicalCondition
         }
     ) {
         super({});
@@ -227,7 +227,7 @@ class Population extends Element {
             ageCodeableConcept,
             gender,
             race,
-            physiologicalCondition,
+            physiologicalCondition
         });
 
     }
@@ -249,7 +249,7 @@ class Population extends Element {
             ageCodeableConcept: this.ageCodeableConcept && this.ageCodeableConcept.toJSON(),
             gender: this.gender && this.gender.toJSON(),
             race: this.race && this.race.toJSON(),
-            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSON(),
+            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSON()
         });
     }
 
@@ -282,7 +282,7 @@ class Population extends Element {
             ageCodeableConcept: this.ageCodeableConcept && this.ageCodeableConcept.toJSONInternal(),
             gender: this.gender && this.gender.toJSONInternal(),
             race: this.race && this.race.toJSONInternal(),
-            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSONInternal(),
+            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSONInternal()
         };
 
 

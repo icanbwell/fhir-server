@@ -87,7 +87,7 @@ class CommunicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -833,7 +833,7 @@ class CommunicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -931,7 +931,7 @@ class CommunicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CommunicationRequest({
@@ -969,7 +969,7 @@ class CommunicationRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1021,7 +1021,7 @@ class CommunicationRequest extends Resource {
             sender: this.sender && this.sender.toJSON(),
             reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -1094,7 +1094,7 @@ class CommunicationRequest extends Resource {
             sender: this.sender && this.sender.toJSONInternal(),
             reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

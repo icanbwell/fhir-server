@@ -25,7 +25,7 @@ class MedicationKnowledgeSubstitution extends Element {
             extension,
             modifierExtension,
             type,
-            allowed,
+            allowed
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class MedicationKnowledgeSubstitution extends Element {
             extension,
             modifierExtension,
             type,
-            allowed,
+            allowed
         });
 
     }
@@ -172,7 +172,7 @@ class MedicationKnowledgeSubstitution extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            allowed: this.allowed,
+            allowed: this.allowed
         });
     }
 
@@ -198,7 +198,7 @@ class MedicationKnowledgeSubstitution extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            allowed: this.allowed,
+            allowed: this.allowed
         };
 
 

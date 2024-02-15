@@ -34,7 +34,7 @@ class NutritionOrderOralDiet extends Element {
             nutrient,
             texture,
             fluidConsistencyType,
-            instruction,
+            instruction
         }
     ) {
         super({});
@@ -253,7 +253,7 @@ class NutritionOrderOralDiet extends Element {
             nutrient,
             texture,
             fluidConsistencyType,
-            instruction,
+            instruction
         });
 
     }
@@ -276,7 +276,7 @@ class NutritionOrderOralDiet extends Element {
             nutrient: this.nutrient && this.nutrient.map(v => v.toJSON()),
             texture: this.texture && this.texture.map(v => v.toJSON()),
             fluidConsistencyType: this.fluidConsistencyType && this.fluidConsistencyType.map(v => v.toJSON()),
-            instruction: this.instruction,
+            instruction: this.instruction
         });
     }
 
@@ -310,7 +310,7 @@ class NutritionOrderOralDiet extends Element {
             nutrient: this.nutrient && this.nutrient.map(v => v.toJSONInternal()),
             texture: this.texture && this.texture.map(v => v.toJSONInternal()),
             fluidConsistencyType: this.fluidConsistencyType && this.fluidConsistencyType.map(v => v.toJSONInternal()),
-            instruction: this.instruction,
+            instruction: this.instruction
         };
 
 

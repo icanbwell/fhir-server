@@ -6,7 +6,7 @@ module.exports = {
     AuditEventAgentWho: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     AuditEventAgent: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.location);
-        },
+        }
     }
 };
 

@@ -86,7 +86,7 @@ class Media extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -825,7 +825,7 @@ class Media extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -923,7 +923,7 @@ class Media extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Media({
@@ -961,7 +961,7 @@ class Media extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1013,7 +1013,7 @@ class Media extends Resource {
             frames: this.frames,
             duration: this.duration,
             content: this.content && this.content.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -1083,7 +1083,7 @@ class Media extends Resource {
             frames: this.frames,
             duration: this.duration,
             content: this.content && this.content.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

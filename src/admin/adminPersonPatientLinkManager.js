@@ -203,7 +203,7 @@ class AdminPersonPatientLinkManager {
             // eslint-disable-next-line no-unused-vars
             const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync({
                 doc: bwellPerson,
-                smartMerge: false,
+                smartMerge: false
             });
 
             await databaseUpdateManager.postSaveAsync({
@@ -428,7 +428,7 @@ class AdminPersonPatientLinkManager {
 
             const {savedResource} = await databaseUpdateManager.replaceOneAsync({
                 doc: person,
-                smartMerge: false,
+                smartMerge: false
             });
 
             await databaseUpdateManager.postSaveAsync({
@@ -466,7 +466,7 @@ class AdminPersonPatientLinkManager {
             base_version: base_version
         });
         const person = await databaseQueryManager.findOneAsync({
-            query: {id: personId},
+            query: {id: personId}
         });
         if (!person) {
             return {
@@ -486,7 +486,7 @@ class AdminPersonPatientLinkManager {
                 owner: resourceObj.meta && resourceObj.meta.security ?
                     resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
                 access: resourceObj.meta && resourceObj.meta.security ?
-                    resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
+                    resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : []
             };
         };
 
@@ -569,7 +569,7 @@ class AdminPersonPatientLinkManager {
             owner: person.meta && person.meta.security ?
                 person.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
             access: person.meta && person.meta.security ?
-                person.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
+                person.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : []
         };
         if (children.length > 0) {
             result.children = children;

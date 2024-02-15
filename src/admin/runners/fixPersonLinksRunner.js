@@ -43,13 +43,13 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
             resourceLocatorFactory,
             limit,
             skip,
-            minLinks,
+            minLinks
         }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {number}
@@ -157,15 +157,15 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                  */
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
                     resourceType,
-                    base_version: VERSIONS['4_0_0'],
+                    base_version: VERSIONS['4_0_0']
                 });
                 /**
                  * @type {string}
                  */
                 const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
                     {
-                        query: {},
-                    },
+                        query: {}
+                    }
                 );
 
                 // first check in cache
@@ -174,8 +174,8 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                  */
                 const cache = this.getCacheForResourceType(
                     {
-                        collectionName: referenceCollectionName,
-                    },
+                        collectionName: referenceCollectionName
+                    }
                 );
                 if (uuid) {
                     if (cache.has(uuid)) {
@@ -189,22 +189,22 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                          */
                         const referencedResourceQueryManager = this.databaseQueryFactory.createQuery({
                             resourceType,
-                            base_version: VERSIONS['4_0_0'],
+                            base_version: VERSIONS['4_0_0']
                         });
                         const linkedResource = await referencedResourceQueryManager.findOneAsync(
                             {
                                 query: {
-                                    _uuid: uuid,
+                                    _uuid: uuid
                                 },
                                 options: {
                                     projection: {
                                         _id: 0,
                                         _uuid: 1,
                                         name: 1,
-                                        telecom: 1,
-                                    },
-                                },
-                            },
+                                        telecom: 1
+                                    }
+                                }
+                            }
                         );
                         if (linkedResource && this.isPersonSame(resource, linkedResource)) {
                             newLinks.push(link);
@@ -218,10 +218,10 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                         message: 'Error processing reference',
                         error: e,
                         args: {
-                            reference: reference,
+                            reference: reference
                         },
-                        source: 'FixPersonLinksRunner.fixLinks',
-                    },
+                        source: 'FixPersonLinksRunner.fixLinks'
+                    }
                 );
             }
         }
@@ -277,13 +277,13 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      */
     async preloadCollectionAsync({ mongoConfig, collectionName }) {
         const {
-            sourceCollection,
+            sourceCollection
         } = await this.createConnectionAsync(
             {
                 config: mongoConfig,
                 sourceCollectionName: collectionName,
-                destinationCollectionName: collectionName,
-            },
+                destinationCollectionName: collectionName
+            }
         );
         /**
          * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
@@ -293,8 +293,8 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                 _id: 0,
                 _uuid: 1,
                 telecom: 1,
-                name: 1,
-            },
+                name: 1
+            }
         });
         while (await cursor.hasNext()) {
             /**
@@ -307,8 +307,8 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                     {
                         _uuid: doc._uuid,
                         telecom: doc.telecom,
-                        name: doc.name,
-                    },
+                        name: doc.name
+                    }
                 );
         }
     }
@@ -345,13 +345,13 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                 await this.preloadCollectionAsync(
                     {
                         mongoConfig,
-                        collectionName: preloadCollection,
-                    },
+                        collectionName: preloadCollection
+                    }
                 );
                 const count = this.getCacheForResourceType(
                     {
-                        collectionName: preloadCollection,
-                    },
+                        collectionName: preloadCollection
+                    }
                 ).size;
                 console.log(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
             }
@@ -366,18 +366,18 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
 
             const query = this.beforeLastUpdatedDate ? {
                 'meta.lastUpdated': {
-                    $lt: this.beforeLastUpdatedDate,
-                },
+                    $lt: this.beforeLastUpdatedDate
+                }
             } : {};
 
             // Get ids of documents that have multiple owners/sourceAssigningAuthority.
             const db = await this.mongoDatabaseManager.getDatabaseForResourceAsync(
                 {
-                    resourceType: this._resourceType,
+                    resourceType: this._resourceType
                 });
             const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
                 db,
-                collectionName,
+                collectionName
             });
             const result = await dbCollection.aggregate([
                 {
@@ -385,28 +385,28 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                         'meta.security': {
                             '$elemMatch': {
                                 'system': 'https://www.icanbwell.com/owner',
-                                'code': 'bwell',
-                            },
-                        },
-                    },
+                                'code': 'bwell'
+                            }
+                        }
+                    }
                 }, {
                     '$unwind': {
-                        'path': '$link',
-                    },
+                        'path': '$link'
+                    }
                 }, {
                     '$group': {
                         '_id': '$_id',
                         'count': {
-                            '$count': {},
-                        },
-                    },
+                            '$count': {}
+                        }
+                    }
                 }, {
                     '$match': {
                         'count': {
-                            '$gte': parseInt(`${this.minLinks ? this.minLinks : 20}`),
-                        },
-                    },
-                },
+                            '$gte': parseInt(`${this.minLinks ? this.minLinks : 20}`)
+                        }
+                    }
+                }
             ], { allowDiskUse: true }).toArray();
 
             const idList = result.map(obj => obj._id);
@@ -429,8 +429,8 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                         limit: this.limit,
                         skip: this.skip,
                         filterToIdProperty: '_id',
-                        filterToIds: idList,
-                    },
+                        filterToIds: idList
+                    }
                 );
             } catch (e) {
                 console.error(e);
@@ -449,5 +449,5 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    FixPersonLinksRunner,
+    FixPersonLinksRunner
 };

@@ -31,7 +31,7 @@ class MessageDefinitionFocus extends Element {
             code,
             profile,
             min,
-            max,
+            max
         }
     ) {
         super({});
@@ -198,7 +198,7 @@ class MessageDefinitionFocus extends Element {
             code,
             profile,
             min,
-            max,
+            max
         });
 
     }
@@ -219,7 +219,7 @@ class MessageDefinitionFocus extends Element {
             code: this.code,
             profile: this.profile,
             min: this.min,
-            max: this.max,
+            max: this.max
         });
     }
 
@@ -246,7 +246,7 @@ class MessageDefinitionFocus extends Element {
             code: this.code,
             profile: this.profile,
             min: this.min,
-            max: this.max,
+            max: this.max
         };
 
 

@@ -40,7 +40,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy,
             specialArrangement,
             destination,
-            dischargeDisposition,
+            dischargeDisposition
         }
     ) {
         super({});
@@ -318,7 +318,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy,
             specialArrangement,
             destination,
-            dischargeDisposition,
+            dischargeDisposition
         });
 
     }
@@ -344,7 +344,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy: this.specialCourtesy && this.specialCourtesy.map(v => v.toJSON()),
             specialArrangement: this.specialArrangement && this.specialArrangement.map(v => v.toJSON()),
             destination: this.destination && this.destination.toJSON(),
-            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSON(),
+            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSON()
         });
     }
 
@@ -385,7 +385,7 @@ class EncounterHospitalization extends Element {
             specialCourtesy: this.specialCourtesy && this.specialCourtesy.map(v => v.toJSONInternal()),
             specialArrangement: this.specialArrangement && this.specialArrangement.map(v => v.toJSONInternal()),
             destination: this.destination && this.destination.toJSONInternal(),
-            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSONInternal(),
+            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSONInternal()
         };
 
 

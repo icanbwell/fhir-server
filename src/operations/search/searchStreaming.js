@@ -132,7 +132,7 @@ class SearchStreamingOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
-            userRequestId,
+            userRequestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -353,7 +353,7 @@ class SearchStreamingOperation {
                         useAccessIndex,
                         batchObjectCount,
                         defaultSortId,
-                        accepts: requestInfo.accept,
+                        accepts: requestInfo.accept
                     });
 
                 if (resourceIds.length > 0 && resourceType !== 'AuditEvent') {

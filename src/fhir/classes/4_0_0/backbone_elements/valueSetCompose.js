@@ -32,7 +32,7 @@ class ValueSetCompose extends Element {
             lockedDate,
             inactive,
             include,
-            exclude,
+            exclude
         }
     ) {
         super({});
@@ -208,7 +208,7 @@ class ValueSetCompose extends Element {
             lockedDate,
             inactive,
             include,
-            exclude,
+            exclude
         });
 
     }
@@ -229,7 +229,7 @@ class ValueSetCompose extends Element {
             lockedDate: this.lockedDate,
             inactive: this.inactive,
             include: this.include && this.include.map(v => v.toJSON()),
-            exclude: this.exclude && this.exclude.map(v => v.toJSON()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSON())
         });
     }
 
@@ -258,7 +258,7 @@ class ValueSetCompose extends Element {
             lockedDate: this.lockedDate,
             inactive: this.inactive,
             include: this.include && this.include.map(v => v.toJSONInternal()),
-            exclude: this.exclude && this.exclude.map(v => v.toJSONInternal()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSONInternal())
         };
 
 

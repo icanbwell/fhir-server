@@ -17,7 +17,6 @@
       "camelcase": "off",
       "space-before-function-paren": "off",
       "object-shorthand": "off",
-      "comma-dangle": "off",
       "no-tabs": "off",
       "no-multiple-empty-lines": "off",
       "block-spacing": "off",

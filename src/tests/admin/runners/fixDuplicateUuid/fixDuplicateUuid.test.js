@@ -14,7 +14,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
@@ -102,7 +102,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -162,7 +162,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -218,7 +218,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -269,7 +269,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -346,7 +346,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 

@@ -23,7 +23,7 @@ class TestReportAction2 extends Element {
             id,
             extension,
             modifierExtension,
-            operation,
+            operation
         }
     ) {
         super({});
@@ -132,7 +132,7 @@ class TestReportAction2 extends Element {
             id,
             extension,
             modifierExtension,
-            operation,
+            operation
         });
 
     }
@@ -150,7 +150,7 @@ class TestReportAction2 extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            operation: this.operation && this.operation.toJSON(),
+            operation: this.operation && this.operation.toJSON()
         });
     }
 
@@ -175,7 +175,7 @@ class TestReportAction2 extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            operation: this.operation && this.operation.toJSONInternal(),
+            operation: this.operation && this.operation.toJSONInternal()
         };
 
 

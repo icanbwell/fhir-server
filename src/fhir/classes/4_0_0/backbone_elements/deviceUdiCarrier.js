@@ -35,7 +35,7 @@ class DeviceUdiCarrier extends Element {
             jurisdiction,
             carrierAIDC,
             carrierHRF,
-            entryType,
+            entryType
         }
     ) {
         super({});
@@ -256,7 +256,7 @@ class DeviceUdiCarrier extends Element {
             jurisdiction,
             carrierAIDC,
             carrierHRF,
-            entryType,
+            entryType
         });
 
     }
@@ -279,7 +279,7 @@ class DeviceUdiCarrier extends Element {
             jurisdiction: this.jurisdiction,
             carrierAIDC: this.carrierAIDC,
             carrierHRF: this.carrierHRF,
-            entryType: this.entryType,
+            entryType: this.entryType
         });
     }
 
@@ -308,7 +308,7 @@ class DeviceUdiCarrier extends Element {
             jurisdiction: this.jurisdiction,
             carrierAIDC: this.carrierAIDC,
             carrierHRF: this.carrierHRF,
-            entryType: this.entryType,
+            entryType: this.entryType
         };
 
 

@@ -6,7 +6,7 @@ module.exports = {
     CareTeamParticipantMember: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CareTeamParticipant: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.onBehalfOf);
-        },
+        }
     }
 };
 

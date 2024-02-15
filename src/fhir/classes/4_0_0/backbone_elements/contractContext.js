@@ -28,7 +28,7 @@ class ContractContext extends Element {
             modifierExtension,
             reference,
             code,
-            text,
+            text
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class ContractContext extends Element {
             modifierExtension,
             reference,
             code,
-            text,
+            text
         });
 
     }
@@ -200,7 +200,7 @@ class ContractContext extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             reference: this.reference && this.reference.toJSON(),
             code: this.code && this.code.map(v => v.toJSON()),
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -228,7 +228,7 @@ class ContractContext extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             reference: this.reference && this.reference.toJSONInternal(),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            text: this.text,
+            text: this.text
         };
 
 

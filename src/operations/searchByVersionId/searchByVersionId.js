@@ -105,7 +105,7 @@ class SearchByVersionIdOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
-            scope,
+            scope
             // /** @type {string} */
             // requestId
         } = requestInfo;
@@ -136,7 +136,7 @@ class SearchByVersionIdOperation {
              */
             let {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({

@@ -16,7 +16,7 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
@@ -78,7 +78,7 @@ describe('GraphQL Immunization Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);

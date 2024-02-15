@@ -198,7 +198,7 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             `Received: ${utils.printReceived(actual)}`
         : () => {
             const diffString = diff(expected, actual, {
-                expand: expand,
+                expand: expand
             });
             return (
                 // eslint-disable-next-line prefer-template
@@ -222,7 +222,7 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
-        promise: this.promise,
+        promise: this.promise
     };
     /**
      * @type {JestUtils}
@@ -253,7 +253,7 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
                 type: 'searchset',
                 entry: expected.map((e) => {
                     return {resource: e};
-                }),
+                })
             };
         }
         return checkContent({
@@ -306,8 +306,8 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
                         args: {
                             resourceType: body.resourceType,
                             resource: body,
-                            operationOutcome: operationOutcome,
-                        },
+                            operationOutcome: operationOutcome
+                        }
                     });
                 }
             }
@@ -356,7 +356,7 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
-        promise: this.promise,
+        promise: this.promise
     };
     /**
      * @type {JestUtils}
@@ -379,7 +379,7 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
                 type: 'searchset',
                 entry: expected.map((e) => {
                     return {resource: e};
-                }),
+                })
             };
         }
         return checkContent({
@@ -432,8 +432,8 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
                         args: {
                             resourceType: body.resourceType,
                             resource: body,
-                            operationOutcome: operationOutcome,
-                        },
+                            operationOutcome: operationOutcome
+                        }
                     });
                 }
             }

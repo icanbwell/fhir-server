@@ -76,7 +76,7 @@ class RiskAssessment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -710,7 +710,7 @@ class RiskAssessment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -798,7 +798,7 @@ class RiskAssessment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new RiskAssessment({
@@ -831,7 +831,7 @@ class RiskAssessment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -878,7 +878,7 @@ class RiskAssessment extends Resource {
             basis: this.basis && this.basis.map(v => v.toJSON()),
             prediction: this.prediction && this.prediction.map(v => v.toJSON()),
             mitigation: this.mitigation,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -943,7 +943,7 @@ class RiskAssessment extends Resource {
             basis: this.basis && this.basis.map(v => v.toJSONInternal()),
             prediction: this.prediction && this.prediction.map(v => v.toJSONInternal()),
             mitigation: this.mitigation,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

@@ -38,7 +38,7 @@ class SubstanceSourceMaterialAuthor extends Element {
             extension,
             modifierExtension,
             authorType,
-            authorDescription,
+            authorDescription
         }
     ) {
         super({});
@@ -173,7 +173,7 @@ class SubstanceSourceMaterialAuthor extends Element {
             extension,
             modifierExtension,
             authorType,
-            authorDescription,
+            authorDescription
         });
 
     }
@@ -192,7 +192,7 @@ class SubstanceSourceMaterialAuthor extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             authorType: this.authorType && this.authorType.toJSON(),
-            authorDescription: this.authorDescription,
+            authorDescription: this.authorDescription
         });
     }
 
@@ -218,7 +218,7 @@ class SubstanceSourceMaterialAuthor extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             authorType: this.authorType && this.authorType.toJSONInternal(),
-            authorDescription: this.authorDescription,
+            authorDescription: this.authorDescription
         };
 
 

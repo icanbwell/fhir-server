@@ -56,7 +56,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -478,7 +478,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -546,7 +546,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchSubject({
@@ -569,7 +569,7 @@ class ResearchSubject extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -606,7 +606,7 @@ class ResearchSubject extends Resource {
             individual: this.individual && this.individual.toJSON(),
             assignedArm: this.assignedArm,
             actualArm: this.actualArm,
-            consent: this.consent && this.consent.toJSON(),
+            consent: this.consent && this.consent.toJSON()
         });
     }
 
@@ -651,7 +651,7 @@ class ResearchSubject extends Resource {
             individual: this.individual && this.individual.toJSONInternal(),
             assignedArm: this.assignedArm,
             actualArm: this.actualArm,
-            consent: this.consent && this.consent.toJSONInternal(),
+            consent: this.consent && this.consent.toJSONInternal()
         };
 
 

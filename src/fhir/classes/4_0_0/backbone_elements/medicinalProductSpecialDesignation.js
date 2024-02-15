@@ -38,7 +38,7 @@ class MedicinalProductSpecialDesignation extends Element {
             indicationReference,
             status,
             date,
-            species,
+            species
         }
     ) {
         super({});
@@ -292,7 +292,7 @@ class MedicinalProductSpecialDesignation extends Element {
             indicationReference,
             status,
             date,
-            species,
+            species
         });
 
     }
@@ -317,7 +317,7 @@ class MedicinalProductSpecialDesignation extends Element {
             indicationReference: this.indicationReference && this.indicationReference.toJSON(),
             status: this.status && this.status.toJSON(),
             date: this.date,
-            species: this.species && this.species.toJSON(),
+            species: this.species && this.species.toJSON()
         });
     }
 
@@ -355,7 +355,7 @@ class MedicinalProductSpecialDesignation extends Element {
             indicationReference: this.indicationReference && this.indicationReference.toJSONInternal(),
             status: this.status && this.status.toJSONInternal(),
             date: this.date,
-            species: this.species && this.species.toJSONInternal(),
+            species: this.species && this.species.toJSONInternal()
         };
 
 

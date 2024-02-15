@@ -113,7 +113,7 @@ describe('Patient Tests', () => {
                 'custom:clientFhirPersonId': 'clientFhirPerson',
                 'custom:clientFhirPatientId': 'clientFhirPatient',
                 'custom:bwellFhirPersonId': '41db6857-b989-4617-ac8b-35d853250449',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
             };
             const headers = getHeadersWithCustomPayload(person_payload);
             // ACT & ASSERT

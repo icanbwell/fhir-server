@@ -104,7 +104,7 @@ class PostRequestProcessor {
                         event: 'postRequestProcessor',
                         message: 'Error running task',
                         args: {
-                            requestId: requestId,
+                            requestId: requestId
                         },
                         error: e
                     }
@@ -123,7 +123,7 @@ class PostRequestProcessor {
                     args: {
                         tasksInQueueBefore: tasksInQueueBefore,
                         tasksInQueueAfter: queue.length,
-                        requestId: requestId,
+                        requestId: requestId
                     }
                 }
             );

@@ -29,7 +29,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension,
             language,
             use,
-            value,
+            value
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension,
             language,
             use,
-            value,
+            value
         });
 
     }
@@ -196,7 +196,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             language: this.language,
             use: this.use && this.use.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -223,7 +223,7 @@ class CodeSystemDesignation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             language: this.language,
             use: this.use && this.use.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
 

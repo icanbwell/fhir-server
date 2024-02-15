@@ -19,7 +19,7 @@ class FilterByPartialText extends BaseFilter {
                     {
                         field: this.fieldMapper.getFieldName(`${field}.text`),
                         partialText: value,
-                        ignoreCase: true,
+                        ignoreCase: true
                     }
                 ),
                 // 2. search in display field for every coding
@@ -27,7 +27,7 @@ class FilterByPartialText extends BaseFilter {
                     {
                         field: this.fieldMapper.getFieldName(`${field}.coding.display`),
                         partialText: value,
-                        ignoreCase: true,
+                        ignoreCase: true
                     }
                 )
             ]

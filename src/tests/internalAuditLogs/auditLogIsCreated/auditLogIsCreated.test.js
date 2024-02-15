@@ -14,7 +14,7 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext,
+    mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const env = require('var');
@@ -76,7 +76,7 @@ describe('InternalAuditLog Tests', () => {
             const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: `${collection_name}_${base_version}`,
+                    resourceWithBaseVersion: `${collection_name}_${base_version}`
                 });
             /**
              * mongo collection

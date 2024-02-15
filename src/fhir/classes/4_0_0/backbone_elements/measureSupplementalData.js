@@ -29,7 +29,7 @@ class MeasureSupplementalData extends Element {
             code,
             usage,
             description,
-            criteria,
+            criteria
         }
     ) {
         super({});
@@ -209,7 +209,7 @@ class MeasureSupplementalData extends Element {
             code,
             usage,
             description,
-            criteria,
+            criteria
         });
 
     }
@@ -230,7 +230,7 @@ class MeasureSupplementalData extends Element {
             code: this.code && this.code.toJSON(),
             usage: this.usage && this.usage.map(v => v.toJSON()),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSON(),
+            criteria: this.criteria && this.criteria.toJSON()
         });
     }
 
@@ -260,7 +260,7 @@ class MeasureSupplementalData extends Element {
             code: this.code && this.code.toJSONInternal(),
             usage: this.usage && this.usage.map(v => v.toJSONInternal()),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSONInternal(),
+            criteria: this.criteria && this.criteria.toJSONInternal()
         };
 
 

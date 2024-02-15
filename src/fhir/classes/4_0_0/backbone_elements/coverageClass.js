@@ -28,7 +28,7 @@ class CoverageClass extends Element {
             modifierExtension,
             type,
             value,
-            name,
+            name
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class CoverageClass extends Element {
             modifierExtension,
             type,
             value,
-            name,
+            name
         });
 
     }
@@ -197,7 +197,7 @@ class CoverageClass extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             value: this.value,
-            name: this.name,
+            name: this.name
         });
     }
 
@@ -224,7 +224,7 @@ class CoverageClass extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             value: this.value,
-            name: this.name,
+            name: this.name
         };
 
 

@@ -116,7 +116,7 @@ class ServiceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1187,7 +1187,7 @@ class ServiceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1315,7 +1315,7 @@ class ServiceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ServiceRequest({
@@ -1368,7 +1368,7 @@ class ServiceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1435,7 +1435,7 @@ class ServiceRequest extends Resource {
             bodySite: this.bodySite && this.bodySite.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
             patientInstruction: this.patientInstruction,
-            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON())
         });
     }
 
@@ -1533,7 +1533,7 @@ class ServiceRequest extends Resource {
             bodySite: this.bodySite && this.bodySite.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             patientInstruction: this.patientInstruction,
-            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal())
         };
 
 

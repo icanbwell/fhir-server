@@ -1,7 +1,7 @@
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const {
     mongoQueryStringify,
-    mongoQueryAndOptionsStringify,
+    mongoQueryAndOptionsStringify
 } = require('../../../utils/mongoQueryStringify');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
@@ -23,23 +23,23 @@ describe('mongoQueryStringify Tests', () => {
                 $and: [
                     {
                         'meta.lastUpdated': {
-                            $gt: new Date('2021-06-01T00:00:00.000Z'),
-                        },
+                            $gt: new Date('2021-06-01T00:00:00.000Z')
+                        }
                     },
                     {
                         'meta.lastUpdated': {
-                            $lt: new Date('2021-06-02T00:00:00.000Z'),
-                        },
+                            $lt: new Date('2021-06-02T00:00:00.000Z')
+                        }
                     },
                     {
                         'meta.security': {
                             $elemMatch: {
                                 system: SecurityTagSystem.access,
-                                code: 'fake',
-                            },
-                        },
-                    },
-                ],
+                                code: 'fake'
+                            }
+                        }
+                    }
+                ]
             };
 
             const result = mongoQueryStringify(query);
@@ -54,46 +54,46 @@ describe('mongoQueryStringify Tests', () => {
                     $and: [
                         {
                             'meta.lastUpdated': {
-                                $gt: new Date('2021-06-01T00:00:00.000Z'),
-                            },
+                                $gt: new Date('2021-06-01T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.lastUpdated': {
-                                $lt: new Date('2021-06-02T00:00:00.000Z'),
-                            },
+                                $lt: new Date('2021-06-02T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.security': {
                                 $elemMatch: {
                                     system: SecurityTagSystem.access,
-                                    code: 'fake',
-                                },
-                            },
-                        },
-                    ],
+                                    code: 'fake'
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
                     $and: [
                         {
                             'meta.lastUpdated': {
-                                $gt: new Date('2021-06-01T00:00:00.000Z'),
-                            },
+                                $gt: new Date('2021-06-01T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.lastUpdated': {
-                                $lt: new Date('2021-06-02T00:00:00.000Z'),
-                            },
+                                $lt: new Date('2021-06-02T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.security': {
                                 $elemMatch: {
                                     system: SecurityTagSystem.access,
-                                    code: 'fake',
-                                },
-                            },
-                        },
-                    ],
-                },
+                                    code: 'fake'
+                                }
+                            }
+                        }
+                    ]
+                }
             ];
 
             const result = mongoQueryStringify(query);
@@ -109,30 +109,30 @@ describe('mongoQueryStringify Tests', () => {
                 $and: [
                     {
                         'meta.lastUpdated': {
-                            $gt: new Date('2021-06-01T00:00:00.000Z'),
-                        },
+                            $gt: new Date('2021-06-01T00:00:00.000Z')
+                        }
                     },
                     {
                         'meta.lastUpdated': {
-                            $lt: new Date('2021-06-02T00:00:00.000Z'),
-                        },
+                            $lt: new Date('2021-06-02T00:00:00.000Z')
+                        }
                     },
                     {
                         'meta.security': {
                             $elemMatch: {
                                 system: SecurityTagSystem.access,
-                                code: 'fake',
-                            },
-                        },
-                    },
-                ],
+                                code: 'fake'
+                            }
+                        }
+                    }
+                ]
             };
 
             const options = {
                 projection: {id: 1, 'meta.lastUpdated': 1},
                 sort: {id: 1},
                 skip: 10,
-                limit: 20,
+                limit: 20
             };
             const result = mongoQueryAndOptionsStringify(
                 {
@@ -154,46 +154,46 @@ describe('mongoQueryStringify Tests', () => {
                     $and: [
                         {
                             'meta.lastUpdated': {
-                                $gt: new Date('2021-06-01T00:00:00.000Z'),
-                            },
+                                $gt: new Date('2021-06-01T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.lastUpdated': {
-                                $lt: new Date('2021-06-02T00:00:00.000Z'),
-                            },
+                                $lt: new Date('2021-06-02T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.security': {
                                 $elemMatch: {
                                     system: SecurityTagSystem.access,
-                                    code: 'fake',
-                                },
-                            },
-                        },
-                    ],
+                                    code: 'fake'
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
                     $and: [
                         {
                             'meta.lastUpdated': {
-                                $gt: new Date('2021-06-01T00:00:00.000Z'),
-                            },
+                                $gt: new Date('2021-06-01T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.lastUpdated': {
-                                $lt: new Date('2021-06-02T00:00:00.000Z'),
-                            },
+                                $lt: new Date('2021-06-02T00:00:00.000Z')
+                            }
                         },
                         {
                             'meta.security': {
                                 $elemMatch: {
                                     system: SecurityTagSystem.access,
-                                    code: 'fake',
-                                },
-                            },
-                        },
-                    ],
-                },
+                                    code: 'fake'
+                                }
+                            }
+                        }
+                    ]
+                }
             ];
 
             const options = [
@@ -201,9 +201,9 @@ describe('mongoQueryStringify Tests', () => {
                     projection: {id: 1, 'meta.lastUpdated': 1},
                     sort: {id: 1},
                     skip: 10,
-                    limit: 20,
+                    limit: 20
                 },
-                {},
+                {}
             ];
             const result = mongoQueryAndOptionsStringify(
                 {

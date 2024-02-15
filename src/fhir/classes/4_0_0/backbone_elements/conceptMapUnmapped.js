@@ -31,7 +31,7 @@ class ConceptMapUnmapped extends Element {
             mode,
             code,
             display,
-            url,
+            url
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class ConceptMapUnmapped extends Element {
             mode,
             code,
             display,
-            url,
+            url
         });
 
     }
@@ -225,7 +225,7 @@ class ConceptMapUnmapped extends Element {
             mode: this.mode,
             code: this.code,
             display: this.display,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -252,7 +252,7 @@ class ConceptMapUnmapped extends Element {
             mode: this.mode,
             code: this.code,
             display: this.display,
-            url: this.url,
+            url: this.url
         };
 
 

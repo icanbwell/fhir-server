@@ -30,7 +30,7 @@ class ElementDefinitionBinding extends Element {
             modifierExtension,
             strength,
             description,
-            valueSet,
+            valueSet
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class ElementDefinitionBinding extends Element {
             modifierExtension,
             strength,
             description,
-            valueSet,
+            valueSet
         });
 
     }
@@ -198,7 +198,7 @@ class ElementDefinitionBinding extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             strength: this.strength,
             description: this.description,
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         });
     }
 
@@ -224,7 +224,7 @@ class ElementDefinitionBinding extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             strength: this.strength,
             description: this.description,
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         };
 
 

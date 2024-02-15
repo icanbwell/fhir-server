@@ -35,7 +35,7 @@ class CompositionAttester extends Element {
             modifierExtension,
             mode,
             time,
-            party,
+            party
         }
     ) {
         super({});
@@ -182,7 +182,7 @@ class CompositionAttester extends Element {
             modifierExtension,
             mode,
             time,
-            party,
+            party
         });
 
     }
@@ -202,7 +202,7 @@ class CompositionAttester extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             mode: this.mode,
             time: this.time,
-            party: this.party && this.party.toJSON(),
+            party: this.party && this.party.toJSON()
         });
     }
 
@@ -229,7 +229,7 @@ class CompositionAttester extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             mode: this.mode,
             time: this.time,
-            party: this.party && this.party.toJSONInternal(),
+            party: this.party && this.party.toJSONInternal()
         };
 
 

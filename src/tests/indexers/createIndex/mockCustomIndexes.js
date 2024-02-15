@@ -128,7 +128,7 @@ module.exports = {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
                     'id': 1,
-                    'meta.lastUpdated': 1,
+                    'meta.lastUpdated': 1
                 },
                 options: {
                     name: 'helix_audit_event_security'
@@ -138,7 +138,7 @@ module.exports = {
                 keys: {
                     '_access.client': 1,
                     'id': 1,
-                    'meta.lastUpdated': 1,
+                    'meta.lastUpdated': 1
                 },
                 options: {
                     name: 'helix_auditEvent_security_access_client'
@@ -148,7 +148,7 @@ module.exports = {
                 keys: {
                     '_access.client': 1,
                     'id': 1,
-                    'recorded': 1,
+                    'recorded': 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_access_client'
@@ -159,12 +159,12 @@ module.exports = {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
                     'id': 1,
-                    'recorded': 1,
+                    'recorded': 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded'
                 }
-            },
+            }
             // 'helix_auditEvent_index_type': [
             //     'type.system',
             //     'type.code',
@@ -201,7 +201,7 @@ module.exports = {
                 keys: {
                     'subject.reference': 1,
                     'effectiveDateTime': 1,
-                    'id': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'helix_observation_effective_2'

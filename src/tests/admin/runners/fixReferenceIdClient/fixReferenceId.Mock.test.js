@@ -109,7 +109,7 @@ describe('Observation Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
-                    client: 'client123',
+                    client: 'client123'
                 }
             )
             );

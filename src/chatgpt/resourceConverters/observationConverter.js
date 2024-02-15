@@ -13,7 +13,7 @@ class ObservationConverter extends BaseConverter {
             effectiveDateTime,
             valueQuantity,
             valueCodeableConcept,
-            interpretation,
+            interpretation
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

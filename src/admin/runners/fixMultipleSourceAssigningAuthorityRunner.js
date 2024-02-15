@@ -43,13 +43,13 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             filterRecords,
             startFromCollection,
             limit,
-            skip,
+            skip
         }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {string[]}
@@ -160,8 +160,8 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                 this.collections = (await this.getAllCollectionNamesAsync(
                         {
                             useAuditDatabase: this.useAuditDatabase,
-                            includeHistoryCollections: this.includeHistoryCollections,
-                        },
+                            includeHistoryCollections: this.includeHistoryCollections
+                        }
                     )
                 );
                 this.collections = this.collections.sort();
@@ -185,8 +185,8 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
 
                 const query = this.beforeLastUpdatedDate ? {
                     'meta.lastUpdated': {
-                        $lt: this.beforeLastUpdatedDate,
-                    },
+                        $lt: this.beforeLastUpdatedDate
+                    }
                 } : {};
 
                 let idList = [];
@@ -195,35 +195,35 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                     const db = await this.mongoDatabaseManager.getClientDbAsync();
                     const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
                         db,
-                        collectionName,
+                        collectionName
                     });
                     const result = await dbCollection.aggregate([
                         {
                             '$unwind': {
-                                'path': '$meta.security',
-                            },
+                                'path': '$meta.security'
+                            }
                         },
                         {
                             '$match': {
-                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
-                            },
+                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`
+                            }
                         },
                         {
                             '$group': {
                                 _id: '$_id',
-                                count: { $count: {} },
-                            },
+                                count: { $count: {} }
+                            }
                         },
                         {
                             '$match': {
                                 'count': {
-                                    $gte: 2,
-                                },
-                            },
+                                    $gte: 2
+                                }
+                            }
                         },
                         {
-                            $project: { array: true },
-                        },
+                            $project: { array: true }
+                        }
                     ], { allowDiskUse: true }).toArray();
 
                     idList = result.map(obj => obj._id);
@@ -247,8 +247,8 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                             limit: this.limit,
                             skip: this.skip,
                             filterToIdProperty: '_id',
-                            filterToIds: this.filterRecords ? idList : undefined,
-                        },
+                            filterToIds: this.filterRecords ? idList : undefined
+                        }
                     );
                 } catch (e) {
                     console.error(e);
@@ -268,5 +268,5 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
 }
 
 module.exports = {
-    FixMultipleSourceAssigningAuthorityRunner,
+    FixMultipleSourceAssigningAuthorityRunner
 };

@@ -67,7 +67,7 @@ async function main() {
             skip: parameters.skip,
             patientPersonMatching: parameters.patientPersonMatching ? true : false,
             connectionType: parameters.connectionType || 'proa',
-            clientSourceAssigningAuthorities,
+            clientSourceAssigningAuthorities
         }
     )
     );

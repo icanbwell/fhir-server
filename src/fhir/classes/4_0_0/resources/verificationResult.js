@@ -68,7 +68,7 @@ class VerificationResult extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -614,7 +614,7 @@ class VerificationResult extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -694,7 +694,7 @@ class VerificationResult extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new VerificationResult({
@@ -723,7 +723,7 @@ class VerificationResult extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -766,7 +766,7 @@ class VerificationResult extends Resource {
             failureAction: this.failureAction && this.failureAction.toJSON(),
             primarySource: this.primarySource && this.primarySource.map(v => v.toJSON()),
             attestation: this.attestation && this.attestation.toJSON(),
-            validator: this.validator && this.validator.map(v => v.toJSON()),
+            validator: this.validator && this.validator.map(v => v.toJSON())
         });
     }
 
@@ -821,7 +821,7 @@ class VerificationResult extends Resource {
             failureAction: this.failureAction && this.failureAction.toJSONInternal(),
             primarySource: this.primarySource && this.primarySource.map(v => v.toJSONInternal()),
             attestation: this.attestation && this.attestation.toJSONInternal(),
-            validator: this.validator && this.validator.map(v => v.toJSONInternal()),
+            validator: this.validator && this.validator.map(v => v.toJSONInternal())
         };
 
 

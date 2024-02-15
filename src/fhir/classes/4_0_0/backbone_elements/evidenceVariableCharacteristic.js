@@ -52,7 +52,7 @@ class EvidenceVariableCharacteristic extends Element {
             participantEffectiveDuration,
             participantEffectiveTiming,
             timeFromStart,
-            groupMeasure,
+            groupMeasure
         }
     ) {
         super({});
@@ -447,7 +447,7 @@ class EvidenceVariableCharacteristic extends Element {
             participantEffectiveDuration,
             participantEffectiveTiming,
             timeFromStart,
-            groupMeasure,
+            groupMeasure
         });
 
     }
@@ -479,7 +479,7 @@ class EvidenceVariableCharacteristic extends Element {
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSON(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSON(),
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSON(),
-            groupMeasure: this.groupMeasure,
+            groupMeasure: this.groupMeasure
         });
     }
 
@@ -527,7 +527,7 @@ class EvidenceVariableCharacteristic extends Element {
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSONInternal(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSONInternal(),
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSONInternal(),
-            groupMeasure: this.groupMeasure,
+            groupMeasure: this.groupMeasure
         };
 
 

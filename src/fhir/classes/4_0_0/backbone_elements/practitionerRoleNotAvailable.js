@@ -26,7 +26,7 @@ class PractitionerRoleNotAvailable extends Element {
             extension,
             modifierExtension,
             description,
-            during,
+            during
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class PractitionerRoleNotAvailable extends Element {
             extension,
             modifierExtension,
             description,
-            during,
+            during
         });
 
     }
@@ -174,7 +174,7 @@ class PractitionerRoleNotAvailable extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
-            during: this.during && this.during.toJSON(),
+            during: this.during && this.during.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class PractitionerRoleNotAvailable extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
-            during: this.during && this.during.toJSONInternal(),
+            during: this.during && this.during.toJSONInternal()
         };
 
 

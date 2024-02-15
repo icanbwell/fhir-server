@@ -120,7 +120,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     skip: this.skip,
                     filterToIds: undefined,
                     filterToIdProperty: undefined,
-                    useEstimatedCount: true,
+                    useEstimatedCount: true
                 });
             } catch (error) {
                 this.adminLogger.logError(
@@ -130,9 +130,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     message: `Error processing ids of collection ${collection} ${error.message}`,
                     error,
                     args: {
-                        query,
+                        query
                     },
-                    source: 'AddProxyPatientToConsentResourceRunner.processAsync',
+                    source: 'AddProxyPatientToConsentResourceRunner.processAsync'
                 });
             } finally {
                 this.adminLogger.logInfo(
@@ -184,7 +184,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         const operation = {
-            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal },
+            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal }
         };
         operations.push(operation);
         return operations;
@@ -320,13 +320,13 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
             const cursor = await collection
                 .find({}, {
-                    session,
+                    session
                 })
                 .sort({ _id: 1 });
 
@@ -349,7 +349,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error caching collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'FixConsentDataSharing.cacheQuestionaireValues',
+                source: 'FixConsentDataSharing.cacheQuestionaireValues'
             });
         } finally {
             await session.endSession();
@@ -365,7 +365,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         const collectionName = 'QuestionnaireResponse_4_0_0';
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -388,7 +388,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error caching collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'FixConsentDataSharing.cacheQuestionnaireResponseToQuestionnaireId',
+                source: 'FixConsentDataSharing.cacheQuestionnaireResponseToQuestionnaireId'
             });
         } finally {
             await session.endSession();
@@ -411,7 +411,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         // only those without provision.class considered
         query.$and.push({
             'provision.class': {
-                $exists: false,
+                $exists: false
             }
         });
 
@@ -420,20 +420,20 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             query.$and.push({
                 'meta.lastUpdated': {
                     $lt: this.beforeLastUpdatedDate,
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
                 'meta.lastUpdated': {
-                    $lt: this.beforeLastUpdatedDate,
-                },
+                    $lt: this.beforeLastUpdatedDate
+                }
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
                 'meta.lastUpdated': {
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         }
 
@@ -442,8 +442,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 : startFromId;
             query.$and.push({
                 _id: {
-                    $gte: startId,
-                },
+                    $gte: startId
+                }
             });
         }
         return query;

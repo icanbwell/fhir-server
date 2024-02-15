@@ -29,7 +29,7 @@ class ConceptMapElement extends Element {
             modifierExtension,
             code,
             display,
-            target,
+            target
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class ConceptMapElement extends Element {
             modifierExtension,
             code,
             display,
-            target,
+            target
         });
 
     }
@@ -197,7 +197,7 @@ class ConceptMapElement extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
             display: this.display,
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -224,7 +224,7 @@ class ConceptMapElement extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
             display: this.display,
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
 
 

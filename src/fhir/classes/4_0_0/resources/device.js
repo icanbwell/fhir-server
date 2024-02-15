@@ -93,7 +93,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -893,7 +893,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -997,7 +997,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Device({
@@ -1038,7 +1038,7 @@ class Device extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1093,7 +1093,7 @@ class Device extends Resource {
             url: this.url,
             note: this.note && this.note.map(v => v.toJSON()),
             safety: this.safety && this.safety.map(v => v.toJSON()),
-            parent: this.parent && this.parent.toJSON(),
+            parent: this.parent && this.parent.toJSON()
         });
     }
 
@@ -1167,7 +1167,7 @@ class Device extends Resource {
             url: this.url,
             note: this.note && this.note.map(v => v.toJSONInternal()),
             safety: this.safety && this.safety.map(v => v.toJSONInternal()),
-            parent: this.parent && this.parent.toJSONInternal(),
+            parent: this.parent && this.parent.toJSONInternal()
         };
 
 

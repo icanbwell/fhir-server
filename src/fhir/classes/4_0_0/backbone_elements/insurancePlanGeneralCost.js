@@ -29,7 +29,7 @@ class InsurancePlanGeneralCost extends Element {
             type,
             groupSize,
             cost,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -197,7 +197,7 @@ class InsurancePlanGeneralCost extends Element {
             type,
             groupSize,
             cost,
-            comment,
+            comment
         });
 
     }
@@ -218,7 +218,7 @@ class InsurancePlanGeneralCost extends Element {
             type: this.type && this.type.toJSON(),
             groupSize: this.groupSize,
             cost: this.cost && this.cost.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -247,7 +247,7 @@ class InsurancePlanGeneralCost extends Element {
             type: this.type && this.type.toJSONInternal(),
             groupSize: this.groupSize,
             cost: this.cost && this.cost.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
 
 

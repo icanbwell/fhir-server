@@ -121,7 +121,7 @@ function createApp({fnGetContainer, trackMetrics}) {
                 method: reqMethod,
                 userAgent: req.headers['user-agent'],
                 scope: req.authInfo?.scope,
-                altId,
+                altId
             });
         });
         next();
@@ -184,9 +184,9 @@ function createApp({fnGetContainer, trackMetrics}) {
             oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
             oauth: {
                 appName: 'Swagger Doc',
-                usePkceWithAuthorizationCodeGrant: true,
-            },
-        },
+                usePkceWithAuthorizationCodeGrant: true
+            }
+        }
     };
 
     /**

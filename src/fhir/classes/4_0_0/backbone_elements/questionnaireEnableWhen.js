@@ -47,7 +47,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString,
             answerCoding,
             answerQuantity,
-            answerReference,
+            answerReference
         }
     ) {
         super({});
@@ -370,7 +370,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString,
             answerCoding,
             answerQuantity,
-            answerReference,
+            answerReference
         });
 
     }
@@ -399,7 +399,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString: this.answerString,
             answerCoding: this.answerCoding && this.answerCoding.toJSON(),
             answerQuantity: this.answerQuantity && this.answerQuantity.toJSON(),
-            answerReference: this.answerReference && this.answerReference.toJSON(),
+            answerReference: this.answerReference && this.answerReference.toJSON()
         });
     }
 
@@ -437,7 +437,7 @@ class QuestionnaireEnableWhen extends Element {
             answerString: this.answerString,
             answerCoding: this.answerCoding && this.answerCoding.toJSONInternal(),
             answerQuantity: this.answerQuantity && this.answerQuantity.toJSONInternal(),
-            answerReference: this.answerReference && this.answerReference.toJSONInternal(),
+            answerReference: this.answerReference && this.answerReference.toJSONInternal()
         };
 
 

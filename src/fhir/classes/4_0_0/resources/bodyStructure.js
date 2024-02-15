@@ -56,7 +56,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -481,7 +481,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -549,7 +549,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new BodyStructure({
@@ -572,7 +572,7 @@ class BodyStructure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -609,7 +609,7 @@ class BodyStructure extends Resource {
             locationQualifier: this.locationQualifier && this.locationQualifier.map(v => v.toJSON()),
             description: this.description,
             image: this.image && this.image.map(v => v.toJSON()),
-            patient: this.patient && this.patient.toJSON(),
+            patient: this.patient && this.patient.toJSON()
         });
     }
 
@@ -655,7 +655,7 @@ class BodyStructure extends Resource {
             locationQualifier: this.locationQualifier && this.locationQualifier.map(v => v.toJSONInternal()),
             description: this.description,
             image: this.image && this.image.map(v => v.toJSONInternal()),
-            patient: this.patient && this.patient.toJSONInternal(),
+            patient: this.patient && this.patient.toJSONInternal()
         };
 
 

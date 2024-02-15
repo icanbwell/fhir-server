@@ -28,7 +28,7 @@ class VerificationResultValidator extends Element {
             modifierExtension,
             organization,
             identityCertificate,
-            attestationSignature,
+            attestationSignature
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class VerificationResultValidator extends Element {
             modifierExtension,
             organization,
             identityCertificate,
-            attestationSignature,
+            attestationSignature
         });
 
     }
@@ -197,7 +197,7 @@ class VerificationResultValidator extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             organization: this.organization && this.organization.toJSON(),
             identityCertificate: this.identityCertificate,
-            attestationSignature: this.attestationSignature && this.attestationSignature.toJSON(),
+            attestationSignature: this.attestationSignature && this.attestationSignature.toJSON()
         });
     }
 
@@ -225,7 +225,7 @@ class VerificationResultValidator extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             organization: this.organization && this.organization.toJSONInternal(),
             identityCertificate: this.identityCertificate,
-            attestationSignature: this.attestationSignature && this.attestationSignature.toJSONInternal(),
+            attestationSignature: this.attestationSignature && this.attestationSignature.toJSONInternal()
         };
 
 

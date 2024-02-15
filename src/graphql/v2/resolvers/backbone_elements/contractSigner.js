@@ -6,7 +6,7 @@ module.exports = {
     ContractSignerParty: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractSigner: {
         // noinspection JSUnusedLocalSymbols
@@ -18,7 +18,7 @@ module.exports = {
                 context,
                 info,
                 parent.party);
-        },
+        }
     }
 };
 

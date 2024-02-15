@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext,
+    mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');

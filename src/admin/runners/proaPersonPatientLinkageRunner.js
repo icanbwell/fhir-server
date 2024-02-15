@@ -87,7 +87,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -98,9 +98,9 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 'meta.security': {
                     $elemMatch: {
                         system: SecurityTagSystem.connectionType,
-                        code: this.connectionType,
-                    },
-                },
+                        code: this.connectionType
+                    }
+                }
             };
             /**
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
@@ -119,7 +119,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                             doc.meta?.security?.find(
                                 (item) => item.system === SecurityTagSystem.sourceAssigningAuthority
                             )?.code || '',
-                        lastUpdated: new Date(doc.meta.lastUpdated).toISOString(),
+                        lastUpdated: new Date(doc.meta.lastUpdated).toISOString()
                     });
                 }
             }
@@ -128,7 +128,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error fetching ids & uuids for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'ProaPersonPatientLinkageRunner.getProaPatientsIdMap',
+                source: 'ProaPersonPatientLinkageRunner.getProaPatientsIdMap'
             });
         } finally {
             await session.endSession();
@@ -180,7 +180,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         id: resource.id,
                         _uuid: resource._uuid,
                         _sourceAssigningAuthority: resourceSourceAssigningAuthority,
-                        lastUpdated: new Date(resource.meta?.lastUpdated).toISOString(),
+                        lastUpdated: new Date(resource.meta?.lastUpdated).toISOString()
                     });
                 } else if (
                     resource?.meta?.source === 'https://www.icanbwell.com/enterprise-person-service' ||
@@ -193,7 +193,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         id: resource.id,
                         _uuid: resource._uuid,
                         _sourceAssigningAuthority: resourceSourceAssigningAuthority,
-                        lastUpdated: new Date(resource.meta?.lastUpdated).toISOString(),
+                        lastUpdated: new Date(resource.meta?.lastUpdated).toISOString()
                     });
                 } else {
                     console.log(resource, 'InvalidPerson');
@@ -206,9 +206,9 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 message: `Error processing record ${e.message}`,
                 error: e.stack,
                 args: {
-                    resource: doc,
+                    resource: doc
                 },
-                source: 'ProaPersonPatientLinkageRunner.processRecordAsync',
+                source: 'ProaPersonPatientLinkageRunner.processRecordAsync'
             });
         }
     }
@@ -241,7 +241,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                             sourceId: personInfo._uuid,
                             sourceType: 'Person',
                             targetId: masterPerson._uuid,
-                            targetType: 'Person',
+                            targetType: 'Person'
                         });
                         masterPersonMatching.push(
                             (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) ||
@@ -251,7 +251,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logError(`ERROR: ${e.message}`, {
                             stack: e.stack,
                             sourceId: `Person/${personInfo._uuid}`,
-                            targetId: `Person/${masterPerson._uuid}`,
+                            targetId: `Person/${masterPerson._uuid}`
                         });
                         masterPersonMatching.push('N/A');
                     }
@@ -269,7 +269,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 uuids: masterPersons.length > 1 ? `[${uuids}]` : uuids,
                 sourceAssigningAuthorities: masterPersons.length > 1 ? `[${sourceAssigningAuthorities}]` : sourceAssigningAuthorities,
                 lastUpdated: masterPersons.length > 1 ? `[${lastUpdated}]` : lastUpdated,
-                matchingResult: masterPersons.length > 1 ? `[${matchingResult}]` : matchingResult,
+                matchingResult: masterPersons.length > 1 ? `[${matchingResult}]` : matchingResult
             });
         }
 
@@ -284,7 +284,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             masterPersonUuids,
             masterPersonSourceAssigningAuthorities,
             masterPersonLastUpdated,
-            masterPersonMatching,
+            masterPersonMatching
         };
     }
 
@@ -306,7 +306,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -317,8 +317,8 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 'link.target._uuid': {
                     $in: [...this.personsUuidLinkedToProaPatient.keys()].map(
                         (uuid) => `Person/${uuid}`
-                    ),
-                },
+                    )
+                }
             };
 
             /**
@@ -339,7 +339,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                                 _sourceAssigningAuthority: doc.meta?.security?.find(
                                     (item) => item.system === SecurityTagSystem.sourceAssigningAuthority
                                 )?.code || '',
-                                lastUpdated: new Date(doc.meta?.lastUpdated).toISOString(),
+                                lastUpdated: new Date(doc.meta?.lastUpdated).toISOString()
                             });
                         }
                     });
@@ -350,7 +350,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error fetching ids & uuids for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'ProaPersonPatientLinkageRunner.getPersonToMasterPersonMap',
+                source: 'ProaPersonPatientLinkageRunner.getPersonToMasterPersonMap'
             });
         } finally {
             await session.endSession();
@@ -374,7 +374,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     sourceId: patientUuid,
                     sourceType: 'Patient',
                     targetId: person._uuid,
-                    targetType: 'Person',
+                    targetType: 'Person'
                 });
 
                 proaPersonMatchingScores.push(
@@ -384,7 +384,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 this.adminLogger.logError(`ERROR: ${e.message}`, {
                     stack: e.stack,
                     sourceId: `Patient/${patientUuid}`,
-                    targetId: `Person/${person._uuid}`,
+                    targetId: `Person/${person._uuid}`
                 });
                 proaPersonMatchingScores.push('N/A');
             }
@@ -444,8 +444,8 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                     'link.target._uuid': {
                         $in: [...this.proaPatientUUIDToIdOwnerMap.keys()].map(
                             (uuid) => `Patient/${uuid}`
-                        ),
-                    },
+                        )
+                    }
                 };
 
                 try {
@@ -463,7 +463,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         limit: this.limit,
                         useTransaction: this.useTransaction,
                         skip: this.skip,
-                        useEstimatedCount: false,
+                        useEstimatedCount: false
                     });
                 } catch (e) {
                     this.adminLogger.logError(
@@ -473,9 +473,9 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                         message: `Error processing proa person/patient linkage ${e.message}`,
                         error: e,
                         args: {
-                            query,
+                            query
                         },
-                        source: 'ProaPersonPatientLinkageRunner.processAsync',
+                        source: 'ProaPersonPatientLinkageRunner.processAsync'
                     });
                 }
             } catch (err) {
@@ -526,7 +526,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 masterPersonUuids,
                 masterPersonSourceAssigningAuthorities,
                 masterPersonLastUpdated,
-                masterPersonMatching,
+                masterPersonMatching
             } = await this.fetchMasterPersonInfo(
                 proaPersonInfo,
                 personToMasterPersonMap
@@ -544,7 +544,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
                 masterPersonIds: clientMasterPersonIds,
                 masterPersonUuids: clientMasterPersonUuids,
                 masterPersonSourceAssigningAuthorities: clientMasterPersonSourceAssigningAuthorities,
-                masterPersonLastUpdated: clientMasterPersonLastUpdated,
+                masterPersonLastUpdated: clientMasterPersonLastUpdated
             } = await this.fetchMasterPersonInfo(
                 clientPersonInfo,
                 personToMasterPersonMap
@@ -584,5 +584,5 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    ProaPersonPatientLinkageRunner,
+    ProaPersonPatientLinkageRunner
 };

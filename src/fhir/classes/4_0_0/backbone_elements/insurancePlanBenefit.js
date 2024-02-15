@@ -27,7 +27,7 @@ class InsurancePlanBenefit extends Element {
             modifierExtension,
             type,
             requirement,
-            limit,
+            limit
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class InsurancePlanBenefit extends Element {
             modifierExtension,
             type,
             requirement,
-            limit,
+            limit
         });
 
     }
@@ -196,7 +196,7 @@ class InsurancePlanBenefit extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             requirement: this.requirement,
-            limit: this.limit && this.limit.map(v => v.toJSON()),
+            limit: this.limit && this.limit.map(v => v.toJSON())
         });
     }
 
@@ -224,7 +224,7 @@ class InsurancePlanBenefit extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             requirement: this.requirement,
-            limit: this.limit && this.limit.map(v => v.toJSONInternal()),
+            limit: this.limit && this.limit.map(v => v.toJSONInternal())
         };
 
 

@@ -61,7 +61,7 @@ class TimingRepeat extends Element {
             dayOfWeek,
             timeOfDay,
             when,
-            offset,
+            offset
         }
     ) {
         super({});
@@ -494,7 +494,7 @@ class TimingRepeat extends Element {
             dayOfWeek,
             timeOfDay,
             when,
-            offset,
+            offset
         });
 
     }
@@ -528,7 +528,7 @@ class TimingRepeat extends Element {
             dayOfWeek: this.dayOfWeek,
             timeOfDay: this.timeOfDay,
             when: this.when,
-            offset: this.offset,
+            offset: this.offset
         });
     }
 
@@ -571,7 +571,7 @@ class TimingRepeat extends Element {
             dayOfWeek: this.dayOfWeek,
             timeOfDay: this.timeOfDay,
             when: this.when,
-            offset: this.offset,
+            offset: this.offset
         };
 
 

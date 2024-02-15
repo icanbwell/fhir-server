@@ -26,7 +26,7 @@ class RequestGroupCondition extends Element {
             extension,
             modifierExtension,
             kind,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class RequestGroupCondition extends Element {
             extension,
             modifierExtension,
             kind,
-            expression,
+            expression
         });
 
     }
@@ -174,7 +174,7 @@ class RequestGroupCondition extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             kind: this.kind,
-            expression: this.expression && this.expression.toJSON(),
+            expression: this.expression && this.expression.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class RequestGroupCondition extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             kind: this.kind,
-            expression: this.expression && this.expression.toJSONInternal(),
+            expression: this.expression && this.expression.toJSONInternal()
         };
 
 

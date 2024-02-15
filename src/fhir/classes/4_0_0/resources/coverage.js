@@ -74,7 +74,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -691,7 +691,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -777,7 +777,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Coverage({
@@ -809,7 +809,7 @@ class Coverage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -855,7 +855,7 @@ class Coverage extends Resource {
             network: this.network,
             costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.map(v => v.toJSON()),
             subrogation: this.subrogation,
-            contract: this.contract && this.contract.map(v => v.toJSON()),
+            contract: this.contract && this.contract.map(v => v.toJSON())
         });
     }
 
@@ -915,7 +915,7 @@ class Coverage extends Resource {
             network: this.network,
             costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.map(v => v.toJSONInternal()),
             subrogation: this.subrogation,
-            contract: this.contract && this.contract.map(v => v.toJSONInternal()),
+            contract: this.contract && this.contract.map(v => v.toJSONInternal())
         };
 
 

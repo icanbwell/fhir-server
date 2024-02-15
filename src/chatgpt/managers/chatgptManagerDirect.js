@@ -27,7 +27,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         }
     ) {
         const configuration = {
-            apiKey: this.configManager.openAIApiKey,
+            apiKey: this.configManager.openAIApiKey
         };
         const openai = new OpenAI(configuration);
 
@@ -68,7 +68,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
                     content: startPrompt
                 }
             ),
-            ...contextMessages,
+            ...contextMessages
         ];
         const messages = [
             ...systemMessages,
@@ -127,7 +127,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
 
     async listModelsAsync() {
         const configuration = {
-            apiKey: this.configManager.openAIApiKey,
+            apiKey: this.configManager.openAIApiKey
         };
         const openai = new OpenAI(configuration);
         const response = await openai.models.list();

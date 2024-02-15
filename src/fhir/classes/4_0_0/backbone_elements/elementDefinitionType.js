@@ -34,7 +34,7 @@ class ElementDefinitionType extends Element {
             profile,
             targetProfile,
             aggregation,
-            versioning,
+            versioning
         }
     ) {
         super({});
@@ -237,7 +237,7 @@ class ElementDefinitionType extends Element {
             profile,
             targetProfile,
             aggregation,
-            versioning,
+            versioning
         });
 
     }
@@ -259,7 +259,7 @@ class ElementDefinitionType extends Element {
             profile: this.profile,
             targetProfile: this.targetProfile,
             aggregation: this.aggregation,
-            versioning: this.versioning,
+            versioning: this.versioning
         });
     }
 
@@ -287,7 +287,7 @@ class ElementDefinitionType extends Element {
             profile: this.profile,
             targetProfile: this.targetProfile,
             aggregation: this.aggregation,
-            versioning: this.versioning,
+            versioning: this.versioning
         };
 
 

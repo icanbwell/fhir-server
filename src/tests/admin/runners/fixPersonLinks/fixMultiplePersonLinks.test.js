@@ -13,7 +13,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const { AdminLogger } = require('../../../../admin/adminLogger');
@@ -81,19 +81,19 @@ describe('Person Tests', () => {
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const collection = await setupDatabaseAsync(
-                mongoDatabaseManager, mainPerson1Resource, 'Person_4_0_0',
+                mongoDatabaseManager, mainPerson1Resource, 'Person_4_0_0'
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, linkedePerson1Resource, 'Person_4_0_0',
+                mongoDatabaseManager, linkedePerson1Resource, 'Person_4_0_0'
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, linkedePerson2Resource, 'Person_4_0_0',
+                mongoDatabaseManager, linkedePerson2Resource, 'Person_4_0_0'
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, linkedePerson3Resource, 'Person_4_0_0',
+                mongoDatabaseManager, linkedePerson3Resource, 'Person_4_0_0'
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, linkedPatient1Resource, 'Patient_4_0_0',
+                mongoDatabaseManager, linkedPatient1Resource, 'Patient_4_0_0'
             );
 
             // run admin runner
@@ -112,12 +112,12 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         preloadCollections: [
-                            'Person_4_0_0',
+                            'Person_4_0_0'
                         ],
                         resourceMerger: c.resourceMerger,
                         minLinks: 1
-                    },
-                ),
+                    }
+                )
             );
 
             /**

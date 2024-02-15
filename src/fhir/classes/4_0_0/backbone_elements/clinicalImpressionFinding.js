@@ -33,7 +33,7 @@ class ClinicalImpressionFinding extends Element {
             modifierExtension,
             itemCodeableConcept,
             itemReference,
-            basis,
+            basis
         }
     ) {
         super({});
@@ -184,7 +184,7 @@ class ClinicalImpressionFinding extends Element {
             modifierExtension,
             itemCodeableConcept,
             itemReference,
-            basis,
+            basis
         });
 
     }
@@ -204,7 +204,7 @@ class ClinicalImpressionFinding extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
             itemReference: this.itemReference && this.itemReference.toJSON(),
-            basis: this.basis,
+            basis: this.basis
         });
     }
 
@@ -232,7 +232,7 @@ class ClinicalImpressionFinding extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
             itemReference: this.itemReference && this.itemReference.toJSONInternal(),
-            basis: this.basis,
+            basis: this.basis
         };
 
 

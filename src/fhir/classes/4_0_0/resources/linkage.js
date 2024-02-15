@@ -46,7 +46,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -370,7 +370,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -428,7 +428,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Linkage({
@@ -446,7 +446,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -478,7 +478,7 @@ class Linkage extends Resource {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             active: this.active,
             author: this.author && this.author.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -515,7 +515,7 @@ class Linkage extends Resource {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             active: this.active,
             author: this.author && this.author.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

@@ -87,7 +87,7 @@ class CarePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -833,7 +833,7 @@ class CarePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -931,7 +931,7 @@ class CarePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CarePlan({
@@ -969,7 +969,7 @@ class CarePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1021,7 +1021,7 @@ class CarePlan extends Resource {
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
             goal: this.goal && this.goal.map(v => v.toJSON()),
             activity: this.activity && this.activity.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -1092,7 +1092,7 @@ class CarePlan extends Resource {
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
             goal: this.goal && this.goal.map(v => v.toJSONInternal()),
             activity: this.activity && this.activity.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

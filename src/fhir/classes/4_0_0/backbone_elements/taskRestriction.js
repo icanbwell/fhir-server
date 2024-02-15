@@ -27,7 +27,7 @@ class TaskRestriction extends Element {
             modifierExtension,
             repetitions,
             period,
-            recipient,
+            recipient
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class TaskRestriction extends Element {
             modifierExtension,
             repetitions,
             period,
-            recipient,
+            recipient
         });
 
     }
@@ -197,7 +197,7 @@ class TaskRestriction extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             repetitions: this.repetitions,
             period: this.period && this.period.toJSON(),
-            recipient: this.recipient && this.recipient.map(v => v.toJSON()),
+            recipient: this.recipient && this.recipient.map(v => v.toJSON())
         });
     }
 
@@ -225,7 +225,7 @@ class TaskRestriction extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             repetitions: this.repetitions,
             period: this.period && this.period.toJSONInternal(),
-            recipient: this.recipient && this.recipient.map(v => v.toJSONInternal()),
+            recipient: this.recipient && this.recipient.map(v => v.toJSONInternal())
         };
 
 

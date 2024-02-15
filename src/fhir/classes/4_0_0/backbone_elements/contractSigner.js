@@ -28,7 +28,7 @@ class ContractSigner extends Element {
             modifierExtension,
             type,
             party,
-            signature,
+            signature
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class ContractSigner extends Element {
             modifierExtension,
             type,
             party,
-            signature,
+            signature
         });
 
     }
@@ -199,7 +199,7 @@ class ContractSigner extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             party: this.party && this.party.toJSON(),
-            signature: this.signature && this.signature.map(v => v.toJSON()),
+            signature: this.signature && this.signature.map(v => v.toJSON())
         });
     }
 
@@ -228,7 +228,7 @@ class ContractSigner extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             party: this.party && this.party.toJSONInternal(),
-            signature: this.signature && this.signature.map(v => v.toJSONInternal()),
+            signature: this.signature && this.signature.map(v => v.toJSONInternal())
         };
 
 

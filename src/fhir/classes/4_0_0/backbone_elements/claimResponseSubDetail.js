@@ -28,7 +28,7 @@ class ClaimResponseSubDetail extends Element {
             modifierExtension,
             subDetailSequence,
             noteNumber,
-            adjudication,
+            adjudication
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class ClaimResponseSubDetail extends Element {
             modifierExtension,
             subDetailSequence,
             noteNumber,
-            adjudication,
+            adjudication
         });
 
     }
@@ -196,7 +196,7 @@ class ClaimResponseSubDetail extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             subDetailSequence: this.subDetailSequence,
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON())
         });
     }
 
@@ -223,7 +223,7 @@ class ClaimResponseSubDetail extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             subDetailSequence: this.subDetailSequence,
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal())
         };
 
 

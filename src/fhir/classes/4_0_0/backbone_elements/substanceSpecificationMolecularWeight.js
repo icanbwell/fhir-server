@@ -28,7 +28,7 @@ class SubstanceSpecificationMolecularWeight extends Element {
             modifierExtension,
             method,
             type,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -182,7 +182,7 @@ class SubstanceSpecificationMolecularWeight extends Element {
             modifierExtension,
             method,
             type,
-            amount,
+            amount
         });
 
     }
@@ -202,7 +202,7 @@ class SubstanceSpecificationMolecularWeight extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             method: this.method && this.method.toJSON(),
             type: this.type && this.type.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -231,7 +231,7 @@ class SubstanceSpecificationMolecularWeight extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             method: this.method && this.method.toJSONInternal(),
             type: this.type && this.type.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

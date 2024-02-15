@@ -26,7 +26,7 @@ class ClaimResponseTotal extends Element {
             extension,
             modifierExtension,
             category,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -160,7 +160,7 @@ class ClaimResponseTotal extends Element {
             extension,
             modifierExtension,
             category,
-            amount,
+            amount
         });
 
     }
@@ -179,7 +179,7 @@ class ClaimResponseTotal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -206,7 +206,7 @@ class ClaimResponseTotal extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             category: this.category && this.category.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

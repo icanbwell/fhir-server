@@ -30,7 +30,7 @@ class ImplementationGuideTemplate extends Element {
             modifierExtension,
             code,
             source,
-            scope,
+            scope
         }
     ) {
         super({});
@@ -175,7 +175,7 @@ class ImplementationGuideTemplate extends Element {
             modifierExtension,
             code,
             source,
-            scope,
+            scope
         });
 
     }
@@ -195,7 +195,7 @@ class ImplementationGuideTemplate extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
             source: this.source,
-            scope: this.scope,
+            scope: this.scope
         });
     }
 
@@ -221,7 +221,7 @@ class ImplementationGuideTemplate extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
             source: this.source,
-            scope: this.scope,
+            scope: this.scope
         };
 
 

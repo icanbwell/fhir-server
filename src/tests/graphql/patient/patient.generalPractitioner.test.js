@@ -21,7 +21,7 @@ const {
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext,
+    mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const env = require('var');
@@ -120,7 +120,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(
                     getGraphQLHeaders(
@@ -177,7 +177,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getUnAuthenticatedGraphQLHeaders())
                 .expect(401);
@@ -215,7 +215,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders('user/Patient.read user/Practitioner.read access/client.*'))
                 .expect(200);
@@ -256,7 +256,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(
                     getGraphQLHeaders(

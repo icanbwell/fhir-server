@@ -29,7 +29,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier,
             temperatureRange,
             maxDuration,
-            instruction,
+            instruction
         }
     ) {
         super({});
@@ -203,7 +203,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier,
             temperatureRange,
             maxDuration,
-            instruction,
+            instruction
         });
 
     }
@@ -224,7 +224,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier: this.temperatureQualifier && this.temperatureQualifier.toJSON(),
             temperatureRange: this.temperatureRange && this.temperatureRange.toJSON(),
             maxDuration: this.maxDuration && this.maxDuration.toJSON(),
-            instruction: this.instruction,
+            instruction: this.instruction
         });
     }
 
@@ -254,7 +254,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier: this.temperatureQualifier && this.temperatureQualifier.toJSONInternal(),
             temperatureRange: this.temperatureRange && this.temperatureRange.toJSONInternal(),
             maxDuration: this.maxDuration && this.maxDuration.toJSONInternal(),
-            instruction: this.instruction,
+            instruction: this.instruction
         };
 
 

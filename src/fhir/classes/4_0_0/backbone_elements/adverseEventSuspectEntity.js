@@ -28,7 +28,7 @@ class AdverseEventSuspectEntity extends Element {
             extension,
             modifierExtension,
             instance,
-            causality,
+            causality
         }
     ) {
         super({});
@@ -160,7 +160,7 @@ class AdverseEventSuspectEntity extends Element {
             extension,
             modifierExtension,
             instance,
-            causality,
+            causality
         });
 
     }
@@ -179,7 +179,7 @@ class AdverseEventSuspectEntity extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             instance: this.instance && this.instance.toJSON(),
-            causality: this.causality && this.causality.map(v => v.toJSON()),
+            causality: this.causality && this.causality.map(v => v.toJSON())
         });
     }
 
@@ -206,7 +206,7 @@ class AdverseEventSuspectEntity extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             instance: this.instance && this.instance.toJSONInternal(),
-            causality: this.causality && this.causality.map(v => v.toJSONInternal()),
+            causality: this.causality && this.causality.map(v => v.toJSONInternal())
         };
 
 

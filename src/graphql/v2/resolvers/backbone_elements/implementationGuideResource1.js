@@ -6,7 +6,7 @@ module.exports = {
     ImplementationGuideResource1ReferenceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ImplementationGuideResource1: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.reference);
-        },
+        }
     }
 };
 

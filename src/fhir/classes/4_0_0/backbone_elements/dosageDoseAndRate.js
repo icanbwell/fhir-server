@@ -35,7 +35,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity,
             rateRatio,
             rateRange,
-            rateQuantity,
+            rateQuantity
         }
     ) {
         super({});
@@ -249,7 +249,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity,
             rateRatio,
             rateRange,
-            rateQuantity,
+            rateQuantity
         });
 
     }
@@ -272,7 +272,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity: this.doseQuantity && this.doseQuantity.toJSON(),
             rateRatio: this.rateRatio && this.rateRatio.toJSON(),
             rateRange: this.rateRange && this.rateRange.toJSON(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON()
         });
     }
 
@@ -307,7 +307,7 @@ class DosageDoseAndRate extends Element {
             doseQuantity: this.doseQuantity && this.doseQuantity.toJSONInternal(),
             rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
             rateRange: this.rateRange && this.rateRange.toJSONInternal(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal()
         };
 
 

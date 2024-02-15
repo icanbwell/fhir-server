@@ -28,7 +28,7 @@ class TestScriptFixture extends Element {
             modifierExtension,
             autocreate,
             autodelete,
-            resource,
+            resource
         }
     ) {
         super({});
@@ -182,7 +182,7 @@ class TestScriptFixture extends Element {
             modifierExtension,
             autocreate,
             autodelete,
-            resource,
+            resource
         });
 
     }
@@ -202,7 +202,7 @@ class TestScriptFixture extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             autocreate: this.autocreate,
             autodelete: this.autodelete,
-            resource: this.resource && this.resource.toJSON(),
+            resource: this.resource && this.resource.toJSON()
         });
     }
 
@@ -229,7 +229,7 @@ class TestScriptFixture extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             autocreate: this.autocreate,
             autodelete: this.autodelete,
-            resource: this.resource && this.resource.toJSONInternal(),
+            resource: this.resource && this.resource.toJSONInternal()
         };
 
 

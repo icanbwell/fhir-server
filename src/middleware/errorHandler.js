@@ -15,8 +15,8 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
     logError('unhandledRejection', {
         error: reason, source: 'unhandledRejection', args: {
-            promise: promise,
-        },
+            promise: promise
+        }
     });
     Sentry.captureException(reason);
     // Send signal to be handled by the terminus listener for graceful shutdown

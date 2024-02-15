@@ -34,7 +34,7 @@ class PlanDefinitionTarget extends Element {
             detailQuantity,
             detailRange,
             detailCodeableConcept,
-            due,
+            due
         }
     ) {
         super({});
@@ -229,7 +229,7 @@ class PlanDefinitionTarget extends Element {
             detailQuantity,
             detailRange,
             detailCodeableConcept,
-            due,
+            due
         });
 
     }
@@ -251,7 +251,7 @@ class PlanDefinitionTarget extends Element {
             detailQuantity: this.detailQuantity && this.detailQuantity.toJSON(),
             detailRange: this.detailRange && this.detailRange.toJSON(),
             detailCodeableConcept: this.detailCodeableConcept && this.detailCodeableConcept.toJSON(),
-            due: this.due && this.due.toJSON(),
+            due: this.due && this.due.toJSON()
         });
     }
 
@@ -284,7 +284,7 @@ class PlanDefinitionTarget extends Element {
             detailQuantity: this.detailQuantity && this.detailQuantity.toJSONInternal(),
             detailRange: this.detailRange && this.detailRange.toJSONInternal(),
             detailCodeableConcept: this.detailCodeableConcept && this.detailCodeableConcept.toJSONInternal(),
-            due: this.due && this.due.toJSONInternal(),
+            due: this.due && this.due.toJSONInternal()
         };
 
 

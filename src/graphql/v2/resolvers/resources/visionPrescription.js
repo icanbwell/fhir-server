@@ -18,7 +18,7 @@ module.exports = {
     VisionPrescriptionPrescriber: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     VisionPrescription: {
         // noinspection JSUnusedLocalSymbols
@@ -50,7 +50,7 @@ module.exports = {
                 context,
                 info,
                 parent.prescriber);
-        },
+        }
     }
 };
 

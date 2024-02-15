@@ -204,19 +204,19 @@ class BundleManager {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
                     }),
                     new BundleLink({
                         relation: 'next',
-                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`),
-                    }),
+                        url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`)
+                    })
                 ];
             } else {
                 link = [
                     new BundleLink({
                         relation: 'self',
-                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
-                    }),
+                        url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`)
+                    })
                 ];
             }
         }
@@ -228,7 +228,7 @@ class BundleManager {
             type: type,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: entries,
-            link: link,
+            link: link
         });
         if (total_count !== null) {
             bundle.total = total_count;
@@ -244,48 +244,48 @@ class BundleManager {
             const tag = [
                 {
                     system: 'https://www.icanbwell.com/query',
-                    display: mongoQueryAndOptionsStringify({query: originalQuery, options: originalOptions}),
+                    display: mongoQueryAndOptionsStringify({query: originalQuery, options: originalOptions})
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
                     code: Array.isArray(originalQuery) ?
                         originalQuery.map(q => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|') :
-                        this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName),
+                        this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',
-                    display: this.getQueryOptions(originalOptions),
+                    display: this.getQueryOptions(originalOptions)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryFields',
-                    display: this.getQueryFields(columns),
+                    display: this.getQueryFields(columns)
                 },
                 {
                     system: 'https://www.icanbwell.com/queryTime',
-                    display: `${(stopTime - startTime) / 1000}`,
+                    display: `${(stopTime - startTime) / 1000}`
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptimization',
-                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`,
+                    display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`
                 }
             ];
             if (databaseName) {
                 tag.push({
                         system: 'https://www.icanbwell.com/queryDatabase',
-                        code: databaseName,
-                    },
+                        code: databaseName
+                    }
                 );
             }
             if (indexHint) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryIndexHint',
-                    code: indexHint,
+                    code: indexHint
                 });
             }
             if (explanations && explanations.length > 0) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplain',
-                    display: JSON.stringify(explanations, getCircularReplacer()),
+                    display: JSON.stringify(explanations, getCircularReplacer())
                 });
                 const explainer = new MongoExplainPlanHelper();
                 // noinspection JSCheckFunctionSignatures
@@ -309,17 +309,17 @@ class BundleManager {
                     ) : [];
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplainSimple',
-                    display: JSON.stringify(simpleExplanations, getCircularReplacer()),
+                    display: JSON.stringify(simpleExplanations, getCircularReplacer())
                 });
             }
             if (cursorBatchSize && cursorBatchSize > 0) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryCursorBatchSize',
-                    display: `${cursorBatchSize}`,
+                    display: `${cursorBatchSize}`
                 });
             }
             bundle['meta'] = {
-                tag: tag,
+                tag: tag
             };
             logDebug('', {user, args: bundle});
         }

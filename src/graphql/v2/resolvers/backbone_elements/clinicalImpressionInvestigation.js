@@ -6,7 +6,7 @@ module.exports = {
     ClinicalImpressionInvestigationItem: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClinicalImpressionInvestigation: {
         // noinspection JSUnusedLocalSymbols
@@ -18,7 +18,7 @@ module.exports = {
                 context,
                 info,
                 parent.item);
-        },
+        }
     }
 };
 

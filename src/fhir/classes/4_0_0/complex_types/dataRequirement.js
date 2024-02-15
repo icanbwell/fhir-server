@@ -40,7 +40,7 @@ class DataRequirement extends Element {
             codeFilter,
             dateFilter,
             limit,
-            sort,
+            sort
         }
     ) {
         super({});
@@ -292,7 +292,7 @@ class DataRequirement extends Element {
             codeFilter,
             dateFilter,
             limit,
-            sort,
+            sort
         });
 
     }
@@ -317,7 +317,7 @@ class DataRequirement extends Element {
             codeFilter: this.codeFilter && this.codeFilter.map(v => v.toJSON()),
             dateFilter: this.dateFilter && this.dateFilter.map(v => v.toJSON()),
             limit: this.limit,
-            sort: this.sort && this.sort.map(v => v.toJSON()),
+            sort: this.sort && this.sort.map(v => v.toJSON())
         });
     }
 
@@ -352,7 +352,7 @@ class DataRequirement extends Element {
             codeFilter: this.codeFilter && this.codeFilter.map(v => v.toJSONInternal()),
             dateFilter: this.dateFilter && this.dateFilter.map(v => v.toJSONInternal()),
             limit: this.limit,
-            sort: this.sort && this.sort.map(v => v.toJSONInternal()),
+            sort: this.sort && this.sort.map(v => v.toJSONInternal())
         };
 
 

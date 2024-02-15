@@ -43,7 +43,7 @@ class GoalTarget extends Element {
             detailInteger,
             detailRatio,
             dueDate,
-            dueDuration,
+            dueDuration
         }
     ) {
         super({});
@@ -334,7 +334,7 @@ class GoalTarget extends Element {
             detailInteger,
             detailRatio,
             dueDate,
-            dueDuration,
+            dueDuration
         });
 
     }
@@ -361,7 +361,7 @@ class GoalTarget extends Element {
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSON(),
             dueDate: this.dueDate,
-            dueDuration: this.dueDuration && this.dueDuration.toJSON(),
+            dueDuration: this.dueDuration && this.dueDuration.toJSON()
         });
     }
 
@@ -400,7 +400,7 @@ class GoalTarget extends Element {
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSONInternal(),
             dueDate: this.dueDate,
-            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal(),
+            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal()
         };
 
 

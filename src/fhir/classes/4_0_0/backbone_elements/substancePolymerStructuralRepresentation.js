@@ -27,7 +27,7 @@ class SubstancePolymerStructuralRepresentation extends Element {
             modifierExtension,
             type,
             representation,
-            attachment,
+            attachment
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class SubstancePolymerStructuralRepresentation extends Element {
             modifierExtension,
             type,
             representation,
-            attachment,
+            attachment
         });
 
     }
@@ -196,7 +196,7 @@ class SubstancePolymerStructuralRepresentation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             representation: this.representation,
-            attachment: this.attachment && this.attachment.toJSON(),
+            attachment: this.attachment && this.attachment.toJSON()
         });
     }
 
@@ -224,7 +224,7 @@ class SubstancePolymerStructuralRepresentation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             representation: this.representation,
-            attachment: this.attachment && this.attachment.toJSONInternal(),
+            attachment: this.attachment && this.attachment.toJSONInternal()
         };
 
 

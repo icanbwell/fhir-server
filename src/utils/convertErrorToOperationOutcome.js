@@ -19,11 +19,11 @@ function convertErrorToOperationOutcome({error}) {
                     severity: 'error',
                     code: 'internal',
                     details: new CodeableConcept({
-                        text: `Unexpected: ${error.message}`,
+                        text: `Unexpected: ${error.message}`
                     }),
-                    diagnostics: env.IS_PRODUCTION ? error.message : error.stack,
-                }),
-            ],
+                    diagnostics: env.IS_PRODUCTION ? error.message : error.stack
+                })
+            ]
         });
 }
 

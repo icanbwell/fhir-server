@@ -27,7 +27,7 @@ class MedicationBatch extends Element {
             extension,
             modifierExtension,
             lotNumber,
-            expirationDate,
+            expirationDate
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class MedicationBatch extends Element {
             extension,
             modifierExtension,
             lotNumber,
-            expirationDate,
+            expirationDate
         });
 
     }
@@ -172,7 +172,7 @@ class MedicationBatch extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             lotNumber: this.lotNumber,
-            expirationDate: this.expirationDate,
+            expirationDate: this.expirationDate
         });
     }
 
@@ -197,7 +197,7 @@ class MedicationBatch extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             lotNumber: this.lotNumber,
-            expirationDate: this.expirationDate,
+            expirationDate: this.expirationDate
         };
 
 

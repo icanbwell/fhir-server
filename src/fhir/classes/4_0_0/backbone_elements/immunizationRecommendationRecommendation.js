@@ -50,7 +50,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt,
             seriesDosesString,
             supportingImmunization,
-            supportingPatientInformation,
+            supportingPatientInformation
         }
     ) {
         super({});
@@ -427,7 +427,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt,
             seriesDosesString,
             supportingImmunization,
-            supportingPatientInformation,
+            supportingPatientInformation
         });
 
     }
@@ -458,7 +458,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString,
             supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSON()),
-            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSON()),
+            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSON())
         });
     }
 
@@ -503,7 +503,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString,
             supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSONInternal()),
-            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSONInternal()),
+            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSONInternal())
         };
 
 

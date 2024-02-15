@@ -22,7 +22,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../../common');
 const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -81,7 +81,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

@@ -154,7 +154,7 @@ module.exports = {
         VALUESET: 'ValueSet',
         VERIFICATIONRESULT: 'VerificationResult',
         VISIONPRESCRIPTION: 'VisionPrescription',
-        CLIENT: 'Client',
+        CLIENT: 'Client'
     },
     LENIENT_SEARCH_HANDLING: 'lenient',
     STRICT_SEARCH_HANDLING: 'strict',
@@ -173,25 +173,25 @@ module.exports = {
         'display': {
             id: 'referenceDisplay',
             url: 'https://www.icanbwell.com/referenceDisplay',
-            valueKey: 'valueString',
+            valueKey: 'valueString'
         },
         'type': {
             id: 'referenceType',
             url: 'https://www.icanbwell.com/referenceType',
-            valueKey: 'valueUri',
-        },
+            valueKey: 'valueUri'
+        }
     },
     GRIDFS: {
         INSERT: 'INSERT',
         RETRIEVE: 'RETRIEVE',
-        DELETE: 'DELETE',
+        DELETE: 'DELETE'
     },
     PATIENT_INITIATED_CONNECTION: [
         'proa'
     ],
     REQUEST_ID_TYPE: {
         USER_REQUEST_ID: 'userRequestId',
-        SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId',
+        SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId'
     },
     RESPONSE_NONCE: 'responseNonce',
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
@@ -208,6 +208,6 @@ module.exports = {
     DEFAULT_CACHE_EXPIRY_TIME: 24 * 60 * 60 * 1000,
     OPERATIONS: {
         READ: 'READ',
-        WRITE: 'WRITE',
+        WRITE: 'WRITE'
     }
 };

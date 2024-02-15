@@ -32,7 +32,7 @@ class ClaimResponseInsurance extends Element {
             focal,
             coverage,
             businessArrangement,
-            claimResponse,
+            claimResponse
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class ClaimResponseInsurance extends Element {
             focal,
             coverage,
             businessArrangement,
-            claimResponse,
+            claimResponse
         });
 
     }
@@ -247,7 +247,7 @@ class ClaimResponseInsurance extends Element {
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSON(),
             businessArrangement: this.businessArrangement,
-            claimResponse: this.claimResponse && this.claimResponse.toJSON(),
+            claimResponse: this.claimResponse && this.claimResponse.toJSON()
         });
     }
 
@@ -277,7 +277,7 @@ class ClaimResponseInsurance extends Element {
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSONInternal(),
             businessArrangement: this.businessArrangement,
-            claimResponse: this.claimResponse && this.claimResponse.toJSONInternal(),
+            claimResponse: this.claimResponse && this.claimResponse.toJSONInternal()
         };
 
 

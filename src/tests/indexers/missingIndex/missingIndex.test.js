@@ -274,7 +274,7 @@ describe('Missing Index Tests', () => {
                     },
                     'exclude': [
                         'AuditEvent_4_0_0'
-                    ],
+                    ]
                 }
             );
 

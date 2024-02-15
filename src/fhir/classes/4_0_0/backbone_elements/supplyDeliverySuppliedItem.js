@@ -27,7 +27,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension,
             quantity,
             itemCodeableConcept,
-            itemReference,
+            itemReference
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension,
             quantity,
             itemCodeableConcept,
-            itemReference,
+            itemReference
         });
 
     }
@@ -198,7 +198,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
-            itemReference: this.itemReference && this.itemReference.toJSON(),
+            itemReference: this.itemReference && this.itemReference.toJSON()
         });
     }
 
@@ -227,7 +227,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
-            itemReference: this.itemReference && this.itemReference.toJSONInternal(),
+            itemReference: this.itemReference && this.itemReference.toJSONInternal()
         };
 
 

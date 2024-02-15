@@ -32,7 +32,7 @@ class ImplementationGuideResource1 extends Element {
             reference,
             exampleBoolean,
             exampleCanonical,
-            relativePath,
+            relativePath
         }
     ) {
         super({});
@@ -198,7 +198,7 @@ class ImplementationGuideResource1 extends Element {
             reference,
             exampleBoolean,
             exampleCanonical,
-            relativePath,
+            relativePath
         });
 
     }
@@ -219,7 +219,7 @@ class ImplementationGuideResource1 extends Element {
             reference: this.reference && this.reference.toJSON(),
             exampleBoolean: this.exampleBoolean,
             exampleCanonical: this.exampleCanonical,
-            relativePath: this.relativePath,
+            relativePath: this.relativePath
         });
     }
 
@@ -247,7 +247,7 @@ class ImplementationGuideResource1 extends Element {
             reference: this.reference && this.reference.toJSONInternal(),
             exampleBoolean: this.exampleBoolean,
             exampleCanonical: this.exampleCanonical,
-            relativePath: this.relativePath,
+            relativePath: this.relativePath
         };
 
 

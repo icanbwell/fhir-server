@@ -34,7 +34,7 @@ class StructureMapGroup extends Element {
             typeMode,
             documentation,
             input,
-            rule,
+            rule
         }
     ) {
         super({});
@@ -243,7 +243,7 @@ class StructureMapGroup extends Element {
             typeMode,
             documentation,
             input,
-            rule,
+            rule
         });
 
     }
@@ -266,7 +266,7 @@ class StructureMapGroup extends Element {
             typeMode: this.typeMode,
             documentation: this.documentation,
             input: this.input && this.input.map(v => v.toJSON()),
-            rule: this.rule && this.rule.map(v => v.toJSON()),
+            rule: this.rule && this.rule.map(v => v.toJSON())
         });
     }
 
@@ -297,7 +297,7 @@ class StructureMapGroup extends Element {
             typeMode: this.typeMode,
             documentation: this.documentation,
             input: this.input && this.input.map(v => v.toJSONInternal()),
-            rule: this.rule && this.rule.map(v => v.toJSONInternal()),
+            rule: this.rule && this.rule.map(v => v.toJSONInternal())
         };
 
 

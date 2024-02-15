@@ -30,7 +30,7 @@ class CapabilityStatementSoftware extends Element {
             modifierExtension,
             name,
             version,
-            releaseDate,
+            releaseDate
         }
     ) {
         super({});
@@ -175,7 +175,7 @@ class CapabilityStatementSoftware extends Element {
             modifierExtension,
             name,
             version,
-            releaseDate,
+            releaseDate
         });
 
     }
@@ -195,7 +195,7 @@ class CapabilityStatementSoftware extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             version: this.version,
-            releaseDate: this.releaseDate,
+            releaseDate: this.releaseDate
         });
     }
 
@@ -221,7 +221,7 @@ class CapabilityStatementSoftware extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
             version: this.version,
-            releaseDate: this.releaseDate,
+            releaseDate: this.releaseDate
         };
 
 

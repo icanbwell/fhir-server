@@ -6,7 +6,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const env = require('var');
@@ -23,12 +23,12 @@ describe('CSV Performance tests', () => {
         const initialId = practitionerResource.id;
         const bundle = {
             resourceType: 'Bundle',
-            entry: [],
+            entry: []
         };
         for (let i = 0; i < numberOfResources; i++) {
             practitionerResource.id = initialId + '-' + i;
             bundle.entry.push({
-                resource: deepcopy(practitionerResource),
+                resource: deepcopy(practitionerResource)
             });
         }
         const request = await createTestRequest();

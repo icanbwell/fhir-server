@@ -6,7 +6,7 @@ module.exports = {
     EncounterDiagnosisCondition: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     EncounterDiagnosis: {
         // noinspection JSUnusedLocalSymbols
@@ -18,7 +18,7 @@ module.exports = {
                 context,
                 info,
                 parent.condition);
-        },
+        }
     }
 };
 

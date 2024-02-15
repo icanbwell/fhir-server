@@ -55,7 +55,7 @@ class Flag extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -485,7 +485,7 @@ class Flag extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -553,7 +553,7 @@ class Flag extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Flag({
@@ -576,7 +576,7 @@ class Flag extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -613,7 +613,7 @@ class Flag extends Resource {
             subject: this.subject && this.subject.toJSON(),
             period: this.period && this.period.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.toJSON()
         });
     }
 
@@ -660,7 +660,7 @@ class Flag extends Resource {
             subject: this.subject && this.subject.toJSONInternal(),
             period: this.period && this.period.toJSONInternal(),
             encounter: this.encounter && this.encounter.toJSONInternal(),
-            author: this.author && this.author.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal()
         };
 
 

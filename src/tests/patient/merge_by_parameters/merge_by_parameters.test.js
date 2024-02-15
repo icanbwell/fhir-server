@@ -8,7 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -36,7 +36,7 @@ describe('Merge By Parameters Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: patient1Resource}],
+                parameter: [{name: 'resource', resource: patient1Resource}]
             };
 
             resp = await request

@@ -18,12 +18,12 @@ module.exports = {
     AllergyIntoleranceRecorder: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     AllergyIntoleranceAsserter: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     AllergyIntolerance: {
         // noinspection JSUnusedLocalSymbols
@@ -65,7 +65,7 @@ module.exports = {
                 context,
                 info,
                 parent.asserter);
-        },
+        }
     }
 };
 

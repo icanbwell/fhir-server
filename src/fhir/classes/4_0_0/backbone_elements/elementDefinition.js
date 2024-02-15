@@ -418,7 +418,7 @@ class ElementDefinition extends Element {
             isModifierReason,
             isSummary,
             binding,
-            mapping,
+            mapping
         }
     ) {
         super({});
@@ -4513,7 +4513,7 @@ class ElementDefinition extends Element {
             isModifierReason,
             isSummary,
             binding,
-            mapping,
+            mapping
         });
 
     }
@@ -4727,7 +4727,7 @@ class ElementDefinition extends Element {
             isModifierReason: this.isModifierReason,
             isSummary: this.isSummary,
             binding: this.binding && this.binding.toJSON(),
-            mapping: this.mapping && this.mapping.map(v => v.toJSON()),
+            mapping: this.mapping && this.mapping.map(v => v.toJSON())
         });
     }
 
@@ -5050,7 +5050,7 @@ class ElementDefinition extends Element {
             isModifierReason: this.isModifierReason,
             isSummary: this.isSummary,
             binding: this.binding && this.binding.toJSONInternal(),
-            mapping: this.mapping && this.mapping.map(v => v.toJSONInternal()),
+            mapping: this.mapping && this.mapping.map(v => v.toJSONInternal())
         };
 
 

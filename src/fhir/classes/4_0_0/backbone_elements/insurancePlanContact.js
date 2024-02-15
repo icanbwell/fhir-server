@@ -29,7 +29,7 @@ class InsurancePlanContact extends Element {
             purpose,
             name,
             telecom,
-            address,
+            address
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class InsurancePlanContact extends Element {
             purpose,
             name,
             telecom,
-            address,
+            address
         });
 
     }
@@ -223,7 +223,7 @@ class InsurancePlanContact extends Element {
             purpose: this.purpose && this.purpose.toJSON(),
             name: this.name && this.name.toJSON(),
             telecom: this.telecom && this.telecom.map(v => v.toJSON()),
-            address: this.address && this.address.toJSON(),
+            address: this.address && this.address.toJSON()
         });
     }
 
@@ -254,7 +254,7 @@ class InsurancePlanContact extends Element {
             purpose: this.purpose && this.purpose.toJSONInternal(),
             name: this.name && this.name.toJSONInternal(),
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
-            address: this.address && this.address.toJSONInternal(),
+            address: this.address && this.address.toJSONInternal()
         };
 
 

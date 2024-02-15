@@ -33,7 +33,7 @@ class BundleRequest extends Element {
             ifNoneMatch,
             ifModifiedSince,
             ifMatch,
-            ifNoneExist,
+            ifNoneExist
         }
     ) {
         super({});
@@ -243,7 +243,7 @@ class BundleRequest extends Element {
             ifNoneMatch,
             ifModifiedSince,
             ifMatch,
-            ifNoneExist,
+            ifNoneExist
         });
 
     }
@@ -266,7 +266,7 @@ class BundleRequest extends Element {
             ifNoneMatch: this.ifNoneMatch,
             ifModifiedSince: this.ifModifiedSince,
             ifMatch: this.ifMatch,
-            ifNoneExist: this.ifNoneExist,
+            ifNoneExist: this.ifNoneExist
         });
     }
 
@@ -295,7 +295,7 @@ class BundleRequest extends Element {
             ifNoneMatch: this.ifNoneMatch,
             ifModifiedSince: this.ifModifiedSince,
             ifMatch: this.ifMatch,
-            ifNoneExist: this.ifNoneExist,
+            ifNoneExist: this.ifNoneExist
         };
 
 

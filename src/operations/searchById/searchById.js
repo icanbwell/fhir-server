@@ -140,7 +140,7 @@ class SearchByIdOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            requestId,
+            requestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -172,7 +172,7 @@ class SearchByIdOperation {
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({

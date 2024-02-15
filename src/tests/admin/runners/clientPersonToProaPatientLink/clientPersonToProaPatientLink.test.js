@@ -17,12 +17,12 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const {
-    ClientPersonToProaPatientLinkRunner,
+    ClientPersonToProaPatientLinkRunner
 } = require('../../../../admin/runners/clientPersonToProaPatientLinkRunner');
 const { AdminPersonPatientLinkManager } = require('../../../../admin/adminPersonPatientLinkManager');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
@@ -55,7 +55,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
@@ -91,8 +91,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -177,7 +177,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
@@ -213,8 +213,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -296,7 +296,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse([
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
@@ -332,8 +332,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 

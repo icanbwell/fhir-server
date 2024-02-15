@@ -28,7 +28,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             modifierExtension,
             deviceIdentifier,
             issuer,
-            jurisdiction,
+            jurisdiction
         }
     ) {
         super({});
@@ -175,7 +175,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             modifierExtension,
             deviceIdentifier,
             issuer,
-            jurisdiction,
+            jurisdiction
         });
 
     }
@@ -195,7 +195,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             deviceIdentifier: this.deviceIdentifier,
             issuer: this.issuer,
-            jurisdiction: this.jurisdiction,
+            jurisdiction: this.jurisdiction
         });
     }
 
@@ -221,7 +221,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             deviceIdentifier: this.deviceIdentifier,
             issuer: this.issuer,
-            jurisdiction: this.jurisdiction,
+            jurisdiction: this.jurisdiction
         };
 
 

@@ -46,7 +46,7 @@ class ProdCharacteristic extends Element {
             color,
             imprint,
             image,
-            scoring,
+            scoring
         }
     ) {
         super({});
@@ -381,7 +381,7 @@ class ProdCharacteristic extends Element {
             color,
             imprint,
             image,
-            scoring,
+            scoring
         });
 
     }
@@ -409,7 +409,7 @@ class ProdCharacteristic extends Element {
             color: this.color,
             imprint: this.imprint,
             image: this.image && this.image.map(v => v.toJSON()),
-            scoring: this.scoring && this.scoring.toJSON(),
+            scoring: this.scoring && this.scoring.toJSON()
         });
     }
 
@@ -451,7 +451,7 @@ class ProdCharacteristic extends Element {
             color: this.color,
             imprint: this.imprint,
             image: this.image && this.image.map(v => v.toJSONInternal()),
-            scoring: this.scoring && this.scoring.toJSONInternal(),
+            scoring: this.scoring && this.scoring.toJSONInternal()
         };
 
 

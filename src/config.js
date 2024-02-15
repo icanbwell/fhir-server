@@ -41,7 +41,7 @@ const options = {
     maxPoolSize: env.MONGO_MAX_POOL_SIZE ? parseInt(env.MONGO_MAX_POOL_SIZE) : 100,
     writeConcern: {
         w: writeConcern
-    },
+    }
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
@@ -55,7 +55,7 @@ const options = {
 const mongoConfig = {
     connection: mongoUrl,
     db_name: String(env.MONGO_DB_NAME),
-    options: options,
+    options: options
 };
 
 /**
@@ -93,7 +93,7 @@ if (env.AUDIT_EVENT_MONGO_URL) {
             writeConcern: {
                 w: auditWriteConcern
             }
-        },
+        }
     };
 } else {
     auditEventMongoConfig = mongoConfig;
@@ -130,7 +130,7 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
             writeConcern: {
                 w: auditReadOnlyWriteConcern
             }
-        },
+        }
     };
 } else {
     auditEventReadOnlyMongoConfig = auditEventMongoConfig;
@@ -158,7 +158,7 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
     accessLogsMongoUrl = accessLogsMongoUrl ? encodeURI(accessLogsMongoUrl) : accessLogsMongoUrl;
     accessLogsMongoConfig = {
         connection: accessLogsMongoUrl,
-        db_name: String(env.ACCESS_LOGS_MONGO_DB_NAME),
+        db_name: String(env.ACCESS_LOGS_MONGO_DB_NAME)
     };
 } else {
     const dbName = env.ACCESS_LOGS_MONGO_DB_NAME ?
@@ -166,7 +166,7 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
         auditEventMongoConfig.db_name;
     accessLogsMongoConfig = {
         connection: auditEventMongoConfig.connection,
-        db_name: dbName,
+        db_name: dbName
     };
 }
 const accessLogsQueryParams = getQueryParams(accessLogsMongoConfig.connection);
@@ -177,7 +177,7 @@ accessLogsMongoConfig.options = {
     ...accessLogsQueryParams,
     writeConcern: { w: accessLogsWriteConcern },
     maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 10,
-    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1,
+    minPoolSize: env.ACCESS_LOGS_MIN_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MIN_POOL_SIZE) : 1
 };
 // This accessLogsMongoConfig is used to access Logs using FHIR Admin only
 delete accessLogsMongoConfig.options.compressors;
@@ -197,7 +197,7 @@ const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0]
 const fhirServerConfig = {
     auth: {
         // This servers URI
-        resourceServer: env.RESOURCE_SERVER,
+        resourceServer: env.RESOURCE_SERVER
         //
         // if you use this strategy, you need to add the corresponding env vars to docker-compose
         //
@@ -213,15 +213,15 @@ const fhirServerConfig = {
         // allow Access-Control-Allow-Origin
         corsOptions: {
             maxAge: 86400,
-            origin: whitelist,
-        },
+            origin: whitelist
+        }
     },
     logging: {
-        level: env.LOGLEVEL,
+        level: env.LOGLEVEL
     },
     errorTracking: {
         requestHandler: Sentry.Handlers.requestHandler,
-        errorHandler: Sentry.Handlers.errorHandler,
+        errorHandler: Sentry.Handlers.errorHandler
     },
     //
     // If you want to set up conformance statement with security enabled
@@ -230,12 +230,12 @@ const fhirServerConfig = {
     security: [
         {
             url: 'authorize',
-            valueUri: `${env.AUTH_SERVER_URI}/authorize`,
+            valueUri: `${env.AUTH_SERVER_URI}/authorize`
         },
         {
             url: 'token',
-            valueUri: `${env.AUTH_SERVER_URI}/token`,
-        },
+            valueUri: `${env.AUTH_SERVER_URI}/token`
+        }
         // optional - registration
     ],
     //
@@ -248,7 +248,7 @@ const fhirServerConfig = {
     //		versions: [ VERSIONS['4_0_0'], VERSIONS['3_0_1'], VERSIONS['1_0_2'] ]
     // },
     //
-    profiles: profiles,
+    profiles: profiles
 };
 
 if (env.AUTH_ENABLED === '1') {
@@ -261,8 +261,8 @@ if (env.AUTH_ENABLED === '1') {
         strategy: {
             name: 'jwt',
             useSession: false,
-            service: './src/strategies/jwt.bearer.strategy.js',
-        },
+            service: './src/strategies/jwt.bearer.strategy.js'
+        }
     };
 }
 
@@ -271,5 +271,5 @@ module.exports = {
     mongoConfig,
     auditEventMongoConfig,
     auditEventReadOnlyMongoConfig,
-    accessLogsMongoConfig,
+    accessLogsMongoConfig
 };

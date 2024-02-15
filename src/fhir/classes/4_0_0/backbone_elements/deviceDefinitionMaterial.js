@@ -28,7 +28,7 @@ class DeviceDefinitionMaterial extends Element {
             modifierExtension,
             substance,
             alternate,
-            allergenicIndicator,
+            allergenicIndicator
         }
     ) {
         super({});
@@ -175,7 +175,7 @@ class DeviceDefinitionMaterial extends Element {
             modifierExtension,
             substance,
             alternate,
-            allergenicIndicator,
+            allergenicIndicator
         });
 
     }
@@ -195,7 +195,7 @@ class DeviceDefinitionMaterial extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             substance: this.substance && this.substance.toJSON(),
             alternate: this.alternate,
-            allergenicIndicator: this.allergenicIndicator,
+            allergenicIndicator: this.allergenicIndicator
         });
     }
 
@@ -222,7 +222,7 @@ class DeviceDefinitionMaterial extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             substance: this.substance && this.substance.toJSONInternal(),
             alternate: this.alternate,
-            allergenicIndicator: this.allergenicIndicator,
+            allergenicIndicator: this.allergenicIndicator
         };
 
 

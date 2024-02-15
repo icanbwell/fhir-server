@@ -25,7 +25,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
             extension,
             modifierExtension,
             degree,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
             extension,
             modifierExtension,
             degree,
-            amount,
+            amount
         });
 
     }
@@ -174,7 +174,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             degree: this.degree && this.degree.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -201,7 +201,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             degree: this.degree && this.degree.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

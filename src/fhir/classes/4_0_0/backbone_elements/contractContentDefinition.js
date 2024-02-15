@@ -34,7 +34,7 @@ class ContractContentDefinition extends Element {
             publisher,
             publicationDate,
             publicationStatus,
-            copyright,
+            copyright
         }
     ) {
         super({});
@@ -251,7 +251,7 @@ class ContractContentDefinition extends Element {
             publisher,
             publicationDate,
             publicationStatus,
-            copyright,
+            copyright
         });
 
     }
@@ -274,7 +274,7 @@ class ContractContentDefinition extends Element {
             publisher: this.publisher && this.publisher.toJSON(),
             publicationDate: this.publicationDate,
             publicationStatus: this.publicationStatus,
-            copyright: this.copyright,
+            copyright: this.copyright
         });
     }
 
@@ -306,7 +306,7 @@ class ContractContentDefinition extends Element {
             publisher: this.publisher && this.publisher.toJSONInternal(),
             publicationDate: this.publicationDate,
             publicationStatus: this.publicationStatus,
-            copyright: this.copyright,
+            copyright: this.copyright
         };
 
 

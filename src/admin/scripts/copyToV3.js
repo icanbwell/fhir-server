@@ -3,7 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
-    path: pathToEnv,
+    path: pathToEnv
 });
 const { logInfo } = require('../../operations/common/logging');
 const { createContainer } = require('../../createContainer');
@@ -52,7 +52,7 @@ async function main() {
                 collections,
                 startWithCollection,
                 skipHistoryCollections: parameters.skipHistoryCollections ? true : false,
-                adminLogger: adminLogger,
+                adminLogger: adminLogger
             })
     );
 

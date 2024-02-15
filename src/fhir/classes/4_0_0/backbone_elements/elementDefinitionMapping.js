@@ -32,7 +32,7 @@ class ElementDefinitionMapping extends Element {
             identity,
             language,
             map,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -196,7 +196,7 @@ class ElementDefinitionMapping extends Element {
             identity,
             language,
             map,
-            comment,
+            comment
         });
 
     }
@@ -217,7 +217,7 @@ class ElementDefinitionMapping extends Element {
             identity: this.identity,
             language: this.language,
             map: this.map,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -244,7 +244,7 @@ class ElementDefinitionMapping extends Element {
             identity: this.identity,
             language: this.language,
             map: this.map,
-            comment: this.comment,
+            comment: this.comment
         };
 
 

@@ -56,7 +56,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -474,7 +474,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -542,7 +542,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EnrollmentResponse({
@@ -565,7 +565,7 @@ class EnrollmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -602,7 +602,7 @@ class EnrollmentResponse extends Resource {
             disposition: this.disposition,
             created: this.created,
             organization: this.organization && this.organization.toJSON(),
-            requestProvider: this.requestProvider && this.requestProvider.toJSON(),
+            requestProvider: this.requestProvider && this.requestProvider.toJSON()
         });
     }
 
@@ -646,7 +646,7 @@ class EnrollmentResponse extends Resource {
             disposition: this.disposition,
             created: this.created,
             organization: this.organization && this.organization.toJSONInternal(),
-            requestProvider: this.requestProvider && this.requestProvider.toJSONInternal(),
+            requestProvider: this.requestProvider && this.requestProvider.toJSONInternal()
         };
 
 

@@ -30,7 +30,7 @@ class CareTeamParticipant extends Element {
             role,
             member,
             onBehalfOf,
-            period,
+            period
         }
     ) {
         super({});
@@ -206,7 +206,7 @@ class CareTeamParticipant extends Element {
             role,
             member,
             onBehalfOf,
-            period,
+            period
         });
 
     }
@@ -227,7 +227,7 @@ class CareTeamParticipant extends Element {
             role: this.role && this.role.map(v => v.toJSON()),
             member: this.member && this.member.toJSON(),
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -258,7 +258,7 @@ class CareTeamParticipant extends Element {
             role: this.role && this.role.map(v => v.toJSONInternal()),
             member: this.member && this.member.toJSONInternal(),
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

@@ -51,7 +51,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -415,7 +415,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -477,7 +477,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Basic({
@@ -497,7 +497,7 @@ class Basic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -531,7 +531,7 @@ class Basic extends Resource {
             code: this.code && this.code.toJSON(),
             subject: this.subject && this.subject.toJSON(),
             created: this.created,
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.toJSON()
         });
     }
 
@@ -572,7 +572,7 @@ class Basic extends Resource {
             code: this.code && this.code.toJSONInternal(),
             subject: this.subject && this.subject.toJSONInternal(),
             created: this.created,
-            author: this.author && this.author.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal()
         };
 
 

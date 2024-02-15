@@ -62,7 +62,7 @@ class Organization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -527,7 +527,7 @@ class Organization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -599,7 +599,7 @@ class Organization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Organization({
@@ -624,7 +624,7 @@ class Organization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -663,7 +663,7 @@ class Organization extends Resource {
             address: this.address && this.address.map(v => v.toJSON()),
             partOf: this.partOf && this.partOf.toJSON(),
             contact: this.contact && this.contact.map(v => v.toJSON()),
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON())
         });
     }
 
@@ -712,7 +712,7 @@ class Organization extends Resource {
             address: this.address && this.address.map(v => v.toJSONInternal()),
             partOf: this.partOf && this.partOf.toJSONInternal(),
             contact: this.contact && this.contact.map(v => v.toJSONInternal()),
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
 
 

@@ -92,7 +92,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -867,7 +867,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -967,7 +967,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchStudy({
@@ -1006,7 +1006,7 @@ class ResearchStudy extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1059,7 +1059,7 @@ class ResearchStudy extends Resource {
             reasonStopped: this.reasonStopped && this.reasonStopped.toJSON(),
             note: this.note && this.note.map(v => v.toJSON()),
             arm: this.arm && this.arm.map(v => v.toJSON()),
-            objective: this.objective && this.objective.map(v => v.toJSON()),
+            objective: this.objective && this.objective.map(v => v.toJSON())
         });
     }
 
@@ -1136,7 +1136,7 @@ class ResearchStudy extends Resource {
             reasonStopped: this.reasonStopped && this.reasonStopped.toJSONInternal(),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             arm: this.arm && this.arm.map(v => v.toJSONInternal()),
-            objective: this.objective && this.objective.map(v => v.toJSONInternal()),
+            objective: this.objective && this.objective.map(v => v.toJSONInternal())
         };
 
 

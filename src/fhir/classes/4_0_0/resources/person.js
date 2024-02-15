@@ -60,7 +60,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -523,7 +523,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -595,7 +595,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Person({
@@ -620,7 +620,7 @@ class Person extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -659,7 +659,7 @@ class Person extends Resource {
             photo: this.photo && this.photo.toJSON(),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSON(),
             active: this.active,
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -708,7 +708,7 @@ class Person extends Resource {
             photo: this.photo && this.photo.toJSONInternal(),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSONInternal(),
             active: this.active,
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
 
 

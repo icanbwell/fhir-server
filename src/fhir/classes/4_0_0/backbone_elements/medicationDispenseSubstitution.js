@@ -33,7 +33,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted,
             type,
             reason,
-            responsibleParty,
+            responsibleParty
         }
     ) {
         super({});
@@ -207,7 +207,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted,
             type,
             reason,
-            responsibleParty,
+            responsibleParty
         });
 
     }
@@ -228,7 +228,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSON(),
             reason: this.reason && this.reason.map(v => v.toJSON()),
-            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON())
         });
     }
 
@@ -258,7 +258,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSONInternal(),
             reason: this.reason && this.reason.map(v => v.toJSONInternal()),
-            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal())
         };
 
 

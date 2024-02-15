@@ -123,7 +123,7 @@ class MongoReadableStream extends Readable {
                     source: 'MongoReadableStream.readAsync',
                     args: {
                         stack: e?.stack,
-                        message: e.message,
+                        message: e.message
                     }
                 });
                 // send the error to sentry
@@ -134,7 +134,7 @@ class MongoReadableStream extends Readable {
                 const operationOutcome = convertErrorToOperationOutcome({
                     error: {
                         ...error,
-                        message: 'Error occurred while streaming response',
+                        message: 'Error occurred while streaming response'
                     }
                 });
                 // this is an unexpected error so set statuscode 500

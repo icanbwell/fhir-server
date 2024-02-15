@@ -6,7 +6,7 @@ module.exports = {
     ClaimResponseAddItemProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClaimResponseAddItem: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.locationReference);
-        },
+        }
     }
 };
 

@@ -26,7 +26,7 @@ class EncounterClassHistory extends Element {
             extension,
             modifierExtension,
             'class': class_,
-            period,
+            period
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class EncounterClassHistory extends Element {
             extension,
             modifierExtension,
             'class': class_,
-            period,
+            period
         });
 
     }
@@ -175,7 +175,7 @@ class EncounterClassHistory extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             class: this.class && this.class.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class EncounterClassHistory extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             class: this.class && this.class.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

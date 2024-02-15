@@ -35,7 +35,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional,
             language,
             filter,
-            property,
+            property
         }
     ) {
         super({});
@@ -240,7 +240,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional,
             language,
             filter,
-            property,
+            property
         });
 
     }
@@ -263,7 +263,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional: this.compositional,
             language: this.language,
             filter: this.filter && this.filter.map(v => v.toJSON()),
-            property: this.property,
+            property: this.property
         });
     }
 
@@ -293,7 +293,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional: this.compositional,
             language: this.language,
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
-            property: this.property,
+            property: this.property
         };
 
 

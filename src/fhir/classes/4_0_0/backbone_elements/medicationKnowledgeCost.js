@@ -27,7 +27,7 @@ class MedicationKnowledgeCost extends Element {
             modifierExtension,
             type,
             source,
-            cost,
+            cost
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class MedicationKnowledgeCost extends Element {
             modifierExtension,
             type,
             source,
-            cost,
+            cost
         });
 
     }
@@ -197,7 +197,7 @@ class MedicationKnowledgeCost extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             source: this.source,
-            cost: this.cost && this.cost.toJSON(),
+            cost: this.cost && this.cost.toJSON()
         });
     }
 
@@ -225,7 +225,7 @@ class MedicationKnowledgeCost extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             source: this.source,
-            cost: this.cost && this.cost.toJSONInternal(),
+            cost: this.cost && this.cost.toJSONInternal()
         };
 
 

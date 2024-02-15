@@ -15,7 +15,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
@@ -135,7 +135,7 @@ describe('Practitioner Graph Contained Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: graphDefinitionResource}],
+                parameter: [{name: 'resource', resource: graphDefinitionResource}]
             };
 
             resp = await request

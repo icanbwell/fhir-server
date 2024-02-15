@@ -31,7 +31,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             strength,
             strengthLowLimit,
             measurementPoint,
-            country,
+            country
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             strength,
             strengthLowLimit,
             measurementPoint,
-            country,
+            country
         });
 
     }
@@ -244,7 +244,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             strength: this.strength && this.strength.toJSON(),
             strengthLowLimit: this.strengthLowLimit && this.strengthLowLimit.toJSON(),
             measurementPoint: this.measurementPoint,
-            country: this.country && this.country.map(v => v.toJSON()),
+            country: this.country && this.country.map(v => v.toJSON())
         });
     }
 
@@ -276,7 +276,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             strength: this.strength && this.strength.toJSONInternal(),
             strengthLowLimit: this.strengthLowLimit && this.strengthLowLimit.toJSONInternal(),
             measurementPoint: this.measurementPoint,
-            country: this.country && this.country.map(v => v.toJSONInternal()),
+            country: this.country && this.country.map(v => v.toJSONInternal())
         };
 
 

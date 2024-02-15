@@ -31,7 +31,7 @@ class ResourcePreparerTransform extends Transform {
             resourcePreparer,
             highWaterMark,
             configManager,
-            response,
+            response
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -106,8 +106,8 @@ class ResourcePreparerTransform extends Transform {
                                 args: {
                                     id: chunk1.id,
                                     stack: error?.stack,
-                                    message: error.message,
-                                },
+                                    message: error.message
+                                }
                             }
                         );
                         const rethrownError = new RethrownError({
@@ -117,9 +117,9 @@ class ResourcePreparerTransform extends Transform {
                                 chunk: chunk1,
                                 reason: error,
                                 message: error?.message,
-                                stack: error?.stack,
+                                stack: error?.stack
                             },
-                            error: error,
+                            error: error
                         });
                         captureException(rethrownError);
                         /**
@@ -129,7 +129,7 @@ class ResourcePreparerTransform extends Transform {
                             error: {
                                 ...rethrownError,
                                 message: `Error occurred while streaming response for chunk: ${chunk1.id}`
-                            },
+                            }
                         });
                         this.push(operationOutcome);
                     }
@@ -145,16 +145,16 @@ class ResourcePreparerTransform extends Transform {
                 args: {
                     id: chunk.id,
                     stack: e?.stack,
-                    message: e.message,
-                },
+                    message: e.message
+                }
             });
             const error = new RethrownError({
                 message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
                 error: e,
                 args: {
                     id: chunk.id,
-                    chunk: chunk,
-                },
+                    chunk: chunk
+                }
             });
 
             captureException(error);
@@ -164,7 +164,7 @@ class ResourcePreparerTransform extends Transform {
             const operationOutcome = convertErrorToOperationOutcome({
                 error: {
                     ...error, message: `Error occurred while streaming response for chunk: ${chunk.id}`
-                },
+                }
             });
             // this is an unexpected error so set statuscode 500
             this.response.statusCode = 500;

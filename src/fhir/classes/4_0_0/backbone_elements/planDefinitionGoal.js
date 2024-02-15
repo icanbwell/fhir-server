@@ -38,7 +38,7 @@ class PlanDefinitionGoal extends Element {
             start,
             addresses,
             documentation,
-            target,
+            target
         }
     ) {
         super({});
@@ -279,7 +279,7 @@ class PlanDefinitionGoal extends Element {
             start,
             addresses,
             documentation,
-            target,
+            target
         });
 
     }
@@ -303,7 +303,7 @@ class PlanDefinitionGoal extends Element {
             start: this.start && this.start.toJSON(),
             addresses: this.addresses && this.addresses.map(v => v.toJSON()),
             documentation: this.documentation && this.documentation.map(v => v.toJSON()),
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -340,7 +340,7 @@ class PlanDefinitionGoal extends Element {
             start: this.start && this.start.toJSONInternal(),
             addresses: this.addresses && this.addresses.map(v => v.toJSONInternal()),
             documentation: this.documentation && this.documentation.map(v => v.toJSONInternal()),
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
 
 

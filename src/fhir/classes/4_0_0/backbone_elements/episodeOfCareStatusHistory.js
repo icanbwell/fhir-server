@@ -27,7 +27,7 @@ class EpisodeOfCareStatusHistory extends Element {
             extension,
             modifierExtension,
             status,
-            period,
+            period
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class EpisodeOfCareStatusHistory extends Element {
             extension,
             modifierExtension,
             status,
-            period,
+            period
         });
 
     }
@@ -174,7 +174,7 @@ class EpisodeOfCareStatusHistory extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             status: this.status,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class EpisodeOfCareStatusHistory extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             status: this.status,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

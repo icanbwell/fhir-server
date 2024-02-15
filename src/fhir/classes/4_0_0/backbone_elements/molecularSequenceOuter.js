@@ -25,7 +25,7 @@ class MolecularSequenceOuter extends Element {
             extension,
             modifierExtension,
             start,
-            end,
+            end
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class MolecularSequenceOuter extends Element {
             extension,
             modifierExtension,
             start,
-            end,
+            end
         });
 
     }
@@ -173,7 +173,7 @@ class MolecularSequenceOuter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             start: this.start,
-            end: this.end,
+            end: this.end
         });
     }
 
@@ -198,7 +198,7 @@ class MolecularSequenceOuter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             start: this.start,
-            end: this.end,
+            end: this.end
         };
 
 

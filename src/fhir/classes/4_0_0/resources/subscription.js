@@ -57,7 +57,7 @@ class Subscription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -457,7 +457,7 @@ class Subscription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -523,7 +523,7 @@ class Subscription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Subscription({
@@ -545,7 +545,7 @@ class Subscription extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -581,7 +581,7 @@ class Subscription extends Resource {
             reason: this.reason,
             criteria: this.criteria,
             error: this.error,
-            channel: this.channel && this.channel.toJSON(),
+            channel: this.channel && this.channel.toJSON()
         });
     }
 
@@ -622,7 +622,7 @@ class Subscription extends Resource {
             reason: this.reason,
             criteria: this.criteria,
             error: this.error,
-            channel: this.channel && this.channel.toJSONInternal(),
+            channel: this.channel && this.channel.toJSONInternal()
         };
 
 

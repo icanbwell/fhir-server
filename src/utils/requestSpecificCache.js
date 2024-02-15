@@ -74,7 +74,7 @@ class RequestSpecificCache {
                 event: 'clearAsync',
                 message: `clearAsync: ${requestId}`,
                 args: {
-                    requestId: requestId,
+                    requestId: requestId
                 }
             }
         );

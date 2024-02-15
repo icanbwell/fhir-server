@@ -26,7 +26,7 @@ class DeviceDefinitionCapability extends Element {
             extension,
             modifierExtension,
             type,
-            description,
+            description
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class DeviceDefinitionCapability extends Element {
             extension,
             modifierExtension,
             type,
-            description,
+            description
         });
 
     }
@@ -175,7 +175,7 @@ class DeviceDefinitionCapability extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            description: this.description && this.description.map(v => v.toJSON()),
+            description: this.description && this.description.map(v => v.toJSON())
         });
     }
 
@@ -202,7 +202,7 @@ class DeviceDefinitionCapability extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            description: this.description && this.description.map(v => v.toJSONInternal()),
+            description: this.description && this.description.map(v => v.toJSONInternal())
         };
 
 

@@ -67,7 +67,7 @@ class CompartmentDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -624,7 +624,7 @@ class CompartmentDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -704,7 +704,7 @@ class CompartmentDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CompartmentDefinition({
@@ -733,7 +733,7 @@ class CompartmentDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -776,7 +776,7 @@ class CompartmentDefinition extends Resource {
             purpose: this.purpose,
             code: this.code,
             search: this.search,
-            resource: this.resource && this.resource.map(v => v.toJSON()),
+            resource: this.resource && this.resource.map(v => v.toJSON())
         });
     }
 
@@ -825,7 +825,7 @@ class CompartmentDefinition extends Resource {
             purpose: this.purpose,
             code: this.code,
             search: this.search,
-            resource: this.resource && this.resource.map(v => v.toJSONInternal()),
+            resource: this.resource && this.resource.map(v => v.toJSONInternal())
         };
 
 

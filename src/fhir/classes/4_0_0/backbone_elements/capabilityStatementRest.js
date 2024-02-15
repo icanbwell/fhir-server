@@ -40,7 +40,7 @@ class CapabilityStatementRest extends Element {
             interaction,
             searchParam,
             operation,
-            compartment,
+            compartment
         }
     ) {
         super({});
@@ -300,7 +300,7 @@ class CapabilityStatementRest extends Element {
             interaction,
             searchParam,
             operation,
-            compartment,
+            compartment
         });
 
     }
@@ -325,7 +325,7 @@ class CapabilityStatementRest extends Element {
             interaction: this.interaction && this.interaction.map(v => v.toJSON()),
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSON()),
             operation: this.operation && this.operation.map(v => v.toJSON()),
-            compartment: this.compartment,
+            compartment: this.compartment
         });
     }
 
@@ -361,7 +361,7 @@ class CapabilityStatementRest extends Element {
             interaction: this.interaction && this.interaction.map(v => v.toJSONInternal()),
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.map(v => v.toJSONInternal()),
-            compartment: this.compartment,
+            compartment: this.compartment
         };
 
 

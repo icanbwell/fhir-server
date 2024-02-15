@@ -38,7 +38,7 @@ class SubstanceSpecificationStructure extends Element {
             isotope,
             molecularWeight,
             source,
-            representation,
+            representation
         }
     ) {
         super({});
@@ -293,7 +293,7 @@ class SubstanceSpecificationStructure extends Element {
             isotope,
             molecularWeight,
             source,
-            representation,
+            representation
         });
 
     }
@@ -318,7 +318,7 @@ class SubstanceSpecificationStructure extends Element {
             isotope: this.isotope && this.isotope.map(v => v.toJSON()),
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
             source: this.source && this.source.map(v => v.toJSON()),
-            representation: this.representation && this.representation.map(v => v.toJSON()),
+            representation: this.representation && this.representation.map(v => v.toJSON())
         });
     }
 
@@ -355,7 +355,7 @@ class SubstanceSpecificationStructure extends Element {
             isotope: this.isotope && this.isotope.map(v => v.toJSONInternal()),
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal(),
             source: this.source && this.source.map(v => v.toJSONInternal()),
-            representation: this.representation && this.representation.map(v => v.toJSONInternal()),
+            representation: this.representation && this.representation.map(v => v.toJSONInternal())
         };
 
 

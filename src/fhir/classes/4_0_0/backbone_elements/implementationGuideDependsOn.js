@@ -30,7 +30,7 @@ class ImplementationGuideDependsOn extends Element {
             modifierExtension,
             uri,
             packageId,
-            version,
+            version
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class ImplementationGuideDependsOn extends Element {
             modifierExtension,
             uri,
             packageId,
-            version,
+            version
         });
 
     }
@@ -196,7 +196,7 @@ class ImplementationGuideDependsOn extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             uri: this.uri,
             packageId: this.packageId,
-            version: this.version,
+            version: this.version
         });
     }
 
@@ -222,7 +222,7 @@ class ImplementationGuideDependsOn extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             uri: this.uri,
             packageId: this.packageId,
-            version: this.version,
+            version: this.version
         };
 
 

@@ -28,7 +28,7 @@ class AccountGuarantor extends Element {
             modifierExtension,
             party,
             onHold,
-            period,
+            period
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class AccountGuarantor extends Element {
             modifierExtension,
             party,
             onHold,
-            period,
+            period
         });
 
     }
@@ -199,7 +199,7 @@ class AccountGuarantor extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             party: this.party && this.party.toJSON(),
             onHold: this.onHold,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -227,7 +227,7 @@ class AccountGuarantor extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             party: this.party && this.party.toJSONInternal(),
             onHold: this.onHold,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

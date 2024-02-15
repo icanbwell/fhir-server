@@ -26,7 +26,7 @@ class NutritionOrderNutrient extends Element {
             extension,
             modifierExtension,
             modifier,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class NutritionOrderNutrient extends Element {
             extension,
             modifierExtension,
             modifier,
-            amount,
+            amount
         });
 
     }
@@ -175,7 +175,7 @@ class NutritionOrderNutrient extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             modifier: this.modifier && this.modifier.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class NutritionOrderNutrient extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             modifier: this.modifier && this.modifier.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

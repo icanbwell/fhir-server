@@ -18,7 +18,7 @@ module.exports = {
     ScheduleActor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Schedule: {
         // noinspection JSUnusedLocalSymbols
@@ -30,7 +30,7 @@ module.exports = {
                 context,
                 info,
                 parent.actor);
-        },
+        }
     }
 };
 

@@ -26,7 +26,7 @@ class PatientLink extends Element {
             extension,
             modifierExtension,
             other,
-            type,
+            type
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class PatientLink extends Element {
             extension,
             modifierExtension,
             other,
-            type,
+            type
         });
 
     }
@@ -173,7 +173,7 @@ class PatientLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             other: this.other && this.other.toJSON(),
-            type: this.type,
+            type: this.type
         });
     }
 
@@ -199,7 +199,7 @@ class PatientLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             other: this.other && this.other.toJSONInternal(),
-            type: this.type,
+            type: this.type
         };
 
 

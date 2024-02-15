@@ -39,7 +39,7 @@ class MedicationAdministrationDosage extends Element {
             method,
             dose,
             rateRatio,
-            rateQuantity,
+            rateQuantity
         }
     ) {
         super({});
@@ -285,7 +285,7 @@ class MedicationAdministrationDosage extends Element {
             method,
             dose,
             rateRatio,
-            rateQuantity,
+            rateQuantity
         });
 
     }
@@ -309,7 +309,7 @@ class MedicationAdministrationDosage extends Element {
             method: this.method && this.method.toJSON(),
             dose: this.dose && this.dose.toJSON(),
             rateRatio: this.rateRatio && this.rateRatio.toJSON(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSON()
         });
     }
 
@@ -345,7 +345,7 @@ class MedicationAdministrationDosage extends Element {
             method: this.method && this.method.toJSONInternal(),
             dose: this.dose && this.dose.toJSONInternal(),
             rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
-            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal()
         };
 
 

@@ -142,7 +142,7 @@ class StructureMapSource extends Element {
             variable,
             condition,
             check,
-            logMessage,
+            logMessage
         }
     ) {
         super({});
@@ -1438,7 +1438,7 @@ class StructureMapSource extends Element {
             variable,
             condition,
             check,
-            logMessage,
+            logMessage
         });
 
     }
@@ -1515,7 +1515,7 @@ class StructureMapSource extends Element {
             variable: this.variable,
             condition: this.condition,
             check: this.check,
-            logMessage: this.logMessage,
+            logMessage: this.logMessage
         });
     }
 
@@ -1629,7 +1629,7 @@ class StructureMapSource extends Element {
             variable: this.variable,
             condition: this.condition,
             check: this.check,
-            logMessage: this.logMessage,
+            logMessage: this.logMessage
         };
 
 

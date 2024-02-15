@@ -29,7 +29,7 @@ class HealthcareServiceAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         }
     ) {
         super({});
@@ -196,7 +196,7 @@ class HealthcareServiceAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         });
 
     }
@@ -217,7 +217,7 @@ class HealthcareServiceAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         });
     }
 
@@ -244,7 +244,7 @@ class HealthcareServiceAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         };
 
 

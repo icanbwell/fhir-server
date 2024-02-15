@@ -33,7 +33,7 @@ class QuestionnaireResponseItem extends Element {
             definition,
             text,
             answer,
-            item,
+            item
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class QuestionnaireResponseItem extends Element {
             definition,
             text,
             answer,
-            item,
+            item
         });
 
     }
@@ -244,7 +244,7 @@ class QuestionnaireResponseItem extends Element {
             definition: this.definition,
             text: this.text,
             answer: this.answer && this.answer.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -274,7 +274,7 @@ class QuestionnaireResponseItem extends Element {
             definition: this.definition,
             text: this.text,
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

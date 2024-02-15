@@ -54,7 +54,7 @@ class SubstanceProtein extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -408,7 +408,7 @@ class SubstanceProtein extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -468,7 +468,7 @@ class SubstanceProtein extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstanceProtein({
@@ -487,7 +487,7 @@ class SubstanceProtein extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -520,7 +520,7 @@ class SubstanceProtein extends Resource {
             sequenceType: this.sequenceType && this.sequenceType.toJSON(),
             numberOfSubunits: this.numberOfSubunits,
             disulfideLinkage: this.disulfideLinkage,
-            subunit: this.subunit && this.subunit.map(v => v.toJSON()),
+            subunit: this.subunit && this.subunit.map(v => v.toJSON())
         });
     }
 
@@ -558,7 +558,7 @@ class SubstanceProtein extends Resource {
             sequenceType: this.sequenceType && this.sequenceType.toJSONInternal(),
             numberOfSubunits: this.numberOfSubunits,
             disulfideLinkage: this.disulfideLinkage,
-            subunit: this.subunit && this.subunit.map(v => v.toJSONInternal()),
+            subunit: this.subunit && this.subunit.map(v => v.toJSONInternal())
         };
 
 

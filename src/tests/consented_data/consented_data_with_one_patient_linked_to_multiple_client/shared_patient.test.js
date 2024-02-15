@@ -37,7 +37,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
 const {DatabasePartitionedCursor} = require('../../../dataLayer/databasePartitionedCursor');
@@ -84,7 +84,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
                 client2ObservationResource,
                 commonHighmarkObservationResource,
                 xyzClient1ObservationResource,
-                xyzClient2ObservationResource,
+                xyzClient2ObservationResource
             ])
             .set(headers);
         // noinspection JSUnresolvedFunction

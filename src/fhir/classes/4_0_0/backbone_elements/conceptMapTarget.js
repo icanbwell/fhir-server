@@ -35,7 +35,7 @@ class ConceptMapTarget extends Element {
             equivalence,
             comment,
             dependsOn,
-            product,
+            product
         }
     ) {
         super({});
@@ -251,7 +251,7 @@ class ConceptMapTarget extends Element {
             equivalence,
             comment,
             dependsOn,
-            product,
+            product
         });
 
     }
@@ -274,7 +274,7 @@ class ConceptMapTarget extends Element {
             equivalence: this.equivalence,
             comment: this.comment,
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
-            product: this.product && this.product.map(v => v.toJSON()),
+            product: this.product && this.product.map(v => v.toJSON())
         });
     }
 
@@ -305,7 +305,7 @@ class ConceptMapTarget extends Element {
             equivalence: this.equivalence,
             comment: this.comment,
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
-            product: this.product && this.product.map(v => v.toJSONInternal()),
+            product: this.product && this.product.map(v => v.toJSONInternal())
         };
 
 

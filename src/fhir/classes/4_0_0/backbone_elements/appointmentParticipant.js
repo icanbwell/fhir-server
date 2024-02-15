@@ -33,7 +33,7 @@ class AppointmentParticipant extends Element {
             actor,
             required,
             status,
-            period,
+            period
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class AppointmentParticipant extends Element {
             actor,
             required,
             status,
-            period,
+            period
         });
 
     }
@@ -247,7 +247,7 @@ class AppointmentParticipant extends Element {
             actor: this.actor && this.actor.toJSON(),
             required: this.required,
             status: this.status,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -278,7 +278,7 @@ class AppointmentParticipant extends Element {
             actor: this.actor && this.actor.toJSONInternal(),
             required: this.required,
             status: this.status,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

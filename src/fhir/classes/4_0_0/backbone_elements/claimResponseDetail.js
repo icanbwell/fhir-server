@@ -30,7 +30,7 @@ class ClaimResponseDetail extends Element {
             detailSequence,
             noteNumber,
             adjudication,
-            subDetail,
+            subDetail
         }
     ) {
         super({});
@@ -199,7 +199,7 @@ class ClaimResponseDetail extends Element {
             detailSequence,
             noteNumber,
             adjudication,
-            subDetail,
+            subDetail
         });
 
     }
@@ -220,7 +220,7 @@ class ClaimResponseDetail extends Element {
             detailSequence: this.detailSequence,
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
-            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON())
         });
     }
 
@@ -249,7 +249,7 @@ class ClaimResponseDetail extends Element {
             detailSequence: this.detailSequence,
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
-            subDetail: this.subDetail && this.subDetail.map(v => v.toJSONInternal()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSONInternal())
         };
 
 

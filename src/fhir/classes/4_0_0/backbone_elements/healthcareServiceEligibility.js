@@ -25,7 +25,7 @@ class HealthcareServiceEligibility extends Element {
             extension,
             modifierExtension,
             code,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class HealthcareServiceEligibility extends Element {
             extension,
             modifierExtension,
             code,
-            comment,
+            comment
         });
 
     }
@@ -172,7 +172,7 @@ class HealthcareServiceEligibility extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -198,7 +198,7 @@ class HealthcareServiceEligibility extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
 
 

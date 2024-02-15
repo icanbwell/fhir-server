@@ -89,7 +89,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -100,8 +100,8 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 'link.target._uuid': {
                     $in: [...this.proaPatientUUIDToIdOwnerMap.keys()].map(
                         (uuid) => `Patient/${uuid}`
-                    ),
-                },
+                    )
+                }
             };
 
             /**
@@ -135,7 +135,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         )?.valueString;
                         const {
                             id: targetIdWithoutPrefix,
-                            resourceType: prefix,
+                            resourceType: prefix
                         } = ReferenceParser.parseReference(refTargetUuid);
 
                         // Check for proa person based on connection type or owner [checking resource type also in this case]
@@ -170,7 +170,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
             throw new RethrownError({
                 message: `Error fetching ids & uuids for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'ProaPatientClientPersonLinkRunner.getPersonsMapFromProaPatient',
+                source: 'ProaPatientClientPersonLinkRunner.getPersonsMapFromProaPatient'
             });
         } finally {
             await session.endSession();
@@ -227,7 +227,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                             sourceAssigningAuthority: resource.meta.security.find(
                                 s => s.system === SecurityTagSystem.sourceAssigningAuthority
                             )?.code,
-                            lastUpdated: new Date(resource.meta?.lastUpdated).toISOString(),
+                            lastUpdated: new Date(resource.meta?.lastUpdated).toISOString()
                         });
                         if (resource?.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)?.code === 'bwell') {
                             linkedMasterPersons.push(targetIdWithoutPrefix);
@@ -249,7 +249,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     throw new RethrownError({
                         message: `Error fetching resource , ${e.message}`,
                         error: e,
-                        source: 'ProaPatientClientPersonLinkRunner.processRecordAsync',
+                        source: 'ProaPatientClientPersonLinkRunner.processRecordAsync'
                     });
                 }
             }
@@ -401,10 +401,10 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                                     operations.push({
                                         updateOne: {
                                             filter: {
-                                                _uuid: linkedClientPersons[0],
+                                                _uuid: linkedClientPersons[0]
                                             },
-                                            update: updateOperation,
-                                        },
+                                            update: updateOperation
+                                        }
                                     });
                                 }
                                 await this.createHistoryForUpdatedResource('Person', patches, updatedResource);
@@ -419,9 +419,9 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 message: `Error processing record ${e.message}`,
                 error: e.stack,
                 args: {
-                    resource: doc,
+                    resource: doc
                 },
-                source: 'ProaPatientClientPersonLinkRunner.processRecordAsync',
+                source: 'ProaPatientClientPersonLinkRunner.processRecordAsync'
             });
         } finally {
             await session.endSession();
@@ -488,7 +488,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
             throw new RethrownError({
                 message: `Error creating history resource for collection ${historyCollectionName}, ${e.message}`,
                 error: e,
-                source: 'ProaPatientClientPersonLinkRunner.createHistoryForUpdatedResource',
+                source: 'ProaPatientClientPersonLinkRunner.createHistoryForUpdatedResource'
             });
         }
     }
@@ -507,7 +507,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     sourceId: proaPatientUUID,
                     sourceType: 'Patient',
                     targetId: clientPersonUUID,
-                    targetType: 'Person',
+                    targetType: 'Person'
                 });
 
                 score = (matchingResult?.entry && matchingResult?.entry[0]?.search?.score) || 'N/A';
@@ -515,7 +515,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 this.adminLogger.logError(`ERROR: ${e.message}`, {
                     stack: e.stack,
                     sourceId: `Patient/${proaPatientUUID}`,
-                    targetId: `Person/${clientPersonUUID}`,
+                    targetId: `Person/${clientPersonUUID}`
                 });
             }
         }
@@ -572,18 +572,18 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                             'meta.security': {
                                 $elemMatch: {
                                     system: SecurityTagSystem.owner,
-                                    code: 'bwell',
-                                },
-                            },
+                                    code: 'bwell'
+                                }
+                            }
                         },
                         {
                             'link.target._uuid': {
                                 $in: [...this.personsUuidLinkedToProaPatient.keys()].map(
                                     (uuid) => `Person/${uuid}`
-                                ),
-                            },
-                        },
-                    ],
+                                )
+                            }
+                        }
+                    ]
                 };
 
                 try {
@@ -602,7 +602,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         limit: this.limit,
                         useTransaction: this.useTransaction,
                         skip: this.skip,
-                        useEstimatedCount: false,
+                        useEstimatedCount: false
                     });
                 } catch (e) {
                     this.adminLogger.logError(
@@ -612,9 +612,9 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         message: `Error processing proa person/patient linkage ${e.message}`,
                         error: e,
                         args: {
-                            query,
+                            query
                         },
-                        source: 'ProaPatientClientPersonLinkRunner.processAsync',
+                        source: 'ProaPatientClientPersonLinkRunner.processAsync'
                     });
                 }
             } catch (err) {
@@ -650,5 +650,5 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
 }
 
 module.exports = {
-    ProaPatientClientPersonLinkRunner,
+    ProaPatientClientPersonLinkRunner
 };

@@ -32,7 +32,7 @@ class StructureMapParameter extends Element {
             valueString,
             valueBoolean,
             valueInteger,
-            valueDecimal,
+            valueDecimal
         }
     ) {
         super({});
@@ -215,7 +215,7 @@ class StructureMapParameter extends Element {
             valueString,
             valueBoolean,
             valueInteger,
-            valueDecimal,
+            valueDecimal
         });
 
     }
@@ -237,7 +237,7 @@ class StructureMapParameter extends Element {
             valueString: this.valueString,
             valueBoolean: this.valueBoolean,
             valueInteger: this.valueInteger,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         });
     }
 
@@ -265,7 +265,7 @@ class StructureMapParameter extends Element {
             valueString: this.valueString,
             valueBoolean: this.valueBoolean,
             valueInteger: this.valueInteger,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         };
 
 

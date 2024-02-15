@@ -21,7 +21,7 @@ class ProaConsentManager {
             configManager,
             patientFilterManager,
             searchQueryBuilder,
-            bwellPersonFinder,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -77,17 +77,17 @@ class ProaConsentManager {
                     '$and': [
                         {
                             'provision.actor.reference._uuid': {
-                                '$in': proxyPersonReferences,
-                            },
+                                '$in': proxyPersonReferences
+                            }
                         },
                         {
                             'provision.actor.role.coding': {
                                 '$elemMatch': {
                                     'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
-                                    'code': PROXY_PERSON_CONSENT_CODING.CODE,
-                                },
+                                    'code': PROXY_PERSON_CONSENT_CODING.CODE
+                                }
                             }
-                        },
+                        }
                     ]
                 },
                 {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
@@ -95,15 +95,15 @@ class ProaConsentManager {
                 {'meta.security': {
                     '$elemMatch': {
                         'system': 'https://www.icanbwell.com/owner',
-                        'code': {$in: ownerTags},
-                    },
+                        'code': {$in: ownerTags}
+                    }
                 }}
             ]
         };
 
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
-            base_version: '4_0_0',
+            base_version: '4_0_0'
         });
 
         const cursor = await consentDataBaseQueryManager.findAsync({
@@ -113,7 +113,7 @@ class ProaConsentManager {
         const consentResources = await cursor
             // forcing to use this index
             .hint({
-                indexHint: CONSENT_OF_LINKED_PERSON_INDEX,
+                indexHint: CONSENT_OF_LINKED_PERSON_INDEX
             })
             .sort({'meta.lastUpdated': -1})
             .toArrayRawAsync();
@@ -128,7 +128,7 @@ class ProaConsentManager {
      * @property {string[]} securityTags security Tags
      * @param {PatientIdsWithConsent} param
      */
-    async getPatientIdsWithConsent({patientIdToImmediatePersonUuid, securityTags,}) {
+    async getPatientIdsWithConsent({patientIdToImmediatePersonUuid, securityTags}) {
         /**
         * @type {Set<string>}
         */
@@ -151,7 +151,7 @@ class ProaConsentManager {
         // Get Consent for each person
         const consentResources = await this.getConsentResources({
             ownerTags: securityTags,
-            personIds: [...immediatePersonUuids],
+            personIds: [...immediatePersonUuids]
         });
 
         /**

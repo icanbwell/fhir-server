@@ -57,7 +57,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 source: 'FhirResourceNdJsonWriter._transform',
                 args: {
                     stack: e.stack,
-                    message: e.message,
+                    message: e.message
                 }
             });
             // as we are not propagating this error, send this to sentry

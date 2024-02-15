@@ -18,32 +18,32 @@ module.exports = {
     SupplyRequestItemReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyRequestRequester: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyRequestSupplier: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyRequestReasonReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyRequestDeliverFrom: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyRequestDeliverTo: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyRequest: {
         // noinspection JSUnusedLocalSymbols
@@ -105,7 +105,7 @@ module.exports = {
                 context,
                 info,
                 parent.deliverTo);
-        },
+        }
     }
 };
 

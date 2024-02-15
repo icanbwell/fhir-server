@@ -98,7 +98,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -980,7 +980,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1090,7 +1090,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EventDefinition({
@@ -1134,7 +1134,7 @@ class EventDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1192,7 +1192,7 @@ class EventDefinition extends Resource {
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSON()),
             endorser: this.endorser && this.endorser.map(v => v.toJSON()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
-            trigger: this.trigger && this.trigger.map(v => v.toJSON()),
+            trigger: this.trigger && this.trigger.map(v => v.toJSON())
         });
     }
 
@@ -1267,7 +1267,7 @@ class EventDefinition extends Resource {
             reviewer: this.reviewer && this.reviewer.map(v => v.toJSONInternal()),
             endorser: this.endorser && this.endorser.map(v => v.toJSONInternal()),
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
-            trigger: this.trigger && this.trigger.map(v => v.toJSONInternal()),
+            trigger: this.trigger && this.trigger.map(v => v.toJSONInternal())
         };
 
 

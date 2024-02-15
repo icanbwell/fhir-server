@@ -45,7 +45,7 @@ class Address extends Element {
             state,
             postalCode,
             country,
-            period,
+            period
         }
     ) {
         super({});
@@ -299,7 +299,7 @@ class Address extends Element {
             state,
             postalCode,
             country,
-            period,
+            period
         });
 
     }
@@ -325,7 +325,7 @@ class Address extends Element {
             state: this.state,
             postalCode: this.postalCode,
             country: this.country,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -357,7 +357,7 @@ class Address extends Element {
             state: this.state,
             postalCode: this.postalCode,
             country: this.country,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

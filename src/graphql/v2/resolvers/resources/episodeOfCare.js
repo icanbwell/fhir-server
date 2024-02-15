@@ -18,7 +18,7 @@ module.exports = {
     EpisodeOfCareCareManager: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     EpisodeOfCare: {
         // noinspection JSUnusedLocalSymbols
@@ -80,7 +80,7 @@ module.exports = {
                 context,
                 info,
                 parent.account);
-        },
+        }
     }
 };
 

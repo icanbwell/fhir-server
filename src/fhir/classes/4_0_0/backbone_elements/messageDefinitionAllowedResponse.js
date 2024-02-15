@@ -27,7 +27,7 @@ class MessageDefinitionAllowedResponse extends Element {
             extension,
             modifierExtension,
             message,
-            situation,
+            situation
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class MessageDefinitionAllowedResponse extends Element {
             extension,
             modifierExtension,
             message,
-            situation,
+            situation
         });
 
     }
@@ -174,7 +174,7 @@ class MessageDefinitionAllowedResponse extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             message: this.message,
-            situation: this.situation,
+            situation: this.situation
         });
     }
 
@@ -199,7 +199,7 @@ class MessageDefinitionAllowedResponse extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             message: this.message,
-            situation: this.situation,
+            situation: this.situation
         };
 
 

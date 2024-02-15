@@ -29,7 +29,7 @@ class Count extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         }
     ) {
         super({});
@@ -138,7 +138,7 @@ class Count extends Element {
             comparator,
             unit,
             system,
-            code,
+            code
         });
 
     }
@@ -157,7 +157,7 @@ class Count extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         });
     }
 
@@ -180,7 +180,7 @@ class Count extends Element {
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         };
 
 

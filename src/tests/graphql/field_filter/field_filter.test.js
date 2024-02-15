@@ -37,7 +37,7 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest, getTestContainer, getCustomGraphQLHeaders,
+    createTestRequest, getTestContainer, getCustomGraphQLHeaders
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
@@ -85,7 +85,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
 
@@ -137,7 +137,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
 
@@ -214,7 +214,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
@@ -298,7 +298,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
@@ -351,7 +351,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {'code': ['3584-4', 'random'], 'id': ['loinc-consumer']},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
 
@@ -402,7 +402,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {'id': ['loinc-consumer']},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set({'handling': 'strict', ...getGraphQLHeaders()});
 
@@ -415,7 +415,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set({'handling': 'strict', ...getGraphQLHeaders()});
 
@@ -486,7 +486,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {'id': ['loinc-consumer'], 'code': ['3584-4', 'random']},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 

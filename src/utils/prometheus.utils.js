@@ -15,7 +15,7 @@ const responseTime = require('response-time');
 const numOfRequests = new Counter({
     name: 'numOfRequests',
     help: 'Number of requests made',
-    labelNames: ['method'],
+    labelNames: ['method']
 });
 
 module.exports.numOfRequests = numOfRequests;
@@ -27,7 +27,7 @@ module.exports.numOfRequests = numOfRequests;
 const pathsTaken = new Counter({
     name: 'pathsTaken',
     help: 'Paths taken in the app',
-    labelNames: ['path'],
+    labelNames: ['path']
 });
 
 module.exports.pathsTaken = pathsTaken;
@@ -62,7 +62,7 @@ module.exports.authorizationFailedCounter = authorizationFailedCounter;
 const responses = new Summary({
     name: 'responses',
     help: 'Response time in millis',
-    labelNames: ['method', 'path', 'status'],
+    labelNames: ['method', 'path', 'status']
 });
 
 module.exports.responses = responses;

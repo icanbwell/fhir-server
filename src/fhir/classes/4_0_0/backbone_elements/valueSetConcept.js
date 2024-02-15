@@ -30,7 +30,7 @@ class ValueSetConcept extends Element {
             modifierExtension,
             code,
             display,
-            designation,
+            designation
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ValueSetConcept extends Element {
             modifierExtension,
             code,
             display,
-            designation,
+            designation
         });
 
     }
@@ -201,7 +201,7 @@ class ValueSetConcept extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
             display: this.display,
-            designation: this.designation && this.designation.map(v => v.toJSON()),
+            designation: this.designation && this.designation.map(v => v.toJSON())
         });
     }
 
@@ -228,7 +228,7 @@ class ValueSetConcept extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
             display: this.display,
-            designation: this.designation && this.designation.map(v => v.toJSONInternal()),
+            designation: this.designation && this.designation.map(v => v.toJSONInternal())
         };
 
 

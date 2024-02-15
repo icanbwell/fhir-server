@@ -26,7 +26,7 @@ class ContractFriendly extends Element {
             extension,
             modifierExtension,
             contentAttachment,
-            contentReference,
+            contentReference
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ContractFriendly extends Element {
             extension,
             modifierExtension,
             contentAttachment,
-            contentReference,
+            contentReference
         });
 
     }
@@ -175,7 +175,7 @@ class ContractFriendly extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSON(),
-            contentReference: this.contentReference && this.contentReference.toJSON(),
+            contentReference: this.contentReference && this.contentReference.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class ContractFriendly extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
-            contentReference: this.contentReference && this.contentReference.toJSONInternal(),
+            contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
 
 

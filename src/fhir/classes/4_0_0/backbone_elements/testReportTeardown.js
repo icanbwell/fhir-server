@@ -23,7 +23,7 @@ class TestReportTeardown extends Element {
             id,
             extension,
             modifierExtension,
-            action,
+            action
         }
     ) {
         super({});
@@ -132,7 +132,7 @@ class TestReportTeardown extends Element {
             id,
             extension,
             modifierExtension,
-            action,
+            action
         });
 
     }
@@ -150,7 +150,7 @@ class TestReportTeardown extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -175,7 +175,7 @@ class TestReportTeardown extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

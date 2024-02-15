@@ -27,7 +27,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension,
             areaUnderCurve,
             lethalDose50,
-            halfLifePeriod,
+            halfLifePeriod
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension,
             areaUnderCurve,
             lethalDose50,
-            halfLifePeriod,
+            halfLifePeriod
         });
 
     }
@@ -199,7 +199,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.map(v => v.toJSON()),
             lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSON()),
-            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSON(),
+            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSON()
         });
     }
 
@@ -228,7 +228,7 @@ class MedicationKnowledgeKinetics extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.map(v => v.toJSONInternal()),
             lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSONInternal()),
-            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSONInternal(),
+            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSONInternal()
         };
 
 

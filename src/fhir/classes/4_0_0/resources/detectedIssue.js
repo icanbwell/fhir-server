@@ -67,7 +67,7 @@ class DetectedIssue extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -596,7 +596,7 @@ class DetectedIssue extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -674,7 +674,7 @@ class DetectedIssue extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DetectedIssue({
@@ -702,7 +702,7 @@ class DetectedIssue extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -744,7 +744,7 @@ class DetectedIssue extends Resource {
             evidence: this.evidence && this.evidence.map(v => v.toJSON()),
             detail: this.detail,
             reference: this.reference,
-            mitigation: this.mitigation && this.mitigation.map(v => v.toJSON()),
+            mitigation: this.mitigation && this.mitigation.map(v => v.toJSON())
         });
     }
 
@@ -797,7 +797,7 @@ class DetectedIssue extends Resource {
             evidence: this.evidence && this.evidence.map(v => v.toJSONInternal()),
             detail: this.detail,
             reference: this.reference,
-            mitigation: this.mitigation && this.mitigation.map(v => v.toJSONInternal()),
+            mitigation: this.mitigation && this.mitigation.map(v => v.toJSONInternal())
         };
 
 

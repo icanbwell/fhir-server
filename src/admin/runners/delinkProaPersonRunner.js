@@ -36,7 +36,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         statusColumn,
         adminPersonPatientLinkManager,
         databaseQueryFactory,
-        adminLogger,
+        adminLogger
     }) {
         super({
             csvFileName,
@@ -44,7 +44,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             clientUuidColumn,
             statusColumn,
             adminPersonPatientLinkManager,
-            adminLogger,
+            adminLogger
         });
         /**
          * @type {DatabaseQueryFactory}
@@ -137,7 +137,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
              */
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: '4_0_0',
+                base_version: '4_0_0'
             });
 
             const file = await open(this.csvFileName);
@@ -197,7 +197,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             throw new RethrownError({
                 message: err.message,
                 error: err,
-                source: 'DelinkProaPersonRunner.processDataFromCsv',
+                source: 'DelinkProaPersonRunner.processDataFromCsv'
             });
         }
     }
@@ -248,12 +248,12 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 if (isClientPersonRelated && relatedClientPersons.length > 0) {
                     await this.removeProaPersonToMasterPersonLink({
                         proaPersonUuid,
-                        masterPersonUuids,
+                        masterPersonUuids
                     });
 
                     await this.removeProaPersonToProaPatientLink({
                         proaPersonUuid,
-                        proaPatientUuid,
+                        proaPatientUuid
                     });
                 }
             }
@@ -292,7 +292,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                     personUuid: proaPersonUuid,
                     sourceAssigningAuthority,
                     lastUpdated,
-                    slug: 'Proa',
+                    slug: 'Proa'
                 });
             }
         }
@@ -316,7 +316,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             const results = await this.adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
                 req: this.req,
                 bwellPersonId: masterPersonUuid,
-                externalPersonId: proaPersonUuid,
+                externalPersonId: proaPersonUuid
             });
             this.adminLogger.logInfo(results.message);
         }
@@ -338,7 +338,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         const results = await this.adminPersonPatientLinkManager.removePersonToPatientLinkAsync({
             req: this.req,
             personId: proaPersonUuid,
-            patientId: proaPatientUuid,
+            patientId: proaPatientUuid
         });
         this.adminLogger.logInfo(results.message);
     }
@@ -361,10 +361,10 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
              */
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: '4_0_0',
+                base_version: '4_0_0'
             });
             const personData = await databaseQueryManager.findOneAsync({
-                query: { _uuid: personUuid },
+                query: { _uuid: personUuid }
             });
 
             if (!personData) {
@@ -377,7 +377,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 // if no links are present delete the proa person
                 const results = await databaseQueryManager.deleteManyAsync({
                     query: { _uuid: personUuid },
-                    requestId: this.systemRequestId,
+                    requestId: this.systemRequestId
                 });
 
                 if (results.deletedCount === 1) {
@@ -397,7 +397,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             throw new RethrownError({
                 message: err.message,
                 error: err,
-                source: 'DelinkProaPersonRunner.deletePerson',
+                source: 'DelinkProaPersonRunner.deletePerson'
             });
         }
     }

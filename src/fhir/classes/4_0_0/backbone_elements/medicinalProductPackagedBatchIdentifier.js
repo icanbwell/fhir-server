@@ -25,7 +25,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             extension,
             modifierExtension,
             outerPackaging,
-            immediatePackaging,
+            immediatePackaging
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             extension,
             modifierExtension,
             outerPackaging,
-            immediatePackaging,
+            immediatePackaging
         });
 
     }
@@ -174,7 +174,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             outerPackaging: this.outerPackaging && this.outerPackaging.toJSON(),
-            immediatePackaging: this.immediatePackaging && this.immediatePackaging.toJSON(),
+            immediatePackaging: this.immediatePackaging && this.immediatePackaging.toJSON()
         });
     }
 
@@ -201,7 +201,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             outerPackaging: this.outerPackaging && this.outerPackaging.toJSONInternal(),
-            immediatePackaging: this.immediatePackaging && this.immediatePackaging.toJSONInternal(),
+            immediatePackaging: this.immediatePackaging && this.immediatePackaging.toJSONInternal()
         };
 
 

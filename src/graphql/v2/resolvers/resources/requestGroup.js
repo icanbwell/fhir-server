@@ -18,27 +18,27 @@ module.exports = {
     RequestGroupBasedOnV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RequestGroupReplacesV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RequestGroupSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RequestGroupAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RequestGroupReasonReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RequestGroup: {
         // noinspection JSUnusedLocalSymbols
@@ -120,7 +120,7 @@ module.exports = {
                 context,
                 info,
                 parent.reasonReference);
-        },
+        }
     }
 };
 

@@ -28,7 +28,7 @@ class CapabilityStatementEndpoint extends Element {
             extension,
             modifierExtension,
             protocol,
-            address,
+            address
         }
     ) {
         super({});
@@ -158,7 +158,7 @@ class CapabilityStatementEndpoint extends Element {
             extension,
             modifierExtension,
             protocol,
-            address,
+            address
         });
 
     }
@@ -177,7 +177,7 @@ class CapabilityStatementEndpoint extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             protocol: this.protocol && this.protocol.toJSON(),
-            address: this.address,
+            address: this.address
         });
     }
 
@@ -203,7 +203,7 @@ class CapabilityStatementEndpoint extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             protocol: this.protocol && this.protocol.toJSONInternal(),
-            address: this.address,
+            address: this.address
         };
 
 

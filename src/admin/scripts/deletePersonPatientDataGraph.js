@@ -3,7 +3,7 @@ if (process.argv.includes('--dotenv')) {
     const dotenv = require('dotenv');
     const pathToEnv = path.resolve(__dirname, '.env');
     dotenv.config({
-        path: pathToEnv,
+        path: pathToEnv
     });
     console.log(`Reading config from ${pathToEnv}`);
 }
@@ -13,7 +13,7 @@ const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
 const {
-    DeletePersonPatientDataGraphRunner,
+    DeletePersonPatientDataGraphRunner
 } = require('../runners/deletePersonPatientDataGraphRunner');
 
 /**
@@ -65,7 +65,7 @@ async function main() {
                 patientUuids,
                 personUuids,
                 concurrencyBatchSize,
-                dryRun,
+                dryRun
             })
     );
 

@@ -18,14 +18,14 @@ class FhirOpenSearchVectorStore extends OpenSearchVectorStore {
             {
                 index: {
                     _index: this.indexName,
-                    _id: documents[`${idx}`].metadata._id,
-                },
+                    _id: documents[`${idx}`].metadata._id
+                }
             },
             {
                 embedding,
                 metadata: documents[`${idx}`].metadata,
-                text: documents[`${idx}`].pageContent,
-            },
+                text: documents[`${idx}`].pageContent
+            }
         ]);
         await this.client.bulk({body: operations});
         await this.client.indices.refresh({index: this.indexName});

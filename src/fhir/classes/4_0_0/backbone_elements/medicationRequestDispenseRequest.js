@@ -39,7 +39,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed,
             quantity,
             expectedSupplyDuration,
-            performer,
+            performer
         }
     ) {
         super({});
@@ -281,7 +281,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed,
             quantity,
             expectedSupplyDuration,
-            performer,
+            performer
         });
 
     }
@@ -305,7 +305,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed: this.numberOfRepeatsAllowed,
             quantity: this.quantity && this.quantity.toJSON(),
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
+            performer: this.performer && this.performer.toJSON()
         });
     }
 
@@ -341,7 +341,7 @@ class MedicationRequestDispenseRequest extends Element {
             numberOfRepeatsAllowed: this.numberOfRepeatsAllowed,
             quantity: this.quantity && this.quantity.toJSONInternal(),
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSONInternal(),
-            performer: this.performer && this.performer.toJSONInternal(),
+            performer: this.performer && this.performer.toJSONInternal()
         };
 
 

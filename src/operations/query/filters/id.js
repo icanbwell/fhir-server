@@ -52,8 +52,8 @@ class FilterById extends BaseFilter {
                                 FilterById.filterByItems(field, this.parsedArg.queryParameterValue.values, this.fieldMapper)
                             };
                         }
-                    ),
-                },
+                    )
+                }
             );
         }
 
@@ -89,7 +89,7 @@ class FilterById extends BaseFilter {
         if (uuids.length > 0) {
             filters.push({
                 [fieldMapper.getFieldName(uuidFieldName)]: {
-                    $in: uuids,
+                    $in: uuids
                 }
             });
         }
@@ -97,7 +97,7 @@ class FilterById extends BaseFilter {
         if (sourceIds.length > 0) {
             filters.push({
                 [fieldMapper.getFieldName(field)]: {
-                    $in: sourceIds,
+                    $in: sourceIds
                 }
             });
         }

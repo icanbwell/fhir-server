@@ -24,7 +24,7 @@ class CoverageEligibilityResponseError extends Element {
             id,
             extension,
             modifierExtension,
-            code,
+            code
         }
     ) {
         super({});
@@ -134,7 +134,7 @@ class CoverageEligibilityResponseError extends Element {
             id,
             extension,
             modifierExtension,
-            code,
+            code
         });
 
     }
@@ -152,7 +152,7 @@ class CoverageEligibilityResponseError extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            code: this.code && this.code.toJSON(),
+            code: this.code && this.code.toJSON()
         });
     }
 
@@ -177,7 +177,7 @@ class CoverageEligibilityResponseError extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            code: this.code && this.code.toJSONInternal(),
+            code: this.code && this.code.toJSONInternal()
         };
 
 

@@ -18,7 +18,7 @@ class ResourceManager {
                 // see if there is a 'patient' property
                 for (const [
                     /** @type {string} **/ queryParameter,
-                    /** @type {SearchParameterDefinition} **/ propertyObj,
+                    /** @type {SearchParameterDefinition} **/ propertyObj
                 ] of Object.entries(resourceObj)) {
                     if (queryParameter === 'patient') {
                         return propertyObj.firstField;

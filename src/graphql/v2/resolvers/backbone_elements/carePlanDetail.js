@@ -6,17 +6,17 @@ module.exports = {
     CarePlanDetailReasonReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlanDetailPerformer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlanDetailProductReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlanDetail: {
         // noinspection JSUnusedLocalSymbols
@@ -68,7 +68,7 @@ module.exports = {
                 context,
                 info,
                 parent.productReference);
-        },
+        }
     }
 };
 

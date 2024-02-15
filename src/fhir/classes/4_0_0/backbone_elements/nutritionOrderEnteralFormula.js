@@ -40,7 +40,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration,
             administration,
             maxVolumeToDeliver,
-            administrationInstruction,
+            administrationInstruction
         }
     ) {
         super({});
@@ -325,7 +325,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration,
             administration,
             maxVolumeToDeliver,
-            administrationInstruction,
+            administrationInstruction
         });
 
     }
@@ -351,7 +351,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSON(),
             administration: this.administration && this.administration.map(v => v.toJSON()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSON(),
-            administrationInstruction: this.administrationInstruction,
+            administrationInstruction: this.administrationInstruction
         });
     }
 
@@ -389,7 +389,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSONInternal(),
             administration: this.administration && this.administration.map(v => v.toJSONInternal()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSONInternal(),
-            administrationInstruction: this.administrationInstruction,
+            administrationInstruction: this.administrationInstruction
         };
 
 

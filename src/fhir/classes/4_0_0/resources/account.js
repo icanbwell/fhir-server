@@ -62,7 +62,7 @@ class Account extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -552,7 +552,7 @@ class Account extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -626,7 +626,7 @@ class Account extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Account({
@@ -652,7 +652,7 @@ class Account extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -692,7 +692,7 @@ class Account extends Resource {
             owner: this.owner && this.owner.toJSON(),
             description: this.description,
             guarantor: this.guarantor && this.guarantor.map(v => v.toJSON()),
-            partOf: this.partOf && this.partOf.toJSON(),
+            partOf: this.partOf && this.partOf.toJSON()
         });
     }
 
@@ -743,7 +743,7 @@ class Account extends Resource {
             owner: this.owner && this.owner.toJSONInternal(),
             description: this.description,
             guarantor: this.guarantor && this.guarantor.map(v => v.toJSONInternal()),
-            partOf: this.partOf && this.partOf.toJSONInternal(),
+            partOf: this.partOf && this.partOf.toJSONInternal()
         };
 
 

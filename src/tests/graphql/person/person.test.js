@@ -16,7 +16,7 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest, getTestContainer,
+    createTestRequest, getTestContainer
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
@@ -77,7 +77,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
 

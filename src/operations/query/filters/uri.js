@@ -12,7 +12,7 @@ class FilterByUri extends BaseFilter {
      */
     filterByItem(field, value) {
         return {
-            [this.fieldMapper.getFieldName(field)]: value,
+            [this.fieldMapper.getFieldName(field)]: value
         };
     }
 }

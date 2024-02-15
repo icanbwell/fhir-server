@@ -54,7 +54,7 @@ class MedicinalProductInteraction extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -459,7 +459,7 @@ class MedicinalProductInteraction extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -525,7 +525,7 @@ class MedicinalProductInteraction extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductInteraction({
@@ -547,7 +547,7 @@ class MedicinalProductInteraction extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -583,7 +583,7 @@ class MedicinalProductInteraction extends Resource {
             type: this.type && this.type.toJSON(),
             effect: this.effect && this.effect.toJSON(),
             incidence: this.incidence && this.incidence.toJSON(),
-            management: this.management && this.management.toJSON(),
+            management: this.management && this.management.toJSON()
         });
     }
 
@@ -628,7 +628,7 @@ class MedicinalProductInteraction extends Resource {
             type: this.type && this.type.toJSONInternal(),
             effect: this.effect && this.effect.toJSONInternal(),
             incidence: this.incidence && this.incidence.toJSONInternal(),
-            management: this.management && this.management.toJSONInternal(),
+            management: this.management && this.management.toJSONInternal()
         };
 
 

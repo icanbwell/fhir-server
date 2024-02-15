@@ -27,7 +27,7 @@ class MedicationKnowledgePatientCharacteristics extends Element {
             modifierExtension,
             characteristicCodeableConcept,
             characteristicQuantity,
-            value,
+            value
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class MedicationKnowledgePatientCharacteristics extends Element {
             modifierExtension,
             characteristicCodeableConcept,
             characteristicQuantity,
-            value,
+            value
         });
 
     }
@@ -196,7 +196,7 @@ class MedicationKnowledgePatientCharacteristics extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             characteristicCodeableConcept: this.characteristicCodeableConcept && this.characteristicCodeableConcept.toJSON(),
             characteristicQuantity: this.characteristicQuantity && this.characteristicQuantity.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -224,7 +224,7 @@ class MedicationKnowledgePatientCharacteristics extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             characteristicCodeableConcept: this.characteristicCodeableConcept && this.characteristicCodeableConcept.toJSONInternal(),
             characteristicQuantity: this.characteristicQuantity && this.characteristicQuantity.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
 

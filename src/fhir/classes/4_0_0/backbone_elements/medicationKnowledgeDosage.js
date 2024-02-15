@@ -25,7 +25,7 @@ class MedicationKnowledgeDosage extends Element {
             extension,
             modifierExtension,
             type,
-            dosage,
+            dosage
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class MedicationKnowledgeDosage extends Element {
             extension,
             modifierExtension,
             type,
-            dosage,
+            dosage
         });
 
     }
@@ -174,7 +174,7 @@ class MedicationKnowledgeDosage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            dosage: this.dosage && this.dosage.map(v => v.toJSON()),
+            dosage: this.dosage && this.dosage.map(v => v.toJSON())
         });
     }
 
@@ -201,7 +201,7 @@ class MedicationKnowledgeDosage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            dosage: this.dosage && this.dosage.map(v => v.toJSONInternal()),
+            dosage: this.dosage && this.dosage.map(v => v.toJSONInternal())
         };
 
 

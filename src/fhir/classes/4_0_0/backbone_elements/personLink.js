@@ -26,7 +26,7 @@ class PersonLink extends Element {
             extension,
             modifierExtension,
             target,
-            assurance,
+            assurance
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class PersonLink extends Element {
             extension,
             modifierExtension,
             target,
-            assurance,
+            assurance
         });
 
     }
@@ -173,7 +173,7 @@ class PersonLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             target: this.target && this.target.toJSON(),
-            assurance: this.assurance,
+            assurance: this.assurance
         });
     }
 
@@ -199,7 +199,7 @@ class PersonLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             target: this.target && this.target.toJSONInternal(),
-            assurance: this.assurance,
+            assurance: this.assurance
         };
 
 

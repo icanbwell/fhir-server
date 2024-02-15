@@ -30,7 +30,7 @@ class ClaimResponseError extends Element {
             itemSequence,
             detailSequence,
             subDetailSequence,
-            code,
+            code
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class ClaimResponseError extends Element {
             itemSequence,
             detailSequence,
             subDetailSequence,
-            code,
+            code
         });
 
     }
@@ -223,7 +223,7 @@ class ClaimResponseError extends Element {
             itemSequence: this.itemSequence,
             detailSequence: this.detailSequence,
             subDetailSequence: this.subDetailSequence,
-            code: this.code && this.code.toJSON(),
+            code: this.code && this.code.toJSON()
         });
     }
 
@@ -251,7 +251,7 @@ class ClaimResponseError extends Element {
             itemSequence: this.itemSequence,
             detailSequence: this.detailSequence,
             subDetailSequence: this.subDetailSequence,
-            code: this.code && this.code.toJSONInternal(),
+            code: this.code && this.code.toJSONInternal()
         };
 
 

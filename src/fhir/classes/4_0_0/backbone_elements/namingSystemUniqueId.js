@@ -33,7 +33,7 @@ class NamingSystemUniqueId extends Element {
             value,
             preferred,
             comment,
-            period,
+            period
         }
     ) {
         super({});
@@ -221,7 +221,7 @@ class NamingSystemUniqueId extends Element {
             value,
             preferred,
             comment,
-            period,
+            period
         });
 
     }
@@ -243,7 +243,7 @@ class NamingSystemUniqueId extends Element {
             value: this.value,
             preferred: this.preferred,
             comment: this.comment,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -272,7 +272,7 @@ class NamingSystemUniqueId extends Element {
             value: this.value,
             preferred: this.preferred,
             comment: this.comment,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

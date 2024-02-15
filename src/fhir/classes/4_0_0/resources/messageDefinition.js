@@ -91,7 +91,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -873,7 +873,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -975,7 +975,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MessageDefinition({
@@ -1015,7 +1015,7 @@ class MessageDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1069,7 +1069,7 @@ class MessageDefinition extends Resource {
             focus: this.focus && this.focus.map(v => v.toJSON()),
             responseRequired: this.responseRequired,
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSON()),
-            graph: this.graph,
+            graph: this.graph
         });
     }
 
@@ -1133,7 +1133,7 @@ class MessageDefinition extends Resource {
             focus: this.focus && this.focus.map(v => v.toJSONInternal()),
             responseRequired: this.responseRequired,
             allowedResponse: this.allowedResponse && this.allowedResponse.map(v => v.toJSONInternal()),
-            graph: this.graph,
+            graph: this.graph
         };
 
 

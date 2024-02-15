@@ -9,7 +9,7 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const { logError } = require('../../../operations/common/logging');
 const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
@@ -72,7 +72,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);

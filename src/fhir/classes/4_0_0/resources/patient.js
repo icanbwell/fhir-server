@@ -76,7 +76,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -709,7 +709,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -797,7 +797,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Patient({
@@ -830,7 +830,7 @@ class Patient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -877,7 +877,7 @@ class Patient extends Resource {
             communication: this.communication && this.communication.map(v => v.toJSON()),
             generalPractitioner: this.generalPractitioner && this.generalPractitioner.map(v => v.toJSON()),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSON(),
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -938,7 +938,7 @@ class Patient extends Resource {
             communication: this.communication && this.communication.map(v => v.toJSONInternal()),
             generalPractitioner: this.generalPractitioner && this.generalPractitioner.map(v => v.toJSONInternal()),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSONInternal(),
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
 
 

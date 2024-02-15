@@ -405,7 +405,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         key: id,
                         fhirVersion: fhirVersion,
                         requestId: messageJson?.source?.site,
-                        value: JSON.stringify(messageJson),
+                        value: JSON.stringify(messageJson)
                     };
                 };
                 // --- Process Patient events ---

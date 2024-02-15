@@ -106,7 +106,7 @@ class PlanDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1056,7 +1056,7 @@ class PlanDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1172,7 +1172,7 @@ class PlanDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new PlanDefinition({
@@ -1219,7 +1219,7 @@ class PlanDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1280,7 +1280,7 @@ class PlanDefinition extends Resource {
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
             library: this.library,
             goal: this.goal && this.goal.map(v => v.toJSON()),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -1360,7 +1360,7 @@ class PlanDefinition extends Resource {
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
             library: this.library,
             goal: this.goal && this.goal.map(v => v.toJSONInternal()),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

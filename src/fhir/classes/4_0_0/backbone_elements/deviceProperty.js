@@ -29,7 +29,7 @@ class DeviceProperty extends Element {
             modifierExtension,
             type,
             valueQuantity,
-            valueCode,
+            valueCode
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class DeviceProperty extends Element {
             modifierExtension,
             type,
             valueQuantity,
-            valueCode,
+            valueCode
         });
 
     }
@@ -200,7 +200,7 @@ class DeviceProperty extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSON()),
-            valueCode: this.valueCode && this.valueCode.map(v => v.toJSON()),
+            valueCode: this.valueCode && this.valueCode.map(v => v.toJSON())
         });
     }
 
@@ -229,7 +229,7 @@ class DeviceProperty extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSONInternal()),
-            valueCode: this.valueCode && this.valueCode.map(v => v.toJSONInternal()),
+            valueCode: this.valueCode && this.valueCode.map(v => v.toJSONInternal())
         };
 
 

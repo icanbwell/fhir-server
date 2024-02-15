@@ -27,7 +27,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension,
             type,
             network,
-            benefit,
+            benefit
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension,
             type,
             network,
-            benefit,
+            benefit
         });
 
     }
@@ -199,7 +199,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             network: this.network && this.network.map(v => v.toJSON()),
-            benefit: this.benefit && this.benefit.map(v => v.toJSON()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSON())
         });
     }
 
@@ -228,7 +228,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             network: this.network && this.network.map(v => v.toJSONInternal()),
-            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal())
         };
 
 

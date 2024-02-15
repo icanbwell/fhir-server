@@ -105,7 +105,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1047,7 +1047,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1163,7 +1163,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Procedure({
@@ -1210,7 +1210,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1271,7 +1271,7 @@ class Procedure extends Resource {
             note: this.note && this.note.map(v => v.toJSON()),
             focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSON()),
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSON()),
-            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON())
         });
     }
 
@@ -1362,7 +1362,7 @@ class Procedure extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSONInternal()),
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSONInternal()),
-            usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal())
         };
 
 

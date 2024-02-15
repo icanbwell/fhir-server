@@ -87,7 +87,7 @@ class SearchFilterFromReference {
     filters.push({
       [`${prop}_sourceId`]: {
         '$in': sourceIdOrItsRefs
-      },
+      }
     });
 
     // sourceId + sourceAssigning Authority
@@ -102,7 +102,7 @@ class SearchFilterFromReference {
               {
                 [`${prop}_sourceId`]: {
                   // for Patient/id|client -> Patient/id and for id|client -> id
-                  '$in': idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref)),
+                  '$in': idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref))
                 }
               }
             ]

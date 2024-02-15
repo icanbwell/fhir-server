@@ -35,7 +35,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason,
             date,
             amount,
-            identifier,
+            identifier
         }
     ) {
         super({});
@@ -248,7 +248,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason,
             date,
             amount,
-            identifier,
+            identifier
         });
 
     }
@@ -271,7 +271,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason: this.adjustmentReason && this.adjustmentReason.toJSON(),
             date: this.date,
             amount: this.amount && this.amount.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            identifier: this.identifier && this.identifier.toJSON()
         });
     }
 
@@ -305,7 +305,7 @@ class ExplanationOfBenefitPayment extends Element {
             adjustmentReason: this.adjustmentReason && this.adjustmentReason.toJSONInternal(),
             date: this.date,
             amount: this.amount && this.amount.toJSONInternal(),
-            identifier: this.identifier && this.identifier.toJSONInternal(),
+            identifier: this.identifier && this.identifier.toJSONInternal()
         };
 
 

@@ -38,7 +38,7 @@ class ImplementationGuideResource extends Element {
             description,
             exampleBoolean,
             exampleCanonical,
-            groupingId,
+            groupingId
         }
     ) {
         super({});
@@ -265,7 +265,7 @@ class ImplementationGuideResource extends Element {
             description,
             exampleBoolean,
             exampleCanonical,
-            groupingId,
+            groupingId
         });
 
     }
@@ -289,7 +289,7 @@ class ImplementationGuideResource extends Element {
             description: this.description,
             exampleBoolean: this.exampleBoolean,
             exampleCanonical: this.exampleCanonical,
-            groupingId: this.groupingId,
+            groupingId: this.groupingId
         });
     }
 
@@ -320,7 +320,7 @@ class ImplementationGuideResource extends Element {
             description: this.description,
             exampleBoolean: this.exampleBoolean,
             exampleCanonical: this.exampleCanonical,
-            groupingId: this.groupingId,
+            groupingId: this.groupingId
         };
 
 

@@ -29,7 +29,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension,
             condition,
             role,
-            rank,
+            rank
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension,
             condition,
             role,
-            rank,
+            rank
         });
 
     }
@@ -200,7 +200,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             condition: this.condition && this.condition.toJSON(),
             role: this.role && this.role.toJSON(),
-            rank: this.rank,
+            rank: this.rank
         });
     }
 
@@ -228,7 +228,7 @@ class EpisodeOfCareDiagnosis extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.toJSONInternal(),
             role: this.role && this.role.toJSONInternal(),
-            rank: this.rank,
+            rank: this.rank
         };
 
 

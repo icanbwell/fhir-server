@@ -44,7 +44,7 @@ class SubstanceProteinSubunit extends Element {
             nTerminalModificationId,
             nTerminalModification,
             cTerminalModificationId,
-            cTerminalModification,
+            cTerminalModification
         }
     ) {
         super({});
@@ -308,7 +308,7 @@ class SubstanceProteinSubunit extends Element {
             nTerminalModificationId,
             nTerminalModification,
             cTerminalModificationId,
-            cTerminalModification,
+            cTerminalModification
         });
 
     }
@@ -333,7 +333,7 @@ class SubstanceProteinSubunit extends Element {
             nTerminalModificationId: this.nTerminalModificationId && this.nTerminalModificationId.toJSON(),
             nTerminalModification: this.nTerminalModification,
             cTerminalModificationId: this.cTerminalModificationId && this.cTerminalModificationId.toJSON(),
-            cTerminalModification: this.cTerminalModification,
+            cTerminalModification: this.cTerminalModification
         });
     }
 
@@ -367,7 +367,7 @@ class SubstanceProteinSubunit extends Element {
             nTerminalModificationId: this.nTerminalModificationId && this.nTerminalModificationId.toJSONInternal(),
             nTerminalModification: this.nTerminalModification,
             cTerminalModificationId: this.cTerminalModificationId && this.cTerminalModificationId.toJSONInternal(),
-            cTerminalModification: this.cTerminalModification,
+            cTerminalModification: this.cTerminalModification
         };
 
 

@@ -23,7 +23,7 @@ class MedicationKnowledgeSchedule extends Element {
             id,
             extension,
             modifierExtension,
-            schedule,
+            schedule
         }
     ) {
         super({});
@@ -132,7 +132,7 @@ class MedicationKnowledgeSchedule extends Element {
             id,
             extension,
             modifierExtension,
-            schedule,
+            schedule
         });
 
     }
@@ -150,7 +150,7 @@ class MedicationKnowledgeSchedule extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            schedule: this.schedule && this.schedule.toJSON(),
+            schedule: this.schedule && this.schedule.toJSON()
         });
     }
 
@@ -175,7 +175,7 @@ class MedicationKnowledgeSchedule extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            schedule: this.schedule && this.schedule.toJSONInternal(),
+            schedule: this.schedule && this.schedule.toJSONInternal()
         };
 
 

@@ -29,7 +29,7 @@ class UpdateCollectionsRunner {
         collections,
         startWithCollection,
         skipHistoryCollections,
-        adminLogger,
+        adminLogger
     }) {
         /**
          * @type {moment.Moment}
@@ -237,7 +237,7 @@ class UpdateCollectionsRunner {
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
                         batchSize: this.readBatchSize,
-                        sort: { _id: 1 },
+                        sort: { _id: 1 }
                     };
 
                     // If _idAbove is provided fetch all documents having _id greater than this._idAbove or fetch all documents that have a value for lastUpdated.
@@ -254,7 +254,7 @@ class UpdateCollectionsRunner {
 
                         // Fetching document from active db having same id.
                         const targetDocument = await targetDatabaseCollection.findOne({
-                            _id: sourceDocument._id,
+                            _id: sourceDocument._id
                         });
                         // Skip target documents in which lastUpdated is not present.
                         if (targetDocument?.meta?.lastUpdated === undefined) {
@@ -293,7 +293,7 @@ class UpdateCollectionsRunner {
                                 result = await targetDatabaseCollection.updateOne(
                                     { _id: sourceDocument._id },
                                     {
-                                        $set: sourceDocument,
+                                        $set: sourceDocument
                                     }
                                 );
                             } else {
@@ -346,5 +346,5 @@ class UpdateCollectionsRunner {
 }
 
 module.exports = {
-    UpdateCollectionsRunner,
+    UpdateCollectionsRunner
 };

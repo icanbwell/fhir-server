@@ -38,13 +38,13 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         mongoCollectionManager,
         batchSize,
         clientSourceAssigningAuthorities,
-        skipAlreadyLinked,
+        skipAlreadyLinked
     }) {
         super({
             adminLogger,
             mongoDatabaseManager,
             mongoCollectionManager,
-            batchSize,
+            batchSize
         });
         /**
          * @type {boolean}
@@ -165,7 +165,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             await this.handleWriteStreamClose();
         } catch (err) {
             this.adminLogger.logError(`Error in main process: ${err.message}`, {
-                stack: err.stack,
+                stack: err.stack
             });
         }
     }
@@ -204,7 +204,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
         return Promise.all([
             new Promise((resolve) => this.writeStream.on('close', resolve)),
-            new Promise((resolve) => this.writeErrorStream.on('close', resolve)),
+            new Promise((resolve) => this.writeErrorStream.on('close', resolve))
         ]);
     }
 
@@ -219,7 +219,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             sourceAssigningAuthority: data
                 .reduce((arr, d) => arr.push(d.sourceAssigningAuthority) && arr, [])
                 .join(', '),
-            lastUpdated: data.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', '),
+            lastUpdated: data.reduce((arr, d) => arr.push(d.lastUpdated) && arr, []).join(', ')
         };
     }
 
@@ -251,7 +251,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             (err) => {
                 if (err) {
                     this.adminLogger.logError(`Error while writing to data stream: ${err.message}`, {
-                        stack: err.stack,
+                        stack: err.stack
                     });
                 }
             }
@@ -286,7 +286,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             (err) => {
                 if (err) {
                     this.adminLogger.logError(`Error while writing to error stream: ${err.message}`, {
-                        stack: err.stack,
+                        stack: err.stack
                     });
                 }
             }
@@ -305,7 +305,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
         const { collection, client, session } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName: this.patientCollectionName,
+            collectionName: this.patientCollectionName
         });
 
         try {
@@ -314,17 +314,17 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     $elemMatch: {
                         system: SecurityTagSystem.connectionType,
                         code: {
-                            $in: this.proaConnectionTypes,
-                        },
-                    },
-                },
+                            $in: this.proaConnectionTypes
+                        }
+                    }
+                }
             };
 
             const options = {
                 projection: {
                     _uuid: 1,
-                    meta: 1,
-                },
+                    meta: 1
+                }
             };
 
             const cursor = collection.find(query, options);
@@ -342,17 +342,17 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 this.proaPatientDataMap.set(patient._uuid, {
                     uuid: patient._uuid,
                     sourceAssigningAuthority,
-                    lastUpdated: new Date(patient.meta.lastUpdated).toISOString(),
+                    lastUpdated: new Date(patient.meta.lastUpdated).toISOString()
                 });
             }
         } catch (err) {
             this.adminLogger.logError(`Error in getProaPatientData: ${err.message}`, {
-                stack: err.stack,
+                stack: err.stack
             });
 
             throw new RethrownError({
                 message: err.message,
-                error: err,
+                error: err
             });
         } finally {
             await session.endSession();
@@ -377,7 +377,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
         personSourceAssigningAuthority,
         personSource,
         hasProaConnectionType,
-        patientUuid,
+        patientUuid
     }) {
         // Proa ConnectionType check
         if (hasProaConnectionType) {
@@ -426,22 +426,22 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
         const { collection, client, session } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName: this.personCollectionName,
+            collectionName: this.personCollectionName
         });
 
         try {
             const query = {
                 'link.target._uuid': {
-                    $in: Array.from(this.proaPatientDataMap.keys()).map((k) => `Patient/${k}`),
-                },
+                    $in: Array.from(this.proaPatientDataMap.keys()).map((k) => `Patient/${k}`)
+                }
             };
 
             const options = {
                 projection: {
                     _uuid: 1,
                     meta: 1,
-                    link: 1,
-                },
+                    link: 1
+                }
             };
 
             const cursor = collection.find(query, options);
@@ -463,7 +463,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 this.personDataMap.set(person._uuid, {
                     uuid: person._uuid,
                     sourceAssigningAuthority,
-                    lastUpdated: new Date(person.meta.lastUpdated).toISOString(),
+                    lastUpdated: new Date(person.meta.lastUpdated).toISOString()
                 });
 
                 // get all related proa patient from person links
@@ -480,19 +480,19 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                             personSourceAssigningAuthority: sourceAssigningAuthority,
                             personSource: person.meta.source,
                             hasProaConnectionType,
-                            patientUuid: uuid,
+                            patientUuid: uuid
                         });
                     }
                 });
             }
         } catch (err) {
             this.adminLogger.logError(`Error in getProaPatientRelatedPersons: ${err.message}`, {
-                stack: err.stack,
+                stack: err.stack
             });
 
             throw new RethrownError({
                 message: err.message,
-                error: err,
+                error: err
             });
         } finally {
             await session.endSession();
@@ -588,7 +588,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                             this.personDataMap.set(personData._uuid, {
                                 uuid: personData._uuid,
                                 sourceAssigningAuthority,
-                                lastUpdated: new Date(personData.meta.lastUpdated).toISOString(),
+                                lastUpdated: new Date(personData.meta.lastUpdated).toISOString()
                             });
 
                             if (!this.masterPersonToClientPersonMap.has(masterPersonUuid)) {
@@ -603,7 +603,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             this.adminLogger.logError(`Error in linkMasterPersonData: ${err.message}`, { stack: err.stack });
             throw new RethrownError({
                 message: err.message,
-                error: err,
+                error: err
             });
         }
     }
@@ -620,7 +620,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
         const { collection, db, client, session } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName: this.personCollectionName,
+            collectionName: this.personCollectionName
         });
 
         try {
@@ -628,20 +628,20 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 'meta.security': {
                     $elemMatch: {
                         system: SecurityTagSystem.sourceAssigningAuthority,
-                        code: 'bwell',
-                    },
+                        code: 'bwell'
+                    }
                 },
                 'link.target._uuid': {
-                    $in: Array.from(this.proaPersonToProaPatientMap.keys()).map((k) => `Person/${k}`),
-                },
+                    $in: Array.from(this.proaPersonToProaPatientMap.keys()).map((k) => `Person/${k}`)
+                }
             };
 
             const options = {
                 projection: {
                     _uuid: 1,
                     meta: 1,
-                    link: 1,
-                },
+                    link: 1
+                }
             };
 
             const cursor = collection.find(query, options);
@@ -660,7 +660,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 this.personDataMap.set(person._uuid, {
                     uuid: person._uuid,
                     sourceAssigningAuthority,
-                    lastUpdated: new Date(person.meta.lastUpdated).toISOString(),
+                    lastUpdated: new Date(person.meta.lastUpdated).toISOString()
                 });
 
                 for (const link of person.link) {
@@ -673,18 +673,18 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         masterPersonUuid: person._uuid,
                         otherUuid: uuid,
                         otherResourceType: resourceType,
-                        db,
+                        db
                     });
                 }
             }
         } catch (err) {
             this.adminLogger.logError(`Error in getMasterPersonFromProaPersons: ${err.message}`, {
-                stack: err.stack,
+                stack: err.stack
             });
 
             throw new RethrownError({
                 message: err.message,
-                error: err,
+                error: err
             });
         } finally {
             await session.endSession();
@@ -714,7 +714,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         .map(u => this.personDataMap.get(u)),
                     clientPersonsData: [],
                     proaPersonsData: [],
-                    message: 'Proa Patient directly linked to master person',
+                    message: 'Proa Patient directly linked to master person'
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
                 return;
@@ -762,7 +762,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     masterPersonsData: [],
                     clientPersonsData: [],
                     proaPersonsData,
-                    message: 'Proa Patient linked to multiple Proa Persons',
+                    message: 'Proa Patient linked to multiple Proa Persons'
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
                 return;
@@ -774,7 +774,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     masterPersonsData,
                     clientPersonsData,
                     proaPersonsData,
-                    message: 'Proa Person not linked to master person',
+                    message: 'Proa Person not linked to master person'
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
                 return;
@@ -819,7 +819,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPersonsData,
                     masterPersonsData,
                     clientPersonsData,
-                    message,
+                    message
                 });
 
                 this.proaPatientDataMap.delete(proaPatientUuid);
@@ -850,7 +850,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPersonsData,
                     masterPersonsData,
                     clientPersonsData,
-                    message,
+                    message
                 });
 
                 this.proaPatientDataMap.delete(proaPatientUuid);
@@ -872,7 +872,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPersonsData,
                     masterPersonsData,
                     clientPersonsData,
-                    message,
+                    message
                 });
 
                 this.proaPatientDataMap.delete(proaPatientUuid);
@@ -957,7 +957,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPersonsData: proaPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     masterPersonsData: masterPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
                     clientPersonsData: clientPersonUuids.map((uuid) => this.personDataMap.has(uuid) && this.personDataMap.get(uuid)),
-                    message,
+                    message
                 });
             } else if (this.proaPatientToClientPersonMap.has(proaPatientUuid)) {
                 if (this.skipAlreadyLinked) {
@@ -979,7 +979,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPersonsData: [],
                     masterPersonsData: [],
                     clientPersonsData,
-                    message,
+                    message
                 });
             } else {
                 this.writeData({
@@ -987,7 +987,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     proaPersonsData: [],
                     masterPersonsData: [],
                     clientPersonsData: [],
-                    message: 'Proa Patient not Linked to any person',
+                    message: 'Proa Patient not Linked to any person'
                 });
             }
         }

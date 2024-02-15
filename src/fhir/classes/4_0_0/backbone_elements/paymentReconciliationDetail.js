@@ -42,7 +42,7 @@ class PaymentReconciliationDetail extends Element {
             date,
             responsible,
             payee,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -339,7 +339,7 @@ class PaymentReconciliationDetail extends Element {
             date,
             responsible,
             payee,
-            amount,
+            amount
         });
 
     }
@@ -366,7 +366,7 @@ class PaymentReconciliationDetail extends Element {
             date: this.date,
             responsible: this.responsible && this.responsible.toJSON(),
             payee: this.payee && this.payee.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -408,7 +408,7 @@ class PaymentReconciliationDetail extends Element {
             date: this.date,
             responsible: this.responsible && this.responsible.toJSONInternal(),
             payee: this.payee && this.payee.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

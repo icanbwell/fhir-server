@@ -26,7 +26,7 @@ class ImmunizationPerformer extends Element {
             extension,
             modifierExtension,
             'function': function_,
-            actor,
+            actor
         }
     ) {
         super({});
@@ -157,7 +157,7 @@ class ImmunizationPerformer extends Element {
             extension,
             modifierExtension,
             'function': function_,
-            actor,
+            actor
         });
 
     }
@@ -176,7 +176,7 @@ class ImmunizationPerformer extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             function: this.function && this.function.toJSON(),
-            actor: this.actor && this.actor.toJSON(),
+            actor: this.actor && this.actor.toJSON()
         });
     }
 
@@ -203,7 +203,7 @@ class ImmunizationPerformer extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             function: this.function && this.function.toJSONInternal(),
-            actor: this.actor && this.actor.toJSONInternal(),
+            actor: this.actor && this.actor.toJSONInternal()
         };
 
 

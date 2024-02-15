@@ -28,7 +28,7 @@ class ElementDefinitionDiscriminator extends Element {
             extension,
             modifierExtension,
             type,
-            path,
+            path
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ElementDefinitionDiscriminator extends Element {
             extension,
             modifierExtension,
             type,
-            path,
+            path
         });
 
     }
@@ -175,7 +175,7 @@ class ElementDefinitionDiscriminator extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
-            path: this.path,
+            path: this.path
         });
     }
 
@@ -200,7 +200,7 @@ class ElementDefinitionDiscriminator extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
-            path: this.path,
+            path: this.path
         };
 
 

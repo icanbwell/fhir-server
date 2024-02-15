@@ -65,7 +65,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -571,7 +571,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -647,7 +647,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new RelatedPerson({
@@ -674,7 +674,7 @@ class RelatedPerson extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -715,7 +715,7 @@ class RelatedPerson extends Resource {
             address: this.address && this.address.map(v => v.toJSON()),
             photo: this.photo && this.photo.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
-            communication: this.communication && this.communication.map(v => v.toJSON()),
+            communication: this.communication && this.communication.map(v => v.toJSON())
         });
     }
 
@@ -768,7 +768,7 @@ class RelatedPerson extends Resource {
             address: this.address && this.address.map(v => v.toJSONInternal()),
             photo: this.photo && this.photo.map(v => v.toJSONInternal()),
             period: this.period && this.period.toJSONInternal(),
-            communication: this.communication && this.communication.map(v => v.toJSONInternal()),
+            communication: this.communication && this.communication.map(v => v.toJSONInternal())
         };
 
 

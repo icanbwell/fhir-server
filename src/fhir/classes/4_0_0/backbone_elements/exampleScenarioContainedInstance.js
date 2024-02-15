@@ -25,7 +25,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension,
             modifierExtension,
             resourceId,
-            versionId,
+            versionId
         }
     ) {
         super({});
@@ -151,7 +151,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension,
             modifierExtension,
             resourceId,
-            versionId,
+            versionId
         });
 
     }
@@ -170,7 +170,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             resourceId: this.resourceId,
-            versionId: this.versionId,
+            versionId: this.versionId
         });
     }
 
@@ -195,7 +195,7 @@ class ExampleScenarioContainedInstance extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             resourceId: this.resourceId,
-            versionId: this.versionId,
+            versionId: this.versionId
         };
 
 

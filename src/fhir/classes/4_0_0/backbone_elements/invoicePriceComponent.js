@@ -30,7 +30,7 @@ class InvoicePriceComponent extends Element {
             type,
             code,
             factor,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -200,7 +200,7 @@ class InvoicePriceComponent extends Element {
             type,
             code,
             factor,
-            amount,
+            amount
         });
 
     }
@@ -221,7 +221,7 @@ class InvoicePriceComponent extends Element {
             type: this.type,
             code: this.code && this.code.toJSON(),
             factor: this.factor,
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -250,7 +250,7 @@ class InvoicePriceComponent extends Element {
             type: this.type,
             code: this.code && this.code.toJSONInternal(),
             factor: this.factor,
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

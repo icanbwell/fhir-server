@@ -18,12 +18,12 @@ module.exports = {
     CoverageEligibilityRequestEnterer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageEligibilityRequestProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageEligibilityRequest: {
         // noinspection JSUnusedLocalSymbols
@@ -75,7 +75,7 @@ module.exports = {
                 context,
                 info,
                 parent.facility);
-        },
+        }
     }
 };
 

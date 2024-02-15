@@ -10,7 +10,7 @@ const {
     PERSON_PROXY_PREFIX,
     PERSON_REFERENCE_PREFIX,
     PATIENT_REFERENCE_PREFIX,
-    PROXY_PERSON_CONSENT_CODING,
+    PROXY_PERSON_CONSENT_CODING
 } = require('../../constants');
 const ConsentActor = require('../../fhir/classes/4_0_0/backbone_elements/consentActor');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -93,7 +93,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             },
             set(value) {
                 this.cache.set('consentToImmediatePersonCache', value);
-            },
+            }
         });
 
         Object.defineProperty(this, 'consentWithNoPerson', {
@@ -103,7 +103,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             },
             set(value) {
                 this.cache.set('consentWithNoPerson', value);
-            },
+            }
         });
 
         Object.defineProperty(this, 'consentToPatientWithMultiplePerson', {
@@ -113,7 +113,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             },
             set(value) {
                 this.cache.set('consentToPatientWithMultiplePerson', value);
-            },
+            }
         });
 
         /**@type {Map<string, { id: string; sourceAssigningAuthority: string}} */
@@ -142,7 +142,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             limit: this.limit,
             skip: this.skip,
             startFromId: this.startFromId,
-            mongoConfig,
+            mongoConfig
         });
 
         for (const collection of this.collections) {
@@ -150,7 +150,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             const startFromIdContainer = this.createStartFromIdContainer();
             const query = await this.getQueryForConsent({
                 startFromId: this.startFromId,
-                isHistoryCollection,
+                isHistoryCollection
             });
 
             try {
@@ -161,7 +161,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 );
                 const filterToIds = isHistoryCollection ? await this.getUuidsForMainResourceAsync({
                           collectionName: collection.replace('_History', ''),
-                          mongoConfig,
+                          mongoConfig
                       })
                     : undefined;
 
@@ -180,7 +180,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     skip: !isHistoryCollection ? this.skip : undefined,
                     filterToIds,
                     filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
-                    useEstimatedCount: true,
+                    useEstimatedCount: true
                 });
             } catch (error) {
                 this.adminLogger.logError(
@@ -190,22 +190,22 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     message: `Error processing ids of collection ${collection} ${error.message}`,
                     error,
                     args: {
-                        query,
+                        query
                     },
-                    source: 'AddProxyPatientToConsentResourceRunner.processAsync',
+                    source: 'AddProxyPatientToConsentResourceRunner.processAsync'
                 });
             } finally {
                 this.adminLogger.logInfo(
                     `Consent Resources without Person: ${this.consentWithNoPerson.size}`,
                     {
-                        consentWithNoPerson: Object.fromEntries(this.consentWithNoPerson),
+                        consentWithNoPerson: Object.fromEntries(this.consentWithNoPerson)
                     }
                 );
 
                 this.adminLogger.logInfo(
                     `Consent Resources with patient linked to multiple person: ${this.consentToPatientWithMultiplePerson.size}`,
                     {
-                        consentToPatientWithMultiplePerson: Object.fromEntries(this.consentToPatientWithMultiplePerson),
+                        consentToPatientWithMultiplePerson: Object.fromEntries(this.consentToPatientWithMultiplePerson)
                     }
                 );
             }
@@ -252,7 +252,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         const operation = {
-            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal },
+            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal }
         };
         operations.push(operation);
         return operations;
@@ -335,7 +335,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             if (wrongPersonActor) {
                 wrongPersonActor.reference = {
                     reference: proxyPatientReference,
-                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority,
+                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority
                 };
                  // call the presave
                  resource = await this.preSaveManager.preSaveAsync(resource);
@@ -348,14 +348,14 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     coding: [
                         {
                             system: PROXY_PERSON_CONSENT_CODING.SYSTEM,
-                            code: PROXY_PERSON_CONSENT_CODING.CODE,
-                        },
-                    ],
+                            code: PROXY_PERSON_CONSENT_CODING.CODE
+                        }
+                    ]
                 },
                 reference: {
                     reference: proxyPatientReference,
-                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority,
-                },
+                    _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority
+                }
             });
 
             provisionActor.push(actor);
@@ -382,14 +382,14 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          * @type {Object}
          */
         const projection = {
-            _uuid: 1,
+            _uuid: 1
         };
         /**
          * @type {require('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -398,7 +398,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
              */
             const query = await this.getQueryForConsent({
                 isHistoryCollection: false,
-                startFromId: this.startFromId,
+                startFromId: this.startFromId
             });
 
             this.adminLogger.logInfo(
@@ -430,7 +430,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error fetching uuids for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'AddProxyPatientToConsentResourceRunner.getUuidsForMainResource',
+                source: 'AddProxyPatientToConsentResourceRunner.getUuidsForMainResource'
             });
         } finally {
             await session.endSession();
@@ -449,19 +449,19 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             _id: 1,
             _sourceId: 1,
             _uuid: 1,
-            patient: 1,
+            patient: 1
         };
 
         const query = await this.getQueryForConsent({ startFromId });
         this.adminLogger.logInfo('Starting caching of consent id to bwellPerson map', {
             query,
             limit,
-            skip,
+            skip
         });
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         /**
@@ -477,7 +477,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             const cursor = await collection
                 .find(query, {
                     projection,
-                    session,
+                    session
                 })
                 .sort({ _id: 1 });
 
@@ -499,10 +499,10 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                         // we don't need sourceAssigningAuthority as we are searching on basis of uuid
                         patientReferences.push({
                             id,
-                            resourceType: resourceType || 'Patient',
+                            resourceType: resourceType || 'Patient'
                         });
                         consentToPatientRefMap.set(consentUuid, patientUuidRef);
-                    },
+                    }
                 });
             }
 
@@ -521,7 +521,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logger.warn(`Multiple persons linked with patient '${patientReference}'`, {
                             consentId,
                             patientReference,
-                            immediatePersons,
+                            immediatePersons
                         });
                         this.consentToPatientWithMultiplePerson.set(consentId, patientReference);
                     } else {
@@ -532,7 +532,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                         `No Person found for consentId '${consentId}' and patientReference: '${patientReference}'.`,
                         {
                             consentId,
-                            patientReference,
+                            patientReference
                         }
                     );
                 }
@@ -547,7 +547,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error caching references for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'AddProxyPatientToConsentResourceRunner.cacheConsentToBwellPersonUuidRef',
+                source: 'AddProxyPatientToConsentResourceRunner.cacheConsentToBwellPersonUuidRef'
             });
         } finally {
             await session.endSession();
@@ -598,20 +598,20 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             query.$and.push({
                 [`${prefix}meta.lastUpdated`]: {
                     $lt: this.beforeLastUpdatedDate,
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
                 [`${prefix}meta.lastUpdated`]: {
-                    $lt: this.beforeLastUpdatedDate,
-                },
+                    $lt: this.beforeLastUpdatedDate
+                }
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
                 [`${prefix}meta.lastUpdated`]: {
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         }
 
@@ -620,8 +620,8 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 : startFromId;
             query.$and.push({
                 _id: {
-                    $gte: startId,
-                },
+                    $gte: startId
+                }
             });
         }
         return query;

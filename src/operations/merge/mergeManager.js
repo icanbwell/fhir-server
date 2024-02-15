@@ -144,7 +144,7 @@ class MergeManager {
             resourceToMerge,
             currentResource,
             currentDate,
-            requestId,
+            requestId
         }) {
         /**
          * @type {string}
@@ -200,7 +200,7 @@ class MergeManager {
         {
             requestId,
             resourceToMerge,
-            user,
+            user
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -370,7 +370,7 @@ class MergeManager {
                         updated: false,
                         issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
                         operationOutcome
-                    },
+                    }
                 }
             );
         }
@@ -428,12 +428,12 @@ class MergeManager {
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
                     resourceToMerge: x, resourceType,
-                    user, currentDate, requestId, base_version, scope,
+                    user, currentDate, requestId, base_version, scope
                 });
 
             await Promise.all([
                 async.mapLimit(non_duplicate_uuid_resources, chunkSize, mergeResourceFn), // run chunks in parallel
-                async.mapSeries(duplicate_uuid_resources, mergeResourceFn), // run in series
+                async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
             ]);
         } catch (e) {
             throw new RethrownError({
@@ -870,7 +870,7 @@ class MergeManager {
                                     resourceType,
                                     operation: 'create',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: createdItems.map((r) => r.id),
+                                    ids: createdItems.map((r) => r.id)
                                 });
                             }
                             if (updatedItems && updatedItems.length > 0) {
@@ -880,12 +880,12 @@ class MergeManager {
                                     resourceType,
                                     operation: 'update',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: updatedItems.map((r) => r.id),
+                                    ids: updatedItems.map((r) => r.id)
                                 });
                             }
                         }
                     }
-                },
+                }
             });
         } catch (e) {
             throw new RethrownError({

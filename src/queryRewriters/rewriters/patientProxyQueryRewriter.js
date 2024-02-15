@@ -21,7 +21,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     constructor(
         {
             personToPatientIdsExpander,
-            configManager,
+            configManager
         }
     ) {
         super();
@@ -79,7 +79,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         base_version,
                         ids: queryParametersWithProxyPatientIds,
                         includePatientPrefix,
-                        toMap: true,
+                        toMap: true
                     }
                 );
 
@@ -144,7 +144,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                             parsedArg,
                             base_version,
                             includePatientPrefix: true,
-                            cachePatientToPersonMap,
+                            cachePatientToPersonMap
                         });
                     }
                     return parsedArg;

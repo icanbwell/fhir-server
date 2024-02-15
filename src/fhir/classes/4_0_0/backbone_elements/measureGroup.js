@@ -29,7 +29,7 @@ class MeasureGroup extends Element {
             code,
             description,
             population,
-            stratifier,
+            stratifier
         }
     ) {
         super({});
@@ -203,7 +203,7 @@ class MeasureGroup extends Element {
             code,
             description,
             population,
-            stratifier,
+            stratifier
         });
 
     }
@@ -224,7 +224,7 @@ class MeasureGroup extends Element {
             code: this.code && this.code.toJSON(),
             description: this.description,
             population: this.population && this.population.map(v => v.toJSON()),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON())
         });
     }
 
@@ -254,7 +254,7 @@ class MeasureGroup extends Element {
             code: this.code && this.code.toJSONInternal(),
             description: this.description,
             population: this.population && this.population.map(v => v.toJSONInternal()),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal())
         };
 
 

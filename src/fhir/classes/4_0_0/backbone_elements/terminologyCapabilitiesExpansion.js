@@ -33,7 +33,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging,
             incomplete,
             parameter,
-            textFilter,
+            textFilter
         }
     ) {
         super({});
@@ -218,7 +218,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging,
             incomplete,
             parameter,
-            textFilter,
+            textFilter
         });
 
     }
@@ -240,7 +240,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging: this.paging,
             incomplete: this.incomplete,
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            textFilter: this.textFilter,
+            textFilter: this.textFilter
         });
     }
 
@@ -269,7 +269,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             paging: this.paging,
             incomplete: this.incomplete,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            textFilter: this.textFilter,
+            textFilter: this.textFilter
         };
 
 

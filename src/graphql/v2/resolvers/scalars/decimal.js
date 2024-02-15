@@ -14,9 +14,9 @@ const decimalScalar = new GraphQLScalarType({
             return ast.value;
         }
         return null;
-    },
+    }
 });
 
 module.exports = {
-    decimal: decimalScalar,
+    decimal: decimalScalar
 };

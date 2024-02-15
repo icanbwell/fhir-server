@@ -454,7 +454,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                '_id:not': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                '_id:not': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -486,7 +486,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                '_security:not': 'https://www.icanbwell.com/access|bwell',
+                '_security:not': 'https://www.icanbwell.com/access|bwell'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -521,7 +521,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                '_security:not': 'https://www.icanbwell.com/access|bwell',
+                '_security:not': 'https://www.icanbwell.com/access|bwell'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -556,7 +556,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'identifier:contains': '465',
+                'identifier:contains': '465'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -593,7 +593,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'identifier:contains': '465,789',
+                'identifier:contains': '465,789'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -640,7 +640,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'identifier:contains': 'foo|465',
+                'identifier:contains': 'foo|465'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -685,7 +685,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'given:contains': 'foo',
+                'given:contains': 'foo'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -722,7 +722,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'gender:contains': 'foo',
+                'gender:contains': 'foo'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -759,7 +759,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'depends-on': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
+                'depends-on': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Measure',
@@ -801,7 +801,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'date': '2019-10-16T22:12:29',
+                'date': '2019-10-16T22:12:29'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Observation',
@@ -877,7 +877,7 @@ describe('r4 search Tests', () => {
 
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'date': '2019-10-16T22:12:29.000Z',
+                'date': '2019-10-16T22:12:29.000Z'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Observation',

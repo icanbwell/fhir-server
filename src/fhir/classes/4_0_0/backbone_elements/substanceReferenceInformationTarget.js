@@ -41,7 +41,7 @@ class SubstanceReferenceInformationTarget extends Element {
             amountRange,
             amountString,
             amountType,
-            source,
+            source
         }
     ) {
         super({});
@@ -337,7 +337,7 @@ class SubstanceReferenceInformationTarget extends Element {
             amountRange,
             amountString,
             amountType,
-            source,
+            source
         });
 
     }
@@ -364,7 +364,7 @@ class SubstanceReferenceInformationTarget extends Element {
             amountRange: this.amountRange && this.amountRange.toJSON(),
             amountString: this.amountString,
             amountType: this.amountType && this.amountType.toJSON(),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -406,7 +406,7 @@ class SubstanceReferenceInformationTarget extends Element {
             amountRange: this.amountRange && this.amountRange.toJSONInternal(),
             amountString: this.amountString,
             amountType: this.amountType && this.amountType.toJSONInternal(),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

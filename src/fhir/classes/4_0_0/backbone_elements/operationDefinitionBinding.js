@@ -26,7 +26,7 @@ class OperationDefinitionBinding extends Element {
             extension,
             modifierExtension,
             strength,
-            valueSet,
+            valueSet
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class OperationDefinitionBinding extends Element {
             extension,
             modifierExtension,
             strength,
-            valueSet,
+            valueSet
         });
 
     }
@@ -174,7 +174,7 @@ class OperationDefinitionBinding extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             strength: this.strength,
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         });
     }
 
@@ -199,7 +199,7 @@ class OperationDefinitionBinding extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             strength: this.strength,
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         };
 
 

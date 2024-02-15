@@ -44,7 +44,7 @@ class SubstanceSpecificationName extends Element {
             synonym,
             translation,
             official,
-            source,
+            source
         }
     ) {
         super({});
@@ -358,7 +358,7 @@ class SubstanceSpecificationName extends Element {
             synonym,
             translation,
             official,
-            source,
+            source
         });
 
     }
@@ -386,7 +386,7 @@ class SubstanceSpecificationName extends Element {
             synonym: this.synonym && this.synonym.map(v => v.toJSON()),
             translation: this.translation && this.translation.map(v => v.toJSON()),
             official: this.official && this.official.map(v => v.toJSON()),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -429,7 +429,7 @@ class SubstanceSpecificationName extends Element {
             synonym: this.synonym && this.synonym.map(v => v.toJSONInternal()),
             translation: this.translation && this.translation.map(v => v.toJSONInternal()),
             official: this.official && this.official.map(v => v.toJSONInternal()),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

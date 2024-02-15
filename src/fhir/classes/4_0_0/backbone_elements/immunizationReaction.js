@@ -28,7 +28,7 @@ class ImmunizationReaction extends Element {
             modifierExtension,
             date,
             detail,
-            reported,
+            reported
         }
     ) {
         super({});
@@ -175,7 +175,7 @@ class ImmunizationReaction extends Element {
             modifierExtension,
             date,
             detail,
-            reported,
+            reported
         });
 
     }
@@ -195,7 +195,7 @@ class ImmunizationReaction extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             date: this.date,
             detail: this.detail && this.detail.toJSON(),
-            reported: this.reported,
+            reported: this.reported
         });
     }
 
@@ -222,7 +222,7 @@ class ImmunizationReaction extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             date: this.date,
             detail: this.detail && this.detail.toJSONInternal(),
-            reported: this.reported,
+            reported: this.reported
         };
 
 

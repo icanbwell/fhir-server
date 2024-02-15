@@ -35,7 +35,7 @@ class ClaimDiagnosis extends Element {
             diagnosisReference,
             type,
             onAdmission,
-            packageCode,
+            packageCode
         }
     ) {
         super({});
@@ -249,7 +249,7 @@ class ClaimDiagnosis extends Element {
             diagnosisReference,
             type,
             onAdmission,
-            packageCode,
+            packageCode
         });
 
     }
@@ -272,7 +272,7 @@ class ClaimDiagnosis extends Element {
             diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSON(),
             type: this.type && this.type.map(v => v.toJSON()),
             onAdmission: this.onAdmission && this.onAdmission.toJSON(),
-            packageCode: this.packageCode && this.packageCode.toJSON(),
+            packageCode: this.packageCode && this.packageCode.toJSON()
         });
     }
 
@@ -306,7 +306,7 @@ class ClaimDiagnosis extends Element {
             diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSONInternal(),
             type: this.type && this.type.map(v => v.toJSONInternal()),
             onAdmission: this.onAdmission && this.onAdmission.toJSONInternal(),
-            packageCode: this.packageCode && this.packageCode.toJSONInternal(),
+            packageCode: this.packageCode && this.packageCode.toJSONInternal()
         };
 
 

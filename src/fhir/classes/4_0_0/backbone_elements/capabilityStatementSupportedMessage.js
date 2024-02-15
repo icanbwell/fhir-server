@@ -28,7 +28,7 @@ class CapabilityStatementSupportedMessage extends Element {
             extension,
             modifierExtension,
             mode,
-            definition,
+            definition
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class CapabilityStatementSupportedMessage extends Element {
             extension,
             modifierExtension,
             mode,
-            definition,
+            definition
         });
 
     }
@@ -175,7 +175,7 @@ class CapabilityStatementSupportedMessage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             mode: this.mode,
-            definition: this.definition,
+            definition: this.definition
         });
     }
 
@@ -200,7 +200,7 @@ class CapabilityStatementSupportedMessage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             mode: this.mode,
-            definition: this.definition,
+            definition: this.definition
         };
 
 

@@ -6,12 +6,12 @@ module.exports = {
     DocumentReferenceContextEncounter: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DocumentReferenceContextRelatedV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DocumentReferenceContext: {
         // noinspection JSUnusedLocalSymbols
@@ -53,7 +53,7 @@ module.exports = {
                 context,
                 info,
                 parent.related);
-        },
+        }
     }
 };
 

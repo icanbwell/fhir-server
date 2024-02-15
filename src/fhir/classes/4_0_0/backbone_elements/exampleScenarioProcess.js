@@ -31,7 +31,7 @@ class ExampleScenarioProcess extends Element {
             description,
             preConditions,
             postConditions,
-            step,
+            step
         }
     ) {
         super({});
@@ -216,7 +216,7 @@ class ExampleScenarioProcess extends Element {
             description,
             preConditions,
             postConditions,
-            step,
+            step
         });
 
     }
@@ -238,7 +238,7 @@ class ExampleScenarioProcess extends Element {
             description: this.description,
             preConditions: this.preConditions,
             postConditions: this.postConditions,
-            step: this.step && this.step.map(v => v.toJSON()),
+            step: this.step && this.step.map(v => v.toJSON())
         });
     }
 
@@ -267,7 +267,7 @@ class ExampleScenarioProcess extends Element {
             description: this.description,
             preConditions: this.preConditions,
             postConditions: this.postConditions,
-            step: this.step && this.step.map(v => v.toJSONInternal()),
+            step: this.step && this.step.map(v => v.toJSONInternal())
         };
 
 

@@ -33,7 +33,7 @@ class MessageHeaderDestination extends Element {
             name,
             target,
             endpoint,
-            receiver,
+            receiver
         }
     ) {
         super({});
@@ -203,7 +203,7 @@ class MessageHeaderDestination extends Element {
             name,
             target,
             endpoint,
-            receiver,
+            receiver
         });
 
     }
@@ -224,7 +224,7 @@ class MessageHeaderDestination extends Element {
             name: this.name,
             target: this.target && this.target.toJSON(),
             endpoint: this.endpoint,
-            receiver: this.receiver && this.receiver.toJSON(),
+            receiver: this.receiver && this.receiver.toJSON()
         });
     }
 
@@ -253,7 +253,7 @@ class MessageHeaderDestination extends Element {
             name: this.name,
             target: this.target && this.target.toJSONInternal(),
             endpoint: this.endpoint,
-            receiver: this.receiver && this.receiver.toJSONInternal(),
+            receiver: this.receiver && this.receiver.toJSONInternal()
         };
 
 

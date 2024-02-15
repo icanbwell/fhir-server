@@ -31,7 +31,7 @@ class ClaimAccident extends Element {
             date,
             type,
             locationAddress,
-            locationReference,
+            locationReference
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class ClaimAccident extends Element {
             date,
             type,
             locationAddress,
-            locationReference,
+            locationReference
         });
 
     }
@@ -225,7 +225,7 @@ class ClaimAccident extends Element {
             date: this.date,
             type: this.type && this.type.toJSON(),
             locationAddress: this.locationAddress && this.locationAddress.toJSON(),
-            locationReference: this.locationReference && this.locationReference.toJSON(),
+            locationReference: this.locationReference && this.locationReference.toJSON()
         });
     }
 
@@ -255,7 +255,7 @@ class ClaimAccident extends Element {
             date: this.date,
             type: this.type && this.type.toJSONInternal(),
             locationAddress: this.locationAddress && this.locationAddress.toJSONInternal(),
-            locationReference: this.locationReference && this.locationReference.toJSONInternal(),
+            locationReference: this.locationReference && this.locationReference.toJSONInternal()
         };
 
 

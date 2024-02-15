@@ -35,7 +35,7 @@ class HumanName extends Element {
             given,
             prefix,
             suffix,
-            period,
+            period
         }
     ) {
         super({});
@@ -229,7 +229,7 @@ class HumanName extends Element {
             given,
             prefix,
             suffix,
-            period,
+            period
         });
 
     }
@@ -252,7 +252,7 @@ class HumanName extends Element {
             given: this.given,
             prefix: this.prefix,
             suffix: this.suffix,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -281,7 +281,7 @@ class HumanName extends Element {
             given: this.given,
             prefix: this.prefix,
             suffix: this.suffix,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

@@ -171,7 +171,7 @@ class PersonMatchManager {
             'parameter': [
                 {
                     'name': 'resource',
-                    'resource': source[0].toJSON(),
+                    'resource': source[0].toJSON()
                 },
                 {
                     'name': 'match',
@@ -185,7 +185,7 @@ class PersonMatchManager {
         // post to $match service
         const header = {
             'Content-Type': 'application/json',
-            Accept: 'application/json',
+            Accept: 'application/json'
         };
         logInfo(`Calling ${url} with body`, {'body': parameters});
         try {
@@ -208,7 +208,7 @@ class PersonMatchManager {
                         new OperationOutcomeIssue({
                                 severity: 'error',
                                 code: 'timeout',
-                                diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source[0]}, target: ${target[0]}`,
+                                diagnostics: `Request timeout out while sending request to personMatchingService for source: ${source[0]}, target: ${target[0]}`
                             }
                         )
                     ]

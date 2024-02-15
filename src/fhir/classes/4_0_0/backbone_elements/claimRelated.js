@@ -29,7 +29,7 @@ class ClaimRelated extends Element {
             modifierExtension,
             claim,
             relationship,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ClaimRelated extends Element {
             modifierExtension,
             claim,
             relationship,
-            reference,
+            reference
         });
 
     }
@@ -201,7 +201,7 @@ class ClaimRelated extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             claim: this.claim && this.claim.toJSON(),
             relationship: this.relationship && this.relationship.toJSON(),
-            reference: this.reference && this.reference.toJSON(),
+            reference: this.reference && this.reference.toJSON()
         });
     }
 
@@ -230,7 +230,7 @@ class ClaimRelated extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             claim: this.claim && this.claim.toJSONInternal(),
             relationship: this.relationship && this.relationship.toJSONInternal(),
-            reference: this.reference && this.reference.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal()
         };
 
 

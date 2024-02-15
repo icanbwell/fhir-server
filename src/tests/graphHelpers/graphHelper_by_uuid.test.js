@@ -107,13 +107,13 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
@@ -162,21 +162,21 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid2,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             id: uuid2,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
@@ -201,7 +201,7 @@ describe('graphHelper Tests', () => {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
-                },
+                }
             });
 
             const cursor = await collection.find({
@@ -218,7 +218,7 @@ describe('graphHelper Tests', () => {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
-                },
+                }
             });
 
             resourceType = 'Practitioner';
@@ -247,8 +247,8 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid10,
@@ -256,15 +256,15 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid10,
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
-                    },
+                            resourceType: 'PractitionerRole'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
@@ -289,7 +289,7 @@ describe('graphHelper Tests', () => {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
-                },
+                }
             });
 
             resourceType = 'Practitioner';
@@ -318,8 +318,8 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid10,
@@ -327,15 +327,15 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid10,
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
-                    },
+                            resourceType: 'PractitionerRole'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
@@ -360,7 +360,7 @@ describe('graphHelper Tests', () => {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
-                },
+                }
             });
 
             resourceType = 'Practitioner';
@@ -392,19 +392,19 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid10,
                                     practitioner: {
-                                        reference: `Practitioner/${uuid1}`,
+                                        reference: `Practitioner/${uuid1}`
                                     },
-                                    resourceType: 'PractitionerRole',
-                                },
+                                    resourceType: 'PractitionerRole'
+                                }
                             ],
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
@@ -429,7 +429,7 @@ describe('graphHelper Tests', () => {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
-                },
+                }
             });
 
             resourceType = 'Practitioner';
@@ -462,19 +462,19 @@ describe('graphHelper Tests', () => {
 
                                     id: uuid10,
                                     practitioner: {
-                                        reference: `Practitioner/${uuid1}`,
+                                        reference: `Practitioner/${uuid1}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 }
                             ],
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
@@ -503,7 +503,7 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _uuid: `Organization/${uuid100}`
-                },
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -543,26 +543,26 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid10,
                             organization: {
-                                reference: `Organization/${uuid100}`,
+                                reference: `Organization/${uuid100}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuid100,
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
-                            resourceType: 'Organization',
-                        },
-                    },
+                            resourceType: 'Organization'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
@@ -586,7 +586,7 @@ describe('graphHelper Tests', () => {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
-                },
+                }
             });
 
             resourceType = 'Practitioner';
@@ -618,19 +618,19 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid10,
                                     practitioner: {
-                                        reference: `Practitioner/#${uuid1}`,
+                                        reference: `Practitioner/#${uuid1}`
                                     },
-                                    resourceType: 'PractitionerRole',
-                                },
+                                    resourceType: 'PractitionerRole'
+                                }
                             ],
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
@@ -660,8 +660,8 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
-                },
+                    _uuid: `Organization/${uuid100}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -700,8 +700,8 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid10,
@@ -709,26 +709,26 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid10,
                             organization: {
-                                reference: `Organization/${uuid100}`,
+                                reference: `Organization/${uuid100}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuid100,
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
-                            resourceType: 'Organization',
-                        },
-                    },
+                            resourceType: 'Organization'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
@@ -768,8 +768,8 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
-                },
+                    _uuid: `Organization/${uuid100}`
+                }
             });
             await collection.insertOne({
                 id: '20',
@@ -779,13 +779,13 @@ describe('graphHelper Tests', () => {
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
-                    _uuid: `Practitioner/${uuid2}`,
+                    _uuid: `Practitioner/${uuid2}`
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
-                    _uuid: `Organization/${uuid200}`,
-                },
+                    _uuid: `Organization/${uuid200}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -830,16 +830,16 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid2,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             id: uuid2,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid10,
@@ -847,21 +847,21 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid10,
                             organization: {
-                                reference: `Organization/${uuid100}`,
+                                reference: `Organization/${uuid100}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuid100,
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
-                            resourceType: 'Organization',
-                        },
+                            resourceType: 'Organization'
+                        }
                     },
                     {
                         id: uuid20,
@@ -869,26 +869,26 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid20,
                             organization: {
-                                reference: `Organization/${uuid200}`,
+                                reference: `Organization/${uuid200}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid2}`,
+                                reference: `Practitioner/${uuid2}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuid200,
                         fullUrl: `https://host/4_0_0/Organization/${uuid200}`,
                         resource: {
                             id: uuid200,
-                            resourceType: 'Organization',
-                        },
-                    },
+                            resourceType: 'Organization'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
@@ -928,8 +928,8 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
-                },
+                    _uuid: `Organization/${uuid100}`
+                }
             });
             await collection.insertOne({
                 id: '20',
@@ -939,13 +939,13 @@ describe('graphHelper Tests', () => {
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
-                    _uuid: `Practitioner/${uuid2}`,
+                    _uuid: `Practitioner/${uuid2}`
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
-                    _uuid: `Organization/${uuid200}`,
-                },
+                    _uuid: `Organization/${uuid200}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -994,21 +994,21 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid10,
                                     organization: {
-                                        reference: `Organization/${uuid100}`,
+                                        reference: `Organization/${uuid100}`
                                     },
                                     practitioner: {
-                                        reference: `Practitioner/${uuid1}`,
+                                        reference: `Practitioner/${uuid1}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid100,
-                                    resourceType: 'Organization',
-                                },
+                                    resourceType: 'Organization'
+                                }
                             ],
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid2,
@@ -1018,26 +1018,26 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid20,
                                     organization: {
-                                        reference: `Organization/${uuid200}`,
+                                        reference: `Organization/${uuid200}`
                                     },
                                     practitioner: {
-                                        reference: `Practitioner/${uuid2}`,
+                                        reference: `Practitioner/${uuid2}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid200,
-                                    resourceType: 'Organization',
-                                },
+                                    resourceType: 'Organization'
+                                }
                             ],
                             id: uuid2,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
@@ -1060,10 +1060,10 @@ describe('graphHelper Tests', () => {
                 _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: `Practitioner/${uuid1}`,
+                    reference: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: `Organization/${uuid100}`,
+                    reference: `Organization/${uuid100}`
                 },
                 extension: [
                     {
@@ -1071,14 +1071,14 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://clienthealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP'
                             },
                             {
                                 url: 'availability_score',
-                                valueDecimal: 0.1234567890123,
-                            },
+                                valueDecimal: 0.1234567890123
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                     },
                     {
                         extension: [
@@ -1088,12 +1088,12 @@ describe('graphHelper Tests', () => {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     _uuid: `InsurancePlan/${uuidAetna}`
-                                },
-                            },
+                                }
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                    },
-                ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                    }
+                ]
             });
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
@@ -1102,7 +1102,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType,
+                resourceType: resourceType
             });
 
             resourceType = 'PractitionerRole';
@@ -1135,15 +1135,15 @@ describe('graphHelper Tests', () => {
                                     extension: [
                                         {
                                             url: 'for_system',
-                                            valueUri: 'http://clienthealth.org/IDHP',
+                                            valueUri: 'http://clienthealth.org/IDHP'
                                         },
                                         {
                                             url: 'availability_score',
-                                            valueDecimal: 0.1234567890123,
-                                        },
+                                            valueDecimal: 0.1234567890123
+                                        }
                                     ],
                                     id: 'IDHP',
-                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                                 },
                                 {
                                     extension: [
@@ -1151,22 +1151,22 @@ describe('graphHelper Tests', () => {
                                             url: 'plan',
                                             valueReference: {
                                                 reference:
-                                                    `InsurancePlan/${uuidAetna}`,
-                                            },
-                                        },
+                                                    `InsurancePlan/${uuidAetna}`
+                                            }
+                                        }
                                     ],
-                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                                },
+                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                }
                             ],
                             id: uuid10,
                             organization: {
-                                reference: `Organization/${uuid100}`,
+                                reference: `Organization/${uuid100}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuidAetna,
@@ -1174,13 +1174,13 @@ describe('graphHelper Tests', () => {
                             `https://host/4_0_0/InsurancePlan/${uuidAetna}`,
                         resource: {
                             id: uuidAetna,
-                            resourceType: 'InsurancePlan',
-                        },
-                    },
+                            resourceType: 'InsurancePlan'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
@@ -1208,10 +1208,10 @@ describe('graphHelper Tests', () => {
                             valueReference: {
                                 reference: 'InsurancePlan/2000',
                                 _uuid: `InsurancePlan/${uuid2000}`
-                            },
-                        },
-                    },
-                ],
+                            }
+                        }
+                    }
+                ]
             });
 
             // add a PractitionerRole
@@ -1230,7 +1230,7 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`
                 },
                 extension: [
                     {
@@ -1238,14 +1238,14 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://clienthealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP'
                             },
                             {
                                 url: 'availability_score',
-                                valueDecimal: 0.1234567890123,
-                            },
+                                valueDecimal: 0.1234567890123
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                     },
                     {
                         extension: [
@@ -1255,12 +1255,12 @@ describe('graphHelper Tests', () => {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     _uuid: `InsurancePlan/${uuidAetna}`
-                                },
-                            },
+                                }
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                    },
-                ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                    }
+                ]
             });
             await collection.insertOne({
                 id: '20',
@@ -1270,13 +1270,13 @@ describe('graphHelper Tests', () => {
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
-                    _uuid: `Practitioner/${uuid2}`,
+                    _uuid: `Practitioner/${uuid2}`
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
-                    _uuid: `Organization/${uuid200}`,
-                },
+                    _uuid: `Organization/${uuid200}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -1303,7 +1303,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType,
+                resourceType: resourceType
             });
 
             resourceType = 'Practitioner';
@@ -1332,8 +1332,8 @@ describe('graphHelper Tests', () => {
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid2,
@@ -1345,15 +1345,15 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
-                                                reference: `InsurancePlan/${uuid2000}`,
-                                            },
-                                        },
-                                    ],
-                                },
+                                                reference: `InsurancePlan/${uuid2000}`
+                                            }
+                                        }
+                                    ]
+                                }
                             ],
                             id: uuid2,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid10,
@@ -1364,37 +1364,37 @@ describe('graphHelper Tests', () => {
                                     extension: [
                                         {
                                             url: 'for_system',
-                                            valueUri: 'http://clienthealth.org/IDHP',
+                                            valueUri: 'http://clienthealth.org/IDHP'
                                         },
                                         {
                                             url: 'availability_score',
-                                            valueDecimal: 0.1234567890123,
-                                        },
+                                            valueDecimal: 0.1234567890123
+                                        }
                                     ],
                                     id: 'IDHP',
-                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                                 },
                                 {
                                     extension: [
                                         {
                                             url: 'plan',
                                             valueReference: {
-                                                reference: `InsurancePlan/${uuidAetna}`,
-                                            },
-                                        },
+                                                reference: `InsurancePlan/${uuidAetna}`
+                                            }
+                                        }
                                     ],
-                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                                },
+                                    url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                }
                             ],
                             id: uuid10,
                             organization: {
-                                reference: `Organization/${uuid100}`,
+                                reference: `Organization/${uuid100}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid1}`,
+                                reference: `Practitioner/${uuid1}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuidAetna,
@@ -1402,16 +1402,16 @@ describe('graphHelper Tests', () => {
                             `https://host/4_0_0/InsurancePlan/${uuidAetna}`,
                         resource: {
                             id: uuidAetna,
-                            resourceType: 'InsurancePlan',
-                        },
+                            resourceType: 'InsurancePlan'
+                        }
                     },
                     {
                         id: uuid100,
                         fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
                             id: uuid100,
-                            resourceType: 'Organization',
-                        },
+                            resourceType: 'Organization'
+                        }
                     },
                     {
                         id: uuid20,
@@ -1419,26 +1419,26 @@ describe('graphHelper Tests', () => {
                         resource: {
                             id: uuid20,
                             organization: {
-                                reference: `Organization/${uuid200}`,
+                                reference: `Organization/${uuid200}`
                             },
                             practitioner: {
-                                reference: `Practitioner/${uuid2}`,
+                                reference: `Practitioner/${uuid2}`
                             },
-                            resourceType: 'PractitionerRole',
-                        },
+                            resourceType: 'PractitionerRole'
+                        }
                     },
                     {
                         id: uuid200,
                         fullUrl: `https://host/4_0_0/Organization/${uuid200}`,
                         resource: {
                             id: uuid200,
-                            resourceType: 'Organization',
-                        },
-                    },
+                            resourceType: 'Organization'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
@@ -1464,11 +1464,11 @@ describe('graphHelper Tests', () => {
                         extension: {
                             url: 'plan',
                             valueReference: {
-                                reference: 'InsurancePlan/2000',
-                            },
-                        },
-                    },
-                ],
+                                reference: 'InsurancePlan/2000'
+                            }
+                        }
+                    }
+                ]
             });
 
             // add a PractitionerRole
@@ -1487,7 +1487,7 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`
                 },
                 extension: [
                     {
@@ -1495,14 +1495,14 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://clienthealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP'
                             },
                             {
                                 url: 'availability_score',
-                                valueDecimal: 0.1234567890123,
-                            },
+                                valueDecimal: 0.1234567890123
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                     },
                     {
                         extension: [
@@ -1512,12 +1512,12 @@ describe('graphHelper Tests', () => {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     _uuid: `InsurancePlan/${uuidAetna}`
-                                },
-                            },
+                                }
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                    },
-                ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                    }
+                ]
             });
             await collection.insertOne({
                 id: '20',
@@ -1527,13 +1527,13 @@ describe('graphHelper Tests', () => {
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
-                    _uuid: `Practitioner/${uuid2}`,
+                    _uuid: `Practitioner/${uuid2}`
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
-                    _uuid: `Organization/${uuid200}`,
-                },
+                    _uuid: `Organization/${uuid200}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -1560,7 +1560,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType,
+                resourceType: resourceType
             });
             resourceType = 'Practitioner';
             /**
@@ -1594,49 +1594,49 @@ describe('graphHelper Tests', () => {
                                             extension: [
                                                 {
                                                     url: 'for_system',
-                                                    valueUri: 'http://clienthealth.org/IDHP',
+                                                    valueUri: 'http://clienthealth.org/IDHP'
                                                 },
                                                 {
                                                     url: 'availability_score',
-                                                    valueDecimal: 0.1234567890123,
-                                                },
+                                                    valueDecimal: 0.1234567890123
+                                                }
                                             ],
                                             id: 'IDHP',
-                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                                         },
                                         {
                                             extension: [
                                                 {
                                                     url: 'plan',
                                                     valueReference: {
-                                                        reference: `InsurancePlan/${uuidAetna}`,
-                                                    },
-                                                },
+                                                        reference: `InsurancePlan/${uuidAetna}`
+                                                    }
+                                                }
                                             ],
-                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                                        },
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                        }
                                     ],
                                     id: uuid10,
                                     organization: {
-                                        reference: `Organization/${uuid100}`,
+                                        reference: `Organization/${uuid100}`
                                     },
                                     practitioner: {
-                                        reference: `Practitioner/${uuid1}`,
+                                        reference: `Practitioner/${uuid1}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuidAetna,
-                                    resourceType: 'InsurancePlan',
+                                    resourceType: 'InsurancePlan'
                                 },
                                 {
                                     id: uuid100,
-                                    resourceType: 'Organization',
-                                },
+                                    resourceType: 'Organization'
+                                }
                             ],
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid2,
@@ -1646,17 +1646,17 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid20,
                                     organization: {
-                                        reference: `Organization/${uuid200}`,
+                                        reference: `Organization/${uuid200}`
                                     },
                                     practitioner: {
-                                        reference: `Practitioner/${uuid2}`,
+                                        reference: `Practitioner/${uuid2}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid200,
-                                    resourceType: 'Organization',
-                                },
+                                    resourceType: 'Organization'
+                                }
                             ],
                             extension: [
                                 {
@@ -1664,20 +1664,20 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
-                                                reference: 'InsurancePlan/2000',
-                                            },
-                                        },
-                                    ],
-                                },
+                                                reference: 'InsurancePlan/2000'
+                                            }
+                                        }
+                                    ]
+                                }
                             ],
                             id: uuid2,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with debug', async () => {
@@ -1702,11 +1702,11 @@ describe('graphHelper Tests', () => {
                         extension: {
                             url: 'plan',
                             valueReference: {
-                                reference: 'InsurancePlan/2000',
-                            },
-                        },
-                    },
-                ],
+                                reference: 'InsurancePlan/2000'
+                            }
+                        }
+                    }
+                ]
             });
 
             // add a PractitionerRole
@@ -1725,7 +1725,7 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`
                 },
                 extension: [
                     {
@@ -1733,14 +1733,14 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://clienthealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP'
                             },
                             {
                                 url: 'availability_score',
-                                valueDecimal: 0.1234567890123,
-                            },
+                                valueDecimal: 0.1234567890123
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                     },
                     {
                         extension: [
@@ -1750,12 +1750,12 @@ describe('graphHelper Tests', () => {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     _uuid: `InsurancePlan/${uuidAetna}`
-                                },
-                            },
+                                }
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                    },
-                ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                    }
+                ]
             });
             await collection.insertOne({
                 id: '20',
@@ -1765,13 +1765,13 @@ describe('graphHelper Tests', () => {
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
-                    _uuid: `Practitioner/${uuid2}`,
+                    _uuid: `Practitioner/${uuid2}`
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
-                    _uuid: `Organization/${uuid200}`,
-                },
+                    _uuid: `Organization/${uuid200}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -1798,7 +1798,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType,
+                resourceType: resourceType
             });
             resourceType = 'Practitioner';
             /**
@@ -1846,15 +1846,15 @@ describe('graphHelper Tests', () => {
                                             extension: [
                                                 {
                                                     url: 'for_system',
-                                                    valueUri: 'http://clienthealth.org/IDHP',
+                                                    valueUri: 'http://clienthealth.org/IDHP'
                                                 },
                                                 {
                                                     url: 'availability_score',
-                                                    valueDecimal: 0.1234567890123,
-                                                },
+                                                    valueDecimal: 0.1234567890123
+                                                }
                                             ],
                                             id: 'IDHP',
-                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                                         },
                                         {
                                             extension: [
@@ -1862,33 +1862,33 @@ describe('graphHelper Tests', () => {
                                                     url: 'plan',
                                                     valueReference: {
                                                         reference: `InsurancePlan/${uuidAetna}`
-                                                    },
-                                                },
+                                                    }
+                                                }
                                             ],
-                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                                        },
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                        }
                                     ],
                                     id: uuid10,
                                     organization: {
-                                        reference: `Organization/${uuid100}`,
+                                        reference: `Organization/${uuid100}`
                                     },
                                     practitioner: {
-                                        reference: `Practitioner/${uuid1}`,
+                                        reference: `Practitioner/${uuid1}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuidAetna,
-                                    resourceType: 'InsurancePlan',
+                                    resourceType: 'InsurancePlan'
                                 },
                                 {
                                     id: uuid100,
-                                    resourceType: 'Organization',
-                                },
+                                    resourceType: 'Organization'
+                                }
                             ],
                             id: uuid1,
-                            resourceType: 'Practitioner',
-                        },
+                            resourceType: 'Practitioner'
+                        }
                     },
                     {
                         id: uuid2,
@@ -1898,17 +1898,17 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid20,
                                     organization: {
-                                        reference: `Organization/${uuid200}`,
+                                        reference: `Organization/${uuid200}`
                                     },
                                     practitioner: {
-                                        reference: `Practitioner/${uuid2}`,
+                                        reference: `Practitioner/${uuid2}`
                                     },
-                                    resourceType: 'PractitionerRole',
+                                    resourceType: 'PractitionerRole'
                                 },
                                 {
                                     id: uuid200,
-                                    resourceType: 'Organization',
-                                },
+                                    resourceType: 'Organization'
+                                }
                             ],
                             extension: [
                                 {
@@ -1916,16 +1916,16 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
-                                                reference: 'InsurancePlan/2000',
-                                            },
-                                        },
-                                    ],
-                                },
+                                                reference: 'InsurancePlan/2000'
+                                            }
+                                        }
+                                    ]
+                                }
                             ],
                             id: uuid2,
-                            resourceType: 'Practitioner',
-                        },
-                    },
+                            resourceType: 'Practitioner'
+                        }
+                    }
                 ],
                 'meta': {
                     'tag': [
@@ -1963,7 +1963,7 @@ describe('graphHelper Tests', () => {
 
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'searchset',
+                type: 'searchset'
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with explain', async () => {
@@ -1989,11 +1989,11 @@ describe('graphHelper Tests', () => {
                             url: 'plan',
                             valueReference: {
                                 reference: 'InsurancePlan/2000',
-                                _uuid: `InsurancePlan/${uuid2000}`,
-                            },
-                        },
-                    },
-                ],
+                                _uuid: `InsurancePlan/${uuid2000}`
+                            }
+                        }
+                    }
+                ]
             });
 
             // add a PractitionerRole
@@ -2012,7 +2012,7 @@ describe('graphHelper Tests', () => {
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
-                    _uuid: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`
                 },
                 extension: [
                     {
@@ -2020,14 +2020,14 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://clienthealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP'
                             },
                             {
                                 url: 'availability_score',
-                                valueDecimal: 0.1234567890123,
-                            },
+                                valueDecimal: 0.1234567890123
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                     },
                     {
                         extension: [
@@ -2037,12 +2037,12 @@ describe('graphHelper Tests', () => {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     _uuid: `InsurancePlan/${uuidAetna}`
-                                },
-                            },
+                                }
+                            }
                         ],
-                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
-                    },
-                ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                    }
+                ]
             });
             await collection.insertOne({
                 id: '20',
@@ -2052,13 +2052,13 @@ describe('graphHelper Tests', () => {
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
-                    _uuid: `Practitioner/${uuid2}`,
+                    _uuid: `Practitioner/${uuid2}`
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
-                    _uuid: `Organization/${uuid200}`,
-                },
+                    _uuid: `Organization/${uuid200}`
+                }
             });
             // add an Organization
             resourceType = 'Organization';
@@ -2085,7 +2085,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType,
+                resourceType: resourceType
             });
             resourceType = 'Practitioner';
             /**
@@ -2126,11 +2126,11 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'_uuid':{'$in':['c87b8e53-b3db-53a0-aa92-05f4a3fb9d15','941f082a-39a9-5f55-9630-5839a010e1bc']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$or':[{'practitioner._uuid':'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'},{'practitioner._sourceId':'Practitioner/1'}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'a10b7ea7-4439-5613-be67-ff64a5e45c1c'},{'_sourceId':'100'}]}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'},{'_sourceId':'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'}]}, {})",
+                            'display': "db.Practitioner_4_0_0.find({'_uuid':{'$in':['c87b8e53-b3db-53a0-aa92-05f4a3fb9d15','941f082a-39a9-5f55-9630-5839a010e1bc']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$or':[{'practitioner._uuid':'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'},{'practitioner._sourceId':'Practitioner/1'}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'a10b7ea7-4439-5613-be67-ff64a5e45c1c'},{'_sourceId':'100'}]}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'},{'_sourceId':'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'}]}, {})"
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
-                            'code': 'Practitioner_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|InsurancePlan_4_0_0',
+                            'code': 'Practitioner_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|InsurancePlan_4_0_0'
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryOptions',
@@ -2141,14 +2141,14 @@ describe('graphHelper Tests', () => {
                             'display': '[]'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryTime',
+                            'system': 'https://www.icanbwell.com/queryTime'
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryOptimization',
                             'display': '{\'useTwoStepSearchOptimization\':undefined}'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryExplain',
+                            'system': 'https://www.icanbwell.com/queryExplain'
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryExplainSimple'
@@ -2195,10 +2195,10 @@ describe('graphHelper Tests', () => {
                                         }
                                     ],
                                     'practitioner': {
-                                        'reference': `Practitioner/${uuid1}`,
+                                        'reference': `Practitioner/${uuid1}`
                                     },
                                     'organization': {
-                                        'reference': `Organization/${uuid100}`,
+                                        'reference': `Organization/${uuid100}`
                                     }
                                 },
                                 {
@@ -2208,7 +2208,7 @@ describe('graphHelper Tests', () => {
                                 {
                                     'resourceType': 'Organization',
                                     'id': uuid100
-                                },
+                                }
                             ]
                         }
                     }

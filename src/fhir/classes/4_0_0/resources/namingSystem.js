@@ -67,7 +67,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -601,7 +601,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -679,7 +679,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new NamingSystem({
@@ -707,7 +707,7 @@ class NamingSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -749,7 +749,7 @@ class NamingSystem extends Resource {
             useContext: this.useContext && this.useContext.map(v => v.toJSON()),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
             usage: this.usage,
-            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSON()),
+            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSON())
         });
     }
 
@@ -799,7 +799,7 @@ class NamingSystem extends Resource {
             useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
             usage: this.usage,
-            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSONInternal()),
+            uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSONInternal())
         };
 
 

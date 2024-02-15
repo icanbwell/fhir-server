@@ -12,7 +12,7 @@ class CoverageConverter extends BaseConverter {
             payor,
             'class': coverageClass,
             period,
-            relationship,
+            relationship
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

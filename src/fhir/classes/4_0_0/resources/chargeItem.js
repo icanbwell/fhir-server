@@ -101,7 +101,7 @@ class ChargeItem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -958,7 +958,7 @@ class ChargeItem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1068,7 +1068,7 @@ class ChargeItem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ChargeItem({
@@ -1112,7 +1112,7 @@ class ChargeItem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1170,7 +1170,7 @@ class ChargeItem extends Resource {
             productCodeableConcept: this.productCodeableConcept && this.productCodeableConcept.toJSON(),
             account: this.account && this.account.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
-            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSON()),
+            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSON())
         });
     }
 
@@ -1253,7 +1253,7 @@ class ChargeItem extends Resource {
             productCodeableConcept: this.productCodeableConcept && this.productCodeableConcept.toJSONInternal(),
             account: this.account && this.account.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSONInternal()),
+            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSONInternal())
         };
 
 

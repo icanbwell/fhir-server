@@ -30,7 +30,7 @@ class CapabilityStatementImplementation extends Element {
             modifierExtension,
             description,
             url,
-            custodian,
+            custodian
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class CapabilityStatementImplementation extends Element {
             modifierExtension,
             description,
             url,
-            custodian,
+            custodian
         });
 
     }
@@ -200,7 +200,7 @@ class CapabilityStatementImplementation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             url: this.url,
-            custodian: this.custodian && this.custodian.toJSON(),
+            custodian: this.custodian && this.custodian.toJSON()
         });
     }
 
@@ -227,7 +227,7 @@ class CapabilityStatementImplementation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             url: this.url,
-            custodian: this.custodian && this.custodian.toJSONInternal(),
+            custodian: this.custodian && this.custodian.toJSONInternal()
         };
 
 

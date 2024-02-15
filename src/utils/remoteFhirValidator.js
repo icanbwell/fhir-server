@@ -57,8 +57,8 @@ class RemoteFhirValidator {
                     args: {
                         originalUrl,
                         url,
-                        timeout: this.configManager.requestTimeoutMs,
-                    },
+                        timeout: this.configManager.requestTimeoutMs
+                    }
                 });
                 throw new ExternalTimeoutError('Unexpected: Request timeout while fetching profile info', { timeout: this.configManager.requestTimeoutMs, profileUrl: originalUrl});
             }
@@ -93,8 +93,8 @@ class RemoteFhirValidator {
                     source: 'RemoteFhirValidator.updateProfileAsync',
                     args: {
                         fhirValidationUrl: url,
-                        timeout: this.configManager.requestTimeoutMs,
-                    },
+                        timeout: this.configManager.requestTimeoutMs
+                    }
                 });
                 throw new ExternalTimeoutError('Unexpected: Request timeout while validating resource', { timeout: this.configManager.requestTimeoutMs});
             }
@@ -121,10 +121,10 @@ class RemoteFhirValidator {
                         code: 'invalid',
                         details: new CodeableConcept({
                             text: `Validation failed for data posted to ${path} for resource ${resourceBody.resourceType}.` +
-                                ' ResourceType does not match the endpoint you are posting to.',
-                        }),
-                    }),
-                ],
+                                ' ResourceType does not match the endpoint you are posting to.'
+                        })
+                    })
+                ]
             });
         }
         const fhirValidationUrl = this.configManager.fhirValidationUrl;
@@ -152,8 +152,8 @@ class RemoteFhirValidator {
                     source: 'RemoteFhirValidator.validateResourceAsync',
                     args: {
                         fhirValidationUrl: url,
-                        timeout: this.configManager.requestTimeoutMs,
-                    },
+                        timeout: this.configManager.requestTimeoutMs
+                    }
                 });
                 throw new ExternalTimeoutError('Unexpected: Request timeout while validating resource', { timeout: this.configManager.requestTimeoutMs});
             }

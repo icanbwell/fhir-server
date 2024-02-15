@@ -69,7 +69,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -560,7 +560,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -634,7 +634,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Provenance({
@@ -660,7 +660,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -700,7 +700,7 @@ class Provenance extends Resource {
             activity: this.activity && this.activity.toJSON(),
             agent: this.agent && this.agent.map(v => v.toJSON()),
             entity: this.entity && this.entity.map(v => v.toJSON()),
-            signature: this.signature && this.signature.map(v => v.toJSON()),
+            signature: this.signature && this.signature.map(v => v.toJSON())
         });
     }
 
@@ -751,7 +751,7 @@ class Provenance extends Resource {
             activity: this.activity && this.activity.toJSONInternal(),
             agent: this.agent && this.agent.map(v => v.toJSONInternal()),
             entity: this.entity && this.entity.map(v => v.toJSONInternal()),
-            signature: this.signature && this.signature.map(v => v.toJSONInternal()),
+            signature: this.signature && this.signature.map(v => v.toJSONInternal())
         };
 
 

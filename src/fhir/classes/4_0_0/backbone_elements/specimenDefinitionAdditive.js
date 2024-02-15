@@ -25,7 +25,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension,
             modifierExtension,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension,
             modifierExtension,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         });
 
     }
@@ -174,7 +174,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSON(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSON(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSON()
         });
     }
 
@@ -201,7 +201,7 @@ class SpecimenDefinitionAdditive extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
 
 

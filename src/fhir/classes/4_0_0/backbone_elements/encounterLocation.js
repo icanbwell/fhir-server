@@ -30,7 +30,7 @@ class EncounterLocation extends Element {
             location,
             status,
             physicalType,
-            period,
+            period
         }
     ) {
         super({});
@@ -203,7 +203,7 @@ class EncounterLocation extends Element {
             location,
             status,
             physicalType,
-            period,
+            period
         });
 
     }
@@ -224,7 +224,7 @@ class EncounterLocation extends Element {
             location: this.location && this.location.toJSON(),
             status: this.status,
             physicalType: this.physicalType && this.physicalType.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -254,7 +254,7 @@ class EncounterLocation extends Element {
             location: this.location && this.location.toJSONInternal(),
             status: this.status,
             physicalType: this.physicalType && this.physicalType.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

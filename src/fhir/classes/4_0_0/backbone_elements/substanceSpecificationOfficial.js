@@ -28,7 +28,7 @@ class SubstanceSpecificationOfficial extends Element {
             modifierExtension,
             authority,
             status,
-            date,
+            date
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class SubstanceSpecificationOfficial extends Element {
             modifierExtension,
             authority,
             status,
-            date,
+            date
         });
 
     }
@@ -197,7 +197,7 @@ class SubstanceSpecificationOfficial extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             authority: this.authority && this.authority.toJSON(),
             status: this.status && this.status.toJSON(),
-            date: this.date,
+            date: this.date
         });
     }
 
@@ -225,7 +225,7 @@ class SubstanceSpecificationOfficial extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             authority: this.authority && this.authority.toJSONInternal(),
             status: this.status && this.status.toJSONInternal(),
-            date: this.date,
+            date: this.date
         };
 
 

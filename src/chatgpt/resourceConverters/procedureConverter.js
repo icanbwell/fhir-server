@@ -10,7 +10,7 @@ class ProcedureConverter extends BaseConverter {
             subject,
             performedDateTime,
             performer,
-            location,
+            location
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

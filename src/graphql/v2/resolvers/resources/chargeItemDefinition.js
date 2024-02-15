@@ -18,7 +18,7 @@ module.exports = {
     ChargeItemDefinitionInstance: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItemDefinition: {
         // noinspection JSUnusedLocalSymbols
@@ -30,7 +30,7 @@ module.exports = {
                 context,
                 info,
                 parent.instance);
-        },
+        }
     }
 };
 

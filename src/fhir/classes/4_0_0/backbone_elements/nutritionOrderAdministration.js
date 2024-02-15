@@ -30,7 +30,7 @@ class NutritionOrderAdministration extends Element {
             schedule,
             quantity,
             rateQuantity,
-            rateRatio,
+            rateRatio
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class NutritionOrderAdministration extends Element {
             schedule,
             quantity,
             rateQuantity,
-            rateRatio,
+            rateRatio
         });
 
     }
@@ -225,7 +225,7 @@ class NutritionOrderAdministration extends Element {
             schedule: this.schedule && this.schedule.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
-            rateRatio: this.rateRatio && this.rateRatio.toJSON(),
+            rateRatio: this.rateRatio && this.rateRatio.toJSON()
         });
     }
 
@@ -256,7 +256,7 @@ class NutritionOrderAdministration extends Element {
             schedule: this.schedule && this.schedule.toJSONInternal(),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
-            rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
+            rateRatio: this.rateRatio && this.rateRatio.toJSONInternal()
         };
 
 

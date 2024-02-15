@@ -29,7 +29,7 @@ class ConsentVerification extends Element {
             modifierExtension,
             verified,
             verifiedWith,
-            verificationDate,
+            verificationDate
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class ConsentVerification extends Element {
             modifierExtension,
             verified,
             verifiedWith,
-            verificationDate,
+            verificationDate
         });
 
     }
@@ -196,7 +196,7 @@ class ConsentVerification extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             verified: this.verified,
             verifiedWith: this.verifiedWith && this.verifiedWith.toJSON(),
-            verificationDate: this.verificationDate,
+            verificationDate: this.verificationDate
         });
     }
 
@@ -223,7 +223,7 @@ class ConsentVerification extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             verified: this.verified,
             verifiedWith: this.verifiedWith && this.verifiedWith.toJSONInternal(),
-            verificationDate: this.verificationDate,
+            verificationDate: this.verificationDate
         };
 
 

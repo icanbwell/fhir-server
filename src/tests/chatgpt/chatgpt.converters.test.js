@@ -53,7 +53,7 @@ describe('ChatGPT Tests', () => {
                 {
                     parentResourceType: 'Patient',
                     parentUuid: '1',
-                    bundle: patientBundleResource,
+                    bundle: patientBundleResource
                 }
             );
             const chatgptMessages = documents.map(doc =>
@@ -95,7 +95,7 @@ describe('ChatGPT Tests', () => {
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 parentResourceType: 'Patient',
                 parentUuid: '1',
-                bundle: patientCondensedBundleResource,
+                bundle: patientCondensedBundleResource
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
@@ -135,7 +135,7 @@ describe('ChatGPT Tests', () => {
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 parentResourceType: 'Patient',
                 parentUuid: '1',
-                bundle: patientBundleResource,
+                bundle: patientBundleResource
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
@@ -177,7 +177,7 @@ describe('ChatGPT Tests', () => {
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 parentResourceType: 'Patient',
                 parentUuid: '1',
-                bundle: patientBundleResource,
+                bundle: patientBundleResource
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
@@ -217,7 +217,7 @@ describe('ChatGPT Tests', () => {
             const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 parentResourceType: 'Patient',
                 parentUuid: '1',
-                bundle: patientCondensedBundleResource,
+                bundle: patientCondensedBundleResource
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(

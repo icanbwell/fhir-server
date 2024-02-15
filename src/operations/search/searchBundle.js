@@ -142,7 +142,7 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId,
+            requestId
         } = requestInfo;
 
         assertIsValid(requestId, 'requestId is null');

@@ -31,7 +31,7 @@ class ConceptMapDependsOn extends Element {
             property,
             system,
             value,
-            display,
+            display
         }
     ) {
         super({});
@@ -200,7 +200,7 @@ class ConceptMapDependsOn extends Element {
             property,
             system,
             value,
-            display,
+            display
         });
 
     }
@@ -221,7 +221,7 @@ class ConceptMapDependsOn extends Element {
             property: this.property,
             system: this.system,
             value: this.value,
-            display: this.display,
+            display: this.display
         });
     }
 
@@ -248,7 +248,7 @@ class ConceptMapDependsOn extends Element {
             property: this.property,
             system: this.system,
             value: this.value,
-            display: this.display,
+            display: this.display
         };
 
 

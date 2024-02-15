@@ -29,7 +29,7 @@ class BiologicallyDerivedProductManipulation extends Element {
             modifierExtension,
             description,
             timeDateTime,
-            timePeriod,
+            timePeriod
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class BiologicallyDerivedProductManipulation extends Element {
             modifierExtension,
             description,
             timeDateTime,
-            timePeriod,
+            timePeriod
         });
 
     }
@@ -196,7 +196,7 @@ class BiologicallyDerivedProductManipulation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSON(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSON()
         });
     }
 
@@ -223,7 +223,7 @@ class BiologicallyDerivedProductManipulation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal()
         };
 
 

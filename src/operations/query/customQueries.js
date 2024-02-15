@@ -932,7 +932,7 @@ const customFilterQueries = {
         'version': new SearchParameterDefinition({
             'type': fhirFilterTypes.token,
             'field': 'version'
-        }),
+        })
     },
     'StructureMap': {
         'name': new SearchParameterDefinition({

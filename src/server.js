@@ -44,7 +44,7 @@ const flushBuffer = async (fnGetContainer) => {
 async function createServer(fnGetContainer) {
     const container = fnGetContainer();
     await new MongoDatabaseManager({
-        configManager: container.configManager,
+        configManager: container.configManager
     }).connectAsync();
 
     const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
@@ -56,7 +56,7 @@ async function createServer(fnGetContainer) {
             await logSystemEventAsync({
                 event: 'serverStartup',
                 message: 'Server is up and running',
-                args: {image: image, version: getImageVersion()},
+                args: {image: image, version: getImageVersion()}
             });
         });
 
@@ -96,14 +96,14 @@ async function createServer(fnGetContainer) {
             await logSystemEventAsync({
                 event: 'shutdown',
                 message: 'Beginning shutdown of server',
-                args: {},
+                args: {}
             });
         }, // called before the HTTP server starts its shutdown
         onShutdown: () => {
             logInfo('Successfully shut down server', {});
         }, // called right before exiting
         useExit0: true, // instead of sending the received signal again without being catched, the process will exit(0)
-        logError, // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.
+        logError // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.
     };
 
     createTerminus(server, options);
@@ -112,5 +112,5 @@ async function createServer(fnGetContainer) {
 }
 
 module.exports = {
-    createServer,
+    createServer
 };

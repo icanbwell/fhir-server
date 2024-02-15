@@ -55,7 +55,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -486,7 +486,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -554,7 +554,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Schedule({
@@ -577,7 +577,7 @@ class Schedule extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -614,7 +614,7 @@ class Schedule extends Resource {
             specialty: this.specialty && this.specialty.map(v => v.toJSON()),
             actor: this.actor && this.actor.map(v => v.toJSON()),
             planningHorizon: this.planningHorizon && this.planningHorizon.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -660,7 +660,7 @@ class Schedule extends Resource {
             specialty: this.specialty && this.specialty.map(v => v.toJSONInternal()),
             actor: this.actor && this.actor.map(v => v.toJSONInternal()),
             planningHorizon: this.planningHorizon && this.planningHorizon.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
 
 

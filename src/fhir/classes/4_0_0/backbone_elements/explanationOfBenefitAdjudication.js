@@ -31,7 +31,7 @@ class ExplanationOfBenefitAdjudication extends Element {
             category,
             reason,
             amount,
-            value,
+            value
         }
     ) {
         super({});
@@ -207,7 +207,7 @@ class ExplanationOfBenefitAdjudication extends Element {
             category,
             reason,
             amount,
-            value,
+            value
         });
 
     }
@@ -228,7 +228,7 @@ class ExplanationOfBenefitAdjudication extends Element {
             category: this.category && this.category.toJSON(),
             reason: this.reason && this.reason.toJSON(),
             amount: this.amount && this.amount.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -258,7 +258,7 @@ class ExplanationOfBenefitAdjudication extends Element {
             category: this.category && this.category.toJSONInternal(),
             reason: this.reason && this.reason.toJSONInternal(),
             amount: this.amount && this.amount.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
 

@@ -31,7 +31,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {AdminLogger} = require('../../../../admin/adminLogger');

@@ -6,17 +6,17 @@ module.exports = {
     CompositionSectionAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CompositionSectionFocusV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CompositionSectionEntryV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CompositionSection: {
         // noinspection JSUnusedLocalSymbols
@@ -68,7 +68,7 @@ module.exports = {
                 context,
                 info,
                 parent.entry);
-        },
+        }
     }
 };
 

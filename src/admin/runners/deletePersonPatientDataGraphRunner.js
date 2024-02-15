@@ -31,13 +31,13 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
         patientUuids,
         personUuids,
         concurrencyBatchSize,
-        dryRun,
+        dryRun
     }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {AdminPersonPatientDataManager}
@@ -107,7 +107,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             'resourceType',
             '_uuid',
             '_sourceId',
-            '_sourceAssigningAuthority',
+            '_sourceAssigningAuthority'
         ];
         for (const property of neededProperties) {
             projection[`${property}`] = 1;
@@ -127,16 +127,16 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
             authInfo: {
                 scope: 'access/*.* user/*.read user/*.write user/*.*',
                 context: {
-                    username: 'admin',
-                },
+                    username: 'admin'
+                }
             },
             header: () => null,
             socket: {
-                remoteAddress: '0.0.0.0',
+                remoteAddress: '0.0.0.0'
             },
             headers: {
-                accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            },
+                accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+            }
         };
 
         if (!this.dryRun) {
@@ -149,7 +149,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 req,
                 res: {},
                 personId: uuid,
-                method: this.dryRun ? 'READ' : 'DELETE',
+                method: this.dryRun ? 'READ' : 'DELETE'
             });
         }
 
@@ -158,7 +158,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
                 req,
                 res: {},
                 patientId: uuid,
-                method: this.dryRun ? 'READ' : 'DELETE',
+                method: this.dryRun ? 'READ' : 'DELETE'
             });
         }
 
@@ -254,5 +254,5 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    DeletePersonPatientDataGraphRunner,
+    DeletePersonPatientDataGraphRunner
 };

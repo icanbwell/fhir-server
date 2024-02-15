@@ -11,7 +11,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -28,7 +28,7 @@ describe('Person Tests', () => {
         entry: [],
         resourceType: 'Bundle',
         total: 0,
-        type: 'searchset',
+        type: 'searchset'
     };
 
     describe('Person search_by_given Tests', () => {
@@ -46,7 +46,7 @@ describe('Person Tests', () => {
                 { created: true },
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             // ACT & ASSERT
@@ -70,7 +70,7 @@ describe('Person Tests', () => {
                 { created: true },
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             // ACT & ASSERT
@@ -104,7 +104,7 @@ describe('Person Tests', () => {
                 { created: true },
                 { created: true },
                 { created: true },
-                { created: true },
+                { created: true }
             ]);
 
             // ACT & ASSERT

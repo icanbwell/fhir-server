@@ -18,32 +18,32 @@ module.exports = {
     ChargeItemSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItemContext: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItemEnterer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItemService: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItemProductReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItemSupportingInformationV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ChargeItem: {
         // noinspection JSUnusedLocalSymbols
@@ -165,7 +165,7 @@ module.exports = {
                 context,
                 info,
                 parent.supportingInformation);
-        },
+        }
     }
 };
 

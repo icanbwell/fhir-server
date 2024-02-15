@@ -35,7 +35,7 @@ class ConceptMapGroup extends Element {
             target,
             targetVersion,
             element,
-            unmapped,
+            unmapped
         }
     ) {
         super({});
@@ -248,7 +248,7 @@ class ConceptMapGroup extends Element {
             target,
             targetVersion,
             element,
-            unmapped,
+            unmapped
         });
 
     }
@@ -271,7 +271,7 @@ class ConceptMapGroup extends Element {
             target: this.target,
             targetVersion: this.targetVersion,
             element: this.element && this.element.map(v => v.toJSON()),
-            unmapped: this.unmapped && this.unmapped.toJSON(),
+            unmapped: this.unmapped && this.unmapped.toJSON()
         });
     }
 
@@ -302,7 +302,7 @@ class ConceptMapGroup extends Element {
             target: this.target,
             targetVersion: this.targetVersion,
             element: this.element && this.element.map(v => v.toJSONInternal()),
-            unmapped: this.unmapped && this.unmapped.toJSONInternal(),
+            unmapped: this.unmapped && this.unmapped.toJSONInternal()
         };
 
 

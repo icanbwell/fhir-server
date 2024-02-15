@@ -78,7 +78,7 @@ class SubstanceSourceMaterial extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -626,7 +626,7 @@ class SubstanceSourceMaterial extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -704,7 +704,7 @@ class SubstanceSourceMaterial extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstanceSourceMaterial({
@@ -732,7 +732,7 @@ class SubstanceSourceMaterial extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -774,7 +774,7 @@ class SubstanceSourceMaterial extends Resource {
             developmentStage: this.developmentStage && this.developmentStage.toJSON(),
             fractionDescription: this.fractionDescription && this.fractionDescription.map(v => v.toJSON()),
             organism: this.organism && this.organism.toJSON(),
-            partDescription: this.partDescription && this.partDescription.map(v => v.toJSON()),
+            partDescription: this.partDescription && this.partDescription.map(v => v.toJSON())
         });
     }
 
@@ -829,7 +829,7 @@ class SubstanceSourceMaterial extends Resource {
             developmentStage: this.developmentStage && this.developmentStage.toJSONInternal(),
             fractionDescription: this.fractionDescription && this.fractionDescription.map(v => v.toJSONInternal()),
             organism: this.organism && this.organism.toJSONInternal(),
-            partDescription: this.partDescription && this.partDescription.map(v => v.toJSONInternal()),
+            partDescription: this.partDescription && this.partDescription.map(v => v.toJSONInternal())
         };
 
 

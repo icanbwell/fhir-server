@@ -30,7 +30,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit,
             unit,
             conversionFactor,
-            decimalPrecision,
+            decimalPrecision
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit,
             unit,
             conversionFactor,
-            decimalPrecision,
+            decimalPrecision
         });
 
     }
@@ -223,7 +223,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit: this.customaryUnit && this.customaryUnit.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             conversionFactor: this.conversionFactor,
-            decimalPrecision: this.decimalPrecision,
+            decimalPrecision: this.decimalPrecision
         });
     }
 
@@ -252,7 +252,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit: this.customaryUnit && this.customaryUnit.toJSONInternal(),
             unit: this.unit && this.unit.toJSONInternal(),
             conversionFactor: this.conversionFactor,
-            decimalPrecision: this.decimalPrecision,
+            decimalPrecision: this.decimalPrecision
         };
 
 

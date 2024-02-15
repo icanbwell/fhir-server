@@ -49,7 +49,7 @@ class ImagingStudySeries extends Element {
             specimen,
             started,
             performer,
-            instance,
+            instance
         }
     ) {
         super({});
@@ -392,7 +392,7 @@ class ImagingStudySeries extends Element {
             specimen,
             started,
             performer,
-            instance,
+            instance
         });
 
     }
@@ -421,7 +421,7 @@ class ImagingStudySeries extends Element {
             specimen: this.specimen && this.specimen.map(v => v.toJSON()),
             started: this.started,
             performer: this.performer && this.performer.map(v => v.toJSON()),
-            instance: this.instance && this.instance.map(v => v.toJSON()),
+            instance: this.instance && this.instance.map(v => v.toJSON())
         });
     }
 
@@ -463,7 +463,7 @@ class ImagingStudySeries extends Element {
             specimen: this.specimen && this.specimen.map(v => v.toJSONInternal()),
             started: this.started,
             performer: this.performer && this.performer.map(v => v.toJSONInternal()),
-            instance: this.instance && this.instance.map(v => v.toJSONInternal()),
+            instance: this.instance && this.instance.map(v => v.toJSONInternal())
         };
 
 

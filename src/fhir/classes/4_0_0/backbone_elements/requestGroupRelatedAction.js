@@ -30,7 +30,7 @@ class RequestGroupRelatedAction extends Element {
             actionId,
             relationship,
             offsetDuration,
-            offsetRange,
+            offsetRange
         }
     ) {
         super({});
@@ -198,7 +198,7 @@ class RequestGroupRelatedAction extends Element {
             actionId,
             relationship,
             offsetDuration,
-            offsetRange,
+            offsetRange
         });
 
     }
@@ -219,7 +219,7 @@ class RequestGroupRelatedAction extends Element {
             actionId: this.actionId,
             relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSON(),
-            offsetRange: this.offsetRange && this.offsetRange.toJSON(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSON()
         });
     }
 
@@ -248,7 +248,7 @@ class RequestGroupRelatedAction extends Element {
             actionId: this.actionId,
             relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSONInternal(),
-            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal()
         };
 
 

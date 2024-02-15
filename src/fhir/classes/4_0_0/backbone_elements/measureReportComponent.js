@@ -27,7 +27,7 @@ class MeasureReportComponent extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         }
     ) {
         super({});
@@ -157,7 +157,7 @@ class MeasureReportComponent extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         });
 
     }
@@ -176,7 +176,7 @@ class MeasureReportComponent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            value: this.value && this.value.toJSON(),
+            value: this.value && this.value.toJSON()
         });
     }
 
@@ -203,7 +203,7 @@ class MeasureReportComponent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            value: this.value && this.value.toJSONInternal(),
+            value: this.value && this.value.toJSONInternal()
         };
 
 

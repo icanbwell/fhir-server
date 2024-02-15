@@ -25,7 +25,7 @@ class MedicationKnowledgeMonograph extends Element {
             extension,
             modifierExtension,
             type,
-            source,
+            source
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class MedicationKnowledgeMonograph extends Element {
             extension,
             modifierExtension,
             type,
-            source,
+            source
         });
 
     }
@@ -175,7 +175,7 @@ class MedicationKnowledgeMonograph extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            source: this.source && this.source.toJSON(),
+            source: this.source && this.source.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class MedicationKnowledgeMonograph extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            source: this.source && this.source.toJSONInternal(),
+            source: this.source && this.source.toJSONInternal()
         };
 
 

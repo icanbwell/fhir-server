@@ -30,7 +30,7 @@ class ImmunizationEducation extends Element {
             documentType,
             reference,
             publicationDate,
-            presentationDate,
+            presentationDate
         }
     ) {
         super({});
@@ -195,7 +195,7 @@ class ImmunizationEducation extends Element {
             documentType,
             reference,
             publicationDate,
-            presentationDate,
+            presentationDate
         });
 
     }
@@ -216,7 +216,7 @@ class ImmunizationEducation extends Element {
             documentType: this.documentType,
             reference: this.reference,
             publicationDate: this.publicationDate,
-            presentationDate: this.presentationDate,
+            presentationDate: this.presentationDate
         });
     }
 
@@ -243,7 +243,7 @@ class ImmunizationEducation extends Element {
             documentType: this.documentType,
             reference: this.reference,
             publicationDate: this.publicationDate,
-            presentationDate: this.presentationDate,
+            presentationDate: this.presentationDate
         };
 
 

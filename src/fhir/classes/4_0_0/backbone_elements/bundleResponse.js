@@ -31,7 +31,7 @@ class BundleResponse extends Element {
             location,
             etag,
             lastModified,
-            outcome,
+            outcome
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class BundleResponse extends Element {
             location,
             etag,
             lastModified,
-            outcome,
+            outcome
         });
 
     }
@@ -244,7 +244,7 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome && this.outcome.toJSON()
         });
     }
 
@@ -273,7 +273,7 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome && this.outcome.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal()
         };
 
 

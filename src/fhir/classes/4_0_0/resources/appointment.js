@@ -85,7 +85,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -826,7 +826,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -922,7 +922,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Appointment({
@@ -959,7 +959,7 @@ class Appointment extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1010,7 +1010,7 @@ class Appointment extends Resource {
             patientInstruction: this.patientInstruction,
             basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
             participant: this.participant && this.participant.map(v => v.toJSON()),
-            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSON()),
+            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSON())
         });
     }
 
@@ -1077,7 +1077,7 @@ class Appointment extends Resource {
             patientInstruction: this.patientInstruction,
             basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
             participant: this.participant && this.participant.map(v => v.toJSONInternal()),
-            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSONInternal()),
+            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSONInternal())
         };
 
 

@@ -32,7 +32,7 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity,
             identifier,
             name,
-            residueSite,
+            residueSite
         }
     ) {
         super({});
@@ -203,7 +203,7 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity,
             identifier,
             name,
-            residueSite,
+            residueSite
         });
 
     }
@@ -224,7 +224,7 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity: this.connectivity,
             identifier: this.identifier && this.identifier.toJSON(),
             name: this.name,
-            residueSite: this.residueSite,
+            residueSite: this.residueSite
         });
     }
 
@@ -252,7 +252,7 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity: this.connectivity,
             identifier: this.identifier && this.identifier.toJSONInternal(),
             name: this.name,
-            residueSite: this.residueSite,
+            residueSite: this.residueSite
         };
 
 

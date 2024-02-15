@@ -35,7 +35,7 @@ class GraphDefinitionLink extends Element {
             min,
             max,
             description,
-            target,
+            target
         }
     ) {
         super({});
@@ -239,7 +239,7 @@ class GraphDefinitionLink extends Element {
             min,
             max,
             description,
-            target,
+            target
         });
 
     }
@@ -262,7 +262,7 @@ class GraphDefinitionLink extends Element {
             min: this.min,
             max: this.max,
             description: this.description,
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -292,7 +292,7 @@ class GraphDefinitionLink extends Element {
             min: this.min,
             max: this.max,
             description: this.description,
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
 
 

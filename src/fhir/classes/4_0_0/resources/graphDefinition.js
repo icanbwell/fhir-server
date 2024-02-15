@@ -71,7 +71,7 @@ class GraphDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -650,7 +650,7 @@ class GraphDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -732,7 +732,7 @@ class GraphDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new GraphDefinition({
@@ -762,7 +762,7 @@ class GraphDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -806,7 +806,7 @@ class GraphDefinition extends Resource {
             purpose: this.purpose,
             start: this.start,
             profile: this.profile,
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -857,7 +857,7 @@ class GraphDefinition extends Resource {
             purpose: this.purpose,
             start: this.start,
             profile: this.profile,
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
 
 

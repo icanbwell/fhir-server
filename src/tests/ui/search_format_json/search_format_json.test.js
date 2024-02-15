@@ -7,7 +7,7 @@ const {
     commonAfterEach,
     getHeaders,
     getHtmlHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 

@@ -29,7 +29,7 @@ class AuditEventSource extends Element {
             modifierExtension,
             site,
             observer,
-            type,
+            type
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class AuditEventSource extends Element {
             modifierExtension,
             site,
             observer,
-            type,
+            type
         });
 
     }
@@ -200,7 +200,7 @@ class AuditEventSource extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             site: this.site,
             observer: this.observer && this.observer.toJSON(),
-            type: this.type && this.type.map(v => v.toJSON()),
+            type: this.type && this.type.map(v => v.toJSON())
         });
     }
 
@@ -228,7 +228,7 @@ class AuditEventSource extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             site: this.site,
             observer: this.observer && this.observer.toJSONInternal(),
-            type: this.type && this.type.map(v => v.toJSONInternal()),
+            type: this.type && this.type.map(v => v.toJSONInternal())
         };
 
 

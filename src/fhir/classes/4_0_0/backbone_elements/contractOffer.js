@@ -42,7 +42,7 @@ class ContractOffer extends Element {
             answer,
             text,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         }
     ) {
         super({});
@@ -339,7 +339,7 @@ class ContractOffer extends Element {
             answer,
             text,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         });
 
     }
@@ -366,7 +366,7 @@ class ContractOffer extends Element {
             answer: this.answer && this.answer.map(v => v.toJSON()),
             text: this.text,
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         });
     }
 
@@ -406,7 +406,7 @@ class ContractOffer extends Element {
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
             text: this.text,
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         };
 
 

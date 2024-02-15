@@ -41,6 +41,6 @@ module.exports = {
             } else {
                 return codeSystemProperty1.valueString;
             }
-        },
-    },
+        }
+    }
 };

@@ -3,11 +3,11 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
-    AddProxyPatientToConsentResourceRunner,
+    AddProxyPatientToConsentResourceRunner
 } = require('../../../../admin/runners/addProxyPatientToConsentResource');
 
 // fixtures
@@ -62,7 +62,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 client1Patient,
                 clientPatient,
                 consent1,
-                consent2,
+                consent2
             ])
             .set(getHeaders())
             .expect(200);
@@ -83,7 +83,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
@@ -113,7 +113,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 clientPerson,
                 client1Patient,
                 clientPatient,
-                consentWithActor,
+                consentWithActor
             ])
             .set(getHeaders())
             .expect(200);
@@ -134,7 +134,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
@@ -165,7 +165,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 client1Patient,
                 clientPatient,
                 consentWithActor,
-                consentWithProxyPerson,
+                consentWithProxyPerson
             ])
             .set(getHeaders())
             .expect(200);
@@ -186,7 +186,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
@@ -217,7 +217,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 clientPerson,
                 client1Patient,
                 clientPatient,
-                consentWithClientPersonAsActor,
+                consentWithClientPersonAsActor
             ])
             .set(getHeaders())
             .expect(200);
@@ -238,7 +238,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
@@ -270,7 +270,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                 clientPatient,
                 consentWithActor,
                 consent2WithBwellPerson,
-                consentWithWrongClientPerson,
+                consentWithWrongClientPerson
             ])
             .set(getHeaders())
             .expect(200);
@@ -291,7 +291,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
                     batchSize,
                     adminLogger: new AdminLogger(),
                     bwellPersonFinder: c.bwellPersonFinder,
-                    preSaveManager: c.preSaveManager,
+                    preSaveManager: c.preSaveManager
                 })
         );
 
@@ -308,7 +308,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         expect(resp).toHaveResponse([
             expConsent2WithClientPersonAsActor,
             expConsentWithCorrectClientPersonAsActor,
-            expConsentWithClientPersonAsActor,
+            expConsentWithClientPersonAsActor
         ]);
     });
 });

@@ -25,7 +25,7 @@ function jwksEndpoint(host, path, certs) {
                         n: publicJwk.n,
                         kty: publicJwk.kty,
                         use: 'sig',
-                        kid: cert.kid,
+                        kid: cert.kid
                     };
                 }
             ).then((keys) => cb(null, [200, {keys: keys}]));
@@ -65,8 +65,8 @@ function jwksUserInfoEndpoint({host, token, patientId, personId}) {
         host,
         {
             reqheaders: {
-                authorization: `Bearer ${token}`,
-            },
+                authorization: `Bearer ${token}`
+            }
         }
     ).persist()
         .get('/userInfo')

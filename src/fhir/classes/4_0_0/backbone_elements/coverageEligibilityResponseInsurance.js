@@ -30,7 +30,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             coverage,
             inforce,
             benefitPeriod,
-            item,
+            item
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             coverage,
             inforce,
             benefitPeriod,
-            item,
+            item
         });
 
     }
@@ -225,7 +225,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             coverage: this.coverage && this.coverage.toJSON(),
             inforce: this.inforce,
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -255,7 +255,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             coverage: this.coverage && this.coverage.toJSONInternal(),
             inforce: this.inforce,
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

@@ -96,8 +96,8 @@ class FilterBySecurityTag extends BaseFilter {
                             field: this.fieldMapper.getFieldName(`${field}.coding`),
                             resourceType: this.resourceType
                         }
-                    ),
-                ],
+                    )
+                ]
             };
         }
     }

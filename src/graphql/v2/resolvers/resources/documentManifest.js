@@ -18,22 +18,22 @@ module.exports = {
     DocumentManifestSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DocumentManifestAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DocumentManifestRecipient: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DocumentManifestContentV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DocumentManifest: {
         // noinspection JSUnusedLocalSymbols
@@ -85,7 +85,7 @@ module.exports = {
                 context,
                 info,
                 parent.content);
-        },
+        }
     }
 };
 

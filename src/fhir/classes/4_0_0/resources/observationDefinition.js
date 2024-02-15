@@ -66,7 +66,7 @@ class ObservationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -600,7 +600,7 @@ class ObservationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -678,7 +678,7 @@ class ObservationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ObservationDefinition({
@@ -706,7 +706,7 @@ class ObservationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -748,7 +748,7 @@ class ObservationDefinition extends Resource {
             validCodedValueSet: this.validCodedValueSet && this.validCodedValueSet.toJSON(),
             normalCodedValueSet: this.normalCodedValueSet && this.normalCodedValueSet.toJSON(),
             abnormalCodedValueSet: this.abnormalCodedValueSet && this.abnormalCodedValueSet.toJSON(),
-            criticalCodedValueSet: this.criticalCodedValueSet && this.criticalCodedValueSet.toJSON(),
+            criticalCodedValueSet: this.criticalCodedValueSet && this.criticalCodedValueSet.toJSON()
         });
     }
 
@@ -803,7 +803,7 @@ class ObservationDefinition extends Resource {
             validCodedValueSet: this.validCodedValueSet && this.validCodedValueSet.toJSONInternal(),
             normalCodedValueSet: this.normalCodedValueSet && this.normalCodedValueSet.toJSONInternal(),
             abnormalCodedValueSet: this.abnormalCodedValueSet && this.abnormalCodedValueSet.toJSONInternal(),
-            criticalCodedValueSet: this.criticalCodedValueSet && this.criticalCodedValueSet.toJSONInternal(),
+            criticalCodedValueSet: this.criticalCodedValueSet && this.criticalCodedValueSet.toJSONInternal()
         };
 
 

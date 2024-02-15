@@ -81,7 +81,7 @@ describe('CodeSystem Tests', () => {
                     ]
                 }),
                 'status': 'active',
-                'content': 'fragment',
+                'content': 'fragment'
             });
             let resp = await request
                 .post('/4_0_0/CodeSystem/1/$merge?validate=true')

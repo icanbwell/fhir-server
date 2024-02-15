@@ -34,7 +34,7 @@ class ImplementationGuideManifest extends Element {
             resource,
             page,
             image,
-            other,
+            other
         }
     ) {
         super({});
@@ -227,7 +227,7 @@ class ImplementationGuideManifest extends Element {
             resource,
             page,
             image,
-            other,
+            other
         });
 
     }
@@ -249,7 +249,7 @@ class ImplementationGuideManifest extends Element {
             resource: this.resource && this.resource.map(v => v.toJSON()),
             page: this.page && this.page.map(v => v.toJSON()),
             image: this.image,
-            other: this.other,
+            other: this.other
         });
     }
 
@@ -279,7 +279,7 @@ class ImplementationGuideManifest extends Element {
             resource: this.resource && this.resource.map(v => v.toJSONInternal()),
             page: this.page && this.page.map(v => v.toJSONInternal()),
             image: this.image,
-            other: this.other,
+            other: this.other
         };
 
 

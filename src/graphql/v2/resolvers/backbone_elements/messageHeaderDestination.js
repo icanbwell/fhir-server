@@ -6,7 +6,7 @@ module.exports = {
     MessageHeaderDestinationReceiver: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MessageHeaderDestination: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.receiver);
-        },
+        }
     }
 };
 

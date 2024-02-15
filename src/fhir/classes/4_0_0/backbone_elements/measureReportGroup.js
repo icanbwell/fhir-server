@@ -31,7 +31,7 @@ class MeasureReportGroup extends Element {
             code,
             population,
             measureScore,
-            stratifier,
+            stratifier
         }
     ) {
         super({});
@@ -207,7 +207,7 @@ class MeasureReportGroup extends Element {
             code,
             population,
             measureScore,
-            stratifier,
+            stratifier
         });
 
     }
@@ -228,7 +228,7 @@ class MeasureReportGroup extends Element {
             code: this.code && this.code.toJSON(),
             population: this.population && this.population.map(v => v.toJSON()),
             measureScore: this.measureScore && this.measureScore.toJSON(),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON())
         });
     }
 
@@ -259,7 +259,7 @@ class MeasureReportGroup extends Element {
             code: this.code && this.code.toJSONInternal(),
             population: this.population && this.population.map(v => v.toJSONInternal()),
             measureScore: this.measureScore && this.measureScore.toJSONInternal(),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal())
         };
 
 

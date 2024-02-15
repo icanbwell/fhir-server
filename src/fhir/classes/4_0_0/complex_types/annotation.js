@@ -30,7 +30,7 @@ class Annotation extends Element {
             authorReference,
             authorString,
             time,
-            text,
+            text
         }
     ) {
         super({});
@@ -163,7 +163,7 @@ class Annotation extends Element {
             authorReference,
             authorString,
             time,
-            text,
+            text
         });
 
     }
@@ -183,7 +183,7 @@ class Annotation extends Element {
             authorReference: this.authorReference && this.authorReference.toJSON(),
             authorString: this.authorString,
             time: this.time,
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -209,7 +209,7 @@ class Annotation extends Element {
             authorReference: this.authorReference && this.authorReference.toJSONInternal(),
             authorString: this.authorString,
             time: this.time,
-            text: this.text,
+            text: this.text
         };
 
 

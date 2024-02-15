@@ -71,7 +71,7 @@ class MedicinalProductAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -664,7 +664,7 @@ class MedicinalProductAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -748,7 +748,7 @@ class MedicinalProductAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductAuthorization({
@@ -779,7 +779,7 @@ class MedicinalProductAuthorization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -824,7 +824,7 @@ class MedicinalProductAuthorization extends Resource {
             jurisdictionalAuthorization: this.jurisdictionalAuthorization && this.jurisdictionalAuthorization.map(v => v.toJSON()),
             holder: this.holder && this.holder.toJSON(),
             regulator: this.regulator && this.regulator.toJSON(),
-            procedure: this.procedure && this.procedure.toJSON(),
+            procedure: this.procedure && this.procedure.toJSON()
         });
     }
 
@@ -884,7 +884,7 @@ class MedicinalProductAuthorization extends Resource {
             jurisdictionalAuthorization: this.jurisdictionalAuthorization && this.jurisdictionalAuthorization.map(v => v.toJSONInternal()),
             holder: this.holder && this.holder.toJSONInternal(),
             regulator: this.regulator && this.regulator.toJSONInternal(),
-            procedure: this.procedure && this.procedure.toJSONInternal(),
+            procedure: this.procedure && this.procedure.toJSONInternal()
         };
 
 

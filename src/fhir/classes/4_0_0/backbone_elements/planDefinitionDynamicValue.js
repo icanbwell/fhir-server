@@ -28,7 +28,7 @@ class PlanDefinitionDynamicValue extends Element {
             extension,
             modifierExtension,
             path,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -163,7 +163,7 @@ class PlanDefinitionDynamicValue extends Element {
             extension,
             modifierExtension,
             path,
-            expression,
+            expression
         });
 
     }
@@ -182,7 +182,7 @@ class PlanDefinitionDynamicValue extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             path: this.path,
-            expression: this.expression && this.expression.toJSON(),
+            expression: this.expression && this.expression.toJSON()
         });
     }
 
@@ -208,7 +208,7 @@ class PlanDefinitionDynamicValue extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             path: this.path,
-            expression: this.expression && this.expression.toJSONInternal(),
+            expression: this.expression && this.expression.toJSONInternal()
         };
 
 

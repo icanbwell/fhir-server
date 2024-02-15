@@ -26,7 +26,7 @@ class SearchParameterComponent extends Element {
             extension,
             modifierExtension,
             definition,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class SearchParameterComponent extends Element {
             extension,
             modifierExtension,
             definition,
-            expression,
+            expression
         });
 
     }
@@ -172,7 +172,7 @@ class SearchParameterComponent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             definition: this.definition,
-            expression: this.expression,
+            expression: this.expression
         });
     }
 
@@ -197,7 +197,7 @@ class SearchParameterComponent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             definition: this.definition,
-            expression: this.expression,
+            expression: this.expression
         };
 
 

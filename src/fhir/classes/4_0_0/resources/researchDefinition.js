@@ -111,7 +111,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1123,7 +1123,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1245,7 +1245,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchDefinition({
@@ -1295,7 +1295,7 @@ class ResearchDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1359,7 +1359,7 @@ class ResearchDefinition extends Resource {
             population: this.population && this.population.toJSON(),
             exposure: this.exposure && this.exposure.toJSON(),
             exposureAlternative: this.exposureAlternative && this.exposureAlternative.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome && this.outcome.toJSON()
         });
     }
 
@@ -1443,7 +1443,7 @@ class ResearchDefinition extends Resource {
             population: this.population && this.population.toJSONInternal(),
             exposure: this.exposure && this.exposure.toJSONInternal(),
             exposureAlternative: this.exposureAlternative && this.exposureAlternative.toJSONInternal(),
-            outcome: this.outcome && this.outcome.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal()
         };
 
 

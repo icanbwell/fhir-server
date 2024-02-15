@@ -123,7 +123,7 @@ class Extension extends Element {
             valueTriggerDefinition,
             valueUsageContext,
             valueDosage,
-            valueMeta,
+            valueMeta
         }
     ) {
         super({});
@@ -1208,7 +1208,7 @@ class Extension extends Element {
             valueTriggerDefinition,
             valueUsageContext,
             valueDosage,
-            valueMeta,
+            valueMeta
         });
 
     }
@@ -1275,7 +1275,7 @@ class Extension extends Element {
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSON(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
-            valueMeta: this.valueMeta && this.valueMeta.toJSON(),
+            valueMeta: this.valueMeta && this.valueMeta.toJSON()
         });
     }
 
@@ -1378,7 +1378,7 @@ class Extension extends Element {
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSONInternal(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSONInternal(),
             valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
-            valueMeta: this.valueMeta && this.valueMeta.toJSONInternal(),
+            valueMeta: this.valueMeta && this.valueMeta.toJSONInternal()
         };
 
 

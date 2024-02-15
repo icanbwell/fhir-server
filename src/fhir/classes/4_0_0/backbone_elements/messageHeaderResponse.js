@@ -31,7 +31,7 @@ class MessageHeaderResponse extends Element {
             modifierExtension,
             identifier,
             code,
-            details,
+            details
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class MessageHeaderResponse extends Element {
             modifierExtension,
             identifier,
             code,
-            details,
+            details
         });
 
     }
@@ -199,7 +199,7 @@ class MessageHeaderResponse extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier,
             code: this.code,
-            details: this.details && this.details.toJSON(),
+            details: this.details && this.details.toJSON()
         });
     }
 
@@ -226,7 +226,7 @@ class MessageHeaderResponse extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             identifier: this.identifier,
             code: this.code,
-            details: this.details && this.details.toJSONInternal(),
+            details: this.details && this.details.toJSONInternal()
         };
 
 

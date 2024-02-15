@@ -131,7 +131,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
     asRetriever({filter}) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever({
-                filter: this.getFilter(filter),
+                filter: this.getFilter(filter)
             }
         );
     }

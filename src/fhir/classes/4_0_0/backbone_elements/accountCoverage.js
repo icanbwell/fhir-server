@@ -26,7 +26,7 @@ class AccountCoverage extends Element {
             extension,
             modifierExtension,
             coverage,
-            priority,
+            priority
         }
     ) {
         super({});
@@ -159,7 +159,7 @@ class AccountCoverage extends Element {
             extension,
             modifierExtension,
             coverage,
-            priority,
+            priority
         });
 
     }
@@ -178,7 +178,7 @@ class AccountCoverage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             coverage: this.coverage && this.coverage.toJSON(),
-            priority: this.priority,
+            priority: this.priority
         });
     }
 
@@ -204,7 +204,7 @@ class AccountCoverage extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             coverage: this.coverage && this.coverage.toJSONInternal(),
-            priority: this.priority,
+            priority: this.priority
         };
 
 

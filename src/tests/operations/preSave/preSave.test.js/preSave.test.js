@@ -40,7 +40,7 @@ describe('Patient Tests', () => {
                         {
                             'system': SecurityTagSystem.sourceAssigningAuthority,
                             'code': 'myAssigningAuthority'
-                        },
+                        }
                     ]
                 }
             });

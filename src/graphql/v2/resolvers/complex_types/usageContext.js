@@ -5,7 +5,7 @@ module.exports = {
     UsageContextValueReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     UsageContext: {
         // noinspection JSUnusedLocalSymbols
@@ -17,7 +17,7 @@ module.exports = {
                 context,
                 info,
                 parent.valueReference);
-        },
+        }
     }
 };
 

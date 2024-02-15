@@ -12,7 +12,7 @@ function mapParticipants(members) {
             role: m.role,
             member: {reference: m.member},
             onBehalfOf: {reference: m.onBehalfOf},
-            period: m.period,
+            period: m.period
         });
     });
     return result;
@@ -22,7 +22,7 @@ function mapManagingOrganization(organizations) {
     const result = [];
     organizations.forEach((org) => {
         result.push({
-            reference: org,
+            reference: org
         });
     });
 
@@ -48,7 +48,7 @@ function mapCareTeam(team) {
         reasonCode: team.reasonCode,
         reasonReference: team.reasonReference,
         telecom: team.telecom,
-        note: team.note,
+        note: team.note
     };
 
     if (team.contained) {
@@ -82,7 +82,7 @@ module.exports = {
                     parent,
                     {
                         ...args,
-                        id: args.patientId,
+                        id: args.patientId
                     },
                     context,
                     info,
@@ -129,6 +129,6 @@ module.exports = {
                         `${result[0].operationOutcome.issue.map(i => i.diagnostics)}`);
                 }
                 return patientToChange;
-            },
-    },
+            }
+    }
 };

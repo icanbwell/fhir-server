@@ -39,7 +39,7 @@ const person_payload = {
     'custom:clientFhirPersonId': 'clientFhirPerson',
     'custom:clientFhirPatientId': 'clientFhirPatient',
     'custom:bwellFhirPersonId': 'person1',
-    'custom:bwellFhirPatientId': 'bwellFhirPatient',
+    'custom:bwellFhirPatientId': 'bwellFhirPatient'
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 describe('Observation Tests', () => {

@@ -17,7 +17,7 @@ describe('Smart Configuration', () => {
     test('should fetch configuration from smart config and also handle errors', async () => {
         const request = await createTestRequest();
         const mockedResponse = {
-            authorization_endpoint: '/oauth2/authorize',
+            authorization_endpoint: '/oauth2/authorize'
         };
         nock('https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD')
             // retry 3 times

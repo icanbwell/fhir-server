@@ -30,7 +30,7 @@ class ValueSetFilter extends Element {
             modifierExtension,
             property,
             op,
-            value,
+            value
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class ValueSetFilter extends Element {
             modifierExtension,
             property,
             op,
-            value,
+            value
         });
 
     }
@@ -200,7 +200,7 @@ class ValueSetFilter extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             property: this.property,
             op: this.op,
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -226,7 +226,7 @@ class ValueSetFilter extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             property: this.property,
             op: this.op,
-            value: this.value,
+            value: this.value
         };
 
 

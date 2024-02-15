@@ -18,17 +18,17 @@ module.exports = {
     ConditionSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ConditionRecorder: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ConditionAsserter: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Condition: {
         // noinspection JSUnusedLocalSymbols
@@ -70,7 +70,7 @@ module.exports = {
                 context,
                 info,
                 parent.asserter);
-        },
+        }
     }
 };
 

@@ -72,7 +72,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -660,7 +660,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -744,7 +744,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CoverageEligibilityResponse({
@@ -775,7 +775,7 @@ class CoverageEligibilityResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -820,7 +820,7 @@ class CoverageEligibilityResponse extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             preAuthRef: this.preAuthRef,
             form: this.form && this.form.toJSON(),
-            error: this.error && this.error.map(v => v.toJSON()),
+            error: this.error && this.error.map(v => v.toJSON())
         });
     }
 
@@ -877,7 +877,7 @@ class CoverageEligibilityResponse extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             preAuthRef: this.preAuthRef,
             form: this.form && this.form.toJSONInternal(),
-            error: this.error && this.error.map(v => v.toJSONInternal()),
+            error: this.error && this.error.map(v => v.toJSONInternal())
         };
 
 

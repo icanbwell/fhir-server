@@ -35,7 +35,7 @@ module.exports = {
                 context,
                 info,
                 parent.ingredient);
-        },
+        }
     }
 };
 

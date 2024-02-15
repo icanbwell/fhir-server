@@ -26,7 +26,7 @@ class TestScriptDestination extends Element {
             extension,
             modifierExtension,
             index,
-            profile,
+            profile
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class TestScriptDestination extends Element {
             extension,
             modifierExtension,
             index,
-            profile,
+            profile
         });
 
     }
@@ -174,7 +174,7 @@ class TestScriptDestination extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             index: this.index,
-            profile: this.profile && this.profile.toJSON(),
+            profile: this.profile && this.profile.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class TestScriptDestination extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             index: this.index,
-            profile: this.profile && this.profile.toJSONInternal(),
+            profile: this.profile && this.profile.toJSONInternal()
         };
 
 

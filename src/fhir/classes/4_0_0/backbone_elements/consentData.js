@@ -27,7 +27,7 @@ class ConsentData extends Element {
             extension,
             modifierExtension,
             meaning,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ConsentData extends Element {
             extension,
             modifierExtension,
             meaning,
-            reference,
+            reference
         });
 
     }
@@ -175,7 +175,7 @@ class ConsentData extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             meaning: this.meaning,
-            reference: this.reference && this.reference.toJSON(),
+            reference: this.reference && this.reference.toJSON()
         });
     }
 
@@ -201,7 +201,7 @@ class ConsentData extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             meaning: this.meaning,
-            reference: this.reference && this.reference.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal()
         };
 
 

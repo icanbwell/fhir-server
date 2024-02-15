@@ -68,7 +68,7 @@ class ContractAction extends Element {
             reason,
             reasonLinkId,
             note,
-            securityLabelNumber,
+            securityLabelNumber
         }
     ) {
         super({});
@@ -632,7 +632,7 @@ class ContractAction extends Element {
             reason,
             reasonLinkId,
             note,
-            securityLabelNumber,
+            securityLabelNumber
         });
 
     }
@@ -672,7 +672,7 @@ class ContractAction extends Element {
             reason: this.reason,
             reasonLinkId: this.reasonLinkId,
             note: this.note && this.note.map(v => v.toJSON()),
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         });
     }
 
@@ -732,7 +732,7 @@ class ContractAction extends Element {
             reason: this.reason,
             reasonLinkId: this.reasonLinkId,
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         };
 
 

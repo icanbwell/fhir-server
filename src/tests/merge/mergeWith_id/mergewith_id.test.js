@@ -12,7 +12,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer, mockHttpContext,
+    createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const deepcopy = require('deepcopy');

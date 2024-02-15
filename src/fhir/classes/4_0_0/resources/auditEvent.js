@@ -63,7 +63,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -547,7 +547,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -621,7 +621,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AuditEvent({
@@ -647,7 +647,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -687,7 +687,7 @@ class AuditEvent extends Resource {
             purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.map(v => v.toJSON()),
             agent: this.agent && this.agent.map(v => v.toJSON()),
             source: this.source && this.source.toJSON(),
-            entity: this.entity && this.entity.map(v => v.toJSON()),
+            entity: this.entity && this.entity.map(v => v.toJSON())
         });
     }
 
@@ -737,7 +737,7 @@ class AuditEvent extends Resource {
             purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.map(v => v.toJSONInternal()),
             agent: this.agent && this.agent.map(v => v.toJSONInternal()),
             source: this.source && this.source.toJSONInternal(),
-            entity: this.entity && this.entity.map(v => v.toJSONInternal()),
+            entity: this.entity && this.entity.map(v => v.toJSONInternal())
         };
 
 

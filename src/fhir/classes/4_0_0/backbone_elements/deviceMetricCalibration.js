@@ -28,7 +28,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension,
             type,
             state,
-            time,
+            time
         }
     ) {
         super({});
@@ -173,7 +173,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension,
             type,
             state,
-            time,
+            time
         });
 
     }
@@ -193,7 +193,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
             state: this.state,
-            time: this.time,
+            time: this.time
         });
     }
 
@@ -219,7 +219,7 @@ class DeviceMetricCalibration extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
             state: this.state,
-            time: this.time,
+            time: this.time
         };
 
 

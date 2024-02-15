@@ -18,22 +18,22 @@ module.exports = {
     ClinicalImpressionSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClinicalImpressionAssessor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClinicalImpressionProblem: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClinicalImpressionSupportingInfoV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClinicalImpression: {
         // noinspection JSUnusedLocalSymbols
@@ -115,7 +115,7 @@ module.exports = {
                 context,
                 info,
                 parent.supportingInfo);
-        },
+        }
     }
 };
 

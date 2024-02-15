@@ -66,7 +66,7 @@ class CareTeam extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -600,7 +600,7 @@ class CareTeam extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -678,7 +678,7 @@ class CareTeam extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CareTeam({
@@ -706,7 +706,7 @@ class CareTeam extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -748,7 +748,7 @@ class CareTeam extends Resource {
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
             managingOrganization: this.managingOrganization && this.managingOrganization.map(v => v.toJSON()),
             telecom: this.telecom && this.telecom.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -804,7 +804,7 @@ class CareTeam extends Resource {
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
             managingOrganization: this.managingOrganization && this.managingOrganization.map(v => v.toJSONInternal()),
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

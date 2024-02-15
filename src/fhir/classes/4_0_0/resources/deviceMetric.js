@@ -60,7 +60,7 @@ class DeviceMetric extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -546,7 +546,7 @@ class DeviceMetric extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -618,7 +618,7 @@ class DeviceMetric extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DeviceMetric({
@@ -643,7 +643,7 @@ class DeviceMetric extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -682,7 +682,7 @@ class DeviceMetric extends Resource {
             color: this.color,
             category: this.category,
             measurementPeriod: this.measurementPeriod && this.measurementPeriod.toJSON(),
-            calibration: this.calibration && this.calibration.map(v => v.toJSON()),
+            calibration: this.calibration && this.calibration.map(v => v.toJSON())
         });
     }
 
@@ -731,7 +731,7 @@ class DeviceMetric extends Resource {
             color: this.color,
             category: this.category,
             measurementPeriod: this.measurementPeriod && this.measurementPeriod.toJSONInternal(),
-            calibration: this.calibration && this.calibration.map(v => v.toJSONInternal()),
+            calibration: this.calibration && this.calibration.map(v => v.toJSONInternal())
         };
 
 

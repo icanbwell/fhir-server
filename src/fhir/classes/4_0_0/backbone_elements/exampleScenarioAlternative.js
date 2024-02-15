@@ -27,7 +27,7 @@ class ExampleScenarioAlternative extends Element {
             modifierExtension,
             title,
             description,
-            step,
+            step
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class ExampleScenarioAlternative extends Element {
             modifierExtension,
             title,
             description,
-            step,
+            step
         });
 
     }
@@ -196,7 +196,7 @@ class ExampleScenarioAlternative extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             title: this.title,
             description: this.description,
-            step: this.step && this.step.map(v => v.toJSON()),
+            step: this.step && this.step.map(v => v.toJSON())
         });
     }
 
@@ -223,7 +223,7 @@ class ExampleScenarioAlternative extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             title: this.title,
             description: this.description,
-            step: this.step && this.step.map(v => v.toJSONInternal()),
+            step: this.step && this.step.map(v => v.toJSONInternal())
         };
 
 

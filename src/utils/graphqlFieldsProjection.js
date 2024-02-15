@@ -18,5 +18,5 @@ const graphqlFieldsToMongoProjection = (obj) => {
 };
 
 module.exports = {
-    graphqlFieldsToMongoProjection,
+    graphqlFieldsToMongoProjection
 };

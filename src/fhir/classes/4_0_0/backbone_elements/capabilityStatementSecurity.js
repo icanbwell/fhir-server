@@ -30,7 +30,7 @@ class CapabilityStatementSecurity extends Element {
             modifierExtension,
             cors,
             service,
-            description,
+            description
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class CapabilityStatementSecurity extends Element {
             modifierExtension,
             cors,
             service,
-            description,
+            description
         });
 
     }
@@ -198,7 +198,7 @@ class CapabilityStatementSecurity extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             cors: this.cors,
             service: this.service && this.service.map(v => v.toJSON()),
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -225,7 +225,7 @@ class CapabilityStatementSecurity extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             cors: this.cors,
             service: this.service && this.service.map(v => v.toJSONInternal()),
-            description: this.description,
+            description: this.description
         };
 
 

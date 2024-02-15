@@ -35,7 +35,7 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString,
             allowedMoney,
             usedUnsignedInt,
-            usedMoney,
+            usedMoney
         }
     ) {
         super({});
@@ -243,7 +243,7 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString,
             allowedMoney,
             usedUnsignedInt,
-            usedMoney,
+            usedMoney
         });
 
     }
@@ -266,7 +266,7 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString: this.allowedString,
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSON(),
             usedUnsignedInt: this.usedUnsignedInt,
-            usedMoney: this.usedMoney && this.usedMoney.toJSON(),
+            usedMoney: this.usedMoney && this.usedMoney.toJSON()
         });
     }
 
@@ -298,7 +298,7 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString: this.allowedString,
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSONInternal(),
             usedUnsignedInt: this.usedUnsignedInt,
-            usedMoney: this.usedMoney && this.usedMoney.toJSONInternal(),
+            usedMoney: this.usedMoney && this.usedMoney.toJSONInternal()
         };
 
 

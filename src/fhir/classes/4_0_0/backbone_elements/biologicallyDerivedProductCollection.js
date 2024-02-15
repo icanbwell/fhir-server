@@ -31,7 +31,7 @@ class BiologicallyDerivedProductCollection extends Element {
             collector,
             source,
             collectedDateTime,
-            collectedPeriod,
+            collectedPeriod
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class BiologicallyDerivedProductCollection extends Element {
             collector,
             source,
             collectedDateTime,
-            collectedPeriod,
+            collectedPeriod
         });
 
     }
@@ -223,7 +223,7 @@ class BiologicallyDerivedProductCollection extends Element {
             collector: this.collector && this.collector.toJSON(),
             source: this.source && this.source.toJSON(),
             collectedDateTime: this.collectedDateTime,
-            collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSON(),
+            collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSON()
         });
     }
 
@@ -253,7 +253,7 @@ class BiologicallyDerivedProductCollection extends Element {
             collector: this.collector && this.collector.toJSONInternal(),
             source: this.source && this.source.toJSONInternal(),
             collectedDateTime: this.collectedDateTime,
-            collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSONInternal(),
+            collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSONInternal()
         };
 
 

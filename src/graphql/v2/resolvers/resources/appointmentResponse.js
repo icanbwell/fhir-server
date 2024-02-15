@@ -18,7 +18,7 @@ module.exports = {
     AppointmentResponseActor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     AppointmentResponse: {
         // noinspection JSUnusedLocalSymbols
@@ -40,7 +40,7 @@ module.exports = {
                 context,
                 info,
                 parent.actor);
-        },
+        }
     }
 };
 

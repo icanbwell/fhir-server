@@ -22,7 +22,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
     if (fixMultipleOwners) {
         const owners = security.filter(s => s.system === SecurityTagSystem.owner);
         securityWithoutOriginalOwnersAndAuthority = security.filter(
-            s => [SecurityTagSystem.owner, SecurityTagSystem.sourceAssigningAuthority].indexOf(s.system) === -1,
+            s => [SecurityTagSystem.owner, SecurityTagSystem.sourceAssigningAuthority].indexOf(s.system) === -1
         );
         let newOwner;
         if (owners.length > 1) {
@@ -36,7 +36,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
         }
     } else {
         securityWithoutOriginalOwnersAndAuthority = security.filter(
-            s => SecurityTagSystem.sourceAssigningAuthority !== s.system,
+            s => SecurityTagSystem.sourceAssigningAuthority !== s.system
         );
     }
 
@@ -46,7 +46,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
         if (npiIdentifier && (npiIdentifier.value === resource.id || npiIdentifier.value === resource._sourceId)) {
             newSourceAssigningAuthority = new Coding({
                 system: SecurityTagSystem.sourceAssigningAuthority,
-                code: NPPES,
+                code: NPPES
             });
         }
     }
@@ -76,12 +76,12 @@ function fixResource(resource) {
     const sourceAssigningAuthorities = security.filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority);
     const owners = security.filter(s => s.system === SecurityTagSystem.owner);
     const securityWithoutOriginalAuthority = security.filter(
-        s => SecurityTagSystem.sourceAssigningAuthority !== s.system,
+        s => SecurityTagSystem.sourceAssigningAuthority !== s.system
     );
 
     const newSourceAssigningAuthority = sourceAssigningAuthorities.length ? sourceAssigningAuthorities[0] : new Coding({
         system: SecurityTagSystem.sourceAssigningAuthority,
-        code: owners[0].code,
+        code: owners[0].code
     });
     securityWithoutOriginalAuthority.push(newSourceAssigningAuthority);
     resource._sourceAssigningAuthority = newSourceAssigningAuthority.code;
@@ -98,11 +98,11 @@ function fixResource(resource) {
 
 function fixMultipleAuthorities(resource, fixMultipleOwners) {
     const resourceFixFnMap = {
-        'Practitioner': fixPractitionerResource,
+        'Practitioner': fixPractitionerResource
     };
     return resourceFixFnMap[`${resource.resourceType}`] ? resourceFixFnMap[`${resource.resourceType}`](resource, fixMultipleOwners) : fixResource(resource);
 }
 
 module.exports = {
-    fixMultipleAuthorities,
+    fixMultipleAuthorities
 };

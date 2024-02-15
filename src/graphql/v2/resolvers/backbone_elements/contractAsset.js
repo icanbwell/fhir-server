@@ -6,7 +6,7 @@ module.exports = {
     ContractAssetTypeReferenceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractAsset: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.typeReference);
-        },
+        }
     }
 };
 

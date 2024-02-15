@@ -48,8 +48,8 @@ const addressQueryBuilder = function ({target}) {
                 {'address.district': {$regex: regExpObject}},
                 {'address.state': {$regex: regExpObject}},
                 {'address.postalCode': {$regex: regExpObject}},
-                {'address.country': {$regex: regExpObject}},
-            ],
+                {'address.country': {$regex: regExpObject}}
+            ]
         });
     }
     return ors;
@@ -77,8 +77,8 @@ const nameQueryBuilder = function ({target}) {
                 {'name.family': {$regex: regExpObject, '$options': 'i'}},
                 {'name.given': {$regex: regExpObject, '$options': 'i'}},
                 {'name.suffix': {$regex: regExpObject, '$options': 'i'}},
-                {'name.prefix': {$regex: regExpObject, '$options': 'i'}},
-            ],
+                {'name.prefix': {$regex: regExpObject, '$options': 'i'}}
+            ]
         });
     }
     return ors;
@@ -212,11 +212,11 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
     if (system) {
         queryBuilder[`${field}.system`] = {
             $regex: escapeRegExp(system),
-            $options: 'i',
+            $options: 'i'
         };
         queryBuilderElementMatch['system'] = {
             $regex: escapeRegExp(system),
-            $options: 'i',
+            $options: 'i'
         };
     }
 
@@ -225,20 +225,20 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
             const values = value.split(',');
             queryBuilder[`${field}.${type}`] = {
                 $regex: values.map(v => escapeRegExp(v)).join('|'),
-                $options: 'i',
+                $options: 'i'
             };
             queryBuilderElementMatch[`${type}`] = {
                 $regex: values.map(v => escapeRegExp(v)).join('|'),
-                $options: 'i',
+                $options: 'i'
             };
         } else {
             queryBuilder[`${field}.${type}`] = {
                 $regex: escapeRegExp(value),
-                $options: 'i',
+                $options: 'i'
             };
             queryBuilderElementMatch[`${type}`] = {
                 $regex: escapeRegExp(value),
-                $options: 'i',
+                $options: 'i'
             };
         }
     }
@@ -731,7 +731,7 @@ const dateQueryBuilder = function ({date, type, path}) {
                     pArr[4] +
                     ')';
                 const regPoss = {
-                    $regex: new RegExp(escapeRegExp(regexPattern)),
+                    $regex: new RegExp(escapeRegExp(regexPattern))
                 };
                 if (type === 'period') {
                     str = str + 'Z';
@@ -741,11 +741,11 @@ const dateQueryBuilder = function ({date, type, path}) {
                         {
                             $and: [
                                 {[pS]: {$lte: str}},
-                                {$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]},
-                            ],
+                                {$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}
+                            ]
                         },
                         {$and: [{[pS]: {$lte: str}}, {[pE]: undefined}]},
-                        {$and: [{$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}, {[pS]: undefined}]},
+                        {$and: [{$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}, {[pS]: undefined}]}
                     ];
                     return toReturn;
                 }
@@ -760,22 +760,22 @@ const dateQueryBuilder = function ({date, type, path}) {
                                 $regex: new RegExp(
                                     escapeRegExp(
                                         '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                                ), '$options': 'i',
-                            },
+                                ), '$options': 'i'
+                            }
                         },
                         {
                             $and: [
                                 {[pBPS]: {$lte: str}},
-                                {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]},
-                            ],
+                                {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]}
+                            ]
                         },
                         {$and: [{[pBPS]: {$lte: str}}, {[pBPE]: undefined}]},
                         {
                             $and: [
                                 {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]},
-                                {[pBPS]: undefined},
-                            ],
-                        },
+                                {[pBPS]: undefined}
+                            ]
+                        }
                     ];
                     return toReturn;
                 }
@@ -960,15 +960,15 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
             composite.push({
                 $or: [
                     {$and: [tokenQueryBuilder({target: target1, type: 'code', field: path1, resourceType})]},
-                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1, resourceType})]},
-                ],
+                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1, resourceType})]}
+                ]
             });
             break;
         case 'reference':
             composite.push(referenceQueryBuilder({
                 target_type: target,
                 target: target1,
-                field: path1,
+                field: path1
             }));
             break;
         case 'quantity':
@@ -1006,8 +1006,8 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
                         $or: dateQueryBuilder({
                             date: target1, type: 'timing', path: path1
                         })
-                    },
-                ],
+                    }
+                ]
             });
             break;
         default:
@@ -1025,8 +1025,8 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
             composite.push({
                 $or: [
                     {$and: [tokenQueryBuilder({target: target2, type: 'code', field: path2, resourceType})]},
-                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2, resourceType})]},
-                ],
+                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2, resourceType})]}
+                ]
             });
             break;
         case 'reference':
@@ -1071,8 +1071,8 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
                         $or: dateQueryBuilder({
                             date: target2, type: 'timing', path: path2
                         })
-                    },
-                ],
+                    }
+                ]
             });
             break;
         default:

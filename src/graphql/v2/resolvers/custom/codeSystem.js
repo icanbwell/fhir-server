@@ -30,7 +30,7 @@ module.exports = {
             } else {
                 return codeSystem.concept;
             }
-        },
+        }
     },
     Query: {
         /**
@@ -52,21 +52,21 @@ module.exports = {
                     $filter: {
                         input: '$concept',
                         as: 'ct',
-                        cond: { $in: ['$$ct.code', args['code']] },
-                    },
+                        cond: { $in: ['$$ct.code', args['code']] }
+                    }
                 };
                 delete args['code'];
             }
             return await context.dataApi.getResourcesBundle(
                 parent,
                 {
-                    projection, ...args,
+                    projection, ...args
                 },
                 context,
                 info,
                 'CodeSystem',
                 true
             );
-        },
-    },
+        }
+    }
 };

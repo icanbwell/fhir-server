@@ -33,7 +33,7 @@ class ClaimCareTeam extends Element {
             provider,
             responsible,
             role,
-            qualification,
+            qualification
         }
     ) {
         super({});
@@ -224,7 +224,7 @@ class ClaimCareTeam extends Element {
             provider,
             responsible,
             role,
-            qualification,
+            qualification
         });
 
     }
@@ -246,7 +246,7 @@ class ClaimCareTeam extends Element {
             provider: this.provider && this.provider.toJSON(),
             responsible: this.responsible,
             role: this.role && this.role.toJSON(),
-            qualification: this.qualification && this.qualification.toJSON(),
+            qualification: this.qualification && this.qualification.toJSON()
         });
     }
 
@@ -277,7 +277,7 @@ class ClaimCareTeam extends Element {
             provider: this.provider && this.provider.toJSONInternal(),
             responsible: this.responsible,
             role: this.role && this.role.toJSONInternal(),
-            qualification: this.qualification && this.qualification.toJSONInternal(),
+            qualification: this.qualification && this.qualification.toJSONInternal()
         };
 
 

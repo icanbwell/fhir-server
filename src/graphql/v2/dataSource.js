@@ -89,7 +89,7 @@ class FhirDataSource {
                 /** @type {string} */
                 resourceType,
                 /** @type {string} */
-                id,
+                id
             } = ResourceWithId.getResourceTypeAndIdFromReference(key) || {};
             /**
              * resources with this resourceType and id
@@ -133,7 +133,7 @@ class FhirDataSource {
                         /** @type {string} **/
                         resourceType,
                         /** @type {string[]} **/
-                        references,
+                        references
                     ] = groupKeysByResourceTypeKey;
 
                     if (!resourceType) {
@@ -149,7 +149,7 @@ class FhirDataSource {
                         base_version: '4_0_0',
                         id: idsOfReference.join(','),
                         _bundle: '1',
-                        ...args,
+                        ...args
                     };
 
                     const bundle = await this.searchBundleOperation.searchBundleAsync(
@@ -234,7 +234,7 @@ class FhirDataSource {
             /** @type {string} **/
             resourceType,
             /** @type {string} **/
-            id,
+            id
         } = referenceObj;
         try {
             this.createDataLoader(args);
@@ -252,7 +252,7 @@ class FhirDataSource {
                             resourceType,
                             id,
                             parentResourceType: parent.resourceType,
-                            parentId: parent.id,
+                            parentId: parent.id
                         }
                     }
                 );
@@ -422,7 +422,7 @@ class FhirDataSource {
          * @type {Meta}
          */
         const combinedMeta = {
-            tag: [],
+            tag: []
         };
         // get list of properties from first meta
         for (const /** @type {Meta} **/ meta of this.metaList) {
@@ -551,5 +551,5 @@ class FhirDataSource {
 }
 
 module.exports = {
-    FhirDataSource,
+    FhirDataSource
 };

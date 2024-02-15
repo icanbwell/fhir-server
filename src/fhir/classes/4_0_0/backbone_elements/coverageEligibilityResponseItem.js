@@ -50,7 +50,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit,
             authorizationRequired,
             authorizationSupporting,
-            authorizationUrl,
+            authorizationUrl
         }
     ) {
         super({});
@@ -430,7 +430,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit,
             authorizationRequired,
             authorizationSupporting,
-            authorizationUrl,
+            authorizationUrl
         });
 
     }
@@ -461,7 +461,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit: this.benefit && this.benefit.map(v => v.toJSON()),
             authorizationRequired: this.authorizationRequired,
             authorizationSupporting: this.authorizationSupporting && this.authorizationSupporting.map(v => v.toJSON()),
-            authorizationUrl: this.authorizationUrl,
+            authorizationUrl: this.authorizationUrl
         });
     }
 
@@ -507,7 +507,7 @@ class CoverageEligibilityResponseItem extends Element {
             benefit: this.benefit && this.benefit.map(v => v.toJSONInternal()),
             authorizationRequired: this.authorizationRequired,
             authorizationSupporting: this.authorizationSupporting && this.authorizationSupporting.map(v => v.toJSONInternal()),
-            authorizationUrl: this.authorizationUrl,
+            authorizationUrl: this.authorizationUrl
         };
 
 

@@ -71,10 +71,10 @@ const processRequest = requestType => {
         const {
             resourceType,
             type,
-            entry: entries,
+            entry: entries
         } = req.body;
         const {
-            base_version: baseVersion,
+            base_version: baseVersion
         } = req.params;
 
         if (resourceType !== 'Bundle') {
@@ -106,11 +106,11 @@ const processQuestion = () => {
 // eslint-disable-next-line no-unused-vars
             resourceType,
 // eslint-disable-next-line no-unused-vars
-            type,
+            type
         } = req.body;
         const {
 // eslint-disable-next-line no-unused-vars
-            base_version: baseVersion,
+            base_version: baseVersion
         } = req.params;
 
         return resolve({});

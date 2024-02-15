@@ -25,7 +25,7 @@ class TerminologyCapabilitiesTranslation extends Element {
             id,
             extension,
             modifierExtension,
-            needsMap,
+            needsMap
         }
     ) {
         super({});
@@ -132,7 +132,7 @@ class TerminologyCapabilitiesTranslation extends Element {
             id,
             extension,
             modifierExtension,
-            needsMap,
+            needsMap
         });
 
     }
@@ -150,7 +150,7 @@ class TerminologyCapabilitiesTranslation extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            needsMap: this.needsMap,
+            needsMap: this.needsMap
         });
     }
 
@@ -174,7 +174,7 @@ class TerminologyCapabilitiesTranslation extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            needsMap: this.needsMap,
+            needsMap: this.needsMap
         };
 
 

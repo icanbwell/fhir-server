@@ -518,7 +518,7 @@ describe('r4 search Tests', () => {
                                 'subject._sourceId': {
                                     '$in': [
                                         'Patient/123',
-                                        'Group/123',
+                                        'Group/123'
                                     ]
                                 }
                             }
@@ -533,7 +533,7 @@ describe('r4 search Tests', () => {
                                 'subject._sourceId': {
                                     '$in': [
                                         'Patient/456',
-                                        'Group/456',
+                                        'Group/456'
                                     ]
                                 }
                             }
@@ -655,7 +655,7 @@ describe('r4 search Tests', () => {
                                         'Patient/456',
                                         'Group/456',
                                         'Patient/789',
-                                        'Group/789',
+                                        'Group/789'
                                     ]
                                 }
                             }
@@ -867,7 +867,7 @@ describe('r4 search Tests', () => {
                                 'subject._sourceId': {
                                     '$in': [
                                         'Patient/123',
-                                        'Group/123',
+                                        'Group/123'
                                     ]
                                 }
                             }
@@ -990,7 +990,7 @@ describe('r4 search Tests', () => {
                                         'Patient/456',
                                         'Group/456',
                                         'Patient/789',
-                                        'Group/789',
+                                        'Group/789'
                                     ]
                                 }
                             }

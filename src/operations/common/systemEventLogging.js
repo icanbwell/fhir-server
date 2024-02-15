@@ -16,7 +16,7 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 const getDetailFromArgs = (args) => Object.entries(args).map(([k, v]) => {
     return {
         type: k,
-        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer()),
+        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
     };
 });
 
@@ -54,7 +54,7 @@ const logSystemEventAsync = async ({event, message, args}) => {
                 name: 'system',
                 detail: detail
             }
-        ],
+        ]
     };
     logEntry.request = {
         // represents the id that is passed as header or req.id.
@@ -116,7 +116,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
                 name: 'system',
                 detail: detail
             }
-        ],
+        ]
     };
     logEntry.request = {
         // represents the id that is passed as header or req.id.

@@ -29,7 +29,7 @@ class SubstancePolymerStartingMaterial extends Element {
             material,
             type,
             isDefining,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -199,7 +199,7 @@ class SubstancePolymerStartingMaterial extends Element {
             material,
             type,
             isDefining,
-            amount,
+            amount
         });
 
     }
@@ -220,7 +220,7 @@ class SubstancePolymerStartingMaterial extends Element {
             material: this.material && this.material.toJSON(),
             type: this.type && this.type.toJSON(),
             isDefining: this.isDefining,
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -250,7 +250,7 @@ class SubstancePolymerStartingMaterial extends Element {
             material: this.material && this.material.toJSONInternal(),
             type: this.type && this.type.toJSONInternal(),
             isDefining: this.isDefining,
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
 
 

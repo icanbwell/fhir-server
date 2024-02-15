@@ -35,7 +35,7 @@ class CodeSystemConcept extends Element {
             definition,
             designation,
             property,
-            concept,
+            concept
         }
     ) {
         super({});
@@ -250,7 +250,7 @@ class CodeSystemConcept extends Element {
             definition,
             designation,
             property,
-            concept,
+            concept
         });
 
     }
@@ -273,7 +273,7 @@ class CodeSystemConcept extends Element {
             definition: this.definition,
             designation: this.designation && this.designation.map(v => v.toJSON()),
             property: this.property && this.property.map(v => v.toJSON()),
-            concept: this.concept && this.concept.map(v => v.toJSON()),
+            concept: this.concept && this.concept.map(v => v.toJSON())
         });
     }
 
@@ -305,7 +305,7 @@ class CodeSystemConcept extends Element {
             definition: this.definition,
             designation: this.designation && this.designation.map(v => v.toJSONInternal()),
             property: this.property && this.property.map(v => v.toJSONInternal()),
-            concept: this.concept && this.concept.map(v => v.toJSONInternal()),
+            concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
 
 

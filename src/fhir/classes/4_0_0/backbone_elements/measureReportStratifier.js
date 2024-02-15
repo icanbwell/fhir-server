@@ -27,7 +27,7 @@ class MeasureReportStratifier extends Element {
             extension,
             modifierExtension,
             code,
-            stratum,
+            stratum
         }
     ) {
         super({});
@@ -159,7 +159,7 @@ class MeasureReportStratifier extends Element {
             extension,
             modifierExtension,
             code,
-            stratum,
+            stratum
         });
 
     }
@@ -178,7 +178,7 @@ class MeasureReportStratifier extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.map(v => v.toJSON()),
-            stratum: this.stratum && this.stratum.map(v => v.toJSON()),
+            stratum: this.stratum && this.stratum.map(v => v.toJSON())
         });
     }
 
@@ -205,7 +205,7 @@ class MeasureReportStratifier extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            stratum: this.stratum && this.stratum.map(v => v.toJSONInternal()),
+            stratum: this.stratum && this.stratum.map(v => v.toJSONInternal())
         };
 
 

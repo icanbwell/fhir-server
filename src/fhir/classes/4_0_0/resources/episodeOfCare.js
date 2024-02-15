@@ -65,7 +65,7 @@ class EpisodeOfCare extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -581,7 +581,7 @@ class EpisodeOfCare extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -657,7 +657,7 @@ class EpisodeOfCare extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EpisodeOfCare({
@@ -684,7 +684,7 @@ class EpisodeOfCare extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -725,7 +725,7 @@ class EpisodeOfCare extends Resource {
             referralRequest: this.referralRequest && this.referralRequest.map(v => v.toJSON()),
             careManager: this.careManager && this.careManager.toJSON(),
             team: this.team && this.team.map(v => v.toJSON()),
-            account: this.account && this.account.map(v => v.toJSON()),
+            account: this.account && this.account.map(v => v.toJSON())
         });
     }
 
@@ -780,7 +780,7 @@ class EpisodeOfCare extends Resource {
             referralRequest: this.referralRequest && this.referralRequest.map(v => v.toJSONInternal()),
             careManager: this.careManager && this.careManager.toJSONInternal(),
             team: this.team && this.team.map(v => v.toJSONInternal()),
-            account: this.account && this.account.map(v => v.toJSONInternal()),
+            account: this.account && this.account.map(v => v.toJSONInternal())
         };
 
 

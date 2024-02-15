@@ -38,7 +38,7 @@ class TestScriptVariable extends Element {
             headerField,
             hint,
             path,
-            sourceId,
+            sourceId
         }
     ) {
         super({});
@@ -284,7 +284,7 @@ class TestScriptVariable extends Element {
             headerField,
             hint,
             path,
-            sourceId,
+            sourceId
         });
 
     }
@@ -309,7 +309,7 @@ class TestScriptVariable extends Element {
             headerField: this.headerField,
             hint: this.hint,
             path: this.path,
-            sourceId: this.sourceId,
+            sourceId: this.sourceId
         });
     }
 
@@ -340,7 +340,7 @@ class TestScriptVariable extends Element {
             headerField: this.headerField,
             hint: this.hint,
             path: this.path,
-            sourceId: this.sourceId,
+            sourceId: this.sourceId
         };
 
 

@@ -42,7 +42,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             kingdom,
             phylum,
             'class': class_,
-            order,
+            order
         }
     ) {
         super({});
@@ -214,7 +214,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             kingdom,
             phylum,
             'class': class_,
-            order,
+            order
         });
 
     }
@@ -235,7 +235,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             kingdom: this.kingdom && this.kingdom.toJSON(),
             phylum: this.phylum && this.phylum.toJSON(),
             class: this.class && this.class.toJSON(),
-            order: this.order && this.order.toJSON(),
+            order: this.order && this.order.toJSON()
         });
     }
 
@@ -266,7 +266,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             kingdom: this.kingdom && this.kingdom.toJSONInternal(),
             phylum: this.phylum && this.phylum.toJSONInternal(),
             class: this.class && this.class.toJSONInternal(),
-            order: this.order && this.order.toJSONInternal(),
+            order: this.order && this.order.toJSONInternal()
         };
 
 

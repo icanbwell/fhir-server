@@ -78,7 +78,7 @@ class SubstanceSpecification extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -733,7 +733,7 @@ class SubstanceSpecification extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -823,7 +823,7 @@ class SubstanceSpecification extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstanceSpecification({
@@ -857,7 +857,7 @@ class SubstanceSpecification extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -905,7 +905,7 @@ class SubstanceSpecification extends Resource {
             nucleicAcid: this.nucleicAcid && this.nucleicAcid.toJSON(),
             polymer: this.polymer && this.polymer.toJSON(),
             protein: this.protein && this.protein.toJSON(),
-            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSON(),
+            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSON()
         });
     }
 
@@ -973,7 +973,7 @@ class SubstanceSpecification extends Resource {
             nucleicAcid: this.nucleicAcid && this.nucleicAcid.toJSONInternal(),
             polymer: this.polymer && this.polymer.toJSONInternal(),
             protein: this.protein && this.protein.toJSONInternal(),
-            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSONInternal(),
+            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSONInternal()
         };
 
 

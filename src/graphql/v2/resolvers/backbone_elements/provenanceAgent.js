@@ -6,12 +6,12 @@ module.exports = {
     ProvenanceAgentWho: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ProvenanceAgentOnBehalfOf: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ProvenanceAgent: {
         // noinspection JSUnusedLocalSymbols
@@ -33,7 +33,7 @@ module.exports = {
                 context,
                 info,
                 parent.onBehalfOf);
-        },
+        }
     }
 };
 

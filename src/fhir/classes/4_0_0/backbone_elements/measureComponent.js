@@ -27,7 +27,7 @@ class MeasureComponent extends Element {
             modifierExtension,
             code,
             description,
-            criteria,
+            criteria
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class MeasureComponent extends Element {
             modifierExtension,
             code,
             description,
-            criteria,
+            criteria
         });
 
     }
@@ -200,7 +200,7 @@ class MeasureComponent extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSON(),
+            criteria: this.criteria && this.criteria.toJSON()
         });
     }
 
@@ -228,7 +228,7 @@ class MeasureComponent extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSONInternal(),
+            criteria: this.criteria && this.criteria.toJSONInternal()
         };
 
 

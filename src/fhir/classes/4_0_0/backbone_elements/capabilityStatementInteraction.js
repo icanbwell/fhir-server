@@ -28,7 +28,7 @@ class CapabilityStatementInteraction extends Element {
             extension,
             modifierExtension,
             code,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class CapabilityStatementInteraction extends Element {
             extension,
             modifierExtension,
             code,
-            documentation,
+            documentation
         });
 
     }
@@ -175,7 +175,7 @@ class CapabilityStatementInteraction extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -200,7 +200,7 @@ class CapabilityStatementInteraction extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

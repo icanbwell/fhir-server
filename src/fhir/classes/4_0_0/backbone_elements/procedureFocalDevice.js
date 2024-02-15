@@ -27,7 +27,7 @@ class ProcedureFocalDevice extends Element {
             extension,
             modifierExtension,
             action,
-            manipulated,
+            manipulated
         }
     ) {
         super({});
@@ -157,7 +157,7 @@ class ProcedureFocalDevice extends Element {
             extension,
             modifierExtension,
             action,
-            manipulated,
+            manipulated
         });
 
     }
@@ -176,7 +176,7 @@ class ProcedureFocalDevice extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             action: this.action && this.action.toJSON(),
-            manipulated: this.manipulated && this.manipulated.toJSON(),
+            manipulated: this.manipulated && this.manipulated.toJSON()
         });
     }
 
@@ -203,7 +203,7 @@ class ProcedureFocalDevice extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             action: this.action && this.action.toJSONInternal(),
-            manipulated: this.manipulated && this.manipulated.toJSONInternal(),
+            manipulated: this.manipulated && this.manipulated.toJSONInternal()
         };
 
 

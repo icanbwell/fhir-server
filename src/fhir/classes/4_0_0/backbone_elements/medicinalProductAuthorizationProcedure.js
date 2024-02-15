@@ -31,7 +31,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type,
             datePeriod,
             dateDateTime,
-            application,
+            application
         }
     ) {
         super({});
@@ -221,7 +221,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type,
             datePeriod,
             dateDateTime,
-            application,
+            application
         });
 
     }
@@ -243,7 +243,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type: this.type && this.type.toJSON(),
             datePeriod: this.datePeriod && this.datePeriod.toJSON(),
             dateDateTime: this.dateDateTime,
-            application: this.application && this.application.map(v => v.toJSON()),
+            application: this.application && this.application.map(v => v.toJSON())
         });
     }
 
@@ -275,7 +275,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type: this.type && this.type.toJSONInternal(),
             datePeriod: this.datePeriod && this.datePeriod.toJSONInternal(),
             dateDateTime: this.dateDateTime,
-            application: this.application && this.application.map(v => v.toJSONInternal()),
+            application: this.application && this.application.map(v => v.toJSONInternal())
         };
 
 

@@ -35,7 +35,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxDosePerDay,
             maxDosePerTreatmentPeriod,
             maxTreatmentPeriod,
-            targetSpecies,
+            targetSpecies
         }
     ) {
         super({});
@@ -279,7 +279,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxDosePerDay,
             maxDosePerTreatmentPeriod,
             maxTreatmentPeriod,
-            targetSpecies,
+            targetSpecies
         });
 
     }
@@ -303,7 +303,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxDosePerDay: this.maxDosePerDay && this.maxDosePerDay.toJSON(),
             maxDosePerTreatmentPeriod: this.maxDosePerTreatmentPeriod && this.maxDosePerTreatmentPeriod.toJSON(),
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSON(),
-            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSON()),
+            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSON())
         });
     }
 
@@ -340,7 +340,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxDosePerDay: this.maxDosePerDay && this.maxDosePerDay.toJSONInternal(),
             maxDosePerTreatmentPeriod: this.maxDosePerTreatmentPeriod && this.maxDosePerTreatmentPeriod.toJSONInternal(),
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSONInternal(),
-            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSONInternal()),
+            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSONInternal())
         };
 
 

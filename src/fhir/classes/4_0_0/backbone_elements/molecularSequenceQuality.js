@@ -51,7 +51,7 @@ class MolecularSequenceQuality extends Element {
             precision,
             recall,
             fScore,
-            roc,
+            roc
         }
     ) {
         super({});
@@ -452,7 +452,7 @@ class MolecularSequenceQuality extends Element {
             precision,
             recall,
             fScore,
-            roc,
+            roc
         });
 
     }
@@ -484,7 +484,7 @@ class MolecularSequenceQuality extends Element {
             precision: this.precision,
             recall: this.recall,
             fScore: this.fScore,
-            roc: this.roc && this.roc.toJSON(),
+            roc: this.roc && this.roc.toJSON()
         });
     }
 
@@ -526,7 +526,7 @@ class MolecularSequenceQuality extends Element {
             precision: this.precision,
             recall: this.recall,
             fScore: this.fScore,
-            roc: this.roc && this.roc.toJSONInternal(),
+            roc: this.roc && this.roc.toJSONInternal()
         };
 
 

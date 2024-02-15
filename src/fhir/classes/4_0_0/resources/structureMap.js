@@ -76,7 +76,7 @@ class StructureMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -721,7 +721,7 @@ class StructureMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -809,7 +809,7 @@ class StructureMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new StructureMap({
@@ -842,7 +842,7 @@ class StructureMap extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -889,7 +889,7 @@ class StructureMap extends Resource {
             copyright: this.copyright,
             structure: this.structure && this.structure.map(v => v.toJSON()),
             import: this.import,
-            group: this.group && this.group.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON())
         });
     }
 
@@ -945,7 +945,7 @@ class StructureMap extends Resource {
             copyright: this.copyright,
             structure: this.structure && this.structure.map(v => v.toJSONInternal()),
             import: this.import,
-            group: this.group && this.group.map(v => v.toJSONInternal()),
+            group: this.group && this.group.map(v => v.toJSONInternal())
         };
 
 

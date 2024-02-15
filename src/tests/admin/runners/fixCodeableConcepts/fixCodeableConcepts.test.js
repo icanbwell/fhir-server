@@ -21,11 +21,11 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
-    FixCodeableConceptsRunner,
+    FixCodeableConceptsRunner
 } = require('../../../../admin/runners/fixCodeableConceptsRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const oidToStandardSystemUrlMap = require('../../../../admin/utils/oidToStandardSystemUrlMapping.json');
@@ -154,7 +154,7 @@ describe('FixCodeableConcepts Tests', () => {
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
                     oidToStandardSystemUrlMap,
-                    updateResources: true,
+                    updateResources: true
                 })
             );
 

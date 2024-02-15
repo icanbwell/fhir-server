@@ -61,7 +61,7 @@ class Slot extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -549,7 +549,7 @@ class Slot extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -623,7 +623,7 @@ class Slot extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Slot({
@@ -649,7 +649,7 @@ class Slot extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -689,7 +689,7 @@ class Slot extends Resource {
             start: this.start,
             end: this.end,
             overbooked: this.overbooked,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -738,7 +738,7 @@ class Slot extends Resource {
             start: this.start,
             end: this.end,
             overbooked: this.overbooked,
-            comment: this.comment,
+            comment: this.comment
         };
 
 

@@ -127,7 +127,7 @@ class ExplanationOfBenefit extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1302,7 +1302,7 @@ class ExplanationOfBenefit extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1440,7 +1440,7 @@ class ExplanationOfBenefit extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ExplanationOfBenefit({
@@ -1498,7 +1498,7 @@ class ExplanationOfBenefit extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1570,7 +1570,7 @@ class ExplanationOfBenefit extends Resource {
             form: this.form && this.form.toJSON(),
             processNote: this.processNote && this.processNote.map(v => v.toJSON()),
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSON(),
-            benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSON()),
+            benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSON())
         });
     }
 
@@ -1681,7 +1681,7 @@ class ExplanationOfBenefit extends Resource {
             form: this.form && this.form.toJSONInternal(),
             processNote: this.processNote && this.processNote.map(v => v.toJSONInternal()),
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSONInternal(),
-            benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSONInternal()),
+            benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSONInternal())
         };
 
 

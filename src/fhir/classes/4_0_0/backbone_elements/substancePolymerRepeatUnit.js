@@ -31,7 +31,7 @@ class SubstancePolymerRepeatUnit extends Element {
             repeatUnit,
             amount,
             degreeOfPolymerisation,
-            structuralRepresentation,
+            structuralRepresentation
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class SubstancePolymerRepeatUnit extends Element {
             repeatUnit,
             amount,
             degreeOfPolymerisation,
-            structuralRepresentation,
+            structuralRepresentation
         });
 
     }
@@ -244,7 +244,7 @@ class SubstancePolymerRepeatUnit extends Element {
             repeatUnit: this.repeatUnit,
             amount: this.amount && this.amount.toJSON(),
             degreeOfPolymerisation: this.degreeOfPolymerisation && this.degreeOfPolymerisation.map(v => v.toJSON()),
-            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSON()),
+            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSON())
         });
     }
 
@@ -276,7 +276,7 @@ class SubstancePolymerRepeatUnit extends Element {
             repeatUnit: this.repeatUnit,
             amount: this.amount && this.amount.toJSONInternal(),
             degreeOfPolymerisation: this.degreeOfPolymerisation && this.degreeOfPolymerisation.map(v => v.toJSONInternal()),
-            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSONInternal()),
+            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSONInternal())
         };
 
 

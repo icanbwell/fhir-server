@@ -38,7 +38,7 @@ class FamilyMemberHistoryCondition extends Element {
             onsetRange,
             onsetPeriod,
             onsetString,
-            note,
+            note
         }
     ) {
         super({});
@@ -294,7 +294,7 @@ class FamilyMemberHistoryCondition extends Element {
             onsetRange,
             onsetPeriod,
             onsetString,
-            note,
+            note
         });
 
     }
@@ -319,7 +319,7 @@ class FamilyMemberHistoryCondition extends Element {
             onsetRange: this.onsetRange && this.onsetRange.toJSON(),
             onsetPeriod: this.onsetPeriod && this.onsetPeriod.toJSON(),
             onsetString: this.onsetString,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -356,7 +356,7 @@ class FamilyMemberHistoryCondition extends Element {
             onsetRange: this.onsetRange && this.onsetRange.toJSONInternal(),
             onsetPeriod: this.onsetPeriod && this.onsetPeriod.toJSONInternal(),
             onsetString: this.onsetString,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

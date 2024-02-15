@@ -63,7 +63,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -551,7 +551,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -625,7 +625,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Endpoint({
@@ -651,7 +651,7 @@ class Endpoint extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -691,7 +691,7 @@ class Endpoint extends Resource {
             payloadType: this.payloadType && this.payloadType.map(v => v.toJSON()),
             payloadMimeType: this.payloadMimeType,
             address: this.address,
-            header: this.header,
+            header: this.header
         });
     }
 
@@ -740,7 +740,7 @@ class Endpoint extends Resource {
             payloadType: this.payloadType && this.payloadType.map(v => v.toJSONInternal()),
             payloadMimeType: this.payloadMimeType,
             address: this.address,
-            header: this.header,
+            header: this.header
         };
 
 

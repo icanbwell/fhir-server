@@ -63,7 +63,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -555,7 +555,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -629,7 +629,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MeasureReport({
@@ -655,7 +655,7 @@ class MeasureReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -695,7 +695,7 @@ class MeasureReport extends Resource {
             period: this.period && this.period.toJSON(),
             improvementNotation: this.improvementNotation && this.improvementNotation.toJSON(),
             group: this.group && this.group.map(v => v.toJSON()),
-            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSON()),
+            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSON())
         });
     }
 
@@ -745,7 +745,7 @@ class MeasureReport extends Resource {
             period: this.period && this.period.toJSONInternal(),
             improvementNotation: this.improvementNotation && this.improvementNotation.toJSONInternal(),
             group: this.group && this.group.map(v => v.toJSONInternal()),
-            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSONInternal()),
+            evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSONInternal())
         };
 
 

@@ -12,7 +12,7 @@ const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
 const {
-    AddProxyPatientToConsentResourceRunner,
+    AddProxyPatientToConsentResourceRunner
 } = require('../runners/addProxyPatientToConsentResource');
 
 /**

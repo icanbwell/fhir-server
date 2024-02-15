@@ -93,7 +93,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -901,7 +901,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1005,7 +1005,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CodeSystem({
@@ -1046,7 +1046,7 @@ class CodeSystem extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1101,7 +1101,7 @@ class CodeSystem extends Resource {
             count: this.count,
             filter: this.filter && this.filter.map(v => v.toJSON()),
             property: this.property && this.property.map(v => v.toJSON()),
-            concept: this.concept && this.concept.map(v => v.toJSON()),
+            concept: this.concept && this.concept.map(v => v.toJSON())
         });
     }
 
@@ -1166,7 +1166,7 @@ class CodeSystem extends Resource {
             count: this.count,
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
             property: this.property && this.property.map(v => v.toJSONInternal()),
-            concept: this.concept && this.concept.map(v => v.toJSONInternal()),
+            concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
 
 

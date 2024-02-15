@@ -73,7 +73,7 @@ class ExampleScenario extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -701,7 +701,7 @@ class ExampleScenario extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -787,7 +787,7 @@ class ExampleScenario extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ExampleScenario({
@@ -819,7 +819,7 @@ class ExampleScenario extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -865,7 +865,7 @@ class ExampleScenario extends Resource {
             actor: this.actor && this.actor.map(v => v.toJSON()),
             instance: this.instance && this.instance.map(v => v.toJSON()),
             process: this.process && this.process.map(v => v.toJSON()),
-            workflow: this.workflow,
+            workflow: this.workflow
         });
     }
 
@@ -921,7 +921,7 @@ class ExampleScenario extends Resource {
             actor: this.actor && this.actor.map(v => v.toJSONInternal()),
             instance: this.instance && this.instance.map(v => v.toJSONInternal()),
             process: this.process && this.process.map(v => v.toJSONInternal()),
-            workflow: this.workflow,
+            workflow: this.workflow
         };
 
 

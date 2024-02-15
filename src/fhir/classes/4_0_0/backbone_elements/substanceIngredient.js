@@ -27,7 +27,7 @@ class SubstanceIngredient extends Element {
             modifierExtension,
             quantity,
             substanceCodeableConcept,
-            substanceReference,
+            substanceReference
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class SubstanceIngredient extends Element {
             modifierExtension,
             quantity,
             substanceCodeableConcept,
-            substanceReference,
+            substanceReference
         });
 
     }
@@ -198,7 +198,7 @@ class SubstanceIngredient extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             substanceCodeableConcept: this.substanceCodeableConcept && this.substanceCodeableConcept.toJSON(),
-            substanceReference: this.substanceReference && this.substanceReference.toJSON(),
+            substanceReference: this.substanceReference && this.substanceReference.toJSON()
         });
     }
 
@@ -227,7 +227,7 @@ class SubstanceIngredient extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             substanceCodeableConcept: this.substanceCodeableConcept && this.substanceCodeableConcept.toJSONInternal(),
-            substanceReference: this.substanceReference && this.substanceReference.toJSONInternal(),
+            substanceReference: this.substanceReference && this.substanceReference.toJSONInternal()
         };
 
 

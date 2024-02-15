@@ -30,7 +30,7 @@ class SubstanceNucleicAcidSugar extends Element {
             modifierExtension,
             identifier,
             name,
-            residueSite,
+            residueSite
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class SubstanceNucleicAcidSugar extends Element {
             modifierExtension,
             identifier,
             name,
-            residueSite,
+            residueSite
         });
 
     }
@@ -200,7 +200,7 @@ class SubstanceNucleicAcidSugar extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             name: this.name,
-            residueSite: this.residueSite,
+            residueSite: this.residueSite
         });
     }
 
@@ -227,7 +227,7 @@ class SubstanceNucleicAcidSugar extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             identifier: this.identifier && this.identifier.toJSONInternal(),
             name: this.name,
-            residueSite: this.residueSite,
+            residueSite: this.residueSite
         };
 
 

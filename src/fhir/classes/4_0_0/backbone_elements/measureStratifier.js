@@ -29,7 +29,7 @@ class MeasureStratifier extends Element {
             code,
             description,
             criteria,
-            component,
+            component
         }
     ) {
         super({});
@@ -205,7 +205,7 @@ class MeasureStratifier extends Element {
             code,
             description,
             criteria,
-            component,
+            component
         });
 
     }
@@ -226,7 +226,7 @@ class MeasureStratifier extends Element {
             code: this.code && this.code.toJSON(),
             description: this.description,
             criteria: this.criteria && this.criteria.toJSON(),
-            component: this.component && this.component.map(v => v.toJSON()),
+            component: this.component && this.component.map(v => v.toJSON())
         });
     }
 
@@ -256,7 +256,7 @@ class MeasureStratifier extends Element {
             code: this.code && this.code.toJSONInternal(),
             description: this.description,
             criteria: this.criteria && this.criteria.toJSONInternal(),
-            component: this.component && this.component.map(v => v.toJSONInternal()),
+            component: this.component && this.component.map(v => v.toJSONInternal())
         };
 
 

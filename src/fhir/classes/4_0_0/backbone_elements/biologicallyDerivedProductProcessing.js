@@ -33,7 +33,7 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure,
             additive,
             timeDateTime,
-            timePeriod,
+            timePeriod
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure,
             additive,
             timeDateTime,
-            timePeriod,
+            timePeriod
         });
 
     }
@@ -244,7 +244,7 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure: this.procedure && this.procedure.toJSON(),
             additive: this.additive && this.additive.toJSON(),
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSON(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSON()
         });
     }
 
@@ -275,7 +275,7 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure: this.procedure && this.procedure.toJSONInternal(),
             additive: this.additive && this.additive.toJSONInternal(),
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal()
         };
 
 

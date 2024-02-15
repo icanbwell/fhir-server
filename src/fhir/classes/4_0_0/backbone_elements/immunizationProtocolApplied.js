@@ -36,7 +36,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt,
             doseNumberString,
             seriesDosesPositiveInt,
-            seriesDosesString,
+            seriesDosesString
         }
     ) {
         super({});
@@ -263,7 +263,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt,
             doseNumberString,
             seriesDosesPositiveInt,
-            seriesDosesString,
+            seriesDosesString
         });
 
     }
@@ -287,7 +287,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
-            seriesDosesString: this.seriesDosesString,
+            seriesDosesString: this.seriesDosesString
         });
     }
 
@@ -319,7 +319,7 @@ class ImmunizationProtocolApplied extends Element {
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
-            seriesDosesString: this.seriesDosesString,
+            seriesDosesString: this.seriesDosesString
         };
 
 

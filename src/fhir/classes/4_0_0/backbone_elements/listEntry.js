@@ -29,7 +29,7 @@ class ListEntry extends Element {
             flag,
             deleted,
             date,
-            item,
+            item
         }
     ) {
         super({});
@@ -198,7 +198,7 @@ class ListEntry extends Element {
             flag,
             deleted,
             date,
-            item,
+            item
         });
 
     }
@@ -219,7 +219,7 @@ class ListEntry extends Element {
             flag: this.flag && this.flag.toJSON(),
             deleted: this.deleted,
             date: this.date,
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.toJSON()
         });
     }
 
@@ -248,7 +248,7 @@ class ListEntry extends Element {
             flag: this.flag && this.flag.toJSONInternal(),
             deleted: this.deleted,
             date: this.date,
-            item: this.item && this.item.toJSONInternal(),
+            item: this.item && this.item.toJSONInternal()
         };
 
 

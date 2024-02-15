@@ -44,7 +44,7 @@ class SubstanceSpecificationRelationship extends Element {
             amountString,
             amountRatioLowLimit,
             amountType,
-            source,
+            source
         }
     ) {
         super({});
@@ -362,7 +362,7 @@ class SubstanceSpecificationRelationship extends Element {
             amountString,
             amountRatioLowLimit,
             amountType,
-            source,
+            source
         });
 
     }
@@ -390,7 +390,7 @@ class SubstanceSpecificationRelationship extends Element {
             amountString: this.amountString,
             amountRatioLowLimit: this.amountRatioLowLimit && this.amountRatioLowLimit.toJSON(),
             amountType: this.amountType && this.amountType.toJSON(),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -433,7 +433,7 @@ class SubstanceSpecificationRelationship extends Element {
             amountString: this.amountString,
             amountRatioLowLimit: this.amountRatioLowLimit && this.amountRatioLowLimit.toJSONInternal(),
             amountType: this.amountType && this.amountType.toJSONInternal(),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

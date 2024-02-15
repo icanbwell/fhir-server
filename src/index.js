@@ -16,7 +16,7 @@ const { getImageVersion } = require('./utils/getImageVersion');
 
 Sentry.init({
     release: getImageVersion(),
-    environment: process.env.ENVIRONMENT,
+    environment: process.env.ENVIRONMENT
 });
 
 const main = async function () {

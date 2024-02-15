@@ -51,7 +51,7 @@ class Dosage extends Element {
             doseAndRate,
             maxDosePerPeriod,
             maxDosePerAdministration,
-            maxDosePerLifetime,
+            maxDosePerLifetime
         }
     ) {
         super({});
@@ -429,7 +429,7 @@ class Dosage extends Element {
             doseAndRate,
             maxDosePerPeriod,
             maxDosePerAdministration,
-            maxDosePerLifetime,
+            maxDosePerLifetime
         });
 
     }
@@ -460,7 +460,7 @@ class Dosage extends Element {
             doseAndRate: this.doseAndRate && this.doseAndRate.map(v => v.toJSON()),
             maxDosePerPeriod: this.maxDosePerPeriod && this.maxDosePerPeriod.toJSON(),
             maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSON(),
-            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSON(),
+            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSON()
         });
     }
 
@@ -507,7 +507,7 @@ class Dosage extends Element {
             doseAndRate: this.doseAndRate && this.doseAndRate.map(v => v.toJSONInternal()),
             maxDosePerPeriod: this.maxDosePerPeriod && this.maxDosePerPeriod.toJSONInternal(),
             maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSONInternal(),
-            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSONInternal(),
+            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSONInternal()
         };
 
 

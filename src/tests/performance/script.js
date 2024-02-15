@@ -10,7 +10,7 @@ const getHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: accept,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
     };
 };
 

@@ -35,7 +35,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
             variantState,
             value,
             unitOfMeasure,
-            precisionEstimate,
+            precisionEstimate
         }
     ) {
         super({});
@@ -245,7 +245,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
             variantState,
             value,
             unitOfMeasure,
-            precisionEstimate,
+            precisionEstimate
         });
 
     }
@@ -268,7 +268,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
             variantState: this.variantState && this.variantState.toJSON(),
             value: this.value,
             unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSON(),
-            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSON()),
+            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSON())
         });
     }
 
@@ -301,7 +301,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
             variantState: this.variantState && this.variantState.toJSONInternal(),
             value: this.value,
             unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSONInternal(),
-            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSONInternal()),
+            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSONInternal())
         };
 
 

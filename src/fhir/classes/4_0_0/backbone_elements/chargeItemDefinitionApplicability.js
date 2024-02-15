@@ -30,7 +30,7 @@ class ChargeItemDefinitionApplicability extends Element {
             modifierExtension,
             description,
             language,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ChargeItemDefinitionApplicability extends Element {
             modifierExtension,
             description,
             language,
-            expression,
+            expression
         });
 
     }
@@ -201,7 +201,7 @@ class ChargeItemDefinitionApplicability extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             language: this.language,
-            expression: this.expression,
+            expression: this.expression
         });
     }
 
@@ -227,7 +227,7 @@ class ChargeItemDefinitionApplicability extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             language: this.language,
-            expression: this.expression,
+            expression: this.expression
         };
 
 

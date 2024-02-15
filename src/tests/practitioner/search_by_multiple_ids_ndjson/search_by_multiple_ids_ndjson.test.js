@@ -13,7 +13,7 @@ const {
     getHeaders,
     getHeadersNdJson,
     getHeadersNdJsonFormUrlEncoded,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 

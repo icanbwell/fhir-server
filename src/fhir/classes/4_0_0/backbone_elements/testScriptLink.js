@@ -26,7 +26,7 @@ class TestScriptLink extends Element {
             extension,
             modifierExtension,
             url,
-            description,
+            description
         }
     ) {
         super({});
@@ -152,7 +152,7 @@ class TestScriptLink extends Element {
             extension,
             modifierExtension,
             url,
-            description,
+            description
         });
 
     }
@@ -171,7 +171,7 @@ class TestScriptLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             url: this.url,
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -196,7 +196,7 @@ class TestScriptLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             url: this.url,
-            description: this.description,
+            description: this.description
         };
 
 

@@ -11,7 +11,7 @@ class ConditionConverter extends BaseConverter {
             code,
             subject,
             onsetPeriod,
-            recordedDate,
+            recordedDate
         } = resource;
 
         const clinicalStatusText = this.getDisplayText(clinicalStatus && clinicalStatus.coding);

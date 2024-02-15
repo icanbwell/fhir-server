@@ -82,7 +82,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -775,7 +775,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -867,7 +867,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ImplementationGuide({
@@ -902,7 +902,7 @@ class ImplementationGuide extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -951,7 +951,7 @@ class ImplementationGuide extends Resource {
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
             global: this.global && this.global.map(v => v.toJSON()),
             definition: this.definition && this.definition.toJSON(),
-            manifest: this.manifest && this.manifest.toJSON(),
+            manifest: this.manifest && this.manifest.toJSON()
         });
     }
 
@@ -1010,7 +1010,7 @@ class ImplementationGuide extends Resource {
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
             global: this.global && this.global.map(v => v.toJSONInternal()),
             definition: this.definition && this.definition.toJSONInternal(),
-            manifest: this.manifest && this.manifest.toJSONInternal(),
+            manifest: this.manifest && this.manifest.toJSONInternal()
         };
 
 

@@ -28,7 +28,7 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             modifierExtension,
             therapyRelationshipType,
             medicationCodeableConcept,
-            medicationReference,
+            medicationReference
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             modifierExtension,
             therapyRelationshipType,
             medicationCodeableConcept,
-            medicationReference,
+            medicationReference
         });
 
     }
@@ -200,7 +200,7 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             therapyRelationshipType: this.therapyRelationshipType && this.therapyRelationshipType.toJSON(),
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSON(),
-            medicationReference: this.medicationReference && this.medicationReference.toJSON(),
+            medicationReference: this.medicationReference && this.medicationReference.toJSON()
         });
     }
 
@@ -229,7 +229,7 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             therapyRelationshipType: this.therapyRelationshipType && this.therapyRelationshipType.toJSONInternal(),
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
-            medicationReference: this.medicationReference && this.medicationReference.toJSONInternal(),
+            medicationReference: this.medicationReference && this.medicationReference.toJSONInternal()
         };
 
 

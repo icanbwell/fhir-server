@@ -25,7 +25,7 @@ class TerminologyCapabilitiesValidateCode extends Element {
             id,
             extension,
             modifierExtension,
-            translations,
+            translations
         }
     ) {
         super({});
@@ -132,7 +132,7 @@ class TerminologyCapabilitiesValidateCode extends Element {
             id,
             extension,
             modifierExtension,
-            translations,
+            translations
         });
 
     }
@@ -150,7 +150,7 @@ class TerminologyCapabilitiesValidateCode extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            translations: this.translations,
+            translations: this.translations
         });
     }
 
@@ -174,7 +174,7 @@ class TerminologyCapabilitiesValidateCode extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            translations: this.translations,
+            translations: this.translations
         };
 
 

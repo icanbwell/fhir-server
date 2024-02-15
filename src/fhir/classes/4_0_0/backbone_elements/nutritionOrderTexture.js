@@ -26,7 +26,7 @@ class NutritionOrderTexture extends Element {
             extension,
             modifierExtension,
             modifier,
-            foodType,
+            foodType
         }
     ) {
         super({});
@@ -158,7 +158,7 @@ class NutritionOrderTexture extends Element {
             extension,
             modifierExtension,
             modifier,
-            foodType,
+            foodType
         });
 
     }
@@ -177,7 +177,7 @@ class NutritionOrderTexture extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             modifier: this.modifier && this.modifier.toJSON(),
-            foodType: this.foodType && this.foodType.toJSON(),
+            foodType: this.foodType && this.foodType.toJSON()
         });
     }
 
@@ -204,7 +204,7 @@ class NutritionOrderTexture extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             modifier: this.modifier && this.modifier.toJSONInternal(),
-            foodType: this.foodType && this.foodType.toJSONInternal(),
+            foodType: this.foodType && this.foodType.toJSONInternal()
         };
 
 

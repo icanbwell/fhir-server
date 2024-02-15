@@ -53,7 +53,7 @@ class MedicinalProductPharmaceutical extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -459,7 +459,7 @@ class MedicinalProductPharmaceutical extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -525,7 +525,7 @@ class MedicinalProductPharmaceutical extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductPharmaceutical({
@@ -547,7 +547,7 @@ class MedicinalProductPharmaceutical extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -583,7 +583,7 @@ class MedicinalProductPharmaceutical extends Resource {
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSON()),
             device: this.device && this.device.map(v => v.toJSON()),
             characteristics: this.characteristics && this.characteristics.map(v => v.toJSON()),
-            routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.map(v => v.toJSON()),
+            routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.map(v => v.toJSON())
         });
     }
 
@@ -629,7 +629,7 @@ class MedicinalProductPharmaceutical extends Resource {
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
             device: this.device && this.device.map(v => v.toJSONInternal()),
             characteristics: this.characteristics && this.characteristics.map(v => v.toJSONInternal()),
-            routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.map(v => v.toJSONInternal()),
+            routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.map(v => v.toJSONInternal())
         };
 
 

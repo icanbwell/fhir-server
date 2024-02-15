@@ -39,7 +39,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger,
             valueBoolean,
             valueDateTime,
-            valueDecimal,
+            valueDecimal
         }
     ) {
         super({});
@@ -281,7 +281,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger,
             valueBoolean,
             valueDateTime,
-            valueDecimal,
+            valueDecimal
         });
 
     }
@@ -306,7 +306,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
             valueDateTime: this.valueDateTime,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         });
     }
 
@@ -338,7 +338,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
             valueDateTime: this.valueDateTime,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         };
 
 

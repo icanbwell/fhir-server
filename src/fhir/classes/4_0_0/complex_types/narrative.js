@@ -26,7 +26,7 @@ class Narrative extends Element {
             id,
             extension,
             status,
-            div,
+            div
         }
     ) {
         super({});
@@ -121,7 +121,7 @@ class Narrative extends Element {
             id,
             extension,
             status,
-            div,
+            div
         });
 
     }
@@ -139,7 +139,7 @@ class Narrative extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             status: this.status,
-            div: this.div,
+            div: this.div
         });
     }
 
@@ -162,7 +162,7 @@ class Narrative extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             status: this.status,
-            div: this.div,
+            div: this.div
         };
 
 

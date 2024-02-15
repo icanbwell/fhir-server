@@ -230,8 +230,8 @@ class ResourceValidator {
                         args: {
                             error,
                             message: error.message,
-                            profileId: profileJson.id,
-                        },
+                            profileId: profileJson.id
+                        }
                     }
                 );
 
@@ -239,15 +239,15 @@ class ResourceValidator {
                     error,
                     source: 'ResourceValidator.updateRemoteFhirProfileTask',
                     args: {
-                        profileJson,
-                    },
+                        profileJson
+                    }
                 });
             }
         };
 
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'StructureDefinition',
-            base_version: VERSIONS['4_0_0'],
+            base_version: VERSIONS['4_0_0']
         });
 
         /**
@@ -266,12 +266,12 @@ class ResourceValidator {
                         if (!resourceType) {
                             invalidProfileUrls.push({
                                 location: 'profile',
-                                profile: profileUrl,
+                                profile: profileUrl
                             });
                         } else {
                             invalidProfileUrls.push({
                                 location: `${resourceType}.meta.profile[${index}]`,
-                                profile: profileUrl,
+                                profile: profileUrl
                             });
                         }
 
@@ -284,7 +284,7 @@ class ResourceValidator {
             if (profileJson) {
                 const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
                 await databaseUpdateManager.replaceOneAsync({
-                    doc: profileResourceNew,
+                    doc: profileResourceNew
                 });
 
                 profileJsonToUpdate.push({ profileJson: profileResourceNew.toJSON(), profileUrl });
@@ -296,12 +296,12 @@ class ResourceValidator {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'StructureDefinition',
-            base_version: VERSIONS['4_0_0'],
+            base_version: VERSIONS['4_0_0']
         });
 
         // check if profile already exist in database
         const cursor = await databaseQueryManager.findAsync({
-            query: { url: { $in: profiles } },
+            query: { url: { $in: profiles } }
         });
 
         while (await cursor.hasNext()) {
@@ -350,15 +350,15 @@ class ResourceValidator {
             profileResourceNew.meta.security.push(
                 new Coding({
                     system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile',
+                    code: profileResourceNew.publisher || 'profile'
                 })
             );
         } else {
             profileResourceNew.meta.security = [
                 new Coding({
                     system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile',
-                }),
+                    code: profileResourceNew.publisher || 'profile'
+                })
             ];
         }
         if (!profileResourceNew.meta.source) {

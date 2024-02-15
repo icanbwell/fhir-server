@@ -7,7 +7,7 @@ const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {
     resolveSchema,
-    isValidVersion,
+    isValidVersion
 } = require('../middleware/fhir/utils/schema.utils');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
 const helmet = require('helmet');
@@ -57,7 +57,7 @@ class MyFHIRServer {
         const {server = {}} = this.config;
         this.env = {
             IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
-            USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined,
+            USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined
         };
 
         // return self for chaining
@@ -88,7 +88,7 @@ class MyFHIRServer {
                     }
                     // compress everything
                     return !isTrue(env.DISABLE_COMPRESSION);
-                },
+                }
             })
         );
 
@@ -134,13 +134,13 @@ class MyFHIRServer {
             express.urlencoded({
                 extended: true,
                 limit: this.configManager.payloadLimit,
-                parameterLimit: 50000,
+                parameterLimit: 50000
             })
         );
         this.app.use(
             express.json({
                 type: allowedContentTypes,
-                limit: this.configManager.payloadLimit,
+                limit: this.configManager.payloadLimit
             })
         );
 
@@ -172,7 +172,7 @@ class MyFHIRServer {
             helmet(
                 helmetConfig || {
                     // Needs https running first
-                    hsts: this.env.USE_HTTPS,
+                    hsts: this.env.USE_HTTPS
                     // crossOriginResourcePolicy: false,
                 }
             )
@@ -349,10 +349,10 @@ class MyFHIRServer {
                         severity: 'error',
                         code: 'not-found',
                         details: {
-                            text: `Invalid url: ${req.path}`,
-                        },
-                    },
-                ],
+                            text: `Invalid url: ${req.path}`
+                        }
+                    }
+                ]
             });
             if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
@@ -375,5 +375,5 @@ class MyFHIRServer {
 }
 
 module.exports = {
-    MyFHIRServer,
+    MyFHIRServer
 };

@@ -45,7 +45,7 @@ class ClaimSubDetail extends Element {
             unitPrice,
             factor,
             net,
-            udi,
+            udi
         }
     ) {
         super({});
@@ -369,7 +369,7 @@ class ClaimSubDetail extends Element {
             unitPrice,
             factor,
             net,
-            udi,
+            udi
         });
 
     }
@@ -397,7 +397,7 @@ class ClaimSubDetail extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
             factor: this.factor,
             net: this.net && this.net.toJSON(),
-            udi: this.udi && this.udi.map(v => v.toJSON()),
+            udi: this.udi && this.udi.map(v => v.toJSON())
         });
     }
 
@@ -440,7 +440,7 @@ class ClaimSubDetail extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSONInternal(),
             factor: this.factor,
             net: this.net && this.net.toJSONInternal(),
-            udi: this.udi && this.udi.map(v => v.toJSONInternal()),
+            udi: this.udi && this.udi.map(v => v.toJSONInternal())
         };
 
 

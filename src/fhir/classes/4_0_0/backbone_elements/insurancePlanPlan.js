@@ -33,7 +33,7 @@ class InsurancePlanPlan extends Element {
             coverageArea,
             network,
             generalCost,
-            specificCost,
+            specificCost
         }
     ) {
         super({});
@@ -248,7 +248,7 @@ class InsurancePlanPlan extends Element {
             coverageArea,
             network,
             generalCost,
-            specificCost,
+            specificCost
         });
 
     }
@@ -271,7 +271,7 @@ class InsurancePlanPlan extends Element {
             coverageArea: this.coverageArea && this.coverageArea.map(v => v.toJSON()),
             network: this.network && this.network.map(v => v.toJSON()),
             generalCost: this.generalCost && this.generalCost.map(v => v.toJSON()),
-            specificCost: this.specificCost && this.specificCost.map(v => v.toJSON()),
+            specificCost: this.specificCost && this.specificCost.map(v => v.toJSON())
         });
     }
 
@@ -306,7 +306,7 @@ class InsurancePlanPlan extends Element {
             coverageArea: this.coverageArea && this.coverageArea.map(v => v.toJSONInternal()),
             network: this.network && this.network.map(v => v.toJSONInternal()),
             generalCost: this.generalCost && this.generalCost.map(v => v.toJSONInternal()),
-            specificCost: this.specificCost && this.specificCost.map(v => v.toJSONInternal()),
+            specificCost: this.specificCost && this.specificCost.map(v => v.toJSONInternal())
         };
 
 

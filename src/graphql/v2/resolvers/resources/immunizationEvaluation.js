@@ -45,7 +45,7 @@ module.exports = {
                 context,
                 info,
                 parent.immunizationEvent);
-        },
+        }
     }
 };
 

@@ -29,7 +29,7 @@ class DiagnosticReportMedia extends Element {
             extension,
             modifierExtension,
             comment,
-            link,
+            link
         }
     ) {
         super({});
@@ -159,7 +159,7 @@ class DiagnosticReportMedia extends Element {
             extension,
             modifierExtension,
             comment,
-            link,
+            link
         });
 
     }
@@ -178,7 +178,7 @@ class DiagnosticReportMedia extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             comment: this.comment,
-            link: this.link && this.link.toJSON(),
+            link: this.link && this.link.toJSON()
         });
     }
 
@@ -204,7 +204,7 @@ class DiagnosticReportMedia extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             comment: this.comment,
-            link: this.link && this.link.toJSONInternal(),
+            link: this.link && this.link.toJSONInternal()
         };
 
 

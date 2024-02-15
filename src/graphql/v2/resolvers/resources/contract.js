@@ -18,22 +18,22 @@ module.exports = {
     ContractSubjectV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractSupportingInfoV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractLegallyBindingReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Contract: {
         // noinspection JSUnusedLocalSymbols
@@ -155,7 +155,7 @@ module.exports = {
                 context,
                 info,
                 parent.legallyBindingReference);
-        },
+        }
     }
 };
 

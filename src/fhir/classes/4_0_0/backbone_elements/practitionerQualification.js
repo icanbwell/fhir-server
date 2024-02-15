@@ -30,7 +30,7 @@ class PractitionerQualification extends Element {
             identifier,
             code,
             period,
-            issuer,
+            issuer
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class PractitionerQualification extends Element {
             identifier,
             code,
             period,
-            issuer,
+            issuer
         });
 
     }
@@ -223,7 +223,7 @@ class PractitionerQualification extends Element {
             identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             period: this.period && this.period.toJSON(),
-            issuer: this.issuer && this.issuer.toJSON(),
+            issuer: this.issuer && this.issuer.toJSON()
         });
     }
 
@@ -254,7 +254,7 @@ class PractitionerQualification extends Element {
             identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
             period: this.period && this.period.toJSONInternal(),
-            issuer: this.issuer && this.issuer.toJSONInternal(),
+            issuer: this.issuer && this.issuer.toJSONInternal()
         };
 
 

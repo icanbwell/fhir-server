@@ -37,7 +37,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
 
         /**
@@ -158,8 +158,8 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     useTransaction: false,
                     skip: this.skip,
                     filterToIdProperty: '_uuid',
-                    filterToIds: uuidList,
-                },
+                    filterToIds: uuidList
+                }
             );
         } catch (e) {
             this.adminLogger.logError(`Got error ${e.message}.  At ${this.startFromIdContainer.startFromId}`);
@@ -194,20 +194,20 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             {
                 $group: {
                     _id: { link: '$link.target._uuid', _uuid: '$_uuid' },
-                    count: { $sum: 1 },
-                },
+                    count: { $sum: 1 }
+                }
             },
             { $match: {
                 count: { $gt: 1 },
                 ...personUuidQuery,
-                ...uuidGreaterThanQuery,
+                ...uuidGreaterThanQuery
             } },
             { $project: { uuid: '$_id._uuid', _id: 0 } },
             {
                 $group: {
-                    _id: '$uuid',
-                },
-            },
+                    _id: '$uuid'
+                }
+            }
         ],
         {allowDiskUse: true}
         );

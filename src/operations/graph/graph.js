@@ -91,7 +91,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            method,
+            method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({

@@ -27,7 +27,7 @@ class SubstanceReferenceInformationGene extends Element {
             modifierExtension,
             geneSequenceOrigin,
             gene,
-            source,
+            source
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class SubstanceReferenceInformationGene extends Element {
             modifierExtension,
             geneSequenceOrigin,
             gene,
-            source,
+            source
         });
 
     }
@@ -198,7 +198,7 @@ class SubstanceReferenceInformationGene extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             geneSequenceOrigin: this.geneSequenceOrigin && this.geneSequenceOrigin.toJSON(),
             gene: this.gene && this.gene.toJSON(),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -227,7 +227,7 @@ class SubstanceReferenceInformationGene extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             geneSequenceOrigin: this.geneSequenceOrigin && this.geneSequenceOrigin.toJSONInternal(),
             gene: this.gene && this.gene.toJSONInternal(),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

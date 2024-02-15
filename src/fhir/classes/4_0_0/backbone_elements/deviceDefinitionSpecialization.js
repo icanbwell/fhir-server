@@ -26,7 +26,7 @@ class DeviceDefinitionSpecialization extends Element {
             extension,
             modifierExtension,
             systemType,
-            version,
+            version
         }
     ) {
         super({});
@@ -152,7 +152,7 @@ class DeviceDefinitionSpecialization extends Element {
             extension,
             modifierExtension,
             systemType,
-            version,
+            version
         });
 
     }
@@ -171,7 +171,7 @@ class DeviceDefinitionSpecialization extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             systemType: this.systemType,
-            version: this.version,
+            version: this.version
         });
     }
 
@@ -196,7 +196,7 @@ class DeviceDefinitionSpecialization extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             systemType: this.systemType,
-            version: this.version,
+            version: this.version
         };
 
 

@@ -101,7 +101,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1014,7 +1014,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1128,7 +1128,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Task({
@@ -1174,7 +1174,7 @@ class Task extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1234,7 +1234,7 @@ class Task extends Resource {
             relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON()),
             restriction: this.restriction && this.restriction.toJSON(),
             input: this.input && this.input.map(v => v.toJSON()),
-            output: this.output && this.output.map(v => v.toJSON()),
+            output: this.output && this.output.map(v => v.toJSON())
         });
     }
 
@@ -1320,7 +1320,7 @@ class Task extends Resource {
             relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
             restriction: this.restriction && this.restriction.toJSONInternal(),
             input: this.input && this.input.map(v => v.toJSONInternal()),
-            output: this.output && this.output.map(v => v.toJSONInternal()),
+            output: this.output && this.output.map(v => v.toJSONInternal())
         };
 
 

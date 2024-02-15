@@ -46,7 +46,7 @@ function validateReferences(resourceObj, path) {
                     const objErrors = validateReferences(arrObj, newPath);
                     errors.push(...objErrors);
                 }
-            },
+            }
         );
 
     } else {

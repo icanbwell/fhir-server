@@ -239,7 +239,7 @@ class FhirLoggingManager {
             action: action,
             period: {
                 start: new Date(startTime).toISOString(),
-                end: new Date(stopTime).toISOString(),
+                end: new Date(stopTime).toISOString()
             },
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
             outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html

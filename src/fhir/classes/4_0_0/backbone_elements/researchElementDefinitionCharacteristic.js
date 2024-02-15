@@ -64,7 +64,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration,
             participantEffectiveTiming,
             participantEffectiveTimeFromStart,
-            participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure
         }
     ) {
         super({});
@@ -578,7 +578,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration,
             participantEffectiveTiming,
             participantEffectiveTimeFromStart,
-            participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure
         });
 
     }
@@ -616,7 +616,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSON(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSON(),
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSON(),
-            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure
         });
     }
 
@@ -673,7 +673,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSONInternal(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSONInternal(),
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSONInternal(),
-            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
+            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure
         };
 
 

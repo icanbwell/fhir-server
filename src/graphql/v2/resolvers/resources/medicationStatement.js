@@ -18,37 +18,37 @@ module.exports = {
     MedicationStatementBasedOn: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatementPartOf: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatementSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatementContext: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatementInformationSource: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatementDerivedFromV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatementReasonReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicationStatement: {
         // noinspection JSUnusedLocalSymbols
@@ -140,7 +140,7 @@ module.exports = {
                 context,
                 info,
                 parent.reasonReference);
-        },
+        }
     }
 };
 

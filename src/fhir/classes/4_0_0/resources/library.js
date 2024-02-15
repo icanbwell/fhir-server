@@ -106,7 +106,7 @@ class Library extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1054,7 +1054,7 @@ class Library extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1170,7 +1170,7 @@ class Library extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Library({
@@ -1217,7 +1217,7 @@ class Library extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1278,7 +1278,7 @@ class Library extends Resource {
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
             dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSON()),
-            content: this.content && this.content.map(v => v.toJSON()),
+            content: this.content && this.content.map(v => v.toJSON())
         });
     }
 
@@ -1359,7 +1359,7 @@ class Library extends Resource {
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
             dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSONInternal()),
-            content: this.content && this.content.map(v => v.toJSONInternal()),
+            content: this.content && this.content.map(v => v.toJSONInternal())
         };
 
 

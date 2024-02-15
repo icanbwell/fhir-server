@@ -27,7 +27,7 @@ class ActivityDefinitionParticipant extends Element {
             extension,
             modifierExtension,
             type,
-            role,
+            role
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class ActivityDefinitionParticipant extends Element {
             extension,
             modifierExtension,
             type,
-            role,
+            role
         });
 
     }
@@ -174,7 +174,7 @@ class ActivityDefinitionParticipant extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
-            role: this.role && this.role.toJSON(),
+            role: this.role && this.role.toJSON()
         });
     }
 
@@ -200,7 +200,7 @@ class ActivityDefinitionParticipant extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
-            role: this.role && this.role.toJSONInternal(),
+            role: this.role && this.role.toJSONInternal()
         };
 
 

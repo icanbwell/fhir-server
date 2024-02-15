@@ -95,7 +95,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -933,7 +933,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1039,7 +1039,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Claim({
@@ -1081,7 +1081,7 @@ class Claim extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1137,7 +1137,7 @@ class Claim extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             accident: this.accident && this.accident.toJSON(),
             item: this.item && this.item.map(v => v.toJSON()),
-            total: this.total && this.total.toJSON(),
+            total: this.total && this.total.toJSON()
         });
     }
 
@@ -1220,7 +1220,7 @@ class Claim extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             accident: this.accident && this.accident.toJSONInternal(),
             item: this.item && this.item.map(v => v.toJSONInternal()),
-            total: this.total && this.total.toJSONInternal(),
+            total: this.total && this.total.toJSONInternal()
         };
 
 

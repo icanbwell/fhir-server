@@ -40,7 +40,7 @@ class GroupCharacteristic extends Element {
             valueRange,
             valueReference,
             exclude,
-            period,
+            period
         }
     ) {
         super({});
@@ -294,7 +294,7 @@ class GroupCharacteristic extends Element {
             valueRange,
             valueReference,
             exclude,
-            period,
+            period
         });
 
     }
@@ -319,7 +319,7 @@ class GroupCharacteristic extends Element {
             valueRange: this.valueRange && this.valueRange.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
             exclude: this.exclude,
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -356,7 +356,7 @@ class GroupCharacteristic extends Element {
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
             exclude: this.exclude,
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

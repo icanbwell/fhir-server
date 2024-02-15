@@ -32,7 +32,7 @@ class DeviceRequestParameter extends Element {
             valueCodeableConcept,
             valueQuantity,
             valueRange,
-            valueBoolean,
+            valueBoolean
         }
     ) {
         super({});
@@ -223,7 +223,7 @@ class DeviceRequestParameter extends Element {
             valueCodeableConcept,
             valueQuantity,
             valueRange,
-            valueBoolean,
+            valueBoolean
         });
 
     }
@@ -245,7 +245,7 @@ class DeviceRequestParameter extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueRange: this.valueRange && this.valueRange.toJSON(),
-            valueBoolean: this.valueBoolean,
+            valueBoolean: this.valueBoolean
         });
     }
 
@@ -277,7 +277,7 @@ class DeviceRequestParameter extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
-            valueBoolean: this.valueBoolean,
+            valueBoolean: this.valueBoolean
         };
 
 

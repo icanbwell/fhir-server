@@ -107,7 +107,7 @@ module.exports = {
                 keys: {
                     '_sourceId': 1,
                     '_sourceAssigningAuthority': 1,
-                    '_uuid': 1,
+                    '_uuid': 1
                 },
                 options: {
                     name: 'sourceId._sourceAssigningAuthority'
@@ -199,7 +199,7 @@ module.exports = {
             },
             {
                 keys: {
-                    '_uuid': 1,
+                    '_uuid': 1
                 },
                 options: {
                     name: 'uuid',
@@ -214,7 +214,7 @@ module.exports = {
             {
                 keys: {
                     '_sourceId': 1,
-                    '_uuid': 1,
+                    '_uuid': 1
                 },
                 options: {
                     name: 'sourceId'
@@ -297,7 +297,7 @@ module.exports = {
         'AuditEvent_4_0_0': [
             {
                 keys: {
-                    'recorded': 1,
+                    'recorded': 1
                 },
                 options: {
                     name: 'recorded'
@@ -306,7 +306,7 @@ module.exports = {
             {
                 keys: {
                     '_uuid': 1,
-                    'recorded': 1,
+                    'recorded': 1
                 },
                 options: {
                     name: '_uuidRecorded'
@@ -426,7 +426,7 @@ module.exports = {
             {
                 keys: {
                     'beneficiary._sourceId': 1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'helix_coverage_1'
@@ -435,7 +435,7 @@ module.exports = {
             {
                 keys: {
                     'beneficiary._uuid': 1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'helix_coverage_uuid'
@@ -470,7 +470,7 @@ module.exports = {
                     '_access.Thedacare': 1,
                     'meta.source': 1,
                     '_uuid': 1,
-                    'meta.lastUpdated': 1,
+                    'meta.lastUpdated': 1
                 },
                 options: {
                     name: 'access_Thedacare.meta_source.uuid.meta_lastUpdated'
@@ -563,7 +563,7 @@ module.exports = {
             {
                 keys: {
                     'providedBy._uuid': 1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'providedBy.reference_1'
@@ -597,7 +597,7 @@ module.exports = {
             },
             {
                 keys: {
-                    'providedBy._sourceId': 1,
+                    'providedBy._sourceId': 1
                 },
                 options: {
                     name: 'providedBy._sourceId'
@@ -620,7 +620,7 @@ module.exports = {
             {
                 keys: {
                     'managingOrganization._sourceId': 1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'managingOrganization.reference_1'
@@ -629,7 +629,7 @@ module.exports = {
             {
                 keys: {
                     'managingOrganization._uuid': 1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
@@ -699,7 +699,7 @@ module.exports = {
                 keys: {
                     'subject._sourceId': 1,
                     'effectiveDateTime': -1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_2'
@@ -719,7 +719,7 @@ module.exports = {
                 keys: {
                     'subject._uuid': 1,
                     'effectiveDateTime': -1,
-                    '_sourceId': 1,
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_uuid_2'
@@ -729,7 +729,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     '_uuid': -1,
-                    'meta.lastUpdated': 1,
+                    'meta.lastUpdated': 1
                 },
                 options: {
                     name: 'access_bwell.uuid.meta_lastUpdated'
@@ -1032,7 +1032,7 @@ module.exports = {
                 },
                 options: {
                     name: 'metaSecuritySystemCodeId_uuid_sourceId'
-                },
+                }
             }
         ],
         'PractitionerRole_4_0_0': [
@@ -1093,10 +1093,10 @@ module.exports = {
             {
                 keys: {
                     '_access.medstar': 1,
-                    '_uuid': 1,
+                    '_uuid': 1
                 },
                 options: {
-                    name: 'security._access_medstar_1_uuid_1',
+                    name: 'security._access_medstar_1_uuid_1'
                 }
             }
         ],
@@ -1245,7 +1245,7 @@ module.exports = {
                 keys: {
                     'for._sourceId': 1,
                     'status': 1,
-                    '_uuid': 1,
+                    '_uuid': 1
                 },
                 options: {
                     name: 'for_reference_status_1'
@@ -1255,7 +1255,7 @@ module.exports = {
                 keys: {
                     'for._uuid': 1,
                     'status': 1,
-                    '_uuid': 1,
+                    '_uuid': 1
                 },
                 options: {
                     name: 'for_reference_status_uuid'
@@ -1264,7 +1264,7 @@ module.exports = {
             {
                 keys: {
                     'identifier.system': 1,
-                    'identifier.value': 1,
+                    'identifier.value': 1
                 },
                 options: {
                     name: 'identifier.system_1_identifier.value_1'
@@ -1313,12 +1313,12 @@ module.exports = {
                     'status': 1,
                     'provision.actor.reference._uuid': 1,
                     'provision.actor.role.coding.system': 1,
-                    'provision.actor.role.coding.code': 1,
+                    'provision.actor.role.coding.code': 1
                 },
                 options: {
-                    name: CONSENT_OF_LINKED_PERSON_INDEX,
-                },
+                    name: CONSENT_OF_LINKED_PERSON_INDEX
+                }
             }
-        ],
+        ]
     }
 };

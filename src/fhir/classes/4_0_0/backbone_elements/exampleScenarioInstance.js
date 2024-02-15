@@ -33,7 +33,7 @@ class ExampleScenarioInstance extends Element {
             name,
             description,
             version,
-            containedInstance,
+            containedInstance
         }
     ) {
         super({});
@@ -240,7 +240,7 @@ class ExampleScenarioInstance extends Element {
             name,
             description,
             version,
-            containedInstance,
+            containedInstance
         });
 
     }
@@ -263,7 +263,7 @@ class ExampleScenarioInstance extends Element {
             name: this.name,
             description: this.description,
             version: this.version && this.version.map(v => v.toJSON()),
-            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSON()),
+            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSON())
         });
     }
 
@@ -294,7 +294,7 @@ class ExampleScenarioInstance extends Element {
             name: this.name,
             description: this.description,
             version: this.version && this.version.map(v => v.toJSONInternal()),
-            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSONInternal()),
+            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSONInternal())
         };
 
 

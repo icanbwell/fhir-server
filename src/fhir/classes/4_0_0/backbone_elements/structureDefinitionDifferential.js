@@ -25,7 +25,7 @@ class StructureDefinitionDifferential extends Element {
             id,
             extension,
             modifierExtension,
-            element,
+            element
         }
     ) {
         super({});
@@ -134,7 +134,7 @@ class StructureDefinitionDifferential extends Element {
             id,
             extension,
             modifierExtension,
-            element,
+            element
         });
 
     }
@@ -152,7 +152,7 @@ class StructureDefinitionDifferential extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            element: this.element && this.element.map(v => v.toJSON()),
+            element: this.element && this.element.map(v => v.toJSON())
         });
     }
 
@@ -177,7 +177,7 @@ class StructureDefinitionDifferential extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            element: this.element && this.element.map(v => v.toJSONInternal()),
+            element: this.element && this.element.map(v => v.toJSONInternal())
         };
 
 

@@ -31,7 +31,7 @@ class MolecularSequenceStructureVariant extends Element {
             exact,
             length,
             outer,
-            inner,
+            inner
         }
     ) {
         super({});
@@ -221,7 +221,7 @@ class MolecularSequenceStructureVariant extends Element {
             exact,
             length,
             outer,
-            inner,
+            inner
         });
 
     }
@@ -243,7 +243,7 @@ class MolecularSequenceStructureVariant extends Element {
             exact: this.exact,
             length: this.length,
             outer: this.outer && this.outer.toJSON(),
-            inner: this.inner && this.inner.toJSON(),
+            inner: this.inner && this.inner.toJSON()
         });
     }
 
@@ -274,7 +274,7 @@ class MolecularSequenceStructureVariant extends Element {
             exact: this.exact,
             length: this.length,
             outer: this.outer && this.outer.toJSONInternal(),
-            inner: this.inner && this.inner.toJSONInternal(),
+            inner: this.inner && this.inner.toJSONInternal()
         };
 
 

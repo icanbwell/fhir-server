@@ -60,7 +60,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -530,7 +530,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -602,7 +602,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Practitioner({
@@ -627,7 +627,7 @@ class Practitioner extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -666,7 +666,7 @@ class Practitioner extends Resource {
             birthDate: this.birthDate,
             photo: this.photo && this.photo.map(v => v.toJSON()),
             qualification: this.qualification && this.qualification.map(v => v.toJSON()),
-            communication: this.communication && this.communication.map(v => v.toJSON()),
+            communication: this.communication && this.communication.map(v => v.toJSON())
         });
     }
 
@@ -715,7 +715,7 @@ class Practitioner extends Resource {
             birthDate: this.birthDate,
             photo: this.photo && this.photo.map(v => v.toJSONInternal()),
             qualification: this.qualification && this.qualification.map(v => v.toJSONInternal()),
-            communication: this.communication && this.communication.map(v => v.toJSONInternal()),
+            communication: this.communication && this.communication.map(v => v.toJSONInternal())
         };
 
 

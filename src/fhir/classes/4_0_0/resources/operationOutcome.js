@@ -42,7 +42,7 @@ class OperationOutcome extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -321,7 +321,7 @@ class OperationOutcome extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -375,7 +375,7 @@ class OperationOutcome extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new OperationOutcome({
@@ -391,7 +391,7 @@ class OperationOutcome extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -421,7 +421,7 @@ class OperationOutcome extends Resource {
             contained: this.contained && this.contained.map(v => v.toJSON()),
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            issue: this.issue && this.issue.map(v => v.toJSON()),
+            issue: this.issue && this.issue.map(v => v.toJSON())
         });
     }
 
@@ -455,7 +455,7 @@ class OperationOutcome extends Resource {
             contained: this.contained && this.contained.map(v => v.toJSONInternal()),
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            issue: this.issue && this.issue.map(v => v.toJSONInternal()),
+            issue: this.issue && this.issue.map(v => v.toJSONInternal())
         };
 
 

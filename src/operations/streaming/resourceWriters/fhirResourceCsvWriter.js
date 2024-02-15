@@ -21,7 +21,7 @@ class FhirResourceCsvWriter extends Transform {
         const opts = {
             delimiter: delimiter,
             transforms: [
-                flatten({objects: true, arrays: true, separator: '.'}),
+                flatten({objects: true, arrays: true, separator: '.'})
             ]
         };
         /**

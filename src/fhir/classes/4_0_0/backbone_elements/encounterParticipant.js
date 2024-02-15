@@ -28,7 +28,7 @@ class EncounterParticipant extends Element {
             modifierExtension,
             type,
             period,
-            individual,
+            individual
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class EncounterParticipant extends Element {
             modifierExtension,
             type,
             period,
-            individual,
+            individual
         });
 
     }
@@ -200,7 +200,7 @@ class EncounterParticipant extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
-            individual: this.individual && this.individual.toJSON(),
+            individual: this.individual && this.individual.toJSON()
         });
     }
 
@@ -229,7 +229,7 @@ class EncounterParticipant extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.map(v => v.toJSONInternal()),
             period: this.period && this.period.toJSONInternal(),
-            individual: this.individual && this.individual.toJSONInternal(),
+            individual: this.individual && this.individual.toJSONInternal()
         };
 
 

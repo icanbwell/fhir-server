@@ -90,9 +90,9 @@ class RequestWithDigestAuth {
                 ...options,
                 headers: {
                     ...options.headers,
-                    authorization,
+                    authorization
                 },
-                retriedWithDigestTimes: retriedWithDigestTimes + 1,
+                retriedWithDigestTimes: retriedWithDigestTimes + 1
             });
         }
     }

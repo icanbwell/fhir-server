@@ -32,7 +32,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint,
             reliableCache,
             documentation,
-            supportedMessage,
+            supportedMessage
         }
     ) {
         super({});
@@ -205,7 +205,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint,
             reliableCache,
             documentation,
-            supportedMessage,
+            supportedMessage
         });
 
     }
@@ -226,7 +226,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
             reliableCache: this.reliableCache,
             documentation: this.documentation,
-            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON()),
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON())
         });
     }
 
@@ -255,7 +255,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
             reliableCache: this.reliableCache,
             documentation: this.documentation,
-            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSONInternal()),
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSONInternal())
         };
 
 

@@ -120,7 +120,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     stack: e.stack,
                     message: e.message,
                     chunkId,
-                    encoding,
+                    encoding
                 }
             });
             // as we are not propagating this error, send this to sentry
@@ -141,7 +141,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @type {OperationOutcome}
          */
         const operationOutcome = convertErrorToOperationOutcome({
-            error: error,
+            error: error
         });
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
@@ -206,7 +206,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 source: 'FhirBundleWriter._flush',
                 args: {
                     stack: e.stack,
-                    message: e.message,
+                    message: e.message
                 }
             });
             // as we are not propagating this error, send this to sentry

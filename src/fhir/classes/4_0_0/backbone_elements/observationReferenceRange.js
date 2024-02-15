@@ -34,7 +34,7 @@ class ObservationReferenceRange extends Element {
             type,
             appliesTo,
             age,
-            text,
+            text
         }
     ) {
         super({});
@@ -261,7 +261,7 @@ class ObservationReferenceRange extends Element {
             type,
             appliesTo,
             age,
-            text,
+            text
         });
 
     }
@@ -284,7 +284,7 @@ class ObservationReferenceRange extends Element {
             type: this.type && this.type.toJSON(),
             appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSON()),
             age: this.age && this.age.toJSON(),
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -318,7 +318,7 @@ class ObservationReferenceRange extends Element {
             type: this.type && this.type.toJSONInternal(),
             appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSONInternal()),
             age: this.age && this.age.toJSONInternal(),
-            text: this.text,
+            text: this.text
         };
 
 

@@ -89,7 +89,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -100,9 +100,9 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 'meta.security': {
                     $elemMatch: {
                         system: SecurityTagSystem.connectionType,
-                        code: this.connectionType,
-                    },
-                },
+                        code: this.connectionType
+                    }
+                }
             };
             /**
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
@@ -116,7 +116,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                         sourceAssigningAuthority:
                             doc.meta?.security?.find(
                                 (item) => item.system === SecurityTagSystem.sourceAssigningAuthority
-                            )?.code || '',
+                            )?.code || ''
                     });
                 }
             }
@@ -125,7 +125,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error fetching ids & uuids for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'DelinkProaPersonPatientRunner.getProaPatientsIdMap',
+                source: 'DelinkProaPersonPatientRunner.getProaPatientsIdMap'
             });
         } finally {
             await session.endSession();
@@ -149,7 +149,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -160,8 +160,8 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 'link.target._uuid': {
                     $in: [...this.proaPatientUUIDToIdSourceMap.keys()].map(
                         (uuid) => `Patient/${uuid}`
-                    ),
-                },
+                    )
+                }
             };
 
             /**
@@ -202,7 +202,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                                 this.proaPersonToProaPatientMap.get(resource._uuid).push({
                                     id: ref?.target?._uuid,
                                     sourceAssigningAuthority:
-                                        ref?.target?._sourceAssigningAuthority,
+                                        ref?.target?._sourceAssigningAuthority
                                 });
                             } else if (
                                 resource?.meta?.source ===
@@ -224,7 +224,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error fetching ids & uuids for collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'DelinkProaPersonPatientRunner.getPersonsMapFromProaPatient',
+                source: 'DelinkProaPersonPatientRunner.getPersonsMapFromProaPatient'
             });
         } finally {
             await session.endSession();
@@ -245,7 +245,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
          */
         const { db, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
         /**
          * @type {Map<string, Resource>}
@@ -256,7 +256,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 linkedMasterPatients: [],
                 linkedClientPersons: [],
                 linkedProaPersons: [],
-                linkedMasterPersons: [],
+                linkedMasterPersons: []
             };
             for (let i = 0; i < doc.link?.length; i++) {
                 const ref = doc.link[parseInt(i)];
@@ -316,7 +316,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                     throw new RethrownError({
                         message: `Error fetching resource , ${e.message}`,
                         error: e,
-                        source: 'DelinkProaPersonPatientRunner.processRecordAsync',
+                        source: 'DelinkProaPersonPatientRunner.processRecordAsync'
                     });
                 }
             }
@@ -450,9 +450,9 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 message: `Error processing record ${e.message}`,
                 error: e,
                 args: {
-                    resource: doc,
+                    resource: doc
                 },
-                source: 'DelinkProaPersonPatientRunner.processRecordAsync',
+                source: 'DelinkProaPersonPatientRunner.processRecordAsync'
             });
         } finally {
             await session.endSession();
@@ -473,7 +473,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
          */
         const { db, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -489,7 +489,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
 
             await db.collection(collectionName).replaceOne(
                 {
-                    _uuid: personResource._uuid,
+                    _uuid: personResource._uuid
                 },
                 personResource
             );
@@ -499,13 +499,13 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
              */
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'Person',
-                base_version: VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0']
             });
             // To create history
             await databaseUpdateManager.postSaveAsync({
                 requestId: this.uniqueRequestId,
                 method: 'PUT',
-                doc: new Person(personResource),
+                doc: new Person(personResource)
             });
             this.adminLogger.logInfo(
                 `Successfully delinked ids: ${delinkResourceIds} for resource ${collectionName}`
@@ -515,9 +515,9 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 message: `Error updating record ${e.message}`,
                 error: e,
                 args: {
-                    resource: person,
+                    resource: person
                 },
-                source: 'DelinkProaPersonPatientRunner.delinkResources',
+                source: 'DelinkProaPersonPatientRunner.delinkResources'
             });
         } finally {
             await session.endSession();
@@ -537,7 +537,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
          */
         const { db, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -546,8 +546,8 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
             );
             await db.collection(collectionName).deleteMany({
                 _uuid: {
-                    $in: Array.from(proaPersonIdsToRemove),
-                },
+                    $in: Array.from(proaPersonIdsToRemove)
+                }
             });
 
             this.adminLogger.logInfo(
@@ -558,9 +558,9 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 message: `Error removing record ${e.message}`,
                 error: e,
                 args: {
-                    proaPersonIdsToRemove: proaPersonIdsToRemove,
+                    proaPersonIdsToRemove: proaPersonIdsToRemove
                 },
-                source: 'DelinkProaPersonPatientRunner.removeProaPersons',
+                source: 'DelinkProaPersonPatientRunner.removeProaPersons'
             });
         } finally {
             await session.endSession();
@@ -605,25 +605,25 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                             'meta.security': {
                                 $elemMatch: {
                                     system: SecurityTagSystem.owner,
-                                    code: 'bwell',
-                                },
-                            },
+                                    code: 'bwell'
+                                }
+                            }
                         },
                         {
                             'link.target._uuid': {
                                 $in: [...this.personsUuidLinkedToProaPatient.keys()].map(
                                     (uuid) => `Person/${uuid}`
-                                ),
-                            },
-                        },
-                    ],
+                                )
+                            }
+                        }
+                    ]
                 };
                 /**
                  * @type {require('mongodb').collection}
                  */
                 const { collection, session, client } = await this.createSingeConnectionAsync({
                     mongoConfig,
-                    collectionName,
+                    collectionName
                 });
 
                 try {
@@ -641,7 +641,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                     throw new RethrownError({
                         message: `Error fetching uuids of Master persons for collection ${collectionName}, ${e.message}`,
                         error: e,
-                        source: 'DelinkProaPersonPatientRunner.processAsync',
+                        source: 'DelinkProaPersonPatientRunner.processAsync'
                     });
                 } finally {
                     await session.endSession();
@@ -660,7 +660,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
             this.writeStreamError.close();
             return Promise.all([
                 new Promise((resolve) => this.writeStream.on('close', resolve)),
-                new Promise((resolve) => this.writeStreamError.on('close', resolve)),
+                new Promise((resolve) => this.writeStreamError.on('close', resolve))
             ]);
         } catch (e) {
             this.adminLogger.logError(`ERROR: ${e.message}`, { stack: e });
@@ -669,5 +669,5 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    DelinkProaPersonPatientRunner,
+    DelinkProaPersonPatientRunner
 };

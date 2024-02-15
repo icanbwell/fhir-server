@@ -40,7 +40,7 @@ class ValueSetParameter extends Element {
             valueDecimal,
             valueUri,
             valueCode,
-            valueDateTime,
+            valueDateTime
         }
     ) {
         super({});
@@ -282,7 +282,7 @@ class ValueSetParameter extends Element {
             valueDecimal,
             valueUri,
             valueCode,
-            valueDateTime,
+            valueDateTime
         });
 
     }
@@ -307,7 +307,7 @@ class ValueSetParameter extends Element {
             valueDecimal: this.valueDecimal,
             valueUri: this.valueUri,
             valueCode: this.valueCode,
-            valueDateTime: this.valueDateTime,
+            valueDateTime: this.valueDateTime
         });
     }
 
@@ -338,7 +338,7 @@ class ValueSetParameter extends Element {
             valueDecimal: this.valueDecimal,
             valueUri: this.valueUri,
             valueCode: this.valueCode,
-            valueDateTime: this.valueDateTime,
+            valueDateTime: this.valueDateTime
         };
 
 

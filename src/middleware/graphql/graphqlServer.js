@@ -13,7 +13,7 @@ const {buildSubgraphSchema} = require('@apollo/subgraph');
 
 const {ApolloServerPluginLandingPageDisabled, ApolloServerPluginInlineTraceDisabled} = require('@apollo/server/plugin/disabled');
 const {
-    ApolloServerPluginLandingPageLocalDefault,
+    ApolloServerPluginLandingPageLocalDefault
     // ApolloServerPluginLandingPageProductionDefault
 } = require('@apollo/server/plugin/landingPage/default');
 
@@ -55,7 +55,7 @@ const graphql = async (fnGetContainer) => {
             ApolloServerPluginLandingPageLocalDefault({
                 embed: {
                     runTelemetry: false
-                },
+                }
             })
             // eslint-disable-next-line new-cap
             : ApolloServerPluginLandingPageDisabled(),
@@ -64,7 +64,7 @@ const graphql = async (fnGetContainer) => {
         getAddRequestIdToResponseHeadersPlugin(),
         getValidateMissingVariableValuesPlugin(),
         // eslint-disable-next-line new-cap
-        ApolloServerPluginInlineTraceDisabled(),
+        ApolloServerPluginInlineTraceDisabled()
     ];
 
     /**
@@ -151,7 +151,7 @@ const graphql = async (fnGetContainer) => {
             },
             stringifyResult: (value) => {
                 return JSON.stringify(value, null, 2);
-            },
+            }
         });
 
     // apollo requires us to start the server first

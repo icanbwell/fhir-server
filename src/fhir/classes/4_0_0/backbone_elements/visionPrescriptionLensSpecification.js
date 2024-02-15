@@ -50,7 +50,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration,
             color,
             brand,
-            note,
+            note
         }
     ) {
         super({});
@@ -413,7 +413,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration,
             color,
             brand,
-            note,
+            note
         });
 
     }
@@ -444,7 +444,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration: this.duration && this.duration.toJSON(),
             color: this.color,
             brand: this.brand,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -485,7 +485,7 @@ class VisionPrescriptionLensSpecification extends Element {
             duration: this.duration && this.duration.toJSONInternal(),
             color: this.color,
             brand: this.brand,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

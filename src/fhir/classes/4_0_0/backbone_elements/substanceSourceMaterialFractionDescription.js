@@ -38,7 +38,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             extension,
             modifierExtension,
             fraction,
-            materialType,
+            materialType
         }
     ) {
         super({});
@@ -169,7 +169,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             extension,
             modifierExtension,
             fraction,
-            materialType,
+            materialType
         });
 
     }
@@ -188,7 +188,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             fraction: this.fraction,
-            materialType: this.materialType && this.materialType.toJSON(),
+            materialType: this.materialType && this.materialType.toJSON()
         });
     }
 
@@ -214,7 +214,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             fraction: this.fraction,
-            materialType: this.materialType && this.materialType.toJSONInternal(),
+            materialType: this.materialType && this.materialType.toJSONInternal()
         };
 
 

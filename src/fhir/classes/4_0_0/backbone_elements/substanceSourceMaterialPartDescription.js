@@ -38,7 +38,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
             extension,
             modifierExtension,
             part,
-            partLocation,
+            partLocation
         }
     ) {
         super({});
@@ -170,7 +170,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
             extension,
             modifierExtension,
             part,
-            partLocation,
+            partLocation
         });
 
     }
@@ -189,7 +189,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             part: this.part && this.part.toJSON(),
-            partLocation: this.partLocation && this.partLocation.toJSON(),
+            partLocation: this.partLocation && this.partLocation.toJSON()
         });
     }
 
@@ -216,7 +216,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             part: this.part && this.part.toJSONInternal(),
-            partLocation: this.partLocation && this.partLocation.toJSONInternal(),
+            partLocation: this.partLocation && this.partLocation.toJSONInternal()
         };
 
 

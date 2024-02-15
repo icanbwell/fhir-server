@@ -21,12 +21,12 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const {
-    DelinkProaPersonPatientRunner,
+    DelinkProaPersonPatientRunner
 } = require('../../../../admin/runners/delinkProaPersonPatientRunner');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -71,7 +71,7 @@ describe('Proa patient client persons delinking tests', () => {
                         adminLogger: new AdminLogger(),
                         batchSize: 10000,
                         delinkRemoveProaPerson: true,
-                        connectionType: 'proa',
+                        connectionType: 'proa'
                     })
             );
 
@@ -117,7 +117,7 @@ describe('Proa patient client persons delinking tests', () => {
                         adminLogger: new AdminLogger(),
                         batchSize: 10000,
                         delinkRemoveProaPerson: true,
-                        connectionType: 'proa',
+                        connectionType: 'proa'
                     })
             );
 
@@ -155,7 +155,7 @@ describe('Proa patient client persons delinking tests', () => {
                     proaPerson1,
                     proaPerson2,
                     proaPatient,
-                    proaPatient2,
+                    proaPatient2
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -175,7 +175,7 @@ describe('Proa patient client persons delinking tests', () => {
                         adminLogger: new AdminLogger(),
                         batchSize: 10000,
                         delinkRemoveProaPerson: true,
-                        connectionType: 'proa',
+                        connectionType: 'proa'
                     })
             );
 

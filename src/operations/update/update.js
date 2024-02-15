@@ -175,7 +175,7 @@ class UpdateOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -263,7 +263,7 @@ class UpdateOperation {
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
@@ -298,13 +298,13 @@ class UpdateOperation {
                         r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
-                        : [],
+                        : []
                 ).sort();
                 throw new BadRequestError(new Error(
                     `Multiple resources found with id ${id}.  ` +
                     'Please either specify the owner/sourceAssigningAuthority tag: ' +
                     sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
-                    ' OR use uuid to query.',
+                    ' OR use uuid to query.'
                 ));
             }
             /**
@@ -351,7 +351,7 @@ class UpdateOperation {
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
-                    databaseAttachmentManager: this.databaseAttachmentManager,
+                    databaseAttachmentManager: this.databaseAttachmentManager
                 });
                 doc = updatedResource;
                 if (doc) { // if there is a change
@@ -392,7 +392,7 @@ class UpdateOperation {
                     {
                         requestId, currentDate, base_version: base_version,
                         method,
-                        userRequestId,
+                        userRequestId
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -459,7 +459,7 @@ class UpdateOperation {
                     created: false,
                     updated: false,
                     resource_version: foundResource?.meta?.versionId,
-                    resource: foundResource,
+                    resource: foundResource
                 };
 
                 // not modified

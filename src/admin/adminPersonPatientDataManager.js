@@ -258,7 +258,7 @@ class AdminPersonPatientDataManager {
                             id: person.id,
                             resource: new Person(
                                 {
-                                    id: person.id,
+                                    id: person.id
                                 }
                             ),
                             request: new BundleRequest(

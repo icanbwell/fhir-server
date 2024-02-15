@@ -32,7 +32,7 @@ const {
     getHeaders,
     getHeadersWithCustomPayload,
     getCustomGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
@@ -184,7 +184,7 @@ describe('patient Tests', () => {
             'custom:clientFhirPersonId': 'clientFhirPerson',
             'custom:clientFhirPatientId': 'clientFhirPatient',
             'custom:bwellFhirPersonId': 'root-person',
-            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient'
        };
         const only_fhir_person_payload = {
             'cognito:username': 'patient-123@example.com',
@@ -194,12 +194,12 @@ describe('patient Tests', () => {
              'custom:clientFhirPersonId': 'clientFhirPerson',
             'custom:clientFhirPatientId': 'clientFhirPatient',
             'custom:bwellFhirPersonId': 'root-person',
-            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient'
        };
         const no_ids_user_payload = {
             'cognito:username': 'patient-123@example.com',
             scope: 'patient/*.read user/*.* access/*.*',
-            username: 'patient-123@example.com',
+            username: 'patient-123@example.com'
         };
         const other_patient_payload = {
             'cognito:username': 'other-patient@example.com',
@@ -210,7 +210,7 @@ describe('patient Tests', () => {
             'custom:clientFhirPersonId': 'otherClientFhirPerson',
             'custom:clientFhirPatientId': 'otherClientFhirPatient',
             'custom:bwellFhirPersonId': 'other-patient',
-            'custom:bwellFhirPatientId': 'otherBwellFhirPatient',
+            'custom:bwellFhirPatientId': 'otherBwellFhirPatient'
         };
         // Legacy payload represents a user that registered before FHIR person support was added
         const patient_123_legacy_payload = {
@@ -221,7 +221,7 @@ describe('patient Tests', () => {
             'custom:clientFhirPersonId': 'clientFhirPerson',
             'custom:clientFhirPatientId': 'clientFhirPatient',
             'custom:bwellFhirPersonId': 'person-123-a',
-            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient'
         };
         const patient_123_legacy_bad_id_payload = {
             'custom:bwell_fhir_id': '-',
@@ -233,11 +233,11 @@ describe('patient Tests', () => {
             'custom:clientFhirPersonId': 'clientFhirPerson',
             'custom:clientFhirPatientId': 'clientFhirPatient',
             'custom:bwellFhirPersonId': '-',
-            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient'
         };
         const app_client_payload = {
             scope: 'patient/*.read user/*.* access/*.*',
-            username: 'Some App',
+            username: 'Some App'
         };
         const desiree_payload = {
             'custom:bwell_fhir_person_id': 'desiree-root-person',
@@ -248,7 +248,7 @@ describe('patient Tests', () => {
             'custom:clientFhirPersonId': 'clientFhirPerson',
             'custom:clientFhirPatientId': 'clientFhirPatient',
             'custom:bwellFhirPersonId': 'desiree-root-person',
-            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient'
         };
 
         describe('User security filtering', () => {
@@ -497,7 +497,7 @@ describe('patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(payload));
             // noinspection JSUnresolvedFunction

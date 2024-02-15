@@ -11,7 +11,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -54,7 +54,7 @@ describe('Practitioner Update Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: validPractitionerResource}],
+                parameter: [{name: 'resource', resource: validPractitionerResource}]
             };
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')
@@ -107,7 +107,7 @@ describe('Practitioner Update Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameterBad: [{name: 'resource', resource: validPractitionerResource}],
+                parameterBad: [{name: 'resource', resource: validPractitionerResource}]
             };
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')

@@ -29,7 +29,7 @@ class InsurancePlanCost extends Element {
             type,
             applicability,
             qualifiers,
-            value,
+            value
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class InsurancePlanCost extends Element {
             type,
             applicability,
             qualifiers,
-            value,
+            value
         });
 
     }
@@ -225,7 +225,7 @@ class InsurancePlanCost extends Element {
             type: this.type && this.type.toJSON(),
             applicability: this.applicability && this.applicability.toJSON(),
             qualifiers: this.qualifiers && this.qualifiers.map(v => v.toJSON()),
-            value: this.value && this.value.toJSON(),
+            value: this.value && this.value.toJSON()
         });
     }
 
@@ -256,7 +256,7 @@ class InsurancePlanCost extends Element {
             type: this.type && this.type.toJSONInternal(),
             applicability: this.applicability && this.applicability.toJSONInternal(),
             qualifiers: this.qualifiers && this.qualifiers.map(v => v.toJSONInternal()),
-            value: this.value && this.value.toJSONInternal(),
+            value: this.value && this.value.toJSONInternal()
         };
 
 

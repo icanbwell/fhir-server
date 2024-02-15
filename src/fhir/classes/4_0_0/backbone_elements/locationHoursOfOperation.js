@@ -31,7 +31,7 @@ class LocationHoursOfOperation extends Element {
             daysOfWeek,
             allDay,
             openingTime,
-            closingTime,
+            closingTime
         }
     ) {
         super({});
@@ -196,7 +196,7 @@ class LocationHoursOfOperation extends Element {
             daysOfWeek,
             allDay,
             openingTime,
-            closingTime,
+            closingTime
         });
 
     }
@@ -217,7 +217,7 @@ class LocationHoursOfOperation extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             openingTime: this.openingTime,
-            closingTime: this.closingTime,
+            closingTime: this.closingTime
         });
     }
 
@@ -244,7 +244,7 @@ class LocationHoursOfOperation extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             openingTime: this.openingTime,
-            closingTime: this.closingTime,
+            closingTime: this.closingTime
         };
 
 

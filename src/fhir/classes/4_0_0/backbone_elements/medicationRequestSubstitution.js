@@ -31,7 +31,7 @@ class MedicationRequestSubstitution extends Element {
             modifierExtension,
             allowedBoolean,
             allowedCodeableConcept,
-            reason,
+            reason
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class MedicationRequestSubstitution extends Element {
             modifierExtension,
             allowedBoolean,
             allowedCodeableConcept,
-            reason,
+            reason
         });
 
     }
@@ -201,7 +201,7 @@ class MedicationRequestSubstitution extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             allowedBoolean: this.allowedBoolean,
             allowedCodeableConcept: this.allowedCodeableConcept && this.allowedCodeableConcept.toJSON(),
-            reason: this.reason && this.reason.toJSON(),
+            reason: this.reason && this.reason.toJSON()
         });
     }
 
@@ -229,7 +229,7 @@ class MedicationRequestSubstitution extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             allowedBoolean: this.allowedBoolean,
             allowedCodeableConcept: this.allowedCodeableConcept && this.allowedCodeableConcept.toJSONInternal(),
-            reason: this.reason && this.reason.toJSONInternal(),
+            reason: this.reason && this.reason.toJSONInternal()
         };
 
 

@@ -35,7 +35,7 @@ class Reference extends Element {
             display,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -232,7 +232,7 @@ class Reference extends Element {
             display,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
     }
@@ -252,7 +252,7 @@ class Reference extends Element {
             reference: this.reference,
             type: this.type,
             identifier: this.identifier && this.identifier.toJSON(),
-            display: this.display,
+            display: this.display
         });
     }
 
@@ -277,7 +277,7 @@ class Reference extends Element {
             reference: this.reference,
             type: this.type,
             identifier: this.identifier && this.identifier.toJSONInternal(),
-            display: this.display,
+            display: this.display
         };
 
 

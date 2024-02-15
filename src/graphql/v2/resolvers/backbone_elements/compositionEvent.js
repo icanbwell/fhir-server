@@ -6,7 +6,7 @@ module.exports = {
     CompositionEventDetailV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CompositionEvent: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.detail);
-        },
+        }
     }
 };
 

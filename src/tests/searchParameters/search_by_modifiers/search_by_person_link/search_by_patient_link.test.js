@@ -11,7 +11,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../../common');
 
 describe('search by modifier tests', () => {

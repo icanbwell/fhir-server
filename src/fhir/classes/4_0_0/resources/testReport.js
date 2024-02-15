@@ -63,7 +63,7 @@ class TestReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -567,7 +567,7 @@ class TestReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -643,7 +643,7 @@ class TestReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new TestReport({
@@ -670,7 +670,7 @@ class TestReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -711,7 +711,7 @@ class TestReport extends Resource {
             participant: this.participant && this.participant.map(v => v.toJSON()),
             setup: this.setup && this.setup.toJSON(),
             test: this.test && this.test.map(v => v.toJSON()),
-            teardown: this.teardown && this.teardown.toJSON(),
+            teardown: this.teardown && this.teardown.toJSON()
         });
     }
 
@@ -761,7 +761,7 @@ class TestReport extends Resource {
             participant: this.participant && this.participant.map(v => v.toJSONInternal()),
             setup: this.setup && this.setup.toJSONInternal(),
             test: this.test && this.test.map(v => v.toJSONInternal()),
-            teardown: this.teardown && this.teardown.toJSONInternal(),
+            teardown: this.teardown && this.teardown.toJSONInternal()
         };
 
 

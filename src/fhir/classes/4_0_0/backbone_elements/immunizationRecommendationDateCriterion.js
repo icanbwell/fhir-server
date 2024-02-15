@@ -26,7 +26,7 @@ class ImmunizationRecommendationDateCriterion extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class ImmunizationRecommendationDateCriterion extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         });
 
     }
@@ -174,7 +174,7 @@ class ImmunizationRecommendationDateCriterion extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -200,7 +200,7 @@ class ImmunizationRecommendationDateCriterion extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
 

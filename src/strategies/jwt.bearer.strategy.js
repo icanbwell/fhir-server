@@ -17,7 +17,7 @@ const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000
 const requiredJWTFields = [
     // 'custom:clientFhirPersonId',
     // 'custom:clientFhirPatientId',
-    'custom:bwellFhirPersonId',
+    'custom:bwellFhirPersonId'
     // 'custom:bwellFhirPatientId',
 ];
 
@@ -33,7 +33,7 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
     const res = await superagent
         .get(jwksUrl)
         .set({
-            Accept: 'application/json',
+            Accept: 'application/json'
         })
         .retry(EXTERNAL_REQUEST_RETRY_COUNT)
         .timeout(requestTimeout);
@@ -89,7 +89,7 @@ const getUserInfoAsync = async (accessToken, iss, clientId) => {
      * @type {import('openid-client').BaseClient}
      */
     const client = new issuer.Client({
-        client_id: clientId,
+        client_id: clientId
     }); // => Client
 
     return await client.userinfo(accessToken);
@@ -322,14 +322,14 @@ module.exports.strategy = new MyJwtStrategy(
                     return cb(new Error('No Signing Key found!'));
                 }
                 return cb(err);
-            },
+            }
         }),
         /* specify a list of extractors and it will use the first one that returns the token */
         jwtFromRequest: ExtractJwt.fromExtractors([
             ExtractJwt.fromHeader('x-bwell-identity'),
             ExtractJwt.fromAuthHeaderAsBearerToken(),
             cookieExtractor,
-            ExtractJwt.fromUrlQueryParameter('token'),
+            ExtractJwt.fromUrlQueryParameter('token')
         ]),
 
         // Validate the audience and the issuer.

@@ -13,7 +13,7 @@ class DatabaseStats extends BaseScriptRunner {
         mongoDatabaseManager,
         mongoCollectionManager,
         collections,
-        adminLogger,
+        adminLogger
     }) {
         super({
             mongoCollectionManager,
@@ -121,5 +121,5 @@ class DatabaseStats extends BaseScriptRunner {
 
 
 module.exports = {
-    DatabaseStats,
+    DatabaseStats
 };

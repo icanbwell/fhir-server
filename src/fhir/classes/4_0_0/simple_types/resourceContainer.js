@@ -4,7 +4,7 @@ class ResourceContainer {
     constructor(opts) {
         // Create an object to store all props
         Object.defineProperty(this, '__data', {
-            value: {},
+            value: {}
         });
 
         // Define getters and setters as enumerable
@@ -23,7 +23,7 @@ class ResourceContainer {
                 }
 
                 this.__data.id = value;
-            },
+            }
         });
 
         /**
@@ -42,7 +42,7 @@ class ResourceContainer {
                 const Meta = require('../complex_types/meta.js');
 
                 this.__data.meta = new Meta(value);
-            },
+            }
         });
 
         Object.assign(this, opts);
@@ -56,7 +56,7 @@ class ResourceContainer {
         return removeNull({
             resourceType: this.resourceType,
             id: this.id,
-            meta: this.meta && this.meta.toJSON(),
+            meta: this.meta && this.meta.toJSON()
         });
     }
 }

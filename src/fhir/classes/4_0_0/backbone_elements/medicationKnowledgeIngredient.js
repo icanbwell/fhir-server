@@ -29,7 +29,7 @@ class MedicationKnowledgeIngredient extends Element {
             itemCodeableConcept,
             itemReference,
             isActive,
-            strength,
+            strength
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class MedicationKnowledgeIngredient extends Element {
             itemCodeableConcept,
             itemReference,
             isActive,
-            strength,
+            strength
         });
 
     }
@@ -223,7 +223,7 @@ class MedicationKnowledgeIngredient extends Element {
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
             itemReference: this.itemReference && this.itemReference.toJSON(),
             isActive: this.isActive,
-            strength: this.strength && this.strength.toJSON(),
+            strength: this.strength && this.strength.toJSON()
         });
     }
 
@@ -253,7 +253,7 @@ class MedicationKnowledgeIngredient extends Element {
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
             itemReference: this.itemReference && this.itemReference.toJSONInternal(),
             isActive: this.isActive,
-            strength: this.strength && this.strength.toJSONInternal(),
+            strength: this.strength && this.strength.toJSONInternal()
         };
 
 

@@ -19,7 +19,7 @@ const REGION = process.env.AWS_REGION || 'us-east-1';
 const AWS_FOLDER = process.env.AWS_FOLDER;
 
 const s3 = new S3({
-    region: REGION,
+    region: REGION
 });
 
 /**
@@ -47,7 +47,7 @@ module.exports = function sendToS3(prefix, resourceType, resource, currentDate, 
                 Bucket: AWS_BUCKET,
                 Key: key,
                 ContentType: 'application/json',
-                ServerSideEncryption: 'AES256',
+                ServerSideEncryption: 'AES256'
             };
             s3.putObject(params, function (err, data) {
                 if (err) {

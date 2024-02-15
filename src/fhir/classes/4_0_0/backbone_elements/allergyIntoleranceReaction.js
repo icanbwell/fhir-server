@@ -36,7 +36,7 @@ class AllergyIntoleranceReaction extends Element {
             onset,
             severity,
             exposureRoute,
-            note,
+            note
         }
     ) {
         super({});
@@ -278,7 +278,7 @@ class AllergyIntoleranceReaction extends Element {
             onset,
             severity,
             exposureRoute,
-            note,
+            note
         });
 
     }
@@ -302,7 +302,7 @@ class AllergyIntoleranceReaction extends Element {
             onset: this.onset,
             severity: this.severity,
             exposureRoute: this.exposureRoute && this.exposureRoute.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -336,7 +336,7 @@ class AllergyIntoleranceReaction extends Element {
             onset: this.onset,
             severity: this.severity,
             exposureRoute: this.exposureRoute && this.exposureRoute.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

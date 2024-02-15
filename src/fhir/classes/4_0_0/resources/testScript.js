@@ -88,7 +88,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -863,7 +863,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -963,7 +963,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new TestScript({
@@ -1002,7 +1002,7 @@ class TestScript extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1055,7 +1055,7 @@ class TestScript extends Resource {
             variable: this.variable && this.variable.map(v => v.toJSON()),
             setup: this.setup && this.setup.toJSON(),
             test: this.test && this.test.map(v => v.toJSON()),
-            teardown: this.teardown && this.teardown.toJSON(),
+            teardown: this.teardown && this.teardown.toJSON()
         });
     }
 
@@ -1124,7 +1124,7 @@ class TestScript extends Resource {
             variable: this.variable && this.variable.map(v => v.toJSONInternal()),
             setup: this.setup && this.setup.toJSONInternal(),
             test: this.test && this.test.map(v => v.toJSONInternal()),
-            teardown: this.teardown && this.teardown.toJSONInternal(),
+            teardown: this.teardown && this.teardown.toJSONInternal()
         };
 
 

@@ -34,7 +34,7 @@ class ValueSetInclude extends Element {
             version,
             concept,
             filter,
-            valueSet,
+            valueSet
         }
     ) {
         super({});
@@ -228,7 +228,7 @@ class ValueSetInclude extends Element {
             version,
             concept,
             filter,
-            valueSet,
+            valueSet
         });
 
     }
@@ -250,7 +250,7 @@ class ValueSetInclude extends Element {
             version: this.version,
             concept: this.concept && this.concept.map(v => v.toJSON()),
             filter: this.filter && this.filter.map(v => v.toJSON()),
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         });
     }
 
@@ -280,7 +280,7 @@ class ValueSetInclude extends Element {
             version: this.version,
             concept: this.concept && this.concept.map(v => v.toJSONInternal()),
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
-            valueSet: this.valueSet,
+            valueSet: this.valueSet
         };
 
 

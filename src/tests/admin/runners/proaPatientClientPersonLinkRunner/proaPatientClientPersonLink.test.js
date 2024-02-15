@@ -18,12 +18,12 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const {
-    ProaPatientClientPersonLinkRunner,
+    ProaPatientClientPersonLinkRunner
 } = require('../../../../admin/runners/proaPatientClientPersonLinkRunner');
 
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
@@ -70,7 +70,7 @@ describe('Proa patient client persons linking tests', () => {
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
                         connectionType: 'proa',
-                        clientSourceAssigningAuthorities: ['client'],
+                        clientSourceAssigningAuthorities: ['client']
                     })
             );
 
@@ -117,7 +117,7 @@ describe('Proa patient client persons linking tests', () => {
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
                         connectionType: 'proa',
-                        clientSourceAssigningAuthorities: ['client'],
+                        clientSourceAssigningAuthorities: ['client']
                     })
             );
 
@@ -164,7 +164,7 @@ describe('Proa patient client persons linking tests', () => {
                         batchSize: 10000,
                         linkClientPersonToProaPatient: true,
                         connectionType: 'proa',
-                        clientSourceAssigningAuthorities: ['client-1'],
+                        clientSourceAssigningAuthorities: ['client-1']
                     })
             );
 

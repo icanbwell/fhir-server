@@ -72,7 +72,7 @@ class SecurityTagStructure {
                 sourceAssigningAuthority: doc.meta && doc.meta.security ?
                     doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
-                        .map(s => s.code) : [],
+                        .map(s => s.code) : []
             }
         );
     }

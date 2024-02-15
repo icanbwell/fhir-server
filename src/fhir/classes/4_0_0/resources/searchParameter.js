@@ -92,7 +92,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -893,7 +893,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -997,7 +997,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SearchParameter({
@@ -1038,7 +1038,7 @@ class SearchParameter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1093,7 +1093,7 @@ class SearchParameter extends Resource {
             comparator: this.comparator,
             modifier: this.modifier,
             chain: this.chain,
-            component: this.component && this.component.map(v => v.toJSON()),
+            component: this.component && this.component.map(v => v.toJSON())
         });
     }
 
@@ -1155,7 +1155,7 @@ class SearchParameter extends Resource {
             comparator: this.comparator,
             modifier: this.modifier,
             chain: this.chain,
-            component: this.component && this.component.map(v => v.toJSONInternal()),
+            component: this.component && this.component.map(v => v.toJSONInternal())
         };
 
 

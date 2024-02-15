@@ -112,13 +112,13 @@ describe('Person Tests', () => {
                     {
                         'code': 'invalid',
                         'details': {
-                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
                         'diagnostics': 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
-                        'severity': 'error',
-                    },
+                        'severity': 'error'
+                    }
                 ],
-                'resourceType': 'OperationOutcome',
+                'resourceType': 'OperationOutcome'
             });
         });
 

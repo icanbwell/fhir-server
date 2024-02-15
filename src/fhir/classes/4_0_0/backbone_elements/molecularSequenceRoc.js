@@ -35,7 +35,7 @@ class MolecularSequenceRoc extends Element {
             numFN,
             precision,
             sensitivity,
-            fMeasure,
+            fMeasure
         }
     ) {
         super({});
@@ -260,7 +260,7 @@ class MolecularSequenceRoc extends Element {
             numFN,
             precision,
             sensitivity,
-            fMeasure,
+            fMeasure
         });
 
     }
@@ -284,7 +284,7 @@ class MolecularSequenceRoc extends Element {
             numFN: this.numFN,
             precision: this.precision,
             sensitivity: this.sensitivity,
-            fMeasure: this.fMeasure,
+            fMeasure: this.fMeasure
         });
     }
 
@@ -314,7 +314,7 @@ class MolecularSequenceRoc extends Element {
             numFN: this.numFN,
             precision: this.precision,
             sensitivity: this.sensitivity,
-            fMeasure: this.fMeasure,
+            fMeasure: this.fMeasure
         };
 
 

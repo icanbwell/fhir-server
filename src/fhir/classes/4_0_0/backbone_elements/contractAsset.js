@@ -52,7 +52,7 @@ class ContractAsset extends Element {
             linkId,
             answer,
             securityLabelNumber,
-            valuedItem,
+            valuedItem
         }
     ) {
         super({});
@@ -452,7 +452,7 @@ class ContractAsset extends Element {
             linkId,
             answer,
             securityLabelNumber,
-            valuedItem,
+            valuedItem
         });
 
     }
@@ -484,7 +484,7 @@ class ContractAsset extends Element {
             linkId: this.linkId,
             answer: this.answer && this.answer.map(v => v.toJSON()),
             securityLabelNumber: this.securityLabelNumber,
-            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSON()),
+            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSON())
         });
     }
 
@@ -533,7 +533,7 @@ class ContractAsset extends Element {
             linkId: this.linkId,
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
             securityLabelNumber: this.securityLabelNumber,
-            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSONInternal()),
+            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSONInternal())
         };
 
 

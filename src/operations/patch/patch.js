@@ -133,7 +133,7 @@ class PatchOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -187,7 +187,7 @@ class PatchOperation {
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
@@ -202,7 +202,7 @@ class PatchOperation {
                 operation: WRITE
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                { resourceType, base_version },
+                { resourceType, base_version }
             );
             /**
              * @type {DatabasePartitionedCursor}
@@ -219,13 +219,13 @@ class PatchOperation {
                         r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
-                        : [],
+                        : []
                 ).sort();
                 throw new BadRequestError(new Error(
                     `Multiple resources found with id ${id}.  ` +
                     'Please either specify the owner/sourceAssigningAuthority tag: ' +
                     sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
-                    ' OR use uuid to query.',
+                    ' OR use uuid to query.'
                 ));
             } else if (resources.length === 0) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
@@ -302,7 +302,7 @@ class PatchOperation {
                 {
                     requestId, currentDate, base_version: base_version,
                     method,
-                    userRequestId,
+                    userRequestId
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {

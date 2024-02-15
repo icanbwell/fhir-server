@@ -32,7 +32,7 @@ class SubstanceSpecificationCode extends Element {
             status,
             statusDate,
             comment,
-            source,
+            source
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class SubstanceSpecificationCode extends Element {
             status,
             statusDate,
             comment,
-            source,
+            source
         });
 
     }
@@ -244,7 +244,7 @@ class SubstanceSpecificationCode extends Element {
             status: this.status && this.status.toJSON(),
             statusDate: this.statusDate,
             comment: this.comment,
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -275,7 +275,7 @@ class SubstanceSpecificationCode extends Element {
             status: this.status && this.status.toJSONInternal(),
             statusDate: this.statusDate,
             comment: this.comment,
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

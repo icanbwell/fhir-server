@@ -419,7 +419,7 @@ describe('PartitioningManager Tests', () => {
              */
             const query = {
                 $and: [
-                    {'recorded': {$gt: new Date(2022, 7 - 1, 9)}}, // javascript months are 0-based
+                    {'recorded': {$gt: new Date(2022, 7 - 1, 9)}} // javascript months are 0-based
                 ]
             };
             // noinspection JSValidateTypes
@@ -476,7 +476,7 @@ describe('PartitioningManager Tests', () => {
              */
             const query = {
                 $and: [
-                    {'recorded': {$lt: new Date(2022, 7 - 1, 11)}}, // javascript months are 0-based
+                    {'recorded': {$lt: new Date(2022, 7 - 1, 11)}} // javascript months are 0-based
                 ]
             };
             // noinspection JSValidateTypes

@@ -11,7 +11,7 @@ class MedicationDispenseConverter extends BaseConverter {
             dosageInstruction,
             whenHandedOver,
             performer,
-            authoredOn,
+            authoredOn
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

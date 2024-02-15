@@ -67,7 +67,7 @@ class InsurancePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -620,7 +620,7 @@ class InsurancePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -700,7 +700,7 @@ class InsurancePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new InsurancePlan({
@@ -729,7 +729,7 @@ class InsurancePlan extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -772,7 +772,7 @@ class InsurancePlan extends Resource {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
             network: this.network && this.network.map(v => v.toJSON()),
             coverage: this.coverage && this.coverage.map(v => v.toJSON()),
-            plan: this.plan && this.plan.map(v => v.toJSON()),
+            plan: this.plan && this.plan.map(v => v.toJSON())
         });
     }
 
@@ -829,7 +829,7 @@ class InsurancePlan extends Resource {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
             network: this.network && this.network.map(v => v.toJSONInternal()),
             coverage: this.coverage && this.coverage.map(v => v.toJSONInternal()),
-            plan: this.plan && this.plan.map(v => v.toJSONInternal()),
+            plan: this.plan && this.plan.map(v => v.toJSONInternal())
         };
 
 

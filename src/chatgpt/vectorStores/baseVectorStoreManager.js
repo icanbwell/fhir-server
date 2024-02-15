@@ -54,7 +54,7 @@ class BaseVectorStoreManager {
             doc => new Document(
                 {
                     pageContent: doc.content,
-                    metadata: doc.metadata,
+                    metadata: doc.metadata
                 }
             ));
     }

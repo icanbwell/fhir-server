@@ -85,7 +85,7 @@ class MedicationAdministration extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -793,7 +793,7 @@ class MedicationAdministration extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -887,7 +887,7 @@ class MedicationAdministration extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicationAdministration({
@@ -923,7 +923,7 @@ class MedicationAdministration extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -973,7 +973,7 @@ class MedicationAdministration extends Resource {
             device: this.device && this.device.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
             dosage: this.dosage && this.dosage.toJSON(),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON())
         });
     }
 
@@ -1044,7 +1044,7 @@ class MedicationAdministration extends Resource {
             device: this.device && this.device.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             dosage: this.dosage && this.dosage.toJSONInternal(),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal())
         };
 
 

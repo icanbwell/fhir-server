@@ -51,7 +51,7 @@ class SubstancePolymer extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -433,7 +433,7 @@ class SubstancePolymer extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -497,7 +497,7 @@ class SubstancePolymer extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstancePolymer({
@@ -518,7 +518,7 @@ class SubstancePolymer extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -553,7 +553,7 @@ class SubstancePolymer extends Resource {
             copolymerConnectivity: this.copolymerConnectivity && this.copolymerConnectivity.map(v => v.toJSON()),
             modification: this.modification,
             monomerSet: this.monomerSet && this.monomerSet.map(v => v.toJSON()),
-            repeat: this.repeat && this.repeat.map(v => v.toJSON()),
+            repeat: this.repeat && this.repeat.map(v => v.toJSON())
         });
     }
 
@@ -596,7 +596,7 @@ class SubstancePolymer extends Resource {
             copolymerConnectivity: this.copolymerConnectivity && this.copolymerConnectivity.map(v => v.toJSONInternal()),
             modification: this.modification,
             monomerSet: this.monomerSet && this.monomerSet.map(v => v.toJSONInternal()),
-            repeat: this.repeat && this.repeat.map(v => v.toJSONInternal()),
+            repeat: this.repeat && this.repeat.map(v => v.toJSONInternal())
         };
 
 

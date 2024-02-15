@@ -44,7 +44,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName,
             paternalOrganismId,
             paternalOrganismName,
-            hybridType,
+            hybridType
         }
     ) {
         super({});
@@ -236,7 +236,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName,
             paternalOrganismId,
             paternalOrganismName,
-            hybridType,
+            hybridType
         });
 
     }
@@ -258,7 +258,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName: this.maternalOrganismName,
             paternalOrganismId: this.paternalOrganismId,
             paternalOrganismName: this.paternalOrganismName,
-            hybridType: this.hybridType && this.hybridType.toJSON(),
+            hybridType: this.hybridType && this.hybridType.toJSON()
         });
     }
 
@@ -287,7 +287,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName: this.maternalOrganismName,
             paternalOrganismId: this.paternalOrganismId,
             paternalOrganismName: this.paternalOrganismName,
-            hybridType: this.hybridType && this.hybridType.toJSONInternal(),
+            hybridType: this.hybridType && this.hybridType.toJSONInternal()
         };
 
 

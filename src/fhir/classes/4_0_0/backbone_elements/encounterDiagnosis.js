@@ -28,7 +28,7 @@ class EncounterDiagnosis extends Element {
             modifierExtension,
             condition,
             use,
-            rank,
+            rank
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class EncounterDiagnosis extends Element {
             modifierExtension,
             condition,
             use,
-            rank,
+            rank
         });
 
     }
@@ -201,7 +201,7 @@ class EncounterDiagnosis extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             condition: this.condition && this.condition.toJSON(),
             use: this.use && this.use.toJSON(),
-            rank: this.rank,
+            rank: this.rank
         });
     }
 
@@ -229,7 +229,7 @@ class EncounterDiagnosis extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.toJSONInternal(),
             use: this.use && this.use.toJSONInternal(),
-            rank: this.rank,
+            rank: this.rank
         };
 
 

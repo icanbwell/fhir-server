@@ -9,7 +9,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getHeadersWithCustomPayload, getTokenWithCustomPayload, setupMockOpenIdServer, getHeaders,
+    getHeadersWithCustomPayload, getTokenWithCustomPayload, setupMockOpenIdServer, getHeaders
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 

@@ -70,7 +70,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -635,7 +635,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -717,7 +717,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new PaymentReconciliation({
@@ -747,7 +747,7 @@ class PaymentReconciliation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -791,7 +791,7 @@ class PaymentReconciliation extends Resource {
             paymentIdentifier: this.paymentIdentifier && this.paymentIdentifier.toJSON(),
             detail: this.detail && this.detail.map(v => v.toJSON()),
             formCode: this.formCode && this.formCode.toJSON(),
-            processNote: this.processNote && this.processNote.map(v => v.toJSON()),
+            processNote: this.processNote && this.processNote.map(v => v.toJSON())
         });
     }
 
@@ -848,7 +848,7 @@ class PaymentReconciliation extends Resource {
             paymentIdentifier: this.paymentIdentifier && this.paymentIdentifier.toJSONInternal(),
             detail: this.detail && this.detail.map(v => v.toJSONInternal()),
             formCode: this.formCode && this.formCode.toJSONInternal(),
-            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal()),
+            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal())
         };
 
 

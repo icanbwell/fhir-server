@@ -123,7 +123,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             this.adminLogger.logInfo(
                 `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-                `for ${destinationCollectionName}`,
+                `for ${destinationCollectionName}`
             );
 
             let numberOfDestinationDocuments;
@@ -135,7 +135,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {
                             skip,
                             limit,
-                            maxTimeMS: 30000,
+                            maxTimeMS: 30000
                         });
                     } catch (ex) {
                         numberOfDestinationDocuments = limit;
@@ -219,7 +219,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {
                             skip,
                             limit,
-                            maxTimeMS: 30000,
+                            maxTimeMS: 30000
                         });
                     } catch (ex) {
                         numberOfDestinationDocumentsAtEnd = limit;

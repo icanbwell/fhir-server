@@ -25,7 +25,7 @@ class ClientPersonToProaPatientLinkRunner {
         clientUuidColumn,
         statusColumn,
         adminPersonPatientLinkManager,
-        adminLogger,
+        adminLogger
     }) {
         /**
          * @type {AdminLogger}
@@ -72,17 +72,17 @@ class ClientPersonToProaPatientLinkRunner {
         this.req = {
             header: () => 'system',
             headers: {
-                accept: '*/*',
+                accept: '*/*'
             },
             user: { name: 'system' },
             authInfo: {
-                scope: 'user/*.read user/*.write',
+                scope: 'user/*.read user/*.write'
             },
             method: 'POST',
             path: '/admin',
             originalUrl: '/admin',
             requestId: this.systemRequestId,
-            userRequestId: this.systemRequestId,
+            userRequestId: this.systemRequestId
         };
     }
 
@@ -120,7 +120,7 @@ class ClientPersonToProaPatientLinkRunner {
                                 {
                                     req: this.req,
                                     externalPersonId: clientUuid,
-                                    patientId: `${proaPatientUuid}|${proaPatientSourceAssigningAuthority}`,
+                                    patientId: `${proaPatientUuid}|${proaPatientSourceAssigningAuthority}`
                                 }
                             );
 

@@ -144,7 +144,7 @@ class MergeOperation {
                         sourceAssigningAuthority: resource._sourceAssigningAuthority,
                         resourceType: resource.resourceType,
                         created: false,
-                        updated: false,
+                        updated: false
                     }
                 );
                 mergeResults.push(mergeResultItem);
@@ -266,7 +266,7 @@ class MergeOperation {
                     requestId, currentDate,
                     base_version,
                     method,
-                    userRequestId,
+                    userRequestId
                 });
 
 
@@ -335,7 +335,7 @@ class MergeOperation {
                                                     // resource was created
                                                     system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
                                                     code: m.created ? '201' : m.updated ? '200' : '304',
-                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
                                                 })
                                             ]
                                         }),

@@ -32,7 +32,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate,
             current,
             resultForDelete,
-            requireBoth,
+            requireBoth
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate,
             current,
             resultForDelete,
-            requireBoth,
+            requireBoth
         });
 
     }
@@ -247,7 +247,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate: this.resultForCreate && this.resultForCreate.toJSON(),
             current: this.current,
             resultForDelete: this.resultForDelete && this.resultForDelete.toJSON(),
-            requireBoth: this.requireBoth,
+            requireBoth: this.requireBoth
         });
     }
 
@@ -277,7 +277,7 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForCreate: this.resultForCreate && this.resultForCreate.toJSONInternal(),
             current: this.current,
             resultForDelete: this.resultForDelete && this.resultForDelete.toJSONInternal(),
-            requireBoth: this.requireBoth,
+            requireBoth: this.requireBoth
         };
 
 

@@ -37,7 +37,7 @@ class ProvenanceAgent extends Element {
             type,
             role,
             who,
-            onBehalfOf,
+            onBehalfOf
         }
     ) {
         super({});
@@ -210,7 +210,7 @@ class ProvenanceAgent extends Element {
             type,
             role,
             who,
-            onBehalfOf,
+            onBehalfOf
         });
 
     }
@@ -231,7 +231,7 @@ class ProvenanceAgent extends Element {
             type: this.type && this.type.toJSON(),
             role: this.role && this.role.map(v => v.toJSON()),
             who: this.who && this.who.toJSON(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON()
         });
     }
 
@@ -262,7 +262,7 @@ class ProvenanceAgent extends Element {
             type: this.type && this.type.toJSONInternal(),
             role: this.role && this.role.map(v => v.toJSONInternal()),
             who: this.who && this.who.toJSONInternal(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal()
         };
 
 

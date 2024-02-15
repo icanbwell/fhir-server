@@ -123,7 +123,7 @@ class Measure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1278,7 +1278,7 @@ class Measure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1414,7 +1414,7 @@ class Measure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Measure({
@@ -1471,7 +1471,7 @@ class Measure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1542,7 +1542,7 @@ class Measure extends Resource {
             definition: this.definition,
             guidance: this.guidance,
             group: this.group && this.group.map(v => v.toJSON()),
-            supplementalData: this.supplementalData && this.supplementalData.map(v => v.toJSON()),
+            supplementalData: this.supplementalData && this.supplementalData.map(v => v.toJSON())
         });
     }
 
@@ -1635,7 +1635,7 @@ class Measure extends Resource {
             definition: this.definition,
             guidance: this.guidance,
             group: this.group && this.group.map(v => v.toJSONInternal()),
-            supplementalData: this.supplementalData && this.supplementalData.map(v => v.toJSONInternal()),
+            supplementalData: this.supplementalData && this.supplementalData.map(v => v.toJSONInternal())
         };
 
 

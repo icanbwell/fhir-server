@@ -35,7 +35,7 @@ class MessageHeaderSource extends Element {
             software,
             version,
             contact,
-            endpoint,
+            endpoint
         }
     ) {
         super({});
@@ -222,7 +222,7 @@ class MessageHeaderSource extends Element {
             software,
             version,
             contact,
-            endpoint,
+            endpoint
         });
 
     }
@@ -244,7 +244,7 @@ class MessageHeaderSource extends Element {
             software: this.software,
             version: this.version,
             contact: this.contact && this.contact.toJSON(),
-            endpoint: this.endpoint,
+            endpoint: this.endpoint
         });
     }
 
@@ -273,7 +273,7 @@ class MessageHeaderSource extends Element {
             software: this.software,
             version: this.version,
             contact: this.contact && this.contact.toJSONInternal(),
-            endpoint: this.endpoint,
+            endpoint: this.endpoint
         };
 
 

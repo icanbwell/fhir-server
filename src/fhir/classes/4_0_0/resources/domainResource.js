@@ -38,7 +38,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -296,7 +296,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -348,7 +348,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DomainResource({
@@ -363,7 +363,7 @@ class DomainResource extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -392,7 +392,7 @@ class DomainResource extends Resource {
             text: this.text && this.text.toJSON(),
             contained: this.contained && this.contained.map(v => v.toJSON()),
             extension: this.extension && this.extension.map(v => v.toJSON()),
-            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON())
         });
     }
 
@@ -424,7 +424,7 @@ class DomainResource extends Resource {
             text: this.text && this.text.toJSONInternal(),
             contained: this.contained && this.contained.map(v => v.toJSONInternal()),
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
-            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal())
         };
 
 

@@ -89,7 +89,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -867,7 +867,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -967,7 +967,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new TerminologyCapabilities({
@@ -1006,7 +1006,7 @@ class TerminologyCapabilities extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1059,7 +1059,7 @@ class TerminologyCapabilities extends Resource {
             codeSearch: this.codeSearch,
             validateCode: this.validateCode && this.validateCode.toJSON(),
             translation: this.translation && this.translation.toJSON(),
-            closure: this.closure && this.closure.toJSON(),
+            closure: this.closure && this.closure.toJSON()
         });
     }
 
@@ -1125,7 +1125,7 @@ class TerminologyCapabilities extends Resource {
             codeSearch: this.codeSearch,
             validateCode: this.validateCode && this.validateCode.toJSONInternal(),
             translation: this.translation && this.translation.toJSONInternal(),
-            closure: this.closure && this.closure.toJSONInternal(),
+            closure: this.closure && this.closure.toJSONInternal()
         };
 
 

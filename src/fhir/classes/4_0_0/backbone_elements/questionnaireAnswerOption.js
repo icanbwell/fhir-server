@@ -37,7 +37,7 @@ class QuestionnaireAnswerOption extends Element {
             valueString,
             valueCoding,
             valueReference,
-            initialSelected,
+            initialSelected
         }
     ) {
         super({});
@@ -263,7 +263,7 @@ class QuestionnaireAnswerOption extends Element {
             valueString,
             valueCoding,
             valueReference,
-            initialSelected,
+            initialSelected
         });
 
     }
@@ -287,7 +287,7 @@ class QuestionnaireAnswerOption extends Element {
             valueString: this.valueString,
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
-            initialSelected: this.initialSelected,
+            initialSelected: this.initialSelected
         });
     }
 
@@ -319,7 +319,7 @@ class QuestionnaireAnswerOption extends Element {
             valueString: this.valueString,
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
-            initialSelected: this.initialSelected,
+            initialSelected: this.initialSelected
         };
 
 

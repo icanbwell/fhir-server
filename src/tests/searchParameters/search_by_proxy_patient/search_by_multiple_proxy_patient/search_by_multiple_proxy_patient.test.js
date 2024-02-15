@@ -30,7 +30,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
@@ -81,7 +81,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -115,7 +115,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -149,7 +149,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -183,7 +183,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -222,7 +222,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -260,7 +260,7 @@ describe('Patient Tests', () => {
                     observation2,
                     observation3,
                     observation4,
-                    observation5,
+                    observation5
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -298,7 +298,7 @@ describe('Patient Tests', () => {
                     observation2,
                     observation3,
                     observation4,
-                    observation5,
+                    observation5
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -335,7 +335,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -372,7 +372,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -404,7 +404,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

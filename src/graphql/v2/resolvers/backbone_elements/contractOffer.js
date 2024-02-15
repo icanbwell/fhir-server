@@ -6,7 +6,7 @@ module.exports = {
     ContractOfferTopicV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractOffer: {
         // noinspection JSUnusedLocalSymbols
@@ -28,7 +28,7 @@ module.exports = {
                 context,
                 info,
                 parent.topic);
-        },
+        }
     }
 };
 

@@ -41,7 +41,7 @@ class AuditEventEntity extends Element {
             name,
             description,
             query,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -313,7 +313,7 @@ class AuditEventEntity extends Element {
             name,
             description,
             query,
-            detail,
+            detail
         });
 
     }
@@ -339,7 +339,7 @@ class AuditEventEntity extends Element {
             name: this.name,
             description: this.description,
             query: this.query,
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -377,7 +377,7 @@ class AuditEventEntity extends Element {
             name: this.name,
             description: this.description,
             query: this.query,
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

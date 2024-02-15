@@ -21,7 +21,7 @@ class InteractionTrigger extends Element {
         {
             id,
             extension,
-            value,
+            value
         }
     ) {
         super({});
@@ -95,7 +95,7 @@ class InteractionTrigger extends Element {
         Object.assign(this, {
             id,
             extension,
-            value,
+            value
         });
 
     }
@@ -112,7 +112,7 @@ class InteractionTrigger extends Element {
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -134,7 +134,7 @@ class InteractionTrigger extends Element {
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
-            value: this.value,
+            value: this.value
         };
 
 

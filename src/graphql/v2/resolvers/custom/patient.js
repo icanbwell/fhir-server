@@ -60,7 +60,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -80,7 +80,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -100,7 +100,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -120,7 +120,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -139,13 +139,13 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
                 'CareTeam'
             );
-        },
+        }
     },
     Mutation: {
         updateGeneralPractitioner:
@@ -168,7 +168,7 @@ module.exports = {
                     parent,
                     {
                         ...args,
-                        id: args.patientId,
+                        id: args.patientId
                     },
                     context,
                     info,
@@ -202,7 +202,7 @@ module.exports = {
                     const args1 = {
                         ...args,
                         base_version: '4_0_0',
-                        id: args.patientId,
+                        id: args.patientId
                     };
                     await removeOperation.removeAsync(
                         {
@@ -216,7 +216,7 @@ module.exports = {
                         parent,
                         {
                             ...args,
-                            id: args.practitionerId,
+                            id: args.practitionerId
                         },
                         context,
                         info,
@@ -226,7 +226,7 @@ module.exports = {
                         throw new Error(`Practitioner not found ${args.practitionerId}`);
                     }
                     patientToChange.generalPractitioner = [
-                        {reference: `Practitioner/${practitioners[0].id}`},
+                        {reference: `Practitioner/${practitioners[0].id}`}
                     ];
                 }
                 requestInfo.body = [patientToChange];
@@ -253,6 +253,6 @@ module.exports = {
                     throw new Error(`Unable to update patient ${args.patientId}`);
                 }
                 return patientToChange;
-            },
-    },
+            }
+    }
 };

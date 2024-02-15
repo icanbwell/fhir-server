@@ -30,7 +30,7 @@ class StructureMapStructure extends Element {
             url,
             mode,
             alias,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -194,7 +194,7 @@ class StructureMapStructure extends Element {
             url,
             mode,
             alias,
-            documentation,
+            documentation
         });
 
     }
@@ -215,7 +215,7 @@ class StructureMapStructure extends Element {
             url: this.url,
             mode: this.mode,
             alias: this.alias,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -242,7 +242,7 @@ class StructureMapStructure extends Element {
             url: this.url,
             mode: this.mode,
             alias: this.alias,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

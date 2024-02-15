@@ -31,7 +31,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
 
         /**

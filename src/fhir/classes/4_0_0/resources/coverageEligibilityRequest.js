@@ -73,7 +73,7 @@ class CoverageEligibilityRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -647,7 +647,7 @@ class CoverageEligibilityRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -729,7 +729,7 @@ class CoverageEligibilityRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CoverageEligibilityRequest({
@@ -759,7 +759,7 @@ class CoverageEligibilityRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -803,7 +803,7 @@ class CoverageEligibilityRequest extends Resource {
             facility: this.facility && this.facility.toJSON(),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -861,7 +861,7 @@ class CoverageEligibilityRequest extends Resource {
             facility: this.facility && this.facility.toJSONInternal(),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

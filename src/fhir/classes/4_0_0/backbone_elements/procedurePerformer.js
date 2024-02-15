@@ -29,7 +29,7 @@ class ProcedurePerformer extends Element {
             modifierExtension,
             'function': function_,
             actor,
-            onBehalfOf,
+            onBehalfOf
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ProcedurePerformer extends Element {
             modifierExtension,
             'function': function_,
             actor,
-            onBehalfOf,
+            onBehalfOf
         });
 
     }
@@ -201,7 +201,7 @@ class ProcedurePerformer extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             function: this.function && this.function.toJSON(),
             actor: this.actor && this.actor.toJSON(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON()
         });
     }
 
@@ -230,7 +230,7 @@ class ProcedurePerformer extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             function: this.function && this.function.toJSONInternal(),
             actor: this.actor && this.actor.toJSONInternal(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal()
         };
 
 

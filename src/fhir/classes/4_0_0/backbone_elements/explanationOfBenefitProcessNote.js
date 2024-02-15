@@ -31,7 +31,7 @@ class ExplanationOfBenefitProcessNote extends Element {
             number,
             type,
             text,
-            language,
+            language
         }
     ) {
         super({});
@@ -197,7 +197,7 @@ class ExplanationOfBenefitProcessNote extends Element {
             number,
             type,
             text,
-            language,
+            language
         });
 
     }
@@ -218,7 +218,7 @@ class ExplanationOfBenefitProcessNote extends Element {
             number: this.number,
             type: this.type,
             text: this.text,
-            language: this.language && this.language.toJSON(),
+            language: this.language && this.language.toJSON()
         });
     }
 
@@ -246,7 +246,7 @@ class ExplanationOfBenefitProcessNote extends Element {
             number: this.number,
             type: this.type,
             text: this.text,
-            language: this.language && this.language.toJSONInternal(),
+            language: this.language && this.language.toJSONInternal()
         };
 
 

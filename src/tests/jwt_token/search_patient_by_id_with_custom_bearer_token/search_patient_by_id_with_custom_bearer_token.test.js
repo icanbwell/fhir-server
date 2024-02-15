@@ -64,7 +64,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 custom_client_id: undefined,
                 customscope: 'access/*.* patient/*.* openid/*.*',
                 groups: ['access/*.*'],
-                token_use: 'access',
+                token_use: 'access'
             });
 
             // search without client id throws 401 error and doesn't hang

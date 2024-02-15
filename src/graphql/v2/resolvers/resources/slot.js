@@ -25,7 +25,7 @@ module.exports = {
                 context,
                 info,
                 parent.schedule);
-        },
+        }
     }
 };
 

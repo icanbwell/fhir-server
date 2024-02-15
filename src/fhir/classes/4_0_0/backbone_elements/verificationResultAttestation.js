@@ -38,7 +38,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate,
             proxyIdentityCertificate,
             proxySignature,
-            sourceSignature,
+            sourceSignature
         }
     ) {
         super({});
@@ -292,7 +292,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate,
             proxyIdentityCertificate,
             proxySignature,
-            sourceSignature,
+            sourceSignature
         });
 
     }
@@ -317,7 +317,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate: this.sourceIdentityCertificate,
             proxyIdentityCertificate: this.proxyIdentityCertificate,
             proxySignature: this.proxySignature && this.proxySignature.toJSON(),
-            sourceSignature: this.sourceSignature && this.sourceSignature.toJSON(),
+            sourceSignature: this.sourceSignature && this.sourceSignature.toJSON()
         });
     }
 
@@ -353,7 +353,7 @@ class VerificationResultAttestation extends Element {
             sourceIdentityCertificate: this.sourceIdentityCertificate,
             proxyIdentityCertificate: this.proxyIdentityCertificate,
             proxySignature: this.proxySignature && this.proxySignature.toJSONInternal(),
-            sourceSignature: this.sourceSignature && this.sourceSignature.toJSONInternal(),
+            sourceSignature: this.sourceSignature && this.sourceSignature.toJSONInternal()
         };
 
 

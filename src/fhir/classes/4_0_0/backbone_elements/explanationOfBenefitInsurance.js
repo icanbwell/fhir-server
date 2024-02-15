@@ -29,7 +29,7 @@ class ExplanationOfBenefitInsurance extends Element {
             modifierExtension,
             focal,
             coverage,
-            preAuthRef,
+            preAuthRef
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ExplanationOfBenefitInsurance extends Element {
             modifierExtension,
             focal,
             coverage,
-            preAuthRef,
+            preAuthRef
         });
 
     }
@@ -201,7 +201,7 @@ class ExplanationOfBenefitInsurance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSON(),
-            preAuthRef: this.preAuthRef,
+            preAuthRef: this.preAuthRef
         });
     }
 
@@ -228,7 +228,7 @@ class ExplanationOfBenefitInsurance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSONInternal(),
-            preAuthRef: this.preAuthRef,
+            preAuthRef: this.preAuthRef
         };
 
 

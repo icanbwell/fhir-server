@@ -28,7 +28,7 @@ class SubscriptionTopicEventTrigger extends Element {
             modifierExtension,
             description,
             event,
-            resource,
+            resource
         }
     ) {
         super({});
@@ -184,7 +184,7 @@ class SubscriptionTopicEventTrigger extends Element {
             modifierExtension,
             description,
             event,
-            resource,
+            resource
         });
 
     }
@@ -204,7 +204,7 @@ class SubscriptionTopicEventTrigger extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             event: this.event && this.event.toJSON(),
-            resource: this.resource,
+            resource: this.resource
         });
     }
 
@@ -231,7 +231,7 @@ class SubscriptionTopicEventTrigger extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             event: this.event && this.event.toJSONInternal(),
-            resource: this.resource,
+            resource: this.resource
         };
 
 

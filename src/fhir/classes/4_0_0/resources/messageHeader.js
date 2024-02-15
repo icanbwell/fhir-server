@@ -67,7 +67,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -582,7 +582,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -658,7 +658,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MessageHeader({
@@ -685,7 +685,7 @@ class MessageHeader extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -726,7 +726,7 @@ class MessageHeader extends Resource {
             reason: this.reason && this.reason.toJSON(),
             response: this.response && this.response.toJSON(),
             focus: this.focus && this.focus.map(v => v.toJSON()),
-            definition: this.definition,
+            definition: this.definition
         });
     }
 
@@ -780,7 +780,7 @@ class MessageHeader extends Resource {
             reason: this.reason && this.reason.toJSONInternal(),
             response: this.response && this.response.toJSONInternal(),
             focus: this.focus && this.focus.map(v => v.toJSONInternal()),
-            definition: this.definition,
+            definition: this.definition
         };
 
 

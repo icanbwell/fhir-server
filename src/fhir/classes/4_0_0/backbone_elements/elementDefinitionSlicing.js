@@ -32,7 +32,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator,
             description,
             ordered,
-            rules,
+            rules
         }
     ) {
         super({});
@@ -207,7 +207,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator,
             description,
             ordered,
-            rules,
+            rules
         });
 
     }
@@ -228,7 +228,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator: this.discriminator && this.discriminator.map(v => v.toJSON()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules,
+            rules: this.rules
         });
     }
 
@@ -256,7 +256,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator: this.discriminator && this.discriminator.map(v => v.toJSONInternal()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules,
+            rules: this.rules
         };
 
 

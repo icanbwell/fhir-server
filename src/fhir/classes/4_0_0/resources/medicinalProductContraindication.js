@@ -54,7 +54,7 @@ class MedicinalProductContraindication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -461,7 +461,7 @@ class MedicinalProductContraindication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -527,7 +527,7 @@ class MedicinalProductContraindication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductContraindication({
@@ -549,7 +549,7 @@ class MedicinalProductContraindication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -585,7 +585,7 @@ class MedicinalProductContraindication extends Resource {
             comorbidity: this.comorbidity && this.comorbidity.map(v => v.toJSON()),
             therapeuticIndication: this.therapeuticIndication && this.therapeuticIndication.map(v => v.toJSON()),
             otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON()),
-            population: this.population && this.population.map(v => v.toJSON()),
+            population: this.population && this.population.map(v => v.toJSON())
         });
     }
 
@@ -631,7 +631,7 @@ class MedicinalProductContraindication extends Resource {
             comorbidity: this.comorbidity && this.comorbidity.map(v => v.toJSONInternal()),
             therapeuticIndication: this.therapeuticIndication && this.therapeuticIndication.map(v => v.toJSONInternal()),
             otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal()),
-            population: this.population && this.population.map(v => v.toJSONInternal()),
+            population: this.population && this.population.map(v => v.toJSONInternal())
         };
 
 

@@ -65,7 +65,7 @@ module.exports = {
                 context,
                 info,
                 parent.pointer);
-        },
+        }
     }
 };
 

@@ -35,7 +35,7 @@ class SpecimenContainer extends Element {
             capacity,
             specimenQuantity,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         }
     ) {
         super({});
@@ -272,7 +272,7 @@ class SpecimenContainer extends Element {
             capacity,
             specimenQuantity,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         });
 
     }
@@ -296,7 +296,7 @@ class SpecimenContainer extends Element {
             capacity: this.capacity && this.capacity.toJSON(),
             specimenQuantity: this.specimenQuantity && this.specimenQuantity.toJSON(),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSON(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSON(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSON()
         });
     }
 
@@ -332,7 +332,7 @@ class SpecimenContainer extends Element {
             capacity: this.capacity && this.capacity.toJSONInternal(),
             specimenQuantity: this.specimenQuantity && this.specimenQuantity.toJSONInternal(),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
 
 

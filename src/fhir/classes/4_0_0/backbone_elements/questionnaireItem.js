@@ -55,7 +55,7 @@ class QuestionnaireItem extends Element {
             answerValueSet,
             answerOption,
             initial,
-            item,
+            item
         }
     ) {
         super({});
@@ -487,7 +487,7 @@ class QuestionnaireItem extends Element {
             answerValueSet,
             answerOption,
             initial,
-            item,
+            item
         });
 
     }
@@ -520,7 +520,7 @@ class QuestionnaireItem extends Element {
             answerValueSet: this.answerValueSet,
             answerOption: this.answerOption && this.answerOption.map(v => v.toJSON()),
             initial: this.initial && this.initial.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -564,7 +564,7 @@ class QuestionnaireItem extends Element {
             answerValueSet: this.answerValueSet,
             answerOption: this.answerOption && this.answerOption.map(v => v.toJSONInternal()),
             initial: this.initial && this.initial.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

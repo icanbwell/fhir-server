@@ -67,7 +67,7 @@ async function main() {
                 useTransaction: parameters.useTransaction ? true : false,
                 properties,
                 afterLastUpdatedDate,
-                beforeLastUpdatedDate,
+                beforeLastUpdatedDate
             }
         )
     );

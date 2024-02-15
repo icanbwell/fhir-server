@@ -17,9 +17,9 @@ class BadRequestError extends ServerError {
                     code: 'invalid',
                     details: {text: error.message},
                     diagnostics: (env.IS_PRODUCTION || typeof error.toString !== 'function') ?
-                        error.message : error.toString(),
-                },
-            ],
+                        error.message : error.toString()
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -46,9 +46,9 @@ class NotFoundError extends ServerError {
                 {
                     severity: 'error',
                     code: 'not-found',
-                    details: {text: message},
-                },
-            ],
+                    details: {text: message}
+                }
+            ]
         });
 
         this.name = 'NotFound';
@@ -76,9 +76,9 @@ class NotAllowedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: {text: message},
-                },
-            ],
+                    details: {text: message}
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -131,9 +131,9 @@ class UnauthorizedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'security',
-                    details: {text: message},
-                },
-            ],
+                    details: {text: message}
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -160,9 +160,9 @@ class ForbiddenError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: {text: message},
-                },
-            ],
+                    details: {text: message}
+                }
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -190,7 +190,7 @@ class ExternalTimeoutError extends ServerError {
                     code: 'timeout',
                     details: { text: message }
                 }
-            ],
+            ]
         });
 
         // You can attach relevant information to the error instance
@@ -213,5 +213,5 @@ module.exports = {
     NotValidatedError,
     UnauthorizedError,
     ForbiddenError,
-    ExternalTimeoutError,
+    ExternalTimeoutError
 };

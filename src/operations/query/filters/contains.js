@@ -57,7 +57,7 @@ class FilterByContains extends BaseFilter {
             [this.fieldMapper.getFieldName(field, value)]:
                 {
                     $regex: escapeRegExp(value),
-                    $options: 'i',
+                    $options: 'i'
                 }
         };
     }

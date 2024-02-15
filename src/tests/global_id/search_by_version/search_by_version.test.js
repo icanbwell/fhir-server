@@ -38,7 +38,7 @@ describe('Observation Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
         requestId = mockHttpContext({
-            userRequestId,
+            userRequestId
         });
     });
 

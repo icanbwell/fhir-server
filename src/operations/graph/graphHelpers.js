@@ -309,7 +309,7 @@ class GraphHelper {
             );
             const {
                 /** @type {import('mongodb').Document}**/
-                query, // /** @type {Set} **/
+                query // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
@@ -552,7 +552,7 @@ class GraphHelper {
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query, // /** @type {Set} **/
+                query // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync(
                 {

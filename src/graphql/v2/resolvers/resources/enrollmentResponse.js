@@ -18,7 +18,7 @@ module.exports = {
     EnrollmentResponseRequestProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     EnrollmentResponse: {
         // noinspection JSUnusedLocalSymbols
@@ -50,7 +50,7 @@ module.exports = {
                 context,
                 info,
                 parent.requestProvider);
-        },
+        }
     }
 };
 

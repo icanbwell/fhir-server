@@ -13,7 +13,7 @@ let myMongoUrl;
 
 async function startTestMongoServerAsync() {
     mongoRepl = await MongoMemoryReplSet.create({
-        replSet: {count: 1, storageEngine: 'wiredTiger'},
+        replSet: {count: 1, storageEngine: 'wiredTiger'}
     });
     await mongoRepl.waitUntilRunning();
     myMongoUrl = mongoRepl.getUri();

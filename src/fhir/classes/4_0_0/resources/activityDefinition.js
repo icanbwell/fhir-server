@@ -147,7 +147,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1543,7 +1543,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1701,7 +1701,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ActivityDefinition({
@@ -1769,7 +1769,7 @@ class ActivityDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1851,7 +1851,7 @@ class ActivityDefinition extends Resource {
             observationRequirement: this.observationRequirement && this.observationRequirement.map(v => v.toJSON()),
             observationResultRequirement: this.observationResultRequirement && this.observationResultRequirement.map(v => v.toJSON()),
             transform: this.transform,
-            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON()),
+            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON())
         });
     }
 
@@ -1966,7 +1966,7 @@ class ActivityDefinition extends Resource {
             observationRequirement: this.observationRequirement && this.observationRequirement.map(v => v.toJSONInternal()),
             observationResultRequirement: this.observationResultRequirement && this.observationResultRequirement.map(v => v.toJSONInternal()),
             transform: this.transform,
-            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal()),
+            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal())
         };
 
 

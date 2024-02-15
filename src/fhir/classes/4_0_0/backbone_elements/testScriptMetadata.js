@@ -26,7 +26,7 @@ class TestScriptMetadata extends Element {
             extension,
             modifierExtension,
             link,
-            capability,
+            capability
         }
     ) {
         super({});
@@ -157,7 +157,7 @@ class TestScriptMetadata extends Element {
             extension,
             modifierExtension,
             link,
-            capability,
+            capability
         });
 
     }
@@ -176,7 +176,7 @@ class TestScriptMetadata extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             link: this.link && this.link.map(v => v.toJSON()),
-            capability: this.capability && this.capability.map(v => v.toJSON()),
+            capability: this.capability && this.capability.map(v => v.toJSON())
         });
     }
 
@@ -203,7 +203,7 @@ class TestScriptMetadata extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             link: this.link && this.link.map(v => v.toJSONInternal()),
-            capability: this.capability && this.capability.map(v => v.toJSONInternal()),
+            capability: this.capability && this.capability.map(v => v.toJSONInternal())
         };
 
 

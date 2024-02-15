@@ -70,7 +70,7 @@ class RequestGroupAction extends Element {
             precheckBehavior,
             cardinalityBehavior,
             resource,
-            action,
+            action
         }
     ) {
         super({});
@@ -648,7 +648,7 @@ class RequestGroupAction extends Element {
             precheckBehavior,
             cardinalityBehavior,
             resource,
-            action,
+            action
         });
 
     }
@@ -689,7 +689,7 @@ class RequestGroupAction extends Element {
             precheckBehavior: this.precheckBehavior,
             cardinalityBehavior: this.cardinalityBehavior,
             resource: this.resource && this.resource.toJSON(),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -749,7 +749,7 @@ class RequestGroupAction extends Element {
             precheckBehavior: this.precheckBehavior,
             cardinalityBehavior: this.cardinalityBehavior,
             resource: this.resource && this.resource.toJSONInternal(),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

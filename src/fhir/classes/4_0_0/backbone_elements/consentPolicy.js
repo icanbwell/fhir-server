@@ -27,7 +27,7 @@ class ConsentPolicy extends Element {
             extension,
             modifierExtension,
             authority,
-            uri,
+            uri
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ConsentPolicy extends Element {
             extension,
             modifierExtension,
             authority,
-            uri,
+            uri
         });
 
     }
@@ -175,7 +175,7 @@ class ConsentPolicy extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             authority: this.authority,
-            uri: this.uri,
+            uri: this.uri
         });
     }
 
@@ -200,7 +200,7 @@ class ConsentPolicy extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             authority: this.authority,
-            uri: this.uri,
+            uri: this.uri
         };
 
 

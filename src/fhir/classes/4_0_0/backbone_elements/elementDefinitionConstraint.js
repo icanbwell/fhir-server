@@ -38,7 +38,7 @@ class ElementDefinitionConstraint extends Element {
             human,
             expression,
             xpath,
-            source,
+            source
         }
     ) {
         super({});
@@ -266,7 +266,7 @@ class ElementDefinitionConstraint extends Element {
             human,
             expression,
             xpath,
-            source,
+            source
         });
 
     }
@@ -290,7 +290,7 @@ class ElementDefinitionConstraint extends Element {
             human: this.human,
             expression: this.expression,
             xpath: this.xpath,
-            source: this.source,
+            source: this.source
         });
     }
 
@@ -320,7 +320,7 @@ class ElementDefinitionConstraint extends Element {
             human: this.human,
             expression: this.expression,
             xpath: this.xpath,
-            source: this.source,
+            source: this.source
         };
 
 

@@ -18,7 +18,7 @@ module.exports = {
     ResearchStudyPrincipalInvestigator: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ResearchStudy: {
         // noinspection JSUnusedLocalSymbols
@@ -80,7 +80,7 @@ module.exports = {
                 context,
                 info,
                 parent.site);
-        },
+        }
     }
 };
 

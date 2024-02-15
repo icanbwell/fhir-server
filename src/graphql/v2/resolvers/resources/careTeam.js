@@ -18,7 +18,7 @@ module.exports = {
     CareTeamSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CareTeam: {
         // noinspection JSUnusedLocalSymbols
@@ -60,7 +60,7 @@ module.exports = {
                 context,
                 info,
                 parent.managingOrganization);
-        },
+        }
     }
 };
 

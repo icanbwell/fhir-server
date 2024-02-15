@@ -92,7 +92,7 @@ class OperationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -894,7 +894,7 @@ class OperationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -998,7 +998,7 @@ class OperationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new OperationDefinition({
@@ -1039,7 +1039,7 @@ class OperationDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1094,7 +1094,7 @@ class OperationDefinition extends Resource {
             inputProfile: this.inputProfile,
             outputProfile: this.outputProfile,
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            overload: this.overload && this.overload.map(v => v.toJSON()),
+            overload: this.overload && this.overload.map(v => v.toJSON())
         });
     }
 
@@ -1157,7 +1157,7 @@ class OperationDefinition extends Resource {
             inputProfile: this.inputProfile,
             outputProfile: this.outputProfile,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            overload: this.overload && this.overload.map(v => v.toJSONInternal()),
+            overload: this.overload && this.overload.map(v => v.toJSONInternal())
         };
 
 

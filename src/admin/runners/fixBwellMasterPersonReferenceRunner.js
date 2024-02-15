@@ -287,7 +287,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
          * @type {Object}
          */
         const projection = {
-            _uuid: 1,
+            _uuid: 1
         };
         /**
          * @type {require('mongodb').collection}
@@ -316,8 +316,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 {
                     message: `Error fetching uuids for collection ${collectionName}, ${e.message}`,
                     error: e,
-                    source: 'FixBwellMasterPersonReferenceRunner.getUuidsForMainResource',
-                },
+                    source: 'FixBwellMasterPersonReferenceRunner.getUuidsForMainResource'
+                }
             );
         } finally {
             await session.endSession();
@@ -389,7 +389,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skip: this.skip,
                             filterToIds: isHistoryCollection ? await this.getUuidsForMainResource({
                                 collectionName: collectionName.replace('_History', ''),
-                                mongoConfig,
+                                mongoConfig
                             }) : undefined,
                             filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
                             useEstimatedCount: true
@@ -603,7 +603,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                         'code': 'bwell'
                     }
                 }
-            },
+            }
         ];
 
         // merge query and filterQuery

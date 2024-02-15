@@ -57,7 +57,7 @@ class MedicinalProductPackaged extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -504,7 +504,7 @@ class MedicinalProductPackaged extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -574,7 +574,7 @@ class MedicinalProductPackaged extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductPackaged({
@@ -598,7 +598,7 @@ class MedicinalProductPackaged extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -636,7 +636,7 @@ class MedicinalProductPackaged extends Resource {
             marketingAuthorization: this.marketingAuthorization && this.marketingAuthorization.toJSON(),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
             batchIdentifier: this.batchIdentifier && this.batchIdentifier.map(v => v.toJSON()),
-            packageItem: this.packageItem && this.packageItem.map(v => v.toJSON()),
+            packageItem: this.packageItem && this.packageItem.map(v => v.toJSON())
         });
     }
 
@@ -685,7 +685,7 @@ class MedicinalProductPackaged extends Resource {
             marketingAuthorization: this.marketingAuthorization && this.marketingAuthorization.toJSONInternal(),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
             batchIdentifier: this.batchIdentifier && this.batchIdentifier.map(v => v.toJSONInternal()),
-            packageItem: this.packageItem && this.packageItem.map(v => v.toJSONInternal()),
+            packageItem: this.packageItem && this.packageItem.map(v => v.toJSONInternal())
         };
 
 

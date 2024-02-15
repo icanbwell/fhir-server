@@ -30,7 +30,7 @@ class ElementDefinitionBase extends Element {
             modifierExtension,
             path,
             min,
-            max,
+            max
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class ElementDefinitionBase extends Element {
             modifierExtension,
             path,
             min,
-            max,
+            max
         });
 
     }
@@ -198,7 +198,7 @@ class ElementDefinitionBase extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             path: this.path,
             min: this.min,
-            max: this.max,
+            max: this.max
         });
     }
 
@@ -224,7 +224,7 @@ class ElementDefinitionBase extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             path: this.path,
             min: this.min,
-            max: this.max,
+            max: this.max
         };
 
 

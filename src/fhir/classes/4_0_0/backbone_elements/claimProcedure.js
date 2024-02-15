@@ -35,7 +35,7 @@ class ClaimProcedure extends Element {
             date,
             procedureCodeableConcept,
             procedureReference,
-            udi,
+            udi
         }
     ) {
         super({});
@@ -245,7 +245,7 @@ class ClaimProcedure extends Element {
             date,
             procedureCodeableConcept,
             procedureReference,
-            udi,
+            udi
         });
 
     }
@@ -268,7 +268,7 @@ class ClaimProcedure extends Element {
             date: this.date,
             procedureCodeableConcept: this.procedureCodeableConcept && this.procedureCodeableConcept.toJSON(),
             procedureReference: this.procedureReference && this.procedureReference.toJSON(),
-            udi: this.udi && this.udi.map(v => v.toJSON()),
+            udi: this.udi && this.udi.map(v => v.toJSON())
         });
     }
 
@@ -301,7 +301,7 @@ class ClaimProcedure extends Element {
             date: this.date,
             procedureCodeableConcept: this.procedureCodeableConcept && this.procedureCodeableConcept.toJSONInternal(),
             procedureReference: this.procedureReference && this.procedureReference.toJSONInternal(),
-            udi: this.udi && this.udi.map(v => v.toJSONInternal()),
+            udi: this.udi && this.udi.map(v => v.toJSONInternal())
         };
 
 

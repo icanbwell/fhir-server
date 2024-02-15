@@ -216,7 +216,7 @@ describe('Create Index Tests', () => {
                     'key': {
                         'id': 1
                     },
-                    'name': 'id_1',
+                    'name': 'id_1'
                     // 'unique': true
                 }
             );
@@ -357,7 +357,7 @@ describe('Create Index Tests', () => {
                     'key': {
                         'id': 1
                     },
-                    'name': 'id_1',
+                    'name': 'id_1'
                     // 'unique': true
                 }
             );
@@ -485,7 +485,7 @@ describe('Create Index Tests', () => {
                     'key': {
                         'id': 1
                     },
-                    'name': 'id_1',
+                    'name': 'id_1'
                     // 'unique': true
                 }
             );
@@ -622,7 +622,7 @@ describe('Create Index Tests', () => {
                     'key': {
                         'id': 1
                     },
-                    'name': 'id_1',
+                    'name': 'id_1'
                     // 'unique': true
                 }
             );
@@ -698,7 +698,7 @@ describe('Create Index Tests', () => {
                     'key': {
                         'id': 1
                     },
-                    'name': 'id_1',
+                    'name': 'id_1'
                     // 'unique': true
                 }
             );
@@ -761,7 +761,7 @@ describe('Create Index Tests', () => {
                     'key': {
                         'id': 1
                     },
-                    'name': 'id_1',
+                    'name': 'id_1'
                     // 'unique': true
                 }
             );

@@ -25,7 +25,7 @@ class TerminologyCapabilitiesClosure extends Element {
             id,
             extension,
             modifierExtension,
-            translation,
+            translation
         }
     ) {
         super({});
@@ -132,7 +132,7 @@ class TerminologyCapabilitiesClosure extends Element {
             id,
             extension,
             modifierExtension,
-            translation,
+            translation
         });
 
     }
@@ -150,7 +150,7 @@ class TerminologyCapabilitiesClosure extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            translation: this.translation,
+            translation: this.translation
         });
     }
 
@@ -174,7 +174,7 @@ class TerminologyCapabilitiesClosure extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            translation: this.translation,
+            translation: this.translation
         };
 
 

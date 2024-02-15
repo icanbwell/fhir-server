@@ -53,7 +53,7 @@ class Substance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -457,7 +457,7 @@ class Substance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -523,7 +523,7 @@ class Substance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Substance({
@@ -545,7 +545,7 @@ class Substance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -581,7 +581,7 @@ class Substance extends Resource {
             code: this.code && this.code.toJSON(),
             description: this.description,
             instance: this.instance && this.instance.map(v => v.toJSON()),
-            ingredient: this.ingredient && this.ingredient.map(v => v.toJSON()),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSON())
         });
     }
 
@@ -625,7 +625,7 @@ class Substance extends Resource {
             code: this.code && this.code.toJSONInternal(),
             description: this.description,
             instance: this.instance && this.instance.map(v => v.toJSONInternal()),
-            ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal())
         };
 
 

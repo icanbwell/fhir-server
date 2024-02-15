@@ -27,7 +27,7 @@ class DeviceDeviceName extends Element {
             extension,
             modifierExtension,
             name,
-            type,
+            type
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class DeviceDeviceName extends Element {
             extension,
             modifierExtension,
             name,
-            type,
+            type
         });
 
     }
@@ -174,7 +174,7 @@ class DeviceDeviceName extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
-            type: this.type,
+            type: this.type
         });
     }
 
@@ -199,7 +199,7 @@ class DeviceDeviceName extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
-            type: this.type,
+            type: this.type
         };
 
 

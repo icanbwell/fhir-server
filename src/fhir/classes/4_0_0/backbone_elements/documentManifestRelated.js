@@ -26,7 +26,7 @@ class DocumentManifestRelated extends Element {
             extension,
             modifierExtension,
             identifier,
-            ref,
+            ref
         }
     ) {
         super({});
@@ -158,7 +158,7 @@ class DocumentManifestRelated extends Element {
             extension,
             modifierExtension,
             identifier,
-            ref,
+            ref
         });
 
     }
@@ -177,7 +177,7 @@ class DocumentManifestRelated extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
-            ref: this.ref && this.ref.toJSON(),
+            ref: this.ref && this.ref.toJSON()
         });
     }
 
@@ -204,7 +204,7 @@ class DocumentManifestRelated extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             identifier: this.identifier && this.identifier.toJSONInternal(),
-            ref: this.ref && this.ref.toJSONInternal(),
+            ref: this.ref && this.ref.toJSONInternal()
         };
 
 

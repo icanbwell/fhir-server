@@ -33,7 +33,7 @@ class GraphDefinitionTarget extends Element {
             params,
             profile,
             compartment,
-            link,
+            link
         }
     ) {
         super({});
@@ -220,7 +220,7 @@ class GraphDefinitionTarget extends Element {
             params,
             profile,
             compartment,
-            link,
+            link
         });
 
     }
@@ -242,7 +242,7 @@ class GraphDefinitionTarget extends Element {
             params: this.params,
             profile: this.profile,
             compartment: this.compartment && this.compartment.map(v => v.toJSON()),
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -272,7 +272,7 @@ class GraphDefinitionTarget extends Element {
             params: this.params,
             profile: this.profile,
             compartment: this.compartment && this.compartment.map(v => v.toJSONInternal()),
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
 
 

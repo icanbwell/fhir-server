@@ -63,7 +63,7 @@ class QuestionnaireResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -558,7 +558,7 @@ class QuestionnaireResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -632,7 +632,7 @@ class QuestionnaireResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new QuestionnaireResponse({
@@ -658,7 +658,7 @@ class QuestionnaireResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -698,7 +698,7 @@ class QuestionnaireResponse extends Resource {
             authored: this.authored,
             author: this.author && this.author.toJSON(),
             source: this.source && this.source.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -749,7 +749,7 @@ class QuestionnaireResponse extends Resource {
             authored: this.authored,
             author: this.author && this.author.toJSONInternal(),
             source: this.source && this.source.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

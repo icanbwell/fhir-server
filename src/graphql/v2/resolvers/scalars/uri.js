@@ -14,9 +14,9 @@ const uriScalar = new GraphQLScalarType({
             return ast.value;
         }
         return null;
-    },
+    }
 });
 
 module.exports = {
-    uri: uriScalar,
+    uri: uriScalar
 };

@@ -26,7 +26,7 @@ class MedicinalProductNamePart extends Element {
             extension,
             modifierExtension,
             part,
-            type,
+            type
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class MedicinalProductNamePart extends Element {
             extension,
             modifierExtension,
             part,
-            type,
+            type
         });
 
     }
@@ -173,7 +173,7 @@ class MedicinalProductNamePart extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             part: this.part,
-            type: this.type && this.type.toJSON(),
+            type: this.type && this.type.toJSON()
         });
     }
 
@@ -199,7 +199,7 @@ class MedicinalProductNamePart extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             part: this.part,
-            type: this.type && this.type.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal()
         };
 
 

@@ -114,7 +114,7 @@ class Observation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1162,7 +1162,7 @@ class Observation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1288,7 +1288,7 @@ class Observation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Observation({
@@ -1340,7 +1340,7 @@ class Observation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1406,7 +1406,7 @@ class Observation extends Resource {
             referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON()),
             hasMember: this.hasMember && this.hasMember.map(v => v.toJSON()),
             derivedFrom: this.derivedFrom && this.derivedFrom.map(v => v.toJSON()),
-            component: this.component && this.component.map(v => v.toJSON()),
+            component: this.component && this.component.map(v => v.toJSON())
         });
     }
 
@@ -1503,7 +1503,7 @@ class Observation extends Resource {
             referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal()),
             hasMember: this.hasMember && this.hasMember.map(v => v.toJSONInternal()),
             derivedFrom: this.derivedFrom && this.derivedFrom.map(v => v.toJSONInternal()),
-            component: this.component && this.component.map(v => v.toJSONInternal()),
+            component: this.component && this.component.map(v => v.toJSONInternal())
         };
 
 

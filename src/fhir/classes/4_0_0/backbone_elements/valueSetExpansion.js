@@ -36,7 +36,7 @@ class ValueSetExpansion extends Element {
             total,
             offset,
             parameter,
-            contains,
+            contains
         }
     ) {
         super({});
@@ -253,7 +253,7 @@ class ValueSetExpansion extends Element {
             total,
             offset,
             parameter,
-            contains,
+            contains
         });
 
     }
@@ -276,7 +276,7 @@ class ValueSetExpansion extends Element {
             total: this.total,
             offset: this.offset,
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            contains: this.contains && this.contains.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON())
         });
     }
 
@@ -307,7 +307,7 @@ class ValueSetExpansion extends Element {
             total: this.total,
             offset: this.offset,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal())
         };
 
 

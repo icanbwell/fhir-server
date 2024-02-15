@@ -115,7 +115,7 @@ describe('mongoQuerySimplifier Tests', () => {
             const query = {
                 '$or': [
                     {'foo': '1'},
-                    {'foo': '2'},
+                    {'foo': '2'}
                 ]
             };
 
@@ -131,7 +131,7 @@ describe('mongoQuerySimplifier Tests', () => {
             const query = {
                 '$or': [
                     {'foo': '1'},
-                    {'bar': '2'},
+                    {'bar': '2'}
                 ]
             };
 
@@ -140,7 +140,7 @@ describe('mongoQuerySimplifier Tests', () => {
             expect(result).toStrictEqual({
                 '$or': [
                     {'foo': '1'},
-                    {'bar': '2'},
+                    {'bar': '2'}
                 ]
             });
         });
@@ -702,7 +702,7 @@ describe('mongoQuerySimplifier Tests', () => {
                                 '$and': [
                                     {
                                         'effectiveDateTime': {
-                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,),
+                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/),
                                             '$options': 'i'
                                         }
                                     }

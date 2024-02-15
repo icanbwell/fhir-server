@@ -11,9 +11,9 @@ const sdk = new opentelemetry.NodeSDK({
     resource: new Resource(),
     traceExporter: new OTLPTraceExporter(),
     metricReader: new PeriodicExportingMetricReader({
-        exporter: new OTLPMetricExporter(),
+        exporter: new OTLPMetricExporter()
     }),
-    instrumentations: [getNodeAutoInstrumentations()],
+    instrumentations: [getNodeAutoInstrumentations()]
 });
 
 sdk.start();

@@ -51,7 +51,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
         }
 
         const client = new Client({
-            nodes: [openSearchVectorStoreUrl],
+            nodes: [openSearchVectorStoreUrl]
         });
         const embeddings = new OpenAIEmbeddings();
 
@@ -59,7 +59,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
         assertIsValid(indexName === indexName.toLowerCase(), 'openSearchVectorStoreIndexName must be lowercase');
         return new FhirOpenSearchVectorStore(embeddings, {
             client,
-            indexName: indexName,
+            indexName: indexName
         });
     }
 

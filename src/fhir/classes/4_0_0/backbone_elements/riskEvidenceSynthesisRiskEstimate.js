@@ -37,7 +37,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             unitOfMeasure,
             denominatorCount,
             numeratorCount,
-            precisionEstimate,
+            precisionEstimate
         }
     ) {
         super({});
@@ -264,7 +264,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             unitOfMeasure,
             denominatorCount,
             numeratorCount,
-            precisionEstimate,
+            precisionEstimate
         });
 
     }
@@ -288,7 +288,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSON(),
             denominatorCount: this.denominatorCount,
             numeratorCount: this.numeratorCount,
-            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSON()),
+            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSON())
         });
     }
 
@@ -321,7 +321,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSONInternal(),
             denominatorCount: this.denominatorCount,
             numeratorCount: this.numeratorCount,
-            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSONInternal()),
+            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSONInternal())
         };
 
 

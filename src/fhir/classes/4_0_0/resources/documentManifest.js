@@ -64,7 +64,7 @@ class DocumentManifest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -579,7 +579,7 @@ class DocumentManifest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -655,7 +655,7 @@ class DocumentManifest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DocumentManifest({
@@ -682,7 +682,7 @@ class DocumentManifest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -723,7 +723,7 @@ class DocumentManifest extends Resource {
             source: this.source,
             description: this.description,
             content: this.content && this.content.map(v => v.toJSON()),
-            related: this.related && this.related.map(v => v.toJSON()),
+            related: this.related && this.related.map(v => v.toJSON())
         });
     }
 
@@ -775,7 +775,7 @@ class DocumentManifest extends Resource {
             source: this.source,
             description: this.description,
             content: this.content && this.content.map(v => v.toJSONInternal()),
-            related: this.related && this.related.map(v => v.toJSONInternal()),
+            related: this.related && this.related.map(v => v.toJSONInternal())
         };
 
 

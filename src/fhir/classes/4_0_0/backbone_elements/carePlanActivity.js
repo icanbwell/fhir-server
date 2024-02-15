@@ -33,7 +33,7 @@ class CarePlanActivity extends Element {
             outcomeReference,
             progress,
             reference,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -234,7 +234,7 @@ class CarePlanActivity extends Element {
             outcomeReference,
             progress,
             reference,
-            detail,
+            detail
         });
 
     }
@@ -256,7 +256,7 @@ class CarePlanActivity extends Element {
             outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSON()),
             progress: this.progress && this.progress.map(v => v.toJSON()),
             reference: this.reference && this.reference.toJSON(),
-            detail: this.detail && this.detail.toJSON(),
+            detail: this.detail && this.detail.toJSON()
         });
     }
 
@@ -289,7 +289,7 @@ class CarePlanActivity extends Element {
             outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSONInternal()),
             progress: this.progress && this.progress.map(v => v.toJSONInternal()),
             reference: this.reference && this.reference.toJSONInternal(),
-            detail: this.detail && this.detail.toJSONInternal(),
+            detail: this.detail && this.detail.toJSONInternal()
         };
 
 

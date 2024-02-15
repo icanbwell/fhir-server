@@ -31,7 +31,7 @@ class ClinicalImpressionInvestigation extends Element {
             extension,
             modifierExtension,
             code,
-            item,
+            item
         }
     ) {
         super({});
@@ -164,7 +164,7 @@ class ClinicalImpressionInvestigation extends Element {
             extension,
             modifierExtension,
             code,
-            item,
+            item
         });
 
     }
@@ -183,7 +183,7 @@ class ClinicalImpressionInvestigation extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -210,7 +210,7 @@ class ClinicalImpressionInvestigation extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

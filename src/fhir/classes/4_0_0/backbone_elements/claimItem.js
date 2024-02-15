@@ -71,7 +71,7 @@ class ClaimItem extends Element {
             bodySite,
             subSite,
             encounter,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -661,7 +661,7 @@ class ClaimItem extends Element {
             bodySite,
             subSite,
             encounter,
-            detail,
+            detail
         });
 
     }
@@ -702,7 +702,7 @@ class ClaimItem extends Element {
             bodySite: this.bodySite && this.bodySite.toJSON(),
             subSite: this.subSite && this.subSite.map(v => v.toJSON()),
             encounter: this.encounter && this.encounter.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -766,7 +766,7 @@ class ClaimItem extends Element {
             bodySite: this.bodySite && this.bodySite.toJSONInternal(),
             subSite: this.subSite && this.subSite.map(v => v.toJSONInternal()),
             encounter: this.encounter && this.encounter.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

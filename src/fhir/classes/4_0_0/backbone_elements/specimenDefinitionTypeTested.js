@@ -37,7 +37,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement,
             retentionTime,
             rejectionCriterion,
-            handling,
+            handling
         }
     ) {
         super({});
@@ -290,7 +290,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement,
             retentionTime,
             rejectionCriterion,
-            handling,
+            handling
         });
 
     }
@@ -315,7 +315,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement: this.requirement,
             retentionTime: this.retentionTime && this.retentionTime.toJSON(),
             rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.map(v => v.toJSON()),
-            handling: this.handling && this.handling.map(v => v.toJSON()),
+            handling: this.handling && this.handling.map(v => v.toJSON())
         });
     }
 
@@ -351,7 +351,7 @@ class SpecimenDefinitionTypeTested extends Element {
             requirement: this.requirement,
             retentionTime: this.retentionTime && this.retentionTime.toJSONInternal(),
             rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.map(v => v.toJSONInternal()),
-            handling: this.handling && this.handling.map(v => v.toJSONInternal()),
+            handling: this.handling && this.handling.map(v => v.toJSONInternal())
         };
 
 

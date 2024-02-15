@@ -49,7 +49,7 @@ class ExplanationOfBenefitSubDetail extends Element {
             net,
             udi,
             noteNumber,
-            adjudication,
+            adjudication
         }
     ) {
         super({});
@@ -415,7 +415,7 @@ class ExplanationOfBenefitSubDetail extends Element {
             net,
             udi,
             noteNumber,
-            adjudication,
+            adjudication
         });
 
     }
@@ -445,7 +445,7 @@ class ExplanationOfBenefitSubDetail extends Element {
             net: this.net && this.net.toJSON(),
             udi: this.udi && this.udi.map(v => v.toJSON()),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON())
         });
     }
 
@@ -491,7 +491,7 @@ class ExplanationOfBenefitSubDetail extends Element {
             net: this.net && this.net.toJSONInternal(),
             udi: this.udi && this.udi.map(v => v.toJSONInternal()),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal())
         };
 
 

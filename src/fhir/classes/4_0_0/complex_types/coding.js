@@ -31,7 +31,7 @@ class Coding extends Element {
             version,
             code,
             display,
-            userSelected,
+            userSelected
         }
     ) {
         super({});
@@ -190,7 +190,7 @@ class Coding extends Element {
             version,
             code,
             display,
-            userSelected,
+            userSelected
         });
 
     }
@@ -211,7 +211,7 @@ class Coding extends Element {
             version: this.version,
             code: this.code,
             display: this.display,
-            userSelected: this.userSelected,
+            userSelected: this.userSelected
         });
     }
 
@@ -237,7 +237,7 @@ class Coding extends Element {
             version: this.version,
             code: this.code,
             display: this.display,
-            userSelected: this.userSelected,
+            userSelected: this.userSelected
         };
 
 

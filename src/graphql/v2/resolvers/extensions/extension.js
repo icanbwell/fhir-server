@@ -12,7 +12,7 @@ module.exports = {
                 context,
                 info,
                 parent.valueReference);
-        },
+        }
     }
 };
 

@@ -29,7 +29,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code,
             group,
             confidentiality,
-            strength,
+            strength
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code,
             group,
             confidentiality,
-            strength,
+            strength
         });
 
     }
@@ -223,7 +223,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code: this.code && this.code.toJSON(),
             group: this.group && this.group.toJSON(),
             confidentiality: this.confidentiality && this.confidentiality.toJSON(),
-            strength: this.strength && this.strength.map(v => v.toJSON()),
+            strength: this.strength && this.strength.map(v => v.toJSON())
         });
     }
 
@@ -254,7 +254,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code: this.code && this.code.toJSONInternal(),
             group: this.group && this.group.toJSONInternal(),
             confidentiality: this.confidentiality && this.confidentiality.toJSONInternal(),
-            strength: this.strength && this.strength.map(v => v.toJSONInternal()),
+            strength: this.strength && this.strength.map(v => v.toJSONInternal())
         };
 
 

@@ -56,7 +56,7 @@ class TestScriptOperation extends Element {
             responseId,
             sourceId,
             targetId,
-            url,
+            url
         }
     ) {
         super({});
@@ -479,7 +479,7 @@ class TestScriptOperation extends Element {
             responseId,
             sourceId,
             targetId,
-            url,
+            url
         });
 
     }
@@ -513,7 +513,7 @@ class TestScriptOperation extends Element {
             responseId: this.responseId,
             sourceId: this.sourceId,
             targetId: this.targetId,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -555,7 +555,7 @@ class TestScriptOperation extends Element {
             responseId: this.responseId,
             sourceId: this.sourceId,
             targetId: this.targetId,
-            url: this.url,
+            url: this.url
         };
 
 

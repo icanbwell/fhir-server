@@ -29,7 +29,7 @@ class DocumentReferenceRelatesTo extends Element {
             extension,
             modifierExtension,
             code,
-            target,
+            target
         }
     ) {
         super({});
@@ -157,7 +157,7 @@ class DocumentReferenceRelatesTo extends Element {
             extension,
             modifierExtension,
             code,
-            target,
+            target
         });
 
     }
@@ -176,7 +176,7 @@ class DocumentReferenceRelatesTo extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
-            target: this.target && this.target.toJSON(),
+            target: this.target && this.target.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class DocumentReferenceRelatesTo extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
-            target: this.target && this.target.toJSONInternal(),
+            target: this.target && this.target.toJSONInternal()
         };
 
 

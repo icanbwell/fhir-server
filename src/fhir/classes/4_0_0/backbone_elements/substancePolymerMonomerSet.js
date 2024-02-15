@@ -25,7 +25,7 @@ class SubstancePolymerMonomerSet extends Element {
             extension,
             modifierExtension,
             ratioType,
-            startingMaterial,
+            startingMaterial
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class SubstancePolymerMonomerSet extends Element {
             extension,
             modifierExtension,
             ratioType,
-            startingMaterial,
+            startingMaterial
         });
 
     }
@@ -174,7 +174,7 @@ class SubstancePolymerMonomerSet extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             ratioType: this.ratioType && this.ratioType.toJSON(),
-            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSON()),
+            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSON())
         });
     }
 
@@ -201,7 +201,7 @@ class SubstancePolymerMonomerSet extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             ratioType: this.ratioType && this.ratioType.toJSONInternal(),
-            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSONInternal()),
+            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSONInternal())
         };
 
 

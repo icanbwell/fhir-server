@@ -110,7 +110,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1135,7 +1135,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1257,7 +1257,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Contract({
@@ -1307,7 +1307,7 @@ class Contract extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1371,7 +1371,7 @@ class Contract extends Resource {
             legal: this.legal && this.legal.map(v => v.toJSON()),
             rule: this.rule && this.rule.map(v => v.toJSON()),
             legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSON(),
-            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSON(),
+            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSON()
         });
     }
 
@@ -1464,7 +1464,7 @@ class Contract extends Resource {
             legal: this.legal && this.legal.map(v => v.toJSONInternal()),
             rule: this.rule && this.rule.map(v => v.toJSONInternal()),
             legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSONInternal(),
-            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSONInternal(),
+            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSONInternal()
         };
 
 

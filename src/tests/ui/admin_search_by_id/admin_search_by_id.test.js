@@ -3,7 +3,7 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHtmlHeadersWithAdminToken,
+    getHtmlHeadersWithAdminToken
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 

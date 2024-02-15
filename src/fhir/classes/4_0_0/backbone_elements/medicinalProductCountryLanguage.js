@@ -28,7 +28,7 @@ class MedicinalProductCountryLanguage extends Element {
             modifierExtension,
             country,
             jurisdiction,
-            language,
+            language
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class MedicinalProductCountryLanguage extends Element {
             modifierExtension,
             country,
             jurisdiction,
-            language,
+            language
         });
 
     }
@@ -199,7 +199,7 @@ class MedicinalProductCountryLanguage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             country: this.country && this.country.toJSON(),
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
-            language: this.language && this.language.toJSON(),
+            language: this.language && this.language.toJSON()
         });
     }
 
@@ -228,7 +228,7 @@ class MedicinalProductCountryLanguage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             country: this.country && this.country.toJSONInternal(),
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSONInternal(),
-            language: this.language && this.language.toJSONInternal(),
+            language: this.language && this.language.toJSONInternal()
         };
 
 

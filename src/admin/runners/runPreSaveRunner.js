@@ -166,7 +166,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                     query = {
                         'meta.lastUpdated': {
                             $lt: this.beforeLastUpdatedDate,
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     };
                 } else if (this.beforeLastUpdatedDate) {
@@ -178,7 +178,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 } else if (this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     };
                 }

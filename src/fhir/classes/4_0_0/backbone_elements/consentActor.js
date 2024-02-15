@@ -27,7 +27,7 @@ class ConsentActor extends Element {
             extension,
             modifierExtension,
             role,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -160,7 +160,7 @@ class ConsentActor extends Element {
             extension,
             modifierExtension,
             role,
-            reference,
+            reference
         });
 
     }
@@ -179,7 +179,7 @@ class ConsentActor extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             role: this.role && this.role.toJSON(),
-            reference: this.reference && this.reference.toJSON(),
+            reference: this.reference && this.reference.toJSON()
         });
     }
 
@@ -206,7 +206,7 @@ class ConsentActor extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             role: this.role && this.role.toJSONInternal(),
-            reference: this.reference && this.reference.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal()
         };
 
 

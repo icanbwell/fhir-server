@@ -80,7 +80,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -765,7 +765,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -857,7 +857,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProduct({
@@ -892,7 +892,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -941,7 +941,7 @@ class MedicinalProduct extends Resource {
             name: this.name && this.name.map(v => v.toJSON()),
             crossReference: this.crossReference && this.crossReference.map(v => v.toJSON()),
             manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSON()),
-            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSON()),
+            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSON())
         });
     }
 
@@ -1012,7 +1012,7 @@ class MedicinalProduct extends Resource {
             name: this.name && this.name.map(v => v.toJSONInternal()),
             crossReference: this.crossReference && this.crossReference.map(v => v.toJSONInternal()),
             manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSONInternal()),
-            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSONInternal()),
+            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSONInternal())
         };
 
 

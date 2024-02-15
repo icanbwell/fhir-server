@@ -9,7 +9,7 @@ class ImmunizationConverter extends BaseConverter {
             vaccineCode,
             patient,
             occurrenceDateTime,
-            performer,
+            performer
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

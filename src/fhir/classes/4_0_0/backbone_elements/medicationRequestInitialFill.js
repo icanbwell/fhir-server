@@ -29,7 +29,7 @@ class MedicationRequestInitialFill extends Element {
             extension,
             modifierExtension,
             quantity,
-            duration,
+            duration
         }
     ) {
         super({});
@@ -159,7 +159,7 @@ class MedicationRequestInitialFill extends Element {
             extension,
             modifierExtension,
             quantity,
-            duration,
+            duration
         });
 
     }
@@ -178,7 +178,7 @@ class MedicationRequestInitialFill extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
-            duration: this.duration && this.duration.toJSON(),
+            duration: this.duration && this.duration.toJSON()
         });
     }
 
@@ -205,7 +205,7 @@ class MedicationRequestInitialFill extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
-            duration: this.duration && this.duration.toJSONInternal(),
+            duration: this.duration && this.duration.toJSONInternal()
         };
 
 

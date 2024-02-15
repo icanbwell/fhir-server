@@ -31,7 +31,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type,
             level,
             from,
-            to,
+            to
         }
     ) {
         super({});
@@ -197,7 +197,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type,
             level,
             from,
-            to,
+            to
         });
 
     }
@@ -218,7 +218,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type: this.type && this.type.toJSON(),
             level: this.level,
             from: this.from,
-            to: this.to,
+            to: this.to
         });
     }
 
@@ -246,7 +246,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type: this.type && this.type.toJSONInternal(),
             level: this.level,
             from: this.from,
-            to: this.to,
+            to: this.to
         };
 
 

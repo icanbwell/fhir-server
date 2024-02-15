@@ -29,7 +29,7 @@ class SubstancePolymerRepeat extends Element {
             numberOfUnits,
             averageMolecularFormula,
             repeatUnitAmountType,
-            repeatUnit,
+            repeatUnit
         }
     ) {
         super({});
@@ -197,7 +197,7 @@ class SubstancePolymerRepeat extends Element {
             numberOfUnits,
             averageMolecularFormula,
             repeatUnitAmountType,
-            repeatUnit,
+            repeatUnit
         });
 
     }
@@ -218,7 +218,7 @@ class SubstancePolymerRepeat extends Element {
             numberOfUnits: this.numberOfUnits,
             averageMolecularFormula: this.averageMolecularFormula,
             repeatUnitAmountType: this.repeatUnitAmountType && this.repeatUnitAmountType.toJSON(),
-            repeatUnit: this.repeatUnit && this.repeatUnit.map(v => v.toJSON()),
+            repeatUnit: this.repeatUnit && this.repeatUnit.map(v => v.toJSON())
         });
     }
 
@@ -247,7 +247,7 @@ class SubstancePolymerRepeat extends Element {
             numberOfUnits: this.numberOfUnits,
             averageMolecularFormula: this.averageMolecularFormula,
             repeatUnitAmountType: this.repeatUnitAmountType && this.repeatUnitAmountType.toJSONInternal(),
-            repeatUnit: this.repeatUnit && this.repeatUnit.map(v => v.toJSONInternal()),
+            repeatUnit: this.repeatUnit && this.repeatUnit.map(v => v.toJSONInternal())
         };
 
 

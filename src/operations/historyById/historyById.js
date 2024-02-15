@@ -133,7 +133,7 @@ class HistoryByIdOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -156,7 +156,7 @@ class HistoryByIdOperation {
          */
         const {
             /** @type {import('mongodb').Document}**/
-            query,
+            query
             // /** @type {Set} **/
             // columns
         } = await this.searchManager.constructQueryAsync({

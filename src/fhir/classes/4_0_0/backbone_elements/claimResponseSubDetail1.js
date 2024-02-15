@@ -38,7 +38,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor,
             net,
             noteNumber,
-            adjudication,
+            adjudication
         }
     ) {
         super({});
@@ -299,7 +299,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor,
             net,
             noteNumber,
-            adjudication,
+            adjudication
         });
 
     }
@@ -324,7 +324,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor: this.factor,
             net: this.net && this.net.toJSON(),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON())
         });
     }
 
@@ -361,7 +361,7 @@ class ClaimResponseSubDetail1 extends Element {
             factor: this.factor,
             net: this.net && this.net.toJSONInternal(),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal())
         };
 
 

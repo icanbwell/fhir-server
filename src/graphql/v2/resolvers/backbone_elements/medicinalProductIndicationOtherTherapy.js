@@ -6,7 +6,7 @@ module.exports = {
     MedicinalProductIndicationOtherTherapyMedicationReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicinalProductIndicationOtherTherapy: {
         // noinspection JSUnusedLocalSymbols
@@ -18,7 +18,7 @@ module.exports = {
                 context,
                 info,
                 parent.medicationReference);
-        },
+        }
     }
 };
 

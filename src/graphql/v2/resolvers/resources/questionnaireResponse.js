@@ -18,27 +18,27 @@ module.exports = {
     QuestionnaireResponseBasedOn: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     QuestionnaireResponsePartOf: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     QuestionnaireResponseSubjectV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     QuestionnaireResponseAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     QuestionnaireResponseSource: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     QuestionnaireResponse: {
         // noinspection JSUnusedLocalSymbols
@@ -110,7 +110,7 @@ module.exports = {
                 context,
                 info,
                 parent.source);
-        },
+        }
     }
 };
 

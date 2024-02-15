@@ -32,7 +32,7 @@ class ProductShelfLife extends Element {
             identifier,
             type,
             period,
-            specialPrecautionsForStorage,
+            specialPrecautionsForStorage
         }
     ) {
         super({});
@@ -214,7 +214,7 @@ class ProductShelfLife extends Element {
             identifier,
             type,
             period,
-            specialPrecautionsForStorage,
+            specialPrecautionsForStorage
         });
 
     }
@@ -235,7 +235,7 @@ class ProductShelfLife extends Element {
             identifier: this.identifier && this.identifier.toJSON(),
             type: this.type && this.type.toJSON(),
             period: this.period && this.period.toJSON(),
-            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSON()),
+            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSON())
         });
     }
 
@@ -266,7 +266,7 @@ class ProductShelfLife extends Element {
             identifier: this.identifier && this.identifier.toJSONInternal(),
             type: this.type && this.type.toJSONInternal(),
             period: this.period && this.period.toJSONInternal(),
-            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSONInternal()),
+            specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSONInternal())
         };
 
 

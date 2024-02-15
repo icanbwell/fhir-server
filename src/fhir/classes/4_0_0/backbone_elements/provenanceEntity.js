@@ -35,7 +35,7 @@ class ProvenanceEntity extends Element {
             modifierExtension,
             role,
             what,
-            agent,
+            agent
         }
     ) {
         super({});
@@ -188,7 +188,7 @@ class ProvenanceEntity extends Element {
             modifierExtension,
             role,
             what,
-            agent,
+            agent
         });
 
     }
@@ -208,7 +208,7 @@ class ProvenanceEntity extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             role: this.role,
             what: this.what && this.what.toJSON(),
-            agent: this.agent && this.agent.map(v => v.toJSON()),
+            agent: this.agent && this.agent.map(v => v.toJSON())
         });
     }
 
@@ -236,7 +236,7 @@ class ProvenanceEntity extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             role: this.role,
             what: this.what && this.what.toJSONInternal(),
-            agent: this.agent && this.agent.map(v => v.toJSONInternal()),
+            agent: this.agent && this.agent.map(v => v.toJSONInternal())
         };
 
 

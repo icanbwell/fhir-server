@@ -25,7 +25,7 @@ class InsurancePlanSpecificCost extends Element {
             extension,
             modifierExtension,
             category,
-            benefit,
+            benefit
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class InsurancePlanSpecificCost extends Element {
             extension,
             modifierExtension,
             category,
-            benefit,
+            benefit
         });
 
     }
@@ -175,7 +175,7 @@ class InsurancePlanSpecificCost extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
-            benefit: this.benefit && this.benefit.map(v => v.toJSON()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSON())
         });
     }
 
@@ -202,7 +202,7 @@ class InsurancePlanSpecificCost extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             category: this.category && this.category.toJSONInternal(),
-            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal())
         };
 
 

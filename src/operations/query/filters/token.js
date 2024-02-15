@@ -139,8 +139,8 @@ class FilterByToken extends BaseFilter {
                                     field: this.fieldMapper.getFieldName(`${field}.coding`),
                                     resourceType: this.resourceType
                                 }
-                            ),
-                        ],
+                            )
+                        ]
                     };
             }
         }

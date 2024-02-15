@@ -18,12 +18,12 @@ module.exports = {
     AppointmentReasonReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     AppointmentSupportingInformationV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Appointment: {
         // noinspection JSUnusedLocalSymbols
@@ -75,7 +75,7 @@ module.exports = {
                 context,
                 info,
                 parent.basedOn);
-        },
+        }
     }
 };
 

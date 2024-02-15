@@ -31,7 +31,7 @@ class CodeSystemProperty extends Element {
             code,
             uri,
             description,
-            type,
+            type
         }
     ) {
         super({});
@@ -201,7 +201,7 @@ class CodeSystemProperty extends Element {
             code,
             uri,
             description,
-            type,
+            type
         });
 
     }
@@ -222,7 +222,7 @@ class CodeSystemProperty extends Element {
             code: this.code,
             uri: this.uri,
             description: this.description,
-            type: this.type,
+            type: this.type
         });
     }
 
@@ -249,7 +249,7 @@ class CodeSystemProperty extends Element {
             code: this.code,
             uri: this.uri,
             description: this.description,
-            type: this.type,
+            type: this.type
         };
 
 

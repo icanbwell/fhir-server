@@ -34,7 +34,7 @@ class MarketingStatus extends Element {
             jurisdiction,
             status,
             dateRange,
-            restoreDate,
+            restoreDate
         }
     ) {
         super({});
@@ -240,7 +240,7 @@ class MarketingStatus extends Element {
             jurisdiction,
             status,
             dateRange,
-            restoreDate,
+            restoreDate
         });
 
     }
@@ -262,7 +262,7 @@ class MarketingStatus extends Element {
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
             status: this.status && this.status.toJSON(),
             dateRange: this.dateRange && this.dateRange.toJSON(),
-            restoreDate: this.restoreDate,
+            restoreDate: this.restoreDate
         });
     }
 
@@ -294,7 +294,7 @@ class MarketingStatus extends Element {
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSONInternal(),
             status: this.status && this.status.toJSONInternal(),
             dateRange: this.dateRange && this.dateRange.toJSONInternal(),
-            restoreDate: this.restoreDate,
+            restoreDate: this.restoreDate
         };
 
 

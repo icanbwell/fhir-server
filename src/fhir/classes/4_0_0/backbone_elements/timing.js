@@ -33,7 +33,7 @@ class Timing extends Element {
             modifierExtension,
             event,
             repeat,
-            code,
+            code
         }
     ) {
         super({});
@@ -187,7 +187,7 @@ class Timing extends Element {
             modifierExtension,
             event,
             repeat,
-            code,
+            code
         });
 
     }
@@ -207,7 +207,7 @@ class Timing extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             event: this.event,
             repeat: this.repeat && this.repeat.toJSON(),
-            code: this.code && this.code.toJSON(),
+            code: this.code && this.code.toJSON()
         });
     }
 
@@ -235,7 +235,7 @@ class Timing extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             event: this.event,
             repeat: this.repeat && this.repeat.toJSONInternal(),
-            code: this.code && this.code.toJSONInternal(),
+            code: this.code && this.code.toJSONInternal()
         };
 
 

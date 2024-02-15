@@ -18,22 +18,22 @@ module.exports = {
     CarePlanSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlanAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlanContributor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlanSupportingInfoV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CarePlan: {
         // noinspection JSUnusedLocalSymbols
@@ -155,7 +155,7 @@ module.exports = {
                 context,
                 info,
                 parent.goal);
-        },
+        }
     }
 };
 

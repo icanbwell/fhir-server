@@ -31,7 +31,7 @@ class MedicationIngredient extends Element {
             itemCodeableConcept,
             itemReference,
             isActive,
-            strength,
+            strength
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class MedicationIngredient extends Element {
             itemCodeableConcept,
             itemReference,
             isActive,
-            strength,
+            strength
         });
 
     }
@@ -225,7 +225,7 @@ class MedicationIngredient extends Element {
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
             itemReference: this.itemReference && this.itemReference.toJSON(),
             isActive: this.isActive,
-            strength: this.strength && this.strength.toJSON(),
+            strength: this.strength && this.strength.toJSON()
         });
     }
 
@@ -255,7 +255,7 @@ class MedicationIngredient extends Element {
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
             itemReference: this.itemReference && this.itemReference.toJSONInternal(),
             isActive: this.isActive,
-            strength: this.strength && this.strength.toJSONInternal(),
+            strength: this.strength && this.strength.toJSONInternal()
         };
 
 

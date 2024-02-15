@@ -33,7 +33,7 @@ class GraphDefinitionCompartment extends Element {
             code,
             rule,
             expression,
-            description,
+            description
         }
     ) {
         super({});
@@ -218,7 +218,7 @@ class GraphDefinitionCompartment extends Element {
             code,
             rule,
             expression,
-            description,
+            description
         });
 
     }
@@ -240,7 +240,7 @@ class GraphDefinitionCompartment extends Element {
             code: this.code,
             rule: this.rule,
             expression: this.expression,
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -268,7 +268,7 @@ class GraphDefinitionCompartment extends Element {
             code: this.code,
             rule: this.rule,
             expression: this.expression,
-            description: this.description,
+            description: this.description
         };
 
 

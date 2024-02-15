@@ -31,7 +31,7 @@ class CoverageEligibilityRequestInsurance extends Element {
             modifierExtension,
             focal,
             coverage,
-            businessArrangement,
+            businessArrangement
         }
     ) {
         super({});
@@ -182,7 +182,7 @@ class CoverageEligibilityRequestInsurance extends Element {
             modifierExtension,
             focal,
             coverage,
-            businessArrangement,
+            businessArrangement
         });
 
     }
@@ -202,7 +202,7 @@ class CoverageEligibilityRequestInsurance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSON(),
-            businessArrangement: this.businessArrangement,
+            businessArrangement: this.businessArrangement
         });
     }
 
@@ -229,7 +229,7 @@ class CoverageEligibilityRequestInsurance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSONInternal(),
-            businessArrangement: this.businessArrangement,
+            businessArrangement: this.businessArrangement
         };
 
 

@@ -87,7 +87,7 @@ class HealthcareService extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -857,7 +857,7 @@ class HealthcareService extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -957,7 +957,7 @@ class HealthcareService extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new HealthcareService({
@@ -996,7 +996,7 @@ class HealthcareService extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1049,7 +1049,7 @@ class HealthcareService extends Resource {
             availableTime: this.availableTime && this.availableTime.map(v => v.toJSON()),
             notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSON()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON())
         });
     }
 
@@ -1123,7 +1123,7 @@ class HealthcareService extends Resource {
             availableTime: this.availableTime && this.availableTime.map(v => v.toJSONInternal()),
             notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSONInternal()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
 
 

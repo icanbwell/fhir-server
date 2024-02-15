@@ -64,7 +64,7 @@ class KafkaClient {
             clientId: this.configManager.kafkaClientId,
             brokers: this.configManager.kafkaBrokers,
             ssl: this.configManager.kafkaUseSsl || null,
-            sasl: sasl,
+            sasl: sasl
         };
     }
 
@@ -160,14 +160,14 @@ class KafkaClient {
                             message: 'Retrying sending the message by creating new client',
                             args: {
                                 iteration,
-                                brokers: reorderedBrokers,
+                                brokers: reorderedBrokers
                             }
                         });
                         this.init({
                             clientId: this.clientId,
                             brokers: reorderedBrokers,
                             ssl: this.ssl,
-                            sasl: this.sasl,
+                            sasl: this.sasl
                         });
                         // should retry again
                         shouldRetry = true;
@@ -212,7 +212,7 @@ class KafkaClient {
                     value: m.value,
                     headers: {
                         'b3': m.requestId,
-                        'version': m.fhirVersion,
+                        'version': m.fhirVersion
                     }
                 };
             });
@@ -234,7 +234,7 @@ class KafkaClient {
              */
             const result = await this.producer.send({
                 topic: topic,
-                messages: kafkaMessages,
+                messages: kafkaMessages
             });
             if (env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
@@ -320,9 +320,9 @@ class KafkaClient {
                                     value: v ? v.toString() : ''
                                 };
                             }
-                        ),
+                        )
                     });
-                },
+                }
             });
         } catch (e) {
             await logSystemErrorAsync({

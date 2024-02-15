@@ -6,7 +6,7 @@ module.exports = {
     SpecimenCollectionCollector: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SpecimenCollection: {
         // noinspection JSUnusedLocalSymbols
@@ -18,7 +18,7 @@ module.exports = {
                 context,
                 info,
                 parent.collector);
-        },
+        }
     }
 };
 

@@ -32,7 +32,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource,
             filterParameter,
             filterDefinition,
-            modifier,
+            modifier
         }
     ) {
         super({});
@@ -225,7 +225,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource,
             filterParameter,
             filterDefinition,
-            modifier,
+            modifier
         });
 
     }
@@ -247,7 +247,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource: this.resource,
             filterParameter: this.filterParameter,
             filterDefinition: this.filterDefinition,
-            modifier: this.modifier,
+            modifier: this.modifier
         });
     }
 
@@ -275,7 +275,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource: this.resource,
             filterParameter: this.filterParameter,
             filterDefinition: this.filterDefinition,
-            modifier: this.modifier,
+            modifier: this.modifier
         };
 
 

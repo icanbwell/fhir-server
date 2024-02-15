@@ -25,7 +25,7 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             extension,
             modifierExtension,
             code,
-            status,
+            status
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             extension,
             modifierExtension,
             code,
-            status,
+            status
         });
 
     }
@@ -174,7 +174,7 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status && this.status.toJSON()
         });
     }
 
@@ -201,7 +201,7 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            status: this.status && this.status.toJSONInternal(),
+            status: this.status && this.status.toJSONInternal()
         };
 
 

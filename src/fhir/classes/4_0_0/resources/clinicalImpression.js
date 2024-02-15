@@ -87,7 +87,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -789,7 +789,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -883,7 +883,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ClinicalImpression({
@@ -919,7 +919,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -969,7 +969,7 @@ class ClinicalImpression extends Resource {
             prognosisCodeableConcept: this.prognosisCodeableConcept && this.prognosisCodeableConcept.map(v => v.toJSON()),
             prognosisReference: this.prognosisReference && this.prognosisReference.map(v => v.toJSON()),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -1037,7 +1037,7 @@ class ClinicalImpression extends Resource {
             prognosisCodeableConcept: this.prognosisCodeableConcept && this.prognosisCodeableConcept.map(v => v.toJSONInternal()),
             prognosisReference: this.prognosisReference && this.prognosisReference.map(v => v.toJSONInternal()),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

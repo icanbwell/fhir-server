@@ -107,7 +107,7 @@ class EffectEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1080,7 +1080,7 @@ class EffectEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1198,7 +1198,7 @@ class EffectEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new EffectEvidenceSynthesis({
@@ -1246,7 +1246,7 @@ class EffectEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1308,7 +1308,7 @@ class EffectEvidenceSynthesis extends Resource {
             sampleSize: this.sampleSize && this.sampleSize.toJSON(),
             resultsByExposure: this.resultsByExposure && this.resultsByExposure.map(v => v.toJSON()),
             effectEstimate: this.effectEstimate && this.effectEstimate.map(v => v.toJSON()),
-            certainty: this.certainty && this.certainty.map(v => v.toJSON()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSON())
         });
     }
 
@@ -1395,7 +1395,7 @@ class EffectEvidenceSynthesis extends Resource {
             sampleSize: this.sampleSize && this.sampleSize.toJSONInternal(),
             resultsByExposure: this.resultsByExposure && this.resultsByExposure.map(v => v.toJSONInternal()),
             effectEstimate: this.effectEstimate && this.effectEstimate.map(v => v.toJSONInternal()),
-            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal())
         };
 
 

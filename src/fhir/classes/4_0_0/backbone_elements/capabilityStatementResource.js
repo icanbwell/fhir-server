@@ -58,7 +58,7 @@ class CapabilityStatementResource extends Element {
             searchInclude,
             searchRevInclude,
             searchParam,
-            operation,
+            operation
         }
     ) {
         super({});
@@ -497,7 +497,7 @@ class CapabilityStatementResource extends Element {
             searchInclude,
             searchRevInclude,
             searchParam,
-            operation,
+            operation
         });
 
     }
@@ -531,7 +531,7 @@ class CapabilityStatementResource extends Element {
             searchInclude: this.searchInclude,
             searchRevInclude: this.searchRevInclude,
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSON()),
-            operation: this.operation && this.operation.map(v => v.toJSON()),
+            operation: this.operation && this.operation.map(v => v.toJSON())
         });
     }
 
@@ -574,7 +574,7 @@ class CapabilityStatementResource extends Element {
             searchInclude: this.searchInclude,
             searchRevInclude: this.searchRevInclude,
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSONInternal()),
-            operation: this.operation && this.operation.map(v => v.toJSONInternal()),
+            operation: this.operation && this.operation.map(v => v.toJSONInternal())
         };
 
 

@@ -45,7 +45,7 @@ const {
     getHeaders,
     getGraphQLHeaders,
     getUnAuthenticatedGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -139,7 +139,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
@@ -219,7 +219,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
@@ -299,7 +299,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
@@ -374,7 +374,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
@@ -402,7 +402,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
@@ -472,7 +472,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getUnAuthenticatedGraphQLHeaders());
             // noinspection JSUnresolvedFunction
@@ -542,7 +542,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders('user/Practitioner.read access/client.*'))
                 .expect(200);
@@ -614,7 +614,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders('user/Patient.read access/fake.*'))
                 .expect(200);

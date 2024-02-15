@@ -25,7 +25,7 @@ class ValidateMissingVariableValuesPlugin /*extends ApolloServerPlugin*/ {
                     });
                     if (missingVariables.length) {
                         throw new GraphQLError(`Missing variable values: ${missingVariables.join(',')}`, {
-                            extensions: { code: ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED },
+                            extensions: { code: ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED }
                         });
                     }
                 }
@@ -35,7 +35,7 @@ class ValidateMissingVariableValuesPlugin /*extends ApolloServerPlugin*/ {
                     response.body.singleResult.errors?.[0]?.extensions?.code === ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED) {
                     response.http.status = 200;
                 }
-            },
+            }
         };
     }
 }
@@ -45,5 +45,5 @@ const getValidateMissingVariableValuesPlugin = () => {
 };
 
 module.exports = {
-    getValidateMissingVariableValuesPlugin,
+    getValidateMissingVariableValuesPlugin
 };

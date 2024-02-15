@@ -14,7 +14,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    practitioner: parent.id,
+                    practitioner: parent.id
                 },
                 context,
                 info,
@@ -34,7 +34,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    member: parent.id,
+                    member: parent.id
                 },
                 context,
                 info,
@@ -54,12 +54,12 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    subject: parent.id,
+                    subject: parent.id
                 },
                 context,
                 info,
                 'MeasureReport'
             );
-        },
+        }
     }
 };

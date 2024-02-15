@@ -36,7 +36,7 @@ class CoverageEligibilityResponseBenefit extends Element {
             allowedMoney,
             usedUnsignedInt,
             usedString,
-            usedMoney,
+            usedMoney
         }
     ) {
         super({});
@@ -263,7 +263,7 @@ class CoverageEligibilityResponseBenefit extends Element {
             allowedMoney,
             usedUnsignedInt,
             usedString,
-            usedMoney,
+            usedMoney
         });
 
     }
@@ -287,7 +287,7 @@ class CoverageEligibilityResponseBenefit extends Element {
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSON(),
             usedUnsignedInt: this.usedUnsignedInt,
             usedString: this.usedString,
-            usedMoney: this.usedMoney && this.usedMoney.toJSON(),
+            usedMoney: this.usedMoney && this.usedMoney.toJSON()
         });
     }
 
@@ -320,7 +320,7 @@ class CoverageEligibilityResponseBenefit extends Element {
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSONInternal(),
             usedUnsignedInt: this.usedUnsignedInt,
             usedString: this.usedString,
-            usedMoney: this.usedMoney && this.usedMoney.toJSONInternal(),
+            usedMoney: this.usedMoney && this.usedMoney.toJSONInternal()
         };
 
 

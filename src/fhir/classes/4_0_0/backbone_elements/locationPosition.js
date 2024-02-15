@@ -29,7 +29,7 @@ class LocationPosition extends Element {
             modifierExtension,
             longitude,
             latitude,
-            altitude,
+            altitude
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class LocationPosition extends Element {
             modifierExtension,
             longitude,
             latitude,
-            altitude,
+            altitude
         });
 
     }
@@ -197,7 +197,7 @@ class LocationPosition extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             longitude: this.longitude,
             latitude: this.latitude,
-            altitude: this.altitude,
+            altitude: this.altitude
         });
     }
 
@@ -223,7 +223,7 @@ class LocationPosition extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             longitude: this.longitude,
             latitude: this.latitude,
-            altitude: this.altitude,
+            altitude: this.altitude
         };
 
 

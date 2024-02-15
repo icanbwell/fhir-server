@@ -81,7 +81,7 @@ class DiagnosticReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -746,7 +746,7 @@ class DiagnosticReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -836,7 +836,7 @@ class DiagnosticReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DiagnosticReport({
@@ -870,7 +870,7 @@ class DiagnosticReport extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -918,7 +918,7 @@ class DiagnosticReport extends Resource {
             media: this.media && this.media.map(v => v.toJSON()),
             conclusion: this.conclusion,
             conclusionCode: this.conclusionCode && this.conclusionCode.map(v => v.toJSON()),
-            presentedForm: this.presentedForm && this.presentedForm.map(v => v.toJSON()),
+            presentedForm: this.presentedForm && this.presentedForm.map(v => v.toJSON())
         });
     }
 
@@ -984,7 +984,7 @@ class DiagnosticReport extends Resource {
             media: this.media && this.media.map(v => v.toJSONInternal()),
             conclusion: this.conclusion,
             conclusionCode: this.conclusionCode && this.conclusionCode.map(v => v.toJSONInternal()),
-            presentedForm: this.presentedForm && this.presentedForm.map(v => v.toJSONInternal()),
+            presentedForm: this.presentedForm && this.presentedForm.map(v => v.toJSONInternal())
         };
 
 

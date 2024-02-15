@@ -108,7 +108,7 @@ describe('AuditEvent Tests', () => {
             const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0',
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
                 });
             /**
              * mongo auditEventDb connection
@@ -184,7 +184,7 @@ describe('AuditEvent Tests', () => {
             const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0',
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
                 });
             /**
              * mongo auditEventDb connection

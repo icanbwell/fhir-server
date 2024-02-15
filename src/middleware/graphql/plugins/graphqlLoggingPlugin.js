@@ -42,7 +42,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                 args: {
                     endpoint: self.endpoint,
                     operationName: req.operationName,
-                    query: req.query,
+                    query: req.query
                 }
             }
         );
@@ -107,7 +107,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                         }
                     }
                 };
-            },
+            }
         };
     }
 }

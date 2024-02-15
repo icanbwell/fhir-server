@@ -66,7 +66,7 @@ class TestScriptAssert extends Element {
             sourceId,
             validateProfileId,
             value,
-            warningOnly,
+            warningOnly
         }
     ) {
         super({});
@@ -587,7 +587,7 @@ class TestScriptAssert extends Element {
             sourceId,
             validateProfileId,
             value,
-            warningOnly,
+            warningOnly
         });
 
     }
@@ -626,7 +626,7 @@ class TestScriptAssert extends Element {
             sourceId: this.sourceId,
             validateProfileId: this.validateProfileId,
             value: this.value,
-            warningOnly: this.warningOnly,
+            warningOnly: this.warningOnly
         });
     }
 
@@ -671,7 +671,7 @@ class TestScriptAssert extends Element {
             sourceId: this.sourceId,
             validateProfileId: this.validateProfileId,
             value: this.value,
-            warningOnly: this.warningOnly,
+            warningOnly: this.warningOnly
         };
 
 

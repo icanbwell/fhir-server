@@ -27,7 +27,7 @@ class TerminologyCapabilitiesImplementation extends Element {
             extension,
             modifierExtension,
             description,
-            url,
+            url
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class TerminologyCapabilitiesImplementation extends Element {
             extension,
             modifierExtension,
             description,
-            url,
+            url
         });
 
     }
@@ -173,7 +173,7 @@ class TerminologyCapabilitiesImplementation extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -198,7 +198,7 @@ class TerminologyCapabilitiesImplementation extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
-            url: this.url,
+            url: this.url
         };
 
 

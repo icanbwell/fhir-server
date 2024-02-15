@@ -54,5 +54,5 @@ class MockKafkaClient extends KafkaClient {
 }
 
 module.exports = {
-    MockKafkaClient,
+    MockKafkaClient
 };

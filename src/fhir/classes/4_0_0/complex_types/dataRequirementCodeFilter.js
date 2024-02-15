@@ -30,7 +30,7 @@ class DataRequirementCodeFilter extends Element {
             path,
             searchParam,
             valueSet,
-            code,
+            code
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class DataRequirementCodeFilter extends Element {
             path,
             searchParam,
             valueSet,
-            code,
+            code
         });
 
     }
@@ -199,7 +199,7 @@ class DataRequirementCodeFilter extends Element {
             path: this.path,
             searchParam: this.searchParam,
             valueSet: this.valueSet,
-            code: this.code && this.code.map(v => v.toJSON()),
+            code: this.code && this.code.map(v => v.toJSON())
         });
     }
 
@@ -225,7 +225,7 @@ class DataRequirementCodeFilter extends Element {
             path: this.path,
             searchParam: this.searchParam,
             valueSet: this.valueSet,
-            code: this.code && this.code.map(v => v.toJSONInternal()),
+            code: this.code && this.code.map(v => v.toJSONInternal())
         };
 
 

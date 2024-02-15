@@ -25,7 +25,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
             extension,
             modifierExtension,
             code,
-            withdrawalPeriod,
+            withdrawalPeriod
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
             extension,
             modifierExtension,
             code,
-            withdrawalPeriod,
+            withdrawalPeriod
         });
 
     }
@@ -175,7 +175,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON()),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON())
         });
     }
 
@@ -202,7 +202,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSONInternal()),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSONInternal())
         };
 
 

@@ -31,7 +31,7 @@ class CodeSystemFilter extends Element {
             code,
             description,
             operator,
-            value,
+            value
         }
     ) {
         super({});
@@ -196,7 +196,7 @@ class CodeSystemFilter extends Element {
             code,
             description,
             operator,
-            value,
+            value
         });
 
     }
@@ -217,7 +217,7 @@ class CodeSystemFilter extends Element {
             code: this.code,
             description: this.description,
             operator: this.operator,
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -244,7 +244,7 @@ class CodeSystemFilter extends Element {
             code: this.code,
             description: this.description,
             operator: this.operator,
-            value: this.value,
+            value: this.value
         };
 
 

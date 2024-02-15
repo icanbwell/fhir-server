@@ -39,7 +39,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity,
             minimumVolumeString,
             additive,
-            preparation,
+            preparation
         }
     ) {
         super({});
@@ -312,7 +312,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity,
             minimumVolumeString,
             additive,
-            preparation,
+            preparation
         });
 
     }
@@ -338,7 +338,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity: this.minimumVolumeQuantity && this.minimumVolumeQuantity.toJSON(),
             minimumVolumeString: this.minimumVolumeString,
             additive: this.additive && this.additive.map(v => v.toJSON()),
-            preparation: this.preparation,
+            preparation: this.preparation
         });
     }
 
@@ -376,7 +376,7 @@ class SpecimenDefinitionContainer extends Element {
             minimumVolumeQuantity: this.minimumVolumeQuantity && this.minimumVolumeQuantity.toJSONInternal(),
             minimumVolumeString: this.minimumVolumeString,
             additive: this.additive && this.additive.map(v => v.toJSONInternal()),
-            preparation: this.preparation,
+            preparation: this.preparation
         };
 
 

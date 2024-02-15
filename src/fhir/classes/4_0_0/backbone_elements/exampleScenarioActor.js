@@ -29,7 +29,7 @@ class ExampleScenarioActor extends Element {
             actorId,
             type,
             name,
-            description,
+            description
         }
     ) {
         super({});
@@ -193,7 +193,7 @@ class ExampleScenarioActor extends Element {
             actorId,
             type,
             name,
-            description,
+            description
         });
 
     }
@@ -214,7 +214,7 @@ class ExampleScenarioActor extends Element {
             actorId: this.actorId,
             type: this.type,
             name: this.name,
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -241,7 +241,7 @@ class ExampleScenarioActor extends Element {
             actorId: this.actorId,
             type: this.type,
             name: this.name,
-            description: this.description,
+            description: this.description
         };
 
 

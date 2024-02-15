@@ -126,11 +126,11 @@ class DataSharingManager {
             // If not in the map, fetch the values and set them in the map for future use.
             ({
                 patientIdToImmediatePersonUuid,
-                patientsList,
+                patientsList
             } = await this.getValidatedPatientIdsMap({
                 resourceType,
                 parsedArgs,
-                securityTags,
+                securityTags
             }));
             if (patientIdToImmediatePersonUuid && !Object.keys(patientIdToImmediatePersonUuid).length) {
                 return query;
@@ -239,7 +239,7 @@ class DataSharingManager {
      * @property {string[]} securityTags security Tags
      * @param {ValidatedPatientIdsMap} param
      */
-    async getValidatedPatientIdsMap({resourceType, parsedArgs, securityTags,}) {
+    async getValidatedPatientIdsMap({resourceType, parsedArgs, securityTags}) {
         /**
          * Patient id to immediate person map.
          * @type {{[key: string]: string[]}}
@@ -335,7 +335,7 @@ class DataSharingManager {
                     const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParameterValues);
                     const newQueryParameterValue = new QueryParameterValue({
                         value: newValue,
-                        operator: item.queryParameterValue.operator,
+                        operator: item.queryParameterValue.operator
                     });
 
                     // set the value
@@ -369,7 +369,7 @@ class DataSharingManager {
             resourceType,
             useHistoryTable,
             base_version,
-            parsedArgs: updatedParsedArgs,
+            parsedArgs: updatedParsedArgs
         }).query;
 
         if (filteredQuery && !Object.keys(filteredQuery).length) {
@@ -438,7 +438,7 @@ class DataSharingManager {
                         refs.push({
                             resourceType: reference.resourceType,
                             id: reference.id,
-                            sourceAssigningAuthority: reference.sourceAssigningAuthority,
+                            sourceAssigningAuthority: reference.sourceAssigningAuthority
                         });
                     }
                 });
@@ -464,7 +464,7 @@ class DataSharingManager {
         const patientToImmediatePersonAsync =
             await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
                 patientReferences,
-                securityTags,
+                securityTags
             });
         // convert to patientReference -> PersonUuid
         /**@type {{[key: string]: string[]}} */
@@ -473,7 +473,7 @@ class DataSharingManager {
             // reference without Patient prefix
             const patientId = patientReference.replace(
                 PATIENT_REFERENCE_PREFIX,
-                '',
+                ''
             );
             // filter out proxy-patient
             if (!patientId.startsWith('person.')) {
@@ -511,13 +511,13 @@ class DataSharingManager {
     async getPatientsList({patientReferences}) {
         const query = this.databaseQueryFactory.createQuery({
             resourceType: 'Patient',
-            base_version: '4_0_0',
+            base_version: '4_0_0'
         });
 
         // find all patients for given array of ids.
         const cursor = await query.findAsync({
             query: {
-                '$or': SearchFilterFromReference.buildFilter(patientReferences, null),
+                '$or': SearchFilterFromReference.buildFilter(patientReferences, null)
             },
             options: {projection: {id: 1, _sourceId: 1, _uuid: 1, meta: {security: 1}}}
         });

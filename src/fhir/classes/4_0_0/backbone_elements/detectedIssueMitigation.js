@@ -29,7 +29,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension,
             action,
             date,
-            author,
+            author
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension,
             action,
             date,
-            author,
+            author
         });
 
     }
@@ -200,7 +200,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             action: this.action && this.action.toJSON(),
             date: this.date,
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.toJSON()
         });
     }
 
@@ -228,7 +228,7 @@ class DetectedIssueMitigation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             action: this.action && this.action.toJSONInternal(),
             date: this.date,
-            author: this.author && this.author.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal()
         };
 
 

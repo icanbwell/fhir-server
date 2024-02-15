@@ -25,7 +25,7 @@ class TestReportAction extends Element {
             extension,
             modifierExtension,
             operation,
-            assert,
+            assert
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class TestReportAction extends Element {
             extension,
             modifierExtension,
             operation,
-            assert,
+            assert
         });
 
     }
@@ -174,7 +174,7 @@ class TestReportAction extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             operation: this.operation && this.operation.toJSON(),
-            assert: this.assert && this.assert.toJSON(),
+            assert: this.assert && this.assert.toJSON()
         });
     }
 
@@ -201,7 +201,7 @@ class TestReportAction extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.toJSONInternal(),
-            assert: this.assert && this.assert.toJSONInternal(),
+            assert: this.assert && this.assert.toJSONInternal()
         };
 
 

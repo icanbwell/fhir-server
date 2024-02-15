@@ -31,7 +31,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept,
             valueString,
             valueQuantity,
-            valueBase64Binary,
+            valueBase64Binary
         }
     ) {
         super({});
@@ -221,7 +221,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept,
             valueString,
             valueQuantity,
-            valueBase64Binary,
+            valueBase64Binary
         });
 
     }
@@ -243,7 +243,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         });
     }
 
@@ -274,7 +274,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         };
 
 

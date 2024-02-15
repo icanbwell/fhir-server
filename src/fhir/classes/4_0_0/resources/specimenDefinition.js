@@ -51,7 +51,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -433,7 +433,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -497,7 +497,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SpecimenDefinition({
@@ -518,7 +518,7 @@ class SpecimenDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -553,7 +553,7 @@ class SpecimenDefinition extends Resource {
             patientPreparation: this.patientPreparation && this.patientPreparation.map(v => v.toJSON()),
             timeAspect: this.timeAspect,
             collection: this.collection && this.collection.map(v => v.toJSON()),
-            typeTested: this.typeTested && this.typeTested.map(v => v.toJSON()),
+            typeTested: this.typeTested && this.typeTested.map(v => v.toJSON())
         });
     }
 
@@ -596,7 +596,7 @@ class SpecimenDefinition extends Resource {
             patientPreparation: this.patientPreparation && this.patientPreparation.map(v => v.toJSONInternal()),
             timeAspect: this.timeAspect,
             collection: this.collection && this.collection.map(v => v.toJSONInternal()),
-            typeTested: this.typeTested && this.typeTested.map(v => v.toJSONInternal()),
+            typeTested: this.typeTested && this.typeTested.map(v => v.toJSONInternal())
         };
 
 

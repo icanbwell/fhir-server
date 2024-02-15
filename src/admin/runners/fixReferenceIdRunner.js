@@ -600,13 +600,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 await collection.createIndex(
                                     {
                                         [isHistoryCollection ? `resource.${reference.field}._sourceId` : `${reference.field}._sourceId`]: 1,
-                                        '_id': 1,
+                                        '_id': 1
                                     },
                                     {
                                         name: indexName,
                                         maxTimeMS: 6 * 60 * 60 * 1000,
-                                        session: session,
-                                    },
+                                        session: session
+                                    }
                                 );
                             } catch (err) {
                                 // if index already exists with different name then continue
@@ -630,8 +630,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             {
                                 name: indexName,
                                 maxTimeMS: 6 * 60 * 60 * 1000,
-                                session: session,
-                            },
+                                session: session
+                            }
                         );
                     }
                 }
@@ -859,7 +859,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     $and: [
                                         parametersQuery,
                                         { $or: referenceFieldQuery }
-                                    ],
+                                    ]
                                 } : { $or: referenceFieldQuery };
 
                             try {
@@ -984,7 +984,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 skip: this.skip,
                                 useEstimatedCount: !!isHistoryCollection,
                                 filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
-                                filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
+                                filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                             });
                             if (isHistoryCollection && this.historyUuidCache.has(resourceName)) {
                                 this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyUuidCache.get(resourceName).size}`);
@@ -1061,7 +1061,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 $and: [
                     {
                         [`${queryPrefix}meta.lastUpdated`]: {
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     },
                     {
@@ -1075,14 +1075,14 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         else if (this.afterLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
-                    $gt: this.afterLastUpdatedDate,
+                    $gt: this.afterLastUpdatedDate
                 }
             };
         }
         else if (this.beforeLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
-                    $lt: this.beforeLastUpdatedDate,
+                    $lt: this.beforeLastUpdatedDate
                 }
             };
         }
@@ -1244,8 +1244,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         const filterQuery = [
             {
                 [isHistoryCollection ? 'resource.meta.security.system' : 'meta.security.system']: 'https://www.icanbwell.com/connectionType',
-                [isHistoryCollection ? 'resource.meta.security.code' : 'meta.security.code']: 'proa',
-            },
+                [isHistoryCollection ? 'resource.meta.security.code' : 'meta.security.code']: 'proa'
+            }
         ];
 
         // merge query and filterQuery

@@ -268,7 +268,7 @@ class CreateOperation {
                 {
                     requestId, currentDate, base_version: base_version,
                     method,
-                    userRequestId,
+                    userRequestId
                 }
             );
 

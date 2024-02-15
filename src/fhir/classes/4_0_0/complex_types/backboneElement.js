@@ -24,7 +24,7 @@ class BackboneElement extends Element {
         {
             id,
             extension,
-            modifierExtension,
+            modifierExtension
         }
     ) {
         super({});
@@ -112,7 +112,7 @@ class BackboneElement extends Element {
         Object.assign(this, {
             id,
             extension,
-            modifierExtension,
+            modifierExtension
         });
 
     }
@@ -129,7 +129,7 @@ class BackboneElement extends Element {
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
-            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON())
         });
     }
 
@@ -152,7 +152,7 @@ class BackboneElement extends Element {
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
-            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal())
         };
 
 

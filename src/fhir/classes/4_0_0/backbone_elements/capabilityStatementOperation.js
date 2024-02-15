@@ -30,7 +30,7 @@ class CapabilityStatementOperation extends Element {
             modifierExtension,
             name,
             definition,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -186,7 +186,7 @@ class CapabilityStatementOperation extends Element {
             modifierExtension,
             name,
             definition,
-            documentation,
+            documentation
         });
 
     }
@@ -206,7 +206,7 @@ class CapabilityStatementOperation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             definition: this.definition,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -232,7 +232,7 @@ class CapabilityStatementOperation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
             definition: this.definition,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

@@ -19,7 +19,7 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeadersWithPerson,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -90,7 +90,7 @@ describe('GraphQL AllergyIntolerance Tests', () => {
                     variables: {
                         FHIR_DEFAULT_COUNT: 10
                     },
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 

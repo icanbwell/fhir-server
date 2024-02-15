@@ -34,7 +34,7 @@ class StructureMapRule extends Element {
             target,
             rule,
             dependent,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -243,7 +243,7 @@ class StructureMapRule extends Element {
             target,
             rule,
             dependent,
-            documentation,
+            documentation
         });
 
     }
@@ -266,7 +266,7 @@ class StructureMapRule extends Element {
             target: this.target && this.target.map(v => v.toJSON()),
             rule: this.rule && this.rule.map(v => v.toJSON()),
             dependent: this.dependent && this.dependent.map(v => v.toJSON()),
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -299,7 +299,7 @@ class StructureMapRule extends Element {
             target: this.target && this.target.map(v => v.toJSONInternal()),
             rule: this.rule && this.rule.map(v => v.toJSONInternal()),
             dependent: this.dependent && this.dependent.map(v => v.toJSONInternal()),
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

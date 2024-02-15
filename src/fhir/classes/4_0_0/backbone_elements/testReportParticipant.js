@@ -27,7 +27,7 @@ class TestReportParticipant extends Element {
             modifierExtension,
             type,
             uri,
-            display,
+            display
         }
     ) {
         super({});
@@ -172,7 +172,7 @@ class TestReportParticipant extends Element {
             modifierExtension,
             type,
             uri,
-            display,
+            display
         });
 
     }
@@ -192,7 +192,7 @@ class TestReportParticipant extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
             uri: this.uri,
-            display: this.display,
+            display: this.display
         });
     }
 
@@ -218,7 +218,7 @@ class TestReportParticipant extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
             uri: this.uri,
-            display: this.display,
+            display: this.display
         };
 
 

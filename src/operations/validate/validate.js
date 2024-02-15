@@ -103,7 +103,7 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path,
+            path
         } = requestInfo;
 
         /**
@@ -135,7 +135,7 @@ class ValidateOperation {
                  */
                 const {
                     /** @type {import('mongodb').Document}**/
-                    query,
+                    query
                     // /** @type {Set} **/
                     // columns
                 } = await this.searchManager.constructQueryAsync(
@@ -339,7 +339,7 @@ class ValidateOperation {
                 currentDate: currentDate,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: specifiedProfile,
+                profile: specifiedProfile
             });
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);

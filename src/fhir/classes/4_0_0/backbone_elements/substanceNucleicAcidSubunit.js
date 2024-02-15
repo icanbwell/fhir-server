@@ -40,7 +40,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             fivePrime,
             threePrime,
             linkage,
-            sugar,
+            sugar
         }
     ) {
         super({});
@@ -300,7 +300,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             fivePrime,
             threePrime,
             linkage,
-            sugar,
+            sugar
         });
 
     }
@@ -325,7 +325,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             fivePrime: this.fivePrime && this.fivePrime.toJSON(),
             threePrime: this.threePrime && this.threePrime.toJSON(),
             linkage: this.linkage && this.linkage.map(v => v.toJSON()),
-            sugar: this.sugar && this.sugar.map(v => v.toJSON()),
+            sugar: this.sugar && this.sugar.map(v => v.toJSON())
         });
     }
 
@@ -361,7 +361,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             fivePrime: this.fivePrime && this.fivePrime.toJSONInternal(),
             threePrime: this.threePrime && this.threePrime.toJSONInternal(),
             linkage: this.linkage && this.linkage.map(v => v.toJSONInternal()),
-            sugar: this.sugar && this.sugar.map(v => v.toJSONInternal()),
+            sugar: this.sugar && this.sugar.map(v => v.toJSONInternal())
         };
 
 

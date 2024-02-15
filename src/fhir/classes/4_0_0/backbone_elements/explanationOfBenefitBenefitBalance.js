@@ -39,7 +39,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network,
             unit,
             term,
-            financial,
+            financial
         }
     ) {
         super({});
@@ -293,7 +293,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network,
             unit,
             term,
-            financial,
+            financial
         });
 
     }
@@ -318,7 +318,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network: this.network && this.network.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             term: this.term && this.term.toJSON(),
-            financial: this.financial && this.financial.map(v => v.toJSON()),
+            financial: this.financial && this.financial.map(v => v.toJSON())
         });
     }
 
@@ -354,7 +354,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             network: this.network && this.network.toJSONInternal(),
             unit: this.unit && this.unit.toJSONInternal(),
             term: this.term && this.term.toJSONInternal(),
-            financial: this.financial && this.financial.map(v => v.toJSONInternal()),
+            financial: this.financial && this.financial.map(v => v.toJSONInternal())
         };
 
 

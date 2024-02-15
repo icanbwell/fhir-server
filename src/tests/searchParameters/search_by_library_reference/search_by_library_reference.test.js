@@ -8,7 +8,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer,
+    createTestRequest, getTestContainer
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {VERSIONS} = require('../../../middleware/fhir/utils/constants');

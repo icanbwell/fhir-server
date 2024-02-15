@@ -114,7 +114,7 @@ async function main() {
                 skip: parameters.skip,
                 filterToRecordsWithFields,
                 startFromId: parameters.startFromId,
-                client,
+                client
             }
         )
     );

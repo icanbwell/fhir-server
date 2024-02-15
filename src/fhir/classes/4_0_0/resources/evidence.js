@@ -97,7 +97,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -961,7 +961,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1069,7 +1069,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Evidence({
@@ -1112,7 +1112,7 @@ class Evidence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1169,7 +1169,7 @@ class Evidence extends Resource {
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
             exposureBackground: this.exposureBackground && this.exposureBackground.toJSON(),
             exposureVariant: this.exposureVariant && this.exposureVariant.map(v => v.toJSON()),
-            outcome: this.outcome && this.outcome.map(v => v.toJSON()),
+            outcome: this.outcome && this.outcome.map(v => v.toJSON())
         });
     }
 
@@ -1244,7 +1244,7 @@ class Evidence extends Resource {
             relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
             exposureBackground: this.exposureBackground && this.exposureBackground.toJSONInternal(),
             exposureVariant: this.exposureVariant && this.exposureVariant.map(v => v.toJSONInternal()),
-            outcome: this.outcome && this.outcome.map(v => v.toJSONInternal()),
+            outcome: this.outcome && this.outcome.map(v => v.toJSONInternal())
         };
 
 

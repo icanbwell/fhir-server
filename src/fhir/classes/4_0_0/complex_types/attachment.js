@@ -39,7 +39,7 @@ class Attachment extends Element {
             hash,
             title,
             creation,
-            _file_id,
+            _file_id
         }
     ) {
         super({});
@@ -264,7 +264,7 @@ class Attachment extends Element {
             hash,
             title,
             creation,
-            _file_id,
+            _file_id
         });
 
     }
@@ -289,7 +289,7 @@ class Attachment extends Element {
             hash: this.hash,
             title: this.title,
             creation: this.creation,
-            _file_id: this._file_id,
+            _file_id: this._file_id
         });
     }
 
@@ -318,7 +318,7 @@ class Attachment extends Element {
             size: this.size,
             hash: this.hash,
             title: this.title,
-            creation: this.creation,
+            creation: this.creation
         };
 
 

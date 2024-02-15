@@ -25,7 +25,7 @@ class BundleSearch extends Element {
             extension,
             modifierExtension,
             mode,
-            score,
+            score
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class BundleSearch extends Element {
             extension,
             modifierExtension,
             mode,
-            score,
+            score
         });
 
     }
@@ -172,7 +172,7 @@ class BundleSearch extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             mode: this.mode,
-            score: this.score,
+            score: this.score
         });
     }
 
@@ -197,7 +197,7 @@ class BundleSearch extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             mode: this.mode,
-            score: this.score,
+            score: this.score
         };
 
 

@@ -84,7 +84,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -814,7 +814,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -910,7 +910,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubscriptionTopic({
@@ -947,7 +947,7 @@ class SubscriptionTopic extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -998,7 +998,7 @@ class SubscriptionTopic extends Resource {
             resourceTrigger: this.resourceTrigger && this.resourceTrigger.map(v => v.toJSON()),
             eventTrigger: this.eventTrigger && this.eventTrigger.map(v => v.toJSON()),
             canFilterBy: this.canFilterBy && this.canFilterBy.map(v => v.toJSON()),
-            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSON()),
+            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSON())
         });
     }
 
@@ -1061,7 +1061,7 @@ class SubscriptionTopic extends Resource {
             resourceTrigger: this.resourceTrigger && this.resourceTrigger.map(v => v.toJSONInternal()),
             eventTrigger: this.eventTrigger && this.eventTrigger.map(v => v.toJSONInternal()),
             canFilterBy: this.canFilterBy && this.canFilterBy.map(v => v.toJSONInternal()),
-            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSONInternal()),
+            notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSONInternal())
         };
 
 

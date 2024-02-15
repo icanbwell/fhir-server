@@ -25,7 +25,7 @@ class CatalogEntryRelatedEntry extends Element {
             extension,
             modifierExtension,
             relationtype,
-            item,
+            item
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class CatalogEntryRelatedEntry extends Element {
             extension,
             modifierExtension,
             relationtype,
-            item,
+            item
         });
 
     }
@@ -173,7 +173,7 @@ class CatalogEntryRelatedEntry extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             relationtype: this.relationtype,
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.toJSON()
         });
     }
 
@@ -199,7 +199,7 @@ class CatalogEntryRelatedEntry extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             relationtype: this.relationtype,
-            item: this.item && this.item.toJSONInternal(),
+            item: this.item && this.item.toJSONInternal()
         };
 
 

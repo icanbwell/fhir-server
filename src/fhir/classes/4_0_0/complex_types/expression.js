@@ -33,7 +33,7 @@ class Expression extends Element {
             name,
             language,
             expression,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -185,7 +185,7 @@ class Expression extends Element {
             name,
             language,
             expression,
-            reference,
+            reference
         });
 
     }
@@ -206,7 +206,7 @@ class Expression extends Element {
             name: this.name,
             language: this.language,
             expression: this.expression,
-            reference: this.reference,
+            reference: this.reference
         });
     }
 
@@ -232,7 +232,7 @@ class Expression extends Element {
             name: this.name,
             language: this.language,
             expression: this.expression,
-            reference: this.reference,
+            reference: this.reference
         };
 
 

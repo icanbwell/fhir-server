@@ -27,7 +27,7 @@ class CompartmentDefinitionResource extends Element {
             modifierExtension,
             code,
             param,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -174,7 +174,7 @@ class CompartmentDefinitionResource extends Element {
             modifierExtension,
             code,
             param,
-            documentation,
+            documentation
         });
 
     }
@@ -194,7 +194,7 @@ class CompartmentDefinitionResource extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
             param: this.param,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -220,7 +220,7 @@ class CompartmentDefinitionResource extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
             param: this.param,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

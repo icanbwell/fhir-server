@@ -37,7 +37,7 @@ class ClaimInsurance extends Element {
             coverage,
             businessArrangement,
             preAuthRef,
-            claimResponse,
+            claimResponse
         }
     ) {
         super({});
@@ -273,7 +273,7 @@ class ClaimInsurance extends Element {
             coverage,
             businessArrangement,
             preAuthRef,
-            claimResponse,
+            claimResponse
         });
 
     }
@@ -297,7 +297,7 @@ class ClaimInsurance extends Element {
             coverage: this.coverage && this.coverage.toJSON(),
             businessArrangement: this.businessArrangement,
             preAuthRef: this.preAuthRef,
-            claimResponse: this.claimResponse && this.claimResponse.toJSON(),
+            claimResponse: this.claimResponse && this.claimResponse.toJSON()
         });
     }
 
@@ -330,7 +330,7 @@ class ClaimInsurance extends Element {
             coverage: this.coverage && this.coverage.toJSONInternal(),
             businessArrangement: this.businessArrangement,
             preAuthRef: this.preAuthRef,
-            claimResponse: this.claimResponse && this.claimResponse.toJSONInternal(),
+            claimResponse: this.claimResponse && this.claimResponse.toJSONInternal()
         };
 
 

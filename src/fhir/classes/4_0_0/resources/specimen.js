@@ -65,7 +65,7 @@ class Specimen extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -599,7 +599,7 @@ class Specimen extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -677,7 +677,7 @@ class Specimen extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Specimen({
@@ -705,7 +705,7 @@ class Specimen extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -747,7 +747,7 @@ class Specimen extends Resource {
             processing: this.processing && this.processing.map(v => v.toJSON()),
             container: this.container && this.container.map(v => v.toJSON()),
             condition: this.condition && this.condition.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -803,7 +803,7 @@ class Specimen extends Resource {
             processing: this.processing && this.processing.map(v => v.toJSONInternal()),
             container: this.container && this.container.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

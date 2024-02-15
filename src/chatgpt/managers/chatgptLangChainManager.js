@@ -106,7 +106,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
 
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,
-            baseRetriever: baseRetriever,
+            baseRetriever: baseRetriever
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
@@ -157,20 +157,20 @@ Question: {question}
             {
                 question: (input) => input.question,
                 chat_history: (input) =>
-                    formatChatHistory(input.chat_history),
+                    formatChatHistory(input.chat_history)
             },
             CONDENSE_QUESTION_PROMPT,
             model,
-            new StringOutputParser(),
+            new StringOutputParser()
         ]);
 
         const answerChain = RunnableSequence.from([
             {
                 context: retriever.pipe(combineDocumentsFn),
-                question: new RunnablePassthrough(),
+                question: new RunnablePassthrough()
             },
             ANSWER_PROMPT,
-            model,
+            model
         ]);
 
         const conversationalRetrievalQAChain =
@@ -178,7 +178,7 @@ Question: {question}
 
         const fullPrompt = await ANSWER_PROMPT.format({
             context: combineDocumentsFn(relevantDocuments),
-            question: question,
+            question: question
         });
 
         const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
@@ -186,7 +186,7 @@ Question: {question}
         try {
             const res3 = await conversationalRetrievalQAChain.invoke({
                 question: question,
-                chat_history: [],
+                chat_history: []
             });
 
             return new ChatGPTResponse({
@@ -252,16 +252,16 @@ Question: {question}
                     ' using the base url of {baseUrl}' +
                     (patientId ? ' and patient id of {patientId}.' : '')
                 ),
-                HumanMessagePromptTemplate.fromTemplate('{query}'),
+                HumanMessagePromptTemplate.fromTemplate('{query}')
             ],
-            inputVariables: inputVariables,
+            inputVariables: inputVariables
         });
 
         const chain = new LLMChain(
             {
                 llm: model,
                 prompt: prompt,
-                outputKey: 'text', // For readability - otherwise the chain output will default to a property named "text"
+                outputKey: 'text' // For readability - otherwise the chain output will default to a property named "text"
             });
 
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';

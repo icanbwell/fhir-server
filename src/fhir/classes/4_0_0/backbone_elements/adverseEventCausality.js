@@ -32,7 +32,7 @@ class AdverseEventCausality extends Element {
             assessment,
             productRelatedness,
             author,
-            method,
+            method
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class AdverseEventCausality extends Element {
             assessment,
             productRelatedness,
             author,
-            method,
+            method
         });
 
     }
@@ -223,7 +223,7 @@ class AdverseEventCausality extends Element {
             assessment: this.assessment && this.assessment.toJSON(),
             productRelatedness: this.productRelatedness,
             author: this.author && this.author.toJSON(),
-            method: this.method && this.method.toJSON(),
+            method: this.method && this.method.toJSON()
         });
     }
 
@@ -253,7 +253,7 @@ class AdverseEventCausality extends Element {
             assessment: this.assessment && this.assessment.toJSONInternal(),
             productRelatedness: this.productRelatedness,
             author: this.author && this.author.toJSONInternal(),
-            method: this.method && this.method.toJSONInternal(),
+            method: this.method && this.method.toJSONInternal()
         };
 
 

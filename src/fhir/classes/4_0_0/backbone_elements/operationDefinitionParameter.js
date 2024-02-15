@@ -44,7 +44,7 @@ class OperationDefinitionParameter extends Element {
             searchType,
             binding,
             referencedFrom,
-            part,
+            part
         }
     ) {
         super({});
@@ -358,7 +358,7 @@ class OperationDefinitionParameter extends Element {
             searchType,
             binding,
             referencedFrom,
-            part,
+            part
         });
 
     }
@@ -386,7 +386,7 @@ class OperationDefinitionParameter extends Element {
             searchType: this.searchType,
             binding: this.binding && this.binding.toJSON(),
             referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSON()),
-            part: this.part && this.part.map(v => v.toJSON()),
+            part: this.part && this.part.map(v => v.toJSON())
         });
     }
 
@@ -423,7 +423,7 @@ class OperationDefinitionParameter extends Element {
             searchType: this.searchType,
             binding: this.binding && this.binding.toJSONInternal(),
             referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSONInternal()),
-            part: this.part && this.part.map(v => v.toJSONInternal()),
+            part: this.part && this.part.map(v => v.toJSONInternal())
         };
 
 

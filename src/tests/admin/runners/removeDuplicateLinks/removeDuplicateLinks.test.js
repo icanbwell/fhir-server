@@ -10,7 +10,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const { AdminLogger } = require('../../../../admin/adminLogger');
@@ -78,11 +78,11 @@ describe('Person Tests', () => {
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const collection = await setupDatabaseAsync(
-                mongoDatabaseManager, person1Resource, 'Person_4_0_0',
+                mongoDatabaseManager, person1Resource, 'Person_4_0_0'
             );
 
             await setupDatabaseAsync(
-                mongoDatabaseManager, person2Resource, 'Person_4_0_0',
+                mongoDatabaseManager, person2Resource, 'Person_4_0_0'
             );
             // run admin runner
 
@@ -101,8 +101,8 @@ describe('Person Tests', () => {
                         batchSize: batchSize,
                         ownerCode: undefined,
                         uuidGreaterThan: undefined
-                    },
-                ),
+                    }
+                )
             );
 
             /**

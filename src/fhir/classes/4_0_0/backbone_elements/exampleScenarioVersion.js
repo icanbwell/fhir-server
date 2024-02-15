@@ -25,7 +25,7 @@ class ExampleScenarioVersion extends Element {
             extension,
             modifierExtension,
             versionId,
-            description,
+            description
         }
     ) {
         super({});
@@ -151,7 +151,7 @@ class ExampleScenarioVersion extends Element {
             extension,
             modifierExtension,
             versionId,
-            description,
+            description
         });
 
     }
@@ -170,7 +170,7 @@ class ExampleScenarioVersion extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             versionId: this.versionId,
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -195,7 +195,7 @@ class ExampleScenarioVersion extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             versionId: this.versionId,
-            description: this.description,
+            description: this.description
         };
 
 

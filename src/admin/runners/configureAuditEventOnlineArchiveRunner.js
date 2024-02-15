@@ -9,12 +9,12 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         mongoCollectionManager,
         adminLogger,
         collections,
-        expireAfterDays,
+        expireAfterDays
     }) {
         super({
             mongoCollectionManager: mongoCollectionManager,
             adminLogger: adminLogger,
-            mongoDatabaseManager: mongoDatabaseManager,
+            mongoDatabaseManager: mongoDatabaseManager
         });
 
         /**
@@ -51,30 +51,30 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
                 type: 'DATE',
                 dateField: 'recorded',
                 dateFormat: 'ISODATE',
-                expireAfterDays: this.expireAfterDays,
+                expireAfterDays: this.expireAfterDays
             },
             partitionFields: [
                 {
                     fieldName: 'recorded',
-                    order: 0,
-                },
-            ],
+                    order: 0
+                }
+            ]
         };
         const headers = {
             'Content-Type': 'application/json',
             // version number is required
-            'Accept': 'application/vnd.atlas.2023-02-01+json',
+            'Accept': 'application/vnd.atlas.2023-02-01+json'
         };
 
         const digestRequest = new RequestWithDigestAuth({
             username: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
-            password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
+            password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY
         });
         const response = await digestRequest.request({
             method: 'post',
             url: env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
             headers,
-            data,
+            data
         });
         if (response.status !== 200) {
             throw response;
@@ -108,7 +108,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         for (const collectionName of collectionNames) {
             await this.createCollection({
                 config: auditEventConfig,
-                collectionName: collectionName,
+                collectionName: collectionName
             })
                 .then((resp) => {
                     this.adminLogger.logInfo(
@@ -127,5 +127,5 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
 }
 
 module.exports = {
-    ConfigureAuditEventOnlineArchiveRunner,
+    ConfigureAuditEventOnlineArchiveRunner
 };

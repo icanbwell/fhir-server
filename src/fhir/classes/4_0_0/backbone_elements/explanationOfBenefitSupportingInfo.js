@@ -45,7 +45,7 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             valueQuantity,
             valueAttachment,
             valueReference,
-            reason,
+            reason
         }
     ) {
         super({});
@@ -360,7 +360,7 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             valueQuantity,
             valueAttachment,
             valueReference,
-            reason,
+            reason
         });
 
     }
@@ -388,7 +388,7 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
-            reason: this.reason && this.reason.toJSON(),
+            reason: this.reason && this.reason.toJSON()
         });
     }
 
@@ -429,7 +429,7 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
-            reason: this.reason && this.reason.toJSONInternal(),
+            reason: this.reason && this.reason.toJSONInternal()
         };
 
 

@@ -7,7 +7,7 @@ const {
     commonAfterEach,
     getHeaders,
     getHeadersNdJson,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const env = require('var');
@@ -70,13 +70,13 @@ describe('seach by id many performance', () => {
                 const initialId = practitionerResource.id;
                 const bundle = {
                     resourceType: 'Bundle',
-                    entry: [],
+                    entry: []
                 };
                 const numberOfResources = 2000;
                 for (let i = 0; i < numberOfResources; i++) {
                     practitionerResource.id = initialId + '-' + i;
                     bundle.entry.push({
-                        resource: deepcopy(practitionerResource),
+                        resource: deepcopy(practitionerResource)
                     });
                 }
 

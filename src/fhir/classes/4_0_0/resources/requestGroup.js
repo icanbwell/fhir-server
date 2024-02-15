@@ -76,7 +76,7 @@ class RequestGroup extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -709,7 +709,7 @@ class RequestGroup extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -797,7 +797,7 @@ class RequestGroup extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new RequestGroup({
@@ -830,7 +830,7 @@ class RequestGroup extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -877,7 +877,7 @@ class RequestGroup extends Resource {
             reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -939,7 +939,7 @@ class RequestGroup extends Resource {
             reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

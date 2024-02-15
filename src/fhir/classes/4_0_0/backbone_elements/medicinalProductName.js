@@ -28,7 +28,7 @@ class MedicinalProductName extends Element {
             modifierExtension,
             productName,
             namePart,
-            countryLanguage,
+            countryLanguage
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class MedicinalProductName extends Element {
             modifierExtension,
             productName,
             namePart,
-            countryLanguage,
+            countryLanguage
         });
 
     }
@@ -197,7 +197,7 @@ class MedicinalProductName extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             productName: this.productName,
             namePart: this.namePart && this.namePart.map(v => v.toJSON()),
-            countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSON()),
+            countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSON())
         });
     }
 
@@ -225,7 +225,7 @@ class MedicinalProductName extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             productName: this.productName,
             namePart: this.namePart && this.namePart.map(v => v.toJSONInternal()),
-            countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSONInternal()),
+            countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSONInternal())
         };
 
 

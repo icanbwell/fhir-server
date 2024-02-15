@@ -14,7 +14,7 @@ class CarePlanConverter extends BaseConverter {
             author,
             activity,
             addresses,
-            note,
+            note
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

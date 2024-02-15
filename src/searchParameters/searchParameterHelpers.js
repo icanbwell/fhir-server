@@ -20,5 +20,5 @@ function getFieldNameForSearchParameter(searchResourceType, searchParameterName)
 }
 
 module.exports = {
-    getFieldNameForSearchParameter: getFieldNameForSearchParameter,
+    getFieldNameForSearchParameter: getFieldNameForSearchParameter
 };

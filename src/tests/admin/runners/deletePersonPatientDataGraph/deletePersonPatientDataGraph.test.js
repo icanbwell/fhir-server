@@ -14,11 +14,11 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
-    DeletePersonPatientDataGraphRunner,
+    DeletePersonPatientDataGraphRunner
 } = require('../../../../admin/runners/deletePersonPatientDataGraphRunner');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 

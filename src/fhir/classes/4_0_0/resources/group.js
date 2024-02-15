@@ -62,7 +62,7 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -525,7 +525,7 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -597,7 +597,7 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Group({
@@ -622,7 +622,7 @@ class Group extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -661,7 +661,7 @@ class Group extends Resource {
             quantity: this.quantity,
             managingEntity: this.managingEntity && this.managingEntity.toJSON(),
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
-            member: this.member && this.member.map(v => v.toJSON()),
+            member: this.member && this.member.map(v => v.toJSON())
         });
     }
 
@@ -708,7 +708,7 @@ class Group extends Resource {
             quantity: this.quantity,
             managingEntity: this.managingEntity && this.managingEntity.toJSONInternal(),
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
-            member: this.member && this.member.map(v => v.toJSONInternal()),
+            member: this.member && this.member.map(v => v.toJSONInternal())
         };
 
 

@@ -566,7 +566,7 @@ class FhirOperationsManager {
                     requestInfo: this.getRequestInfo(req),
                     res,
                     parsedArgs,
-                    resourceType,
+                    resourceType
                 });
             return result;
         }

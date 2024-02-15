@@ -20,7 +20,7 @@ const proaResources = [
     'Encounter', 'EnrollmentRequest', 'ExplanationOfBenefit',
     'FamilyMemberHistory', 'Flag', 'Immunization', 'Location', 'MedicationDispense', 'MedicationRequest',
     'MedicationStatement', 'Observation', 'Organization', 'Patient',
-    'Person', 'Practitioner', 'PractitionerRole', 'Procedure',
+    'Person', 'Practitioner', 'PractitionerRole', 'Procedure'
 ];
 
 const hapiResources = [
@@ -51,8 +51,8 @@ async function main() {
         collections = Array.from(
             new Set([
                 ...hapiResources.map(collection => `${collection}_4_0_0`),
-                ...proaResources.map(collection => `${collection}_4_0_0`),
-            ]),
+                ...proaResources.map(collection => `${collection}_4_0_0`)
+            ])
         );
     }
 
@@ -112,7 +112,7 @@ async function main() {
                 skip: parameters.skip,
                 updateResources: parameters.updateResources ? true : false,
                 properties,
-                filterToRecordsWithFields,
+                filterToRecordsWithFields
             }
         )
     );

@@ -33,7 +33,7 @@ class MolecularSequenceVariant extends Element {
             observedAllele,
             referenceAllele,
             cigar,
-            variantPointer,
+            variantPointer
         }
     ) {
         super({});
@@ -254,7 +254,7 @@ class MolecularSequenceVariant extends Element {
             observedAllele,
             referenceAllele,
             cigar,
-            variantPointer,
+            variantPointer
         });
 
     }
@@ -277,7 +277,7 @@ class MolecularSequenceVariant extends Element {
             observedAllele: this.observedAllele,
             referenceAllele: this.referenceAllele,
             cigar: this.cigar,
-            variantPointer: this.variantPointer && this.variantPointer.toJSON(),
+            variantPointer: this.variantPointer && this.variantPointer.toJSON()
         });
     }
 
@@ -307,7 +307,7 @@ class MolecularSequenceVariant extends Element {
             observedAllele: this.observedAllele,
             referenceAllele: this.referenceAllele,
             cigar: this.cigar,
-            variantPointer: this.variantPointer && this.variantPointer.toJSONInternal(),
+            variantPointer: this.variantPointer && this.variantPointer.toJSONInternal()
         };
 
 

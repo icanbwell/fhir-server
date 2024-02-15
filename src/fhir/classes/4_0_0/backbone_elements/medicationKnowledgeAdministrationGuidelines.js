@@ -29,7 +29,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage,
             indicationCodeableConcept,
             indicationReference,
-            patientCharacteristics,
+            patientCharacteristics
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage,
             indicationCodeableConcept,
             indicationReference,
-            patientCharacteristics,
+            patientCharacteristics
         });
 
     }
@@ -223,7 +223,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage: this.dosage && this.dosage.map(v => v.toJSON()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSON(),
             indicationReference: this.indicationReference && this.indicationReference.toJSON(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON()),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON())
         });
     }
 
@@ -254,7 +254,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage: this.dosage && this.dosage.map(v => v.toJSONInternal()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSONInternal(),
             indicationReference: this.indicationReference && this.indicationReference.toJSONInternal(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal()),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal())
         };
 
 

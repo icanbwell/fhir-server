@@ -29,7 +29,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
             modifierExtension,
             uri,
             version,
-            subsumption,
+            subsumption
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
             modifierExtension,
             uri,
             version,
-            subsumption,
+            subsumption
         });
 
     }
@@ -196,7 +196,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             uri: this.uri,
             version: this.version && this.version.map(v => v.toJSON()),
-            subsumption: this.subsumption,
+            subsumption: this.subsumption
         });
     }
 
@@ -223,7 +223,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             uri: this.uri,
             version: this.version && this.version.map(v => v.toJSONInternal()),
-            subsumption: this.subsumption,
+            subsumption: this.subsumption
         };
 
 

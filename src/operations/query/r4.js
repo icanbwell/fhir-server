@@ -156,7 +156,7 @@ class R4SearchQueryCreator {
 
         return {
             query: query,
-            columns: totalColumns,
+            columns: totalColumns
         };
     }
 

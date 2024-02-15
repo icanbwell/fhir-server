@@ -26,7 +26,7 @@ class CoverageException extends Element {
             extension,
             modifierExtension,
             type,
-            period,
+            period
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class CoverageException extends Element {
             extension,
             modifierExtension,
             type,
-            period,
+            period
         });
 
     }
@@ -175,7 +175,7 @@ class CoverageException extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            period: this.period && this.period.toJSON(),
+            period: this.period && this.period.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class CoverageException extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            period: this.period && this.period.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal()
         };
 
 

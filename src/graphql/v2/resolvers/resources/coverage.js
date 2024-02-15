@@ -18,17 +18,17 @@ module.exports = {
     CoveragePolicyHolder: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageSubscriber: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoveragePayor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Coverage: {
         // noinspection JSUnusedLocalSymbols
@@ -80,7 +80,7 @@ module.exports = {
                 context,
                 info,
                 parent.contract);
-        },
+        }
     }
 };
 

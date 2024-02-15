@@ -25,7 +25,7 @@ class Money extends Element {
             id,
             extension,
             value,
-            currency,
+            currency
         }
     ) {
         super({});
@@ -118,7 +118,7 @@ class Money extends Element {
             id,
             extension,
             value,
-            currency,
+            currency
         });
 
     }
@@ -136,7 +136,7 @@ class Money extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             value: this.value,
-            currency: this.currency,
+            currency: this.currency
         });
     }
 
@@ -159,7 +159,7 @@ class Money extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             value: this.value,
-            currency: this.currency,
+            currency: this.currency
         };
 
 

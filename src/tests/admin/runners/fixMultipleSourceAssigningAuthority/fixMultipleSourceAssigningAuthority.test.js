@@ -27,7 +27,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {AdminLogger} = require('../../../../admin/adminLogger');
@@ -186,7 +186,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
                         resourceMerger: c.resourceMerger,
                         preloadCollections: [
                             'Practitioner_4_0_0'
-                        ],
+                        ]
                     }
                 )
             );

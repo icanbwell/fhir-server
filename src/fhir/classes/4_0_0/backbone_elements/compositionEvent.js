@@ -35,7 +35,7 @@ class CompositionEvent extends Element {
             modifierExtension,
             code,
             period,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -192,7 +192,7 @@ class CompositionEvent extends Element {
             modifierExtension,
             code,
             period,
-            detail,
+            detail
         });
 
     }
@@ -212,7 +212,7 @@ class CompositionEvent extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -241,7 +241,7 @@ class CompositionEvent extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.map(v => v.toJSONInternal()),
             period: this.period && this.period.toJSONInternal(),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

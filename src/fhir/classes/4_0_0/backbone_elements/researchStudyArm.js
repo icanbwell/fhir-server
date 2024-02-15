@@ -32,7 +32,7 @@ class ResearchStudyArm extends Element {
             modifierExtension,
             name,
             type,
-            description,
+            description
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ResearchStudyArm extends Element {
             modifierExtension,
             name,
             type,
-            description,
+            description
         });
 
     }
@@ -201,7 +201,7 @@ class ResearchStudyArm extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             type: this.type && this.type.toJSON(),
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -228,7 +228,7 @@ class ResearchStudyArm extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
             type: this.type && this.type.toJSONInternal(),
-            description: this.description,
+            description: this.description
         };
 
 

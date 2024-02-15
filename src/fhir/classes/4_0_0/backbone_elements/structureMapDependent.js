@@ -26,7 +26,7 @@ class StructureMapDependent extends Element {
             extension,
             modifierExtension,
             name,
-            variable,
+            variable
         }
     ) {
         super({});
@@ -152,7 +152,7 @@ class StructureMapDependent extends Element {
             extension,
             modifierExtension,
             name,
-            variable,
+            variable
         });
 
     }
@@ -171,7 +171,7 @@ class StructureMapDependent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
-            variable: this.variable,
+            variable: this.variable
         });
     }
 
@@ -196,7 +196,7 @@ class StructureMapDependent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
-            variable: this.variable,
+            variable: this.variable
         };
 
 

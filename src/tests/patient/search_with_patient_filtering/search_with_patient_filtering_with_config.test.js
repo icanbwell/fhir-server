@@ -32,7 +32,7 @@ const {
     getHeaders,
     getHeadersWithCustomPayload,
     getCustomGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -185,7 +185,7 @@ describe('patient Tests', () => {
     describe('patient search_with_patient_filtering Tests', () => {
         const app_client_payload = {
             scope: 'patient/*.read user/*.* access/*.*',
-            username: 'Some App',
+            username: 'Some App'
         };
         const desiree_payload = {
             'custom:bwell_fhir_person_id': 'desiree-root-person',
@@ -196,7 +196,7 @@ describe('patient Tests', () => {
             'custom:clientFhirPersonId': 'clientFhirPerson',
             'custom:clientFhirPatientId': 'clientFhirPatient',
             'custom:bwellFhirPersonId': 'desiree-root-person',
-            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient'
         };
 
         describe('App clients security filtering if config is on', () => {
@@ -244,7 +244,7 @@ describe('patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(payload));
             // noinspection JSUnresolvedFunction

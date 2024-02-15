@@ -30,7 +30,7 @@ class ResearchStudyObjective extends Element {
             extension,
             modifierExtension,
             name,
-            type,
+            type
         }
     ) {
         super({});
@@ -158,7 +158,7 @@ class ResearchStudyObjective extends Element {
             extension,
             modifierExtension,
             name,
-            type,
+            type
         });
 
     }
@@ -177,7 +177,7 @@ class ResearchStudyObjective extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
-            type: this.type && this.type.toJSON(),
+            type: this.type && this.type.toJSON()
         });
     }
 
@@ -203,7 +203,7 @@ class ResearchStudyObjective extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
-            type: this.type && this.type.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal()
         };
 
 

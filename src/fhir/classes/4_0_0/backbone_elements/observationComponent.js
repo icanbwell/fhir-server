@@ -52,7 +52,7 @@ class ObservationComponent extends Element {
             valuePeriod,
             dataAbsentReason,
             interpretation,
-            referenceRange,
+            referenceRange
         }
     ) {
         super({});
@@ -448,7 +448,7 @@ class ObservationComponent extends Element {
             valuePeriod,
             dataAbsentReason,
             interpretation,
-            referenceRange,
+            referenceRange
         });
 
     }
@@ -480,7 +480,7 @@ class ObservationComponent extends Element {
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSON(),
             dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSON(),
             interpretation: this.interpretation && this.interpretation.map(v => v.toJSON()),
-            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON()),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON())
         });
     }
 
@@ -528,7 +528,7 @@ class ObservationComponent extends Element {
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
             dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSONInternal(),
             interpretation: this.interpretation && this.interpretation.map(v => v.toJSONInternal()),
-            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal()),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal())
         };
 
 

@@ -29,7 +29,7 @@ async function main() {
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
-                adminLogger: adminLogger,
+                adminLogger: adminLogger
             })
     );
 

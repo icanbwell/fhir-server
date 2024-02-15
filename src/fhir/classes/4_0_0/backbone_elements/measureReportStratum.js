@@ -31,7 +31,7 @@ class MeasureReportStratum extends Element {
             value,
             component,
             population,
-            measureScore,
+            measureScore
         }
     ) {
         super({});
@@ -207,7 +207,7 @@ class MeasureReportStratum extends Element {
             value,
             component,
             population,
-            measureScore,
+            measureScore
         });
 
     }
@@ -228,7 +228,7 @@ class MeasureReportStratum extends Element {
             value: this.value && this.value.toJSON(),
             component: this.component && this.component.map(v => v.toJSON()),
             population: this.population && this.population.map(v => v.toJSON()),
-            measureScore: this.measureScore && this.measureScore.toJSON(),
+            measureScore: this.measureScore && this.measureScore.toJSON()
         });
     }
 
@@ -259,7 +259,7 @@ class MeasureReportStratum extends Element {
             value: this.value && this.value.toJSONInternal(),
             component: this.component && this.component.map(v => v.toJSONInternal()),
             population: this.population && this.population.map(v => v.toJSONInternal()),
-            measureScore: this.measureScore && this.measureScore.toJSONInternal(),
+            measureScore: this.measureScore && this.measureScore.toJSONInternal()
         };
 
 

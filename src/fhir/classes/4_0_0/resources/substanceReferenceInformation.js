@@ -49,7 +49,7 @@ class SubstanceReferenceInformation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -410,7 +410,7 @@ class SubstanceReferenceInformation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -472,7 +472,7 @@ class SubstanceReferenceInformation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstanceReferenceInformation({
@@ -492,7 +492,7 @@ class SubstanceReferenceInformation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -526,7 +526,7 @@ class SubstanceReferenceInformation extends Resource {
             gene: this.gene && this.gene.map(v => v.toJSON()),
             geneElement: this.geneElement && this.geneElement.map(v => v.toJSON()),
             classification: this.classification && this.classification.map(v => v.toJSON()),
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -567,7 +567,7 @@ class SubstanceReferenceInformation extends Resource {
             gene: this.gene && this.gene.map(v => v.toJSONInternal()),
             geneElement: this.geneElement && this.geneElement.map(v => v.toJSONInternal()),
             classification: this.classification && this.classification.map(v => v.toJSONInternal()),
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
 
 

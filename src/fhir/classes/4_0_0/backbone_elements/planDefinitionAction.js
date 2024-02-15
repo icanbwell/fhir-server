@@ -92,7 +92,7 @@ class PlanDefinitionAction extends Element {
             definitionUri,
             transform,
             dynamicValue,
-            action,
+            action
         }
     ) {
         super({});
@@ -881,7 +881,7 @@ class PlanDefinitionAction extends Element {
             definitionUri,
             transform,
             dynamicValue,
-            action,
+            action
         });
 
     }
@@ -932,7 +932,7 @@ class PlanDefinitionAction extends Element {
             definitionUri: this.definitionUri,
             transform: this.transform,
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON()),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -1008,7 +1008,7 @@ class PlanDefinitionAction extends Element {
             definitionUri: this.definitionUri,
             transform: this.transform,
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal()),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

@@ -63,7 +63,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -554,7 +554,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -628,7 +628,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new BiologicallyDerivedProduct({
@@ -654,7 +654,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -694,7 +694,7 @@ class BiologicallyDerivedProduct extends Resource {
             collection: this.collection && this.collection.toJSON(),
             processing: this.processing && this.processing.map(v => v.toJSON()),
             manipulation: this.manipulation && this.manipulation.toJSON(),
-            storage: this.storage && this.storage.map(v => v.toJSON()),
+            storage: this.storage && this.storage.map(v => v.toJSON())
         });
     }
 
@@ -745,7 +745,7 @@ class BiologicallyDerivedProduct extends Resource {
             collection: this.collection && this.collection.toJSONInternal(),
             processing: this.processing && this.processing.map(v => v.toJSONInternal()),
             manipulation: this.manipulation && this.manipulation.toJSONInternal(),
-            storage: this.storage && this.storage.map(v => v.toJSONInternal()),
+            storage: this.storage && this.storage.map(v => v.toJSONInternal())
         };
 
 

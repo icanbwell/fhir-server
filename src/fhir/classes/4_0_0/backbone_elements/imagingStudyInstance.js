@@ -33,7 +33,7 @@ class ImagingStudyInstance extends Element {
             uid,
             sopClass,
             number,
-            title,
+            title
         }
     ) {
         super({});
@@ -199,7 +199,7 @@ class ImagingStudyInstance extends Element {
             uid,
             sopClass,
             number,
-            title,
+            title
         });
 
     }
@@ -220,7 +220,7 @@ class ImagingStudyInstance extends Element {
             uid: this.uid,
             sopClass: this.sopClass && this.sopClass.toJSON(),
             number: this.number,
-            title: this.title,
+            title: this.title
         });
     }
 
@@ -248,7 +248,7 @@ class ImagingStudyInstance extends Element {
             uid: this.uid,
             sopClass: this.sopClass && this.sopClass.toJSONInternal(),
             number: this.number,
-            title: this.title,
+            title: this.title
         };
 
 

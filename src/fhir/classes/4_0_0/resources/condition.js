@@ -90,7 +90,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -871,7 +871,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -973,7 +973,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Condition({
@@ -1013,7 +1013,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1067,7 +1067,7 @@ class Condition extends Resource {
             asserter: this.asserter && this.asserter.toJSON(),
             stage: this.stage && this.stage.map(v => v.toJSON()),
             evidence: this.evidence && this.evidence.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -1144,7 +1144,7 @@ class Condition extends Resource {
             asserter: this.asserter && this.asserter.toJSONInternal(),
             stage: this.stage && this.stage.map(v => v.toJSONInternal()),
             evidence: this.evidence && this.evidence.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

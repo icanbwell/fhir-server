@@ -18,17 +18,17 @@ module.exports = {
     SupplyDeliveryPartOf: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyDeliverySupplier: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyDeliveryReceiver: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SupplyDelivery: {
         // noinspection JSUnusedLocalSymbols
@@ -90,7 +90,7 @@ module.exports = {
                 context,
                 info,
                 parent.receiver);
-        },
+        }
     }
 };
 

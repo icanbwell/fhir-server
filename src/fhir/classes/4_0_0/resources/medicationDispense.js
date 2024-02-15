@@ -95,7 +95,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -912,7 +912,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1016,7 +1016,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicationDispense({
@@ -1057,7 +1057,7 @@ class MedicationDispense extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1112,7 +1112,7 @@ class MedicationDispense extends Resource {
             dosageInstruction: this.dosageInstruction && this.dosageInstruction.map(v => v.toJSON()),
             substitution: this.substitution && this.substitution.toJSON(),
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSON()),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON())
         });
     }
 
@@ -1193,7 +1193,7 @@ class MedicationDispense extends Resource {
             dosageInstruction: this.dosageInstruction && this.dosageInstruction.map(v => v.toJSONInternal()),
             substitution: this.substitution && this.substitution.toJSONInternal(),
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSONInternal()),
-            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal())
         };
 
 

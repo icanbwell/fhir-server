@@ -36,7 +36,7 @@ class RelatedArtifact extends Element {
             citation,
             url,
             document,
-            resource,
+            resource
         }
     ) {
         super({});
@@ -231,7 +231,7 @@ class RelatedArtifact extends Element {
             citation,
             url,
             document,
-            resource,
+            resource
         });
 
     }
@@ -254,7 +254,7 @@ class RelatedArtifact extends Element {
             citation: this.citation,
             url: this.url,
             document: this.document && this.document.toJSON(),
-            resource: this.resource,
+            resource: this.resource
         });
     }
 
@@ -283,7 +283,7 @@ class RelatedArtifact extends Element {
             citation: this.citation,
             url: this.url,
             document: this.document && this.document.toJSONInternal(),
-            resource: this.resource,
+            resource: this.resource
         };
 
 

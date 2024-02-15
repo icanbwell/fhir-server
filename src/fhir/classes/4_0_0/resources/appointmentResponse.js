@@ -56,7 +56,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -483,7 +483,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -551,7 +551,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AppointmentResponse({
@@ -574,7 +574,7 @@ class AppointmentResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -611,7 +611,7 @@ class AppointmentResponse extends Resource {
             participantType: this.participantType && this.participantType.map(v => v.toJSON()),
             actor: this.actor && this.actor.toJSON(),
             participantStatus: this.participantStatus,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -655,7 +655,7 @@ class AppointmentResponse extends Resource {
             participantType: this.participantType && this.participantType.map(v => v.toJSONInternal()),
             actor: this.actor && this.actor.toJSONInternal(),
             participantStatus: this.participantStatus,
-            comment: this.comment,
+            comment: this.comment
         };
 
 

@@ -18,12 +18,12 @@ module.exports = {
     ListSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ListSource: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     List: {
         // noinspection JSUnusedLocalSymbols
@@ -55,7 +55,7 @@ module.exports = {
                 context,
                 info,
                 parent.source);
-        },
+        }
     }
 };
 

@@ -18,7 +18,7 @@ module.exports = {
     MedicinalProductContraindicationSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicinalProductContraindication: {
         // noinspection JSUnusedLocalSymbols
@@ -40,7 +40,7 @@ module.exports = {
                 context,
                 info,
                 parent.therapeuticIndication);
-        },
+        }
     }
 };
 

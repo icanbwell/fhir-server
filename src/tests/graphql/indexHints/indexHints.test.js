@@ -79,7 +79,7 @@ describe('Graphql IndexHints Test', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryTextWithIndexHint1,
+                    query: graphqlQueryTextWithIndexHint1
                 })
                 .set(getGraphQLHeaders());
 
@@ -94,7 +94,7 @@ describe('Graphql IndexHints Test', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryTextWithIndexHint2,
+                    query: graphqlQueryTextWithIndexHint2
                 })
                 .set(getGraphQLHeaders());
 

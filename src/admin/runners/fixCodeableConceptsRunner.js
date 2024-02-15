@@ -48,13 +48,13 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         filterToRecordsWithFields,
         startFromId,
         oidToStandardSystemUrlMap,
-        updateResources,
+        updateResources
     }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {string[]}
@@ -142,22 +142,22 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         if (properties.length === 1) {
             return {
                 [properties[0]]: {
-                    $exists: true,
-                },
+                    $exists: true
+                }
             };
         }
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         const filter = {
-            $and: [],
+            $and: []
         };
 
         for (const property of properties) {
             filter.$and.push({
                 [`${property}`]: {
-                    $exists: true,
-                },
+                    $exists: true
+                }
             });
         }
         return filter;
@@ -182,7 +182,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             'identifier',
             '_uuid',
             '_sourceId',
-            '_sourceAssigningAuthority',
+            '_sourceAssigningAuthority'
         ];
         for (const property of neededProperties) {
             projection[`${property}`] = 1;
@@ -224,7 +224,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             if (isHistoryDoc && doc.request) {
                 currentResourceJsonInternal = {
                     resource: currentResourceJsonInternal,
-                    request: { ...doc.request },
+                    request: { ...doc.request }
                 };
 
                 // if it is history doc then replace the id present in the url
@@ -232,7 +232,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
 
                 updatedResourceJsonInternal = {
                     resource: updatedResourceJsonInternal,
-                    request: doc.request,
+                    request: doc.request
                 };
             }
 
@@ -247,17 +247,17 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
             const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
 
             const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({
-                patches,
+                patches
             });
 
             if (Object.keys(updateOperation).length > 0) {
                 operations.push({
                     updateOne: {
                         filter: {
-                            _id: doc._id,
+                            _id: doc._id
                         },
-                        update: updateOperation,
-                    },
+                        update: updateOperation
+                    }
                 });
             }
 
@@ -267,9 +267,9 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 message: `Error processing record ${e.message}`,
                 error: e,
                 args: {
-                    resource: doc,
+                    resource: doc
                 },
-                source: 'FixCodeableConceptsRunner.processRecordAsync',
+                source: 'FixCodeableConceptsRunner.processRecordAsync'
             });
         }
     }
@@ -371,7 +371,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                 $and: [
                     {
                         [`${queryPrefix}meta.lastUpdated`]: {
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     },
                     {
@@ -385,14 +385,14 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         else if (this.afterLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
-                    $gt: this.afterLastUpdatedDate,
+                    $gt: this.afterLastUpdatedDate
                 }
             };
         }
         else if (this.beforeLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
-                    $lt: this.beforeLastUpdatedDate,
+                    $lt: this.beforeLastUpdatedDate
                 }
             };
         }
@@ -503,7 +503,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                      */
                     const { collection, session, client } = await this.createSingeConnectionAsync({
                         mongoConfig,
-                        collectionName,
+                        collectionName
                     });
 
                     try {
@@ -567,7 +567,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                                     skipExistingIds: false,
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
-                                    skip: this.skip,
+                                    skip: this.skip
                                 });
                             } catch (e) {
                                 this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
@@ -626,5 +626,5 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
 }
 
 module.exports = {
-    FixCodeableConceptsRunner,
+    FixCodeableConceptsRunner
 };

@@ -34,7 +34,7 @@ class UsageContext extends Element {
             valueCodeableConcept,
             valueQuantity,
             valueRange,
-            valueReference,
+            valueReference
         }
     ) {
         super({});
@@ -195,7 +195,7 @@ class UsageContext extends Element {
             valueCodeableConcept,
             valueQuantity,
             valueRange,
-            valueReference,
+            valueReference
         });
 
     }
@@ -216,7 +216,7 @@ class UsageContext extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueRange: this.valueRange && this.valueRange.toJSON(),
-            valueReference: this.valueReference && this.valueReference.toJSON(),
+            valueReference: this.valueReference && this.valueReference.toJSON()
         });
     }
 
@@ -247,7 +247,7 @@ class UsageContext extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
-            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal()
         };
 
 

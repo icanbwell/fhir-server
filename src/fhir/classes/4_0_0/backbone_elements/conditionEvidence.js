@@ -26,7 +26,7 @@ class ConditionEvidence extends Element {
             extension,
             modifierExtension,
             code,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ConditionEvidence extends Element {
             extension,
             modifierExtension,
             code,
-            detail,
+            detail
         });
 
     }
@@ -175,7 +175,7 @@ class ConditionEvidence extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -202,7 +202,7 @@ class ConditionEvidence extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

@@ -115,7 +115,7 @@ class BwellPersonFinder {
         let query = {
             '$or': [
                 ...searchFilters,
-                personIdFilter,
+                personIdFilter
             ]
         };
 
@@ -140,7 +140,7 @@ class BwellPersonFinder {
 
         // get all persons
         const linkedPersonCursor = await databaseQueryManager.findAsync({
-            query,
+            query
         });
 
         while (await linkedPersonCursor.hasNext()) {
@@ -153,7 +153,7 @@ class BwellPersonFinder {
                 personRefToPersonRefObj.set(personUuidRef, {
                     id: linkedPerson._uuid,
                     resourceType: linkedPerson.resourceType,
-                    sourceAssigningAuthority: linkedPerson._sourceAssigningAuthority,
+                    sourceAssigningAuthority: linkedPerson._sourceAssigningAuthority
                 });
             }
 

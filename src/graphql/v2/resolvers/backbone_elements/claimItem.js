@@ -33,7 +33,7 @@ module.exports = {
                 context,
                 info,
                 parent.encounter);
-        },
+        }
     }
 };
 

@@ -77,7 +77,7 @@ class Composition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -657,7 +657,7 @@ class Composition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -739,7 +739,7 @@ class Composition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Composition({
@@ -769,7 +769,7 @@ class Composition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -813,7 +813,7 @@ class Composition extends Resource {
             custodian: this.custodian && this.custodian.toJSON(),
             relatesTo: this.relatesTo && this.relatesTo.map(v => v.toJSON()),
             event: this.event && this.event.map(v => v.toJSON()),
-            section: this.section && this.section.map(v => v.toJSON()),
+            section: this.section && this.section.map(v => v.toJSON())
         });
     }
 
@@ -871,7 +871,7 @@ class Composition extends Resource {
             custodian: this.custodian && this.custodian.toJSONInternal(),
             relatesTo: this.relatesTo && this.relatesTo.map(v => v.toJSONInternal()),
             event: this.event && this.event.map(v => v.toJSONInternal()),
-            section: this.section && this.section.map(v => v.toJSONInternal()),
+            section: this.section && this.section.map(v => v.toJSONInternal())
         };
 
 

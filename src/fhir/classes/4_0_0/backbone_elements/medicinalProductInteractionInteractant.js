@@ -26,7 +26,7 @@ class MedicinalProductInteractionInteractant extends Element {
             extension,
             modifierExtension,
             itemReference,
-            itemCodeableConcept,
+            itemCodeableConcept
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class MedicinalProductInteractionInteractant extends Element {
             extension,
             modifierExtension,
             itemReference,
-            itemCodeableConcept,
+            itemCodeableConcept
         });
 
     }
@@ -175,7 +175,7 @@ class MedicinalProductInteractionInteractant extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             itemReference: this.itemReference && this.itemReference.toJSON(),
-            itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
+            itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class MedicinalProductInteractionInteractant extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             itemReference: this.itemReference && this.itemReference.toJSONInternal(),
-            itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
+            itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal()
         };
 
 

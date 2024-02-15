@@ -42,14 +42,14 @@ class FilterByDateTime extends BaseFilter {
                         dateSearchParameter: value,
                         type: this.propertyObj.type
                     }
-                ),
+                )
             };
         } else {
             // if this is date as a string
             return {
                 [this.fieldMapper.getFieldName(field)]: dateQueryBuilder({
                     date: value, type: this.propertyObj.type
-                }),
+                })
             };
         }
     }
@@ -69,8 +69,8 @@ class FilterByDateTime extends BaseFilter {
                     $or: this.propertyObj.fields.flatMap((field) => {
                             return this.filterByField(field, this.parsedArg.queryParameterValue);
                         }
-                    ),
-                },
+                    )
+                }
             );
         }
 
@@ -136,7 +136,7 @@ class FilterByDateTime extends BaseFilter {
 
             if (Object.keys(simplifiedRangeQuery).length > 0) {
                 newChildQueries.push({
-                    [fieldName]: simplifiedRangeQuery,
+                    [fieldName]: simplifiedRangeQuery
                 });
             }
 
@@ -147,5 +147,5 @@ class FilterByDateTime extends BaseFilter {
 }
 
 module.exports = {
-    FilterByDateTime,
+    FilterByDateTime
 };

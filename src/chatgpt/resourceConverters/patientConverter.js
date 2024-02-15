@@ -21,7 +21,7 @@ class PatientConverter extends BaseConverter {
             address,
             maritalStatus,
             multipleBirthBoolean,
-            communication,
+            communication
         } = resource;
 
         const fullName = name && name.length > 0 && name[0].given && name[0].given.length > 0 ? `${name[0].given[0]} ${name[0].family} ` : 'unknown';

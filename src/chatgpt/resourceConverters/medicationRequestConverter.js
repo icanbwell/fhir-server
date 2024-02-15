@@ -11,7 +11,7 @@ class MedicationRequestConverter extends BaseConverter {
             medicationCodeableConcept,
             subject,
             authoredOn,
-            dosageInstruction,
+            dosageInstruction
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

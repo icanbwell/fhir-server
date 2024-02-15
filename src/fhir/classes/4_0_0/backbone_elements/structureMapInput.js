@@ -30,7 +30,7 @@ class StructureMapInput extends Element {
             name,
             type,
             mode,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -194,7 +194,7 @@ class StructureMapInput extends Element {
             name,
             type,
             mode,
-            documentation,
+            documentation
         });
 
     }
@@ -215,7 +215,7 @@ class StructureMapInput extends Element {
             name: this.name,
             type: this.type,
             mode: this.mode,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -242,7 +242,7 @@ class StructureMapInput extends Element {
             name: this.name,
             type: this.type,
             mode: this.mode,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

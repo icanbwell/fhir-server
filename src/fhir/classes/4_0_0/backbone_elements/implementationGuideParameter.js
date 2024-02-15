@@ -28,7 +28,7 @@ class ImplementationGuideParameter extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ImplementationGuideParameter extends Element {
             extension,
             modifierExtension,
             code,
-            value,
+            value
         });
 
     }
@@ -175,7 +175,7 @@ class ImplementationGuideParameter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -200,7 +200,7 @@ class ImplementationGuideParameter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code,
-            value: this.value,
+            value: this.value
         };
 
 

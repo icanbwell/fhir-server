@@ -29,7 +29,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension,
             code,
             count,
-            subjectResults,
+            subjectResults
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension,
             code,
             count,
-            subjectResults,
+            subjectResults
         });
 
     }
@@ -199,7 +199,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             count: this.count,
-            subjectResults: this.subjectResults && this.subjectResults.toJSON(),
+            subjectResults: this.subjectResults && this.subjectResults.toJSON()
         });
     }
 
@@ -227,7 +227,7 @@ class MeasureReportPopulation1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
             count: this.count,
-            subjectResults: this.subjectResults && this.subjectResults.toJSONInternal(),
+            subjectResults: this.subjectResults && this.subjectResults.toJSONInternal()
         };
 
 

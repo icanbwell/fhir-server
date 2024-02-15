@@ -24,7 +24,7 @@ class TestScriptTeardown extends Element {
             id,
             extension,
             modifierExtension,
-            action,
+            action
         }
     ) {
         super({});
@@ -133,7 +133,7 @@ class TestScriptTeardown extends Element {
             id,
             extension,
             modifierExtension,
-            action,
+            action
         });
 
     }
@@ -151,7 +151,7 @@ class TestScriptTeardown extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -176,7 +176,7 @@ class TestScriptTeardown extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

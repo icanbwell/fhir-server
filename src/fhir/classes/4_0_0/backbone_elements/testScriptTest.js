@@ -28,7 +28,7 @@ class TestScriptTest extends Element {
             modifierExtension,
             name,
             description,
-            action,
+            action
         }
     ) {
         super({});
@@ -176,7 +176,7 @@ class TestScriptTest extends Element {
             modifierExtension,
             name,
             description,
-            action,
+            action
         });
 
     }
@@ -196,7 +196,7 @@ class TestScriptTest extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             description: this.description,
-            action: this.action && this.action.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON())
         });
     }
 
@@ -223,7 +223,7 @@ class TestScriptTest extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
             description: this.description,
-            action: this.action && this.action.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal())
         };
 
 

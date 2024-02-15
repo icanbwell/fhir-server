@@ -29,7 +29,7 @@ class DocumentReferenceContent extends Element {
             extension,
             modifierExtension,
             attachment,
-            format,
+            format
         }
     ) {
         super({});
@@ -161,7 +161,7 @@ class DocumentReferenceContent extends Element {
             extension,
             modifierExtension,
             attachment,
-            format,
+            format
         });
 
     }
@@ -180,7 +180,7 @@ class DocumentReferenceContent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             attachment: this.attachment && this.attachment.toJSON(),
-            format: this.format && this.format.toJSON(),
+            format: this.format && this.format.toJSON()
         });
     }
 
@@ -207,7 +207,7 @@ class DocumentReferenceContent extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             attachment: this.attachment && this.attachment.toJSONInternal(),
-            format: this.format && this.format.toJSONInternal(),
+            format: this.format && this.format.toJSONInternal()
         };
 
 

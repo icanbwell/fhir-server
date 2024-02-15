@@ -51,7 +51,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {DatabasePartitionedCursor} = require('../../../dataLayer/databasePartitionedCursor');

@@ -25,7 +25,7 @@ class MedicationKnowledgeMonitoringProgram extends Element {
             extension,
             modifierExtension,
             type,
-            name,
+            name
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class MedicationKnowledgeMonitoringProgram extends Element {
             extension,
             modifierExtension,
             type,
-            name,
+            name
         });
 
     }
@@ -172,7 +172,7 @@ class MedicationKnowledgeMonitoringProgram extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            name: this.name,
+            name: this.name
         });
     }
 
@@ -198,7 +198,7 @@ class MedicationKnowledgeMonitoringProgram extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
-            name: this.name,
+            name: this.name
         };
 
 

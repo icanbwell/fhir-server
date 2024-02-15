@@ -63,7 +63,7 @@ class CarePlanDetail extends Element {
             productReference,
             dailyAmount,
             quantity,
-            description,
+            description
         }
     ) {
         super({});
@@ -577,7 +577,7 @@ class CarePlanDetail extends Element {
             productReference,
             dailyAmount,
             quantity,
-            description,
+            description
         });
 
     }
@@ -614,7 +614,7 @@ class CarePlanDetail extends Element {
             productReference: this.productReference && this.productReference.toJSON(),
             dailyAmount: this.dailyAmount && this.dailyAmount.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
-            description: this.description,
+            description: this.description
         });
     }
 
@@ -670,7 +670,7 @@ class CarePlanDetail extends Element {
             productReference: this.productReference && this.productReference.toJSONInternal(),
             dailyAmount: this.dailyAmount && this.dailyAmount.toJSONInternal(),
             quantity: this.quantity && this.quantity.toJSONInternal(),
-            description: this.description,
+            description: this.description
         };
 
 

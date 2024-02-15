@@ -38,7 +38,7 @@ class StructureMapTarget extends Element {
             listMode,
             listRuleId,
             transform,
-            parameter,
+            parameter
         }
     ) {
         super({});
@@ -280,7 +280,7 @@ class StructureMapTarget extends Element {
             listMode,
             listRuleId,
             transform,
-            parameter,
+            parameter
         });
 
     }
@@ -305,7 +305,7 @@ class StructureMapTarget extends Element {
             listMode: this.listMode,
             listRuleId: this.listRuleId,
             transform: this.transform,
-            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
+            parameter: this.parameter && this.parameter.map(v => v.toJSON())
         });
     }
 
@@ -337,7 +337,7 @@ class StructureMapTarget extends Element {
             listMode: this.listMode,
             listRuleId: this.listRuleId,
             transform: this.transform,
-            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal())
         };
 
 

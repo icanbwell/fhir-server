@@ -18,7 +18,7 @@ module.exports = {
     TestScriptProfileV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     TestScript: {
         // noinspection JSUnusedLocalSymbols
@@ -40,7 +40,7 @@ module.exports = {
                 context,
                 info,
                 parent.profile);
-        },
+        }
     }
 };
 

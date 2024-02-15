@@ -30,7 +30,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber,
             timestamp,
             focus,
-            additionalContext,
+            additionalContext
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber,
             timestamp,
             focus,
-            additionalContext,
+            additionalContext
         });
 
     }
@@ -223,7 +223,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber: this.eventNumber,
             timestamp: this.timestamp,
             focus: this.focus && this.focus.toJSON(),
-            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSON()),
+            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSON())
         });
     }
 
@@ -252,7 +252,7 @@ class SubscriptionStatusNotificationEvent extends Element {
             eventNumber: this.eventNumber,
             timestamp: this.timestamp,
             focus: this.focus && this.focus.toJSONInternal(),
-            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSONInternal()),
+            additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSONInternal())
         };
 
 

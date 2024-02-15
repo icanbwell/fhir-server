@@ -18,17 +18,17 @@ module.exports = {
     MeasureReportSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MeasureReportReporter: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MeasureReportEvaluatedResourceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MeasureReport: {
         // noinspection JSUnusedLocalSymbols
@@ -70,7 +70,7 @@ module.exports = {
                 context,
                 info,
                 parent.evaluatedResource);
-        },
+        }
     }
 };
 

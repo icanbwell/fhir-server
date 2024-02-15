@@ -33,7 +33,7 @@ class MolecularSequenceRepository extends Element {
             name,
             datasetId,
             variantsetId,
-            readsetId,
+            readsetId
         }
     ) {
         super({});
@@ -241,7 +241,7 @@ class MolecularSequenceRepository extends Element {
             name,
             datasetId,
             variantsetId,
-            readsetId,
+            readsetId
         });
 
     }
@@ -264,7 +264,7 @@ class MolecularSequenceRepository extends Element {
             name: this.name,
             datasetId: this.datasetId,
             variantsetId: this.variantsetId,
-            readsetId: this.readsetId,
+            readsetId: this.readsetId
         });
     }
 
@@ -293,7 +293,7 @@ class MolecularSequenceRepository extends Element {
             name: this.name,
             datasetId: this.datasetId,
             variantsetId: this.variantsetId,
-            readsetId: this.readsetId,
+            readsetId: this.readsetId
         };
 
 

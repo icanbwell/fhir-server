@@ -80,7 +80,7 @@ class AllergyIntolerance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -767,7 +767,7 @@ class AllergyIntolerance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -859,7 +859,7 @@ class AllergyIntolerance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AllergyIntolerance({
@@ -894,7 +894,7 @@ class AllergyIntolerance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -943,7 +943,7 @@ class AllergyIntolerance extends Resource {
             asserter: this.asserter && this.asserter.toJSON(),
             lastOccurrence: this.lastOccurrence,
             note: this.note && this.note.map(v => v.toJSON()),
-            reaction: this.reaction && this.reaction.map(v => v.toJSON()),
+            reaction: this.reaction && this.reaction.map(v => v.toJSON())
         });
     }
 
@@ -1008,7 +1008,7 @@ class AllergyIntolerance extends Resource {
             asserter: this.asserter && this.asserter.toJSONInternal(),
             lastOccurrence: this.lastOccurrence,
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            reaction: this.reaction && this.reaction.map(v => v.toJSONInternal()),
+            reaction: this.reaction && this.reaction.map(v => v.toJSONInternal())
         };
 
 

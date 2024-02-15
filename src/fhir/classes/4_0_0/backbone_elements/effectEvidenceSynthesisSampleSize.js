@@ -29,7 +29,7 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             modifierExtension,
             description,
             numberOfStudies,
-            numberOfParticipants,
+            numberOfParticipants
         }
     ) {
         super({});
@@ -174,7 +174,7 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             modifierExtension,
             description,
             numberOfStudies,
-            numberOfParticipants,
+            numberOfParticipants
         });
 
     }
@@ -194,7 +194,7 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             numberOfStudies: this.numberOfStudies,
-            numberOfParticipants: this.numberOfParticipants,
+            numberOfParticipants: this.numberOfParticipants
         });
     }
 
@@ -220,7 +220,7 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             numberOfStudies: this.numberOfStudies,
-            numberOfParticipants: this.numberOfParticipants,
+            numberOfParticipants: this.numberOfParticipants
         };
 
 

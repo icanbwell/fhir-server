@@ -30,7 +30,7 @@ class InvoiceLineItem extends Element {
             sequence,
             chargeItemReference,
             chargeItemCodeableConcept,
-            priceComponent,
+            priceComponent
         }
     ) {
         super({});
@@ -205,7 +205,7 @@ class InvoiceLineItem extends Element {
             sequence,
             chargeItemReference,
             chargeItemCodeableConcept,
-            priceComponent,
+            priceComponent
         });
 
     }
@@ -226,7 +226,7 @@ class InvoiceLineItem extends Element {
             sequence: this.sequence,
             chargeItemReference: this.chargeItemReference && this.chargeItemReference.toJSON(),
             chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSON(),
-            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON())
         });
     }
 
@@ -256,7 +256,7 @@ class InvoiceLineItem extends Element {
             sequence: this.sequence,
             chargeItemReference: this.chargeItemReference && this.chargeItemReference.toJSONInternal(),
             chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSONInternal(),
-            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal())
         };
 
 

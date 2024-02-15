@@ -12,7 +12,7 @@ class ExplanationOfBenefitConverter extends BaseConverter {
             billablePeriod,
             total,
             item,
-            payment,
+            payment
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

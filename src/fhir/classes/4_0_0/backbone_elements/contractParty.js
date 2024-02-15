@@ -26,7 +26,7 @@ class ContractParty extends Element {
             extension,
             modifierExtension,
             reference,
-            role,
+            role
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class ContractParty extends Element {
             extension,
             modifierExtension,
             reference,
-            role,
+            role
         });
 
     }
@@ -175,7 +175,7 @@ class ContractParty extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             reference: this.reference && this.reference.map(v => v.toJSON()),
-            role: this.role && this.role.toJSON(),
+            role: this.role && this.role.toJSON()
         });
     }
 
@@ -202,7 +202,7 @@ class ContractParty extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             reference: this.reference && this.reference.map(v => v.toJSONInternal()),
-            role: this.role && this.role.toJSONInternal(),
+            role: this.role && this.role.toJSONInternal()
         };
 
 

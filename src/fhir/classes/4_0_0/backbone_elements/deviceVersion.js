@@ -29,7 +29,7 @@ class DeviceVersion extends Element {
             modifierExtension,
             type,
             component,
-            value,
+            value
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class DeviceVersion extends Element {
             modifierExtension,
             type,
             component,
-            value,
+            value
         });
 
     }
@@ -198,7 +198,7 @@ class DeviceVersion extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             component: this.component && this.component.toJSON(),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -226,7 +226,7 @@ class DeviceVersion extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             component: this.component && this.component.toJSONInternal(),
-            value: this.value,
+            value: this.value
         };
 
 

@@ -57,7 +57,7 @@ class MedicinalProductIndication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -505,7 +505,7 @@ class MedicinalProductIndication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -575,7 +575,7 @@ class MedicinalProductIndication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductIndication({
@@ -599,7 +599,7 @@ class MedicinalProductIndication extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -637,7 +637,7 @@ class MedicinalProductIndication extends Resource {
             duration: this.duration && this.duration.toJSON(),
             otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON()),
             undesirableEffect: this.undesirableEffect && this.undesirableEffect.map(v => v.toJSON()),
-            population: this.population && this.population.map(v => v.toJSON()),
+            population: this.population && this.population.map(v => v.toJSON())
         });
     }
 
@@ -687,7 +687,7 @@ class MedicinalProductIndication extends Resource {
             duration: this.duration && this.duration.toJSONInternal(),
             otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal()),
             undesirableEffect: this.undesirableEffect && this.undesirableEffect.map(v => v.toJSONInternal()),
-            population: this.population && this.population.map(v => v.toJSONInternal()),
+            population: this.population && this.population.map(v => v.toJSONInternal())
         };
 
 

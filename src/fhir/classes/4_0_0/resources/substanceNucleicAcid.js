@@ -52,7 +52,7 @@ class SubstanceNucleicAcid extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -419,7 +419,7 @@ class SubstanceNucleicAcid extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -481,7 +481,7 @@ class SubstanceNucleicAcid extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubstanceNucleicAcid({
@@ -501,7 +501,7 @@ class SubstanceNucleicAcid extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -535,7 +535,7 @@ class SubstanceNucleicAcid extends Resource {
             numberOfSubunits: this.numberOfSubunits,
             areaOfHybridisation: this.areaOfHybridisation,
             oligoNucleotideType: this.oligoNucleotideType && this.oligoNucleotideType.toJSON(),
-            subunit: this.subunit && this.subunit.map(v => v.toJSON()),
+            subunit: this.subunit && this.subunit.map(v => v.toJSON())
         });
     }
 
@@ -575,7 +575,7 @@ class SubstanceNucleicAcid extends Resource {
             numberOfSubunits: this.numberOfSubunits,
             areaOfHybridisation: this.areaOfHybridisation,
             oligoNucleotideType: this.oligoNucleotideType && this.oligoNucleotideType.toJSONInternal(),
-            subunit: this.subunit && this.subunit.map(v => v.toJSONInternal()),
+            subunit: this.subunit && this.subunit.map(v => v.toJSONInternal())
         };
 
 

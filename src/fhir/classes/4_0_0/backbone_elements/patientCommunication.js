@@ -26,7 +26,7 @@ class PatientCommunication extends Element {
             extension,
             modifierExtension,
             language,
-            preferred,
+            preferred
         }
     ) {
         super({});
@@ -158,7 +158,7 @@ class PatientCommunication extends Element {
             extension,
             modifierExtension,
             language,
-            preferred,
+            preferred
         });
 
     }
@@ -177,7 +177,7 @@ class PatientCommunication extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             language: this.language && this.language.toJSON(),
-            preferred: this.preferred,
+            preferred: this.preferred
         });
     }
 
@@ -203,7 +203,7 @@ class PatientCommunication extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             language: this.language && this.language.toJSONInternal(),
-            preferred: this.preferred,
+            preferred: this.preferred
         };
 
 

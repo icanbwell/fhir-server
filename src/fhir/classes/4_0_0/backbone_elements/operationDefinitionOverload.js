@@ -26,7 +26,7 @@ class OperationDefinitionOverload extends Element {
             extension,
             modifierExtension,
             parameterName,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -152,7 +152,7 @@ class OperationDefinitionOverload extends Element {
             extension,
             modifierExtension,
             parameterName,
-            comment,
+            comment
         });
 
     }
@@ -171,7 +171,7 @@ class OperationDefinitionOverload extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             parameterName: this.parameterName,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -196,7 +196,7 @@ class OperationDefinitionOverload extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             parameterName: this.parameterName,
-            comment: this.comment,
+            comment: this.comment
         };
 
 

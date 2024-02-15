@@ -27,7 +27,7 @@ class StructureDefinitionContext extends Element {
             extension,
             modifierExtension,
             type,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class StructureDefinitionContext extends Element {
             extension,
             modifierExtension,
             type,
-            expression,
+            expression
         });
 
     }
@@ -173,7 +173,7 @@ class StructureDefinitionContext extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
-            expression: this.expression,
+            expression: this.expression
         });
     }
 
@@ -198,7 +198,7 @@ class StructureDefinitionContext extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
-            expression: this.expression,
+            expression: this.expression
         };
 
 

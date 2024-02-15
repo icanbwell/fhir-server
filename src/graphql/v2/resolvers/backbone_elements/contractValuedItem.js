@@ -6,12 +6,12 @@ module.exports = {
     ContractValuedItemResponsible: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractValuedItemRecipient: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ContractValuedItem: {
         // noinspection JSUnusedLocalSymbols
@@ -43,7 +43,7 @@ module.exports = {
                 context,
                 info,
                 parent.recipient);
-        },
+        }
     }
 };
 

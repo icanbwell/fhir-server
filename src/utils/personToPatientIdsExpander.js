@@ -58,7 +58,7 @@ class PersonToPatientIdsExpander {
                 databaseQueryManager,
                 level: 1,
                 toMap,
-                returnOriginalPersonId: true, // return the passed personId not its uuid
+                returnOriginalPersonId: true // return the passed personId not its uuid
             }
         );
         if (!toMap) {
@@ -132,7 +132,7 @@ class PersonToPatientIdsExpander {
                 totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
                 level: 1,
-                toMap,
+                toMap
             }
         );
 
@@ -160,7 +160,7 @@ class PersonToPatientIdsExpander {
      * @return {Promise<string[] | Map<string, Set<string>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
     async getPatientIdsFromPersonAsync({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false,
+        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false
     }) {
 
         /**
@@ -257,7 +257,7 @@ class PersonToPatientIdsExpander {
                     databaseQueryManager,
                     level: level + 1,
                     toMap,
-                    returnOriginalPersonId: false, // always return _uuid map for it
+                    returnOriginalPersonId: false // always return _uuid map for it
                 });
 
                 // add all patients to current person
@@ -286,7 +286,7 @@ class PersonToPatientIdsExpander {
                 totalProcessedPersonIds: new Set([...totalProcessedPersonIds, ...personIds]),
                 databaseQueryManager,
                 level: level + 1,
-                toMap,
+                toMap
             });
             return patientIds.concat(patientIdsFromPersons);
         }

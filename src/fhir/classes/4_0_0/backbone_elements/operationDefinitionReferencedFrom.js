@@ -26,7 +26,7 @@ class OperationDefinitionReferencedFrom extends Element {
             extension,
             modifierExtension,
             source,
-            sourceId,
+            sourceId
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class OperationDefinitionReferencedFrom extends Element {
             extension,
             modifierExtension,
             source,
-            sourceId,
+            sourceId
         });
 
     }
@@ -174,7 +174,7 @@ class OperationDefinitionReferencedFrom extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             source: this.source,
-            sourceId: this.sourceId,
+            sourceId: this.sourceId
         });
     }
 
@@ -199,7 +199,7 @@ class OperationDefinitionReferencedFrom extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             source: this.source,
-            sourceId: this.sourceId,
+            sourceId: this.sourceId
         };
 
 

@@ -11,7 +11,7 @@ class SearchQueryBuilder {
      */
     constructor(
         {
-            r4SearchQueryCreator,
+            r4SearchQueryCreator
         }
     ) {
         /**

@@ -26,7 +26,7 @@ class VisionPrescriptionPrism extends Element {
             extension,
             modifierExtension,
             amount,
-            base,
+            base
         }
     ) {
         super({});
@@ -152,7 +152,7 @@ class VisionPrescriptionPrism extends Element {
             extension,
             modifierExtension,
             amount,
-            base,
+            base
         });
 
     }
@@ -171,7 +171,7 @@ class VisionPrescriptionPrism extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             amount: this.amount,
-            base: this.base,
+            base: this.base
         });
     }
 
@@ -196,7 +196,7 @@ class VisionPrescriptionPrism extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             amount: this.amount,
-            base: this.base,
+            base: this.base
         };
 
 

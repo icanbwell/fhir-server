@@ -36,7 +36,7 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference,
             definingSubstanceCodeableConcept,
             amountQuantity,
-            amountString,
+            amountString
         }
     ) {
         super({});
@@ -268,7 +268,7 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference,
             definingSubstanceCodeableConcept,
             amountQuantity,
-            amountString,
+            amountString
         });
 
     }
@@ -292,7 +292,7 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference: this.definingSubstanceReference && this.definingSubstanceReference.toJSON(),
             definingSubstanceCodeableConcept: this.definingSubstanceCodeableConcept && this.definingSubstanceCodeableConcept.toJSON(),
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSON(),
-            amountString: this.amountString,
+            amountString: this.amountString
         });
     }
 
@@ -327,7 +327,7 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference: this.definingSubstanceReference && this.definingSubstanceReference.toJSONInternal(),
             definingSubstanceCodeableConcept: this.definingSubstanceCodeableConcept && this.definingSubstanceCodeableConcept.toJSONInternal(),
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
-            amountString: this.amountString,
+            amountString: this.amountString
         };
 
 

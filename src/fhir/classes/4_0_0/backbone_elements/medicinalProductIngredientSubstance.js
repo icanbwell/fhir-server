@@ -25,7 +25,7 @@ class MedicinalProductIngredientSubstance extends Element {
             extension,
             modifierExtension,
             code,
-            strength,
+            strength
         }
     ) {
         super({});
@@ -156,7 +156,7 @@ class MedicinalProductIngredientSubstance extends Element {
             extension,
             modifierExtension,
             code,
-            strength,
+            strength
         });
 
     }
@@ -175,7 +175,7 @@ class MedicinalProductIngredientSubstance extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            strength: this.strength && this.strength.map(v => v.toJSON()),
+            strength: this.strength && this.strength.map(v => v.toJSON())
         });
     }
 
@@ -202,7 +202,7 @@ class MedicinalProductIngredientSubstance extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            strength: this.strength && this.strength.map(v => v.toJSONInternal()),
+            strength: this.strength && this.strength.map(v => v.toJSONInternal())
         };
 
 

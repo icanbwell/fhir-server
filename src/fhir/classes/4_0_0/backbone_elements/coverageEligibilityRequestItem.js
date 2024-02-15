@@ -45,7 +45,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice,
             facility,
             diagnosis,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -345,7 +345,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice,
             facility,
             diagnosis,
-            detail,
+            detail
         });
 
     }
@@ -372,7 +372,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
             facility: this.facility && this.facility.toJSON(),
             diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -414,7 +414,7 @@ class CoverageEligibilityRequestItem extends Element {
             unitPrice: this.unitPrice && this.unitPrice.toJSONInternal(),
             facility: this.facility && this.facility.toJSONInternal(),
             diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

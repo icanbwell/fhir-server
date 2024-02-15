@@ -123,7 +123,7 @@ class TaskInput extends Element {
             valueTriggerDefinition,
             valueUsageContext,
             valueDosage,
-            valueMeta,
+            valueMeta
         }
     ) {
         super({});
@@ -1245,7 +1245,7 @@ class TaskInput extends Element {
             valueTriggerDefinition,
             valueUsageContext,
             valueDosage,
-            valueMeta,
+            valueMeta
         });
 
     }
@@ -1313,7 +1313,7 @@ class TaskInput extends Element {
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSON(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
-            valueMeta: this.valueMeta && this.valueMeta.toJSON(),
+            valueMeta: this.valueMeta && this.valueMeta.toJSON()
         });
     }
 
@@ -1419,7 +1419,7 @@ class TaskInput extends Element {
             valueTriggerDefinition: this.valueTriggerDefinition && this.valueTriggerDefinition.toJSONInternal(),
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSONInternal(),
             valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
-            valueMeta: this.valueMeta && this.valueMeta.toJSONInternal(),
+            valueMeta: this.valueMeta && this.valueMeta.toJSONInternal()
         };
 
 

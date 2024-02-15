@@ -32,7 +32,7 @@ class SubstanceSpecificationIsotope extends Element {
             name,
             substitution,
             halfLife,
-            molecularWeight,
+            molecularWeight
         }
     ) {
         super({});
@@ -226,7 +226,7 @@ class SubstanceSpecificationIsotope extends Element {
             name,
             substitution,
             halfLife,
-            molecularWeight,
+            molecularWeight
         });
 
     }
@@ -248,7 +248,7 @@ class SubstanceSpecificationIsotope extends Element {
             name: this.name && this.name.toJSON(),
             substitution: this.substitution && this.substitution.toJSON(),
             halfLife: this.halfLife && this.halfLife.toJSON(),
-            molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
+            molecularWeight: this.molecularWeight && this.molecularWeight.toJSON()
         });
     }
 
@@ -281,7 +281,7 @@ class SubstanceSpecificationIsotope extends Element {
             name: this.name && this.name.toJSONInternal(),
             substitution: this.substitution && this.substitution.toJSONInternal(),
             halfLife: this.halfLife && this.halfLife.toJSONInternal(),
-            molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal(),
+            molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal()
         };
 
 

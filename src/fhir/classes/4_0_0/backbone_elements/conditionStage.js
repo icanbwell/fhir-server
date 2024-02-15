@@ -28,7 +28,7 @@ class ConditionStage extends Element {
             modifierExtension,
             summary,
             assessment,
-            type,
+            type
         }
     ) {
         super({});
@@ -181,7 +181,7 @@ class ConditionStage extends Element {
             modifierExtension,
             summary,
             assessment,
-            type,
+            type
         });
 
     }
@@ -201,7 +201,7 @@ class ConditionStage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             summary: this.summary && this.summary.toJSON(),
             assessment: this.assessment && this.assessment.map(v => v.toJSON()),
-            type: this.type && this.type.toJSON(),
+            type: this.type && this.type.toJSON()
         });
     }
 
@@ -230,7 +230,7 @@ class ConditionStage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             summary: this.summary && this.summary.toJSONInternal(),
             assessment: this.assessment && this.assessment.map(v => v.toJSONInternal()),
-            type: this.type && this.type.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal()
         };
 
 

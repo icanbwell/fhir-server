@@ -18,12 +18,12 @@ module.exports = {
     BasicSubjectV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     BasicAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Basic: {
         // noinspection JSUnusedLocalSymbols
@@ -55,7 +55,7 @@ module.exports = {
                 context,
                 info,
                 parent.author);
-        },
+        }
     }
 };
 

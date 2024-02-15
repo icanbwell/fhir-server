@@ -18,27 +18,27 @@ module.exports = {
     MediaBasedOn: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MediaPartOfV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MediaSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MediaOperator: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MediaDevice: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Media: {
         // noinspection JSUnusedLocalSymbols
@@ -110,7 +110,7 @@ module.exports = {
                 context,
                 info,
                 parent.device);
-        },
+        }
     }
 };
 

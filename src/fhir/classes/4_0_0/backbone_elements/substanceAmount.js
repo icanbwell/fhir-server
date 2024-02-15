@@ -40,7 +40,7 @@ class SubstanceAmount extends Element {
             amountString,
             amountType,
             amountText,
-            referenceRange,
+            referenceRange
         }
     ) {
         super({});
@@ -256,7 +256,7 @@ class SubstanceAmount extends Element {
             amountString,
             amountType,
             amountText,
-            referenceRange,
+            referenceRange
         });
 
     }
@@ -279,7 +279,7 @@ class SubstanceAmount extends Element {
             amountString: this.amountString,
             amountType: this.amountType && this.amountType.toJSON(),
             amountText: this.amountText,
-            referenceRange: this.referenceRange && this.referenceRange.toJSON(),
+            referenceRange: this.referenceRange && this.referenceRange.toJSON()
         });
     }
 
@@ -312,7 +312,7 @@ class SubstanceAmount extends Element {
             amountString: this.amountString,
             amountType: this.amountType && this.amountType.toJSONInternal(),
             amountText: this.amountText,
-            referenceRange: this.referenceRange && this.referenceRange.toJSONInternal(),
+            referenceRange: this.referenceRange && this.referenceRange.toJSONInternal()
         };
 
 

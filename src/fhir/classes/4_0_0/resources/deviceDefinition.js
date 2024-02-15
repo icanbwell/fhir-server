@@ -86,7 +86,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -829,7 +829,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -927,7 +927,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DeviceDefinition({
@@ -965,7 +965,7 @@ class DeviceDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1017,7 +1017,7 @@ class DeviceDefinition extends Resource {
             note: this.note && this.note.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             parentDevice: this.parentDevice && this.parentDevice.toJSON(),
-            material: this.material && this.material.map(v => v.toJSON()),
+            material: this.material && this.material.map(v => v.toJSON())
         });
     }
 
@@ -1090,7 +1090,7 @@ class DeviceDefinition extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             parentDevice: this.parentDevice && this.parentDevice.toJSONInternal(),
-            material: this.material && this.material.map(v => v.toJSONInternal()),
+            material: this.material && this.material.map(v => v.toJSONInternal())
         };
 
 

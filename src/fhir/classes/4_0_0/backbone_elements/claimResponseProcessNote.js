@@ -30,7 +30,7 @@ class ClaimResponseProcessNote extends Element {
             number,
             type,
             text,
-            language,
+            language
         }
     ) {
         super({});
@@ -196,7 +196,7 @@ class ClaimResponseProcessNote extends Element {
             number,
             type,
             text,
-            language,
+            language
         });
 
     }
@@ -217,7 +217,7 @@ class ClaimResponseProcessNote extends Element {
             number: this.number,
             type: this.type,
             text: this.text,
-            language: this.language && this.language.toJSON(),
+            language: this.language && this.language.toJSON()
         });
     }
 
@@ -245,7 +245,7 @@ class ClaimResponseProcessNote extends Element {
             number: this.number,
             type: this.type,
             text: this.text,
-            language: this.language && this.language.toJSONInternal(),
+            language: this.language && this.language.toJSONInternal()
         };
 
 

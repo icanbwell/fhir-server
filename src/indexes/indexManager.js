@@ -345,7 +345,7 @@ class IndexManager {
                 if (!filterToProblems) {
                     compareIndexesResult.indexes.push(
                         {
-                            indexConfig: indexConfig,
+                            indexConfig: indexConfig
                         }
                     );
                 }
@@ -353,7 +353,7 @@ class IndexManager {
                 compareIndexesResult.indexes.push(
                     {
                         indexConfig: indexConfig,
-                        extra: true,
+                        extra: true
                     }
                 );
             }

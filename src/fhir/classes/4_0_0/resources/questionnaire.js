@@ -85,7 +85,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -812,7 +812,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -908,7 +908,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Questionnaire({
@@ -945,7 +945,7 @@ class Questionnaire extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -996,7 +996,7 @@ class Questionnaire extends Resource {
             lastReviewDate: this.lastReviewDate,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
             code: this.code && this.code.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -1057,7 +1057,7 @@ class Questionnaire extends Resource {
             lastReviewDate: this.lastReviewDate,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
             code: this.code && this.code.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

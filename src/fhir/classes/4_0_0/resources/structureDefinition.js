@@ -95,7 +95,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -934,7 +934,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1040,7 +1040,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new StructureDefinition({
@@ -1082,7 +1082,7 @@ class StructureDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1138,7 +1138,7 @@ class StructureDefinition extends Resource {
             baseDefinition: this.baseDefinition,
             derivation: this.derivation,
             snapshot: this.snapshot && this.snapshot.toJSON(),
-            differential: this.differential && this.differential.toJSON(),
+            differential: this.differential && this.differential.toJSON()
         });
     }
 
@@ -1206,7 +1206,7 @@ class StructureDefinition extends Resource {
             baseDefinition: this.baseDefinition,
             derivation: this.derivation,
             snapshot: this.snapshot && this.snapshot.toJSONInternal(),
-            differential: this.differential && this.differential.toJSONInternal(),
+            differential: this.differential && this.differential.toJSONInternal()
         };
 
 

@@ -21,6 +21,6 @@ module.exports = {
                 return codeableConcept.coding.filter(n => args.system.includes(n.system));
             }
             return codeableConcept.coding;
-        },
+        }
     }
 };

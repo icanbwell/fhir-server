@@ -29,7 +29,7 @@ class AuditEventDetail extends Element {
             modifierExtension,
             type,
             valueString,
-            valueBase64Binary,
+            valueBase64Binary
         }
     ) {
         super({});
@@ -174,7 +174,7 @@ class AuditEventDetail extends Element {
             modifierExtension,
             type,
             valueString,
-            valueBase64Binary,
+            valueBase64Binary
         });
 
     }
@@ -194,7 +194,7 @@ class AuditEventDetail extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
             valueString: this.valueString,
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         });
     }
 
@@ -220,7 +220,7 @@ class AuditEventDetail extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
             valueString: this.valueString,
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         };
 
 

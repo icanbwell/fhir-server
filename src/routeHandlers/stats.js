@@ -67,7 +67,7 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
             success: true,
             image: env.DOCKER_IMAGE || '',
             database: mongoConfig.db_name,
-            collections: collection_stats,
+            collections: collection_stats
         });
     } catch (error) {
         throw new RethrownError({

@@ -29,7 +29,7 @@ class CommunicationRequestPayload extends Element {
             modifierExtension,
             contentString,
             contentAttachment,
-            contentReference,
+            contentReference
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class CommunicationRequestPayload extends Element {
             modifierExtension,
             contentString,
             contentAttachment,
-            contentReference,
+            contentReference
         });
 
     }
@@ -198,7 +198,7 @@ class CommunicationRequestPayload extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             contentString: this.contentString,
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSON(),
-            contentReference: this.contentReference && this.contentReference.toJSON(),
+            contentReference: this.contentReference && this.contentReference.toJSON()
         });
     }
 
@@ -226,7 +226,7 @@ class CommunicationRequestPayload extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             contentString: this.contentString,
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
-            contentReference: this.contentReference && this.contentReference.toJSONInternal(),
+            contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
 
 

@@ -70,7 +70,7 @@ class SearchManager {
             fhirResourceWriterFactory,
             proaConsentManager,
             dataSharingManager,
-            searchQueryBuilder,
+            searchQueryBuilder
         }
     ) {
         /**
@@ -302,7 +302,7 @@ class SearchManager {
                         parsedArgs,
                         resourceType,
                         useAccessIndex,
-                        personIdFromJwtToken,
+                        personIdFromJwtToken
                     }
                 }
             );
@@ -521,7 +521,7 @@ class SearchManager {
                     columns,
                     cursor,
                     user,
-                    indexName,
+                    indexName
                 }
             );
             indexHint = __ret.indexHint;
@@ -874,7 +874,7 @@ class SearchManager {
                         user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark: highWaterMark,
-                        configManager: this.configManager,
+                        configManager: this.configManager
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -889,7 +889,7 @@ class SearchManager {
                         resources.push(chunk);
                         callback();
                     }
-                }),
+                })
             );
         } catch (e) {
             logError('', {user, error: e});
@@ -1062,7 +1062,7 @@ class SearchManager {
                 contentType: fhirWriter.getContentType(),
                 signal: ac.signal,
                 highWaterMark: highWaterMark,
-                configManager: this.configManager,
+                configManager: this.configManager
             }
         );
         /**
@@ -1074,7 +1074,7 @@ class SearchManager {
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
                 configManager: this.configManager,
-                response: res,
+                response: res
             }
         );
         /**
@@ -1099,7 +1099,7 @@ class SearchManager {
             databaseAttachmentManager: this.databaseAttachmentManager,
             highWaterMark: highWaterMark,
             configManager: this.configManager,
-            response: res,
+            response: res
         });
 
 
@@ -1116,7 +1116,7 @@ class SearchManager {
                 resourcePreparerTransform,
                 resourceIdTracker,
                 fhirWriter,
-                responseWriter,
+                responseWriter
             );
         } catch (e) {
             logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {

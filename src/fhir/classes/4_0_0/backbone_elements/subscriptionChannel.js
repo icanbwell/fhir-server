@@ -33,7 +33,7 @@ class SubscriptionChannel extends Element {
             type,
             endpoint,
             payload,
-            header,
+            header
         }
     ) {
         super({});
@@ -200,7 +200,7 @@ class SubscriptionChannel extends Element {
             type,
             endpoint,
             payload,
-            header,
+            header
         });
 
     }
@@ -221,7 +221,7 @@ class SubscriptionChannel extends Element {
             type: this.type,
             endpoint: this.endpoint,
             payload: this.payload,
-            header: this.header,
+            header: this.header
         });
     }
 
@@ -248,7 +248,7 @@ class SubscriptionChannel extends Element {
             type: this.type,
             endpoint: this.endpoint,
             payload: this.payload,
-            header: this.header,
+            header: this.header
         };
 
 

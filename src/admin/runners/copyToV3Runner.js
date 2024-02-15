@@ -29,7 +29,7 @@ class CopyToV3Runner {
         collections,
         startWithCollection,
         skipHistoryCollections,
-        adminLogger,
+        adminLogger
     }) {
         /**
          * @type {moment.Moment}
@@ -269,7 +269,7 @@ class CopyToV3Runner {
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
                         batchSize: this.readBatchSize,
-                        sort: { _id: 1 },
+                        sort: { _id: 1 }
                     };
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
@@ -337,5 +337,5 @@ class CopyToV3Runner {
 }
 
 module.exports = {
-    CopyToV3Runner,
+    CopyToV3Runner
 };

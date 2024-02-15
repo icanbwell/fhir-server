@@ -30,7 +30,7 @@ class CapabilityStatementDocument extends Element {
             modifierExtension,
             mode,
             documentation,
-            profile,
+            profile
         }
     ) {
         super({});
@@ -179,7 +179,7 @@ class CapabilityStatementDocument extends Element {
             modifierExtension,
             mode,
             documentation,
-            profile,
+            profile
         });
 
     }
@@ -199,7 +199,7 @@ class CapabilityStatementDocument extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             mode: this.mode,
             documentation: this.documentation,
-            profile: this.profile,
+            profile: this.profile
         });
     }
 
@@ -225,7 +225,7 @@ class CapabilityStatementDocument extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             mode: this.mode,
             documentation: this.documentation,
-            profile: this.profile,
+            profile: this.profile
         };
 
 

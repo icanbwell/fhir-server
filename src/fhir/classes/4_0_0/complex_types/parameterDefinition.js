@@ -37,7 +37,7 @@ class ParameterDefinition extends Element {
             max,
             documentation,
             type,
-            profile,
+            profile
         }
     ) {
         super({});
@@ -230,7 +230,7 @@ class ParameterDefinition extends Element {
             max,
             documentation,
             type,
-            profile,
+            profile
         });
 
     }
@@ -253,7 +253,7 @@ class ParameterDefinition extends Element {
             max: this.max,
             documentation: this.documentation,
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         });
     }
 
@@ -281,7 +281,7 @@ class ParameterDefinition extends Element {
             max: this.max,
             documentation: this.documentation,
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         };
 
 

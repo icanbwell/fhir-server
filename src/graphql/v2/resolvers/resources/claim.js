@@ -18,22 +18,22 @@ module.exports = {
     ClaimEnterer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClaimProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClaimPrescription: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClaimOriginalPrescription: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Claim: {
         // noinspection JSUnusedLocalSymbols
@@ -115,7 +115,7 @@ module.exports = {
                 context,
                 info,
                 parent.facility);
-        },
+        }
     }
 };
 

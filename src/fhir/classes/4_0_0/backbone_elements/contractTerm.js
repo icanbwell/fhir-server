@@ -48,7 +48,7 @@ class ContractTerm extends Element {
             offer,
             asset,
             action,
-            group,
+            group
         }
     ) {
         super({});
@@ -409,7 +409,7 @@ class ContractTerm extends Element {
             offer,
             asset,
             action,
-            group,
+            group
         });
 
     }
@@ -439,7 +439,7 @@ class ContractTerm extends Element {
             offer: this.offer && this.offer.toJSON(),
             asset: this.asset && this.asset.map(v => v.toJSON()),
             action: this.action && this.action.map(v => v.toJSON()),
-            group: this.group && this.group.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON())
         });
     }
 
@@ -486,7 +486,7 @@ class ContractTerm extends Element {
             offer: this.offer && this.offer.toJSONInternal(),
             asset: this.asset && this.asset.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal()),
-            group: this.group && this.group.map(v => v.toJSONInternal()),
+            group: this.group && this.group.map(v => v.toJSONInternal())
         };
 
 

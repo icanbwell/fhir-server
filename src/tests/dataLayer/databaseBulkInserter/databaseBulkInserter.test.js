@@ -127,7 +127,7 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
                 resourceType: 'Observation',
-                doc: new Observation(observation),
+                doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
@@ -316,9 +316,9 @@ describe('databaseBulkInserter Tests', () => {
                         getWriteErrors: () => [
                             {
                                 code: 1, index: 1, errMsg: 'Error msg test',
-                                toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}'),
-                            },
-                        ],
+                                toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}')
+                            }
+                        ]
                     };
                     return result;
                 });
@@ -335,7 +335,7 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
                 resourceType: 'Observation',
-                doc: new Observation(observation),
+                doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
@@ -620,7 +620,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
@@ -730,7 +730,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             // noinspection JSCheckFunctionSignatures
@@ -819,7 +819,7 @@ describe('databaseBulkInserter Tests', () => {
                                         })
                                     ]
                                 }
-                            ),
+                            )
                         ]
                     }),
                     response: new BundleResponse({
@@ -966,7 +966,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
@@ -1181,7 +1181,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             // noinspection JSCheckFunctionSignatures
@@ -1270,7 +1270,7 @@ describe('databaseBulkInserter Tests', () => {
                                         })
                                     ]
                                 }
-                            ),
+                            )
                         ]
                     }),
                     'response': new BundleResponse({
@@ -1433,19 +1433,19 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
                 resourceType: 'CodeSystem',
-                doc: codeSystem1,
+                doc: codeSystem1
             });
 
             await databaseBulkInserter.mergeOneAsync({
@@ -1563,7 +1563,7 @@ describe('databaseBulkInserter Tests', () => {
                                 })
                             ]
                         }
-                    ),
+                    )
                 ]
             });
             // noinspection JSCheckFunctionSignatures
@@ -1637,13 +1637,13 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
                 resourceType: 'CodeSystem',
-                doc: codeSystemOriginal,
+                doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.mergeOneAsync({

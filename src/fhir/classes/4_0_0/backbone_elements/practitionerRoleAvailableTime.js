@@ -30,7 +30,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         }
     ) {
         super({});
@@ -197,7 +197,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         });
 
     }
@@ -218,7 +218,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         });
     }
 
@@ -245,7 +245,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         };
 
 

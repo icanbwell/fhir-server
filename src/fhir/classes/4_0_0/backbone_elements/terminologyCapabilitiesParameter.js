@@ -27,7 +27,7 @@ class TerminologyCapabilitiesParameter extends Element {
             extension,
             modifierExtension,
             name,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -153,7 +153,7 @@ class TerminologyCapabilitiesParameter extends Element {
             extension,
             modifierExtension,
             name,
-            documentation,
+            documentation
         });
 
     }
@@ -172,7 +172,7 @@ class TerminologyCapabilitiesParameter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -197,7 +197,7 @@ class TerminologyCapabilitiesParameter extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

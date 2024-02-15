@@ -31,7 +31,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             modifierExtension,
             sequence,
             information,
-            appliesToAll,
+            appliesToAll
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             modifierExtension,
             sequence,
             information,
-            appliesToAll,
+            appliesToAll
         });
 
     }
@@ -200,7 +200,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
             information: this.information && this.information.toJSON(),
-            appliesToAll: this.appliesToAll,
+            appliesToAll: this.appliesToAll
         });
     }
 
@@ -227,7 +227,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             sequence: this.sequence,
             information: this.information && this.information.toJSONInternal(),
-            appliesToAll: this.appliesToAll,
+            appliesToAll: this.appliesToAll
         };
 
 

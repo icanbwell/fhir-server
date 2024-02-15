@@ -52,7 +52,7 @@ class ContractValuedItem extends Element {
             responsible,
             recipient,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         }
     ) {
         super({});
@@ -453,7 +453,7 @@ class ContractValuedItem extends Element {
             responsible,
             recipient,
             linkId,
-            securityLabelNumber,
+            securityLabelNumber
         });
 
     }
@@ -485,7 +485,7 @@ class ContractValuedItem extends Element {
             responsible: this.responsible && this.responsible.toJSON(),
             recipient: this.recipient && this.recipient.toJSON(),
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         });
     }
 
@@ -531,7 +531,7 @@ class ContractValuedItem extends Element {
             responsible: this.responsible && this.responsible.toJSONInternal(),
             recipient: this.recipient && this.recipient.toJSONInternal(),
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber,
+            securityLabelNumber: this.securityLabelNumber
         };
 
 

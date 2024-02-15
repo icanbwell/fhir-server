@@ -30,7 +30,7 @@ class ContractSecurityLabel extends Element {
             number,
             classification,
             category,
-            control,
+            control
         }
     ) {
         super({});
@@ -204,7 +204,7 @@ class ContractSecurityLabel extends Element {
             number,
             classification,
             category,
-            control,
+            control
         });
 
     }
@@ -225,7 +225,7 @@ class ContractSecurityLabel extends Element {
             number: this.number,
             classification: this.classification && this.classification.toJSON(),
             category: this.category && this.category.map(v => v.toJSON()),
-            control: this.control && this.control.map(v => v.toJSON()),
+            control: this.control && this.control.map(v => v.toJSON())
         });
     }
 
@@ -255,7 +255,7 @@ class ContractSecurityLabel extends Element {
             number: this.number,
             classification: this.classification && this.classification.toJSONInternal(),
             category: this.category && this.category.map(v => v.toJSONInternal()),
-            control: this.control && this.control.map(v => v.toJSONInternal()),
+            control: this.control && this.control.map(v => v.toJSONInternal())
         };
 
 

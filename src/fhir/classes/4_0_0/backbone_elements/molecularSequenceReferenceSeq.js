@@ -39,7 +39,7 @@ class MolecularSequenceReferenceSeq extends Element {
             referenceSeqString,
             strand,
             windowStart,
-            windowEnd,
+            windowEnd
         }
     ) {
         super({});
@@ -320,7 +320,7 @@ class MolecularSequenceReferenceSeq extends Element {
             referenceSeqString,
             strand,
             windowStart,
-            windowEnd,
+            windowEnd
         });
 
     }
@@ -346,7 +346,7 @@ class MolecularSequenceReferenceSeq extends Element {
             referenceSeqString: this.referenceSeqString,
             strand: this.strand,
             windowStart: this.windowStart,
-            windowEnd: this.windowEnd,
+            windowEnd: this.windowEnd
         });
     }
 
@@ -381,7 +381,7 @@ class MolecularSequenceReferenceSeq extends Element {
             referenceSeqString: this.referenceSeqString,
             strand: this.strand,
             windowStart: this.windowStart,
-            windowEnd: this.windowEnd,
+            windowEnd: this.windowEnd
         };
 
 

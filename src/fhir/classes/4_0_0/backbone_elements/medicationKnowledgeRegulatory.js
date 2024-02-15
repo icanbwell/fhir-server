@@ -29,7 +29,7 @@ class MedicationKnowledgeRegulatory extends Element {
             regulatoryAuthority,
             substitution,
             schedule,
-            maxDispense,
+            maxDispense
         }
     ) {
         super({});
@@ -203,7 +203,7 @@ class MedicationKnowledgeRegulatory extends Element {
             regulatoryAuthority,
             substitution,
             schedule,
-            maxDispense,
+            maxDispense
         });
 
     }
@@ -224,7 +224,7 @@ class MedicationKnowledgeRegulatory extends Element {
             regulatoryAuthority: this.regulatoryAuthority && this.regulatoryAuthority.toJSON(),
             substitution: this.substitution && this.substitution.map(v => v.toJSON()),
             schedule: this.schedule && this.schedule.map(v => v.toJSON()),
-            maxDispense: this.maxDispense && this.maxDispense.toJSON(),
+            maxDispense: this.maxDispense && this.maxDispense.toJSON()
         });
     }
 
@@ -255,7 +255,7 @@ class MedicationKnowledgeRegulatory extends Element {
             regulatoryAuthority: this.regulatoryAuthority && this.regulatoryAuthority.toJSONInternal(),
             substitution: this.substitution && this.substitution.map(v => v.toJSONInternal()),
             schedule: this.schedule && this.schedule.map(v => v.toJSONInternal()),
-            maxDispense: this.maxDispense && this.maxDispense.toJSONInternal(),
+            maxDispense: this.maxDispense && this.maxDispense.toJSONInternal()
         };
 
 

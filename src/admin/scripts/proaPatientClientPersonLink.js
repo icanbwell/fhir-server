@@ -68,7 +68,7 @@ async function main() {
             linkClientPersonToProaPatient: parameters.linkClientPersonToProaPatient ? true : false,
             connectionType: parameters.connectionType || 'proa',
             getPersonMatchingScore: parameters.getPersonMatchingScore ? true : false,
-            clientSourceAssigningAuthorities,
+            clientSourceAssigningAuthorities
         }
     )
     );

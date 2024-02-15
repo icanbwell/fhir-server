@@ -71,7 +71,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -671,7 +671,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -755,7 +755,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MolecularSequence({
@@ -786,7 +786,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -831,7 +831,7 @@ class MolecularSequence extends Resource {
             readCoverage: this.readCoverage,
             repository: this.repository && this.repository.map(v => v.toJSON()),
             pointer: this.pointer && this.pointer.map(v => v.toJSON()),
-            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSON()),
+            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSON())
         });
     }
 
@@ -891,7 +891,7 @@ class MolecularSequence extends Resource {
             readCoverage: this.readCoverage,
             repository: this.repository && this.repository.map(v => v.toJSONInternal()),
             pointer: this.pointer && this.pointer.map(v => v.toJSONInternal()),
-            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSONInternal()),
+            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSONInternal())
         };
 
 

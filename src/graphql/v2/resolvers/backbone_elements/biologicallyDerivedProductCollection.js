@@ -6,12 +6,12 @@ module.exports = {
     BiologicallyDerivedProductCollectionCollector: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     BiologicallyDerivedProductCollectionSource: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     BiologicallyDerivedProductCollection: {
         // noinspection JSUnusedLocalSymbols
@@ -33,7 +33,7 @@ module.exports = {
                 context,
                 info,
                 parent.source);
-        },
+        }
     }
 };
 

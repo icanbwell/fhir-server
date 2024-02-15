@@ -31,7 +31,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description,
             temperature,
             scale,
-            duration,
+            duration
         }
     ) {
         super({});
@@ -197,7 +197,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description,
             temperature,
             scale,
-            duration,
+            duration
         });
 
     }
@@ -218,7 +218,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description: this.description,
             temperature: this.temperature,
             scale: this.scale,
-            duration: this.duration && this.duration.toJSON(),
+            duration: this.duration && this.duration.toJSON()
         });
     }
 
@@ -246,7 +246,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description: this.description,
             temperature: this.temperature,
             scale: this.scale,
-            duration: this.duration && this.duration.toJSONInternal(),
+            duration: this.duration && this.duration.toJSONInternal()
         };
 
 

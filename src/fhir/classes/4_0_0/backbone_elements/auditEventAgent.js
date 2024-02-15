@@ -45,7 +45,7 @@ class AuditEventAgent extends Element {
             policy,
             media,
             network,
-            purposeOfUse,
+            purposeOfUse
         }
     ) {
         super({});
@@ -368,7 +368,7 @@ class AuditEventAgent extends Element {
             policy,
             media,
             network,
-            purposeOfUse,
+            purposeOfUse
         });
 
     }
@@ -396,7 +396,7 @@ class AuditEventAgent extends Element {
             policy: this.policy,
             media: this.media && this.media.toJSON(),
             network: this.network && this.network.toJSON(),
-            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSON()),
+            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSON())
         });
     }
 
@@ -437,7 +437,7 @@ class AuditEventAgent extends Element {
             policy: this.policy,
             media: this.media && this.media.toJSONInternal(),
             network: this.network && this.network.toJSONInternal(),
-            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSONInternal()),
+            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSONInternal())
         };
 
 

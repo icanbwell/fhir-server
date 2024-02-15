@@ -38,7 +38,7 @@ class TriggerDefinition extends Element {
             timingDate,
             timingDateTime,
             data,
-            condition,
+            condition
         }
     ) {
         super({});
@@ -257,7 +257,7 @@ class TriggerDefinition extends Element {
             timingDate,
             timingDateTime,
             data,
-            condition,
+            condition
         });
 
     }
@@ -281,7 +281,7 @@ class TriggerDefinition extends Element {
             timingDate: this.timingDate,
             timingDateTime: this.timingDateTime,
             data: this.data && this.data.map(v => v.toJSON()),
-            condition: this.condition && this.condition.toJSON(),
+            condition: this.condition && this.condition.toJSON()
         });
     }
 
@@ -314,7 +314,7 @@ class TriggerDefinition extends Element {
             timingDate: this.timingDate,
             timingDateTime: this.timingDateTime,
             data: this.data && this.data.map(v => v.toJSONInternal()),
-            condition: this.condition && this.condition.toJSONInternal(),
+            condition: this.condition && this.condition.toJSONInternal()
         };
 
 

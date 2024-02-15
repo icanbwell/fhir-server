@@ -50,7 +50,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -411,7 +411,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -473,7 +473,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ImmunizationRecommendation({
@@ -493,7 +493,7 @@ class ImmunizationRecommendation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -527,7 +527,7 @@ class ImmunizationRecommendation extends Resource {
             patient: this.patient && this.patient.toJSON(),
             date: this.date,
             authority: this.authority && this.authority.toJSON(),
-            recommendation: this.recommendation && this.recommendation.map(v => v.toJSON()),
+            recommendation: this.recommendation && this.recommendation.map(v => v.toJSON())
         });
     }
 
@@ -568,7 +568,7 @@ class ImmunizationRecommendation extends Resource {
             patient: this.patient && this.patient.toJSONInternal(),
             date: this.date,
             authority: this.authority && this.authority.toJSONInternal(),
-            recommendation: this.recommendation && this.recommendation.map(v => v.toJSONInternal()),
+            recommendation: this.recommendation && this.recommendation.map(v => v.toJSONInternal())
         };
 
 

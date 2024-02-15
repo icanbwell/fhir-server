@@ -86,7 +86,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -852,7 +852,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -950,7 +950,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Encounter({
@@ -988,7 +988,7 @@ class Encounter extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1040,7 +1040,7 @@ class Encounter extends Resource {
             hospitalization: this.hospitalization && this.hospitalization.toJSON(),
             location: this.location && this.location.map(v => v.toJSON()),
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
+            partOf: this.partOf && this.partOf.toJSON()
         });
     }
 
@@ -1117,7 +1117,7 @@ class Encounter extends Resource {
             hospitalization: this.hospitalization && this.hospitalization.toJSONInternal(),
             location: this.location && this.location.map(v => v.toJSONInternal()),
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSONInternal(),
-            partOf: this.partOf && this.partOf.toJSONInternal(),
+            partOf: this.partOf && this.partOf.toJSONInternal()
         };
 
 

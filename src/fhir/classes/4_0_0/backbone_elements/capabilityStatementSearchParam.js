@@ -32,7 +32,7 @@ class CapabilityStatementSearchParam extends Element {
             name,
             definition,
             type,
-            documentation,
+            documentation
         }
     ) {
         super({});
@@ -202,7 +202,7 @@ class CapabilityStatementSearchParam extends Element {
             name,
             definition,
             type,
-            documentation,
+            documentation
         });
 
     }
@@ -223,7 +223,7 @@ class CapabilityStatementSearchParam extends Element {
             name: this.name,
             definition: this.definition,
             type: this.type,
-            documentation: this.documentation,
+            documentation: this.documentation
         });
     }
 
@@ -250,7 +250,7 @@ class CapabilityStatementSearchParam extends Element {
             name: this.name,
             definition: this.definition,
             type: this.type,
-            documentation: this.documentation,
+            documentation: this.documentation
         };
 
 

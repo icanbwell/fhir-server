@@ -34,7 +34,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate,
             confidentialityIndicator,
             manufacturer,
-            regulator,
+            regulator
         }
     ) {
         super({});
@@ -246,7 +246,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate,
             confidentialityIndicator,
             manufacturer,
-            regulator,
+            regulator
         });
 
     }
@@ -269,7 +269,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate: this.effectiveDate,
             confidentialityIndicator: this.confidentialityIndicator && this.confidentialityIndicator.toJSON(),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
-            regulator: this.regulator && this.regulator.toJSON(),
+            regulator: this.regulator && this.regulator.toJSON()
         });
     }
 
@@ -303,7 +303,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate: this.effectiveDate,
             confidentialityIndicator: this.confidentialityIndicator && this.confidentialityIndicator.toJSONInternal(),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
-            regulator: this.regulator && this.regulator.toJSONInternal(),
+            regulator: this.regulator && this.regulator.toJSONInternal()
         };
 
 

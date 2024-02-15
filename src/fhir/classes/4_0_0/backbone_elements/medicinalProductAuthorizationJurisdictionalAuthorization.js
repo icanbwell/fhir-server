@@ -31,7 +31,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country,
             jurisdiction,
             legalStatusOfSupply,
-            validityPeriod,
+            validityPeriod
         }
     ) {
         super({});
@@ -224,7 +224,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country,
             jurisdiction,
             legalStatusOfSupply,
-            validityPeriod,
+            validityPeriod
         });
 
     }
@@ -246,7 +246,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country: this.country && this.country.toJSON(),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
             legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSON(),
-            validityPeriod: this.validityPeriod && this.validityPeriod.toJSON(),
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSON()
         });
     }
 
@@ -279,7 +279,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country: this.country && this.country.toJSONInternal(),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
             legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSONInternal(),
-            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal(),
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal()
         };
 
 

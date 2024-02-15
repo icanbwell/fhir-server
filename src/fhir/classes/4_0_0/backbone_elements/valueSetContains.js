@@ -40,7 +40,7 @@ class ValueSetContains extends Element {
             code,
             display,
             designation,
-            contains,
+            contains
         }
     ) {
         super({});
@@ -297,7 +297,7 @@ class ValueSetContains extends Element {
             code,
             display,
             designation,
-            contains,
+            contains
         });
 
     }
@@ -322,7 +322,7 @@ class ValueSetContains extends Element {
             code: this.code,
             display: this.display,
             designation: this.designation && this.designation.map(v => v.toJSON()),
-            contains: this.contains && this.contains.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON())
         });
     }
 
@@ -355,7 +355,7 @@ class ValueSetContains extends Element {
             code: this.code,
             display: this.display,
             designation: this.designation && this.designation.map(v => v.toJSONInternal()),
-            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal())
         };
 
 

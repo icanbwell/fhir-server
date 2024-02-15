@@ -72,7 +72,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -667,7 +667,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -751,7 +751,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Invoice({
@@ -782,7 +782,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -827,7 +827,7 @@ class Invoice extends Resource {
             totalNet: this.totalNet && this.totalNet.toJSON(),
             totalGross: this.totalGross && this.totalGross.toJSON(),
             paymentTerms: this.paymentTerms,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -887,7 +887,7 @@ class Invoice extends Resource {
             totalNet: this.totalNet && this.totalNet.toJSONInternal(),
             totalGross: this.totalGross && this.totalGross.toJSONInternal(),
             paymentTerms: this.paymentTerms,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
 
 

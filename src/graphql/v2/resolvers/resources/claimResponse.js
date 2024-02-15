@@ -18,7 +18,7 @@ module.exports = {
     ClaimResponseRequestor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClaimResponse: {
         // noinspection JSUnusedLocalSymbols
@@ -70,7 +70,7 @@ module.exports = {
                 context,
                 info,
                 parent.communicationRequest);
-        },
+        }
     }
 };
 

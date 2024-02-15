@@ -22,7 +22,7 @@ describe('JSON 2 CSV', () => {
 
         const opts = {
             transforms: [
-                flatten({objects: true, arrays: true, separator: '_'}),
+                flatten({objects: true, arrays: true, separator: '_'})
             ]
         };
         const parser = new Transform(opts);
@@ -41,7 +41,7 @@ describe('JSON 2 CSV', () => {
             constructor() {
                 const opts = {
                     transforms: [
-                        flatten({objects: true, arrays: true, separator: '_'}),
+                        flatten({objects: true, arrays: true, separator: '_'})
                     ]
                 };
                 super(opts);
@@ -62,7 +62,7 @@ describe('JSON 2 CSV', () => {
             constructor() {
                 const opts = {
                     transforms: [
-                        flatten({objects: true, arrays: true, separator: '_'}),
+                        flatten({objects: true, arrays: true, separator: '_'})
                     ]
                 };
                 const transformOpts = {

@@ -253,5 +253,5 @@ class DatabaseAttachmentManager {
 }
 
 module.exports = {
-    DatabaseAttachmentManager,
+    DatabaseAttachmentManager
 };

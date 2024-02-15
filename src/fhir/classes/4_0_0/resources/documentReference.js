@@ -75,7 +75,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -678,7 +678,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -762,7 +762,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DocumentReference({
@@ -793,7 +793,7 @@ class DocumentReference extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -838,7 +838,7 @@ class DocumentReference extends Resource {
             description: this.description,
             securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSON()),
             content: this.content && this.content.map(v => v.toJSON()),
-            context: this.context && this.context.toJSON(),
+            context: this.context && this.context.toJSON()
         });
     }
 
@@ -898,7 +898,7 @@ class DocumentReference extends Resource {
             description: this.description,
             securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSONInternal()),
             content: this.content && this.content.map(v => v.toJSONInternal()),
-            context: this.context && this.context.toJSONInternal(),
+            context: this.context && this.context.toJSONInternal()
         };
 
 

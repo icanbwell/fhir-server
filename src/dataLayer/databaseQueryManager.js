@@ -253,14 +253,14 @@ class DatabaseQueryManager {
                     cursor = collection.aggregate(
                         [
                             {
-                                $match: query,
+                                $match: query
                             },
                             {
-                                $project: projection,
+                                $project: projection
 
                             }
                         ],
-                        options,
+                        options
                     );
                 }
                 cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
@@ -400,7 +400,7 @@ class DatabaseQueryManager {
          */
         const options = {
             projection: {
-                '_uuid': 1,
+                '_uuid': 1
             }
         };
         try {

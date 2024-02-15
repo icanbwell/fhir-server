@@ -5,7 +5,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeadersWithCustomPayload,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -27,7 +27,7 @@ describe('taskTests', () => {
 
     describe('task noauth Tests', () => {
         const app_client_payload = {
-            username: 'Some App',
+            username: 'Some App'
         };
 
         test('App clients can create Tasks', async () => {

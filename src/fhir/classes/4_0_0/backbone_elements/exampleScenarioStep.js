@@ -29,7 +29,7 @@ class ExampleScenarioStep extends Element {
             process,
             pause,
             operation,
-            alternative,
+            alternative
         }
     ) {
         super({});
@@ -200,7 +200,7 @@ class ExampleScenarioStep extends Element {
             process,
             pause,
             operation,
-            alternative,
+            alternative
         });
 
     }
@@ -221,7 +221,7 @@ class ExampleScenarioStep extends Element {
             process: this.process && this.process.map(v => v.toJSON()),
             pause: this.pause,
             operation: this.operation && this.operation.toJSON(),
-            alternative: this.alternative && this.alternative.map(v => v.toJSON()),
+            alternative: this.alternative && this.alternative.map(v => v.toJSON())
         });
     }
 
@@ -251,7 +251,7 @@ class ExampleScenarioStep extends Element {
             process: this.process && this.process.map(v => v.toJSONInternal()),
             pause: this.pause,
             operation: this.operation && this.operation.toJSONInternal(),
-            alternative: this.alternative && this.alternative.map(v => v.toJSONInternal()),
+            alternative: this.alternative && this.alternative.map(v => v.toJSONInternal())
         };
 
 

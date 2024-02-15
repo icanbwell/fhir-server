@@ -33,7 +33,7 @@ describe('Person Tests', () => {
                 .post('/4_0_0/Person/1/$merge')
                 .send({
                     resourceType: 'Bundle',
-                    entry: [],
+                    entry: []
                 })
                 .set(getHeaders());
 

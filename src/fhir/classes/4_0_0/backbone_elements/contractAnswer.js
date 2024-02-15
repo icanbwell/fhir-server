@@ -46,7 +46,7 @@ class ContractAnswer extends Element {
             valueAttachment,
             valueCoding,
             valueQuantity,
-            valueReference,
+            valueReference
         }
     ) {
         super({});
@@ -370,7 +370,7 @@ class ContractAnswer extends Element {
             valueAttachment,
             valueCoding,
             valueQuantity,
-            valueReference,
+            valueReference
         });
 
     }
@@ -399,7 +399,7 @@ class ContractAnswer extends Element {
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueReference: this.valueReference && this.valueReference.toJSON(),
+            valueReference: this.valueReference && this.valueReference.toJSON()
         });
     }
 
@@ -438,7 +438,7 @@ class ContractAnswer extends Element {
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal()
         };
 
 

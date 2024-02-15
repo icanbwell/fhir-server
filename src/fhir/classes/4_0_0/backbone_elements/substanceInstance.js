@@ -27,7 +27,7 @@ class SubstanceInstance extends Element {
             modifierExtension,
             identifier,
             expiry,
-            quantity,
+            quantity
         }
     ) {
         super({});
@@ -178,7 +178,7 @@ class SubstanceInstance extends Element {
             modifierExtension,
             identifier,
             expiry,
-            quantity,
+            quantity
         });
 
     }
@@ -198,7 +198,7 @@ class SubstanceInstance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             expiry: this.expiry,
-            quantity: this.quantity && this.quantity.toJSON(),
+            quantity: this.quantity && this.quantity.toJSON()
         });
     }
 
@@ -226,7 +226,7 @@ class SubstanceInstance extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             identifier: this.identifier && this.identifier.toJSONInternal(),
             expiry: this.expiry,
-            quantity: this.quantity && this.quantity.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal()
         };
 
 

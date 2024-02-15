@@ -53,7 +53,7 @@ class MedicinalProductManufactured extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -461,7 +461,7 @@ class MedicinalProductManufactured extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -527,7 +527,7 @@ class MedicinalProductManufactured extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductManufactured({
@@ -549,7 +549,7 @@ class MedicinalProductManufactured extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -585,7 +585,7 @@ class MedicinalProductManufactured extends Resource {
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSON()),
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSON(),
-            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSON()),
+            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSON())
         });
     }
 
@@ -631,7 +631,7 @@ class MedicinalProductManufactured extends Resource {
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSONInternal(),
-            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSONInternal()),
+            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSONInternal())
         };
 
 

@@ -57,7 +57,7 @@ describe('ResourceMerger Tests', () => {
             const result = await resourceMerger.mergeResourceAsync(
                 {
                     currentResource: currentResource,
-                    resourceToMerge: resourceToMerge,
+                    resourceToMerge: resourceToMerge
                 }
             );
             expect(result.updatedResource).toStrictEqual(null);

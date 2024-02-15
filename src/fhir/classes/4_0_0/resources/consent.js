@@ -69,7 +69,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -627,7 +627,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -707,7 +707,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Consent({
@@ -736,7 +736,7 @@ class Consent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -779,7 +779,7 @@ class Consent extends Resource {
             policy: this.policy && this.policy.map(v => v.toJSON()),
             policyRule: this.policyRule && this.policyRule.toJSON(),
             verification: this.verification && this.verification.map(v => v.toJSON()),
-            provision: this.provision && this.provision.toJSON(),
+            provision: this.provision && this.provision.toJSON()
         });
     }
 
@@ -837,7 +837,7 @@ class Consent extends Resource {
             policy: this.policy && this.policy.map(v => v.toJSONInternal()),
             policyRule: this.policyRule && this.policyRule.toJSONInternal(),
             verification: this.verification && this.verification.map(v => v.toJSONInternal()),
-            provision: this.provision && this.provision.toJSONInternal(),
+            provision: this.provision && this.provision.toJSONInternal()
         };
 
 

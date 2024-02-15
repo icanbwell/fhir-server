@@ -70,7 +70,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
                 args: {
                     stack: e.stack,
                     message: e.message,
-                    encoding,
+                    encoding
                 }
             });
             // as we are not propagating this error, send this to sentry

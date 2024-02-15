@@ -51,7 +51,7 @@ class MedicinalProductIngredient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -435,7 +435,7 @@ class MedicinalProductIngredient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -499,7 +499,7 @@ class MedicinalProductIngredient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProductIngredient({
@@ -520,7 +520,7 @@ class MedicinalProductIngredient extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -555,7 +555,7 @@ class MedicinalProductIngredient extends Resource {
             allergenicIndicator: this.allergenicIndicator,
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
             specifiedSubstance: this.specifiedSubstance && this.specifiedSubstance.map(v => v.toJSON()),
-            substance: this.substance && this.substance.toJSON(),
+            substance: this.substance && this.substance.toJSON()
         });
     }
 
@@ -598,7 +598,7 @@ class MedicinalProductIngredient extends Resource {
             allergenicIndicator: this.allergenicIndicator,
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
             specifiedSubstance: this.specifiedSubstance && this.specifiedSubstance.map(v => v.toJSONInternal()),
-            substance: this.substance && this.substance.toJSONInternal(),
+            substance: this.substance && this.substance.toJSONInternal()
         };
 
 

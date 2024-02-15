@@ -26,7 +26,7 @@ class CodeableConcept extends Element {
             id,
             extension,
             coding,
-            text,
+            text
         }
     ) {
         super({});
@@ -123,7 +123,7 @@ class CodeableConcept extends Element {
             id,
             extension,
             coding,
-            text,
+            text
         });
 
     }
@@ -141,7 +141,7 @@ class CodeableConcept extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             coding: this.coding && this.coding.map(v => v.toJSON()),
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -165,7 +165,7 @@ class CodeableConcept extends Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             coding: this.coding && this.coding.map(v => v.toJSONInternal()),
-            text: this.text,
+            text: this.text
         };
 
 

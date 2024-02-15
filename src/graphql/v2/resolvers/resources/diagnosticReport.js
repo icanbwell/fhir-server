@@ -18,22 +18,22 @@ module.exports = {
     DiagnosticReportBasedOn: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DiagnosticReportSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DiagnosticReportPerformer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DiagnosticReportResultsInterpreter: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     DiagnosticReport: {
         // noinspection JSUnusedLocalSymbols
@@ -115,7 +115,7 @@ module.exports = {
                 context,
                 info,
                 parent.imagingStudy);
-        },
+        }
     }
 };
 

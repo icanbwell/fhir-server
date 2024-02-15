@@ -31,7 +31,7 @@ class StructureDefinitionMapping extends Element {
             identity,
             uri,
             name,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -198,7 +198,7 @@ class StructureDefinitionMapping extends Element {
             identity,
             uri,
             name,
-            comment,
+            comment
         });
 
     }
@@ -219,7 +219,7 @@ class StructureDefinitionMapping extends Element {
             identity: this.identity,
             uri: this.uri,
             name: this.name,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -246,7 +246,7 @@ class StructureDefinitionMapping extends Element {
             identity: this.identity,
             uri: this.uri,
             name: this.name,
-            comment: this.comment,
+            comment: this.comment
         };
 
 

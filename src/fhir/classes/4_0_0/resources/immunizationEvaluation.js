@@ -71,7 +71,7 @@ class ImmunizationEvaluation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -632,7 +632,7 @@ class ImmunizationEvaluation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -714,7 +714,7 @@ class ImmunizationEvaluation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ImmunizationEvaluation({
@@ -744,7 +744,7 @@ class ImmunizationEvaluation extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -788,7 +788,7 @@ class ImmunizationEvaluation extends Resource {
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
-            seriesDosesString: this.seriesDosesString,
+            seriesDosesString: this.seriesDosesString
         });
     }
 
@@ -842,7 +842,7 @@ class ImmunizationEvaluation extends Resource {
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
-            seriesDosesString: this.seriesDosesString,
+            seriesDosesString: this.seriesDosesString
         };
 
 

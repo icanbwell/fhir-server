@@ -94,7 +94,7 @@ class DeviceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -916,7 +916,7 @@ class DeviceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1022,7 +1022,7 @@ class DeviceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DeviceRequest({
@@ -1064,7 +1064,7 @@ class DeviceRequest extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1120,7 +1120,7 @@ class DeviceRequest extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
-            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON())
         });
     }
 
@@ -1199,7 +1199,7 @@ class DeviceRequest extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal())
         };
 
 

@@ -36,7 +36,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus,
             validationDate,
             canPushUpdates,
-            pushTypeAvailable,
+            pushTypeAvailable
         }
     ) {
         super({});
@@ -273,7 +273,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus,
             validationDate,
             canPushUpdates,
-            pushTypeAvailable,
+            pushTypeAvailable
         });
 
     }
@@ -297,7 +297,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus: this.validationStatus && this.validationStatus.toJSON(),
             validationDate: this.validationDate,
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSON(),
-            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSON()),
+            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSON())
         });
     }
 
@@ -333,7 +333,7 @@ class VerificationResultPrimarySource extends Element {
             validationStatus: this.validationStatus && this.validationStatus.toJSONInternal(),
             validationDate: this.validationDate,
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSONInternal(),
-            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSONInternal()),
+            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSONInternal())
         };
 
 

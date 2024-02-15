@@ -30,7 +30,7 @@ class ImplementationGuidePage1 extends Element {
             modifierExtension,
             name,
             title,
-            anchor,
+            anchor
         }
     ) {
         super({});
@@ -175,7 +175,7 @@ class ImplementationGuidePage1 extends Element {
             modifierExtension,
             name,
             title,
-            anchor,
+            anchor
         });
 
     }
@@ -195,7 +195,7 @@ class ImplementationGuidePage1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             title: this.title,
-            anchor: this.anchor,
+            anchor: this.anchor
         });
     }
 
@@ -221,7 +221,7 @@ class ImplementationGuidePage1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
             title: this.title,
-            anchor: this.anchor,
+            anchor: this.anchor
         };
 
 

@@ -6,7 +6,7 @@ module.exports = {
     ClaimPayeeParty: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ClaimPayee: {
         // noinspection JSUnusedLocalSymbols
@@ -18,7 +18,7 @@ module.exports = {
                 context,
                 info,
                 parent.party);
-        },
+        }
     }
 };
 

@@ -29,7 +29,7 @@ class EffectEvidenceSynthesisCertainty extends Element {
             modifierExtension,
             rating,
             note,
-            certaintySubcomponent,
+            certaintySubcomponent
         }
     ) {
         super({});
@@ -180,7 +180,7 @@ class EffectEvidenceSynthesisCertainty extends Element {
             modifierExtension,
             rating,
             note,
-            certaintySubcomponent,
+            certaintySubcomponent
         });
 
     }
@@ -200,7 +200,7 @@ class EffectEvidenceSynthesisCertainty extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             rating: this.rating && this.rating.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
-            certaintySubcomponent: this.certaintySubcomponent && this.certaintySubcomponent.map(v => v.toJSON()),
+            certaintySubcomponent: this.certaintySubcomponent && this.certaintySubcomponent.map(v => v.toJSON())
         });
     }
 
@@ -229,7 +229,7 @@ class EffectEvidenceSynthesisCertainty extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             rating: this.rating && this.rating.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
-            certaintySubcomponent: this.certaintySubcomponent && this.certaintySubcomponent.map(v => v.toJSONInternal()),
+            certaintySubcomponent: this.certaintySubcomponent && this.certaintySubcomponent.map(v => v.toJSONInternal())
         };
 
 

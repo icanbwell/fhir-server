@@ -139,7 +139,7 @@ const createContainer = function () {
             new HiddenMetaTagEnrichmentProvider(),
             new IdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider({
-                configManager: c.configManager,
+                configManager: c.configManager
             }),
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
@@ -176,7 +176,7 @@ const createContainer = function () {
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler({
                 configManager: c.configManager
-            }),
+            })
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -193,7 +193,7 @@ const createContainer = function () {
     container.register('remoteFhirValidator', (c) => new RemoteFhirValidator(
         {
             configManager: c.configManager,
-            profileUrlMapper: c.profileUrlMapper,
+            profileUrlMapper: c.profileUrlMapper
         }
     ));
     container.register('resourceValidator', (c) => new ResourceValidator(
@@ -201,7 +201,7 @@ const createContainer = function () {
             configManager: c.configManager,
             remoteFhirValidator: c.remoteFhirValidator,
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseUpdateFactory: c.databaseUpdateFactory,
+            databaseUpdateFactory: c.databaseUpdateFactory
         }
     ));
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({
@@ -219,14 +219,14 @@ const createContainer = function () {
         }
     ));
     container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
-        r4SearchQueryCreator: c.r4SearchQueryCreator,
+        r4SearchQueryCreator: c.r4SearchQueryCreator
     }));
     container.register('proaConsentManager', (c) => new ProaConsentManager({
         databaseQueryFactory: c.databaseQueryFactory,
         configManager: c.configManager,
         patientFilterManager: c.patientFilterManager,
         searchQueryBuilder: c.searchQueryBuilder,
-        bwellPersonFinder: c.bwellPersonFinder,
+        bwellPersonFinder: c.bwellPersonFinder
     }));
     container.register('dataSharingManager', (c) => new DataSharingManager({
         databaseQueryFactory: c.databaseQueryFactory,
@@ -235,7 +235,7 @@ const createContainer = function () {
         searchQueryBuilder: c.searchQueryBuilder,
         bwellPersonFinder: c.bwellPersonFinder,
         proaConsentManager: c.proaConsentManager,
-        requestSpecificCache: c.requestSpecificCache,
+        requestSpecificCache: c.requestSpecificCache
     }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
@@ -246,7 +246,7 @@ const createContainer = function () {
         configManager: c.configManager
     }));
     container.register('mongoDatabaseManager', (c) => new MongoDatabaseManager({
-        configManager: c.configManager,
+        configManager: c.configManager
     }));
     container.register('indexManager', (c) => new IndexManager(
         {
@@ -300,13 +300,13 @@ const createContainer = function () {
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new ReferenceQueryRewriter(),
+            new ReferenceQueryRewriter()
         ],
         operationSpecificQueryRewriters: {
             [READ]: [
                 new PatientProxyQueryRewriter({
                     personToPatientIdsExpander: c.personToPatientIdsExpander,
-                    configManager: c.configManager,
+                    configManager: c.configManager
                 })
             ]
         }
@@ -328,7 +328,7 @@ const createContainer = function () {
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
-                searchQueryBuilder: c.searchQueryBuilder,
+                searchQueryBuilder: c.searchQueryBuilder
             }
         )
     );
@@ -611,7 +611,7 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             configManager: c.configManager,
             databaseQueryFactory: c.databaseQueryFactory,
-            searchManager: c.searchManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('graphOperation', (c) => new GraphOperation(

@@ -38,7 +38,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender,
             age,
             gestationalAge,
-            condition,
+            condition
         }
     ) {
         super({});
@@ -293,7 +293,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender,
             age,
             gestationalAge,
-            condition,
+            condition
         });
 
     }
@@ -318,7 +318,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender: this.gender,
             age: this.age && this.age.toJSON(),
             gestationalAge: this.gestationalAge && this.gestationalAge.toJSON(),
-            condition: this.condition,
+            condition: this.condition
         });
     }
 
@@ -354,7 +354,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender: this.gender,
             age: this.age && this.age.toJSONInternal(),
             gestationalAge: this.gestationalAge && this.gestationalAge.toJSONInternal(),
-            condition: this.condition,
+            condition: this.condition
         };
 
 

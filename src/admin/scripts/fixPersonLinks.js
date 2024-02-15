@@ -3,7 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
-    path: pathToEnv,
+    path: pathToEnv
 });
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
@@ -51,9 +51,9 @@ async function main() {
             preloadCollections: preLoadCollections,
             limit: parameters.limit,
             skip: parameters.skip,
-            minLinks: parameters.minLinks,
-        },
-        ),
+            minLinks: parameters.minLinks
+        }
+        )
     );
 
     /**

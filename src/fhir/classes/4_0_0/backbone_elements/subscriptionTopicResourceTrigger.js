@@ -32,7 +32,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource,
             supportedInteraction,
             queryCriteria,
-            fhirPathCriteria,
+            fhirPathCriteria
         }
     ) {
         super({});
@@ -230,7 +230,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource,
             supportedInteraction,
             queryCriteria,
-            fhirPathCriteria,
+            fhirPathCriteria
         });
 
     }
@@ -252,7 +252,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource: this.resource,
             supportedInteraction: this.supportedInteraction && this.supportedInteraction.map(v => v.toJSON()),
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSON(),
-            fhirPathCriteria: this.fhirPathCriteria,
+            fhirPathCriteria: this.fhirPathCriteria
         });
     }
 
@@ -282,7 +282,7 @@ class SubscriptionTopicResourceTrigger extends Element {
             resource: this.resource,
             supportedInteraction: this.supportedInteraction && this.supportedInteraction.map(v => v.toJSONInternal()),
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSONInternal(),
-            fhirPathCriteria: this.fhirPathCriteria,
+            fhirPathCriteria: this.fhirPathCriteria
         };
 
 

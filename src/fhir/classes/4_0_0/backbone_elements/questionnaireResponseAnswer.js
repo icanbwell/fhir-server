@@ -49,7 +49,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding,
             valueQuantity,
             valueReference,
-            item,
+            item
         }
     ) {
         super({});
@@ -394,7 +394,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding,
             valueQuantity,
             valueReference,
-            item,
+            item
         });
 
     }
@@ -424,7 +424,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -465,7 +465,7 @@ class QuestionnaireResponseAnswer extends Element {
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
 
 

@@ -1,6 +1,6 @@
 const {commonBeforeEach, commonAfterEach, getTestContainer, createTestRequest} = require('../../common');
 const {
-    MongoJsonPatchHelper,
+    MongoJsonPatchHelper
 } = require('../../../utils/mongoJsonPatchHelper');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
@@ -172,7 +172,7 @@ describe('mongoJsonPatchHelper Tests', () => {
                 {
                     updateOne: {
                         filter: {
-                            id: '1',
+                            id: '1'
                         },
                         update: updateOperation
                     }
@@ -382,7 +382,7 @@ describe('mongoJsonPatchHelper Tests', () => {
                 {
                     updateOne: {
                         filter: {
-                            id: '1',
+                            id: '1'
                         },
                         update: updateOperation
                     }

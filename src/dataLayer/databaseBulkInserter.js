@@ -285,7 +285,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType,
                 patches,
                 isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
-                isUpdateOperation: operationType === 'replace' || operationType === 'merge',
+                isUpdateOperation: operationType === 'replace' || operationType === 'merge'
             });
         } catch (e) {
             throw new RethrownError({
@@ -696,7 +696,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         base_version,
                         useHistoryCollection: false,
                         method,
-                        userRequestId,
+                        userRequestId
                     }
                 ));
 
@@ -781,7 +781,7 @@ class DatabaseBulkInserter extends EventEmitter {
             mapEntry, base_version,
             useHistoryCollection,
             method,
-            userRequestId,
+            userRequestId
         }
     ) {
         try {
@@ -795,7 +795,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     requestId, currentDate,
                     resourceType, base_version, useHistoryCollection, operations,
                     method,
-                    userRequestId,
+                    userRequestId
                 });
         } catch (e) {
             throw new RethrownError({
@@ -1035,7 +1035,7 @@ class DatabaseBulkInserter extends EventEmitter {
                                 bulkInsertUpdateEntry: operationByCollection,
                                 bulkWriteResult,
                                 useHistoryCollection,
-                                userRequestId,
+                                userRequestId
                             })
                         );
                     }
@@ -1084,7 +1084,7 @@ class DatabaseBulkInserter extends EventEmitter {
             bulkInsertUpdateEntry,
             bulkWriteResult,
             useHistoryCollection,
-            userRequestId,
+            userRequestId
         }
     ) {
         await logTraceSystemEventAsync(
@@ -1110,7 +1110,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceType,
                     doc: bulkInsertUpdateEntry.resource.clone(),
                     patches: bulkInsertUpdateEntry.patches,
-                    userRequestId,
+                    userRequestId
                 }
             );
         }
@@ -1124,7 +1124,7 @@ class DatabaseBulkInserter extends EventEmitter {
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
             created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
-            resourceType: resourceType,
+            resourceType: resourceType
         });
         if (hasBulkWriteErrors) {
             const bulkWriteErrors = bulkWriteResult.getWriteErrors();

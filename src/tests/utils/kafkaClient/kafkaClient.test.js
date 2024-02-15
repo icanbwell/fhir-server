@@ -40,7 +40,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockRejectedValueOnce(new KafkaJSNonRetriableError('Error', {
@@ -49,7 +49,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockResolvedValueOnce();
@@ -76,7 +76,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockRejectedValueOnce(new KafkaJSNonRetriableError('Error', {
@@ -85,7 +85,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }))
         .mockRejectedValueOnce(new KafkaJSNonRetriableError('Error', {
@@ -94,7 +94,7 @@ describe('kafkaClient Tests', () => {
             code: 72,
             retriable: true,
             message:
-              'There is no listener on the leader broker that matches the listener on which metadata request was processed',
+              'There is no listener on the leader broker that matches the listener on which metadata request was processed'
           })
         }));
 

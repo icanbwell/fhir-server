@@ -82,7 +82,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -767,7 +767,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -859,7 +859,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AdverseEvent({
@@ -894,7 +894,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -943,7 +943,7 @@ class AdverseEvent extends Resource {
             suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSON()),
             subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSON()),
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSON()),
-            study: this.study && this.study.map(v => v.toJSON()),
+            study: this.study && this.study.map(v => v.toJSON())
         });
     }
 
@@ -1011,7 +1011,7 @@ class AdverseEvent extends Resource {
             suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSONInternal()),
             subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSONInternal()),
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSONInternal()),
-            study: this.study && this.study.map(v => v.toJSONInternal()),
+            study: this.study && this.study.map(v => v.toJSONInternal())
         };
 
 

@@ -98,7 +98,7 @@ class Immunization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -963,7 +963,7 @@ class Immunization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1073,7 +1073,7 @@ class Immunization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Immunization({
@@ -1117,7 +1117,7 @@ class Immunization extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1175,7 +1175,7 @@ class Immunization extends Resource {
             programEligibility: this.programEligibility && this.programEligibility.map(v => v.toJSON()),
             fundingSource: this.fundingSource && this.fundingSource.toJSON(),
             reaction: this.reaction && this.reaction.map(v => v.toJSON()),
-            protocolApplied: this.protocolApplied && this.protocolApplied.map(v => v.toJSON()),
+            protocolApplied: this.protocolApplied && this.protocolApplied.map(v => v.toJSON())
         });
     }
 
@@ -1257,7 +1257,7 @@ class Immunization extends Resource {
             programEligibility: this.programEligibility && this.programEligibility.map(v => v.toJSONInternal()),
             fundingSource: this.fundingSource && this.fundingSource.toJSONInternal(),
             reaction: this.reaction && this.reaction.map(v => v.toJSONInternal()),
-            protocolApplied: this.protocolApplied && this.protocolApplied.map(v => v.toJSONInternal()),
+            protocolApplied: this.protocolApplied && this.protocolApplied.map(v => v.toJSONInternal())
         };
 
 

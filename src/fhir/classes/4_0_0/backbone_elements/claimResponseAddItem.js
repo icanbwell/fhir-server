@@ -64,7 +64,7 @@ class ClaimResponseAddItem extends Element {
             subSite,
             noteNumber,
             adjudication,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -592,7 +592,7 @@ class ClaimResponseAddItem extends Element {
             subSite,
             noteNumber,
             adjudication,
-            detail,
+            detail
         });
 
     }
@@ -630,7 +630,7 @@ class ClaimResponseAddItem extends Element {
             subSite: this.subSite && this.subSite.map(v => v.toJSON()),
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -689,7 +689,7 @@ class ClaimResponseAddItem extends Element {
             subSite: this.subSite && this.subSite.map(v => v.toJSONInternal()),
             noteNumber: this.noteNumber,
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
 
 

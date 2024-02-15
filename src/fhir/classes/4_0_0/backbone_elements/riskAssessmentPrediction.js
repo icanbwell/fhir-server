@@ -38,7 +38,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk,
             whenPeriod,
             whenRange,
-            rationale,
+            rationale
         }
     ) {
         super({});
@@ -293,7 +293,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk,
             whenPeriod,
             whenRange,
-            rationale,
+            rationale
         });
 
     }
@@ -318,7 +318,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk: this.relativeRisk,
             whenPeriod: this.whenPeriod && this.whenPeriod.toJSON(),
             whenRange: this.whenRange && this.whenRange.toJSON(),
-            rationale: this.rationale,
+            rationale: this.rationale
         });
     }
 
@@ -354,7 +354,7 @@ class RiskAssessmentPrediction extends Element {
             relativeRisk: this.relativeRisk,
             whenPeriod: this.whenPeriod && this.whenPeriod.toJSONInternal(),
             whenRange: this.whenRange && this.whenRange.toJSONInternal(),
-            rationale: this.rationale,
+            rationale: this.rationale
         };
 
 

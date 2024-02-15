@@ -75,7 +75,7 @@ class Goal extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -692,7 +692,7 @@ class Goal extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -778,7 +778,7 @@ class Goal extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Goal({
@@ -810,7 +810,7 @@ class Goal extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -856,7 +856,7 @@ class Goal extends Resource {
             addresses: this.addresses && this.addresses.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
             outcomeCode: this.outcomeCode && this.outcomeCode.map(v => v.toJSON()),
-            outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSON()),
+            outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSON())
         });
     }
 
@@ -918,7 +918,7 @@ class Goal extends Resource {
             addresses: this.addresses && this.addresses.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal()),
             outcomeCode: this.outcomeCode && this.outcomeCode.map(v => v.toJSONInternal()),
-            outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSONInternal()),
+            outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSONInternal())
         };
 
 

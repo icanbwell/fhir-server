@@ -27,7 +27,7 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             modifierExtension,
             tissue,
             value,
-            supportingInformation,
+            supportingInformation
         }
     ) {
         super({});
@@ -177,7 +177,7 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             modifierExtension,
             tissue,
             value,
-            supportingInformation,
+            supportingInformation
         });
 
     }
@@ -197,7 +197,7 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             tissue: this.tissue && this.tissue.toJSON(),
             value: this.value && this.value.toJSON(),
-            supportingInformation: this.supportingInformation,
+            supportingInformation: this.supportingInformation
         });
     }
 
@@ -225,7 +225,7 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             tissue: this.tissue && this.tissue.toJSONInternal(),
             value: this.value && this.value.toJSONInternal(),
-            supportingInformation: this.supportingInformation,
+            supportingInformation: this.supportingInformation
         };
 
 

@@ -6,7 +6,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -54,7 +54,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate',
@@ -115,8 +115,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -126,7 +126,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate',
@@ -188,8 +188,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -199,7 +199,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
@@ -259,12 +259,12 @@ describe('Practitioner Update Tests', () => {
             profile.meta.security = [
                 {
                     system: SecurityTagSystem.owner,
-                    code: profile.publisher || 'profile',
+                    code: profile.publisher || 'profile'
                 },
                 {
                     system: SecurityTagSystem.sourceAssigningAuthority,
-                    code: profile.publisher || 'profile',
-                },
+                    code: profile.publisher || 'profile'
+                }
             ];
 
             // http://foo/fhir/StructureDefinition
@@ -272,8 +272,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -283,7 +283,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
@@ -351,8 +351,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -362,7 +362,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
@@ -436,8 +436,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -447,7 +447,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
@@ -515,8 +515,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -526,7 +526,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
@@ -602,8 +602,8 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -613,7 +613,7 @@ describe('Practitioner Update Tests', () => {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',

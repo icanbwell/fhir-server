@@ -6,17 +6,17 @@ module.exports = {
     CoverageEligibilityRequestItemProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageEligibilityRequestItemFacility: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageEligibilityRequestItemDetailV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageEligibilityRequestItem: {
         // noinspection JSUnusedLocalSymbols
@@ -58,7 +58,7 @@ module.exports = {
                 context,
                 info,
                 parent.detail);
-        },
+        }
     }
 };
 

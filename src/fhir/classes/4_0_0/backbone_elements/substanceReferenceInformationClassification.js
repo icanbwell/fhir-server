@@ -29,7 +29,7 @@ class SubstanceReferenceInformationClassification extends Element {
             domain,
             classification,
             subtype,
-            source,
+            source
         }
     ) {
         super({});
@@ -201,7 +201,7 @@ class SubstanceReferenceInformationClassification extends Element {
             domain,
             classification,
             subtype,
-            source,
+            source
         });
 
     }
@@ -222,7 +222,7 @@ class SubstanceReferenceInformationClassification extends Element {
             domain: this.domain && this.domain.toJSON(),
             classification: this.classification && this.classification.toJSON(),
             subtype: this.subtype && this.subtype.map(v => v.toJSON()),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -253,7 +253,7 @@ class SubstanceReferenceInformationClassification extends Element {
             domain: this.domain && this.domain.toJSONInternal(),
             classification: this.classification && this.classification.toJSONInternal(),
             subtype: this.subtype && this.subtype.map(v => v.toJSONInternal()),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
 
 

@@ -13,7 +13,7 @@ class FhirResourceWriterBase extends Transform {
             objectMode,
             contentType,
             highWaterMark,
-            response,
+            response
         }
     ) {
         super({objectMode: objectMode, highWaterMark: highWaterMark});

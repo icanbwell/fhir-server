@@ -25,7 +25,7 @@ class BundleLink extends Element {
             extension,
             modifierExtension,
             relation,
-            url,
+            url
         }
     ) {
         super({});
@@ -154,7 +154,7 @@ class BundleLink extends Element {
             extension,
             modifierExtension,
             relation,
-            url,
+            url
         });
 
     }
@@ -173,7 +173,7 @@ class BundleLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             relation: this.relation,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -198,7 +198,7 @@ class BundleLink extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             relation: this.relation,
-            url: this.url,
+            url: this.url
         };
 
 

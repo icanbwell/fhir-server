@@ -44,7 +44,7 @@ function getProjection(properties) {
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
 // eslint-disable-next-line no-unused-vars
-function getFilter(properties,) {
+function getFilter(properties) {
     if (!properties || properties.length === 0) {
         return {};
     }
@@ -569,7 +569,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                  */
                 let query = this.afterLastUpdatedDate ? {
                     'meta.lastUpdated': {
-                        $gt: this.afterLastUpdatedDate,
+                        $gt: this.afterLastUpdatedDate
                     }
                 } : this.properties && this.properties.length > 0 ?
                     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
@@ -623,7 +623,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             skipExistingIds: false,
                             limit: this.limit,
                             useTransaction: this.useTransaction,
-                            skip: this.skip,
+                            skip: this.skip
                             // filterToIdProperty: '_uuid',
                             // filterToIds: uuidList
                         }

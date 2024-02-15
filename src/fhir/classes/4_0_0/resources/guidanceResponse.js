@@ -75,7 +75,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -704,7 +704,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -790,7 +790,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new GuidanceResponse({
@@ -822,7 +822,7 @@ class GuidanceResponse extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -868,7 +868,7 @@ class GuidanceResponse extends Resource {
             evaluationMessage: this.evaluationMessage && this.evaluationMessage.map(v => v.toJSON()),
             outputParameters: this.outputParameters && this.outputParameters.toJSON(),
             result: this.result && this.result.toJSON(),
-            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSON()),
+            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSON())
         });
     }
 
@@ -930,7 +930,7 @@ class GuidanceResponse extends Resource {
             evaluationMessage: this.evaluationMessage && this.evaluationMessage.map(v => v.toJSONInternal()),
             outputParameters: this.outputParameters && this.outputParameters.toJSONInternal(),
             result: this.result && this.result.toJSONInternal(),
-            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSONInternal()),
+            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSONInternal())
         };
 
 

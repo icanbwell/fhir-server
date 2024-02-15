@@ -50,7 +50,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription,
             author,
             hybrid,
-            organismGeneral,
+            organismGeneral
         }
     ) {
         super({});
@@ -310,7 +310,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription,
             author,
             hybrid,
-            organismGeneral,
+            organismGeneral
         });
 
     }
@@ -335,7 +335,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription: this.intraspecificDescription,
             author: this.author && this.author.map(v => v.toJSON()),
             hybrid: this.hybrid && this.hybrid.toJSON(),
-            organismGeneral: this.organismGeneral && this.organismGeneral.toJSON(),
+            organismGeneral: this.organismGeneral && this.organismGeneral.toJSON()
         });
     }
 
@@ -373,7 +373,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription: this.intraspecificDescription,
             author: this.author && this.author.map(v => v.toJSONInternal()),
             hybrid: this.hybrid && this.hybrid.toJSONInternal(),
-            organismGeneral: this.organismGeneral && this.organismGeneral.toJSONInternal(),
+            organismGeneral: this.organismGeneral && this.organismGeneral.toJSONInternal()
         };
 
 

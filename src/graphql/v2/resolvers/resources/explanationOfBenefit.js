@@ -18,17 +18,17 @@ module.exports = {
     ExplanationOfBenefitEnterer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ExplanationOfBenefitProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ExplanationOfBenefitPrescription: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ExplanationOfBenefit: {
         // noinspection JSUnusedLocalSymbols
@@ -130,7 +130,7 @@ module.exports = {
                 context,
                 info,
                 parent.claimResponse);
-        },
+        }
     }
 };
 

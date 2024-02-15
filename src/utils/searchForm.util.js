@@ -31,7 +31,7 @@ function getModifierParams(req) {
     return Object.assign(
         {},
         ...Object.keys(searchParams).map((key) => ({
-            [handleModifierKey(key)]: searchParams[`${key}`],
+            [handleModifierKey(key)]: searchParams[`${key}`]
         }))
     );
 }
@@ -161,7 +161,7 @@ function getPractitionerForm(params) {
         label: 'NPI',
         name: 'npi',
         sortField: 'identifier',
-        value: getNPIFieldValue(params),
+        value: getNPIFieldValue(params)
     });
     practitionerArray.push(securityTagField(params, 'owner'));
     return practitionerArray;
@@ -180,7 +180,7 @@ function getOrganizationForm(params) {
         label: 'Name',
         name: 'name',
         sortField: 'name',
-        value: params.name ? params.name : '',
+        value: params.name ? params.name : ''
     });
     formElements.push(securityTagField(params, 'owner'));
     return formElements;
@@ -200,7 +200,7 @@ function getEncounterForm(params) {
         label: 'Date',
         name: 'date',
         sortField: 'period',
-        value: params.date ? params.date : '',
+        value: params.date ? params.date : ''
     });
     return formElements;
 }
@@ -249,7 +249,7 @@ const getFormData = (req, resourceName) => {
         label: 'Source',
         name: '_source',
         sortField: 'meta.source',
-        value: params._source ? params._source : '',
+        value: params._source ? params._source : ''
     });
 
     return formData;
@@ -288,7 +288,7 @@ const getAdvSearchFormData = (req, resourceName) => {
                 .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
                 .join(' '),
             name: advParam.resource.name,
-            value: params[advParam.resource.name] ? params[advParam.resource.name] : '',
+            value: params[advParam.resource.name] ? params[advParam.resource.name] : ''
         });
     });
     return advFormData;
@@ -449,7 +449,7 @@ const utils = {
     totalMessage: getTotalMessage,
     pageIndex: getCurrentPageIndex,
     validResource: isValidResource,
-    sortIcon: getSortIcon,
+    sortIcon: getSortIcon
 };
 
 module.exports = {
@@ -459,5 +459,5 @@ module.exports = {
     lastUpdateEnd: getLastUpdate,
     limit: searchLimit,
     searchLimitForIds: searchLimitForIds,
-    searchUtils: utils,
+    searchUtils: utils
 };

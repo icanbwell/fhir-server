@@ -27,7 +27,7 @@ class AuditEventNetwork extends Element {
             extension,
             modifierExtension,
             address,
-            type,
+            type
         }
     ) {
         super({});
@@ -155,7 +155,7 @@ class AuditEventNetwork extends Element {
             extension,
             modifierExtension,
             address,
-            type,
+            type
         });
 
     }
@@ -174,7 +174,7 @@ class AuditEventNetwork extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             address: this.address,
-            type: this.type,
+            type: this.type
         });
     }
 
@@ -199,7 +199,7 @@ class AuditEventNetwork extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             address: this.address,
-            type: this.type,
+            type: this.type
         };
 
 

@@ -15,12 +15,12 @@ const mockProducerMethods = {
     }),
     disconnect: jest.fn().mockImplementation(() => {
         return Promise.resolve('disconnected');
-    }),
+    })
 };
 
 // Mocking the producer method of Kafka class
 const mockProducer = {
-    producer: jest.fn(() => mockProducerMethods),
+    producer: jest.fn(() => mockProducerMethods)
 };
 
 // Mocking kafkajs library
@@ -28,7 +28,7 @@ jest.mock('kafkajs', () => {
     //Mock the Kafka class
     return {
         __esmodule: true,
-        Kafka: jest.fn(() => mockProducer),
+        Kafka: jest.fn(() => mockProducer)
     };
 });
 

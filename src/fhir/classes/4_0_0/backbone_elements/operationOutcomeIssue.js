@@ -34,7 +34,7 @@ class OperationOutcomeIssue extends Element {
             details,
             diagnostics,
             location,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -249,7 +249,7 @@ class OperationOutcomeIssue extends Element {
             details,
             diagnostics,
             location,
-            expression,
+            expression
         });
 
     }
@@ -272,7 +272,7 @@ class OperationOutcomeIssue extends Element {
             details: this.details && this.details.toJSON(),
             diagnostics: this.diagnostics,
             location: this.location,
-            expression: this.expression,
+            expression: this.expression
         });
     }
 
@@ -302,7 +302,7 @@ class OperationOutcomeIssue extends Element {
             details: this.details && this.details.toJSONInternal(),
             diagnostics: this.diagnostics,
             location: this.location,
-            expression: this.expression,
+            expression: this.expression
         };
 
 

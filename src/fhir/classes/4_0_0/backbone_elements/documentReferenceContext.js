@@ -39,7 +39,7 @@ class DocumentReferenceContext extends Element {
             facilityType,
             practiceSetting,
             sourcePatientInfo,
-            related,
+            related
         }
     ) {
         super({});
@@ -281,7 +281,7 @@ class DocumentReferenceContext extends Element {
             facilityType,
             practiceSetting,
             sourcePatientInfo,
-            related,
+            related
         });
 
     }
@@ -305,7 +305,7 @@ class DocumentReferenceContext extends Element {
             facilityType: this.facilityType && this.facilityType.toJSON(),
             practiceSetting: this.practiceSetting && this.practiceSetting.toJSON(),
             sourcePatientInfo: this.sourcePatientInfo && this.sourcePatientInfo.toJSON(),
-            related: this.related && this.related.map(v => v.toJSON()),
+            related: this.related && this.related.map(v => v.toJSON())
         });
     }
 
@@ -342,7 +342,7 @@ class DocumentReferenceContext extends Element {
             facilityType: this.facilityType && this.facilityType.toJSONInternal(),
             practiceSetting: this.practiceSetting && this.practiceSetting.toJSONInternal(),
             sourcePatientInfo: this.sourcePatientInfo && this.sourcePatientInfo.toJSONInternal(),
-            related: this.related && this.related.map(v => v.toJSONInternal()),
+            related: this.related && this.related.map(v => v.toJSONInternal())
         };
 
 

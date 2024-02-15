@@ -78,7 +78,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -726,7 +726,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -814,7 +814,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ValueSet({
@@ -847,7 +847,7 @@ class ValueSet extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -894,7 +894,7 @@ class ValueSet extends Resource {
             purpose: this.purpose,
             copyright: this.copyright,
             compose: this.compose && this.compose.toJSON(),
-            expansion: this.expansion && this.expansion.toJSON(),
+            expansion: this.expansion && this.expansion.toJSON()
         });
     }
 
@@ -950,7 +950,7 @@ class ValueSet extends Resource {
             purpose: this.purpose,
             copyright: this.copyright,
             compose: this.compose && this.compose.toJSONInternal(),
-            expansion: this.expansion && this.expansion.toJSONInternal(),
+            expansion: this.expansion && this.expansion.toJSONInternal()
         };
 
 

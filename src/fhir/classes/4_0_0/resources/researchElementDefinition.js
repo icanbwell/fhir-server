@@ -108,7 +108,7 @@ class ResearchElementDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1092,7 +1092,7 @@ class ResearchElementDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1212,7 +1212,7 @@ class ResearchElementDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ResearchElementDefinition({
@@ -1261,7 +1261,7 @@ class ResearchElementDefinition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1324,7 +1324,7 @@ class ResearchElementDefinition extends Resource {
             library: this.library,
             type: this.type,
             variableType: this.variableType,
-            characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSON())
         });
     }
 
@@ -1404,7 +1404,7 @@ class ResearchElementDefinition extends Resource {
             library: this.library,
             type: this.type,
             variableType: this.variableType,
-            characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal())
         };
 
 

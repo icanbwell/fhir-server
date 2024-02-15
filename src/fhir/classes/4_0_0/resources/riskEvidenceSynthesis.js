@@ -103,7 +103,7 @@ class RiskEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -1032,7 +1032,7 @@ class RiskEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1146,7 +1146,7 @@ class RiskEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new RiskEvidenceSynthesis({
@@ -1192,7 +1192,7 @@ class RiskEvidenceSynthesis extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1252,7 +1252,7 @@ class RiskEvidenceSynthesis extends Resource {
             outcome: this.outcome && this.outcome.toJSON(),
             sampleSize: this.sampleSize && this.sampleSize.toJSON(),
             riskEstimate: this.riskEstimate && this.riskEstimate.toJSON(),
-            certainty: this.certainty && this.certainty.map(v => v.toJSON()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSON())
         });
     }
 
@@ -1335,7 +1335,7 @@ class RiskEvidenceSynthesis extends Resource {
             outcome: this.outcome && this.outcome.toJSONInternal(),
             sampleSize: this.sampleSize && this.sampleSize.toJSONInternal(),
             riskEstimate: this.riskEstimate && this.riskEstimate.toJSONInternal(),
-            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal()),
+            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal())
         };
 
 

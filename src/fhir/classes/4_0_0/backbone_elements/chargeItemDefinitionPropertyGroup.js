@@ -28,7 +28,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             extension,
             modifierExtension,
             applicability,
-            priceComponent,
+            priceComponent
         }
     ) {
         super({});
@@ -163,7 +163,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             extension,
             modifierExtension,
             applicability,
-            priceComponent,
+            priceComponent
         });
 
     }
@@ -182,7 +182,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             applicability: this.applicability && this.applicability.map(v => v.toJSON()),
-            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON())
         });
     }
 
@@ -209,7 +209,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             applicability: this.applicability && this.applicability.map(v => v.toJSONInternal()),
-            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal())
         };
 
 

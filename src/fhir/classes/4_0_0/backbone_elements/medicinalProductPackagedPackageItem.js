@@ -45,7 +45,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             physicalCharacteristics,
             otherCharacteristics,
             shelfLifeStorage,
-            manufacturer,
+            manufacturer
         }
     ) {
         super({});
@@ -385,7 +385,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             physicalCharacteristics,
             otherCharacteristics,
             shelfLifeStorage,
-            manufacturer,
+            manufacturer
         });
 
     }
@@ -414,7 +414,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSON(),
             otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSON()),
             shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSON()),
-            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON())
         });
     }
 
@@ -461,7 +461,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSONInternal(),
             otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSONInternal()),
             shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSONInternal()),
-            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal())
         };
 
 

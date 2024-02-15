@@ -30,7 +30,7 @@ class GroupMember extends Element {
             modifierExtension,
             entity,
             period,
-            inactive,
+            inactive
         }
     ) {
         super({});
@@ -182,7 +182,7 @@ class GroupMember extends Element {
             modifierExtension,
             entity,
             period,
-            inactive,
+            inactive
         });
 
     }
@@ -202,7 +202,7 @@ class GroupMember extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             entity: this.entity && this.entity.toJSON(),
             period: this.period && this.period.toJSON(),
-            inactive: this.inactive,
+            inactive: this.inactive
         });
     }
 
@@ -230,7 +230,7 @@ class GroupMember extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             entity: this.entity && this.entity.toJSONInternal(),
             period: this.period && this.period.toJSONInternal(),
-            inactive: this.inactive,
+            inactive: this.inactive
         };
 
 

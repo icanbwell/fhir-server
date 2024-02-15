@@ -22,7 +22,7 @@ class ProfileUrlMapper {
                 Object.defineProperty(urls, canonicalUrl, {
                     enumerable: true,
                     value: profiles[`${canonicalUrl}`],
-                    writable: false,
+                    writable: false
                 });
             }
         }
@@ -30,7 +30,7 @@ class ProfileUrlMapper {
         Object.defineProperty(this, '_canonicalToOriginalMap', {
             enumerable: true,
             value: urls,
-            writable: false,
+            writable: false
         });
     }
 

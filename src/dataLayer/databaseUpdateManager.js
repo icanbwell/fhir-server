@@ -286,7 +286,7 @@ class DatabaseUpdateManager {
         {
             requestId,
             method,
-            doc,
+            doc
         }
     ) {
         doc = await this.preSaveManager.preSaveAsync(doc);
