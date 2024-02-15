@@ -62,7 +62,7 @@ class ProaConsentManager {
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources ({ownerTags, personIds}) {
+    async getConsentResources ({ ownerTags, personIds }) {
         // get all consents where provision.actor.reference is of proxy-patient with valid code
         const proxyPersonReferences = personIds.map(
             (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
@@ -71,7 +71,7 @@ class ProaConsentManager {
         const query =
         {
             $and: [
-                {'status': 'active'},
+                { 'status': 'active' },
                 {
                     '$and': [
                         {
@@ -89,13 +89,13 @@ class ProaConsentManager {
                         }
                     ]
                 },
-                {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
-                {'provision.type': 'permit'},
+                { 'provision.class.code': { $in: this.configManager.getDataSharingConsentCodes } },
+                { 'provision.type': 'permit' },
                 {
 'meta.security': {
                     '$elemMatch': {
                         'system': 'https://www.icanbwell.com/owner',
-                        'code': {$in: ownerTags}
+                        'code': { $in: ownerTags }
                     }
                 }
 }
@@ -116,7 +116,7 @@ class ProaConsentManager {
             .hint({
                 indexHint: CONSENT_OF_LINKED_PERSON_INDEX
             })
-            .sort({'meta.lastUpdated': -1})
+            .sort({ 'meta.lastUpdated': -1 })
             .toArrayRawAsync();
 
         return consentResources;
@@ -129,7 +129,7 @@ class ProaConsentManager {
      * @property {string[]} securityTags security Tags
      * @param {PatientIdsWithConsent} param
      */
-    async getPatientIdsWithConsent ({patientIdToImmediatePersonUuid, securityTags}) {
+    async getPatientIdsWithConsent ({ patientIdToImmediatePersonUuid, securityTags }) {
         /**
         * @type {Set<string>}
         */

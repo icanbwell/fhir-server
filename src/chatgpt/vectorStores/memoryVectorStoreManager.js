@@ -1,8 +1,8 @@
-const {MemoryVectorStore} = require('langchain/vectorstores/memory');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
-const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { MemoryVectorStore } = require('langchain/vectorstores/memory');
+const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
+const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -70,7 +70,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter|undefined} [filter]
      * @return {import('langchain/schema/retriever').BaseRetriever}
      */
-    asRetriever ({filter}) {
+    asRetriever ({ filter }) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
     }

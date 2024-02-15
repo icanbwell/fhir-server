@@ -5,8 +5,8 @@ const consent2Resource = require('./fixtures/Consent/consent2.json');
 // expected
 const expectedConsentResources = require('./fixtures/expected/expected_Consent.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Consent Tests', () => {
     beforeEach(async () => {
@@ -27,14 +27,14 @@ describe('Consent Tests', () => {
                 .send(consent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Consent/1/$merge?validate=true')
                 .send(consent2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Consent/?_bundle=1')

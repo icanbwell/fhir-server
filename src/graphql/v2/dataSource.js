@@ -1,12 +1,12 @@
-const {logWarn} = require('../../operations/common/logging');
+const { logWarn } = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const {REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ }} = require('../../constants');
-const {groupByLambda} = require('../../utils/list.util');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
-const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
-const {ResourceWithId} = require('./resourceWithId');
+const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ } } = require('../../constants');
+const { groupByLambda } = require('../../utils/list.util');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { R4ArgsParser } = require('../../operations/query/r4ArgsParser');
+const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
+const { ResourceWithId } = require('./resourceWithId');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -110,7 +110,7 @@ class FhirDataSource {
      * @param {Object} args
      * @return {Promise<(Resource|null)[]>}>}
      */
-    async getResourcesInBatch ({keys, requestInfo, args}) {
+    async getResourcesInBatch ({ keys, requestInfo, args }) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -472,8 +472,8 @@ class FhirDataSource {
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync ({args, resourceType, headers}) {
-        const {base_version} = args;
+    async getParsedArgsAsync ({ args, resourceType, headers }) {
+        const { base_version } = args;
         /**
          * @type {ParsedArgs}
          */
@@ -502,7 +502,7 @@ class FhirDataSource {
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-     async getParsedArgsForMutationAsync ({args, resourceType, headers}) {
+     async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
         /**
          * @type {ParsedArgs}
          */
@@ -534,7 +534,7 @@ class FhirDataSource {
             const extension = (resource && resource.extension) || [];
             dataToEnrich.forEach(dataKey => {
                 if (reference[`${dataKey}`]) {
-                    const extensionData = {...dataExtensionMap[`${dataKey}`]};
+                    const extensionData = { ...dataExtensionMap[`${dataKey}`] };
                     extensionData[extensionData['valueKey']] = reference[`${dataKey}`];
                     delete extensionData['valueKey'];
                     extension.push(extensionData);

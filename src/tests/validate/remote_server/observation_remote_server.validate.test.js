@@ -14,7 +14,7 @@ const observation = require('./fixtures/observation.json');
 const observationWithMultipleProfiles = require('./fixtures/observation_with_multiple_profiles.json');
 
 const fhirValidationUrl = 'http://foo/fhir';
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
     get fhirValidationUrl () {

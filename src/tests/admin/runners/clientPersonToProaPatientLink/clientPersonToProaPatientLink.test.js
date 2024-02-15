@@ -25,7 +25,7 @@ const {
     ClientPersonToProaPatientLinkRunner
 } = require('../../../../admin/runners/clientPersonToProaPatientLinkRunner');
 const { AdminPersonPatientLinkManager } = require('../../../../admin/adminPersonPatientLinkManager');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {

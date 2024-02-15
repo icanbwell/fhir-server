@@ -1,4 +1,4 @@
-const {Writable} = require('stream');
+const { Writable } = require('stream');
 
 class StreamToArrayWriter extends Writable {
     /**
@@ -6,7 +6,7 @@ class StreamToArrayWriter extends Writable {
      * @param {Object[]} buffer
      */
     constructor (buffer) {
-        super({objectMode: true});
+        super({ objectMode: true });
         /**
          * buffer
          * @type {Object[]}

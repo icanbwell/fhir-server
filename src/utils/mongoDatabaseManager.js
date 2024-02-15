@@ -1,9 +1,9 @@
-const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig} = require('../config');
-const {isTrue} = require('./isTrue');
+const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig } = require('../config');
+const { isTrue } = require('./isTrue');
 const env = require('var');
-const {logInfo, logError} = require('../operations/common/logging');
-const {logSystemEventAsync} = require('../operations/common/systemEventLogging');
-const {MongoClient, GridFSBucket} = require('mongodb');
+const { logInfo, logError } = require('../operations/common/logging');
+const { logSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { MongoClient, GridFSBucket } = require('mongodb');
 const { ConfigManager } = require('./configManager');
 const { assertTypeEquals } = require('./assertType');
 
@@ -110,7 +110,7 @@ class MongoDatabaseManager {
      * @param {Object} extraInfo
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseForResourceAsync ({resourceType, extraInfo = {}}) {
+    async getDatabaseForResourceAsync ({ resourceType, extraInfo = {} }) {
         const searchOperationNames = ['search', 'searchStreaming', 'searchById'];
         if (resourceType === 'AuditEvent') {
             if (searchOperationNames.includes(extraInfo.currentOperationName)) {
@@ -160,7 +160,7 @@ class MongoDatabaseManager {
                 {
                     event: 'dbConnect',
                     message: `Connecting to ${clientConfig.connection}`,
-                    args: {db: clientConfig.db_name}
+                    args: { db: clientConfig.db_name }
                 }
             );
         }
@@ -173,33 +173,33 @@ class MongoDatabaseManager {
         try {
             await client.connect();
         } catch (e) {
-            logError(`Failed to connect to ${clientConfig.connection}`, {'error': e});
+            logError(`Failed to connect to ${clientConfig.connection}`, { 'error': e });
             throw e;
         }
         try {
-            await client.db('admin').command({ping: 1});
+            await client.db('admin').command({ ping: 1 });
         } catch (e) {
-            logError(`Failed to execute ping on ${clientConfig.connection}`, {'error': e});
+            logError(`Failed to execute ping on ${clientConfig.connection}`, { 'error': e });
             throw e;
         }
         await logSystemEventAsync(
             {
                 event: 'dbConnect',
                 message: 'Successfully connected to database',
-                args: {db: clientConfig.db_name}
+                args: { db: clientConfig.db_name }
             }
         );
 
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
             client.on('commandStarted', event => {
-                logInfo('AWS Received commandStarted', {'event': event});
+                logInfo('AWS Received commandStarted', { 'event': event });
             });
             client.on('commandSucceeded', event => {
-                logInfo('AWS Received commandSucceeded', {'event': event});
+                logInfo('AWS Received commandSucceeded', { 'event': event });
             });
             client.on('commandFailed', event => {
-                logInfo('AWS Received commandFailed', {'event': event});
+                logInfo('AWS Received commandFailed', { 'event': event });
             });
         }
         return client;

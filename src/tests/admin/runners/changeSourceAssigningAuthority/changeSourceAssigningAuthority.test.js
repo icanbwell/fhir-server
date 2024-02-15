@@ -20,7 +20,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { ChangeSourceAssigningAuthorityRunner } = require('../../../../admin/runners/changeSourceAssigningAuthorityRunner');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {

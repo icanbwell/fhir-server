@@ -165,7 +165,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update category
-        resource = await this.addCategoryCodingToConsent({resource, questionaire});
+        resource = await this.addCategoryCodingToConsent({ resource, questionaire });
 
         // Update provision
         resource = await this.addProvisionClassToConsent({ resource, questionaire });
@@ -193,7 +193,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds coding to resource.category
      * @param {{ resource: Resource, questionaire: any}} options
      */
-    async addCategoryCodingToConsent ({ resource, questionaire}) {
+    async addCategoryCodingToConsent ({ resource, questionaire }) {
         const category = resource.category;
         if (!category) {
             return resource;
@@ -214,7 +214,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             }
         });
 
-        await this.lookupCategoryCoding({resource, category, questionaire});
+        await this.lookupCategoryCoding({ resource, category, questionaire });
 
         // setting the value
         resource.category = category;
@@ -228,7 +228,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Get coding from questionare and add to category
      * @param {{ resource: Resource, category: any, questionaire: any}} options
      */
-    async lookupCategoryCoding ({resource, category, questionaire}) {
+    async lookupCategoryCoding ({ resource, category, questionaire }) {
         if (!resource) {
             return null;
         }
@@ -273,7 +273,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         }
 
         if (provisionClass.length === 0) {
-            await this.lookupProvisionClass({resource, provisionClass, questionaire});
+            await this.lookupProvisionClass({ resource, provisionClass, questionaire });
         }
 
         // setting the value
@@ -288,7 +288,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds Class to resource.provision
      * @param {{ resource: Resource, provisionClass: any, questionaire: any}} options
      */
-    async lookupProvisionClass ({resource, provisionClass, questionaire}) {
+    async lookupProvisionClass ({ resource, provisionClass, questionaire }) {
         if (!resource) {
             return null;
         }

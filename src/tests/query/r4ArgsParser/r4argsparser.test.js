@@ -5,11 +5,11 @@
 // const expectedPatientResources = require('./fixtures/expected/expected_patient.json');
 const expectedEmptyParameters = require('./fixtures/expected/expected_empty_parameters.json');
 
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {R4ArgsParser} = require('../../../operations/query/r4ArgsParser');
-const {VERSIONS} = require('../../../middleware/fhir/utils/constants');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
+const { VERSIONS } = require('../../../middleware/fhir/utils/constants');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {

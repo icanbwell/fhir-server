@@ -1,14 +1,14 @@
 const deepcopy = require('deepcopy');
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem} = require('./parsedArgsItem');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
-const {QueryParameterValue} = require('./queryParameterValue');
-const {ParsedArgs} = require('./parsedArgs');
-const {ConfigManager} = require('../../utils/configManager');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
+const { STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS } = require('../../constants');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { convertGraphQLParameters } = require('./convertGraphQLParameters');
+const { ParsedArgsItem } = require('./parsedArgsItem');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { FhirTypesManager } = require('../../fhir/fhirTypesManager');
+const { QueryParameterValue } = require('./queryParameterValue');
+const { ParsedArgs } = require('./parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -19,7 +19,7 @@ class R4ArgsParser {
      * @param {FhirTypesManager} fhirTypesManager
      * @param {ConfigManager} configManager
      */
-    constructor ({fhirTypesManager, configManager}) {
+    constructor ({ fhirTypesManager, configManager }) {
         /**
          * @type {FhirTypesManager}
          */
@@ -40,7 +40,7 @@ class R4ArgsParser {
      * @param {boolean|undefined} [useOrFilterForArrays]  whether to use OR filters for arrays
      * @return {ParsedArgs}
      */
-    parseArgs ({resourceType, args, useOrFilterForArrays}) {
+    parseArgs ({ resourceType, args, useOrFilterForArrays }) {
         /**
          * @type {ParsedArgsItem[]}
          */
@@ -158,7 +158,7 @@ class R4ArgsParser {
                 ) : null;
 
             let notQueryParameterValue;
-            ({queryParameterValue, notQueryParameterValue} = convertGraphQLParameters(
+            ({ queryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter

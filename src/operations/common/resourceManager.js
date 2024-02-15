@@ -1,4 +1,4 @@
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 
 /**
  * This class provides helper functions for dealing with resources
@@ -65,7 +65,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {string}
      */
-    getFullUrlForResource ({protocol, host, base_version, resource}) {
+    getFullUrlForResource ({ protocol, host, base_version, resource }) {
         return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
     }
 }

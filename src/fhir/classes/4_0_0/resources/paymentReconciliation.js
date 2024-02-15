@@ -112,7 +112,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -176,7 +176,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -198,7 +198,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -222,7 +222,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -254,7 +254,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -274,7 +274,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -313,7 +313,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -351,7 +351,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.paymentIssuer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -371,7 +371,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.request = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -391,7 +391,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.requestor = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -466,7 +466,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.paymentAmount = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -486,7 +486,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.paymentIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -506,7 +506,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const PaymentReconciliationDetail = require('../backbone_elements/paymentReconciliationDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detail = FhirResourceCreator.createArray(valueProvided, PaymentReconciliationDetail);
             }
         });
@@ -526,7 +526,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.formCode = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -546,7 +546,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 const PaymentReconciliationProcessNote = require('../backbone_elements/paymentReconciliationProcessNote.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.processNote = FhirResourceCreator.createArray(valueProvided, PaymentReconciliationProcessNote);
             }
         });
@@ -761,7 +761,7 @@ class PaymentReconciliation extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -796,22 +796,22 @@ class PaymentReconciliation extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.period) { await this.period.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.paymentIssuer) { await this.paymentIssuer.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.request) { await this.request.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.requestor) { await this.requestor.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.paymentAmount) { await this.paymentAmount.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.paymentIdentifier) { await this.paymentIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.detail) { await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.formCode) { await this.formCode.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.processNote) { await async.each(this.processNote, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.period) { await this.period.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.paymentIssuer) { await this.paymentIssuer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.request) { await this.request.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.requestor) { await this.requestor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.paymentAmount) { await this.paymentAmount.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.paymentIdentifier) { await this.paymentIdentifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.detail) { await async.each(this.detail, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.formCode) { await this.formCode.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.processNote) { await async.each(this.processNote, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -819,7 +819,7 @@ class PaymentReconciliation extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

@@ -1,4 +1,4 @@
-const {ChatGPTError} = require('./chatgptError');
+const { ChatGPTError } = require('./chatgptError');
 
 /**
  * This class can be used to throw ChatGPT errors
@@ -10,8 +10,8 @@ class ChatGPTContextLengthExceededError extends ChatGPTError {
      * @param {Error} error
      * @param {Object|undefined} [args]
      */
-    constructor ({message, error, args}) {
-        super({message, error, args});
+    constructor ({ message, error, args }) {
+        super({ message, error, args });
     }
 }
 

@@ -131,7 +131,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -195,7 +195,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -217,7 +217,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -241,7 +241,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -273,7 +273,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -458,7 +458,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
@@ -503,7 +503,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
@@ -524,7 +524,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -605,7 +605,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesSoftware = require('../backbone_elements/terminologyCapabilitiesSoftware.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.software = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesSoftware);
             }
         });
@@ -627,7 +627,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesImplementation = require('../backbone_elements/terminologyCapabilitiesImplementation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.implementation = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesImplementation);
             }
         });
@@ -667,7 +667,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesCodeSystem = require('../backbone_elements/terminologyCapabilitiesCodeSystem.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.codeSystem = FhirResourceCreator.createArray(valueProvided, TerminologyCapabilitiesCodeSystem);
             }
         });
@@ -688,7 +688,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesExpansion = require('../backbone_elements/terminologyCapabilitiesExpansion.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.expansion = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesExpansion);
             }
         });
@@ -728,7 +728,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesValidateCode = require('../backbone_elements/terminologyCapabilitiesValidateCode.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.validateCode = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesValidateCode);
             }
         });
@@ -749,7 +749,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesTranslation = require('../backbone_elements/terminologyCapabilitiesTranslation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.translation = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesTranslation);
             }
         });
@@ -769,7 +769,7 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesClosure = require('../backbone_elements/terminologyCapabilitiesClosure.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.closure = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesClosure);
             }
         });
@@ -1020,7 +1020,7 @@ class TerminologyCapabilities extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1064,22 +1064,22 @@ class TerminologyCapabilities extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.software) { await this.software.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.implementation) { await this.implementation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.codeSystem) { await async.each(this.codeSystem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.expansion) { await this.expansion.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.validateCode) { await this.validateCode.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.translation) { await this.translation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.closure) { await this.closure.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.software) { await this.software.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.implementation) { await this.implementation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.codeSystem) { await async.each(this.codeSystem, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.expansion) { await this.expansion.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.validateCode) { await this.validateCode.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.translation) { await this.translation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.closure) { await this.closure.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -1087,7 +1087,7 @@ class TerminologyCapabilities extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

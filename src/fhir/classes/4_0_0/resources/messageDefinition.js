@@ -133,7 +133,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -197,7 +197,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -219,7 +219,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -243,7 +243,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -275,7 +275,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -316,7 +316,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -495,7 +495,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
@@ -538,7 +538,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
@@ -559,7 +559,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -655,7 +655,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.eventCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -713,7 +713,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const MessageDefinitionFocus = require('../backbone_elements/messageDefinitionFocus.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.focus = FhirResourceCreator.createArray(valueProvided, MessageDefinitionFocus);
             }
         });
@@ -753,7 +753,7 @@ class MessageDefinition extends Resource {
                     return;
                 }
                 const MessageDefinitionAllowedResponse = require('../backbone_elements/messageDefinitionAllowedResponse.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.allowedResponse = FhirResourceCreator.createArray(valueProvided, MessageDefinitionAllowedResponse);
             }
         });
@@ -1029,7 +1029,7 @@ class MessageDefinition extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1074,19 +1074,19 @@ class MessageDefinition extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.eventCoding) { await this.eventCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.focus) { await async.each(this.focus, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.allowedResponse) { await async.each(this.allowedResponse, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.eventCoding) { await this.eventCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.focus) { await async.each(this.focus, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.allowedResponse) { await async.each(this.allowedResponse, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -1094,7 +1094,7 @@ class MessageDefinition extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

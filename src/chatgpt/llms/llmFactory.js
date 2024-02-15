@@ -5,7 +5,7 @@ class LLMFactory {
      * @return {Promise<import('langchain/chat_models').BaseChatModel>}
      */
     // eslint-disable-next-line no-unused-vars
-    async createAsync ({verbose}) {
+    async createAsync ({ verbose }) {
         throw new Error('Not Implemented by subclass');
     }
 }

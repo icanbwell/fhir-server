@@ -18,9 +18,9 @@ const {
     getGraphQLHeaders,
     createTestRequest, getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {cleanMeta} = require('../../customMatchers');
-const {logInfo} = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { cleanMeta } = require('../../customMatchers');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -41,14 +41,14 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -65,7 +65,7 @@ describe('GraphQL Patient Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
             /**
              * @type {RequestSpecificCache}
              */
@@ -81,7 +81,7 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            logInfo('', {'resp': resp.body});
+            logInfo('', { 'resp': resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {

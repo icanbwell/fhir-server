@@ -1,5 +1,5 @@
-const {assertIsValid} = require('./assertType');
-const {isTrue} = require('./isTrue');
+const { assertIsValid } = require('./assertType');
+const { isTrue } = require('./isTrue');
 
 /**
  * Store information about the HTTP request

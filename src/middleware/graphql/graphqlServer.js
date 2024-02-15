@@ -1,28 +1,28 @@
 /**
  * This middleware handles graphql requests
  */
-const {ApolloServer} = require('@apollo/server');
-const {expressMiddleware} = require('@apollo/server/express4');
-const {join} = require('path');
+const { ApolloServer } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
+const { join } = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
-const {REQUEST_ID_TYPE} = require('../../constants');
-const {loadFilesSync} = require('@graphql-tools/load-files');
-const {mergeTypeDefs} = require('@graphql-tools/merge');
-const {FhirDataSource} = require('../../graphql/v2/dataSource');
-const {buildSubgraphSchema} = require('@apollo/subgraph');
+const { REQUEST_ID_TYPE } = require('../../constants');
+const { loadFilesSync } = require('@graphql-tools/load-files');
+const { mergeTypeDefs } = require('@graphql-tools/merge');
+const { FhirDataSource } = require('../../graphql/v2/dataSource');
+const { buildSubgraphSchema } = require('@apollo/subgraph');
 
-const {ApolloServerPluginLandingPageDisabled, ApolloServerPluginInlineTraceDisabled} = require('@apollo/server/plugin/disabled');
+const { ApolloServerPluginLandingPageDisabled, ApolloServerPluginInlineTraceDisabled } = require('@apollo/server/plugin/disabled');
 const {
     ApolloServerPluginLandingPageLocalDefault
     // ApolloServerPluginLandingPageProductionDefault
 } = require('@apollo/server/plugin/landingPage/default');
 
-const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
-const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
-const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
-const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
+const { getBundleMetaApolloServerPlugin } = require('./plugins/graphqlBundleMetaPlugin');
+const { getApolloServerLoggingPlugin } = require('./plugins/graphqlLoggingPlugin');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { getAddRequestIdToResponseHeadersPlugin } = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
-const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
+const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
@@ -32,7 +32,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
  * @return {Promise<e.Router>}
  */
 const graphql = async (fnGetContainer) => {
-    const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
+    const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), { recursive: true });
     const typeDefs = mergeTypeDefs(typesArray);
 
     /**
@@ -73,7 +73,7 @@ const graphql = async (fnGetContainer) => {
      * @param {import('http').ServerResponse} res
      * @return {Promise<GraphQLContext>}
      */
-    async function getContext ({req, res}) {
+    async function getContext ({ req, res }) {
         /**
          * @type {import('content-type').ContentType}
          */
@@ -156,7 +156,7 @@ const graphql = async (fnGetContainer) => {
     await server.start();
 
     return expressMiddleware(server, {
-        context: async ({req, res}) => await getContext({req, res})
+        context: async ({ req, res }) => await getContext({ req, res })
     });
 };
 

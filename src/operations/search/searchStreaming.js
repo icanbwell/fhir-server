@@ -1,21 +1,21 @@
 const env = require('var');
-const {MongoError} = require('../../utils/mongoErrors');
-const {isTrue} = require('../../utils/isTrue');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {SearchManager} = require('./searchManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ConfigManager} = require('../../utils/configManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
+const { MongoError } = require('../../utils/mongoErrors');
+const { isTrue } = require('../../utils/isTrue');
+const { fhirContentTypes } = require('../../utils/contentTypes');
+const { fhirRequestTimer } = require('../../utils/prometheus.utils');
+const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { SearchManager } = require('./searchManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ConfigManager } = require('../../utils/configManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const {READ} = require('../../constants').OPERATIONS;
+const { READ } = require('../../constants').OPERATIONS;
 
 class SearchStreamingOperation {
     /**
@@ -98,7 +98,7 @@ class SearchStreamingOperation {
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreamingAsync (
-        {requestInfo, res, parsedArgs, resourceType}) {
+        { requestInfo, res, parsedArgs, resourceType }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         const extraInfo = {
@@ -150,7 +150,7 @@ class SearchStreamingOperation {
          */
         const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
-        const {/** @type {string} **/base_version} = parsedArgs;
+        const { /** @type {string} **/base_version } = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -200,7 +200,7 @@ class SearchStreamingOperation {
          * @type {ResourceLocator}
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version});
+            { resourceType, base_version });
 
         /**
          * @type {string}
@@ -470,7 +470,7 @@ class SearchStreamingOperation {
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {
-            timer({action: currentOperationName, resourceType});
+            timer({ action: currentOperationName, resourceType });
         }
     }
 }

@@ -81,7 +81,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -113,7 +113,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +134,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outcome = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -172,7 +172,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.probabilityRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -193,7 +193,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.qualitativeRisk = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -234,7 +234,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.whenPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -254,7 +254,7 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.whenRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -298,7 +298,7 @@ class RiskAssessmentPrediction extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -320,14 +320,14 @@ class RiskAssessmentPrediction extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.outcome) { await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.probabilityRange) { await this.probabilityRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.qualitativeRisk) { await this.qualitativeRisk.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.whenPeriod) { await this.whenPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.whenRange) { await this.whenRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.outcome) { await this.outcome.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.probabilityRange) { await this.probabilityRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.qualitativeRisk) { await this.qualitativeRisk.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.whenPeriod) { await this.whenPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.whenRange) { await this.whenRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -335,7 +335,7 @@ class RiskAssessmentPrediction extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

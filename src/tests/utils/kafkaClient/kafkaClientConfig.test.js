@@ -1,7 +1,7 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
-const {KafkaClient} = require('../../../utils/kafkaClient');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
+const { KafkaClient } = require('../../../utils/kafkaClient');
 
 class MockConfigManager extends ConfigManager {
     get kafkaEnableEvents () {

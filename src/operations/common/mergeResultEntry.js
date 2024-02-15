@@ -1,4 +1,4 @@
-const {removeNull} = require('../../utils/nullRemover');
+const { removeNull } = require('../../utils/nullRemover');
 
 class MergeResultEntry {
     /**

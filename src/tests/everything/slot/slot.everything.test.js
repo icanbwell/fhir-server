@@ -13,9 +13,9 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
-const {findDuplicateResourcesById} = require('../../../utils/list.util');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
+const { findDuplicateResourcesById } = require('../../../utils/list.util');
 
 describe('Slot Everything Tests', () => {
     beforeEach(async () => {
@@ -38,28 +38,28 @@ describe('Slot Everything Tests', () => {
                 .send(slotResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
                 .send(slotScheduleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(slotPractitionerRoleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/$merge')
                 .send(slotPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Slot/1275501447-UHG-MMMA-existing/$everything')

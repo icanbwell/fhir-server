@@ -95,7 +95,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +127,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -166,7 +166,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definitionReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -204,7 +204,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definitionCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -224,7 +224,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definitionExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
@@ -244,7 +244,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definitionDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
@@ -264,7 +264,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definitionTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
             }
         });
@@ -285,7 +285,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.usageContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
@@ -341,7 +341,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.participantEffectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -361,7 +361,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.participantEffectiveDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -381,7 +381,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.participantEffectiveTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -401,7 +401,7 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.timeFromStart = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -452,7 +452,7 @@ class EvidenceVariableCharacteristic extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -481,19 +481,19 @@ class EvidenceVariableCharacteristic extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.definitionReference) { await this.definitionReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.definitionCodeableConcept) { await this.definitionCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.definitionExpression) { await this.definitionExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.definitionDataRequirement) { await this.definitionDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.definitionTriggerDefinition) { await this.definitionTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.usageContext) { await async.each(this.usageContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.participantEffectivePeriod) { await this.participantEffectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.participantEffectiveDuration) { await this.participantEffectiveDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.participantEffectiveTiming) { await this.participantEffectiveTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.timeFromStart) { await this.timeFromStart.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.definitionReference) { await this.definitionReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.definitionCodeableConcept) { await this.definitionCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.definitionExpression) { await this.definitionExpression.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.definitionDataRequirement) { await this.definitionDataRequirement.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.definitionTriggerDefinition) { await this.definitionTriggerDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.usageContext) { await async.each(this.usageContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.participantEffectivePeriod) { await this.participantEffectivePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.participantEffectiveDuration) { await this.participantEffectiveDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.participantEffectiveTiming) { await this.participantEffectiveTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.timeFromStart) { await this.timeFromStart.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -501,7 +501,7 @@ class EvidenceVariableCharacteristic extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

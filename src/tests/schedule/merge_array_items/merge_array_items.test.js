@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Schedule Tests', () => {
     beforeEach(async () => {
@@ -32,14 +32,14 @@ describe('Schedule Tests', () => {
                 .send(schedule1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({updated: true});
+            expect(resp).toHaveMergeResponse({ updated: true });
 
             // ACT & ASSERT
             resp = await request.get('/4_0_0/Schedule/?_bundle=1').set(getHeaders());

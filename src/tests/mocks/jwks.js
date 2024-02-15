@@ -28,7 +28,7 @@ function jwksEndpoint (host, path, certs) {
                         kid: cert.kid
                     };
                 }
-            ).then((keys) => cb(null, [200, {keys: keys}]));
+            ).then((keys) => cb(null, [200, { keys: keys }]));
         });
 }
 
@@ -60,7 +60,7 @@ function jwksDiscoveryEndpoint (host) {
  * @param {string} personId
  * @return {Scope}
  */
-function jwksUserInfoEndpoint ({host, token, patientId, personId}) {
+function jwksUserInfoEndpoint ({ host, token, patientId, personId }) {
     return nock(
         host,
         {

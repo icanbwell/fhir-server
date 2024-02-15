@@ -15,11 +15,11 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {FixHistoryRunner} = require('../../../../admin/runners/fixHistoryRunner');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { FixHistoryRunner } = require('../../../../admin/runners/fixHistoryRunner');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -42,7 +42,7 @@ async function setupDatabaseAsync (mongoDatabaseManager, patientResource, expect
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: patientResource.id});
+    const resource = await collection.findOne({ id: patientResource.id });
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
@@ -108,7 +108,7 @@ describe('Patient History Tests', () => {
             await fixHistoryRunner.processAsync();
 
             // Check patient 1
-            const patient1 = await collection.findOne({id: patient1Resource.id});
+            const patient1 = await collection.findOne({ id: patient1Resource.id });
             expect(patient1).toBeDefined();
             delete patient1._id;
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
@@ -162,7 +162,7 @@ describe('Patient History Tests', () => {
             await fixHistoryRunner.processAsync();
 
             // Check patient 2
-            const patient2 = await collection.findOne({id: patient2Resource.id});
+            const patient2 = await collection.findOne({ id: patient2Resource.id });
             expect(patient2).toBeDefined();
             delete patient2._id;
             expect(patient2).toStrictEqual(expectedPatient2DatabaseAfterRun);

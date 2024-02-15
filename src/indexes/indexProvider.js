@@ -1,6 +1,6 @@
-const {customIndexes} = require('./customIndexes');
-const {assertTypeEquals} = require('../utils/assertType');
-const {ConfigManager} = require('../utils/configManager');
+const { customIndexes } = require('./customIndexes');
+const { assertTypeEquals } = require('../utils/assertType');
+const { ConfigManager } = require('../utils/configManager');
 
 class IndexProvider {
     /**
@@ -23,7 +23,7 @@ class IndexProvider {
      * @param string[] accessCodes
      * @returns {boolean}
      */
-    hasIndexForAccessCodes ({accessCodes}) {
+    hasIndexForAccessCodes ({ accessCodes }) {
         const accessCodesWithIndexes = this.configManager.accessTagsIndexed || ['medstar', 'Thedacare'];
         return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }

@@ -19,7 +19,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockFixReferenceIdHapiRunner extends FixReferenceIdHapiRunner {
     async updateRecordReferencesAsync (doc) {

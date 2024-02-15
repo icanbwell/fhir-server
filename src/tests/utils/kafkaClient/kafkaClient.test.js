@@ -1,5 +1,5 @@
 const { commonBeforeEach, commonAfterEach } = require('../../common');
-const { describe, beforeEach, afterEach, jest, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const { KafkaClient } = require('../../../utils/kafkaClient');
 const { KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
 const { ConfigManager } = require('../../../utils/configManager');

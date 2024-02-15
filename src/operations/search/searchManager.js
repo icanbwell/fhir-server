@@ -1,36 +1,36 @@
-const {isTrue} = require('../../utils/isTrue');
+const { isTrue } = require('../../utils/isTrue');
 const env = require('var');
-const {logDebug, logError} = require('../common/logging');
+const { logDebug, logError } = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const {searchLimitForIds, limit} = require('../../utils/searchForm.util');
-const {pipeline} = require('stream/promises');
-const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
-const {Transform} = require('stream');
-const {IndexHinter} = require('../../indexes/indexHinter');
-const {HttpResponseWriter} = require('../streaming/responseWriter');
-const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SecurityTagManager} = require('../common/securityTagManager');
-const {ResourcePreparer} = require('../common/resourcePreparer');
-const {RethrownError} = require('../../utils/rethrownError');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {R4SearchQueryCreator} = require('../query/r4');
-const {ConfigManager} = require('../../utils/configManager');
-const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
-const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
-const {ScopesManager} = require('../security/scopesManager');
-const {GetCursorResult} = require('./getCursorResult');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
-const {MongoReadableStream} = require('../streaming/mongoStreamReader');
-const {ProaConsentManager} = require('./proaConsentManager');
-const {DataSharingManager} = require('./dataSharingManager');
-const {SearchQueryBuilder} = require('./searchQueryBuilder');
+const { searchLimitForIds, limit } = require('../../utils/searchForm.util');
+const { pipeline } = require('stream/promises');
+const { ResourcePreparerTransform } = require('../streaming/resourcePreparerTransform');
+const { Transform } = require('stream');
+const { IndexHinter } = require('../../indexes/indexHinter');
+const { HttpResponseWriter } = require('../streaming/responseWriter');
+const { ResourceIdTracker } = require('../streaming/resourceIdTracker');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SecurityTagManager } = require('../common/securityTagManager');
+const { ResourcePreparer } = require('../common/resourcePreparer');
+const { RethrownError } = require('../../utils/rethrownError');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+const { R4SearchQueryCreator } = require('../query/r4');
+const { ConfigManager } = require('../../utils/configManager');
+const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
+const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
+const { ScopesManager } = require('../security/scopesManager');
+const { GetCursorResult } = require('./getCursorResult');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { FhirResourceWriterFactory } = require('../streaming/resourceWriters/fhirResourceWriterFactory');
+const { MongoReadableStream } = require('../streaming/mongoStreamReader');
+const { ProaConsentManager } = require('./proaConsentManager');
+const { DataSharingManager } = require('./dataSharingManager');
+const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
 const { getResource } = require('../../operations/common/getResource');
 const { VERSIONS } = require('../../middleware/fhir/utils/constants');
@@ -192,14 +192,14 @@ class SearchManager {
             /**
              * @type {string}
              */
-            const {base_version} = parsedArgs;
+            const { base_version } = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
-            const hasPatientScope = this.scopesManager.hasPatientScope({scope});
+            const hasPatientScope = this.scopesManager.hasPatientScope({ scope });
 
             /**
              * @type {string[]}
              */
-            const securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
+            const securityTags = this.securityTagManager.getSecurityTagsFromScope({ user, scope, hasPatientScope });
             /**
              * @type {import('mongodb').Document}
              */
@@ -214,7 +214,7 @@ class SearchManager {
              */
             let shouldUpdateColumns = false;
             // eslint-disable-next-line no-useless-catch
-            ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+            ({ query, columns } = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
                 base_version,
                 parsedArgs,
                 resourceType,
@@ -261,7 +261,7 @@ class SearchManager {
 
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
-                    query = {id: '__invalid__'}; // return nothing since no patient ids were passed
+                    query = { id: '__invalid__' }; // return nothing since no patient ids were passed
                 } else {
                     if (personIdFromJwtToken) {
                         // Add the person id to the list as a patient proxy
@@ -282,14 +282,14 @@ class SearchManager {
                 columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
             }
 
-            ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
+            ({ query, columns } = await this.queryRewriterManager.rewriteQueryAsync({
                 base_version,
                 query,
                 columns,
                 resourceType,
                 operation
             }));
-            return {base_version, query, columns};
+            return { base_version, query, columns };
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),
@@ -351,17 +351,17 @@ class SearchManager {
         }
         // if _sort is specified then add sort criteria to mongo query
         if (parsedArgs['_sort']) {
-            const __ret = this.handleSortQuery({parsedArgs, columns, options});
+            const __ret = this.handleSortQuery({ parsedArgs, columns, options });
             columns = __ret.columns;
             options = __ret.options;
         }
 
         // if _count is specified then limit mongo query to that
         if (parsedArgs['_count']) {
-            const __ret = this.handleCountOption({parsedArgs, options, isStreaming});
+            const __ret = this.handleCountOption({ parsedArgs, options, isStreaming });
             options = __ret.options;
         } else {
-            this.setDefaultLimit({parsedArgs, options});
+            this.setDefaultLimit({ parsedArgs, options });
         }
 
         // for consistency in results while paging, always sort by id
@@ -455,7 +455,7 @@ class SearchManager {
         // run the query and get the results
         // Now run the query to get a cursor we will enumerate next
         const databaseQueryManager = this.databaseQueryFactory.createQuery(
-            {resourceType, base_version}
+            { resourceType, base_version }
         );
         /**
          * @type {DatabasePartitionedCursor}
@@ -465,7 +465,7 @@ class SearchManager {
             // Projection arguement to be used for aggregation query
             let projection = parsedArgs['projection'] || {};
             if (options['projection']) {
-                projection = {...projection, ...options['projection']};
+                projection = { ...projection, ...options['projection'] };
             }
             cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
                 query,
@@ -474,13 +474,13 @@ class SearchManager {
                 extraInfo
             });
         } else {
-            cursorQuery = await databaseQueryManager.findAsync({query, options, extraInfo});
+            cursorQuery = await databaseQueryManager.findAsync({ query, options, extraInfo });
         }
 
         if (isStreaming) {
-            cursorQuery = cursorQuery.maxTimeMS({milliSecs: 60 * 60 * 1000}); // if streaming then set time out to an hour
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: 60 * 60 * 1000 }); // if streaming then set time out to an hour
         } else {
-            cursorQuery = cursorQuery.maxTimeMS({milliSecs: maxMongoTimeMS});
+            cursorQuery = cursorQuery.maxTimeMS({ milliSecs: maxMongoTimeMS });
         }
 
         // avoid double sorting since Mongo gives you different results
@@ -488,14 +488,14 @@ class SearchManager {
             const sortOption =
                 originalOptions && originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
             if (sortOption !== null) {
-                cursorQuery = cursorQuery.sort({sortOption});
+                cursorQuery = cursorQuery.sort({ sortOption });
             }
         }
 
         // set batch size if specified
         if (env.MONGO_BATCH_SIZE || parsedArgs['_cursorBatchSize']) {
             // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
-            const __ret = this.setCursorBatchSize({parsedArgs, cursorQuery});
+            const __ret = this.setCursorBatchSize({ parsedArgs, cursorQuery });
             cursorBatchSize = __ret.cursorBatchSize;
             cursorQuery = __ret.cursorQuery;
         }
@@ -508,7 +508,7 @@ class SearchManager {
         if (isTrue(env.SET_INDEX_HINTS) || parsedArgs['_setIndexHint']) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version});
+                { resourceType, base_version });
             const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
                 {
                     query, extraInfo
@@ -599,7 +599,7 @@ class SearchManager {
      * @param {boolean} isStreaming
      * @return {{options: Object}} columns selected and changed options
      */
-    handleCountOption ({parsedArgs, options, isStreaming}) {
+    handleCountOption ({ parsedArgs, options, isStreaming }) {
         /**
          * @type {number}
          */
@@ -616,7 +616,7 @@ class SearchManager {
         // cap it at searchLimitForIds to avoid running out of memory
         options['limit'] = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
 
-        return {options: options};
+        return { options: options };
     }
 
     /**
@@ -679,7 +679,7 @@ class SearchManager {
             options['projection'] = projection;
         }
 
-        return {columns: columns, options: options};
+        return { columns: columns, options: options };
     }
 
     /**
@@ -701,11 +701,11 @@ class SearchManager {
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
             return await databaseQueryManager.exactDocumentCountAsync({
                 query,
-                options: {maxTimeMS: maxMongoTimeMS}
+                options: { maxTimeMS: maxMongoTimeMS }
             });
         } catch (e) {
             throw new RethrownError({
@@ -757,7 +757,7 @@ class SearchManager {
             }
             options['sort'] = sort;
         }
-        return {columns: columns, options: options};
+        return { columns: columns, options: options };
     }
 
     /**
@@ -789,24 +789,24 @@ class SearchManager {
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({query, options});
+            const cursor = await databaseQueryManager.findAsync({ query, options });
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
             const idResults = await cursor
-                .sort({sortOption})
-                .maxTimeMS({milliSecs: maxMongoTimeMS})
+                .sort({ sortOption })
+                .maxTimeMS({ milliSecs: maxMongoTimeMS })
                 .toArrayRawAsync();
             if (idResults.length > 0) {
                 // now get the documents for those ids.  We can clear all the other query parameters
                 query = idResults.length === 1 ?
-                    {id: idResults.map((r) => r.id)[0]} :
-                    {id: {$in: idResults.map((r) => r.id)}};
+                    { id: idResults.map((r) => r.id)[0] } :
+                    { id: { $in: idResults.map((r) => r.id) } };
                 options = {}; // reset options since we'll be looking by id
                 originalQuery.push(query);
                 originalOptions.push(options);
@@ -814,7 +814,7 @@ class SearchManager {
                 // no results
                 query = null; // no need to query
             }
-            return {options, actualQuery: originalQuery, query, actualOptions: originalOptions};
+            return { options, actualQuery: originalQuery, query, actualOptions: originalOptions };
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
@@ -891,7 +891,7 @@ class SearchManager {
                 })
             );
         } catch (e) {
-            logError('', {user, error: e});
+            logError('', { user, error: e });
             ac.abort();
             throw new RethrownError({
                 message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
@@ -907,14 +907,14 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursorQuery
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
-    setCursorBatchSize ({parsedArgs, cursorQuery}) {
+    setCursorBatchSize ({ parsedArgs, cursorQuery }) {
         const cursorBatchSize = parsedArgs['_cursorBatchSize'] ?
             parseInt(parsedArgs['_cursorBatchSize']) :
             parseInt(env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
-            cursorQuery = cursorQuery.batchSize({size: cursorBatchSize});
+            cursorQuery = cursorQuery.batchSize({ size: cursorBatchSize });
         }
-        return {cursorBatchSize, cursorQuery};
+        return { cursorBatchSize, cursorQuery };
     }
 
     /**
@@ -957,7 +957,7 @@ class SearchManager {
         let _cursor = cursor;
         const indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
         if (indexHint) {
-            _cursor = _cursor.hint({indexHint});
+            _cursor = _cursor.hint({ indexHint });
             logDebug(
                 'Using index hint',
                 {
@@ -968,7 +968,7 @@ class SearchManager {
                     }
                 });
         }
-        return {indexHint, cursor: _cursor};
+        return { indexHint, cursor: _cursor };
     }
 
     /**

@@ -1,6 +1,6 @@
 const env = require('var');
 const { logInfo, logError } = require('../operations/common/logging');
-const {assertTypeEquals} = require('../utils/assertType');
+const { assertTypeEquals } = require('../utils/assertType');
 const { isTrue } = require('../utils/isTrue');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
@@ -36,7 +36,7 @@ class AdminLogManager {
                 return result;
             }
         } catch (e) {
-            logError(e.message, {'error': e});
+            logError(e.message, { 'error': e });
         }
         return [];
     }

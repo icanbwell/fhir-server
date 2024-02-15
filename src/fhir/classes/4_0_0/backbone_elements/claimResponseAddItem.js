@@ -107,7 +107,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -139,7 +139,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -215,7 +215,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.provider = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -237,7 +237,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.productOrService = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -258,7 +258,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -278,7 +278,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.programCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -316,7 +316,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.servicedPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -336,7 +336,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.locationCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -356,7 +356,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.locationAddress = FhirResourceCreator.create(valueProvided, Address);
             }
         });
@@ -376,7 +376,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.locationReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -396,7 +396,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -417,7 +417,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.unitPrice = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -459,7 +459,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.net = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -479,7 +479,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.bodySite = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -499,7 +499,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subSite = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -538,7 +538,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.adjudication = FhirResourceCreator.createArray(valueProvided, ClaimResponseAdjudication);
             }
         });
@@ -558,7 +558,7 @@ class ClaimResponseAddItem extends Element {
                     return;
                 }
                 const ClaimResponseDetail1 = require('../backbone_elements/claimResponseDetail1.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detail = FhirResourceCreator.createArray(valueProvided, ClaimResponseDetail1);
             }
         });
@@ -597,7 +597,7 @@ class ClaimResponseAddItem extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -632,24 +632,24 @@ class ClaimResponseAddItem extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.provider) { await async.each(this.provider, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.productOrService) { await this.productOrService.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.modifier) { await async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.programCode) { await async.each(this.programCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.servicedPeriod) { await this.servicedPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.locationCodeableConcept) { await this.locationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.locationAddress) { await this.locationAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.locationReference) { await this.locationReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.unitPrice) { await this.unitPrice.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.net) { await this.net.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.bodySite) { await this.bodySite.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.subSite) { await async.each(this.subSite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.adjudication) { await async.each(this.adjudication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.detail) { await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.provider) { await async.each(this.provider, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.productOrService) { await this.productOrService.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.modifier) { await async.each(this.modifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.programCode) { await async.each(this.programCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.servicedPeriod) { await this.servicedPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.locationCodeableConcept) { await this.locationCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.locationAddress) { await this.locationAddress.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.locationReference) { await this.locationReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.unitPrice) { await this.unitPrice.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.net) { await this.net.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.bodySite) { await this.bodySite.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subSite) { await async.each(this.subSite, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.adjudication) { await async.each(this.adjudication, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.detail) { await async.each(this.detail, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -657,7 +657,7 @@ class ClaimResponseAddItem extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

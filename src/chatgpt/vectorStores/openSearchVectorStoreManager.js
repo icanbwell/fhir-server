@@ -1,9 +1,9 @@
-const {Client} = require('@opensearch-project/opensearch');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {FhirOpenSearchVectorStore} = require('./fhirOpenSearchVectorStore');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
-const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
+const { Client } = require('@opensearch-project/opensearch');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { FhirOpenSearchVectorStore } = require('./fhirOpenSearchVectorStore');
+const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
+const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -92,7 +92,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter|undefined} [filter]
      * @return {import('langchain/schema/retriever').BaseRetriever}
      */
-    asRetriever ({filter}) {
+    asRetriever ({ filter }) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
     }

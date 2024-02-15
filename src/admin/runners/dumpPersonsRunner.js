@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {finished} = require('stream/promises');
+const { finished } = require('stream/promises');
 const moment = require('moment-timezone');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 
@@ -69,7 +69,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         delete doc['_sourceAssigningAuthority'];
         delete doc['_sourceId'];
         delete doc['active'];
-        const newDoc = { resource: {...doc} };
+        const newDoc = { resource: { ...doc } };
         return newDoc;
     }
 
@@ -98,15 +98,15 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                 db: sourceDb, collectionName: this.collectionName
             }
         );
-        const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS};
+        const options = { session: session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS };
         let refreshTimestamp = moment(); // take note of time at operation start
         // Filter to process only certain documents depending on the owner code passed.
         const accessFilter = this.accessCode ?
-            { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode }} } :
+            { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode } } } :
             {};
         // Fetch only docs that were lastUpdated before beforeDate
         const beforeDateQuery = this.beforeDate ?
-            { 'meta.lastUpdated': { $lt: new Date(this.beforeDate)}} :
+            { 'meta.lastUpdated': { $lt: new Date(this.beforeDate) } } :
             {};
 
         console.log(accessFilter);
@@ -162,10 +162,10 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
            // Check if more than 5 minutes have passed since the last refresh
            if (moment().diff(refreshTimestamp, 'seconds') > this.numberOfSecondsBetweenSessionRefreshes) {
                 this.adminLogger.logInfo(
-                                    'refreshing session with sessionId', {'session_id': sessionId});
-                const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
+                                    'refreshing session with sessionId', { 'session_id': sessionId });
+                const adminResult = await sourceDb.admin().command({ 'refreshSessions': [sessionId] });
                 this.adminLogger.logInfo(
-                    'result from refreshing session', {'result': adminResult});
+                    'result from refreshing session', { 'result': adminResult });
                 refreshTimestamp = moment();
             }
         }

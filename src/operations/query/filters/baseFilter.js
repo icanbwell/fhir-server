@@ -1,4 +1,4 @@
-const {assertIsValid} = require('../../../utils/assertType');
+const { assertIsValid } = require('../../../utils/assertType');
 
 class BaseFilter {
     /**

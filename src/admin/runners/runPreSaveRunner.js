@@ -1,9 +1,9 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc runs preSave() on every record
@@ -120,7 +120,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
+        const result = { replaceOne: { filter: { _id: doc._id }, replacement: updatedResource.toJSONInternal() } };
         operations.push(result);
         // console.log(`Operation: ${JSON.stringify(result)}`);
         return operations;
@@ -160,7 +160,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = { _sourceAssigningAuthority: { $not: { $type: 'string' } } };
                 if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {

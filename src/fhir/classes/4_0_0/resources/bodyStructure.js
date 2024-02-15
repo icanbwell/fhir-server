@@ -98,7 +98,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -162,7 +162,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -184,7 +184,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -240,7 +240,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -260,7 +260,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -300,7 +300,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.morphology = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -320,7 +320,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.location = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -341,7 +341,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.locationQualifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -379,7 +379,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.image = FhirResourceCreator.createArray(valueProvided, Attachment);
             }
         });
@@ -399,7 +399,7 @@ class BodyStructure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -586,7 +586,7 @@ class BodyStructure extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -614,18 +614,18 @@ class BodyStructure extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.morphology) { await this.morphology.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.location) { await this.location.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.locationQualifier) { await async.each(this.locationQualifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.image) { await async.each(this.image, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.patient) { await this.patient.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.morphology) { await this.morphology.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.location) { await this.location.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.locationQualifier) { await async.each(this.locationQualifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.image) { await async.each(this.image, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.patient) { await this.patient.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -633,7 +633,7 @@ class BodyStructure extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

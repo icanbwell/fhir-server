@@ -1,6 +1,6 @@
-const {isUuid} = require('../../../utils/uid.util');
-const {BaseFilter} = require('./baseFilter');
-const {IdParser} = require('../../../utils/idParser');
+const { isUuid } = require('../../../utils/uid.util');
+const { BaseFilter } = require('./baseFilter');
+const { IdParser } = require('../../../utils/idParser');
 const { FieldMapper } = require('./fieldMapper');
 
 const uuidFieldName = '_uuid';
@@ -17,15 +17,15 @@ class FilterById extends BaseFilter {
      */
     static getListFilter (values) {
         if (!values || values.length === 0) {
-            return { '_uuid': { $in: [] }};
+            return { '_uuid': { $in: [] } };
         }
 
-        const idFieldMapper = new FieldMapper({useHistoryTable: false});
+        const idFieldMapper = new FieldMapper({ useHistoryTable: false });
         const filter = FilterById.filterByItems('id', values, idFieldMapper);
         let query;
 
         if (filter.length > 1) {
-            query = {$or: filter};
+            query = { $or: filter };
         } else {
             query = filter[0];
         }
@@ -76,7 +76,7 @@ class FilterById extends BaseFilter {
         const sourceIds = [];
 
         values.forEach((value) => {
-            const {id} = IdParser.parse(value);
+            const { id } = IdParser.parse(value);
             if (isUuid(id)) {
                 uuids.push(id);
             } else {

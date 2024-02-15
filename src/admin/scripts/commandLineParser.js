@@ -1,5 +1,5 @@
 const yargs = require('yargs/yargs');
-const {hideBin} = require('yargs/helpers');
+const { hideBin } = require('yargs/helpers');
 
 /**
  * @classdesc parses command line parameters

@@ -77,7 +77,7 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +109,7 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -147,7 +147,7 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const StructureMapSource = require('../backbone_elements/structureMapSource.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.createArray(valueProvided, StructureMapSource);
             }
         });
@@ -167,7 +167,7 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const StructureMapTarget = require('../backbone_elements/structureMapTarget.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.target = FhirResourceCreator.createArray(valueProvided, StructureMapTarget);
             }
         });
@@ -186,7 +186,7 @@ class StructureMapRule extends Element {
                     this.__data.rule = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.rule = FhirResourceCreator.createArray(valueProvided, StructureMapRule);
             }
         });
@@ -206,7 +206,7 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const StructureMapDependent = require('../backbone_elements/structureMapDependent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dependent = FhirResourceCreator.createArray(valueProvided, StructureMapDependent);
             }
         });
@@ -248,7 +248,7 @@ class StructureMapRule extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -268,13 +268,13 @@ class StructureMapRule extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.target) { await async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.rule) { await async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.dependent) { await async.each(this.dependent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.target) { await async.each(this.target, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.rule) { await async.each(this.rule, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dependent) { await async.each(this.dependent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -282,7 +282,7 @@ class StructureMapRule extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

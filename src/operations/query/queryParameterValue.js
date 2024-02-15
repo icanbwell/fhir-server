@@ -4,8 +4,8 @@
  * @desc or = do an OR operation between the array items
  * @typedef {('$and'|'$or')} QueryParameterType
  **/
-const {assertIsValid} = require('../../utils/assertType');
-const {removeNull} = require('../../utils/nullRemover');
+const { assertIsValid } = require('../../utils/assertType');
+const { removeNull } = require('../../utils/nullRemover');
 
 class QueryParameterValue {
     /**
@@ -37,7 +37,7 @@ class QueryParameterValue {
      * @param {string|string[]|undefined|null} queryParameterValue
      * @return {string[]|null}
      */
-    parseQueryParameterValueIntoArrayIfNeeded ({queryParameterValue}) {
+    parseQueryParameterValueIntoArrayIfNeeded ({ queryParameterValue }) {
         if (!queryParameterValue) {
             return null;
         }

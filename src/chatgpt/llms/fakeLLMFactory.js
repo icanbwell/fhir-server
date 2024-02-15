@@ -1,4 +1,4 @@
-const {LLMFactory} = require('./llmFactory');
+const { LLMFactory } = require('./llmFactory');
 
 class FakeLLMFactory extends LLMFactory {
     /**
@@ -23,7 +23,7 @@ class FakeLLMFactory extends LLMFactory {
      * @return {Promise<import('langchain/chat_models').BaseChatModel>}
      */
     // eslint-disable-next-line no-unused-vars
-    async createAsync ({verbose}) {
+    async createAsync ({ verbose }) {
          return this.fnCreateLLM();
     }
 }

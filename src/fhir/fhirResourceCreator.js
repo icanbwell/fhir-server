@@ -1,9 +1,9 @@
-const {getResource} = require('../operations/common/getResource');
+const { getResource } = require('../operations/common/getResource');
 const Resource = require('./classes/4_0_0/resources/resource');
-const {assertIsValid} = require('../utils/assertType');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {RethrownError} = require('../utils/rethrownError');
-const {BadRequestError} = require('../utils/httpErrors');
+const { assertIsValid } = require('../utils/assertType');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { RethrownError } = require('../utils/rethrownError');
+const { BadRequestError } = require('../utils/httpErrors');
 
 class FhirResourceCreator {
     /**

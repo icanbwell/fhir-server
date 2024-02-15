@@ -28,11 +28,11 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {FixMultipleSourceAssigningAuthorityRunner} = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { FixMultipleSourceAssigningAuthorityRunner } = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -55,7 +55,7 @@ async function setupDatabaseAsync (mongoDatabaseManager, incomingResource, expec
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -76,7 +76,7 @@ async function setupHistoryDatabaseAsync (mongoDatabaseManager, incomingResource
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -151,14 +151,14 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             await fixMultipleSourceAssigningAuthorityRunner.processAsync();
 
             // Check practitioner 1
-            const practitioner1 = await practitionerCollection.findOne({id: practitioner1Resource.id});
+            const practitioner1 = await practitionerCollection.findOne({ id: practitioner1Resource.id });
             expect(practitioner1).toBeDefined();
             delete practitioner1._id;
             expectedPractitioner1DatabaseAfterRun.meta.lastUpdated = practitioner1.meta.lastUpdated;
             expect(practitioner1).toStrictEqual(expectedPractitioner1DatabaseAfterRun);
 
             // Check practitioner 2
-            const practitioner2 = await practitionerCollection.findOne({id: practitioner2Resource.id});
+            const practitioner2 = await practitionerCollection.findOne({ id: practitioner2Resource.id });
             expect(practitioner2).toBeDefined();
             delete practitioner2._id;
             expectedPractitioner2DatabaseAfterRun.meta.lastUpdated = practitioner2.meta.lastUpdated;
@@ -197,7 +197,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check practitionerrole 1
-            const practitionerrole1 = await practitionerRoleCollection.findOne({id: practitionerrole1Resource.id});
+            const practitionerrole1 = await practitionerRoleCollection.findOne({ id: practitionerrole1Resource.id });
             expect(practitionerrole1).toBeDefined();
             delete practitionerrole1._id;
             expectedPractitionerRole1DatabaseAfterRun._uuid = practitionerrole1._uuid;
@@ -205,7 +205,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             expect(practitionerrole1).toStrictEqual(expectedPractitionerRole1DatabaseAfterRun);
 
             // Check practitionerrole 2
-            const practitionerrole2 = await practitionerRoleCollection.findOne({id: practitionerrole2Resource.id});
+            const practitionerrole2 = await practitionerRoleCollection.findOne({ id: practitionerrole2Resource.id });
             expect(practitionerrole2).toBeDefined();
             delete practitionerrole2._id;
             expectedPractitionerRole2DatabaseAfterRun._uuid = practitionerrole2._uuid;
@@ -261,7 +261,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             await fixMultipleSourceAssigningAuthorityHistoryRunner.processAsync();
 
             // Check practitioner 1 history
-            const practitioner1History = await practitionerHistoryCollection.findOne({id: Practitioner1HistoryResource.id});
+            const practitioner1History = await practitionerHistoryCollection.findOne({ id: Practitioner1HistoryResource.id });
             expect(practitioner1History).toBeDefined();
             delete practitioner1History._id;
             expect(practitioner1History).toStrictEqual(expectedPractitioner1HistoryDatabaseAfterRun);

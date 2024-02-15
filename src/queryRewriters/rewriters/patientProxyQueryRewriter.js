@@ -1,7 +1,7 @@
-const {QueryRewriter} = require('./queryRewriter');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
-const {QueryParameterValue} = require('../../operations/query/queryParameterValue');
+const { QueryRewriter } = require('./queryRewriter');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
+const { QueryParameterValue } = require('../../operations/query/queryParameterValue');
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 
@@ -52,7 +52,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
             /**
              * @type {{queryParametersWithProxyPatientIds: string[], queryParametersWithoutProxyPatientIds: string[]}}
              */
-            const {queryParametersWithProxyPatientIds, queryParametersWithoutProxyPatientIds} =
+            const { queryParametersWithProxyPatientIds, queryParametersWithoutProxyPatientIds } =
                 queryParameterValues.reduce((queryParametersMap, queryParameterValue) => {
                     if (typeof queryParameterValue === 'string' && (
                         // either person.id or Patient/person.id
@@ -119,7 +119,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync ({base_version, parsedArgs, resourceType}) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType }) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
         // const foo = undefined[1];

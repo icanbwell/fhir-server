@@ -5,8 +5,8 @@ const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activ
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('ActivityDefinition Tests', () => {
     beforeEach(async () => {

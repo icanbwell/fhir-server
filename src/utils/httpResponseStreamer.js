@@ -1,4 +1,4 @@
-const {BaseResponseStreamer} = require('./baseResponseStreamer');
+const { BaseResponseStreamer } = require('./baseResponseStreamer');
 
 class HttpResponseStreamer extends BaseResponseStreamer {
     /**
@@ -60,7 +60,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync ({bundleEntry}) {
+    async writeBundleEntryAsync ({ bundleEntry }) {
         if (this.fnGetHtmlForBundleEntry) {
             const html = this.fnGetHtmlForBundleEntry(bundleEntry);
             if (html) {
@@ -69,7 +69,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
         }
     }
 
-    async writeAsync ({content}) {
+    async writeAsync ({ content }) {
         this.response.write(content);
     }
 

@@ -1,8 +1,8 @@
 const cron = require('node-cron');
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {BasePostSaveHandler} = require('../utils/basePostSaveHandler');
-const {RethrownError} = require('../utils/rethrownError');
-const {ConfigManager} = require('../utils/configManager');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { BasePostSaveHandler } = require('../utils/basePostSaveHandler');
+const { RethrownError } = require('../utils/rethrownError');
+const { ConfigManager } = require('../utils/configManager');
 
 /**
  * @classdesc This class holds all the tasks to run after we insert/update a resource
@@ -50,10 +50,10 @@ class PostSaveProcessor {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async afterSaveAsync ({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         try {
             for (const handler of this.handlers) {
-                await handler.afterSaveAsync({requestId, eventType, resourceType, doc});
+                await handler.afterSaveAsync({ requestId, eventType, resourceType, doc });
             }
         } catch (e) {
             throw new RethrownError({

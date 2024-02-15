@@ -1,7 +1,7 @@
-const {tokenQueryBuilder} = require('../../../utils/querybuilder.util');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
-const {BaseFilter} = require('./baseFilter');
-const {SystemValueParser} = require('../../../utils/systemValueParser');
+const { tokenQueryBuilder } = require('../../../utils/querybuilder.util');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { BaseFilter } = require('./baseFilter');
+const { SystemValueParser } = require('../../../utils/systemValueParser');
 
 /**
  * Filters by token
@@ -52,11 +52,11 @@ class FilterBySecurityTag extends BaseFilter {
              * @type {string}
              */
             const decodedTokenQueryItem = decodeURIComponent(value);
-            const {system, value: value1} = SystemValueParser.parse(decodedTokenQueryItem);
+            const { system, value: value1 } = SystemValueParser.parse(decodedTokenQueryItem);
             if (system) {
                 if (system === SecurityTagSystem.access && this.fnUseAccessIndex(value1)) {
                     // http://www.hl7.org/fhir/search.html#token
-                    return {[this.fieldMapper.getFieldName(`_access.${value1}`)]: 1};
+                    return { [this.fieldMapper.getFieldName(`_access.${value1}`)]: 1 };
                 } else {
                     return tokenQueryBuilder(
                         {

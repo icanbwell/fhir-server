@@ -12,10 +12,10 @@
  * @property {number} numberOfDocumentsToCopy
  */
 
-const {assertTypeEquals} = require('../../utils/assertType');
-const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
-const {AdminLogger} = require('../adminLogger');
-const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
+const { AdminLogger } = require('../adminLogger');
+const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 
 /**
  * @classdesc base class that implements connecting to the database
@@ -86,7 +86,7 @@ class BaseScriptRunner {
      * @param {boolean|undefined} [includeHistoryCollections]
      * @returns {Promise<string[]>}
      */
-    async getAllCollectionNamesAsync ({useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections}) {
+    async getAllCollectionNamesAsync ({ useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections }) {
         const config = useAuditDatabase ?
             await this.mongoDatabaseManager.getAuditConfigAsync() :
             useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsConfigAsync() :
@@ -103,7 +103,7 @@ class BaseScriptRunner {
         /**
          * @type {string[]}
          */
-        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db: db });
         // exclude history tables since we always search by id on those
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));

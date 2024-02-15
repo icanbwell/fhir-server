@@ -1,22 +1,22 @@
-const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
-const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
+const { LLMChainExtractor } = require('langchain/retrievers/document_compressors/chain_extract');
+const { ContextualCompressionRetriever } = require('langchain/retrievers/contextual_compression');
 const {
     PromptTemplate,
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate
 } = require('langchain/prompts');
-const {LLMChain} = require('langchain/chains');
-const {ChatGPTError} = require('../exceptions/chatgptError');
-const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
-const {ChatGPTResponse} = require('../structures/chatGPTResponse');
-const {ChatGPTManager} = require('./chatgptManager');
-const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
-const {StringOutputParser} = require('langchain/schema/output_parser');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
-const {BaseVectorStoreManager} = require('../vectorStores/baseVectorStoreManager');
-const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
+const { LLMChain } = require('langchain/chains');
+const { ChatGPTError } = require('../exceptions/chatgptError');
+const { ChatGPTContextLengthExceededError } = require('../exceptions/chatgptContextLengthExceededError');
+const { ChatGPTResponse } = require('../structures/chatGPTResponse');
+const { ChatGPTManager } = require('./chatgptManager');
+const { RunnablePassthrough, RunnableSequence } = require('langchain/schema/runnable');
+const { StringOutputParser } = require('langchain/schema/output_parser');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { VectorStoreFilter } = require('../vectorStores/vectorStoreFilter');
+const { BaseVectorStoreManager } = require('../vectorStores/baseVectorStoreManager');
+const { logTraceSystemEventAsync } = require('../../operations/common/systemEventLogging');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -180,7 +180,7 @@ Question: {question}
             question: question
         });
 
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
 
         try {
             const res3 = await conversationalRetrievalQAChain.invoke({
@@ -223,7 +223,7 @@ Question: {question}
      * @param {verbose} verbose
      * @return {Promise<string|undefined>}
      */
-    async getFhirQueryAsync ({query, baseUrl, patientId, verbose}) {
+    async getFhirQueryAsync ({ query, baseUrl, patientId, verbose }) {
         // https://js.langchain.com/docs/getting-started/guide-llm
         // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
         // https://nathankjer.com/introduction-to-langchain/
@@ -264,12 +264,12 @@ Question: {question}
             });
 
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
-        const parameters = {query: query, baseUrl: baseUrl};
+        const parameters = { query: query, baseUrl: baseUrl };
         if (patientId) {
             parameters['patientId'] = patientId;
         }
         const fullPrompt = await prompt.format(parameters);
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
         // Finally run the chain and get the result
         try {
             const result = await chain.call(parameters);

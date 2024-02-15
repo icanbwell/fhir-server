@@ -3,8 +3,8 @@ const {
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder
 } = require('../../../utils/querybuilder.util');
-const {isColumnDateType} = require('../../common/isColumnDateType');
-const {BaseFilter} = require('./baseFilter');
+const { isColumnDateType } = require('../../common/isColumnDateType');
+const { BaseFilter } = require('./baseFilter');
 
 function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';

@@ -8,12 +8,12 @@ const {
     getHeadersNdJson,
     createTestRequest, getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
-const {ConfigManager} = require('../../../utils/configManager');
-const {ResponseChunkParser} = require('../responseChunkParser');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
+const { ConfigManager } = require('../../../utils/configManager');
+const { ResponseChunkParser } = require('../responseChunkParser');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
 let oldEnvLogLevel;
 
@@ -79,7 +79,7 @@ describe('seach by id many performance', () => {
                     const newId = initialId + '-' + i;
                     practitionerResource.id = newId;
                     bundle.entry.push({
-                        resource: Object.assign({}, practitionerResource, {id: newId})
+                        resource: Object.assign({}, practitionerResource, { id: newId })
                     });
                 }
                 /**

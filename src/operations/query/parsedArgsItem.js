@@ -1,9 +1,9 @@
-const {ParsedReferenceItem} = require('./parsedReferenceItem');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {QueryParameterValue} = require('./queryParameterValue');
-const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {removeNull} = require('../../utils/nullRemover');
+const { ParsedReferenceItem } = require('./parsedReferenceItem');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { QueryParameterValue } = require('./queryParameterValue');
+const { SearchParameterDefinition } = require('../../searchParameters/searchParameterTypes');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { removeNull } = require('../../utils/nullRemover');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -139,7 +139,7 @@ class ParsedArgsItem {
      * @param {SearchParameterDefinition|undefined} propertyObj
      * @return {ParsedReferenceItem[]}
      */
-    parseQueryParameterValueIntoReferences ({queryParameterValue, propertyObj}) {
+    parseQueryParameterValueIntoReferences ({ queryParameterValue, propertyObj }) {
         assertTypeEquals(queryParameterValue, QueryParameterValue);
         if (!propertyObj) {
             return [];
@@ -164,7 +164,7 @@ class ParsedArgsItem {
         if (queryParameterValues) {
             assertIsValid(Array.isArray(queryParameterValues), `queryParameterValues is not an array but ${typeof queryParameterValues}`);
             for (const /** @type {string} */ val of queryParameterValues) {
-                const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(val);
+                const { resourceType, id, sourceAssigningAuthority } = ReferenceParser.parseReference(val);
                 if (resourceType) {
                     // resource type was specified
                     result.push(
@@ -199,7 +199,7 @@ class ParsedArgsItem {
                 propertyObj: this.propertyObj ? this.propertyObj.clone() : undefined,
                 modifiers: this.modifiers,
                 references: this.references ? this.references.map(r => r.clone()) : undefined,
-                patientToPersonMap: this.patientToPersonMap ? {...this.patientToPersonMap} : undefined
+                patientToPersonMap: this.patientToPersonMap ? { ...this.patientToPersonMap } : undefined
             }
         );
     }

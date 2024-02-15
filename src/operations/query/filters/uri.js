@@ -1,4 +1,4 @@
-const {BaseFilter} = require('./baseFilter');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * filters by uri

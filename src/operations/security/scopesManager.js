@@ -1,7 +1,7 @@
-const {ForbiddenError} = require('../../utils/httpErrors');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ConfigManager} = require('../../utils/configManager');
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ScopesManager {
     /**
@@ -120,11 +120,11 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags ({resource, user, scope}) {
+    isAccessToResourceAllowedBySecurityTags ({ resource, user, scope }) {
         if (!this.configManager.authEnabled) {
             return true;
         }
-        const hasPatientScope = this.hasPatientScope({scope});
+        const hasPatientScope = this.hasPatientScope({ scope });
         if (hasPatientScope) {
             return true; // TODO: should double check here that the resources belong to this patient
         }
@@ -200,7 +200,7 @@ class ScopesManager {
      * @param {string|undefined} scope
      * @returns {string[]}
      */
-    getAdminScopes ({scope}) {
+    getAdminScopes ({ scope }) {
         if (!scope) {
             return [];
         }
@@ -216,7 +216,7 @@ class ScopesManager {
      * @param {import('http').IncomingMessage} req
      * @return {string|undefined}
      */
-    getScopeFromRequest ({req}) {
+    getScopeFromRequest ({ req }) {
         return req.authInfo && req.authInfo.scope;
     }
 
@@ -225,7 +225,7 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    hasPatientScope ({scope}) {
+    hasPatientScope ({ scope }) {
         if (this.configManager.authEnabled) {
             assertIsValid(scope);
             if (scope.includes('patient/')) {

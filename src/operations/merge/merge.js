@@ -1,26 +1,26 @@
 const moment = require('moment-timezone');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {MergeManager} = require('./mergeManager');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
+const { fhirRequestTimer } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { MergeManager } = require('./mergeManager');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {MergeResultEntry} = require('../common/mergeResultEntry');
-const {QueryItem} = require('../graph/queryItem');
-const {ConfigManager} = require('../../utils/configManager');
-const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
-const {MergeValidator} = require('./mergeValidator');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { MergeResultEntry } = require('../common/mergeResultEntry');
+const { QueryItem } = require('../graph/queryItem');
+const { ConfigManager } = require('../../utils/configManager');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { MergeValidator } = require('./mergeValidator');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 
 class MergeOperation {
     /**
@@ -160,7 +160,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async mergeAsync ({requestInfo, parsedArgs, resourceType}) {
+    async mergeAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -214,7 +214,7 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            const {/** @type {string} */ base_version} = parsedArgs;
+            const { /** @type {string} */ base_version } = parsedArgs;
 
             /**
              * @type {string[]}
@@ -314,7 +314,7 @@ class MergeOperation {
                                     severity: 'information',
                                     code: 'informational',
                                     details: new CodeableConcept(
-                                        {text: 'OK'}
+                                        { text: 'OK' }
                                     )
                                 })]
                         }) : new OperationOutcome({
@@ -390,7 +390,7 @@ class MergeOperation {
                 });
             throw e;
         } finally {
-            timer({action: currentOperationName, resourceType});
+            timer({ action: currentOperationName, resourceType });
         }
     }
 }

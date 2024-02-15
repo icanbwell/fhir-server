@@ -95,7 +95,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +127,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -147,7 +147,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -167,7 +167,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -187,7 +187,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -261,7 +261,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -281,7 +281,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -301,7 +301,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const SampledData = require('../complex_types/sampledData.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueSampledData = FhirResourceCreator.create(valueProvided, SampledData);
             }
         });
@@ -357,7 +357,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valuePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -378,7 +378,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dataAbsentReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -399,7 +399,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.interpretation = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -420,7 +420,7 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referenceRange = FhirResourceCreator.createArray(valueProvided, ObservationReferenceRange);
             }
         });
@@ -453,7 +453,7 @@ class ObservationComponent extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -482,19 +482,19 @@ class ObservationComponent extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueCodeableConcept) { await this.valueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueRange) { await this.valueRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueRatio) { await this.valueRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueSampledData) { await this.valueSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valuePeriod) { await this.valuePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.dataAbsentReason) { await this.dataAbsentReason.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.interpretation) { await async.each(this.interpretation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.referenceRange) { await async.each(this.referenceRange, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueCodeableConcept) { await this.valueCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueRange) { await this.valueRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueRatio) { await this.valueRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueSampledData) { await this.valueSampledData.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valuePeriod) { await this.valuePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.dataAbsentReason) { await this.dataAbsentReason.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.interpretation) { await async.each(this.interpretation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.referenceRange) { await async.each(this.referenceRange, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -502,7 +502,7 @@ class ObservationComponent extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

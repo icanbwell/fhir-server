@@ -108,7 +108,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getPatientPropertyForResource ({resourceType}) {
+    getPatientPropertyForResource ({ resourceType }) {
         return this.patientFilterMapping[`${resourceType}`];
     }
 
@@ -117,7 +117,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @returns {boolean}
      */
-    canAccessResourceWithPatientScope ({resourceType}) {
+    canAccessResourceWithPatientScope ({ resourceType }) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);
     }

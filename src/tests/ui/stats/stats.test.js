@@ -8,9 +8,9 @@ const {
     getHeaders,
     createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, jest, test, expect} = require('@jest/globals');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { PostRequestProcessor } = require('../../../utils/postRequestProcessor');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
@@ -46,7 +46,7 @@ describe('Stats Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {SimpleContainer}

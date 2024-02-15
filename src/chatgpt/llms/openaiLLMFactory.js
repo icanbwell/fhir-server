@@ -1,8 +1,8 @@
-const {ChatOpenAI} = require('langchain/chat_models/openai');
-const {ConsoleCallbackHandler} = require('langchain/callbacks');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {LLMFactory} = require('./llmFactory');
+const { ChatOpenAI } = require('langchain/chat_models/openai');
+const { ConsoleCallbackHandler } = require('langchain/callbacks');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { LLMFactory } = require('./llmFactory');
 
 class OpenAILLMFactory extends LLMFactory {
     /**
@@ -24,7 +24,7 @@ class OpenAILLMFactory extends LLMFactory {
      * @param verbose
      * @return {Promise<import('langchain/chat_models').BaseChatModel>}
      */
-    async createAsync ({verbose}) {
+    async createAsync ({ verbose }) {
         return new ChatOpenAI(
             {
                 openAIApiKey: this.configManager.openAIApiKey,

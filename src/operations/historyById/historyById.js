@@ -1,21 +1,21 @@
-const {NotFoundError} = require('../../utils/httpErrors');
+const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ConfigManager} = require('../../utils/configManager');
-const {SearchManager} = require('../search/searchManager');
-const {isTrue} = require('../../utils/isTrue');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { ConfigManager } = require('../../utils/configManager');
+const { SearchManager } = require('../search/searchManager');
+const { isTrue } = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {ResourceManager} = require('../common/resourceManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ResourceManager } = require('../common/resourceManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class HistoryByIdOperation {
     /**
@@ -108,7 +108,7 @@ class HistoryByIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyByIdAsync ({requestInfo, parsedArgs, resourceType}) {
+    async historyByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -145,7 +145,7 @@ class HistoryByIdOperation {
             accessRequested: 'read'
         });
 
-        const {base_version, id} = parsedArgs;
+        const { base_version, id } = parsedArgs;
         /**
          * @type {boolean}
          */
@@ -197,7 +197,7 @@ class HistoryByIdOperation {
                         resourceType, base_version
                     }
                 );
-                cursor = await databaseHistoryManager.findAsync({query, options});
+                cursor = await databaseHistoryManager.findAsync({ query, options });
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
@@ -234,7 +234,7 @@ class HistoryByIdOperation {
                                 id: resource.id,
                                 resource: resource,
                                 fullUrl: this.resourceManager.getFullUrlForResource(
-                                    {protocol, host, base_version, resource})
+                                    { protocol, host, base_version, resource })
                             }
                         );
                     } else {

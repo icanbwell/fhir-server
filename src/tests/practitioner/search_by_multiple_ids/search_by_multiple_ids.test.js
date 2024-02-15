@@ -14,7 +14,7 @@ const {
     getHeadersFormUrlEncoded,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -37,14 +37,14 @@ describe('PractitionerReturnIdTests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -65,21 +65,21 @@ describe('PractitionerReturnIdTests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -98,25 +98,25 @@ describe('PractitionerReturnIdTests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send({resourceType: 'Parameters', parameter: [{name: 'id', valueString: '0,1679033641'}]})
+                .send({ resourceType: 'Parameters', parameter: [{ name: 'id', valueString: '0,1679033641' }] })
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
@@ -128,21 +128,21 @@ describe('PractitionerReturnIdTests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')

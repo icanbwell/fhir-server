@@ -1,31 +1,31 @@
-const {logDebug, logError} = require('../common/logging');
+const { logDebug, logError } = require('../common/logging');
 const deepcopy = require('deepcopy');
-const {BadRequestError} = require('../../utils/httpErrors');
+const { BadRequestError } = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {isTrue} = require('../../utils/isTrue');
-const {groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid} = require('../../utils/list.util');
+const { isTrue } = require('../../utils/isTrue');
+const { groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid } = require('../../utils/list.util');
 const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {ScopesManager} = require('../security/scopesManager');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
+const { ScopesManager } = require('../security/scopesManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const {ResourceMerger} = require('../common/resourceMerger');
+const { ResourceMerger } = require('../common/resourceMerger');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const {ResourceValidator} = require('../common/resourceValidator');
-const {RethrownError} = require('../../utils/rethrownError');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {ConfigManager} = require('../../utils/configManager');
-const {MergeResultEntry} = require('../common/mergeResultEntry');
-const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {isUuid} = require('../../utils/uid.util');
+const { ResourceValidator } = require('../common/resourceValidator');
+const { RethrownError } = require('../../utils/rethrownError');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { ConfigManager } = require('../../utils/configManager');
+const { MergeResultEntry } = require('../common/mergeResultEntry');
+const { MongoFilterGenerator } = require('../../utils/mongoFilterGenerator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { isUuid } = require('../../utils/uid.util');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 
 class MergeManager {
@@ -209,7 +209,7 @@ class MergeManager {
             'Merging new resource',
             {
                 user,
-                args: {uuid: resourceToMerge._uuid, resource: resourceToMerge}
+                args: { uuid: resourceToMerge._uuid, resource: resourceToMerge }
             }
         );
 
@@ -269,7 +269,7 @@ class MergeManager {
         try {
             // Query our collection for this id
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType: resourceToMerge.resourceType, base_version}
+                { resourceType: resourceToMerge.resourceType, base_version }
             );
             /**
              * @type {Resource|null}
@@ -286,7 +286,7 @@ class MergeManager {
                 );
             } else {
                 currentResource = await databaseQueryManager.findOneAsync({
-                    query: this.mongoFilterGenerator.generateFilterForUuid({uuid})
+                    query: this.mongoFilterGenerator.generateFilterForUuid({ uuid })
                 });
             }
 
@@ -407,7 +407,7 @@ class MergeManager {
                 'Merge received array',
                 {
                     user,
-                    args: {length: resources_incoming.length, id: uuidsOfResources}
+                    args: { length: resources_incoming.length, id: uuidsOfResources }
                 }
             );
             // find items without duplicates and run them in parallel
@@ -685,7 +685,7 @@ class MergeManager {
             }
 
             if (isTrue(this.configManager.authEnabled)) {
-                const {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
+                const { success } = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
                 if (!success) {
                     const operationOutcome = new OperationOutcome({
                         issue: [
@@ -806,7 +806,7 @@ class MergeManager {
                     validResources.push(r);
                 }
             }
-            return {mergePreCheckErrors, validResources};
+            return { mergePreCheckErrors, validResources };
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in MergeManager.preMergeChecksMultipleAsync()',

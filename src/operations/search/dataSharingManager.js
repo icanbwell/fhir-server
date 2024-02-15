@@ -1,20 +1,20 @@
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {PatientFilterManager} = require('../../fhir/patientFilterManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryParameterValue} = require('../query/queryParameterValue');
-const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX} = require('../../constants');
-const {SearchQueryBuilder} = require('./searchQueryBuilder');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {logError} = require('../common/logging');
-const {SearchFilterFromReference} = require('../query/filters/searchFilterFromReference');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
-const {IdParser} = require('../../utils/idParser');
-const {ProaConsentManager} = require('./proaConsentManager');
-const {isUuid} = require('../../utils/uid.util');
-const {RequestSpecificCache} = require('../../utils/requestSpecificCache');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryParameterValue } = require('../query/queryParameterValue');
+const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX } = require('../../constants');
+const { SearchQueryBuilder } = require('./searchQueryBuilder');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { logError } = require('../common/logging');
+const { SearchFilterFromReference } = require('../query/filters/searchFilterFromReference');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { IdParser } = require('../../utils/idParser');
+const { ProaConsentManager } = require('./proaConsentManager');
+const { isUuid } = require('../../utils/uid.util');
+const { RequestSpecificCache } = require('../../utils/requestSpecificCache');
 
 class DataSharingManager {
     /**
@@ -85,8 +85,8 @@ class DataSharingManager {
      * @param {string} requestId
      * @returns {Map<string, Resource[]>}
      */
-    getDataSharingManagerCache ({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'dataSharingManager'});
+    getDataSharingManagerCache ({ requestId }) {
+        return this.requestSpecificCache.getMap({ requestId, name: 'dataSharingManager' });
     }
 
     /**
@@ -113,7 +113,7 @@ class DataSharingManager {
         assertTypeEquals(parsedArgs, ParsedArgs);
         let everythingCacheMap;
         if (requestId) {
-            everythingCacheMap = this.getDataSharingManagerCache({requestId});
+            everythingCacheMap = this.getDataSharingManagerCache({ requestId });
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
@@ -142,7 +142,7 @@ class DataSharingManager {
             }
         }
 
-        const patientIdToConnectionTypeMap = await this.getPatientIDToConnectionTypeMap({patientsList});
+        const patientIdToConnectionTypeMap = await this.getPatientIDToConnectionTypeMap({ patientsList });
 
         /**
          * List of allowed connection types. Fetched from env variable.
@@ -222,11 +222,11 @@ class DataSharingManager {
 
         // Logic to update original query to consider above 2 cases.
         if (queryWithConsentedData && queryWithHIETreatmentData) {
-            query = {$or: [query, queryWithConsentedData, queryWithHIETreatmentData]};
+            query = { $or: [query, queryWithConsentedData, queryWithHIETreatmentData] };
         } else if (queryWithConsentedData) {
-            query = {$or: [query, queryWithConsentedData]};
+            query = { $or: [query, queryWithConsentedData] };
         } else if (queryWithHIETreatmentData) {
-            query = {$or: [query, queryWithHIETreatmentData]};
+            query = { $or: [query, queryWithHIETreatmentData] };
         }
         return query;
     }
@@ -239,7 +239,7 @@ class DataSharingManager {
      * @property {string[]} securityTags security Tags
      * @param {ValidatedPatientIdsMap} param
      */
-    async getValidatedPatientIdsMap ({resourceType, parsedArgs, securityTags}) {
+    async getValidatedPatientIdsMap ({ resourceType, parsedArgs, securityTags }) {
         /**
          * Patient id to immediate person map.
          * @type {{[key: string]: string[]}}
@@ -248,15 +248,15 @@ class DataSharingManager {
         let patientsList;
 
         // 1. Check resourceType is specific to Patient.
-        if (this.patientFilterManager.isPatientRelatedResource({resourceType})) {
+        if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
             // 2. Get (proxy) patient IDs from parsedArgs.
             const patientReferences = this.getResourceReferencesFromFilter('Patient', parsedArgs);
             if (patientReferences && patientReferences.length > 0) {
                 // 3. Get patients using patientReferences.
-                patientsList = await this.getPatientsList({patientReferences});
+                patientsList = await this.getPatientsList({ patientReferences });
 
                 // 4. Validate if multiple resources are present for the passed patients.
-                await this.validatePatientIdsAsync({patientsList, patientReferences});
+                await this.validatePatientIdsAsync({ patientsList, patientReferences });
 
                 // 5. Update patientReferences to contain uuid only.
                 patientReferences.forEach(patientReference => {
@@ -274,7 +274,7 @@ class DataSharingManager {
                 });
             }
         }
-        return {patientIdToImmediatePersonUuid, patientsList};
+        return { patientIdToImmediatePersonUuid, patientsList };
     }
 
     /**
@@ -418,7 +418,7 @@ class DataSharingManager {
                 // if patient id is passed and resource type is patient
                 if ((currArg.queryParameter === 'id' || currArg.queryParameter === '_id') && resourceType === 'Patient') {
                     currArg.queryParameterValue.values.forEach((value) => {
-                        const {id, sourceAssigningAuthority} = IdParser.parse(value);
+                        const { id, sourceAssigningAuthority } = IdParser.parse(value);
                         refs.push({
                             resourceType,
                             id,
@@ -456,7 +456,7 @@ class DataSharingManager {
      * @param {GetPatientToPersonParams} options
      * @returns {Promise<{[key: string]: string[]}>}
      */
-    async getPatientToImmediatePersonMapAsync ({patientReferences, securityTags}) {
+    async getPatientToImmediatePersonMapAsync ({ patientReferences, securityTags }) {
         /**
          * @type {Map<string, string[]>}
          */
@@ -492,7 +492,7 @@ class DataSharingManager {
      * @property {string[]} allowedConnectionTypesList allowed connection types list
      * @param {FilterPatientsByConnectionType} param
      */
-    filterPatientsByConnectionType ({allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList}) {
+    filterPatientsByConnectionType ({ allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList }) {
         allowedPatientIds.forEach((patientId) => {
             if (!patientIdToConnectionTypeMap.has(patientId) ||
                 !allowedConnectionTypesList.includes(patientIdToConnectionTypeMap.get(patientId))) {
@@ -505,7 +505,7 @@ class DataSharingManager {
      * For array of patient references passed, fetch & return patients list.
      * @param {import('../query/filters/searchFilterFromReference').IReferences} references Passed PatientIds in query.
      */
-    async getPatientsList ({patientReferences}) {
+    async getPatientsList ({ patientReferences }) {
         const query = this.databaseQueryFactory.createQuery({
             resourceType: 'Patient',
             base_version: '4_0_0'
@@ -516,7 +516,7 @@ class DataSharingManager {
             query: {
                 '$or': SearchFilterFromReference.buildFilter(patientReferences, null)
             },
-            options: {projection: {id: 1, _sourceId: 1, _uuid: 1, meta: {security: 1}}}
+            options: { projection: { id: 1, _sourceId: 1, _uuid: 1, meta: { security: 1 } } }
         });
 
         const patientsList = [];
@@ -532,7 +532,7 @@ class DataSharingManager {
      * For array of patients, fetch & return patient id to connection type map.
      * @property {string[]} patientsList list of patients for which map is to be created
      */
-    async getPatientIDToConnectionTypeMap ({patientsList}) {
+    async getPatientIDToConnectionTypeMap ({ patientsList }) {
         /**
          * Patient id to corresponding connection type map.
          * @type {Map<string, string[]>}
@@ -553,7 +553,7 @@ class DataSharingManager {
      * For array of patients passed, checks if there are more than two resources for
      * any id. If its there, then throws a bad-request error else returns true
      */
-    async validatePatientIdsAsync ({patientsList, patientReferences}) {
+    async validatePatientIdsAsync ({ patientsList, patientReferences }) {
         /**
          * PatientId -> No of Patient Resources
          * @type {Map<string, number>}
@@ -562,9 +562,9 @@ class DataSharingManager {
         /** @type {Set<string>} */
         const idsWithMultipleResourcesSet = new Set();
         patientReferences.forEach((ref) => {
-            const {id, sourceAssigningAuthority} = ref;
+            const { id, sourceAssigningAuthority } = ref;
             /** for uuid -> uuid, and for id and sourceAssigningAuthority -> id|sourceAssigningAuthority  */
-            const idWithSourceAssigningAuthority = ReferenceParser.createReference({id, sourceAssigningAuthority});
+            const idWithSourceAssigningAuthority = ReferenceParser.createReference({ id, sourceAssigningAuthority });
             // initial count as zero
             patientIdToCount.set(idWithSourceAssigningAuthority, 0);
         });
@@ -602,7 +602,7 @@ class DataSharingManager {
                 ']'
             ].join('');
             logError(`DataSharingManager.validatePatientIdsAsync: Bad Request, ${message}`);
-            throw new BadRequestError(new Error(message), {patientIds: idsWithMultipleResources});
+            throw new BadRequestError(new Error(message), { patientIds: idsWithMultipleResources });
         }
 
         // if validation is success, return true

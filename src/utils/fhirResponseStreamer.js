@@ -1,7 +1,7 @@
 const moment = require('moment-timezone');
-const {removeNull} = require('./nullRemover');
-const {assertIsValid} = require('./assertType');
-const {BaseResponseStreamer} = require('./baseResponseStreamer');
+const { removeNull } = require('./nullRemover');
+const { assertIsValid } = require('./assertType');
+const { BaseResponseStreamer } = require('./baseResponseStreamer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
 class FhirResponseStreamer extends BaseResponseStreamer {
@@ -73,7 +73,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync ({bundleEntry}) {
+    async writeBundleEntryAsync ({ bundleEntry }) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {string}
@@ -97,7 +97,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * sets the bundle to use
      * @param {Bundle} bundle
      */
-    setBundle ({bundle}) {
+    setBundle ({ bundle }) {
         this._bundle = bundle;
     }
 

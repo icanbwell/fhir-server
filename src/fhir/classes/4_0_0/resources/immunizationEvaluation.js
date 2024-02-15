@@ -113,7 +113,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -177,7 +177,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -199,7 +199,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -223,7 +223,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -255,7 +255,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -275,7 +275,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -314,7 +314,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -352,7 +352,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.authority = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -372,7 +372,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.targetDisease = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -392,7 +392,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.immunizationEvent = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -413,7 +413,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.doseStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -434,7 +434,7 @@ class ImmunizationEvaluation extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.doseStatusReason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -758,7 +758,7 @@ class ImmunizationEvaluation extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -793,19 +793,19 @@ class ImmunizationEvaluation extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.patient) { await this.patient.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.authority) { await this.authority.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.targetDisease) { await this.targetDisease.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.immunizationEvent) { await this.immunizationEvent.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.doseStatus) { await this.doseStatus.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.doseStatusReason) { await async.each(this.doseStatusReason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.patient) { await this.patient.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.authority) { await this.authority.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.targetDisease) { await this.targetDisease.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.immunizationEvent) { await this.immunizationEvent.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.doseStatus) { await this.doseStatus.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.doseStatusReason) { await async.each(this.doseStatusReason, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -813,7 +813,7 @@ class ImmunizationEvaluation extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

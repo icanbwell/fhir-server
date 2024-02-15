@@ -21,8 +21,8 @@ const {
     createTestRequest,
     getHeadersWithCustomPayload
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -61,49 +61,49 @@ describe('Patient Tests', () => {
                 .send(bwellPerson1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(bwellFhirPerson1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(bwellPatient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(bwellFhirPatient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const person_payload = {
                 'cognito:username': 'patient-123@example.com',

@@ -10,8 +10,8 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {IdentifierSystem} = require('../../../utils/identifierSystem');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {

@@ -14,7 +14,7 @@ const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
 const patch4 = require('./fixtures/patches/patch4.json');
 
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GridFs Patch Test', () => {
     beforeEach(async () => {
@@ -52,7 +52,7 @@ describe('GridFs Patch Test', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             resp = await request
                 .patch(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -67,7 +67,7 @@ describe('GridFs Patch Test', () => {
             expect(resp._body.content[0].attachment.data).toEqual(patch1[0].value);
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -123,7 +123,7 @@ describe('GridFs Patch Test', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -193,7 +193,7 @@ describe('GridFs Patch Test', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             resp = await request
                 .patch(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -206,7 +206,7 @@ describe('GridFs Patch Test', () => {
             expect(resp._body.content[0].attachment.data).toBeUndefined();
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -248,7 +248,7 @@ describe('GridFs Patch Test', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             resp = await request
                 .patch(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -261,7 +261,7 @@ describe('GridFs Patch Test', () => {
             expect(resp._body.content[0].attachment.data).toBeUndefined();
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -303,7 +303,7 @@ describe('GridFs Patch Test', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             resp = await request
                 .patch(`/4_0_0/DocumentReference/${resp._body.id}`)
@@ -316,7 +316,7 @@ describe('GridFs Patch Test', () => {
             expect(resp._body.content[0].attachment.data).toBeDefined();
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 

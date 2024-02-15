@@ -11,8 +11,8 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
     get defaultSortId () {
@@ -55,7 +55,7 @@ describe('PatientReturnIdTests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction

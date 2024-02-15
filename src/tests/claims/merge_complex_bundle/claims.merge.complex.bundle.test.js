@@ -9,7 +9,7 @@ const {
     createTestRequest,
     getHeadersPreferOperationOutcome
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -34,7 +34,7 @@ describe('Claim Merge Tests', () => {
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {updated: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { updated: true }]);
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit?_bundle=1')

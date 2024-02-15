@@ -1,19 +1,19 @@
 const env = require('var');
 
 // const {getToken} = require('../../token');
-const {jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint} = require('./mocks/jwks');
-const {publicKey, privateKey} = require('./mocks/keys');
-const {createToken} = require('./mocks/tokens');
+const { jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint } = require('./mocks/jwks');
+const { publicKey, privateKey } = require('./mocks/keys');
+const { createToken } = require('./mocks/tokens');
 const nock = require('nock');
-const {createTestContainer} = require('./createTestContainer');
+const { createTestContainer } = require('./createTestContainer');
 const supertest = require('supertest');
-const {createApp} = require('../app');
-const {createServer} = require('../server');
-const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
+const { createApp } = require('../app');
+const { createServer } = require('../server');
+const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
-const {fhirContentTypes} = require('../utils/contentTypes');
-const {TestConfigManager} = require('./testConfigManager');
-const {jest, expect} = require('@jest/globals');
+const { fhirContentTypes } = require('../utils/contentTypes');
+const { TestConfigManager } = require('./testConfigManager');
+const { jest, expect } = require('@jest/globals');
 
 /**
  * @type {import('http').Server}
@@ -51,7 +51,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
-    return createApp({fnGetContainer: () => testContainer, trackMetrics: false});
+    return createApp({ fnGetContainer: () => testContainer, trackMetrics: false });
 };
 
 /**
@@ -90,7 +90,7 @@ module.exports.commonBeforeEach = async () => {
     process.env.AUTH_ENABLED = '1';
     const urlObject = new URL(env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
-        {pub: publicKey, kid: '123'}
+        { pub: publicKey, kid: '123' }
     ]);
     /**
      * @type {string[]}
@@ -115,7 +115,7 @@ module.exports.commonBeforeEach = async () => {
  * @param {string} patientId
  * @param {string} personId
  */
-module.exports.setupMockOpenIdServer = ({token, patientId, personId}) => {
+module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
     expect(env.AUTH_ISSUER).toBeDefined();
     expect(env.AUTH_ISSUER.length).toBeGreaterThan(0);
     const discoveryUrlObject = new URL(env.AUTH_ISSUER);
@@ -137,7 +137,7 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
         /**
          * @type {RequestSpecificCache}
@@ -151,7 +151,7 @@ module.exports.commonAfterEach = async () => {
 
     const configManager = testContainer?.configManager ?? new TestConfigManager();
 
-    const testMongoDatabaseManager = new TestMongoDatabaseManager({configManager});
+    const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
     await testMongoDatabaseManager.dropDatabasesAsync();
     if (server) {
         await server.close();

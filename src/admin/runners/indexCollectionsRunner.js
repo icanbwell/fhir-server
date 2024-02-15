@@ -1,6 +1,6 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {IndexManager} = require('../../indexes/indexManager');
-const {BaseScriptRunner} = require('./baseScriptRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { IndexManager } = require('../../indexes/indexManager');
+const { BaseScriptRunner } = require('./baseScriptRunner');
 
 /**
  * @classdesc Adds and removes indexes
@@ -149,7 +149,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 }
             }
         } catch (e) {
-            this.adminLogger.logError('ERROR', {error: 'e'});
+            this.adminLogger.logError('ERROR', { error: 'e' });
         } finally {
             await this.shutdown();
         }

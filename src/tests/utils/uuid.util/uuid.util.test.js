@@ -1,6 +1,6 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {generateUUIDv5, convertFromMongoUuid, convertToMongoUuid} = require('../../../utils/uid.util');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { generateUUIDv5, convertFromMongoUuid, convertToMongoUuid } = require('../../../utils/uid.util');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {

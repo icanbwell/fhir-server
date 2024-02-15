@@ -1,6 +1,6 @@
 const env = require('var');
 
-const {ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX} = require('../constants');
+const { ACCESS_LOGS_COLLECTION_NAME, CONSENT_OF_LINKED_PERSON_INDEX } = require('../constants');
 
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)

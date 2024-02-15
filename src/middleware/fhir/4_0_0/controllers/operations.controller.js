@@ -1,10 +1,10 @@
 const httpContext = require('express-http-context');
-const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
-const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {FhirResponseWriter} = require('../../fhirResponseWriter');
-const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
-const {REQUEST_ID_TYPE} = require('../../../../constants');
+const { FhirOperationsManager } = require('../../../../operations/fhirOperationsManager');
+const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { FhirResponseWriter } = require('../../fhirResponseWriter');
+const { RequestSpecificCache } = require('../../../../utils/requestSpecificCache');
+const { REQUEST_ID_TYPE } = require('../../../../constants');
 
 class CustomOperationsController {
     /**
@@ -72,20 +72,20 @@ class CustomOperationsController {
                     req, res
                 }, resourceType);
                 if (name === 'merge') {
-                    this.fhirResponseWriter.merge({req, res, result});
+                    this.fhirResponseWriter.merge({ req, res, result });
                 } else if (name === 'graph') {
-                    this.fhirResponseWriter.graph({req, res, result});
+                    this.fhirResponseWriter.graph({ req, res, result });
                 } else if (name === 'everything') {
-                    this.fhirResponseWriter.everything({req, res, result});
+                    this.fhirResponseWriter.everything({ req, res, result });
                 } else {
-                    this.fhirResponseWriter.readCustomOperation({req, res, result});
+                    this.fhirResponseWriter.readCustomOperation({ req, res, result });
                 }
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -118,13 +118,13 @@ class CustomOperationsController {
                 const result = await this.fhirOperationsManager[`${name}`](args, {
                     req, res
                 }, resourceType);
-                this.fhirResponseWriter.readCustomOperation({req, res, result});
+                this.fhirResponseWriter.readCustomOperation({ req, res, result });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -148,18 +148,18 @@ class CustomOperationsController {
                         req, res
                     }, resourceType);
                 if (name === 'graph') {
-                    this.fhirResponseWriter.graph({req, res, result});
+                    this.fhirResponseWriter.graph({ req, res, result });
                 } else if (name === 'everything') {
-                    this.fhirResponseWriter.everything({req, res, result});
+                    this.fhirResponseWriter.everything({ req, res, result });
                 } else {
-                    this.fhirResponseWriter.readCustomOperation({req, res, result});
+                    this.fhirResponseWriter.readCustomOperation({ req, res, result });
                 }
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }

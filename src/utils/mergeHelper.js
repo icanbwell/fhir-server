@@ -86,7 +86,7 @@ function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
             oldArray[`${matchingOldItemIndex}`], newArrayItem, options);
         foundMatch = true;
     }
-    return {foundMatch, resultArray};
+    return { foundMatch, resultArray };
 }
 
 /**

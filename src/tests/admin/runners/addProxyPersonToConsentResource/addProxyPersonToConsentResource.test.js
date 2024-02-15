@@ -33,7 +33,7 @@ const expConsentWithProxyPerson = require('./fixtures/expected/consent_with_prox
 const expConsentWithClientPersonAsActor = require('./fixtures/expected/consent_with_client_person_as_actor.json');
 const expConsent2WithClientPersonAsActor = require('./fixtures/expected/consent_2_with_client_person_as_actor.json');
 const expConsentWithCorrectClientPersonAsActor = require('./fixtures/expected/consent_with_correct_client_person_as_actor.json');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Add Proxy Person link to Consent Resources Test', () => {
     beforeEach(async () => {

@@ -77,7 +77,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +109,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -130,7 +130,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -152,7 +152,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.schedule = FhirResourceCreator.createArray(valueProvided, Timing);
             }
         });
@@ -173,7 +173,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const NutritionOrderNutrient = require('../backbone_elements/nutritionOrderNutrient.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.nutrient = FhirResourceCreator.createArray(valueProvided, NutritionOrderNutrient);
             }
         });
@@ -194,7 +194,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const NutritionOrderTexture = require('../backbone_elements/nutritionOrderTexture.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.texture = FhirResourceCreator.createArray(valueProvided, NutritionOrderTexture);
             }
         });
@@ -215,7 +215,7 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fluidConsistencyType = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -258,7 +258,7 @@ class NutritionOrderOralDiet extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -278,14 +278,14 @@ class NutritionOrderOralDiet extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.schedule) { await async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.nutrient) { await async.each(this.nutrient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.texture) { await async.each(this.texture, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.fluidConsistencyType) { await async.each(this.fluidConsistencyType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.schedule) { await async.each(this.schedule, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.nutrient) { await async.each(this.nutrient, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.texture) { await async.each(this.texture, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.fluidConsistencyType) { await async.each(this.fluidConsistencyType, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -293,7 +293,7 @@ class NutritionOrderOralDiet extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

@@ -1,7 +1,7 @@
 'use strict';
 const async = require('async');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
-const {assertTypeEquals} = require('./assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals } = require('./assertType');
 
 /**
  * This file implements helpers for expanding value sets
@@ -11,7 +11,7 @@ class ValueSetManager {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor ({databaseQueryFactory}) {
+    constructor ({ databaseQueryFactory }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {DatabaseQueryFactory}
@@ -28,9 +28,9 @@ class ValueSetManager {
      */
     async getContentsOfValueSetAsync (resourceType, base_version, valueSetUrl) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery(
-            {resourceType, base_version}
+            { resourceType, base_version }
         );
-        const valueSet = await databaseQueryManager.findOneAsync({query: {url: valueSetUrl.toString()}});
+        const valueSet = await databaseQueryManager.findOneAsync({ query: { url: valueSetUrl.toString() } });
         return await this.getValueSetConceptsAsync(resourceType, base_version, valueSet);
     }
 

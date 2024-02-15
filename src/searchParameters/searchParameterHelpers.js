@@ -1,4 +1,4 @@
-const {searchParameterQueries} = require('./searchParameters');
+const { searchParameterQueries } = require('./searchParameters');
 
 /**
  * Returns the field in resource corresponding to search parameter

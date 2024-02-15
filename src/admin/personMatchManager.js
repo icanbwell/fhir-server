@@ -1,10 +1,10 @@
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const superagent = require('superagent');
-const {ConfigManager} = require('../utils/configManager');
+const { ConfigManager } = require('../utils/configManager');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {logInfo} = require('../operations/common/logging');
+const { logInfo } = require('../operations/common/logging');
 const { EXTERNAL_REQUEST_RETRY_COUNT } = require('../constants');
 const { isUuid } = require('../utils/uid.util');
 
@@ -187,7 +187,7 @@ class PersonMatchManager {
             'Content-Type': 'application/json',
             Accept: 'application/json'
         };
-        logInfo(`Calling ${url} with body`, {'body': parameters});
+        logInfo(`Calling ${url} with body`, { 'body': parameters });
         try {
             /**
              * @type {request.Response}
@@ -199,7 +199,7 @@ class PersonMatchManager {
             .retry(EXTERNAL_REQUEST_RETRY_COUNT)
             .timeout(this.configManager.requestTimeoutMs);
             const json = res.body;
-            logInfo('', {json});
+            logInfo('', { json });
             return json;
         } catch (error) {
             if (error.timeout) {

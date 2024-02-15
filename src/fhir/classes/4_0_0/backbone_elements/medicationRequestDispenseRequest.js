@@ -82,7 +82,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +114,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +134,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const MedicationRequestInitialFill = require('../backbone_elements/medicationRequestInitialFill.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.initialFill = FhirResourceCreator.create(valueProvided, MedicationRequestInitialFill);
             }
         });
@@ -155,7 +155,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dispenseInterval = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -176,7 +176,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.validityPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -220,7 +220,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -241,7 +241,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.expectedSupplyDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -261,7 +261,7 @@ class MedicationRequestDispenseRequest extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -286,7 +286,7 @@ class MedicationRequestDispenseRequest extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -307,15 +307,15 @@ class MedicationRequestDispenseRequest extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.initialFill) { await this.initialFill.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.dispenseInterval) { await this.dispenseInterval.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.validityPeriod) { await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.expectedSupplyDuration) { await this.expectedSupplyDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.performer) { await this.performer.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.initialFill) { await this.initialFill.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.dispenseInterval) { await this.dispenseInterval.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.validityPeriod) { await this.validityPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.expectedSupplyDuration) { await this.expectedSupplyDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performer) { await this.performer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -323,7 +323,7 @@ class MedicationRequestDispenseRequest extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

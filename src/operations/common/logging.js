@@ -1,7 +1,7 @@
 const env = require('var');
 const httpContext = require('express-http-context');
-const {getLogger} = require('../../winstonInit');
-const {REQUEST_ID_TYPE} = require('../../constants');
+const { getLogger } = require('../../winstonInit');
+const { REQUEST_ID_TYPE } = require('../../constants');
 
 /**
  * @type {import('winston').logger}
@@ -75,9 +75,9 @@ const logWarn = (message, args) => {
  * @param {Object} args
  * @return {Promise<void>}
  */
-const logVerboseAsync = async ({source, args}) => {
+const logVerboseAsync = async ({ source, args }) => {
     if (env.LOGLEVEL === 'DEBUG') {
-        logInfo(`${source}`, {args});
+        logInfo(`${source}`, { args });
     }
 };
 
@@ -103,7 +103,7 @@ const getRemoteAddress = (req) => {
  * @param {Error} error
  * @param {import('http').IncomingMessage} req
  */
-const logErrorAndRequestAsync = async ({error, req}) => {
+const logErrorAndRequestAsync = async ({ error, req }) => {
     const request = {
         id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
         statusCode: error.statusCode,
@@ -121,7 +121,7 @@ const logErrorAndRequestAsync = async ({error, req}) => {
             systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
         }
     };
-    const logData = {request, error};
+    const logData = { request, error };
     if (error.elapsedTimeInSecs) {
         logData.elapsedTimeInSecs = error.elapsedTimeInSecs;
     }

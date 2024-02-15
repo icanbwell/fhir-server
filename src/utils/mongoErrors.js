@@ -1,5 +1,5 @@
-const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
-const {QueryItem} = require('../operations/graph/queryItem');
+const { mongoQueryAndOptionsStringify } = require('./mongoQueryStringify');
+const { QueryItem } = require('../operations/graph/queryItem');
 
 /**
  * This file implements a custom error for Mongo errors

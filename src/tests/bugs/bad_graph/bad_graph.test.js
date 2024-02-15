@@ -1,5 +1,5 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const graphResource = require('./fixtures/graph.json');
 const expectedResponseResource = require('./fixtures/expected_response.json');
 

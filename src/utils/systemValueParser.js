@@ -17,7 +17,7 @@ class SystemValueParser {
             value = text;
         }
 
-        return {system, value};
+        return { system, value };
     }
 }
 

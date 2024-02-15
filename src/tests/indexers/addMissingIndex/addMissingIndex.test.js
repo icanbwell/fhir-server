@@ -4,9 +4,9 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {customIndexes} = require('./mockCustomIndexes');
-const {IndexProvider} = require('../../../indexes/indexProvider');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { customIndexes } = require('./mockCustomIndexes');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
 class MockIndexProvider extends IndexProvider {
     getIndexes () {
@@ -58,7 +58,7 @@ describe('Add Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName, db: fhirDb
@@ -100,7 +100,7 @@ describe('Add Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              *

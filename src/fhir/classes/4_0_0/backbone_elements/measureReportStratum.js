@@ -74,7 +74,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +106,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -128,7 +128,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.value = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -148,7 +148,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 const MeasureReportComponent = require('../backbone_elements/measureReportComponent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.component = FhirResourceCreator.createArray(valueProvided, MeasureReportComponent);
             }
         });
@@ -169,7 +169,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 const MeasureReportPopulation1 = require('../backbone_elements/measureReportPopulation1.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.population = FhirResourceCreator.createArray(valueProvided, MeasureReportPopulation1);
             }
         });
@@ -190,7 +190,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.measureScore = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -212,7 +212,7 @@ class MeasureReportStratum extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -230,13 +230,13 @@ class MeasureReportStratum extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.value) { await this.value.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.component) { await async.each(this.component, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.population) { await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.measureScore) { await this.measureScore.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.value) { await this.value.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.component) { await async.each(this.component, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.population) { await async.each(this.population, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.measureScore) { await this.measureScore.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -244,7 +244,7 @@ class MeasureReportStratum extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

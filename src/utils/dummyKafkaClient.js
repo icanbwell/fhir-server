@@ -1,7 +1,7 @@
 /**
  * This class implements a client to Kafka
  */
-const {KafkaClient} = require('./kafkaClient');
+const { KafkaClient } = require('./kafkaClient');
 
 class DummyKafkaClient extends KafkaClient {
     /**

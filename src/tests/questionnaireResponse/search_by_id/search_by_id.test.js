@@ -7,8 +7,8 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
     get defaultSortId () {
@@ -50,7 +50,7 @@ describe('Questionnaire Response Tests', () => {
                 .send(questionnaireResponseBundle)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?id=140c02e4-e462-4be8-ab84-e0456ffe65eb')

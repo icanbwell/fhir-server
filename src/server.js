@@ -1,12 +1,12 @@
-const {createApp} = require('./app');
-const {fhirServerConfig} = require('./config');
+const { createApp } = require('./app');
+const { fhirServerConfig } = require('./config');
 const env = require('var');
-const {logError, logInfo} = require('./operations/common/logging');
-const {logSystemEventAsync} = require('./operations/common/systemEventLogging');
+const { logError, logInfo } = require('./operations/common/logging');
+const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const http = require('http');
 const { isTrue } = require('./utils/isTrue');
-const {getImageVersion} = require('./utils/getImageVersion');
-const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
+const { getImageVersion } = require('./utils/getImageVersion');
+const { MongoDatabaseManager } = require('./utils/mongoDatabaseManager');
 const { createTerminus } = require('@godaddy/terminus');
 /**
  * To use uncaught error handlers, we need to import the file
@@ -47,7 +47,7 @@ async function createServer (fnGetContainer) {
         configManager: container.configManager
     }).connectAsync();
 
-    const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
+    const app = createApp({ fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS) });
 
     const server = http
         .createServer(app)
@@ -56,7 +56,7 @@ async function createServer (fnGetContainer) {
             await logSystemEventAsync({
                 event: 'serverStartup',
                 message: 'Server is up and running',
-                args: {image: image, version: getImageVersion()}
+                args: { image: image, version: getImageVersion() }
             });
         });
 
@@ -81,7 +81,7 @@ async function createServer (fnGetContainer) {
             logInfo('Socket timeout', {});
         });
         socket.once('error', function (e) {
-            logError('Socket error', {error: e});
+            logError('Socket error', { error: e });
         });
     });
 

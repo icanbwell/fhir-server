@@ -1,6 +1,6 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {IndexManager} = require('../../indexes/indexManager');
-const {BaseScriptRunner} = require('./baseScriptRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { IndexManager } = require('../../indexes/indexManager');
+const { BaseScriptRunner } = require('./baseScriptRunner');
 
 /**
  * @classdesc Removes bad records from the database
@@ -76,11 +76,11 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
             }
             for (const collectionName of this.collections) {
                 this.adminLogger.logInfo(`Processing ${collectionName}`);
-                let filter = {'id': null};
+                let filter = { 'id': null };
                 this.adminLogger.logInfo(`Deleting in ${collectionName} by filter: ${JSON.stringify(filter)}`);
                 let result = await db.collection(collectionName).deleteMany(filter);
                 this.adminLogger.logInfo(`Deleted ${result.deletedCount} records by filter: ${JSON.stringify(filter)}`);
-                filter = {'_access.undefined': 1};
+                filter = { '_access.undefined': 1 };
                 this.adminLogger.logInfo(`Deleting in ${collectionName} by filter: ${JSON.stringify(filter)}`);
                 result = await db.collection(collectionName).deleteMany(filter);
                 this.adminLogger.logInfo(`Deleted ${result.deletedCount} records by filter: ${JSON.stringify(filter)}`);

@@ -24,8 +24,8 @@ const {
     createTestRequest,
     getHeadersWithCustomPayload
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -64,28 +64,28 @@ describe('Patient Tests', () => {
                 .send(mpsBwellPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(mpsClientPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(mpsBwellPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(mpsPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // create client data
             resp = await request
@@ -93,49 +93,49 @@ describe('Patient Tests', () => {
                 .send(clientBwellPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(clientPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(clientBwellPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(clientPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task1)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const mps_person_payload = {
                 'cognito:username': 'patient-123@example.com',

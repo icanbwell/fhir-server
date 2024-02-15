@@ -1,5 +1,5 @@
-const {createContainer} = require('../createContainer');
-const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
+const { createContainer } = require('../createContainer');
+const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const { TestConfigManager } = require('./testConfigManager');
 const { MockKafkaClient } = require('./mocks/mockKafkaClient');
 

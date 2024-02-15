@@ -1,8 +1,8 @@
-const {Transform} = require('@json2csv/node');
-const {flatten} = require('@json2csv/transforms');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {ConfigManager} = require('../../../utils/configManager');
-const {logInfo} = require('../../common/logging');
+const { Transform } = require('@json2csv/node');
+const { flatten } = require('@json2csv/transforms');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ConfigManager } = require('../../../utils/configManager');
+const { logInfo } = require('../../common/logging');
 
 class FhirResourceCsvWriter extends Transform {
     /**
@@ -14,14 +14,14 @@ class FhirResourceCsvWriter extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor ({signal, delimiter, contentType, highWaterMark, configManager}) {
+    constructor ({ signal, delimiter, contentType, highWaterMark, configManager }) {
         /**
          * @type {import('@json2csv/node').Json2CSVBaseOptions}
          */
         const opts = {
             delimiter: delimiter,
             transforms: [
-                flatten({objects: true, arrays: true, separator: '.'})
+                flatten({ objects: true, arrays: true, separator: '.' })
             ]
         };
         /**
@@ -81,7 +81,7 @@ class FhirResourceCsvWriter extends Transform {
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
     // eslint-disable-next-line no-unused-vars
-    writeOperationOutcome ({operationOutcome, encoding}) {
+    writeOperationOutcome ({ operationOutcome, encoding }) {
     }
 
     getContentType () {

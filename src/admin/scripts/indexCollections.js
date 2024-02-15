@@ -1,7 +1,7 @@
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
-const {AdminLogger} = require('../adminLogger');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { IndexCollectionsRunner } = require('../runners/indexCollectionsRunner');
+const { AdminLogger } = require('../adminLogger');
 
 /**
  * main function

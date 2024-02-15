@@ -3,21 +3,21 @@
  */
 
 const moment = require('moment-timezone');
-const {escapeRegExp} = require('./regexEscaper');
-const {UrlParser} = require('./urlParser');
-const {ReferenceParser} = require('./referenceParser');
-const {BadRequestError} = require('./httpErrors');
-const {FhirTypesManager} = require('../fhir/fhirTypesManager');
+const { escapeRegExp } = require('./regexEscaper');
+const { UrlParser } = require('./urlParser');
+const { ReferenceParser } = require('./referenceParser');
+const { BadRequestError } = require('./httpErrors');
+const { FhirTypesManager } = require('../fhir/fhirTypesManager');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
  * @param {string} target what we are querying for
  * @return a mongo regex query
  */
-const stringQueryBuilder = function ({target}) {
+const stringQueryBuilder = function ({ target }) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
-    return {$regex: new RegExp('^' + escapeRegExp(t2), 'i')};
+    return { $regex: new RegExp('^' + escapeRegExp(t2), 'i') };
 };
 
 /**
@@ -27,7 +27,7 @@ const stringQueryBuilder = function ({target}) {
  * @param {string} target
  * @return {array} ors
  */
-const addressQueryBuilder = function ({target}) {
+const addressQueryBuilder = function ({ target }) {
     // Tokenize the input as mush as possible
     const totalSplit = target.split(/[\s,]+/);
     const ors = [];
@@ -42,12 +42,12 @@ const addressQueryBuilder = function ({target}) {
         const regExpObject = new RegExp(escapeRegExp(regExPattern), 'i');
         ors.push({
             $or: [
-                {'address.line': {$regex: regExpObject}},
-                {'address.city': {$regex: regExpObject}},
-                {'address.district': {$regex: regExpObject}},
-                {'address.state': {$regex: regExpObject}},
-                {'address.postalCode': {$regex: regExpObject}},
-                {'address.country': {$regex: regExpObject}}
+                { 'address.line': { $regex: regExpObject } },
+                { 'address.city': { $regex: regExpObject } },
+                { 'address.district': { $regex: regExpObject } },
+                { 'address.state': { $regex: regExpObject } },
+                { 'address.postalCode': { $regex: regExpObject } },
+                { 'address.country': { $regex: regExpObject } }
             ]
         });
     }
@@ -61,7 +61,7 @@ const addressQueryBuilder = function ({target}) {
  * @param {string} target
  * @return {array} ors
  */
-const nameQueryBuilder = function ({target}) {
+const nameQueryBuilder = function ({ target }) {
     const split = target.split(/[\s.,]+/);
     const ors = [];
 
@@ -72,11 +72,11 @@ const nameQueryBuilder = function ({target}) {
         const regExpObject = new RegExp(escapeRegExp(split[`${i}`]));
         ors.push({
             $or: [
-                {'name.text': {$regex: regExpObject, '$options': 'i'}},
-                {'name.family': {$regex: regExpObject, '$options': 'i'}},
-                {'name.given': {$regex: regExpObject, '$options': 'i'}},
-                {'name.suffix': {$regex: regExpObject, '$options': 'i'}},
-                {'name.prefix': {$regex: regExpObject, '$options': 'i'}}
+                { 'name.text': { $regex: regExpObject, '$options': 'i' } },
+                { 'name.family': { $regex: regExpObject, '$options': 'i' } },
+                { 'name.given': { $regex: regExpObject, '$options': 'i' } },
+                { 'name.suffix': { $regex: regExpObject, '$options': 'i' } },
+                { 'name.prefix': { $regex: regExpObject, '$options': 'i' } }
             ]
         });
     }
@@ -103,17 +103,17 @@ const nameQueryBuilder = function ({target}) {
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryBuilder = function ({target, type, field, required, exists_flag, resourceType}) {
+const tokenQueryBuilder = function ({ target, type, field, required, exists_flag, resourceType }) {
     let queryBuilder = {};
     let system = '';
     let value;
 
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
 
@@ -151,14 +151,14 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
     if (system && value) {
         // check if the field is an array field
         const fhirTypesManager = new FhirTypesManager();
-        const fieldData = fhirTypesManager.getDataForField({resourceType, field});
+        const fieldData = fhirTypesManager.getDataForField({ resourceType, field });
         if (fieldData?.max !== '1') {
             // $elemMatch so we match on BOTH system and value in the same array element
             queryBuilder = {};
-            queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+            queryBuilder[`${field}`] = { $elemMatch: queryBuilderElementMatch };
         } else {
             queryBuilder = {
-                $and: Object.entries(queryBuilder).map(([k, v]) => ({[k]: v}))
+                $and: Object.entries(queryBuilder).map(([k, v]) => ({ [k]: v }))
             };
         }
     }
@@ -181,17 +181,17 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryContainsBuilder = function ({target, type, field, required, exists_flag}) {
+const tokenQueryContainsBuilder = function ({ target, type, field, required, exists_flag }) {
     let queryBuilder = {};
     let system = '';
     let value;
 
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
 
@@ -243,7 +243,7 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
     if (system && value) {
         // $elemMatch so we match on BOTH system and value in the same array element
         queryBuilder = {};
-        queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+        queryBuilder[`${field}`] = { $elemMatch: queryBuilderElementMatch };
     }
     return queryBuilder;
 };
@@ -261,15 +261,15 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
+const exactMatchQueryBuilder = function ({ target, field, exists_flag }) {
     const queryBuilder = {};
 
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
 
@@ -297,15 +297,15 @@ const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
  * @param {boolean|undefined} [exists_flag]
  * @return {JSON} queryBuilder
  */
-const referenceQueryBuilder = function ({target_type, target, field, exists_flag}) {
+const referenceQueryBuilder = function ({ target_type, target, field, exists_flag }) {
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
     if (target_type && target) {
@@ -330,18 +330,18 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
                 fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
-        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+        queryBuilder[`${field}`] = { $in: fullResourceTypeAndIdList.map(s => `${s}`) };
     } else if (typeof target === 'string' && target.includes('/')) {
         const [type, id] = target.split('/');
         if (id.includes(',')) {
             const idList = id.split(',');
-            queryBuilder[`${field}`] = {$in: idList.map(i => `${type}/${i}`)};
+            queryBuilder[`${field}`] = { $in: idList.map(i => `${type}/${i}`) };
         } else {
             queryBuilder[`${field}`] = `${type}/${id}`;
         }
     } else {
         // target = id The type may be there so we need to check the end of the field for the id
-        queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
+        queryBuilder[`${field}`] = { $regex: new RegExp(escapeRegExp(`${target}$`)) };
     }
 
     return queryBuilder;
@@ -370,11 +370,11 @@ const referenceQueryBuilderOptimized = function (
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
-        queryBuilder[`${field}`] = {$exists: false};
+        queryBuilder[`${field}`] = { $exists: false };
         return queryBuilder;
     }
     if (exists_flag === true) {
-        queryBuilder[`${field}`] = {$exists: true};
+        queryBuilder[`${field}`] = { $exists: true };
         return queryBuilder;
     }
     if (target_type && target) {
@@ -404,24 +404,24 @@ const referenceQueryBuilderOptimized = function (
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
             if (searchItem.includes('/')) {
-                const {resourceType, id} = ReferenceParser.parseReference(searchItem);
+                const { resourceType, id } = ReferenceParser.parseReference(searchItem);
                 fullResourceTypeAndIdList.push(`${resourceType}/${id}`);
             } else {
                 fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
-        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+        queryBuilder[`${field}`] = { $in: fullResourceTypeAndIdList.map(s => `${s}`) };
     } else if (typeof target === 'string' && target.includes('/')) {
-        const {resourceType, id} = ReferenceParser.parseReference(target);
+        const { resourceType, id } = ReferenceParser.parseReference(target);
         if (id.includes(',')) {
             const idList = id.split(',');
-            queryBuilder[`${field}`] = {$in: idList.map(i => `${resourceType}/${i}`)};
+            queryBuilder[`${field}`] = { $in: idList.map(i => `${resourceType}/${i}`) };
         } else {
             queryBuilder[`${field}`] = `${resourceType}/${id}`;
         }
     } else {
         // target = id The type may be there so we need to check the end of the field for the id
-        queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
+        queryBuilder[`${field}`] = { $regex: new RegExp(escapeRegExp(`${target}$`)) };
     }
 
     return queryBuilder;
@@ -434,7 +434,7 @@ const referenceQueryBuilderOptimized = function (
  * @param {string} target
  * @returns {Object} a mongo query
  */
-const numberQueryBuilder = function ({target}) {
+const numberQueryBuilder = function ({ target }) {
     let prefix = '';
     let number;
     let sigfigs;
@@ -453,15 +453,15 @@ const numberQueryBuilder = function ({target}) {
     // Missing eq(default), sa, eb, and ap prefixes
     switch (prefix) {
         case 'lt':
-            return {$lt: number};
+            return { $lt: number };
         case 'le':
-            return {$lte: number};
+            return { $lte: number };
         case 'gt':
-            return {$gt: number};
+            return { $gt: number };
         case 'ge':
-            return {$gte: number};
+            return { $gte: number };
         case 'ne':
-            return {$ne: number};
+            return { $ne: number };
     }
 
     // Return an approximation query
@@ -473,7 +473,7 @@ const numberQueryBuilder = function ({target}) {
     }
     const aprox = (1 / 10 ** decimals) * 5;
 
-    return {$gte: number - aprox, $lt: number + aprox};
+    return { $gte: number - aprox, $lt: number + aprox };
 };
 
 /**
@@ -482,7 +482,7 @@ const numberQueryBuilder = function ({target}) {
  * @param {string} target [prefix][number]|[system]|[code]
  * @param {string} field path to specific field in the resource
  */
-const quantityQueryBuilder = function ({target, field}) {
+const quantityQueryBuilder = function ({ target, field }) {
     const qB = {};
     // split by the two pipes
     let [num, system, code] = target.split('|');
@@ -502,19 +502,19 @@ const quantityQueryBuilder = function ({target, field}) {
         // Missing eq(default), sa, eb, and ap prefixes
         switch (prefix) {
             case 'lt':
-                qB[`${field}.value`] = {$lt: num};
+                qB[`${field}.value`] = { $lt: num };
                 break;
             case 'le':
-                qB[`${field}.value`] = {$lte: num};
+                qB[`${field}.value`] = { $lte: num };
                 break;
             case 'gt':
-                qB[`${field}.value`] = {$gt: num};
+                qB[`${field}.value`] = { $gt: num };
                 break;
             case 'ge':
-                qB[`${field}.value`] = {$gte: num};
+                qB[`${field}.value`] = { $gte: num };
                 break;
             case 'ne':
-                qB[`${field}.value`] = {$ne: num};
+                qB[`${field}.value`] = { $ne: num };
                 break;
         }
     } else {
@@ -575,7 +575,7 @@ const getDateFromNum = function (days) {
  * @param {string|undefined} [path]
  * @return {Object}
  */
-const dateQueryBuilder = function ({date, type, path}) {
+const dateQueryBuilder = function ({ date, type, path }) {
     // noinspection RegExpSingleCharAlternation
     const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
     const match = date.match(regex);
@@ -731,12 +731,12 @@ const dateQueryBuilder = function ({date, type, path}) {
                     toReturn = [
                         {
                             $and: [
-                                {[pS]: {$lte: str}},
-                                {$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}
+                                { [pS]: { $lte: str } },
+                                { $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] }
                             ]
                         },
-                        {$and: [{[pS]: {$lte: str}}, {[pE]: undefined}]},
-                        {$and: [{$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}, {[pS]: undefined}]}
+                        { $and: [{ [pS]: { $lte: str } }, { [pE]: undefined }] },
+                        { $and: [{ $or: [{ [pE]: { $gte: str } }, { [pE]: regPoss }] }, { [pS]: undefined }] }
                     ];
                     return toReturn;
                 }
@@ -756,15 +756,15 @@ const dateQueryBuilder = function ({date, type, path}) {
                         },
                         {
                             $and: [
-                                {[pBPS]: {$lte: str}},
-                                {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]}
+                                { [pBPS]: { $lte: str } },
+                                { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] }
                             ]
                         },
-                        {$and: [{[pBPS]: {$lte: str}}, {[pBPE]: undefined}]},
+                        { $and: [{ [pBPS]: { $lte: str } }, { [pBPE]: undefined }] },
                         {
                             $and: [
-                                {$or: [{[pBPE]: {$gte: str}}, {[pBPE]: regPoss}]},
-                                {[pBPS]: undefined}
+                                { $or: [{ [pBPE]: { $gte: str } }, { [pBPE]: regPoss }] },
+                                { [pBPS]: undefined }
                             ]
                         }
                     ];
@@ -802,7 +802,7 @@ const dateQueryBuilder = function ({date, type, path}) {
  */
 // noinspection JSUnusedLocalSymbols
 // eslint-disable-next-line no-unused-vars
-const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
+const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
     if (!matches) {
@@ -856,7 +856,7 @@ const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
  * @param {string} fieldName
  * @returns {Object[]}
  */
-const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
+const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
     const regex = /([a-z]+)(.+)/;
     const match = dateQueryItem.match(regex);
 
@@ -889,7 +889,7 @@ const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
             };
             break;
     }
-    startQuery = {[`${fieldName}.start`]: startQuery};
+    startQuery = { [`${fieldName}.start`]: startQuery };
 
     // Build query for period.end
     let endQuery = {};
@@ -932,7 +932,7 @@ const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
  * @param {string} field2 contains the path and search type
  * @param {string} resourceType
  */
-const compositeQueryBuilder = function ({target, field1, field2, resourceType}) {
+const compositeQueryBuilder = function ({ target, field1, field2, resourceType }) {
     const composite = [];
     let temp = {};
     const [target1, target2] = target.split(/[$,]/);
@@ -943,14 +943,14 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     switch (type1) {
         case 'string':
             temp = {};
-            temp[`${path1}`] = stringQueryBuilder({target: target1});
+            temp[`${path1}`] = stringQueryBuilder({ target: target1 });
             composite.push(temp);
             break;
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder({target: target1, type: 'code', field: path1, resourceType})]},
-                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1, resourceType})]}
+                    { $and: [tokenQueryBuilder({ target: target1, type: 'code', field: path1, resourceType })] },
+                    { $and: [tokenQueryBuilder({ target: target1, type: 'value', field: path1, resourceType })] }
                 ]
             });
             break;
@@ -962,11 +962,11 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
             }));
             break;
         case 'quantity':
-            composite.push(quantityQueryBuilder({target: target1, field: path1}));
+            composite.push(quantityQueryBuilder({ target: target1, field: path1 }));
             break;
         case 'number':
             temp = {};
-            temp[`${path1}`] = numberQueryBuilder({target: target1});
+            temp[`${path1}`] = numberQueryBuilder({ target: target1 });
             composite.push(temp);
             break;
         case 'date':
@@ -1008,14 +1008,14 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     switch (type2) {
         case 'string':
             temp = {};
-            temp[`${path2}`] = stringQueryBuilder({target: target2});
+            temp[`${path2}`] = stringQueryBuilder({ target: target2 });
             composite.push(temp);
             break;
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder({target: target2, type: 'code', field: path2, resourceType})]},
-                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2, resourceType})]}
+                    { $and: [tokenQueryBuilder({ target: target2, type: 'code', field: path2, resourceType })] },
+                    { $and: [tokenQueryBuilder({ target: target2, type: 'value', field: path2, resourceType })] }
                 ]
             });
             break;
@@ -1027,11 +1027,11 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
             }));
             break;
         case 'quantity':
-            composite.push(quantityQueryBuilder({target: target2, field: path2}));
+            composite.push(quantityQueryBuilder({ target: target2, field: path2 }));
             break;
         case 'number':
             temp = {};
-            temp[`${path2}`] = composite.push(numberQueryBuilder({target: target2}));
+            temp[`${path2}`] = composite.push(numberQueryBuilder({ target: target2 }));
             composite.push(temp);
             break;
         case 'date':
@@ -1072,9 +1072,9 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     }
 
     if (target.includes('$')) {
-        return {$and: composite};
+        return { $and: composite };
     } else {
-        return {$or: composite};
+        return { $or: composite };
     }
 };
 
@@ -1085,16 +1085,16 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
  * @param {boolean} ignoreCase
  * @return {JSON} queryBuilder
  */
-const partialTextQueryBuilder = function ({field, partialText, ignoreCase}) {
+const partialTextQueryBuilder = function ({ field, partialText, ignoreCase }) {
     const queryBuilder = {};
     /**
      * @type {RegExp}
      */
     const regexObject = new RegExp(escapeRegExp(`${partialText}`));
     if (ignoreCase) {
-        queryBuilder[`${field}`] = {$regex: regexObject, '$options': 'i'};
+        queryBuilder[`${field}`] = { $regex: regexObject, '$options': 'i' };
     } else {
-        queryBuilder[`${field}`] = {$regex: regexObject};
+        queryBuilder[`${field}`] = { $regex: regexObject };
     }
 
     return queryBuilder;

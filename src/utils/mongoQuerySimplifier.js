@@ -1,4 +1,4 @@
-const {removeDuplicatesWithLambda} = require('./list.util');
+const { removeDuplicatesWithLambda } = require('./list.util');
 
 class MongoQuerySimplifier {
     /**
@@ -6,7 +6,7 @@ class MongoQuerySimplifier {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    static simplifyFilter ({filter}) {
+    static simplifyFilter ({ filter }) {
         if (filter === null || filter === undefined) {
             return filter;
         }
@@ -18,7 +18,7 @@ class MongoQuerySimplifier {
         }
         // remove nested $or if there is a parent $or
         if (filter.$or && filter.$or.length > 0) {
-            filter.$or = filter.$or.map(f => this.simplifyFilter({filter: f}));
+            filter.$or = filter.$or.map(f => this.simplifyFilter({ filter: f }));
             const indexesToSplice = [];
             for (const [subFilterIndex, subFilter] of filter.$or.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$or) {
@@ -73,7 +73,7 @@ class MongoQuerySimplifier {
             );
         }
         if (filter.$nor && filter.$nor.length > 0) {
-            filter.$nor = filter.$nor.map(f => this.simplifyFilter({filter: f}));
+            filter.$nor = filter.$nor.map(f => this.simplifyFilter({ filter: f }));
         }
         // simplify $and
         if (filter.$and && filter.$and.length > 1) {
@@ -82,7 +82,7 @@ class MongoQuerySimplifier {
             );
         }
         if (filter.$and && filter.$and.length > 0) {
-            filter.$and = filter.$and.map(f => this.simplifyFilter({filter: f}));
+            filter.$and = filter.$and.map(f => this.simplifyFilter({ filter: f }));
             const indexesToSplice = [];
             for (const [subFilterIndex, subFilter] of filter.$and.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$and) {
@@ -117,20 +117,20 @@ class MongoQuerySimplifier {
             for (const [key, value] of Object.entries(filter)) {
                 if (!['$and', '$in', '$or', '$nor'].includes(key) && value) {
                     if (this.isFilter(value)) {
-                        filter[`${key}`] = this.simplifyFilter({filter: value});
+                        filter[`${key}`] = this.simplifyFilter({ filter: value });
                     }
                 }
             }
 
             for (const [key, value] of Object.entries(filter)) {
                 if (Array.isArray(value)) {
-                    filter[`${key}`] = value.map(v => this.simplifyFilter({filter: v}))
+                    filter[`${key}`] = value.map(v => this.simplifyFilter({ filter: v }))
                         .filter(v => !this.isEmpty(v));
                     if (filter[`${key}`].length === 0) {
                         delete filter[`${key}`]; // remove empty clauses
                     }
                 } else if (this.isFilter(value)) {
-                    filter[`${key}`] = this.simplifyFilter({filter: value});
+                    filter[`${key}`] = this.simplifyFilter({ filter: value });
                     if (this.isEmpty(filter[`${key}`])) {
                         delete filter[`${key}`]; // remove empty clauses
                     }
@@ -174,7 +174,7 @@ class MongoQuerySimplifier {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
      * @return {Set<string>}
      */
-    static findColumnsInFilter ({parentKey, filter}) {
+    static findColumnsInFilter ({ parentKey, filter }) {
         const columns = new Set();
         if (!this.isFilter(filter)) {
             return columns;

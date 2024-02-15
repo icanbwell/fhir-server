@@ -1,6 +1,6 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {FhirTypesManager} = require('../../../fhir/fhirTypesManager');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { FhirTypesManager } = require('../../../fhir/fhirTypesManager');
 
 describe('FhirTypesManager Tests', () => {
     beforeEach(async () => {
@@ -16,7 +16,7 @@ describe('FhirTypesManager Tests', () => {
         test('FhirTypesManager works', async () => {
             const fhirTypesManager = new FhirTypesManager();
 
-            expect(fhirTypesManager.getTypeForField({resourceType: 'Task', field: 'status'})).toStrictEqual('code');
+            expect(fhirTypesManager.getTypeForField({ resourceType: 'Task', field: 'status' })).toStrictEqual('code');
             expect(fhirTypesManager.getTypeForField({
                 resourceType: 'Observation',
                 field: 'code'

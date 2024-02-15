@@ -87,7 +87,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -119,7 +119,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -157,7 +157,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -177,7 +177,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.status = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -215,7 +215,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.language = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -236,7 +236,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.domain = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -256,7 +256,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -275,7 +275,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.synonym = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.synonym = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationName);
             }
         });
@@ -294,7 +294,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.translation = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.translation = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationName);
             }
         });
@@ -314,7 +314,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const SubstanceSpecificationOfficial = require('../backbone_elements/substanceSpecificationOfficial.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.official = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationOfficial);
             }
         });
@@ -334,7 +334,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -363,7 +363,7 @@ class SubstanceSpecificationName extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -388,18 +388,18 @@ class SubstanceSpecificationName extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.status) { await this.status.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.language) { await async.each(this.language, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.domain) { await async.each(this.domain, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.synonym) { await async.each(this.synonym, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.translation) { await async.each(this.translation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.official) { await async.each(this.official, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.status) { await this.status.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.language) { await async.each(this.language, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.domain) { await async.each(this.domain, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.synonym) { await async.each(this.synonym, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.translation) { await async.each(this.translation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.official) { await async.each(this.official, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -407,7 +407,7 @@ class SubstanceSpecificationName extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

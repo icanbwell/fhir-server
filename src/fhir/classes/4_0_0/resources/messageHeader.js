@@ -109,7 +109,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -173,7 +173,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -195,7 +195,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -219,7 +219,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -251,7 +251,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -271,7 +271,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.eventCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -309,7 +309,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const MessageHeaderDestination = require('../backbone_elements/messageHeaderDestination.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.destination = FhirResourceCreator.createArray(valueProvided, MessageHeaderDestination);
             }
         });
@@ -329,7 +329,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sender = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -351,7 +351,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.enterer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -373,7 +373,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.author = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -393,7 +393,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const MessageHeaderSource = require('../backbone_elements/messageHeaderSource.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.create(valueProvided, MessageHeaderSource);
             }
         });
@@ -415,7 +415,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.responsible = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -436,7 +436,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -457,7 +457,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const MessageHeaderResponse = require('../backbone_elements/messageHeaderResponse.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.response = FhirResourceCreator.create(valueProvided, MessageHeaderResponse);
             }
         });
@@ -478,7 +478,7 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.focus = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -699,7 +699,7 @@ class MessageHeader extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -731,22 +731,22 @@ class MessageHeader extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.eventCoding) { await this.eventCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.destination) { await async.each(this.destination, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.sender) { await this.sender.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.enterer) { await this.enterer.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.author) { await this.author.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.source) { await this.source.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.responsible) { await this.responsible.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.reason) { await this.reason.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.response) { await this.response.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.focus) { await async.each(this.focus, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.eventCoding) { await this.eventCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.destination) { await async.each(this.destination, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.sender) { await this.sender.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.enterer) { await this.enterer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.author) { await this.author.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.source) { await this.source.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.responsible) { await this.responsible.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reason) { await this.reason.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.response) { await this.response.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.focus) { await async.each(this.focus, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -754,7 +754,7 @@ class MessageHeader extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

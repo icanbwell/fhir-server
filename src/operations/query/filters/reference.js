@@ -1,6 +1,6 @@
-const {BaseFilter} = require('./baseFilter');
-const {ReferenceParser} = require('../../../utils/referenceParser');
-const {groupByLambda} = require('../../../utils/list.util');
+const { BaseFilter } = require('./baseFilter');
+const { ReferenceParser } = require('../../../utils/referenceParser');
+const { groupByLambda } = require('../../../utils/list.util');
 
 /**
  * @classdesc Filters by reference
@@ -13,8 +13,8 @@ class FilterByReference extends BaseFilter {
      * @param {string} reference
      * @return {string[]}
      */
-    getReferences ({targets, reference}) {
-        const {resourceType, id} = ReferenceParser.parseReference(reference);
+    getReferences ({ targets, reference }) {
+        const { resourceType, id } = ReferenceParser.parseReference(reference);
         if (resourceType) {
             return [
                 ReferenceParser.createReference(

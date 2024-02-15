@@ -1,5 +1,5 @@
-const {assertIsValid} = require('../../utils/assertType');
-const {removeNull} = require('../../utils/nullRemover');
+const { assertIsValid } = require('../../utils/assertType');
+const { removeNull } = require('../../utils/nullRemover');
 
 class ParsedArgs {
     /**
@@ -8,7 +8,7 @@ class ParsedArgs {
      * @param {ParsedArgsItem[]} [parsedArgItems]
      * @param {Object|undefined} [headers]
      */
-    constructor ({base_version, parsedArgItems = [], headers}) {
+    constructor ({ base_version, parsedArgItems = [], headers }) {
         assertIsValid(base_version, 'base_version is missing');
         this.base_version = base_version;
         /**

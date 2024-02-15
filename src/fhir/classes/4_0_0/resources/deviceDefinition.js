@@ -128,7 +128,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -192,7 +192,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -214,7 +214,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -238,7 +238,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -270,7 +270,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -291,7 +291,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -314,7 +314,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionUdiDeviceIdentifier = require('../backbone_elements/deviceDefinitionUdiDeviceIdentifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.udiDeviceIdentifier = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionUdiDeviceIdentifier);
             }
         });
@@ -352,7 +352,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.manufacturerReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -372,7 +372,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionDeviceName = require('../backbone_elements/deviceDefinitionDeviceName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.deviceName = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionDeviceName);
             }
         });
@@ -410,7 +410,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -431,7 +431,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionSpecialization = require('../backbone_elements/deviceDefinitionSpecialization.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specialization = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionSpecialization);
             }
         });
@@ -469,7 +469,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.safety = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -489,7 +489,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.shelfLifeStorage = FhirResourceCreator.createArray(valueProvided, ProductShelfLife);
             }
         });
@@ -509,7 +509,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.physicalCharacteristics = FhirResourceCreator.create(valueProvided, ProdCharacteristic);
             }
         });
@@ -530,7 +530,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.languageCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -550,7 +550,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionCapability = require('../backbone_elements/deviceDefinitionCapability.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.capability = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionCapability);
             }
         });
@@ -571,7 +571,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionProperty = require('../backbone_elements/deviceDefinitionProperty.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.property = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionProperty);
             }
         });
@@ -592,7 +592,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.owner = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -613,7 +613,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
@@ -670,7 +670,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
@@ -692,7 +692,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -712,7 +712,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.parentDevice = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -732,7 +732,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionMaterial = require('../backbone_elements/deviceDefinitionMaterial.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.material = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionMaterial);
             }
         });
@@ -979,7 +979,7 @@ class DeviceDefinition extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1022,30 +1022,30 @@ class DeviceDefinition extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.udiDeviceIdentifier) { await async.each(this.udiDeviceIdentifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.manufacturerReference) { await this.manufacturerReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.deviceName) { await async.each(this.deviceName, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.specialization) { await async.each(this.specialization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.safety) { await async.each(this.safety, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.shelfLifeStorage) { await async.each(this.shelfLifeStorage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.physicalCharacteristics) { await this.physicalCharacteristics.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.languageCode) { await async.each(this.languageCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.capability) { await async.each(this.capability, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.property) { await async.each(this.property, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.owner) { await this.owner.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.parentDevice) { await this.parentDevice.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.material) { await async.each(this.material, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.udiDeviceIdentifier) { await async.each(this.udiDeviceIdentifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.manufacturerReference) { await this.manufacturerReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.deviceName) { await async.each(this.deviceName, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.specialization) { await async.each(this.specialization, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.safety) { await async.each(this.safety, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.shelfLifeStorage) { await async.each(this.shelfLifeStorage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.physicalCharacteristics) { await this.physicalCharacteristics.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.languageCode) { await async.each(this.languageCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.capability) { await async.each(this.capability, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.property) { await async.each(this.property, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.owner) { await this.owner.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.parentDevice) { await this.parentDevice.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.material) { await async.each(this.material, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -1053,7 +1053,7 @@ class DeviceDefinition extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

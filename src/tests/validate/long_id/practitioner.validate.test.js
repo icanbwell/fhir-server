@@ -13,7 +13,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Validate long id Tests', () => {
     beforeEach(async () => {
@@ -54,7 +54,7 @@ describe('Validate long id Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: validPractitionerResource}]
+                parameter: [{ name: 'resource', resource: validPractitionerResource }]
             };
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')
@@ -107,7 +107,7 @@ describe('Validate long id Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameterBad: [{name: 'resource', resource: validPractitionerResource}]
+                parameterBad: [{ name: 'resource', resource: validPractitionerResource }]
             };
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')

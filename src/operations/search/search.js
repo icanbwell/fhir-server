@@ -1,13 +1,13 @@
-const {searchBundle} = require('./searchBundle');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { searchBundle } = require('./searchBundle');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 class SearchOperation {
     /**
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor ({configManager}) {
+    constructor ({ configManager }) {
         /**
          * @type {ConfigManager}
          */

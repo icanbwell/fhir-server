@@ -7,7 +7,7 @@ class BasePartitioner {
      * @returns {Promise<string>}
      */
     // eslint-disable-next-line no-unused-vars
-    async getPartitionByResourceAsync ({resource, field, resourceWithBaseVersion}) {
+    async getPartitionByResourceAsync ({ resource, field, resourceWithBaseVersion }) {
         throw new Error(`base class ${this.constructor.name} must implement getPartitionByResourceAsync`);
     }
 
@@ -20,7 +20,7 @@ class BasePartitioner {
      * @returns {Promise<*[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async getPartitionByQueryAsync ({resourceType, query, field, resourceWithBaseVersion}) {
+    async getPartitionByQueryAsync ({ resourceType, query, field, resourceWithBaseVersion }) {
         throw new Error(`base class ${this.constructor.name} must implement getPartitionByQueryAsync`);
     }
 

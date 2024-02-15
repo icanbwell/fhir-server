@@ -1,10 +1,10 @@
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const {ForbiddenError} = require('../../utils/httpErrors');
-const {authorizationFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('./scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ConfigManager} = require('../../utils/configManager');
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { authorizationFailedCounter } = require('../../utils/prometheus.utils');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('./scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ScopesValidator {
     /**
@@ -13,7 +13,7 @@ class ScopesValidator {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ConfigManager} configManager
      */
-    constructor ({scopesManager, fhirLoggingManager, configManager}) {
+    constructor ({ scopesManager, fhirLoggingManager, configManager }) {
         /**
          * @type {ScopesManager}
          */
@@ -52,7 +52,7 @@ class ScopesValidator {
     ) {
         // eslint-disable-next-line no-useless-catch
         try {
-            const {user, scope} = requestInfo;
+            const { user, scope } = requestInfo;
 
             if (this.configManager.authEnabled) {
                 // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
@@ -61,14 +61,14 @@ class ScopesValidator {
                      * @type {string[]}
                      */
                     const scopes = this.scopesManager.parseScopes(scope);
-                    const {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                    const { error, success } = scopeChecker(resourceType, accessRequested, scopes);
 
                     if (success) {
                         return;
                     }
                     const errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
-                    authorizationFailedCounter.inc({action: action, resourceType: resourceType});
+                    authorizationFailedCounter.inc({ action: action, resourceType: resourceType });
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,
@@ -82,7 +82,7 @@ class ScopesValidator {
                 } else {
                     const errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError1 = new ForbiddenError(errorMessage);
-                    authorizationFailedCounter.inc({action: action, resourceType: resourceType});
+                    authorizationFailedCounter.inc({ action: action, resourceType: resourceType });
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,

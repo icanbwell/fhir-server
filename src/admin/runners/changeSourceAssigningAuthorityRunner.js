@@ -51,7 +51,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
             {
                 fnUpdateReferenceAsync: async (reference) => {
                     if (reference?.reference) {
-                        const {id, sourceAssigningAuthority, resourceType} = ReferenceParser.parseReference(reference.reference);
+                        const { id, sourceAssigningAuthority, resourceType } = ReferenceParser.parseReference(reference.reference);
                         if (sourceAssigningAuthority === this.oldSourceAssigningAuthority) {
                             reference.reference = ReferenceParser.createReference({
                                 id, sourceAssigningAuthority: this.newSourceAssigningAuthority, resourceType
@@ -153,7 +153,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                     const query = this.getQueryForResource(isHistoryCollection);
 
                     if (isHistoryCollection) {
-                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                        await this.addIndexesToCollection({ collectionName, mongoConfig });
                     }
 
                     const startFromIdContainer = this.createStartFromIdContainer();

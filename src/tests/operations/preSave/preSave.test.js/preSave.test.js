@@ -1,9 +1,9 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
-const {SecurityTagSystem} = require('../../../../utils/securityTagSystem');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
+const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
 const Resource = require('../../../../fhir/classes/4_0_0/resources/resource');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {

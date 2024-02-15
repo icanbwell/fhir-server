@@ -1,6 +1,6 @@
 const { FilterById } = require('../operations/query/filters/id');
-const {assertTypeEquals} = require('./assertType');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals } = require('./assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
 const { PERSON_REFERENCE_PREFIX } = require('../constants');
 
@@ -35,7 +35,7 @@ class PersonToPatientIdsExpander {
      * @param {boolean} toMap If return map of person to patient
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync ({base_version, ids, includePatientPrefix, toMap}) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: base_version
@@ -112,7 +112,7 @@ class PersonToPatientIdsExpander {
      * @param {RelatedPatientParam} param
      * @returns {Promise<string[] | {[key: string]: string[]}}
      */
-    async getAllRelatedPatients ({base_version, idsSet, toMap = false}) {
+    async getAllRelatedPatients ({ base_version, idsSet, toMap = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: base_version
@@ -236,7 +236,7 @@ class PersonToPatientIdsExpander {
 
         if (level === maximumRecursionDepth) {
             const message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
-            logWarn(message, {patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds]});
+            logWarn(message, { patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds] });
             if (toMap) {
                 return personToLinkedPatient;
             }

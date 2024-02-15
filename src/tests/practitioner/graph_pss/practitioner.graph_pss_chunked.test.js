@@ -22,8 +22,8 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     get graphBatchSize () {
@@ -56,7 +56,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/InsurancePlan/1/$merge')
@@ -64,7 +64,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Location/1/$merge')
@@ -72,7 +72,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1003059437/$merge')
@@ -81,7 +81,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
@@ -89,7 +89,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
@@ -97,7 +97,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
@@ -105,7 +105,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/HealthcareService/123456/$merge')
@@ -113,7 +113,7 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true&_debug=1')

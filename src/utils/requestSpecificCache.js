@@ -1,5 +1,5 @@
-const {assertIsValid} = require('./assertType');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { assertIsValid } = require('./assertType');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 
 class RequestSpecificCache {
     constructor () {
@@ -24,7 +24,7 @@ class RequestSpecificCache {
      * @param  {string} name
      * @returns {Map}
      */
-    getMap ({requestId, name}) {
+    getMap ({ requestId, name }) {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(name, 'name is null');
         if (!this.mapCache.has(requestId)) {
@@ -43,7 +43,7 @@ class RequestSpecificCache {
      * @param  {string} name
      * @returns {*[]}
      */
-    getList ({requestId, name}) {
+    getList ({ requestId, name }) {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(name, 'name is null');
         if (!this.listCache.has(requestId)) {
@@ -68,7 +68,7 @@ class RequestSpecificCache {
      * clears the cache for this requestId
      * @param requestId
      */
-    async clearAsync ({requestId}) {
+    async clearAsync ({ requestId }) {
         await logTraceSystemEventAsync(
             {
                 event: 'clearAsync',
@@ -91,7 +91,7 @@ class RequestSpecificCache {
      */
     async clearAllAsync () {
         for (const requestId of this.getRequestIds()) {
-            await this.clearAsync({requestId});
+            await this.clearAsync({ requestId });
         }
     }
 }

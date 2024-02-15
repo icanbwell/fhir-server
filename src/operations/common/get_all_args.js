@@ -1,4 +1,4 @@
-const {LENIENT_SEARCH_HANDLING} = require('../../constants');
+const { LENIENT_SEARCH_HANDLING } = require('../../constants');
 /**
  * combines args with args from request
  * @param {import('http').IncomingMessage} req

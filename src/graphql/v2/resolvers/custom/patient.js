@@ -1,7 +1,7 @@
-const {RemoveOperation} = require('../../../../operations/remove/remove');
-const {MergeOperation} = require('../../../../operations/merge/merge');
-const {assertTypeEquals, assertIsValid} = require('../../../../utils/assertType');
-const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
+const { RemoveOperation } = require('../../../../operations/remove/remove');
+const { MergeOperation } = require('../../../../operations/merge/merge');
+const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');
+const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -207,7 +207,7 @@ module.exports = {
                     await removeOperation.removeAsync(
                         {
                             requestInfo: requestInfo,
-                            parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
+                            parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args: args1 }),
                             resourceType: 'Patient'
                         }
                     );
@@ -226,7 +226,7 @@ module.exports = {
                         throw new Error(`Practitioner not found ${args.practitionerId}`);
                     }
                     patientToChange.generalPractitioner = [
-                        {reference: `Practitioner/${practitioners[0].id}`}
+                        { reference: `Practitioner/${practitioners[0].id}` }
                     ];
                 }
                 requestInfo.body = [patientToChange];
@@ -236,7 +236,7 @@ module.exports = {
                  */
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
-                const args1 = {...args, base_version: '4_0_0'};
+                const args1 = { ...args, base_version: '4_0_0' };
                 /**
                  * @type {R4ArgsParser}
                  */
@@ -245,7 +245,7 @@ module.exports = {
                 const result = await mergeOperation.mergeAsync(
                     {
                         requestInfo,
-                        parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
+                        parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args: args1 }),
                         resourceType: 'Patient'
                     }
                 );

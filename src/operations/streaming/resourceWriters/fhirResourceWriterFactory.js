@@ -1,10 +1,10 @@
-const {hasNdJsonContentType, fhirContentTypes} = require('../../../utils/contentTypes');
-const {FhirResourceNdJsonWriter} = require('./fhirResourceNdJsonWriter');
-const {FhirResourceCsvWriter} = require('./fhirResourceCsvWriter');
-const {FhirResourceWriter} = require('./fhirResourceWriter');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {ConfigManager} = require('../../../utils/configManager');
-const {FhirBundleWriter} = require('./fhirBundleWriter');
+const { hasNdJsonContentType, fhirContentTypes } = require('../../../utils/contentTypes');
+const { FhirResourceNdJsonWriter } = require('./fhirResourceNdJsonWriter');
+const { FhirResourceCsvWriter } = require('./fhirResourceCsvWriter');
+const { FhirResourceWriter } = require('./fhirResourceWriter');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ConfigManager } = require('../../../utils/configManager');
+const { FhirBundleWriter } = require('./fhirBundleWriter');
 
 class FhirResourceWriterFactory {
     /**

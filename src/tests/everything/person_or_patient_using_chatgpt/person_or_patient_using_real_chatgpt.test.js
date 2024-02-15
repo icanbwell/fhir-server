@@ -18,9 +18,9 @@ const expectedPatientBundle = require('./fixtures/expected/expected_Patient_bund
 const expectedPatient = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
@@ -67,63 +67,63 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .send(topLevelPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Condition/2/$merge?validate=true')
                 .send(condition2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {SimpleContainer}
@@ -134,7 +134,7 @@ describe('Person and Patient real chatgpt Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
 
             const urlEncodedQuestion = encodeURIComponent("What is this patient's date of birth?");
 
@@ -201,63 +201,63 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .send(topLevelPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Condition/2/$merge?validate=true')
                 .send(condition2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {SimpleContainer}
@@ -268,7 +268,7 @@ describe('Person and Patient real chatgpt Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = testContainer.postRequestProcessor;
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
 
             // ACT & ASSERT
             const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');

@@ -1,4 +1,4 @@
-const {logInfo} = require('../operations/common/logging');
+const { logInfo } = require('../operations/common/logging');
 
 const getSchemaOfMongoDocument = (prefix, obj, indent) => {
     let result = {};

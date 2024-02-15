@@ -1,18 +1,18 @@
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {commonBeforeEach, commonAfterEach} = require('../../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach } = require('../../../common');
 
-const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
-const {TestConfigManager} = require('../../../testConfigManager');
-const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
+const { TestMongoDatabaseManager } = require('../../../testMongoDatabaseManager');
+const { TestConfigManager } = require('../../../testConfigManager');
+const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 
 const person1Resource = require('./fixtures/Person/person1.json');
 const personMergeResource = require('./fixtures/Person/person2.json');
 // const expectedPersonResource = require('./fixtures/expected/expected_person.json');
 
-const {ResourceMerger} = require('../../../../operations/common/resourceMerger');
+const { ResourceMerger } = require('../../../../operations/common/resourceMerger');
 const Person = require('../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
-const {mergeObject} = require('../../../../utils/mergeHelper');
+const { mergeObject } = require('../../../../utils/mergeHelper');
 
 describe('ResourceMerger Tests', () => {
     beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('ResourceMerger Tests', () => {
             const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
             const resourceMerger = new ResourceMerger({
-                preSaveManager: new PreSaveManager({preSaveHandlers: []})
+                preSaveManager: new PreSaveManager({ preSaveHandlers: [] })
             });
             const currentResource = new Person(person1Resource);
             const resourceToMerge = new Person(personMergeResource);

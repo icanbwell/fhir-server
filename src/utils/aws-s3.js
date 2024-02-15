@@ -2,8 +2,8 @@
  * This file implements helper functions for AWS
  */
 
-const {S3} = require('@aws-sdk/client-s3');
-const {STS} = require('@aws-sdk/client-sts');
+const { S3 } = require('@aws-sdk/client-s3');
+const { STS } = require('@aws-sdk/client-sts');
 const {
     getLogger
 } = require('../winstonInit');

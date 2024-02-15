@@ -4,9 +4,9 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {customIndexes} = require('./mockCustomIndexes');
-const {IndexProvider} = require('../../../indexes/indexProvider');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { customIndexes } = require('./mockCustomIndexes');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
 class MockIndexProvider extends IndexProvider {
     getIndexes () {
@@ -62,7 +62,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName, db: fhirDb
@@ -100,7 +100,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              *
@@ -193,7 +193,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              *
@@ -302,7 +302,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             /**
              *
              * @type {import('mongodb').CreateIndexesOptions}
@@ -433,7 +433,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(patientCollectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: patientCollectionName, db: fhirDb
@@ -443,7 +443,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientHistoryCollection = fhirDb.collection(patientHistoryCollectionName);
-            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientHistoryCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: patientHistoryCollectionName, db: fhirDb
@@ -453,7 +453,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const practitionerCollection = fhirDb.collection(practitionerCollectionName);
-            await practitionerCollection.insertOne({id: '1', resourceType: 'Practitioner'});
+            await practitionerCollection.insertOne({ id: '1', resourceType: 'Practitioner' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: practitionerCollectionName, db: fhirDb

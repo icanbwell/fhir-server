@@ -1,9 +1,9 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 const personInvalid = require('./fixtures/personInvalid.json');
 const personValid = require('./fixtures/personValid.json');
-const {validateReferences} = require('../../../utils/referenceValidator');
+const { validateReferences } = require('../../../utils/referenceValidator');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
 
 describe('Reference Validator Util Tests', () => {

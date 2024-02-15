@@ -1,8 +1,8 @@
-const {getHash} = require('../../../../utils/uid.util');
-const {MergeOperation} = require('../../../../operations/merge/merge');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {SimpleContainer} = require('../../../../utils/simpleContainer');
-const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
+const { getHash } = require('../../../../utils/uid.util');
+const { MergeOperation } = require('../../../../operations/merge/merge');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { SimpleContainer } = require('../../../../utils/simpleContainer');
+const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 
 function mapParticipants (members) {
     const result = [];
@@ -10,8 +10,8 @@ function mapParticipants (members) {
         result.push({
             id: m.id,
             role: m.role,
-            member: {reference: m.member},
-            onBehalfOf: {reference: m.onBehalfOf},
+            member: { reference: m.member },
+            onBehalfOf: { reference: m.onBehalfOf },
             period: m.period
         });
     });
@@ -41,8 +41,8 @@ function mapCareTeam (team) {
         status: team.code,
         category: team.category,
         name: team.name,
-        subject: {reference: team.subject},
-        encounter: {reference: team.encounter},
+        subject: { reference: team.subject },
+        encounter: { reference: team.encounter },
         period: team.period,
         participant: mapParticipants(team.participant),
         reasonCode: team.reasonCode,
@@ -118,7 +118,7 @@ module.exports = {
                         requestInfo,
                         parsedArgs: r4ArgsParser.parseArgs({
                             resourceType: resourceType,
-                            args: {...args, base_version: '4_0_0'}
+                            args: { ...args, base_version: '4_0_0' }
                         }),
                         resourceType: resourceType
                     }

@@ -26,7 +26,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, jest, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
 
 const headers = getHeaders('user/*.read access/client.*');
@@ -57,7 +57,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')
@@ -80,7 +80,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource, hipaaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57,90&_debug=true&_bundle=1')
@@ -102,7 +102,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource, hipaaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.c12345')
@@ -127,7 +127,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource, hipaaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.33226ded-51e8-590e-8342-1197955a2af7')
@@ -152,7 +152,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource, hipaaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.c12345')
@@ -174,7 +174,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource, hipaaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6')
@@ -197,7 +197,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     clientObservationResource, hipaaPatientResource, hipaaObservationResource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_debug=true&_bundle=1')
@@ -220,7 +220,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hipaaPatient1Resource, hipaaObservation1Resource, hipaaPatient2Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/ce0d61c6-a3d8-51e1-88ac-85eb5f2be4b6&_debug=true&_bundle=1')
@@ -243,7 +243,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hipaaPatient1Resource, hipaaObservation1Resource, hipaaPatient2Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/333|client-1&_debug=true&_bundle=1')
@@ -266,7 +266,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hipaaPatient1Resource, hipaaObservation1Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/333&_debug=true&_bundle=1')
@@ -289,7 +289,7 @@ describe('Data sharing test cases for different scenarios', () => {
                     hipaaPatient1Resource, hipaaObservation1Resource, hipaaPatient2Resource])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/333')

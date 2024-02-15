@@ -1,4 +1,4 @@
-const {OpenSearchVectorStore} = require('langchain/vectorstores/opensearch');
+const { OpenSearchVectorStore } = require('langchain/vectorstores/opensearch');
 
 /**
  * @classdesc Subclass of OpenSearchVectorStore that uses the document _id as the _id
@@ -27,8 +27,8 @@ class FhirOpenSearchVectorStore extends OpenSearchVectorStore {
                 text: documents[`${idx}`].pageContent
             }
         ]);
-        await this.client.bulk({body: operations});
-        await this.client.indices.refresh({index: this.indexName});
+        await this.client.bulk({ body: operations });
+        await this.client.indices.refresh({ index: this.indexName });
     }
 }
 

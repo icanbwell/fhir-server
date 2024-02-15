@@ -82,7 +82,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +114,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +134,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.material = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -154,7 +154,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -174,7 +174,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.cap = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -212,7 +212,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.capacity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -232,7 +232,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.minimumVolumeQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -271,7 +271,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 const SpecimenDefinitionAdditive = require('../backbone_elements/specimenDefinitionAdditive.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additive = FhirResourceCreator.createArray(valueProvided, SpecimenDefinitionAdditive);
             }
         });
@@ -317,7 +317,7 @@ class SpecimenDefinitionContainer extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -340,15 +340,15 @@ class SpecimenDefinitionContainer extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.material) { await this.material.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.cap) { await this.cap.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.capacity) { await this.capacity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.minimumVolumeQuantity) { await this.minimumVolumeQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.additive) { await async.each(this.additive, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.material) { await this.material.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.cap) { await this.cap.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.capacity) { await this.capacity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.minimumVolumeQuantity) { await this.minimumVolumeQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.additive) { await async.each(this.additive, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -356,7 +356,7 @@ class SpecimenDefinitionContainer extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

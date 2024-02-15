@@ -14,7 +14,7 @@ const {
     getGraphQLHeaders,
     createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { logInfo, logError } = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Update Care Team Tests', () => {
@@ -68,7 +68,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
-                logError('', {'errors': body.errors});
+                logError('', { 'errors': body.errors });
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction

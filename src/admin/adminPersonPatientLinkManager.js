@@ -1,15 +1,15 @@
-const {assertTypeEquals} = require('../utils/assertType');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals } = require('../utils/assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
-const {DatabaseUpdateFactory} = require('../dataLayer/databaseUpdateFactory');
+const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
 const Person = require('../fhir/classes/4_0_0/resources/person');
-const {FhirOperationsManager} = require('../operations/fhirOperationsManager');
-const {generateUUID, isUuid} = require('../utils/uid.util');
+const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
+const { generateUUID, isUuid } = require('../utils/uid.util');
 const moment = require('moment-timezone');
-const {SecurityTagSystem} = require('../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../utils/securityTagSystem');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {logInfo} = require('../operations/common/logging');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { logInfo } = require('../operations/common/logging');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -57,7 +57,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} externalPersonId
      * @return {Promise<Object>}
      */
-    async createPersonToPersonLinkAsync ({req, bwellPersonId, externalPersonId}) {
+    async createPersonToPersonLinkAsync ({ req, bwellPersonId, externalPersonId }) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
         externalPersonId = externalPersonId.replace('Person/', '');
         /**
@@ -81,22 +81,22 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         const bwellPerson = await databaseQueryManager.findOneAsync({
-            query: {id: bwellPersonId}
+            query: { id: bwellPersonId }
         });
         if (bwellPerson) {
             if (bwellPerson.link) {
                 // check if a link target already exists in bwellPerson for externalPersonId
                 if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
-                    logInfo('link before (non-empty)', {'link': bwellPerson.link});
+                    logInfo('link before (non-empty)', { 'link': bwellPerson.link });
                     bwellPerson.link = bwellPerson.link.concat([
                         new PersonLink(
                             {
                                 target: new Reference(
-                                    {reference: `Person/${externalPersonId}`}
+                                    { reference: `Person/${externalPersonId}` }
                                 )
                             })
                     ]);
-                    logInfo('link after (non-empty)', {'link': bwellPerson.link});
+                    logInfo('link after (non-empty)', { 'link': bwellPerson.link });
                 } else {
                     return {
                         'message': `Link already exists from ${bwellPersonId} to ${externalPersonId}`,
@@ -106,17 +106,17 @@ class AdminPersonPatientLinkManager {
                 }
             } else {
                 // no existing link array so create one
-                logInfo('link before (empty)', {'link': bwellPerson.link});
+                logInfo('link before (empty)', { 'link': bwellPerson.link });
                 bwellPerson.link = [new PersonLink(
                     {
                         target: new Reference(
-                            {reference: `Person/${externalPersonId}`}
+                            { reference: `Person/${externalPersonId}` }
                         )
                     })];
-                logInfo('link after (empty)', {'link': bwellPerson.link});
+                logInfo('link after (empty)', { 'link': bwellPerson.link });
             }
             // eslint-disable-next-line no-unused-vars
-            const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync({
+            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 doc: bwellPerson
             });
 
@@ -147,7 +147,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} externalPersonId
      * @return {Promise<Object>}
      */
-    async removePersonToPersonLinkAsync ({req, bwellPersonId, externalPersonId}) {
+    async removePersonToPersonLinkAsync ({ req, bwellPersonId, externalPersonId }) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
         externalPersonId = externalPersonId.replace('Person/', '');
 
@@ -167,7 +167,7 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         const bwellPerson = await databaseQueryManager.findOneAsync({
-            query: {[isUuid(bwellPersonId) ? '_uuid' : '_sourceId']: bwellPersonId}
+            query: { [isUuid(bwellPersonId) ? '_uuid' : '_sourceId']: bwellPersonId }
         });
         if (bwellPerson) {
             if (bwellPerson.link) {
@@ -182,12 +182,12 @@ class AdminPersonPatientLinkManager {
                         'externalPersonId': externalPersonId
                     };
                 } else {
-                    logInfo('link before', {'link': bwellPerson.link});
+                    logInfo('link before', { 'link': bwellPerson.link });
                     bwellPerson.link = bwellPerson.link.filter(l => (
                         l.target.reference !== `Person/${externalPersonId}` &&
                         l.target._uuid !== `Person/${externalPersonId}`
                     ));
-                    logInfo('link after', {'link': bwellPerson.link});
+                    logInfo('link after', { 'link': bwellPerson.link });
                 }
             } else {
                 return {
@@ -201,7 +201,7 @@ class AdminPersonPatientLinkManager {
                 base_version: base_version
             });
             // eslint-disable-next-line no-unused-vars
-            const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync({
+            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 doc: bwellPerson,
                 smartMerge: false
             });
@@ -233,7 +233,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} patientId
      * @return {Promise<Object>}
      */
-    async createPersonToPatientLinkAsync ({req, externalPersonId, patientId}) {
+    async createPersonToPatientLinkAsync ({ req, externalPersonId, patientId }) {
         externalPersonId = externalPersonId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
@@ -258,7 +258,7 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         let sourcePerson = await databaseQueryManager.findOneAsync({
-            query: { [isUuid(externalPersonId) ? '_uuid' : 'id']: externalPersonId}
+            query: { [isUuid(externalPersonId) ? '_uuid' : 'id']: externalPersonId }
         });
         if (!sourcePerson) {
             // create it
@@ -271,7 +271,7 @@ class AdminPersonPatientLinkManager {
              * @type {Patient|null}
              */
             const patient = await patientDatabaseQueryManager.findOneAsync({
-                query: {[isUuid(patientId) ? '_uuid' : 'id']: patientId}
+                query: { [isUuid(patientId) ? '_uuid' : 'id']: patientId }
             });
             if (!patient) {
                 return {
@@ -296,12 +296,12 @@ class AdminPersonPatientLinkManager {
                 'link': [
                     new PersonLink(
                         {
-                            target: new Reference({reference: `Patient/${patientId}`}
+                            target: new Reference({ reference: `Patient/${patientId}` }
                             )
                         })
                 ]
             });
-            const savedResource = await databaseUpdateManager.insertOneAsync({doc: sourcePerson});
+            const savedResource = await databaseUpdateManager.insertOneAsync({ doc: sourcePerson });
 
             await databaseUpdateManager.postSaveAsync({
                 requestId: requestId,
@@ -318,15 +318,15 @@ class AdminPersonPatientLinkManager {
             if (sourcePerson.link) {
                 // check if a link target already exists in sourcePerson for externalPersonId
                 if (!sourcePerson.link.some(l => l.target && l.target.reference === `Patient/${patientId}`)) {
-                    logInfo('link before (non-empty)', {'link': sourcePerson.link});
+                    logInfo('link before (non-empty)', { 'link': sourcePerson.link });
                     sourcePerson.link = sourcePerson.link.concat([
                         new PersonLink(
                             {
-                                target: new Reference({reference: `Patient/${patientId}`}
+                                target: new Reference({ reference: `Patient/${patientId}` }
                                 )
                             })
                     ]);
-                    logInfo('link before (non-empty)', {'link': sourcePerson.link});
+                    logInfo('link before (non-empty)', { 'link': sourcePerson.link });
                 } else {
                     return {
                         'message': `Link already exists from Person/${externalPersonId} to Patient/${patientId}`,
@@ -335,18 +335,18 @@ class AdminPersonPatientLinkManager {
                     };
                 }
             } else {
-                logInfo('link before (empty)', {'link': sourcePerson.link});
+                logInfo('link before (empty)', { 'link': sourcePerson.link });
                 sourcePerson.link = [
                     new PersonLink(
                         {
                             target: new Reference(
-                                {reference: `Patient/${patientId}`}
+                                { reference: `Patient/${patientId}` }
                             )
                         })];
-                logInfo('link after', {'link': sourcePerson.link});
+                logInfo('link after', { 'link': sourcePerson.link });
             }
             // eslint-disable-next-line no-unused-vars
-            const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync({
+            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
                 doc: sourcePerson
             });
 
@@ -371,7 +371,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} patientId
      * @return {Promise<Object>}
      */
-    async removePersonToPatientLinkAsync ({req, personId, patientId}) {
+    async removePersonToPatientLinkAsync ({ req, personId, patientId }) {
         personId = personId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
@@ -391,7 +391,7 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         const person = await databaseQueryManager.findOneAsync({
-            query: {[isUuid(personId) ? '_uuid' : '_sourceId']: personId}
+            query: { [isUuid(personId) ? '_uuid' : '_sourceId']: personId }
         });
         if (person) {
             if (person.link) {
@@ -407,12 +407,12 @@ class AdminPersonPatientLinkManager {
                         'patientId': patientId
                     };
                 } else {
-                    logInfo('link before', {'link': person.link});
+                    logInfo('link before', { 'link': person.link });
                     person.link = person.link.filter(l => (
                         l.target.reference !== `Patient/${patientId}` &&
                         l.target._uuid !== `Patient/${patientId}`
                     ));
-                    logInfo('link after', {'link': person.link});
+                    logInfo('link after', { 'link': person.link });
                 }
             } else {
                 return {
@@ -426,7 +426,7 @@ class AdminPersonPatientLinkManager {
                 base_version: base_version
             });
 
-            const {savedResource} = await databaseUpdateManager.replaceOneAsync({
+            const { savedResource } = await databaseUpdateManager.replaceOneAsync({
                 doc: person,
                 smartMerge: false
             });
@@ -457,7 +457,7 @@ class AdminPersonPatientLinkManager {
      * @param {number} level
      * @return {Promise<{id:string, source: string|null, security: string[], children: *[]}>}
      */
-    async findPersonAndChildrenAsync ({personId, level}) {
+    async findPersonAndChildrenAsync ({ personId, level }) {
         /**
          * @type {DatabaseQueryManager}
          */
@@ -466,7 +466,7 @@ class AdminPersonPatientLinkManager {
             base_version: base_version
         });
         const person = await databaseQueryManager.findOneAsync({
-            query: {id: personId}
+            query: { id: personId }
         });
         if (!person) {
             return {
@@ -523,7 +523,7 @@ class AdminPersonPatientLinkManager {
              * @type {DatabasePartitionedCursor}
              */
             const patientCursor = await patientDatabaseManager.findAsync({
-                query: {id: {$in: patientIds}}
+                query: { id: { $in: patientIds } }
             });
             /**
              * @type {Patient[]}
@@ -557,7 +557,7 @@ class AdminPersonPatientLinkManager {
                     .map(l => l.target.reference.replace(personReferencePrefix, ''));
                 for (const /** @type {string} */ personIdToRecurse of personIdsToRecurse) {
                     children.push(
-                        await this.findPersonAndChildrenAsync({personId: personIdToRecurse, level: level + 1})
+                        await this.findPersonAndChildrenAsync({ personId: personIdToRecurse, level: level + 1 })
                     );
                 }
             }
@@ -585,9 +585,9 @@ class AdminPersonPatientLinkManager {
      * @param {string} bwellPersonId
      * @return {Promise<{id: string, source: (string|null), security: string[], children: *[]}>}
      */
-    async showPersonToPersonLinkAsync ({bwellPersonId}) {
+    async showPersonToPersonLinkAsync ({ bwellPersonId }) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
-        return await this.findPersonAndChildrenAsync({personId: bwellPersonId, level: 1});
+        return await this.findPersonAndChildrenAsync({ personId: bwellPersonId, level: 1 });
     }
 
     /**
@@ -596,7 +596,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} personId
      * @return {Promise<{deletedCount: (number|null), error: (Error|null)}>}
      */
-    async deletePersonAsync ({req, requestId, personId}) {
+    async deletePersonAsync ({ req, requestId, personId }) {
         personId = personId.replace('Person/', '');
 
         /**
@@ -632,7 +632,7 @@ class AdminPersonPatientLinkManager {
          * @type {{deletedCount: (number|null), error: (Error|null)}}
          */
         const result = await databaseQueryManager.deleteManyAsync({
-            query: {id: personId},
+            query: { id: personId },
             requestId
         });
         result['linksRemoved'] = parentPersonResponses;

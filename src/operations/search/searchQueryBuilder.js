@@ -1,8 +1,8 @@
-const {buildStu3SearchQuery} = require('../query/stu3');
-const {buildDstu2SearchQuery} = require('../query/dstu2');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {R4SearchQueryCreator} = require('../query/r4');
+const { buildStu3SearchQuery } = require('../query/stu3');
+const { buildDstu2SearchQuery } = require('../query/dstu2');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { R4SearchQueryCreator } = require('../query/r4');
 
 class SearchQueryBuilder {
     /**
@@ -31,7 +31,7 @@ class SearchQueryBuilder {
      * @param {BuildSearchQueryBasedOnVersion} param Params for building search query based on version
      * @returns {{ query: import('mongodb').Document, columns: Set<string> | undefined }}
      */
-    buildSearchQueryBasedOnVersion ({ base_version, parsedArgs, resourceType, useHistoryTable}) {
+    buildSearchQueryBasedOnVersion ({ base_version, parsedArgs, resourceType, useHistoryTable }) {
         /** @type {import('mongodb').Document} */
         let query;
         /** @type {Set<string>} */
@@ -42,12 +42,12 @@ class SearchQueryBuilder {
             } else if (base_version === VERSIONS['1_0_2']) {
                 query = buildDstu2SearchQuery(parsedArgs);
             } else {
-                ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
+                ({ query, columns } = this.r4SearchQueryCreator.buildR4SearchQuery({
                     resourceType, parsedArgs, useHistoryTable
                 }));
             }
 
-            return {query, columns};
+            return { query, columns };
         } catch (e) {
             console.error(e);
             throw e;

@@ -1,10 +1,10 @@
-const {ChatGPTMessage} = require('../structures/chatgptMessage');
-const {ChatGPTManager} = require('./chatgptManager');
-const {ChatGPTResponse} = require('../structures/chatGPTResponse');
-const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
-const {ChatGPTError} = require('../exceptions/chatgptError');
+const { ChatGPTMessage } = require('../structures/chatgptMessage');
+const { ChatGPTManager } = require('./chatgptManager');
+const { ChatGPTResponse } = require('../structures/chatGPTResponse');
+const { ChatGPTContextLengthExceededError } = require('../exceptions/chatgptContextLengthExceededError');
+const { ChatGPTError } = require('../exceptions/chatgptError');
 const OpenAI = require('openai');
-const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
+const { VectorStoreFilter } = require('../vectorStores/vectorStoreFilter');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
@@ -90,7 +90,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             temperature: 0.0,
             max_tokens: 600 // tokens allowed in completion response
         };
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
 
         try {
             const chatCompletion = await openai.chat.completions.create(chatCompletionRequest);

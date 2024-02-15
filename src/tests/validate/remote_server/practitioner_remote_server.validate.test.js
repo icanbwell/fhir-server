@@ -8,14 +8,14 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 const nock = require('nock');
 const USCorePractitionerProfile = require('./fixtures/us_core_profile_practitioner.json');
 const validPractitionerResourceWithProfile = require('./fixtures/valid_practitioner_with_profile.json');
 const expectedValidPractitionerResponseWithProfile = require('./expected/valid_practitioner_response_with_profile.json');
 const deepcopy = require('deepcopy');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const invalidPractitionerResource = require('./fixtures/invalid_practitioner.json');
 const expectedInvalidPractitionerResponse = require('./expected/invalid_practitioner_response.json');
 
@@ -291,7 +291,7 @@ describe('Practitioner Update Tests', () => {
                 .send(profile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')

@@ -1,7 +1,7 @@
-const {EnrichmentProvider} = require('./enrichmentProvider');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ParsedArgs} = require('../../operations/query/parsedArgs');
-const {PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX} = require('../../constants');
+const { EnrichmentProvider } = require('./enrichmentProvider');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ParsedArgs } = require('../../operations/query/parsedArgs');
+const { PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 
@@ -13,7 +13,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * constructor
      * @param {ProxyPatientReferenceEnrichmentProviderParams} params
      */
-    constructor ({ configManager}) {
+    constructor ({ configManager }) {
         super();
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -25,7 +25,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync ({resources, parsedArgs}) {
+    async enrichAsync ({ resources, parsedArgs }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const rewritePatientReference = isTrueWithFallback(parsedArgs['_rewritePatientReference'], this.configManager.rewritePatientReference);
         // if rewrite is false, then don't enrich the resources
@@ -34,7 +34,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         }
 
         // check if any args have a proxy patient
-        const {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
+        const { proxyPatientPersonId, proxyPatientPersonIdKey } = this.getProxyPatientFromArgs({ parsedArgs });
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {import('../../operations/query/parsedArgsItem').ParsedArgsItem}
@@ -103,7 +103,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {{proxyPatientPersonId: (string|null), proxyPatientPersonIdKey: null}}
      */
-    getProxyPatientFromArgs ({parsedArgs}) {
+    getProxyPatientFromArgs ({ parsedArgs }) {
         /**
          * @type {string|null}
          */
@@ -131,7 +131,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 }
             }
         }
-        return {proxyPatientPersonId, proxyPatientPersonIdKey};
+        return { proxyPatientPersonId, proxyPatientPersonIdKey };
     }
 
     /**
@@ -140,7 +140,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(

@@ -1,9 +1,9 @@
-const {Writable} = require('stream');
-const {getLogger} = require('../../winstonInit');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {hasNdJsonContentType} = require('../../utils/contentTypes');
-const {ConfigManager} = require('../../utils/configManager');
-const {RethrownError} = require('../../utils/rethrownError');
+const { Writable } = require('stream');
+const { getLogger } = require('../../winstonInit');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { hasNdJsonContentType } = require('../../utils/contentTypes');
+const { ConfigManager } = require('../../utils/configManager');
+const { RethrownError } = require('../../utils/rethrownError');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -25,7 +25,7 @@ class HttpResponseWriter extends Writable {
             configManager
         }
     ) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+        super({ objectMode: true, highWaterMark: highWaterMark });
         assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}

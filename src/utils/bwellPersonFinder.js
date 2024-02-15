@@ -1,7 +1,7 @@
-const {assertTypeEquals} = require('./assertType');
-const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY} = require('../constants');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
-const {SecurityTagSystem} = require('./securityTagSystem');
+const { assertTypeEquals } = require('./assertType');
+const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../constants');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { SecurityTagSystem } = require('./securityTagSystem');
 const { isUuid } = require('./uid.util');
 const { SearchFilterFromReference } = require('../operations/query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
@@ -31,7 +31,7 @@ class BwellPersonFinder {
      * @param {string} patientId
      * @return {Promise<string>}
      */
-    async getBwellPersonIdAsync ({ patientId}) {
+    async getBwellPersonIdAsync ({ patientId }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -91,7 +91,7 @@ class BwellPersonFinder {
                 return true;
             } else {
                 patientReferences.push(ref);
-                patientReferencesString.push(ReferenceParser.createReference({...ref}));
+                patientReferencesString.push(ReferenceParser.createReference({ ...ref }));
                 return false;
             }
         }).map(ref => ref.id.replace(PERSON_PROXY_PREFIX, '')));
@@ -247,7 +247,7 @@ class BwellPersonFinder {
      * @param {Set} visitedSubjects subjects that have already been visited (to avoid infinite loops)
      * @return {Promise<string>}
      */
-    async searchForBwellPersonAsync ({currentSubject, databaseQueryManager, visitedSubjects}) {
+    async searchForBwellPersonAsync ({ currentSubject, databaseQueryManager, visitedSubjects }) {
         if (visitedSubjects.has(currentSubject)) {
             return null;
         }
@@ -258,7 +258,7 @@ class BwellPersonFinder {
         const isReferenceUuid = isUuid(currentSubject.replace(PERSON_REFERENCE_PREFIX, '').replace(PATIENT_REFERENCE_PREFIX, ''));
         const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId');
 
-        const linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject }});
+        const linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject } });
 
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {

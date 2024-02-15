@@ -1,8 +1,8 @@
 /**
  * Class for assertion errors
  */
-const {RethrownError} = require('./rethrownError');
-const {getCircularReplacer} = require('./getCircularReplacer');
+const { RethrownError } = require('./rethrownError');
+const { getCircularReplacer } = require('./getCircularReplacer');
 
 class AssertionError extends Error {
     /**
@@ -60,13 +60,13 @@ function assertIsValid (obj, message) {
  * @param {Object} args
  * @param {Error|undefined} [error]
  */
-function assertFail ({source, message, args, error}) {
+function assertFail ({ source, message, args, error }) {
     /**
      * @type {string}
      */
     let text = `${source}: ${message}`;
     if (error) {
-        throw new RethrownError({message: text, error});
+        throw new RethrownError({ message: text, error });
     } else {
         if (args) {
             text += ' | ' + JSON.stringify(args, getCircularReplacer());

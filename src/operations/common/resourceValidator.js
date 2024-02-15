@@ -1,18 +1,18 @@
 const async = require('async');
-const {validateResource} = require('../../utils/validator.util');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const { validateResource } = require('../../utils/validator.util');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const sendToS3 = require('../../utils/aws-s3');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {RemoteFhirValidator} = require('../../utils/remoteFhirValidator');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { BadRequestError } = require('../../utils/httpErrors');
@@ -106,7 +106,7 @@ class ResourceValidator {
                 }
             );
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({action: 'validate', resourceType: resourceType}, 1);
+            validationsFailedCounter.inc({ action: 'validate', resourceType: resourceType }, 1);
             validationOperationOutcome['expression'] = [
                 resourceType + '/' + id
             ];

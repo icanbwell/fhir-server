@@ -10,7 +10,7 @@ const {
     getHeaders,
     createTestRequest, getTestContainer
 } = require('../../common');
-const { describe, test, beforeEach, afterEach, expect} = require('@jest/globals');
+const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('bwellPersonFinder Tests', () => {
@@ -42,7 +42,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(linkedPerson1)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
@@ -57,7 +57,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(bwellPerson_directLink)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
@@ -72,21 +72,21 @@ describe('bwellPersonFinder Tests', () => {
             .send(bwellPerson_indirectLink)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         response = await request
             .post('/4_0_0/Person/5678/$merge?validate=true')
             .send(linkedPerson2)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
@@ -101,14 +101,14 @@ describe('bwellPersonFinder Tests', () => {
             .send(linkedPerson2)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1_cycle)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
@@ -123,21 +123,21 @@ describe('bwellPersonFinder Tests', () => {
             .send(bwellPerson_indirectLink)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         response = await request
             .post('/4_0_0/Person/5678/$merge?validate=true')
             .send(linkedPerson2)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1_cycle)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(response).toHaveMergeResponse({created: true});
+        expect(response).toHaveMergeResponse({ created: true });
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });

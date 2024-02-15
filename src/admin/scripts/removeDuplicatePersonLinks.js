@@ -4,10 +4,10 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {RemoveDuplicatePersonLinkRunner} = require('../runners/removeDuplicatePersonLinkRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { RemoveDuplicatePersonLinkRunner } = require('../runners/removeDuplicatePersonLinkRunner');
 
 /**
  * main function

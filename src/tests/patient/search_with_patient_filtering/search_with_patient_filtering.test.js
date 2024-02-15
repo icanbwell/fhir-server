@@ -34,8 +34,8 @@ const {
     getCustomGraphQLHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
+const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('patient Tests', () => {
     beforeAll(async () => {
@@ -54,63 +54,63 @@ describe('patient Tests', () => {
             .send(patient1Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/patient/patient-123-b/$merge?validate=true')
             .send(patient2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/patient/other-patient/$merge?validate=true')
             .send(otherPatientResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/patient/member-id-patient/$merge?validate=true')
             .send(patientWithMemberId)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/patient/epic-sandbox-r4c-eAB3mDIBBcyUKviyzrxsnAw3/$merge?validate=true')
             .send(desireePatientResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/Person/desiree-root-person/$merge')
             .send(desireePersonResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/person/person-123-a/$merge?validate=true')
             .send(person1Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/person/person-123-b/$merge?validate=true')
             .send(person2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/person/root-person/$merge?validate=true')
             .send(rootPersonResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request.get('/4_0_0/Person?_bundle=1').set(getHeaders()).expect(200);
         // noinspection JSUnresolvedFunction
@@ -504,7 +504,7 @@ describe('patient Tests', () => {
             // clear out the lastUpdated column since that changes
             const body = resp.body;
             logInfo('------- response graphql ------------', {});
-            logInfo('', {'resp': resp.body});
+            logInfo('', { 'resp': resp.body });
             logInfo('------- end response graphql  ------------', {});
             expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry).toBeDefined();

@@ -1,5 +1,5 @@
-const {assertTypeEquals} = require('../utils/assertType');
-const {IndexProvider} = require('./indexProvider');
+const { assertTypeEquals } = require('../utils/assertType');
+const { IndexProvider } = require('./indexProvider');
 
 /**
  * This file implements adding index hints to mongo db queries

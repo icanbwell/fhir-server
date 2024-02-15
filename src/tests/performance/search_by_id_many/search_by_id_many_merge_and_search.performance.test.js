@@ -9,10 +9,10 @@ const {
     getHeadersNdJson,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
-const {ConfigManager} = require('../../../utils/configManager');
-const {ResponseChunkParser} = require('../responseChunkParser');
+const { ConfigManager } = require('../../../utils/configManager');
+const { ResponseChunkParser } = require('../responseChunkParser');
 let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {

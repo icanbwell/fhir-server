@@ -1,11 +1,11 @@
-const {encoding_for_model} = require('@dqbd/tiktoken');
+const { encoding_for_model } = require('@dqbd/tiktoken');
 const sanitize = require('sanitize-html');
-const {filterXSS} = require('xss');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {VectorStoreFactory} = require('../vectorStores/vectorStoreFactory');
-const {BaseFhirToDocumentConverter} = require('../fhirToDocumentConverters/baseFhirToDocumentConverter');
-const {ConfigManager} = require('../../utils/configManager');
-const {LLMFactory} = require('../llms/llmFactory');
+const { filterXSS } = require('xss');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { VectorStoreFactory } = require('../vectorStores/vectorStoreFactory');
+const { BaseFhirToDocumentConverter } = require('../fhirToDocumentConverters/baseFhirToDocumentConverter');
+const { ConfigManager } = require('../../utils/configManager');
+const { LLMFactory } = require('../llms/llmFactory');
 
 class ChatGPTManager {
     /**
@@ -58,7 +58,7 @@ class ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @return {Promise<ChatGPTResponse>}
      */
-    async answerQuestionAsync ({resourceType, uuid, question, outputFormat, verbose}) {
+    async answerQuestionAsync ({ resourceType, uuid, question, outputFormat, verbose }) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -127,7 +127,7 @@ class ChatGPTManager {
      * @param {{content: string}[]} documents
      * @return {Promise<number>}
      */
-    async getTokenCountAsync ({documents}) {
+    async getTokenCountAsync ({ documents }) {
         const tokenizer = await encoding_for_model('gpt-3.5-turbo');
         const token_counts = documents.map(doc => tokenizer.encode(doc.content).length);
         tokenizer.free();

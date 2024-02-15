@@ -1,9 +1,9 @@
 const env = require('var');
-const {generateUUID} = require('./uid.util');
+const { generateUUID } = require('./uid.util');
 const moment = require('moment-timezone');
-const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {ResourceManager} = require('../operations/common/resourceManager');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { ResourceManager } = require('../operations/common/resourceManager');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
@@ -11,11 +11,11 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const Period = require('../fhir/classes/4_0_0/complex_types/period');
-const {BwellPersonFinder} = require('./bwellPersonFinder');
-const {KafkaClient} = require('./kafkaClient');
-const {BasePostSaveHandler} = require('./basePostSaveHandler');
-const {RethrownError} = require('./rethrownError');
-const {ConfigManager} = require('./configManager');
+const { BwellPersonFinder } = require('./bwellPersonFinder');
+const { KafkaClient } = require('./kafkaClient');
+const { BasePostSaveHandler } = require('./basePostSaveHandler');
+const { RethrownError } = require('./rethrownError');
+const { ConfigManager } = require('./configManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -163,12 +163,12 @@ class ChangeEventProducer extends BasePostSaveHandler {
                 source: new AuditEventSource({
                     'site': requestId,
                     observer: new Reference(
-                        {reference: 'Organization/bwell'}
+                        { reference: 'Organization/bwell' }
                     )
                 })
             });
         if (sourceType) {
-            auditEvent.source.type = new Coding({system: 'https://www.icanbwell.com/sourceType', code: sourceType});
+            auditEvent.source.type = new Coding({ system: 'https://www.icanbwell.com/sourceType', code: sourceType });
         }
         return auditEvent;
     }
@@ -181,7 +181,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientCreateAsync ({requestId, patientId, timestamp, sourceType}) {
+    async onPatientCreateAsync ({ requestId, patientId, timestamp, sourceType }) {
         const isCreate = true;
 
         const resourceType = 'Patient';
@@ -206,7 +206,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync ({requestId, patientId, timestamp, sourceType}) {
+    async onPatientChangeAsync ({ requestId, patientId, timestamp, sourceType }) {
         const isCreate = false;
 
         const resourceType = 'Patient';
@@ -235,7 +235,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentCreateAsync ({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentCreateAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -260,7 +260,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentChangeAsync ({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentChangeAsync ({ requestId, id, resourceType, timestamp, sourceType }) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -290,7 +290,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async afterSaveAsync ({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         try {
             /**
              * @type {string}
@@ -331,7 +331,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         }
                     );
 
-                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
+                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({ patientId: patientId });
                     if (personId) {
                         const proxyPatientId = `person.${personId}`;
                         await this.onPatientChangeAsync({

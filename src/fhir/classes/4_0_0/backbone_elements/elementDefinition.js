@@ -461,7 +461,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -493,7 +493,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -614,7 +614,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -640,7 +640,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionSlicing = require('../backbone_elements/elementDefinitionSlicing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.slicing = FhirResourceCreator.create(valueProvided, ElementDefinitionSlicing);
             }
         });
@@ -804,7 +804,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionBase = require('../backbone_elements/elementDefinitionBase.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.base = FhirResourceCreator.create(valueProvided, ElementDefinitionBase);
             }
         });
@@ -845,7 +845,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionType = require('../backbone_elements/elementDefinitionType.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.createArray(valueProvided, ElementDefinitionType);
             }
         });
@@ -1207,7 +1207,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueAddress = FhirResourceCreator.create(valueProvided, Address);
             }
         });
@@ -1227,7 +1227,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -1247,7 +1247,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueAnnotation = FhirResourceCreator.create(valueProvided, Annotation);
             }
         });
@@ -1267,7 +1267,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -1287,7 +1287,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -1307,7 +1307,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -1327,7 +1327,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueContactPoint = FhirResourceCreator.create(valueProvided, ContactPoint);
             }
         });
@@ -1347,7 +1347,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueCount = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -1367,7 +1367,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueDistance = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -1387,7 +1387,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -1407,7 +1407,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueHumanName = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
@@ -1427,7 +1427,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -1447,7 +1447,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -1467,7 +1467,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValuePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -1487,7 +1487,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -1507,7 +1507,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -1527,7 +1527,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -1547,7 +1547,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -1567,7 +1567,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const SampledData = require('../complex_types/sampledData.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueSampledData = FhirResourceCreator.create(valueProvided, SampledData);
             }
         });
@@ -1587,7 +1587,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueSignature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
@@ -1607,7 +1607,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -1627,7 +1627,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueContactDetail = FhirResourceCreator.create(valueProvided, ContactDetail);
             }
         });
@@ -1647,7 +1647,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Contributor = require('../complex_types/contributor.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueContributor = FhirResourceCreator.create(valueProvided, Contributor);
             }
         });
@@ -1667,7 +1667,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
@@ -1687,7 +1687,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
@@ -1707,7 +1707,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ParameterDefinition = require('../complex_types/parameterDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueParameterDefinition = FhirResourceCreator.create(valueProvided, ParameterDefinition);
             }
         });
@@ -1727,7 +1727,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueRelatedArtifact = FhirResourceCreator.create(valueProvided, RelatedArtifact);
             }
         });
@@ -1747,7 +1747,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
             }
         });
@@ -1767,7 +1767,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueUsageContext = FhirResourceCreator.create(valueProvided, UsageContext);
             }
         });
@@ -1787,7 +1787,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Dosage = require('../backbone_elements/dosage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueDosage = FhirResourceCreator.create(valueProvided, Dosage);
             }
         });
@@ -1807,7 +1807,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.defaultValueMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -2208,7 +2208,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedAddress = FhirResourceCreator.create(valueProvided, Address);
             }
         });
@@ -2228,7 +2228,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -2248,7 +2248,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedAnnotation = FhirResourceCreator.create(valueProvided, Annotation);
             }
         });
@@ -2268,7 +2268,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -2288,7 +2288,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -2308,7 +2308,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -2328,7 +2328,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedContactPoint = FhirResourceCreator.create(valueProvided, ContactPoint);
             }
         });
@@ -2348,7 +2348,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedCount = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -2368,7 +2368,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedDistance = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -2388,7 +2388,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -2408,7 +2408,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedHumanName = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
@@ -2428,7 +2428,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -2448,7 +2448,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -2468,7 +2468,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -2488,7 +2488,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -2508,7 +2508,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -2528,7 +2528,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -2548,7 +2548,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -2568,7 +2568,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const SampledData = require('../complex_types/sampledData.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedSampledData = FhirResourceCreator.create(valueProvided, SampledData);
             }
         });
@@ -2588,7 +2588,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedSignature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
@@ -2608,7 +2608,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -2628,7 +2628,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedContactDetail = FhirResourceCreator.create(valueProvided, ContactDetail);
             }
         });
@@ -2648,7 +2648,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Contributor = require('../complex_types/contributor.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedContributor = FhirResourceCreator.create(valueProvided, Contributor);
             }
         });
@@ -2668,7 +2668,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
@@ -2688,7 +2688,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
@@ -2708,7 +2708,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ParameterDefinition = require('../complex_types/parameterDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedParameterDefinition = FhirResourceCreator.create(valueProvided, ParameterDefinition);
             }
         });
@@ -2728,7 +2728,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedRelatedArtifact = FhirResourceCreator.create(valueProvided, RelatedArtifact);
             }
         });
@@ -2748,7 +2748,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
             }
         });
@@ -2768,7 +2768,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedUsageContext = FhirResourceCreator.create(valueProvided, UsageContext);
             }
         });
@@ -2788,7 +2788,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Dosage = require('../backbone_elements/dosage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedDosage = FhirResourceCreator.create(valueProvided, Dosage);
             }
         });
@@ -2808,7 +2808,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fixedMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -3170,7 +3170,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternAddress = FhirResourceCreator.create(valueProvided, Address);
             }
         });
@@ -3190,7 +3190,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -3210,7 +3210,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternAnnotation = FhirResourceCreator.create(valueProvided, Annotation);
             }
         });
@@ -3230,7 +3230,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -3250,7 +3250,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -3270,7 +3270,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -3290,7 +3290,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternContactPoint = FhirResourceCreator.create(valueProvided, ContactPoint);
             }
         });
@@ -3310,7 +3310,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternCount = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -3330,7 +3330,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternDistance = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -3350,7 +3350,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -3370,7 +3370,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternHumanName = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
@@ -3390,7 +3390,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -3410,7 +3410,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -3430,7 +3430,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -3450,7 +3450,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -3470,7 +3470,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -3490,7 +3490,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -3510,7 +3510,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -3530,7 +3530,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const SampledData = require('../complex_types/sampledData.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternSampledData = FhirResourceCreator.create(valueProvided, SampledData);
             }
         });
@@ -3550,7 +3550,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternSignature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
@@ -3570,7 +3570,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -3590,7 +3590,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternContactDetail = FhirResourceCreator.create(valueProvided, ContactDetail);
             }
         });
@@ -3610,7 +3610,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Contributor = require('../complex_types/contributor.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternContributor = FhirResourceCreator.create(valueProvided, Contributor);
             }
         });
@@ -3630,7 +3630,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
@@ -3650,7 +3650,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
@@ -3670,7 +3670,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ParameterDefinition = require('../complex_types/parameterDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternParameterDefinition = FhirResourceCreator.create(valueProvided, ParameterDefinition);
             }
         });
@@ -3690,7 +3690,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternRelatedArtifact = FhirResourceCreator.create(valueProvided, RelatedArtifact);
             }
         });
@@ -3710,7 +3710,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
             }
         });
@@ -3730,7 +3730,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternUsageContext = FhirResourceCreator.create(valueProvided, UsageContext);
             }
         });
@@ -3750,7 +3750,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Dosage = require('../backbone_elements/dosage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternDosage = FhirResourceCreator.create(valueProvided, Dosage);
             }
         });
@@ -3770,7 +3770,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patternMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -3791,7 +3791,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionExample = require('../backbone_elements/elementDefinitionExample.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.example = FhirResourceCreator.createArray(valueProvided, ElementDefinitionExample);
             }
         });
@@ -3955,7 +3955,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.minValueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -4119,7 +4119,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxValueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -4179,7 +4179,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionConstraint = require('../backbone_elements/elementDefinitionConstraint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.constraint = FhirResourceCreator.createArray(valueProvided, ElementDefinitionConstraint);
             }
         });
@@ -4282,7 +4282,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionBinding = require('../backbone_elements/elementDefinitionBinding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.binding = FhirResourceCreator.create(valueProvided, ElementDefinitionBinding);
             }
         });
@@ -4303,7 +4303,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 const ElementDefinitionMapping = require('../backbone_elements/elementDefinitionMapping.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.mapping = FhirResourceCreator.createArray(valueProvided, ElementDefinitionMapping);
             }
         });
@@ -4518,7 +4518,7 @@ class ElementDefinition extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -4729,112 +4729,112 @@ class ElementDefinition extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.slicing) { await this.slicing.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.base) { await this.base.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.defaultValueAddress) { await this.defaultValueAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueAge) { await this.defaultValueAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueAnnotation) { await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueAttachment) { await this.defaultValueAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueCodeableConcept) { await this.defaultValueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueCoding) { await this.defaultValueCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueContactPoint) { await this.defaultValueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueCount) { await this.defaultValueCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueDistance) { await this.defaultValueDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueDuration) { await this.defaultValueDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueHumanName) { await this.defaultValueHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueIdentifier) { await this.defaultValueIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueMoney) { await this.defaultValueMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValuePeriod) { await this.defaultValuePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueQuantity) { await this.defaultValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueRange) { await this.defaultValueRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueRatio) { await this.defaultValueRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueReference) { await this.defaultValueReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueSampledData) { await this.defaultValueSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueSignature) { await this.defaultValueSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueTiming) { await this.defaultValueTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueContactDetail) { await this.defaultValueContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueContributor) { await this.defaultValueContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueDataRequirement) { await this.defaultValueDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueExpression) { await this.defaultValueExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueParameterDefinition) { await this.defaultValueParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueRelatedArtifact) { await this.defaultValueRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueTriggerDefinition) { await this.defaultValueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueUsageContext) { await this.defaultValueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueDosage) { await this.defaultValueDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.defaultValueMeta) { await this.defaultValueMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedAddress) { await this.fixedAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedAge) { await this.fixedAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedAnnotation) { await this.fixedAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedAttachment) { await this.fixedAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedCodeableConcept) { await this.fixedCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedCoding) { await this.fixedCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedContactPoint) { await this.fixedContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedCount) { await this.fixedCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedDistance) { await this.fixedDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedDuration) { await this.fixedDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedHumanName) { await this.fixedHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedIdentifier) { await this.fixedIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedMoney) { await this.fixedMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedPeriod) { await this.fixedPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedQuantity) { await this.fixedQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedRange) { await this.fixedRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedRatio) { await this.fixedRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedReference) { await this.fixedReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedSampledData) { await this.fixedSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedSignature) { await this.fixedSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedTiming) { await this.fixedTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedContactDetail) { await this.fixedContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedContributor) { await this.fixedContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedDataRequirement) { await this.fixedDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedExpression) { await this.fixedExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedParameterDefinition) { await this.fixedParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedRelatedArtifact) { await this.fixedRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedTriggerDefinition) { await this.fixedTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedUsageContext) { await this.fixedUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedDosage) { await this.fixedDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fixedMeta) { await this.fixedMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternAddress) { await this.patternAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternAge) { await this.patternAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternAnnotation) { await this.patternAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternAttachment) { await this.patternAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternCodeableConcept) { await this.patternCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternCoding) { await this.patternCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternContactPoint) { await this.patternContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternCount) { await this.patternCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternDistance) { await this.patternDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternDuration) { await this.patternDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternHumanName) { await this.patternHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternIdentifier) { await this.patternIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternMoney) { await this.patternMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternPeriod) { await this.patternPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternQuantity) { await this.patternQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternRange) { await this.patternRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternRatio) { await this.patternRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternReference) { await this.patternReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternSampledData) { await this.patternSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternSignature) { await this.patternSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternTiming) { await this.patternTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternContactDetail) { await this.patternContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternContributor) { await this.patternContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternDataRequirement) { await this.patternDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternExpression) { await this.patternExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternParameterDefinition) { await this.patternParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternRelatedArtifact) { await this.patternRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternTriggerDefinition) { await this.patternTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternUsageContext) { await this.patternUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternDosage) { await this.patternDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patternMeta) { await this.patternMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.example) { await async.each(this.example, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.minValueQuantity) { await this.minValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.maxValueQuantity) { await this.maxValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.constraint) { await async.each(this.constraint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.binding) { await this.binding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.mapping) { await async.each(this.mapping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.slicing) { await this.slicing.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.base) { await this.base.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.defaultValueAddress) { await this.defaultValueAddress.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueAge) { await this.defaultValueAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueAnnotation) { await this.defaultValueAnnotation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueAttachment) { await this.defaultValueAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueCodeableConcept) { await this.defaultValueCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueCoding) { await this.defaultValueCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueContactPoint) { await this.defaultValueContactPoint.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueCount) { await this.defaultValueCount.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueDistance) { await this.defaultValueDistance.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueDuration) { await this.defaultValueDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueHumanName) { await this.defaultValueHumanName.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueIdentifier) { await this.defaultValueIdentifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueMoney) { await this.defaultValueMoney.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValuePeriod) { await this.defaultValuePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueQuantity) { await this.defaultValueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueRange) { await this.defaultValueRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueRatio) { await this.defaultValueRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueReference) { await this.defaultValueReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueSampledData) { await this.defaultValueSampledData.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueSignature) { await this.defaultValueSignature.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueTiming) { await this.defaultValueTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueContactDetail) { await this.defaultValueContactDetail.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueContributor) { await this.defaultValueContributor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueDataRequirement) { await this.defaultValueDataRequirement.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueExpression) { await this.defaultValueExpression.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueParameterDefinition) { await this.defaultValueParameterDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueRelatedArtifact) { await this.defaultValueRelatedArtifact.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueTriggerDefinition) { await this.defaultValueTriggerDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueUsageContext) { await this.defaultValueUsageContext.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueDosage) { await this.defaultValueDosage.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.defaultValueMeta) { await this.defaultValueMeta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedAddress) { await this.fixedAddress.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedAge) { await this.fixedAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedAnnotation) { await this.fixedAnnotation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedAttachment) { await this.fixedAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedCodeableConcept) { await this.fixedCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedCoding) { await this.fixedCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedContactPoint) { await this.fixedContactPoint.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedCount) { await this.fixedCount.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedDistance) { await this.fixedDistance.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedDuration) { await this.fixedDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedHumanName) { await this.fixedHumanName.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedIdentifier) { await this.fixedIdentifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedMoney) { await this.fixedMoney.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedPeriod) { await this.fixedPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedQuantity) { await this.fixedQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedRange) { await this.fixedRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedRatio) { await this.fixedRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedReference) { await this.fixedReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedSampledData) { await this.fixedSampledData.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedSignature) { await this.fixedSignature.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedTiming) { await this.fixedTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedContactDetail) { await this.fixedContactDetail.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedContributor) { await this.fixedContributor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedDataRequirement) { await this.fixedDataRequirement.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedExpression) { await this.fixedExpression.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedParameterDefinition) { await this.fixedParameterDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedRelatedArtifact) { await this.fixedRelatedArtifact.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedTriggerDefinition) { await this.fixedTriggerDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedUsageContext) { await this.fixedUsageContext.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedDosage) { await this.fixedDosage.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fixedMeta) { await this.fixedMeta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternAddress) { await this.patternAddress.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternAge) { await this.patternAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternAnnotation) { await this.patternAnnotation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternAttachment) { await this.patternAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternCodeableConcept) { await this.patternCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternCoding) { await this.patternCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternContactPoint) { await this.patternContactPoint.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternCount) { await this.patternCount.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternDistance) { await this.patternDistance.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternDuration) { await this.patternDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternHumanName) { await this.patternHumanName.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternIdentifier) { await this.patternIdentifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternMoney) { await this.patternMoney.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternPeriod) { await this.patternPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternQuantity) { await this.patternQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternRange) { await this.patternRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternRatio) { await this.patternRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternReference) { await this.patternReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternSampledData) { await this.patternSampledData.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternSignature) { await this.patternSignature.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternTiming) { await this.patternTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternContactDetail) { await this.patternContactDetail.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternContributor) { await this.patternContributor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternDataRequirement) { await this.patternDataRequirement.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternExpression) { await this.patternExpression.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternParameterDefinition) { await this.patternParameterDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternRelatedArtifact) { await this.patternRelatedArtifact.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternTriggerDefinition) { await this.patternTriggerDefinition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternUsageContext) { await this.patternUsageContext.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternDosage) { await this.patternDosage.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patternMeta) { await this.patternMeta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.example) { await async.each(this.example, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.minValueQuantity) { await this.minValueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.maxValueQuantity) { await this.maxValueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.constraint) { await async.each(this.constraint, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.binding) { await this.binding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.mapping) { await async.each(this.mapping, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -4842,7 +4842,7 @@ class ElementDefinition extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

@@ -120,7 +120,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -184,7 +184,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -206,7 +206,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -230,7 +230,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -262,7 +262,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -283,7 +283,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sourceMaterialClass = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -305,7 +305,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sourceMaterialType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -325,7 +325,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sourceMaterialState = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -346,7 +346,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.organismId = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -386,7 +386,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.parentSubstanceId = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -428,7 +428,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.countryOfOrigin = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -469,7 +469,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.developmentStage = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -496,7 +496,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialFractionDescription = require('../backbone_elements/substanceSourceMaterialFractionDescription.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.fractionDescription = FhirResourceCreator.createArray(valueProvided, SubstanceSourceMaterialFractionDescription);
             }
         });
@@ -519,7 +519,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialOrganism = require('../backbone_elements/substanceSourceMaterialOrganism.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.organism = FhirResourceCreator.create(valueProvided, SubstanceSourceMaterialOrganism);
             }
         });
@@ -539,7 +539,7 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialPartDescription = require('../backbone_elements/substanceSourceMaterialPartDescription.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.partDescription = FhirResourceCreator.createArray(valueProvided, SubstanceSourceMaterialPartDescription);
             }
         });
@@ -746,7 +746,7 @@ class SubstanceSourceMaterial extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -779,22 +779,22 @@ class SubstanceSourceMaterial extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.sourceMaterialClass) { await this.sourceMaterialClass.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.sourceMaterialType) { await this.sourceMaterialType.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.sourceMaterialState) { await this.sourceMaterialState.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.organismId) { await this.organismId.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.parentSubstanceId) { await async.each(this.parentSubstanceId, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.countryOfOrigin) { await async.each(this.countryOfOrigin, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.developmentStage) { await this.developmentStage.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.fractionDescription) { await async.each(this.fractionDescription, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.organism) { await this.organism.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.partDescription) { await async.each(this.partDescription, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.sourceMaterialClass) { await this.sourceMaterialClass.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.sourceMaterialType) { await this.sourceMaterialType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.sourceMaterialState) { await this.sourceMaterialState.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.organismId) { await this.organismId.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.parentSubstanceId) { await async.each(this.parentSubstanceId, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.countryOfOrigin) { await async.each(this.countryOfOrigin, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.developmentStage) { await this.developmentStage.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.fractionDescription) { await async.each(this.fractionDescription, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.organism) { await this.organism.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.partDescription) { await async.each(this.partDescription, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -802,7 +802,7 @@ class SubstanceSourceMaterial extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

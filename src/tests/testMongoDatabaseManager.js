@@ -1,5 +1,5 @@
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
-const {getMongoUrlAsync} = require('./mongoTestRunner');
+const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
+const { getMongoUrlAsync } = require('./mongoTestRunner');
 
 class TestMongoDatabaseManager extends MongoDatabaseManager {
     async getClientConfigAsync () {

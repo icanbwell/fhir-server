@@ -7,8 +7,8 @@ const observation3Resource = require('./fixtures/Observation/observation3.json')
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationByIdResources = require('./fixtures/expected/expected_observation_by_id.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -29,21 +29,21 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/2/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/3/$merge?validate=true')
                 .send(observation3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
@@ -62,7 +62,7 @@ describe('Observation Tests', () => {
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back

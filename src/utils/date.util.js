@@ -27,9 +27,9 @@ function parseDate (date) {
         }
 
         // return in desired ISO format
-        return {[prefix]: moment.utc(dateStr).format('YYYY-MM-DDTHH:mm:ssZ')};
+        return { [prefix]: moment.utc(dateStr).format('YYYY-MM-DDTHH:mm:ssZ') };
     } else {
-        return {[prefix]: moment.utc(date).format('YYYY-MM-DDTHH:mm:ssZ')};
+        return { [prefix]: moment.utc(date).format('YYYY-MM-DDTHH:mm:ssZ') };
     }
 }
 

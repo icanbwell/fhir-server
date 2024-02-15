@@ -1,4 +1,4 @@
-const {Transform} = require('stream');
+const { Transform } = require('stream');
 
 class FhirResourceWriterBase extends Transform {
     /**
@@ -16,7 +16,7 @@ class FhirResourceWriterBase extends Transform {
             response
         }
     ) {
-        super({objectMode: objectMode, highWaterMark: highWaterMark});
+        super({ objectMode: objectMode, highWaterMark: highWaterMark });
 
         /**
          * @type {string}

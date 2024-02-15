@@ -7,7 +7,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
@@ -33,7 +33,7 @@ describe('PatientReturnIdTests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction

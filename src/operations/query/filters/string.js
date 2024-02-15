@@ -1,5 +1,5 @@
-const {nameQueryBuilder, addressQueryBuilder} = require('../../../utils/querybuilder.util');
-const {BaseFilter} = require('./baseFilter');
+const { nameQueryBuilder, addressQueryBuilder } = require('../../../utils/querybuilder.util');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * Filters by string
@@ -14,14 +14,14 @@ class FilterByString extends BaseFilter {
     filterByItem (field, value) {
         // If the field type is HumanName, use name query builder to apply the search in all the HumanName attributes.
         if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'humanname') {
-            const ors = nameQueryBuilder({target: value});
-            return {$or: ors};
+            const ors = nameQueryBuilder({ target: value });
+            return { $or: ors };
         } else if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'address') {
             // If the field is address, use address query builder to apply the search in all address attributes
-            const ors = addressQueryBuilder({target: value});
-            return {$or: ors};
+            const ors = addressQueryBuilder({ target: value });
+            return { $or: ors };
         } else {
-            return {[this.fieldMapper.getFieldName(field)]: value};
+            return { [this.fieldMapper.getFieldName(field)]: value };
         }
     }
 }

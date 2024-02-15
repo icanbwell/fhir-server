@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('ValueSet Tests', () => {
     beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('ValueSet Tests', () => {
                 .send(valueset1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request

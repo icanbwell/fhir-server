@@ -12,7 +12,7 @@ const { generateUUIDv5 } = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
 const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
-const {compare} = require('fast-json-patch');
+const { compare } = require('fast-json-patch');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { ResourceMerger } = require('../../operations/common/resourceMerger');
 const { RethrownError } = require('../../utils/rethrownError');
@@ -363,7 +363,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
             return reference;
         } catch (e) {
-            this.adminLogger.logError(e.message, {stack: e.stack});
+            this.adminLogger.logError(e.message, { stack: e.stack });
             throw new RethrownError(
                 {
                     message: `Error processing reference ${e.message}`,
@@ -476,7 +476,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             if (isHistoryDoc && doc.request) {
                 currentResourceJsonInternal = {
                     resource: currentResourceJsonInternal,
-                    request: {...doc.request}
+                    request: { ...doc.request }
                 };
 
                 // if it is history doc then replace the id present in the url
@@ -498,7 +498,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             // batch up the calls to update
             const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
 
-            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
 
             if (Object.keys(updateOperation).length > 0) {
                 operations.push({
@@ -531,7 +531,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async preloadReferencesAsync ({mongoConfig}) {
+    async preloadReferencesAsync ({ mongoConfig }) {
         const cacheCollectionReferences = async (proaCollection) => {
             this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
 
@@ -565,7 +565,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @returns {boolean}
      */
-    collectionExistsInDb ({collectionName}) {
+    collectionExistsInDb ({ collectionName }) {
         if (!this.collectionsInDb) {
             throw new Error('Please Run createSingleCollections before using this function');
         }
@@ -753,7 +753,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    const parametersQuery = this.getQueryFromParameters({queryPrefix: isHistoryCollection ? 'resource.' : ''});
+                    const parametersQuery = this.getQueryFromParameters({ queryPrefix: isHistoryCollection ? 'resource.' : '' });
 
                     // get resourceName from collection name
                     /**
@@ -798,7 +798,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                         // create indexes on reference fields
                         if (!isHistoryCollection) {
-                            await this.addIndexesToCollection({collectionName, referenceFieldNames, mongoConfig});
+                            await this.addIndexesToCollection({ collectionName, referenceFieldNames, mongoConfig });
                         }
 
                         /**
@@ -960,7 +960,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                     // create indexes on _sourceId field
                     if (!isHistoryCollection) {
-                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                        await this.addIndexesToCollection({ collectionName, mongoConfig });
                     }
 
                     // if query is not empty then run the query and process the records
@@ -1049,7 +1049,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} queryPrefix
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryFromParameters ({queryPrefix}) {
+    getQueryFromParameters ({ queryPrefix }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -1231,7 +1231,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
-        let query = this.getQueryFromParameters({queryPrefix: isHistoryCollection ? 'resource.' : ''});
+        let query = this.getQueryFromParameters({ queryPrefix: isHistoryCollection ? 'resource.' : '' });
 
         // query to get resources that needs to be changes
         /**

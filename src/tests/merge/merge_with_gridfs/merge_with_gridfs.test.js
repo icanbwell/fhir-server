@@ -1,4 +1,4 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 
 const documentReference1Data = require('./fixtures/document_reference/document_reference1.json');
@@ -7,7 +7,7 @@ const updatedDocumentReferenceData = require('./fixtures/document_reference/upda
 const expectedCreateResponse = require('./fixtures/expected/create_response.json');
 const expectedUpdateResponse = require('./fixtures/expected/update_response.json');
 
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GridFS merge tests', () => {
     beforeEach(async () => {
@@ -46,7 +46,7 @@ describe('GridFS merge tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -84,7 +84,7 @@ describe('GridFS merge tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -113,7 +113,7 @@ describe('GridFS merge tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({updated: false});
+            expect(resp).toHaveMergeResponse({ updated: false });
 
             const container = createTestContainer();
 
@@ -130,7 +130,7 @@ describe('GridFS merge tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 
@@ -176,7 +176,7 @@ describe('GridFS merge tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const documentReference = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReference.length).toEqual(1);
 

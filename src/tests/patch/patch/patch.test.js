@@ -9,8 +9,8 @@ const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch} = require('../../common');
-const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');

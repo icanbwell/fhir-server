@@ -1,6 +1,6 @@
 const deepEqual = require('fast-deep-equal');
-const {compare} = require('fast-json-patch');
-const {logWarn} = require('./logging');
+const { compare } = require('fast-json-patch');
+const { logWarn } = require('./logging');
 
 module.exports.check_fhir_mismatch = (cleaned, patched) => {
     if (deepEqual(cleaned, patched) === false) {

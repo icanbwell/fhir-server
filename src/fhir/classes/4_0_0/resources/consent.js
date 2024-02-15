@@ -111,7 +111,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -175,7 +175,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -197,7 +197,7 @@ class Consent extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -221,7 +221,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -253,7 +253,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -273,7 +273,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -312,7 +312,7 @@ class Consent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.scope = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -333,7 +333,7 @@ class Consent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -353,7 +353,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -394,7 +394,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performer = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -415,7 +415,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.organization = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -435,7 +435,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sourceAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -455,7 +455,7 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sourceReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -477,7 +477,7 @@ class Consent extends Resource {
                     return;
                 }
                 const ConsentPolicy = require('../backbone_elements/consentPolicy.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.policy = FhirResourceCreator.createArray(valueProvided, ConsentPolicy);
             }
         });
@@ -497,7 +497,7 @@ class Consent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.policyRule = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -518,7 +518,7 @@ class Consent extends Resource {
                     return;
                 }
                 const ConsentVerification = require('../backbone_elements/consentVerification.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.verification = FhirResourceCreator.createArray(valueProvided, ConsentVerification);
             }
         });
@@ -539,7 +539,7 @@ class Consent extends Resource {
                     return;
                 }
                 const ConsentProvision = require('../backbone_elements/consentProvision.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.provision = FhirResourceCreator.create(valueProvided, ConsentProvision);
             }
         });
@@ -750,7 +750,7 @@ class Consent extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -784,24 +784,24 @@ class Consent extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.scope) { await this.scope.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.patient) { await this.patient.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.performer) { await async.each(this.performer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.organization) { await async.each(this.organization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.sourceAttachment) { await this.sourceAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.sourceReference) { await this.sourceReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.policy) { await async.each(this.policy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.policyRule) { await this.policyRule.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.verification) { await async.each(this.verification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.provision) { await this.provision.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.scope) { await this.scope.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.patient) { await this.patient.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performer) { await async.each(this.performer, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.organization) { await async.each(this.organization, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.sourceAttachment) { await this.sourceAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.sourceReference) { await this.sourceReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.policy) { await async.each(this.policy, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.policyRule) { await this.policyRule.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.verification) { await async.each(this.verification, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.provision) { await this.provision.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -809,7 +809,7 @@ class Consent extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

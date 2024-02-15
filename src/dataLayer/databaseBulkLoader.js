@@ -1,11 +1,11 @@
-const {groupByLambda, getFirstResourceOrNull} = require('../utils/list.util');
+const { groupByLambda, getFirstResourceOrNull } = require('../utils/list.util');
 const async = require('async');
-const {DatabaseQueryFactory} = require('./databaseQueryFactory');
-const {assertTypeEquals} = require('../utils/assertType');
-const {RethrownError} = require('../utils/rethrownError');
-const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
-const {RequestSpecificCache} = require('../utils/requestSpecificCache');
-const {ConfigManager} = require('../utils/configManager');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { assertTypeEquals } = require('../utils/assertType');
+const { RethrownError } = require('../utils/rethrownError');
+const { databaseBulkLoaderTimer } = require('../utils/prometheus.utils');
+const { RequestSpecificCache } = require('../utils/requestSpecificCache');
+const { ConfigManager } = require('../utils/configManager');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -52,7 +52,7 @@ class DatabaseBulkLoader {
      * @param {Resource[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesAsync ({requestId, base_version, requestedResources}) {
+    async loadResourcesAsync ({ requestId, base_version, requestedResources }) {
         try {
             /**
              * merge results grouped by resourceType
@@ -77,9 +77,9 @@ class DatabaseBulkLoader {
             /**
              * @type {Map<string, Resource[]>}
              */
-            const bulkCache = this.getBulkCache({requestId});
+            const bulkCache = this.getBulkCache({ requestId });
             // Now add them to our cache
-            for (const {resourceType, resources} of result) {
+            for (const { resourceType, resources } of result) {
                 bulkCache.set(resourceType, resources);
             }
             return result;
@@ -95,8 +95,8 @@ class DatabaseBulkLoader {
      * @param {string} requestId
      * @returns {Map<string, Resource[]>}
      */
-    getBulkCache ({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: this.cacheName});
+    getBulkCache ({ requestId }) {
+        return this.requestSpecificCache.getMap({ requestId, name: this.cacheName });
     }
 
     /**
@@ -108,7 +108,7 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     // eslint-disable-next-line no-unused-vars
-    async getResourcesAsync ({requestId, base_version, resourceType, resources}) {
+    async getResourcesAsync ({ requestId, base_version, resourceType, resources }) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
@@ -121,19 +121,19 @@ class DatabaseBulkLoader {
              * cursor
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({resources});
+            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({ resources });
 
             /**
              * @type {Resource[]}
              */
-            const foundResources = await this.cursorToResourcesAsync({cursor});
-            return {resourceType, resources: foundResources};
+            const foundResources = await this.cursorToResourcesAsync({ cursor });
+            return { resourceType, resources: foundResources };
         } catch (e) {
             throw new RethrownError({
                 error: e
             });
         } finally {
-            timer({resourceType});
+            timer({ resourceType });
         }
     }
 
@@ -142,7 +142,7 @@ class DatabaseBulkLoader {
      * @param {DatabasePartitionedCursor} cursor
      * @returns {Promise<Resource[]>}
      */
-    async cursorToResourcesAsync ({cursor}) {
+    async cursorToResourcesAsync ({ cursor }) {
         try {
             /**
              * @type {Resource[]}
@@ -171,8 +171,8 @@ class DatabaseBulkLoader {
      * @param {string} uuid
      * @return {null|Resource}
      */
-    getResourceFromExistingList ({requestId, resourceType, uuid}) {
-        const bulkCache = this.getBulkCache({requestId});
+    getResourceFromExistingList ({ requestId, resourceType, uuid }) {
+        const bulkCache = this.getBulkCache({ requestId });
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
@@ -195,7 +195,7 @@ class DatabaseBulkLoader {
      * @param {string} uuid
      * @return {Resource|null}
      */
-    getMatchingResource ({cacheEntryResources, uuid}) {
+    getMatchingResource ({ cacheEntryResources, uuid }) {
         /**
          * @type {Resource[]}
          */

@@ -1,8 +1,8 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepcopy = require('deepcopy');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc runs preSave() on every record
@@ -87,7 +87,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
             hasChanges = true;
         }
         if (hasChanges) {
-            const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
+            const result = { replaceOne: { filter: { _id: doc._id }, replacement: doc } };
             operations.push(result);
         }
         return operations;
@@ -130,7 +130,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
 
-                const query = this.skipIfResourcePresent ? {resource: null} : {};
+                const query = this.skipIfResourcePresent ? { resource: null } : {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {

@@ -51,7 +51,7 @@ class MongoExplainPlanHelper {
      * @param {import('mongodb').Document} query
      * @return {ExplainResult}
      */
-    quick_explain ({explanation, query}) {
+    quick_explain ({ explanation, query }) {
         // https://www.mongodb.com/docs/manual/reference/explain-results/
         /**
          * if there are execution stages then use those since they have timing information
@@ -83,8 +83,8 @@ class MongoExplainPlanHelper {
         /**
          * @type {Step}
          */
-        const step = this.parseInputStage({stepNo, step: winningPlan});
-        return {step: step, executionStats: myExecutionStats, query: query};
+        const step = this.parseInputStage({ stepNo, step: winningPlan });
+        return { step: step, executionStats: myExecutionStats, query: query };
     }
 
     /**
@@ -92,7 +92,7 @@ class MongoExplainPlanHelper {
      * @param {Object} step
      * @return {Step}
      */
-    parseInputStage ({stepNo, step}) {
+    parseInputStage ({ stepNo, step }) {
         /**
          * @type {Step}
          */
@@ -101,20 +101,20 @@ class MongoExplainPlanHelper {
             if (!result.children) {
                 result.children = [];
             }
-            result.children.push(this.parseInputStage({stepNo, step: step.inputStage}));
+            result.children.push(this.parseInputStage({ stepNo, step: step.inputStage }));
         }
         if ('inputStages' in step) {
             if (!result.children) {
                 result.children = [];
             }
             for (const inputStage of step.inputStages) {
-                result.children.push(this.parseInputStage({stepNo, step: inputStage}));
+                result.children.push(this.parseInputStage({ stepNo, step: inputStage }));
             }
         }
         /**
          * @type {Step}
          */
-        const simplePlanItem = {stepNo: stepNo++, stage: step.stage};
+        const simplePlanItem = { stepNo: stepNo++, stage: step.stage };
 
         if (friendlyDescriptionOfStages[step.stage]) {
             simplePlanItem.friendlyStage = friendlyDescriptionOfStages[step.stage];

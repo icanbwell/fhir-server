@@ -72,7 +72,7 @@ class Resource extends ResourceContainer {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -250,7 +250,7 @@ class Resource extends ResourceContainer {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -266,8 +266,8 @@ class Resource extends ResourceContainer {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -275,7 +275,7 @@ class Resource extends ResourceContainer {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -305,8 +305,8 @@ class Resource extends ResourceContainer {
      * @return {SecurityTagStructure}
      */
     get securityTagStructure () {
-        const {SecurityTagStructure} = require('../../../securityTagStructure');
-        return SecurityTagStructure.fromResource({resource: this});
+        const { SecurityTagStructure } = require('../../../securityTagStructure');
+        return SecurityTagStructure.fromResource({ resource: this });
     }
 
     /**
@@ -314,7 +314,7 @@ class Resource extends ResourceContainer {
      * @param {Resource|{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}} other
      * @return {boolean}
      */
-    isSameResourceByIdAndSecurityTag ({other}) {
+    isSameResourceByIdAndSecurityTag ({ other }) {
         if (this.resourceType !== other.resourceType) {
             return false;
         }

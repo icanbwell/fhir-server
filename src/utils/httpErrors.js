@@ -2,7 +2,7 @@
  * This file implements custom HTTP errors for the FHIR server
  */
 
-const {ServerError} = require('../middleware/fhir/utils/server.error');
+const { ServerError } = require('../middleware/fhir/utils/server.error');
 const env = require('var');
 
 class BadRequestError extends ServerError {
@@ -15,7 +15,7 @@ class BadRequestError extends ServerError {
                 {
                     severity: 'error',
                     code: 'invalid',
-                    details: {text: error.message},
+                    details: { text: error.message },
                     diagnostics: (env.IS_PRODUCTION || typeof error.toString !== 'function') ?
                         error.message : error.toString()
                 }
@@ -45,7 +45,7 @@ class NotFoundError extends ServerError {
                 {
                     severity: 'error',
                     code: 'not-found',
-                    details: {text: message}
+                    details: { text: message }
                 }
             ]
         });
@@ -75,7 +75,7 @@ class NotAllowedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: {text: message}
+                    details: { text: message }
                 }
             ]
         });
@@ -130,7 +130,7 @@ class UnauthorizedError extends ServerError {
                 {
                     severity: 'error',
                     code: 'security',
-                    details: {text: message}
+                    details: { text: message }
                 }
             ]
         });
@@ -159,7 +159,7 @@ class ForbiddenError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: {text: message}
+                    details: { text: message }
                 }
             ]
         });

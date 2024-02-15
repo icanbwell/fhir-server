@@ -1,5 +1,5 @@
 const env = require('var');
-const {isTrue} = require('./isTrue');
+const { isTrue } = require('./isTrue');
 
 class ConfigManager {
     /**

@@ -129,7 +129,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -193,7 +193,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -215,7 +215,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -239,7 +239,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -271,7 +271,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -291,7 +291,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -331,7 +331,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.providedBy = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -351,7 +351,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -371,7 +371,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -392,7 +392,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specialty = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -412,7 +412,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.location = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -490,7 +490,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.photo = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -510,7 +510,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
@@ -531,7 +531,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.coverageArea = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -552,7 +552,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.serviceProvisionCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -573,7 +573,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const HealthcareServiceEligibility = require('../backbone_elements/healthcareServiceEligibility.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.eligibility = FhirResourceCreator.createArray(valueProvided, HealthcareServiceEligibility);
             }
         });
@@ -593,7 +593,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.program = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -613,7 +613,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.characteristic = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -636,7 +636,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.communication = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -657,7 +657,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referralMethod = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -697,7 +697,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const HealthcareServiceAvailableTime = require('../backbone_elements/healthcareServiceAvailableTime.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.availableTime = FhirResourceCreator.createArray(valueProvided, HealthcareServiceAvailableTime);
             }
         });
@@ -718,7 +718,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const HealthcareServiceNotAvailable = require('../backbone_elements/healthcareServiceNotAvailable.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.notAvailable = FhirResourceCreator.createArray(valueProvided, HealthcareServiceNotAvailable);
             }
         });
@@ -759,7 +759,7 @@ class HealthcareService extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.endpoint = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -1010,7 +1010,7 @@ class HealthcareService extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1054,30 +1054,30 @@ class HealthcareService extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.providedBy) { await this.providedBy.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.specialty) { await async.each(this.specialty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.location) { await async.each(this.location, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.photo) { await this.photo.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.coverageArea) { await async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.serviceProvisionCode) { await async.each(this.serviceProvisionCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.eligibility) { await async.each(this.eligibility, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.program) { await async.each(this.program, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.characteristic) { await async.each(this.characteristic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.communication) { await async.each(this.communication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.referralMethod) { await async.each(this.referralMethod, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.availableTime) { await async.each(this.availableTime, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.notAvailable) { await async.each(this.notAvailable, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.endpoint) { await async.each(this.endpoint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.providedBy) { await this.providedBy.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.specialty) { await async.each(this.specialty, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.location) { await async.each(this.location, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.photo) { await this.photo.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.coverageArea) { await async.each(this.coverageArea, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.serviceProvisionCode) { await async.each(this.serviceProvisionCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.eligibility) { await async.each(this.eligibility, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.program) { await async.each(this.program, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.characteristic) { await async.each(this.characteristic, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.communication) { await async.each(this.communication, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.referralMethod) { await async.each(this.referralMethod, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.availableTime) { await async.each(this.availableTime, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.notAvailable) { await async.each(this.notAvailable, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.endpoint) { await async.each(this.endpoint, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -1085,7 +1085,7 @@ class HealthcareService extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

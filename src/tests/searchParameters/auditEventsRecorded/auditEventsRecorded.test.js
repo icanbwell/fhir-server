@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEventRecordedTests', () => {
     beforeEach(async () => {
@@ -103,7 +103,7 @@ describe('AuditEventRecordedTests', () => {
                 .send(auditEventResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // now check that we get the right record back
             resp = await request

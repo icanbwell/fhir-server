@@ -8,9 +8,9 @@ const {
     toHaveGraphQLResponse
 } = require('./customMatchers');
 
-const {expect} = require('@jest/globals');
+const { expect } = require('@jest/globals');
 
-expect.extend({toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount, toHaveGraphQLResponse});
+expect.extend({ toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount, toHaveGraphQLResponse });
 
 const {
     toBeArray,
@@ -22,4 +22,4 @@ const {
     toInclude,
     toBeArrayOfSize
 } = require('jest-extended');
-expect.extend({toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude, toBeArrayOfSize});
+expect.extend({ toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude, toBeArrayOfSize });

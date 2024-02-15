@@ -1,8 +1,8 @@
-const {Transform} = require('stream');
-const {logInfo} = require('../common/logging');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {RethrownError} = require('../../utils/rethrownError');
+const { Transform } = require('stream');
+const { logInfo } = require('../common/logging');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { RethrownError } = require('../../utils/rethrownError');
 
 class ObjectChunker extends Transform {
     /**
@@ -12,8 +12,8 @@ class ObjectChunker extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor ({chunkSize, signal, highWaterMark, configManager}) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+    constructor ({ chunkSize, signal, highWaterMark, configManager }) {
+        super({ objectMode: true, highWaterMark: highWaterMark });
         this._buffer = [];
         this._chunkSize = chunkSize;
         /**

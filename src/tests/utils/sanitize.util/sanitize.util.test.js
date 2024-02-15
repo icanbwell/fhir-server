@@ -1,5 +1,5 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { describe, beforeEach, afterEach, test } = require('@jest/globals');
 // const {sanitizeMiddleware} = require('../../../middleware/fhir/utils/sanitize.utils');
 
 describe('Sanitize Tests', () => {

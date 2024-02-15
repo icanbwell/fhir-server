@@ -1,5 +1,5 @@
-const {isTrue} = require('../../../utils/isTrue');
-const {BaseFilter} = require('./baseFilter');
+const { isTrue } = require('../../../utils/isTrue');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * Filters by missing
@@ -17,7 +17,7 @@ class FilterByMissing extends BaseFilter {
                 [this.fieldMapper.getFieldName(field)]: null
             } :
             {
-                [this.fieldMapper.getFieldName(field)]: {$ne: null}
+                [this.fieldMapper.getFieldName(field)]: { $ne: null }
             };
     }
 }

@@ -1,12 +1,12 @@
-const {isTrue} = require('../../../../utils/isTrue');
-const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
-const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {FhirResponseWriter} = require('../../fhirResponseWriter');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
+const { isTrue } = require('../../../../utils/isTrue');
+const { FhirOperationsManager } = require('../../../../operations/fhirOperationsManager');
+const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { FhirResponseWriter } = require('../../fhirResponseWriter');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { RequestSpecificCache } = require('../../../../utils/requestSpecificCache');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../../../../constants');
+const { REQUEST_ID_TYPE } = require('../../../../constants');
 
 /**
  * @typedef FhirService
@@ -109,14 +109,14 @@ class GenericController {
                             res
                         },
                         resourceType);
-                    this.fhirResponseWriter.read({req, res, result: bundle});
+                    this.fhirResponseWriter.read({ req, res, result: bundle });
                 }
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -138,13 +138,13 @@ class GenericController {
                         res
                     },
                     resourceType);
-                this.fhirResponseWriter.readOne({req, res, resource});
+                this.fhirResponseWriter.readOne({ req, res, resource });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -169,13 +169,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.readOne({req, res, resource});
+                this.fhirResponseWriter.readOne({ req, res, resource });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -202,14 +202,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.create({
-                    req, res, resource, options: {type: resourceType}
+                    req, res, resource, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -233,14 +233,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.create({
-                    req, res, resource, options: {type: resourceType}
+                    req, res, resource, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -267,14 +267,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.update({
-                    req, res, result, options: {type: resourceType}
+                    req, res, result, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -297,13 +297,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.remove({req, res, json});
+                this.fhirResponseWriter.remove({ req, res, json });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -332,14 +332,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.update({
-                    req, res, result, options: {type: resourceType}
+                    req, res, result, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -362,13 +362,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.history({req, res, json: bundle});
+                this.fhirResponseWriter.history({ req, res, json: bundle });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -391,13 +391,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.history({req, res, json: bundle});
+                this.fhirResponseWriter.history({ req, res, json: bundle });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }

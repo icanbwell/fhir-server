@@ -33,13 +33,13 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
-const {IdentifierSystem} = require('../../../../utils/identifierSystem');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {generateUUIDv5} = require('../../../../utils/uid.util');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { RunPreSaveRunner } = require('../../../../admin/runners/runPreSaveRunner');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -66,7 +66,7 @@ async function setupDatabaseAsync (mongoDatabaseManager, patientResource, expect
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: patientResource.id});
+    const resource = await collection.findOne({ id: patientResource.id });
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
@@ -136,7 +136,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 1
-            const patient1 = await collection.findOne({id: patient1Resource.id});
+            const patient1 = await collection.findOne({ id: patient1Resource.id });
             expect(patient1).toBeDefined();
             delete patient1._id;
             expect(patient1._uuid).toBeDefined();
@@ -201,7 +201,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 2
-            const patient2 = await collection.findOne({id: patient2Resource.id});
+            const patient2 = await collection.findOne({ id: patient2Resource.id });
             expect(patient2).toBeDefined();
             delete patient2._id;
             expect(patient2._uuid).toBeDefined();
@@ -266,7 +266,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 3 with uuid but no identifier
-            const patient3 = await collection.findOne({id: patient3Resource.id});
+            const patient3 = await collection.findOne({ id: patient3Resource.id });
             expect(patient3).toBeDefined();
             delete patient3._id;
             expect(patient3._uuid).toBeDefined();
@@ -334,7 +334,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 4 with all fields populated except sourceAssigningAuthority
-            const patient4 = await collection.findOne({id: patient4Resource.id});
+            const patient4 = await collection.findOne({ id: patient4Resource.id });
             expect(patient4).toBeDefined();
             delete patient4._id;
             expect(patient4._uuid).toBeDefined();
@@ -397,7 +397,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // patient 5 with all field populated so no update should be done
-            const patient5 = await collection.findOne({id: patient5Resource.id});
+            const patient5 = await collection.findOne({ id: patient5Resource.id });
             expect(patient5).toBeDefined();
             delete patient5._id;
             expect(patient5._uuid).toBeDefined();
@@ -459,7 +459,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // check that patient 6 was skipped since it has a newer lastModified date
-            const patient6 = await collection.findOne({id: patient6Resource.id});
+            const patient6 = await collection.findOne({ id: patient6Resource.id });
             expect(patient6).toBeDefined();
             delete patient6._id;
             expect(patient6.meta.lastUpdated).toStrictEqual(patient6Resource.meta.lastUpdated);
@@ -516,7 +516,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 3 with uuid but no identifier
-            const patient7 = await collection.findOne({id: patient7Resource.id});
+            const patient7 = await collection.findOne({ id: patient7Resource.id });
             expect(patient7).toBeDefined();
             delete patient7._id;
             expect(patient7._uuid).toBeDefined();
@@ -576,7 +576,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 1
-            const patient8 = await collection.findOne({id: patient8Resource.id});
+            const patient8 = await collection.findOne({ id: patient8Resource.id });
             expect(patient8).toBeDefined();
             delete patient8._id;
             expect(patient8._uuid).toBeDefined();
@@ -641,7 +641,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // check that patient 6 was skipped since it has a newer lastModified date
-            const patient6 = await collection.findOne({id: patient6Resource.id});
+            const patient6 = await collection.findOne({ id: patient6Resource.id });
             expect(patient6).toBeDefined();
             delete patient6._id;
             expect(patient6.meta.lastUpdated).toStrictEqual(patient6Resource.meta.lastUpdated);
@@ -697,7 +697,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 1
-            const patient1 = await collection.findOne({id: patient1Resource.id});
+            const patient1 = await collection.findOne({ id: patient1Resource.id });
             expect(patient1).toBeDefined();
             delete patient1._id;
             expect(patient1._uuid).toBeDefined();
@@ -764,7 +764,7 @@ describe('Patient Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // check that patient 6 was skipped since it has a newer lastModified date
-            const patient6 = await collection.findOne({id: patient6Resource.id});
+            const patient6 = await collection.findOne({ id: patient6Resource.id });
             expect(patient6).toBeDefined();
             delete patient6._id;
             expect(patient6.meta.lastUpdated).toStrictEqual(patient6Resource.meta.lastUpdated);

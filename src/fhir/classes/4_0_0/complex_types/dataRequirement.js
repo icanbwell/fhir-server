@@ -83,7 +83,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -141,7 +141,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subjectCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -161,7 +161,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subjectReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -210,7 +210,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 const DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.codeFilter = FhirResourceCreator.createArray(valueProvided, DataRequirementCodeFilter);
             }
         });
@@ -232,7 +232,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 const DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dateFilter = FhirResourceCreator.createArray(valueProvided, DataRequirementDateFilter);
             }
         });
@@ -271,7 +271,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 const DataRequirementSort = require('../complex_types/dataRequirementSort.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sort = FhirResourceCreator.createArray(valueProvided, DataRequirementSort);
             }
         });
@@ -297,7 +297,7 @@ class DataRequirement extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -319,13 +319,13 @@ class DataRequirement extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.subjectCodeableConcept) { await this.subjectCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.subjectReference) { await this.subjectReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.codeFilter) { await async.each(this.codeFilter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.dateFilter) { await async.each(this.dateFilter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.sort) { await async.each(this.sort, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.subjectCodeableConcept) { await this.subjectCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subjectReference) { await this.subjectReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.codeFilter) { await async.each(this.codeFilter, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dateFilter) { await async.each(this.dateFilter, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.sort) { await async.each(this.sort, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -333,7 +333,7 @@ class DataRequirement extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

@@ -19,7 +19,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdClientRunner } = require('../../../../admin/runners/fixReferenceIdClientRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockFixReferenceIdClientRunner extends FixReferenceIdClientRunner {
     async getDataFromS3 () {

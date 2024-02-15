@@ -1,9 +1,9 @@
-const {Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError} = require('kafkajs');
-const {assertIsValid, assertTypeEquals} = require('./assertType');
-const {logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const { assertIsValid, assertTypeEquals } = require('./assertType');
+const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const env = require('var');
-const {RethrownError} = require('./rethrownError');
-const {ConfigManager} = require('./configManager');
+const { RethrownError } = require('./rethrownError');
+const { ConfigManager } = require('./configManager');
 
 /**
  * @typedef KafkaClientMessage
@@ -254,7 +254,7 @@ class KafkaClient {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
                 message: 'Error sending message',
-                args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
+                args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl },
                 error: e
             });
             throw e;
@@ -268,7 +268,7 @@ class KafkaClient {
      * @param label
      * @returns {Promise<void>}
      */
-    waitForConsumerToJoinGroupAsync (consumer, {maxWait = 10000, label = ''} = {}) {
+    waitForConsumerToJoinGroupAsync (consumer, { maxWait = 10000, label = '' } = {}) {
         return new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 consumer.disconnect().then(() => {
@@ -296,7 +296,7 @@ class KafkaClient {
      * @param {function(message: {key: string, value: string, headers: {key: string, value: string}[]}): Promise<void>} onMessageAsync
      * @return {Promise<void>}
      */
-    async receiveMessagesAsync ({consumer, topic, fromBeginning = false, onMessageAsync}) {
+    async receiveMessagesAsync ({ consumer, topic, fromBeginning = false, onMessageAsync }) {
         try {
             await consumer.connect();
         } catch (e) {
@@ -307,10 +307,10 @@ class KafkaClient {
             });
         }
         try {
-            await consumer.subscribe({topics: [topic], fromBeginning: fromBeginning});
+            await consumer.subscribe({ topics: [topic], fromBeginning: fromBeginning });
             await consumer.run({
                 // eslint-disable-next-line no-unused-vars
-                eachMessage: async ({topic1, partition, message, heartbeat, pause}) => {
+                eachMessage: async ({ topic1, partition, message, heartbeat, pause }) => {
                     await onMessageAsync({
                         key: message.key.toString(),
                         value: message.value.toString(),
@@ -328,7 +328,7 @@ class KafkaClient {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
                 message: 'Error receiving message',
-                args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
+                args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl },
                 error: e
             });
             throw e;
@@ -342,7 +342,7 @@ class KafkaClient {
      * @param {import('kafkajs').Consumer} consumer
      * @returns {Promise<void>}
      */
-    async removeConsumerAsync ({consumer}) {
+    async removeConsumerAsync ({ consumer }) {
         await consumer.disconnect();
     }
 
@@ -350,8 +350,8 @@ class KafkaClient {
      * @param {string} groupId
      * @returns {Promise<import('kafkajs').Consumer>}
      */
-    async createConsumerAsync ({groupId}) {
-        return this.client.consumer({groupId: groupId});
+    async createConsumerAsync ({ groupId }) {
+        return this.client.consumer({ groupId: groupId });
     }
 
     /**

@@ -1,21 +1,21 @@
-const {NotFoundError} = require('../../utils/httpErrors');
+const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ConfigManager} = require('../../utils/configManager');
-const {SearchManager} = require('../search/searchManager');
-const {isTrue} = require('../../utils/isTrue');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { ConfigManager } = require('../../utils/configManager');
+const { SearchManager } = require('../search/searchManager');
+const { isTrue } = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {ResourceManager} = require('../common/resourceManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ResourceManager } = require('../common/resourceManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class HistoryOperation {
     /**
@@ -108,7 +108,7 @@ class HistoryOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyAsync ({requestInfo, parsedArgs, resourceType}) {
+    async historyAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(parsedArgs !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -147,7 +147,7 @@ class HistoryOperation {
         });
 
         // Common search params
-        const {base_version} = parsedArgs;
+        const { base_version } = parsedArgs;
 
         /**
          * @type {boolean}
@@ -201,7 +201,7 @@ class HistoryOperation {
                     resourceType, base_version
                 }
             );
-            cursor = await databaseHistoryManager.findAsync({query, options});
+            cursor = await databaseHistoryManager.findAsync({ query, options });
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
@@ -271,7 +271,7 @@ class HistoryOperation {
                 {
                     resource: resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
-                        {protocol, host, base_version, resource})
+                        { protocol, host, base_version, resource })
                 }
             )
         );

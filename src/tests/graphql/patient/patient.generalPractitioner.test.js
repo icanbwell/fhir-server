@@ -23,10 +23,10 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
-const {logError, logInfo} = require('../../../operations/common/logging');
+const { logError, logInfo } = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Tests', () => {
     let requestId;
@@ -107,7 +107,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             expect(requestId).not.toBeUndefined();
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
             await auditLogger.flushAsync();
             const auditEntries = await internalAuditEventCollection.find({}).toArray();
             console.log(JSON.stringify(auditEntries));
@@ -131,17 +131,17 @@ describe('GraphQL Patient Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
-                logError('', {'errors': body.errors});
+                logError('', { 'errors': body.errors });
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
             await auditLogger.flushAsync();
             const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
-            logInfo('', {auditLogs});
+            logInfo('', { auditLogs });
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
         });
         test('GraphQL Update General Practitioner for Patient (unauthenticated)', async () => {

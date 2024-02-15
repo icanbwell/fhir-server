@@ -15,7 +15,7 @@ const {
     getHeadersNdJsonFormUrlEncoded,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('search by multiple ids ndjson', () => {
     beforeEach(async () => {
@@ -40,14 +40,14 @@ describe('search by multiple ids ndjson', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
@@ -74,21 +74,21 @@ describe('search by multiple ids ndjson', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
@@ -109,25 +109,25 @@ describe('search by multiple ids ndjson', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({resourceType: 'Parameters', parameter: [{name: 'id', valueString: '0,1679033641'}]})
+                .send({ resourceType: 'Parameters', parameter: [{ name: 'id', valueString: '0,1679033641' }] })
                 .set(getHeadersNdJson());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
@@ -139,21 +139,21 @@ describe('search by multiple ids ndjson', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')

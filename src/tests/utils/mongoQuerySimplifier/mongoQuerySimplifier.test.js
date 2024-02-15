@@ -1,7 +1,7 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {MongoQuerySimplifier} = require('../../../utils/mongoQuerySimplifier');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('mongoQuerySimplifier Tests', () => {
     beforeEach(async () => {
@@ -48,8 +48,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$and': [
                     {
@@ -91,8 +91,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$and': [
                     {
@@ -114,13 +114,13 @@ describe('mongoQuerySimplifier Tests', () => {
         test('mongoQuerySimplifier converts $or to $in', () => {
             const query = {
                 '$or': [
-                    {'foo': '1'},
-                    {'foo': '2'}
+                    { 'foo': '1' },
+                    { 'foo': '2' }
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 'foo': {
                     '$in': ['1', '2']
@@ -130,17 +130,17 @@ describe('mongoQuerySimplifier Tests', () => {
         test('mongoQuerySimplifier does not convert $or to $in if fields are different', () => {
             const query = {
                 '$or': [
-                    {'foo': '1'},
-                    {'bar': '2'}
+                    { 'foo': '1' },
+                    { 'bar': '2' }
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$or': [
-                    {'foo': '1'},
-                    {'bar': '2'}
+                    { 'foo': '1' },
+                    { 'bar': '2' }
                 ]
             });
         });
@@ -174,8 +174,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$or': [
                     {
@@ -217,8 +217,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({});
         });
         test('mongoQuerySimplifier handles date clauses', () => {
@@ -256,8 +256,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$and': [
                     {
@@ -306,8 +306,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$or': [
                     {
@@ -633,8 +633,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$or': [
                     {
@@ -669,8 +669,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$and': [
                     {
@@ -754,8 +754,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
-            logInfo('', {result});
+            const result = MongoQuerySimplifier.simplifyFilter({ filter: query });
+            logInfo('', { result });
             expect(result).toStrictEqual({
                 '$or': [
                     {

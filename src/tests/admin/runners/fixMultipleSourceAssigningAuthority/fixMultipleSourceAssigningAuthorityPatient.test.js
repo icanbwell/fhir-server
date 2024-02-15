@@ -17,11 +17,11 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {FixMultipleSourceAssigningAuthorityRunner} = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { FixMultipleSourceAssigningAuthorityRunner } = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -44,7 +44,7 @@ async function setupDatabaseAsync (mongoDatabaseManager, incomingResource, expec
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -65,7 +65,7 @@ async function setupHistoryDatabaseAsync (mongoDatabaseManager, incomingResource
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -133,7 +133,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             await fixMultipleSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const patient1 = await patientCollection.findOne({id: patient1Resource.id});
+            const patient1 = await patientCollection.findOne({ id: patient1Resource.id });
             expect(patient1).toBeDefined();
             delete patient1._id;
             expectedPatient1DatabaseAfterRun.meta.lastUpdated = patient1.meta.lastUpdated;
@@ -188,7 +188,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             await fixMultipleSourceAssigningAuthorityHistoryRunner.processAsync();
 
             // Check patient 1 history
-            const patient1History = await patientHistoryCollection.findOne({id: patient1HistoryResource.id});
+            const patient1History = await patientHistoryCollection.findOne({ id: patient1HistoryResource.id });
             expect(patient1History).toBeDefined();
             delete patient1History._id;
             expect(patient1History).toStrictEqual(expectedPatient1HistoryDatabaseAfterRun);

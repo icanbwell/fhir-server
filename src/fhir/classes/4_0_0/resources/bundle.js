@@ -87,7 +87,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -147,7 +147,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -225,7 +225,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleLink = require('../backbone_elements/bundleLink.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.link = FhirResourceCreator.createArray(valueProvided, BundleLink);
             }
         });
@@ -246,7 +246,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleEntry = require('../backbone_elements/bundleEntry.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.entry = FhirResourceCreator.createArray(valueProvided, BundleEntry);
             }
         });
@@ -266,7 +266,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.signature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
@@ -433,7 +433,7 @@ class Bundle extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -456,12 +456,12 @@ class Bundle extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.entry) { await async.each(this.entry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.signature) { await this.signature.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.entry) { await async.each(this.entry, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.signature) { await this.signature.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -469,7 +469,7 @@ class Bundle extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

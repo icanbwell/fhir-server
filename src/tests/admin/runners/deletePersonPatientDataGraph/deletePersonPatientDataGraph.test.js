@@ -20,7 +20,7 @@ const { AdminLogger } = require('../../../../admin/adminLogger');
 const {
     DeletePersonPatientDataGraphRunner
 } = require('../../../../admin/runners/deletePersonPatientDataGraphRunner');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {

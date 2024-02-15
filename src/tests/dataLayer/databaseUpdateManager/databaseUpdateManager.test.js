@@ -8,8 +8,8 @@ const expectedPersonResources = require('./fixtures/expected/expected_Person.jso
 const expectedPersonBeforeUpdateResources = require('./fixtures/expected/expected_Person_before_update.json');
 const expectedPerson3Resources = require('./fixtures/expected/expected_Person3.json');
 
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
 
 describe('Person Tests', () => {
@@ -43,7 +43,7 @@ describe('Person Tests', () => {
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.insertOneAsync({doc: new Person(person1Resource)});
+            await databaseUpdateManager.insertOneAsync({ doc: new Person(person1Resource) });
 
             /**
              * @type {DatabaseQueryFactory}
@@ -61,21 +61,21 @@ describe('Person Tests', () => {
              */
             const resourceBeforeReplace = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resourceBeforeReplace.meta.lastUpdated = null;
             expect(resourceBeforeReplace.toJSON()).toStrictEqual(expectedPersonBeforeUpdateResources);
 
             // Now replace it
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person2Resource) });
 
             /**
              * @type {Resource|null}
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -102,11 +102,11 @@ describe('Person Tests', () => {
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.insertOneAsync({doc: new Person(person1Resource)});
+            await databaseUpdateManager.insertOneAsync({ doc: new Person(person1Resource) });
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person2Resource) });
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person2Resource) });
 
             /**
              * @type {DatabaseQueryFactory}
@@ -123,7 +123,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -150,11 +150,11 @@ describe('Person Tests', () => {
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.insertOneAsync({doc: new Person(person1Resource)});
+            await databaseUpdateManager.insertOneAsync({ doc: new Person(person1Resource) });
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person2Resource) });
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person3Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person3Resource) });
 
             /**
              * @type {DatabaseQueryFactory}
@@ -171,7 +171,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -198,11 +198,11 @@ describe('Person Tests', () => {
                 base_version: '4_0_0'
             });
 
-            await databaseUpdateManager.insertOneAsync({doc: new Person(person1Resource)});
+            await databaseUpdateManager.insertOneAsync({ doc: new Person(person1Resource) });
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person2Resource) });
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person3Resource)});
+            await databaseUpdateManager.replaceOneAsync({ doc: new Person(person3Resource) });
 
             /**
              * @type {DatabaseQueryFactory}
@@ -219,7 +219,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;

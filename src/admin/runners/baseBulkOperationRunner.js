@@ -1,15 +1,15 @@
-const {assertIsValid} = require('../../utils/assertType');
-const {BaseScriptRunner} = require('./baseScriptRunner');
+const { assertIsValid } = require('../../utils/assertType');
+const { BaseScriptRunner } = require('./baseScriptRunner');
 const readline = require('readline');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
-const {MongoNetworkTimeoutError} = require('mongodb');
-const {MemoryManager} = require('../../utils/memoryManager');
+const { MongoNetworkTimeoutError } = require('mongodb');
+const { MemoryManager } = require('../../utils/memoryManager');
 const sizeof = require('object-sizeof');
 const { MongoServerError } = require('mongodb');
-const {RethrownError} = require('../../utils/rethrownError');
-const {sliceIntoChunks} = require('../../utils/list.util');
+const { RethrownError } = require('../../utils/rethrownError');
+const { sliceIntoChunks } = require('../../utils/list.util');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -92,7 +92,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sessionId,
                 destinationCollection,
                 sourceCollection
-            } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
+            } = await this.createConnectionAsync({ config, destinationCollectionName, sourceCollectionName });
 
             this.adminLogger.logInfo(
                 `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -106,13 +106,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 if (useEstimatedCount) {
                     numberOfSourceDocuments = await sourceCollection.estimatedDocumentCount();
                 } else {
-                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, { maxTimeMS: 30000 });
                 }
             } catch (e) {
                 if ((e instanceof MongoServerError) && limit) {
                     useLimit = true;
                     try {
-                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
+                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, { skip, limit, maxTimeMS: 30000 });
                     } catch (ex) {
                         numberOfSourceDocuments = limit;
                     }
@@ -161,7 +161,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             if (skipExistingIds) {
                 // get latest id from destination
-                const lastIdFromDestinationList = await destinationCollection.find({}).sort({'id': -1}).project(
+                const lastIdFromDestinationList = await destinationCollection.find({}).sort({ 'id': -1 }).project(
                     {
                         id: 1,
                         _id: 0
@@ -169,7 +169,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 ).limit(1).map(p => p.id).toArray();
 
                 this.adminLogger.logInfo(
-                    `Received last id from ${destinationCollectionName}`, {'last id': lastIdFromDestinationList}
+                    `Received last id from ${destinationCollectionName}`, { 'last id': lastIdFromDestinationList }
                 );
 
                 if (!startFromIdContainer.startFromId &&
@@ -233,7 +233,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             );
 
             // end session
-            this.adminLogger.logInfo('Ending session', {'Session Id': sessionId});
+            this.adminLogger.logInfo('Ending session', { 'Session Id': sessionId });
             await session.endSession();
 
             // disconnect from db
@@ -331,8 +331,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 // https://www.mongodb.com/docs/manual/core/read-preference/
                 readPreference: 'secondaryPreferred',
                 // https://www.mongodb.com/docs/manual/reference/mongodb-defaults/
-                readConcern: {level: 'local'},
-                writeConcern: {w: 1}
+                readConcern: { level: 'local' },
+                writeConcern: { w: 1 }
             };
             try {
                 /**
@@ -371,7 +371,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     /**
                      * @type {import('mongodb').FindOptions}
                      */
-                    const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS};
+                    const options = { session: session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS };
                     if (projection) {
                         options['projection'] = projection;
                     }
@@ -407,7 +407,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                      */
                     let cursor = await sourceCollection
                         .find(queryForChunk, options)
-                        .sort({_id: 1})
+                        .sort({ _id: 1 })
                         .maxTimeMS(maxTimeMS) // 20 hours
                         .batchSize(batchSize)
                         .addCursorFlag('noCursorTimeout', true);
@@ -431,14 +431,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         // Check if more than 5 minutes have passed since the last refresh
                         if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                             this.adminLogger.logInfo(
-                                'refreshing session with sessionId', {'session_id': sessionId});
+                                'refreshing session with sessionId', { 'session_id': sessionId });
                             this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
                             /**
                              * @type {import('mongodb').Document}
                              */
-                            const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
+                            const adminResult = await sourceDb.admin().command({ 'refreshSessions': [sessionId] });
                             this.adminLogger.logInfo(
-                                'result from refreshing session', {'result': adminResult});
+                                'result from refreshing session', { 'result': adminResult });
                             refreshTimestamp = moment();
                         }
                         /**
@@ -583,10 +583,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
-                    this.adminLogger.logError('Caught MongoNetworkTimeoutError', {'error': e});
+                    this.adminLogger.logError('Caught MongoNetworkTimeoutError', { 'error': e });
                     continueLoop = true;
                 } else {
-                    this.adminLogger.logError('Caught UnKnown error', {'error': e});
+                    this.adminLogger.logError('Caught UnKnown error', { 'error': e });
                     // statements to handle any unspecified exceptions
                     throw (e); // pass exception object to error handler
                 }
@@ -595,7 +595,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         return previouslyCheckedId;
     }
 
-    async createConnectionAsync ({config, destinationCollectionName, sourceCollectionName}) {
+    async createConnectionAsync ({ config, destinationCollectionName, sourceCollectionName }) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -612,7 +612,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          * @type {import('mongodb').ServerSessionId}
          */
         const sessionId = session.serverSession.id;
-        this.adminLogger.logInfo('Started session', {'session id': sessionId});
+        this.adminLogger.logInfo('Started session', { 'session id': sessionId });
         /**
          * @type {import('mongodb').Db}
          */
@@ -637,7 +637,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 db: sourceDb, collectionName: sourceCollectionName
             }
         );
-        return {sourceClient, destinationClient, session, sessionId, sourceDb, destinationCollection, sourceCollection};
+        return { sourceClient, destinationClient, session, sessionId, sourceDb, destinationCollection, sourceCollection };
     }
 
     /**
@@ -660,7 +660,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          * @type {import('mongodb').ServerSessionId}
          */
         const sessionId = session.serverSession.id;
-        this.adminLogger.logInfo('Started session', {'session id': sessionId});
+        this.adminLogger.logInfo('Started session', { 'session id': sessionId });
         /**
          * @type {import('mongodb').Db}
          */

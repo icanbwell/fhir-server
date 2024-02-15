@@ -1,4 +1,4 @@
-const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getGraphQLHeaders } = require('../../common');
 const { customIndexes } = require('./mockCustomIndexes');
 const { IndexProvider } = require('../../../indexes/indexProvider');
@@ -52,7 +52,7 @@ describe('Graphql IndexHints Test', () => {
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Person/')
@@ -65,7 +65,7 @@ describe('Graphql IndexHints Test', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')

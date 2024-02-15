@@ -360,7 +360,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {string} queryPrefix
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryFromParameters ({queryPrefix = ''}) {
+    getQueryFromParameters ({ queryPrefix = '' }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -436,7 +436,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
-        let query = this.getQueryFromParameters({queryPrefix});
+        let query = this.getQueryFromParameters({ queryPrefix });
 
         // query to get resources that needs to be changes
         /**

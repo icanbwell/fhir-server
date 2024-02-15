@@ -7,28 +7,28 @@ dotenv.config({
 // console.log(`Reading config from ${pathToEnv}`);
 // console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
 
-const {OpenAI} = require('langchain/llms/openai');
-const {PromptTemplate} = require('langchain/prompts');
-const {LLMChain, RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
-const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
-const {z} = require('zod');
-const {CharacterTextSplitter} = require('langchain/text_splitter');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
+const { OpenAI } = require('langchain/llms/openai');
+const { PromptTemplate } = require('langchain/prompts');
+const { LLMChain, RetrievalQAChain, loadQAStuffChain } = require('langchain/chains');
+const { StructuredOutputParser, OutputFixingParser } = require('langchain/output_parsers');
+const { z } = require('zod');
+const { CharacterTextSplitter } = require('langchain/text_splitter');
+const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
 // const {HNSWLib} = require('langchain/vectorstores/hnswlib');
 // const {MongoDBAtlasVectorSearch} = require('langchain/vectorstores/mongodb_atlas');
 
 const patientBundleResource = require('./fixtures/patient.json');
 
-const {describe, test, expect} = require('@jest/globals');
+const { describe, test, expect } = require('@jest/globals');
 // const {FaissStore} = require('langchain/vectorstores/faiss');
-const {MemoryVectorStore} = require('langchain/vectorstores/memory');
-const {Document} = require('langchain/document');
-const {ConsoleCallbackHandler} = require('langchain/callbacks');
-const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
-const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
-const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
-const {createTestRequest, getTestContainer} = require('../common');
-const {ConfigManager} = require('../../utils/configManager');
+const { MemoryVectorStore } = require('langchain/vectorstores/memory');
+const { Document } = require('langchain/document');
+const { ConsoleCallbackHandler } = require('langchain/callbacks');
+const { ChatGPTLangChainManager } = require('../../chatgpt/managers/chatgptLangChainManager');
+const { FhirToSummaryDocumentConverter } = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const { ResourceConverterFactory } = require('../../chatgpt/resourceConverters/resourceConverterFactory');
+const { createTestRequest, getTestContainer } = require('../common');
+const { ConfigManager } = require('../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 class MockConfigManager extends ConfigManager {
@@ -60,8 +60,8 @@ describe('ChatGPT Tests', () => {
                 template: template,
                 inputVariables: ['product']
             });
-            const chain = new LLMChain({llm: model, prompt: prompt});
-            const res = await chain.call({product: 'colorful socks'});
+            const chain = new LLMChain({ llm: model, prompt: prompt });
+            const res = await chain.call({ product: 'colorful socks' });
             console.log(res);
         });
         test('ChatGPT works with English query', async () => {
@@ -82,8 +82,8 @@ describe('ChatGPT Tests', () => {
                 template: template,
                 inputVariables: ['patientId', 'resource']
             });
-            const chain = new LLMChain({llm: model, prompt: prompt});
-            const res = await chain.call({patientId: 'imran', resource: 'condition'});
+            const chain = new LLMChain({ llm: model, prompt: prompt });
+            const res = await chain.call({ patientId: 'imran', resource: 'condition' });
             console.log(res);
         });
         test('ChatGPT works with English query and structured output', async () => {
@@ -131,7 +131,7 @@ describe('ChatGPT Tests', () => {
                     outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                     outputParser: outputFixingParser
                 });
-            const result = await chain.call({query: 'List 5 countries.'});
+            const result = await chain.call({ query: 'List 5 countries.' });
             console.log(JSON.stringify(result.records, null, 2));
         });
         test('ChatGPT works with English FHIR query and structured output', async () => {
@@ -227,8 +227,8 @@ describe('ChatGPT Tests', () => {
                 template: template,
                 inputVariables: ['data']
             });
-            const chain = new LLMChain({llm: model, prompt: prompt});
-            const res = await chain.call({data: patientBundleResource.entry[0]});
+            const chain = new LLMChain({ llm: model, prompt: prompt });
+            const res = await chain.call({ data: patientBundleResource.entry[0] });
             console.log(res);
         });
         test('Memory vector database test', async () => {
@@ -238,7 +238,7 @@ describe('ChatGPT Tests', () => {
 
             const vectorStore = await MemoryVectorStore.fromTexts(
                 ['Hello world', 'Bye bye', 'hello nice world'],
-                [{id: 2}, {id: 1}, {id: 3}],
+                [{ id: 2 }, { id: 1 }, { id: 3 }],
                 new OpenAIEmbeddings()
             );
 
@@ -447,7 +447,7 @@ describe('ChatGPT Tests', () => {
             //         outputParser: outputFixingParser
             //     });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt: prompt }),
                 retriever: vectorStore.asRetriever()
                 // memory: memory,
                 // returnSourceDocuments: true,
@@ -484,7 +484,7 @@ describe('ChatGPT Tests', () => {
                         }
                     }
                 ));
-            const totalTokens = await chatGPTManager.getTokenCountAsync({documents: patientResources});
+            const totalTokens = await chatGPTManager.getTokenCountAsync({ documents: patientResources });
             console.log(totalTokens);
         });
         test('ChatGPT with FHIR record with json documents with response in HTML', async () => {
@@ -558,7 +558,7 @@ describe('ChatGPT Tests', () => {
                 // outputParser: outputFixingParser
             });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt: prompt }),
                 retriever: vectorStore.asRetriever()
                 // memory: memory,
                 // returnSourceDocuments: true,

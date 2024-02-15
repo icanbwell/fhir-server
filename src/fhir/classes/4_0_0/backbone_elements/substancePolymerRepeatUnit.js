@@ -74,7 +74,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +106,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +126,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.orientationOfPolymerisation = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -164,7 +164,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     return;
                 }
                 const SubstanceAmount = require('../backbone_elements/substanceAmount.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amount = FhirResourceCreator.create(valueProvided, SubstanceAmount);
             }
         });
@@ -184,7 +184,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     return;
                 }
                 const SubstancePolymerDegreeOfPolymerisation = require('../backbone_elements/substancePolymerDegreeOfPolymerisation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.degreeOfPolymerisation = FhirResourceCreator.createArray(valueProvided, SubstancePolymerDegreeOfPolymerisation);
             }
         });
@@ -204,7 +204,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     return;
                 }
                 const SubstancePolymerStructuralRepresentation = require('../backbone_elements/substancePolymerStructuralRepresentation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.structuralRepresentation = FhirResourceCreator.createArray(valueProvided, SubstancePolymerStructuralRepresentation);
             }
         });
@@ -227,7 +227,7 @@ class SubstancePolymerRepeatUnit extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -246,13 +246,13 @@ class SubstancePolymerRepeatUnit extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.orientationOfPolymerisation) { await this.orientationOfPolymerisation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.amount) { await this.amount.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.degreeOfPolymerisation) { await async.each(this.degreeOfPolymerisation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.structuralRepresentation) { await async.each(this.structuralRepresentation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.orientationOfPolymerisation) { await this.orientationOfPolymerisation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amount) { await this.amount.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.degreeOfPolymerisation) { await async.each(this.degreeOfPolymerisation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.structuralRepresentation) { await async.each(this.structuralRepresentation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -260,7 +260,7 @@ class SubstancePolymerRepeatUnit extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

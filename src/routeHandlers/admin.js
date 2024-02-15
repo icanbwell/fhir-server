@@ -1,17 +1,17 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-const {AdminLogManager} = require('../admin/adminLogManager');
+const { AdminLogManager } = require('../admin/adminLogManager');
 const env = require('var');
-const {isTrue} = require('../utils/isTrue');
-const {assertIsValid} = require('../utils/assertType');
-const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
-const {generateUUID} = require('../utils/uid.util');
+const { isTrue } = require('../utils/isTrue');
+const { assertIsValid } = require('../utils/assertType');
+const { FhirResponseStreamer } = require('../utils/fhirResponseStreamer');
+const { generateUUID } = require('../utils/uid.util');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { REQUEST_ID_HEADER } = require('../constants');
-const {logInfo} = require('../operations/common/logging');
+const { logInfo } = require('../operations/common/logging');
 const httpContext = require('express-http-context');
 
 /**
@@ -27,7 +27,7 @@ async function showIndexesAsync (
         req, container, res,
         filterToProblems
     }) {
-    logInfo('showIndexesAsync', {'req.query': req.query});
+    logInfo('showIndexesAsync', { 'req.query': req.query });
     const audit = req.query['audit'];
     /**
      * @type {IndexManager}
@@ -56,14 +56,14 @@ async function synchronizeIndexesAsync (
         res
     }
 ) {
-    logInfo('synchronizeIndexesAsync', {'req.query': req.query});
+    logInfo('synchronizeIndexesAsync', { 'req.query': req.query });
     const audit = req.query['audit'];
     /**
      * @type {IndexManager}
      */
     const indexManager = container.indexManager;
 
-    res.json({ message: 'Synchronization process triggered'});
+    res.json({ message: 'Synchronization process triggered' });
     await indexManager.synchronizeIndexesWithConfigAsync({
         audit: audit
     });
@@ -98,16 +98,16 @@ async function handleAdmin (
         /**
          * @type {string|undefined}
          */
-        const scope = scopesManager.getScopeFromRequest({req});
+        const scope = scopesManager.getScopeFromRequest({ req });
         /**
          * @type {string[]}
          */
-        const adminScopes = scopesManager.getAdminScopes({scope});
+        const adminScopes = scopesManager.getAdminScopes({ scope });
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLogResults': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const id = req.query['id'];
                     if (id) {
                         const adminLogManager = new AdminLogManager({ mongoDatabaseManager: container.mongoDatabaseManager });
@@ -120,7 +120,7 @@ async function handleAdmin (
                 }
 
                 case 'showPersonToPersonLink': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const bwellPersonId = req.query['bwellPersonId'];
                     if (bwellPersonId) {
                         /**
@@ -138,7 +138,7 @@ async function handleAdmin (
                 }
 
                 case 'deletePerson': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const personId = req.query['personId'];
                     if (personId) {
                         /**
@@ -158,7 +158,7 @@ async function handleAdmin (
                 }
 
                 case 'createPersonToPersonLink': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const bwellPersonId = req.query['bwellPersonId'];
                     const externalPersonId = req.query['externalPersonId'];
                     if (bwellPersonId && externalPersonId) {
@@ -179,7 +179,7 @@ async function handleAdmin (
                 }
 
                 case 'removePersonToPersonLink': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const bwellPersonId = req.query['bwellPersonId'];
                     const externalPersonId = req.query['externalPersonId'];
                     if (bwellPersonId && externalPersonId) {
@@ -200,7 +200,7 @@ async function handleAdmin (
                 }
 
                 case 'createPersonToPatientLink': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const externalPersonId = req.query['externalPersonId'];
                     const patientId = req.query['patientId'];
                     if (patientId) {
@@ -221,7 +221,7 @@ async function handleAdmin (
                 }
 
                 case 'removePersonToPatientLink': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const personId = req.query['personId'];
                     const patientId = req.query['patientId'];
                     if (personId && patientId) {
@@ -242,7 +242,7 @@ async function handleAdmin (
                 }
 
                 case 'deletePatientDataGraph': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const patientId = req.query['id'];
                     const sync = req.query['sync'];
                     if (patientId) {
@@ -253,7 +253,7 @@ async function handleAdmin (
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        const {success} = scopeChecker(resourceType, accessRequested, scopes);
+                        const { success } = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             const errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';
@@ -312,7 +312,7 @@ async function handleAdmin (
                 }
 
                 case 'deletePersonDataGraph': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const personId = req.query['id'];
                     if (personId) {
                         /**
@@ -322,7 +322,7 @@ async function handleAdmin (
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        const {success} = scopeChecker(resourceType, accessRequested, scopes);
+                        const { success } = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             const errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';
@@ -396,7 +396,7 @@ async function handleAdmin (
                 }
 
                 case 'runPersonMatch': {
-                    logInfo('', {'req.query': req.query});
+                    logInfo('', { 'req.query': req.query });
                     const sourceId = req.query['sourceId'];
                     const sourceType = req.query['sourceType'];
                     const targetId = req.query['targetId'];

@@ -71,7 +71,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -103,7 +103,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -123,7 +123,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.applicability = FhirResourceCreator.createArray(valueProvided, ChargeItemDefinitionApplicability);
             }
         });
@@ -148,7 +148,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.priceComponent = FhirResourceCreator.createArray(valueProvided, ChargeItemDefinitionPriceComponent);
             }
         });
@@ -168,7 +168,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -184,11 +184,11 @@ class ChargeItemDefinitionPropertyGroup extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.applicability) { await async.each(this.applicability, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.priceComponent) { await async.each(this.priceComponent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.applicability) { await async.each(this.applicability, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.priceComponent) { await async.each(this.priceComponent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -196,7 +196,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

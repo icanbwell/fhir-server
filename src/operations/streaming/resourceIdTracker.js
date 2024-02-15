@@ -1,7 +1,7 @@
-const {Transform} = require('stream');
-const {logInfo} = require('../common/logging');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { Transform } = require('stream');
+const { logInfo } = require('../common/logging');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ResourceIdTracker extends Transform {
     /**
@@ -11,8 +11,8 @@ class ResourceIdTracker extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor ({tracker, signal, highWaterMark, configManager}) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+    constructor ({ tracker, signal, highWaterMark, configManager }) {
+        super({ objectMode: true, highWaterMark: highWaterMark });
         /**
          * @type {{id: string[]}}
          * @private

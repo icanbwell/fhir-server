@@ -185,7 +185,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
 
         // Fetch only uuid that are greater than uuidGreaterThan
         const uuidGreaterThanQuery = this.uuidGreaterThan ?
-            { _uuid: { $gt: this.uuidGreaterThan}} :
+            { _uuid: { $gt: this.uuidGreaterThan } } :
             {};
 
         const result = dbCollection.aggregate([
@@ -210,7 +210,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                 }
             }
         ],
-        {allowDiskUse: true}
+        { allowDiskUse: true }
         );
         let uuidList = [];
         // Remove duplicates and update in batches.

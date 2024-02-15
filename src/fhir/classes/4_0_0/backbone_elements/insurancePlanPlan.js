@@ -76,7 +76,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +108,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -129,7 +129,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -149,7 +149,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -169,7 +169,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.coverageArea = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -189,7 +189,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.network = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -209,7 +209,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const InsurancePlanGeneralCost = require('../backbone_elements/insurancePlanGeneralCost.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.generalCost = FhirResourceCreator.createArray(valueProvided, InsurancePlanGeneralCost);
             }
         });
@@ -229,7 +229,7 @@ class InsurancePlanPlan extends Element {
                     return;
                 }
                 const InsurancePlanSpecificCost = require('../backbone_elements/insurancePlanSpecificCost.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specificCost = FhirResourceCreator.createArray(valueProvided, InsurancePlanSpecificCost);
             }
         });
@@ -253,7 +253,7 @@ class InsurancePlanPlan extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -273,15 +273,15 @@ class InsurancePlanPlan extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.coverageArea) { await async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.network) { await async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.generalCost) { await async.each(this.generalCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.specificCost) { await async.each(this.specificCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.coverageArea) { await async.each(this.coverageArea, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.network) { await async.each(this.network, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.generalCost) { await async.each(this.generalCost, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.specificCost) { await async.each(this.specificCost, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -289,7 +289,7 @@ class InsurancePlanPlan extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

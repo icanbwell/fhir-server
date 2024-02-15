@@ -88,7 +88,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -120,7 +120,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -141,7 +141,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -163,7 +163,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.role = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -183,7 +183,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.who = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -260,7 +260,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -302,7 +302,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.media = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -323,7 +323,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const AuditEventNetwork = require('../backbone_elements/auditEventNetwork.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.network = FhirResourceCreator.create(valueProvided, AuditEventNetwork);
             }
         });
@@ -344,7 +344,7 @@ class AuditEventAgent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.purposeOfUse = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -373,7 +373,7 @@ class AuditEventAgent extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -398,16 +398,16 @@ class AuditEventAgent extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.role) { await async.each(this.role, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.who) { await this.who.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.location) { await this.location.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.media) { await this.media.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.network) { await this.network.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.purposeOfUse) { await async.each(this.purposeOfUse, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.role) { await async.each(this.role, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.who) { await this.who.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.location) { await this.location.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.media) { await this.media.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.network) { await this.network.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.purposeOfUse) { await async.each(this.purposeOfUse, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -415,7 +415,7 @@ class AuditEventAgent extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

@@ -72,7 +72,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -104,7 +104,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -124,7 +124,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.regulatoryAuthority = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -145,7 +145,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 const MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.substitution = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeSubstitution);
             }
         });
@@ -165,7 +165,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 const MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.schedule = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeSchedule);
             }
         });
@@ -186,7 +186,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 const MedicationKnowledgeMaxDispense = require('../backbone_elements/medicationKnowledgeMaxDispense.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxDispense = FhirResourceCreator.create(valueProvided, MedicationKnowledgeMaxDispense);
             }
         });
@@ -208,7 +208,7 @@ class MedicationKnowledgeRegulatory extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -226,13 +226,13 @@ class MedicationKnowledgeRegulatory extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.regulatoryAuthority) { await this.regulatoryAuthority.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.substitution) { await async.each(this.substitution, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.schedule) { await async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.maxDispense) { await this.maxDispense.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.regulatoryAuthority) { await this.regulatoryAuthority.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.substitution) { await async.each(this.substitution, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.schedule) { await async.each(this.schedule, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.maxDispense) { await this.maxDispense.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -240,7 +240,7 @@ class MedicationKnowledgeRegulatory extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

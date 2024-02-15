@@ -1,13 +1,13 @@
-const {CarePlanConverter} = require('./carePlanConverter');
-const {ConditionConverter} = require('./conditionConverter');
-const {CoverageConverter} = require('./coverageConverter');
-const {ExplanationOfBenefitConverter} = require('./explanationOfBenefitConverter');
-const {ImmunizationConverter} = require('./immunizationConverter');
-const {MedicationDispenseConverter} = require('./medicationDispenseConverter');
-const {MedicationRequestConverter} = require('./medicationRequestConverter');
-const {ObservationConverter} = require('./observationConverter');
-const {PatientConverter} = require('./patientConverter');
-const {ProcedureConverter} = require('./procedureConverter');
+const { CarePlanConverter } = require('./carePlanConverter');
+const { ConditionConverter } = require('./conditionConverter');
+const { CoverageConverter } = require('./coverageConverter');
+const { ExplanationOfBenefitConverter } = require('./explanationOfBenefitConverter');
+const { ImmunizationConverter } = require('./immunizationConverter');
+const { MedicationDispenseConverter } = require('./medicationDispenseConverter');
+const { MedicationRequestConverter } = require('./medicationRequestConverter');
+const { ObservationConverter } = require('./observationConverter');
+const { PatientConverter } = require('./patientConverter');
+const { ProcedureConverter } = require('./procedureConverter');
 
 class ResourceConverterFactory {
     constructor () {
@@ -33,7 +33,7 @@ class ResourceConverterFactory {
      * @param {Resource} resource
      * @returns {BaseConverter|undefined}
      */
-    getConverterForResource ({resource}) {
+    getConverterForResource ({ resource }) {
         return this.converterMapping[resource.resourceType];
     }
 }

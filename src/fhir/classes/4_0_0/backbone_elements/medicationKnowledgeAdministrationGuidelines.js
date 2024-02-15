@@ -72,7 +72,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -104,7 +104,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -124,7 +124,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const MedicationKnowledgeDosage = require('../backbone_elements/medicationKnowledgeDosage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dosage = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeDosage);
             }
         });
@@ -144,7 +144,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.indicationCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -164,7 +164,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.indicationReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -185,7 +185,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const MedicationKnowledgePatientCharacteristics = require('../backbone_elements/medicationKnowledgePatientCharacteristics.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patientCharacteristics = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgePatientCharacteristics);
             }
         });
@@ -207,7 +207,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -225,13 +225,13 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.dosage) { await async.each(this.dosage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.indicationCodeableConcept) { await this.indicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.indicationReference) { await this.indicationReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.patientCharacteristics) { await async.each(this.patientCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dosage) { await async.each(this.dosage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.indicationCodeableConcept) { await this.indicationCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.indicationReference) { await this.indicationReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patientCharacteristics) { await async.each(this.patientCharacteristics, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -239,7 +239,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

@@ -1,10 +1,10 @@
-const {EnrichmentProvider} = require('./enrichmentProvider');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ChatGPTManager} = require('../../chatgpt/managers/chatgptManager');
-const {ConfigManager} = require('../../utils/configManager');
+const { EnrichmentProvider } = require('./enrichmentProvider');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ChatGPTManager } = require('../../chatgpt/managers/chatgptManager');
+const { ConfigManager } = require('../../utils/configManager');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 const Narrative = require('../../fhir/classes/4_0_0/complex_types/narrative');
-const {RethrownError} = require('../../utils/rethrownError');
+const { RethrownError } = require('../../utils/rethrownError');
 
 class ChatGptEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -39,15 +39,15 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync ({resources, parsedArgs}) {
+    async enrichAsync ({ resources, parsedArgs }) {
         if (!this.configManager.openAIApiKey) {
             return resources;
         }
-        const {_debug, _explain, _question: question} = parsedArgs;
+        const { _debug, _explain, _question: question } = parsedArgs;
         if (question) {
             for (const resource of resources.filter(r => r.resourceType === 'Patient')) {
                 try {
-                    await this.updateResourceWithAnswerAsync({resource, question, _debug, _explain});
+                    await this.updateResourceWithAnswerAsync({ resource, question, _debug, _explain });
                 } catch (e) {
                     throw new RethrownError(
                         {
@@ -70,7 +70,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {boolean|undefined} _explain
      * @return {Promise<void>}
      */
-    async updateResourceWithAnswerAsync ({resource, question, _debug, _explain}) {
+    async updateResourceWithAnswerAsync ({ resource, question, _debug, _explain }) {
         /** @type {DomainResource} */
         const domainResource = /** @type {DomainResource} */ resource;
         /**
@@ -127,12 +127,12 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         if (!this.configManager.openAIApiKey) {
             return entries;
         }
 
-        const {_debug, _explain, _question: question} = parsedArgs;
+        const { _debug, _explain, _question: question } = parsedArgs;
         if (question) {
             for (const entry of entries.filter(e => e.resource.resourceType === 'Patient')) {
                 await this.updateResourceWithAnswerAsync(

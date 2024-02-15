@@ -4,23 +4,23 @@
 
 const compression = require('compression');
 const env = require('var');
-const {isTrue} = require('../utils/isTrue');
+const { isTrue } = require('../utils/isTrue');
 const {
     resolveSchema,
     isValidVersion
 } = require('../middleware/fhir/utils/schema.utils');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
 const helmet = require('helmet');
 const express = require('express');
-const {FhirRouter} = require('../middleware/fhir/router');
-const {assertTypeEquals} = require('../utils/assertType');
+const { FhirRouter } = require('../middleware/fhir/router');
+const { assertTypeEquals } = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../constants');
-const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-const {ConfigManager} = require('../utils/configManager');
+const { REQUEST_ID_TYPE } = require('../constants');
+const { convertErrorToOperationOutcome } = require('../utils/convertErrorToOperationOutcome');
+const { ConfigManager } = require('../utils/configManager');
 
 class MyFHIRServer {
     /**
@@ -54,7 +54,7 @@ class MyFHIRServer {
         this.configManager = this.container.configManager;
         assertTypeEquals(this.configManager, ConfigManager);
 
-        const {server = {}} = this.config;
+        const { server = {} } = this.config;
         this.env = {
             IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
             USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined
@@ -189,7 +189,7 @@ class MyFHIRServer {
      */
     configureSession (session) {
         // Session config can come from the core config as well, let's handle both cases
-        const {server = {}} = this.config; // If a session was passed in the config, let's use it
+        const { server = {} } = this.config; // If a session was passed in the config, let's use it
 
         if (session || server.sessionStore) {
             this.app.use(session || server.sessionStore);
@@ -227,7 +227,7 @@ class MyFHIRServer {
      */
     setPublicDirectory (publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
-        const {server = {}} = this.config;
+        const { server = {} } = this.config;
 
         if (publicDirectory || server.publicDirectory) {
             this.app.use(express.static(publicDirectory || server.publicDirectory));
@@ -302,7 +302,7 @@ class MyFHIRServer {
                             /**
                              * @type {OperationOutcome}
                              */
-                            const operationOutcome = convertErrorToOperationOutcome({error: err});
+                            const operationOutcome = convertErrorToOperationOutcome({ error: err });
                             res1.status(status).json(operationOutcome);
                         } else {
                             next();

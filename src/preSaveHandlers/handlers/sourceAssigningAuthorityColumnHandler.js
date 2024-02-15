@@ -1,5 +1,5 @@
-const {PreSaveHandler} = require('./preSaveHandler');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const { PreSaveHandler } = require('./preSaveHandler');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 
 /**
@@ -8,7 +8,7 @@ const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
  *              up searching in Mongo.
  */
 class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
-    async preSaveAsync ({resource}) {
+    async preSaveAsync ({ resource }) {
         if (resource.meta && resource.meta.security) {
             /**
              * @type {string[]}

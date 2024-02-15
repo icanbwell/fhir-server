@@ -88,7 +88,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -120,7 +120,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -140,7 +140,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -160,7 +160,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -181,7 +181,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -201,7 +201,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.material = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -221,7 +221,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.alternateMaterial = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -241,7 +241,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.device = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -261,7 +261,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.manufacturedItem = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -280,7 +280,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.packageItem = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.packageItem = FhirResourceCreator.createArray(valueProvided, MedicinalProductPackagedPackageItem);
             }
         });
@@ -300,7 +300,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.physicalCharacteristics = FhirResourceCreator.create(valueProvided, ProdCharacteristic);
             }
         });
@@ -320,7 +320,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.otherCharacteristics = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -340,7 +340,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.shelfLifeStorage = FhirResourceCreator.createArray(valueProvided, ProductShelfLife);
             }
         });
@@ -360,7 +360,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.manufacturer = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -390,7 +390,7 @@ class MedicinalProductPackagedPackageItem extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -416,21 +416,21 @@ class MedicinalProductPackagedPackageItem extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.material) { await async.each(this.material, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.alternateMaterial) { await async.each(this.alternateMaterial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.device) { await async.each(this.device, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.manufacturedItem) { await async.each(this.manufacturedItem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.packageItem) { await async.each(this.packageItem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.physicalCharacteristics) { await this.physicalCharacteristics.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.otherCharacteristics) { await async.each(this.otherCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.shelfLifeStorage) { await async.each(this.shelfLifeStorage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.manufacturer) { await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.material) { await async.each(this.material, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.alternateMaterial) { await async.each(this.alternateMaterial, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.device) { await async.each(this.device, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.manufacturedItem) { await async.each(this.manufacturedItem, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.packageItem) { await async.each(this.packageItem, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.physicalCharacteristics) { await this.physicalCharacteristics.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.otherCharacteristics) { await async.each(this.otherCharacteristics, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.shelfLifeStorage) { await async.each(this.shelfLifeStorage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.manufacturer) { await async.each(this.manufacturer, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -438,7 +438,7 @@ class MedicinalProductPackagedPackageItem extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

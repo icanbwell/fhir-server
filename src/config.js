@@ -3,8 +3,8 @@
  */
 const env = require('var');
 const Sentry = require('@sentry/node');
-const {profiles} = require('./profiles');
-const {getQueryParams} = require('./utils/getQueryParams');
+const { profiles } = require('./profiles');
+const { getQueryParams } = require('./utils/getQueryParams');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {

@@ -82,7 +82,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +114,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -136,7 +136,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.productOrService = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -157,7 +157,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -177,7 +177,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -198,7 +198,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.unitPrice = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -240,7 +240,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.net = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -279,7 +279,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.adjudication = FhirResourceCreator.createArray(valueProvided, ExplanationOfBenefitAdjudication);
             }
         });
@@ -305,7 +305,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -327,15 +327,15 @@ class ExplanationOfBenefitSubDetail1 extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.productOrService) { await this.productOrService.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.modifier) { await async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.unitPrice) { await this.unitPrice.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.net) { await this.net.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.adjudication) { await async.each(this.adjudication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.productOrService) { await this.productOrService.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.modifier) { await async.each(this.modifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.unitPrice) { await this.unitPrice.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.net) { await this.net.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.adjudication) { await async.each(this.adjudication, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -343,7 +343,7 @@ class ExplanationOfBenefitSubDetail1 extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

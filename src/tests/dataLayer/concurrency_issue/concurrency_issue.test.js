@@ -6,14 +6,14 @@ const expectedCodeSystemResources = require('./fixtures/expected/expected_codesy
 const expectedCodeSystemHistoryResources = require('./fixtures/expected/expected_codesystem_history.json');
 const expectedCodeSystemsFromDatabase = require('./fixtures/expected/expected_codesystem_from_database.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const moment = require('moment-timezone');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const deepcopy = require('deepcopy');
-const {logInfo} = require('../../../operations/common/logging');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -89,7 +89,7 @@ describe('CodeSystem Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({'created': true});
+            expect(resp).toHaveMergeResponse({ 'created': true });
 
             await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
 
@@ -107,9 +107,9 @@ describe('CodeSystem Tests', () => {
                 ]
             );
             // noinspection JSUnresolvedFunction
-            expect(response1).toHaveMergeResponse({'id': 'medline-loinc-labs'});
+            expect(response1).toHaveMergeResponse({ 'id': 'medline-loinc-labs' });
             // noinspection JSUnresolvedFunction
-            expect(response2).toHaveMergeResponse({'id': 'medline-loinc-labs'});
+            expect(response2).toHaveMergeResponse({ 'id': 'medline-loinc-labs' });
 
             await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
 
@@ -188,7 +188,7 @@ describe('CodeSystem Tests', () => {
             for (const codeSystem of codesystem1Resource) {
                 // eslint-disable-next-line no-unused-vars
                 i += 1;
-                await databaseUpdateManager.replaceOneAsync({doc: new CodeSystem(codeSystem)});
+                await databaseUpdateManager.replaceOneAsync({ doc: new CodeSystem(codeSystem) });
             }
 
             /**
@@ -206,7 +206,7 @@ describe('CodeSystem Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': 'medline-loinc-labs'}
+                    query: { 'id': 'medline-loinc-labs' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -294,8 +294,8 @@ describe('CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {DatabaseQueryFactory}
@@ -312,7 +312,7 @@ describe('CodeSystem Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': 'medline-loinc-labs'}
+                    query: { 'id': 'medline-loinc-labs' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -410,8 +410,8 @@ describe('CodeSystem Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {DatabaseQueryFactory}
@@ -428,7 +428,7 @@ describe('CodeSystem Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: {'id': 'medline-loinc-labs'}
+                    query: { 'id': 'medline-loinc-labs' }
                 }
             );
             resource.meta.lastUpdated = null;

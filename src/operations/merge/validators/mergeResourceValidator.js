@@ -1,15 +1,15 @@
 const async = require('async');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {BadRequestError, ForbiddenError} = require('../../../utils/httpErrors');
-const {ConfigManager} = require('../../../utils/configManager');
-const {DatabaseBulkLoader} = require('../../../dataLayer/databaseBulkLoader');
-const {FhirResourceCreator} = require('../../../fhir/fhirResourceCreator');
-const {MergeManager} = require('../mergeManager');
-const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
-const {ScopesManager} = require('../../security/scopesManager');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
-const {isUuid} = require('../../../utils/uid.util');
-const {BaseValidator} = require('./baseValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { BadRequestError, ForbiddenError } = require('../../../utils/httpErrors');
+const { ConfigManager } = require('../../../utils/configManager');
+const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
+const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
+const { MergeManager } = require('../mergeManager');
+const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
+const { ScopesManager } = require('../../security/scopesManager');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { isUuid } = require('../../../utils/uid.util');
+const { BaseValidator } = require('./baseValidator');
 
 class MergeResourceValidator extends BaseValidator {
     /**

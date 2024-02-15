@@ -88,7 +88,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -120,7 +120,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -159,7 +159,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -180,7 +180,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const ConsentActor = require('../backbone_elements/consentActor.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.actor = FhirResourceCreator.createArray(valueProvided, ConsentActor);
             }
         });
@@ -200,7 +200,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.action = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -221,7 +221,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.securityLabel = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -242,7 +242,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.purpose = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -264,7 +264,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.class = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -284,7 +284,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -305,7 +305,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dataPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -325,7 +325,7 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const ConsentData = require('../backbone_elements/consentData.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.data = FhirResourceCreator.createArray(valueProvided, ConsentData);
             }
         });
@@ -344,7 +344,7 @@ class ConsentProvision extends Element {
                     this.__data.provision = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.provision = FhirResourceCreator.createArray(valueProvided, ConsentProvision);
             }
         });
@@ -373,7 +373,7 @@ class ConsentProvision extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -398,19 +398,19 @@ class ConsentProvision extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.period) { await this.period.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.actor) { await async.each(this.actor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.action) { await async.each(this.action, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.securityLabel) { await async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.purpose) { await async.each(this.purpose, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.class) { await async.each(this.class, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.dataPeriod) { await this.dataPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.data) { await async.each(this.data, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.provision) { await async.each(this.provision, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.period) { await this.period.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.actor) { await async.each(this.actor, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.action) { await async.each(this.action, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.securityLabel) { await async.each(this.securityLabel, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.purpose) { await async.each(this.purpose, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.class) { await async.each(this.class, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dataPeriod) { await this.dataPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.data) { await async.each(this.data, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.provision) { await async.each(this.provision, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -418,7 +418,7 @@ class ConsentProvision extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

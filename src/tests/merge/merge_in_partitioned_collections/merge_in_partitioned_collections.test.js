@@ -5,9 +5,9 @@ const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
 const expectedAuditEventFirstTwoResources = require('./fixtures/expected/expected_AuditEvent_first _two.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     /**
@@ -44,7 +44,7 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // send again to test merging with existing resources
             resp = await request
@@ -52,7 +52,7 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: false});
+            expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
@@ -80,7 +80,7 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: false});
+            expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back

@@ -1,16 +1,16 @@
-const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {isTrue} = require('../../utils/isTrue');
-const {ConfigManager} = require('../../utils/configManager');
-const {SearchManager} = require('../search/searchManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { isTrue } = require('../../utils/isTrue');
+const { ConfigManager } = require('../../utils/configManager');
+const { SearchManager } = require('../search/searchManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class SearchByVersionIdOperation {
     /**
@@ -86,7 +86,7 @@ class SearchByVersionIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async searchByVersionIdAsync ({requestInfo, parsedArgs, resourceType}) {
+    async searchByVersionIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -111,7 +111,7 @@ class SearchByVersionIdOperation {
         } = requestInfo;
 
         try {
-            const {base_version, id, version_id} = parsedArgs;
+            const { base_version, id, version_id } = parsedArgs;
             // check if user has permissions to access this resource
             await this.scopesValidator.verifyHasValidScopesAsync(
                 {

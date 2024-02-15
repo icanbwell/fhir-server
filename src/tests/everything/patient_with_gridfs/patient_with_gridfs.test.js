@@ -1,8 +1,8 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const patientPersonData = require('./fixtures/patient/patient_person_data.json');
 
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GridFS everything tests', () => {
     beforeEach(async () => {

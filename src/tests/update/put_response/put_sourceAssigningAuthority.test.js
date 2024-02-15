@@ -11,12 +11,12 @@ const expectedActivityDefinitionClientResources = require('./fixtures/expected/e
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../utils/configManager');
 
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport () {

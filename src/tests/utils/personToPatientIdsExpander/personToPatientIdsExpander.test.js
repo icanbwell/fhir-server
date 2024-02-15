@@ -9,7 +9,7 @@ const {
     getHeaders,
     createTestRequest, getTestContainer
 } = require('../../common');
-const { describe, test, beforeEach, afterEach, expect} = require('@jest/globals');
+const { describe, test, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('personToPatientIdsExpanders Test', () => {
     beforeEach(async () => {
@@ -27,7 +27,7 @@ describe('personToPatientIdsExpanders Test', () => {
             .post('/4_0_0/Patient/$merge/?validate=true')
             .send(mainPatient)
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         let result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
@@ -40,7 +40,7 @@ describe('personToPatientIdsExpanders Test', () => {
             .post('/4_0_0/Person/$merge/?validate=true')
             .send(mainPerson)
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
@@ -57,13 +57,13 @@ describe('personToPatientIdsExpanders Test', () => {
             .post('/4_0_0/Person/$merge/?validate=true')
             .send(linkedPerson1)
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .post('/4_0_0/Person/$merge/?validate=true')
             .send(linkedPerson2)
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',

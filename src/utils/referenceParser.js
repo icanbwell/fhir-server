@@ -1,5 +1,5 @@
-const {isUuid} = require('./uid.util');
-const {UrlParser} = require('./urlParser');
+const { isUuid } = require('./uid.util');
+const { UrlParser } = require('./urlParser');
 
 class ReferenceParser {
     /**
@@ -10,7 +10,7 @@ class ReferenceParser {
      */
     static parseReference (reference) {
         if (UrlParser.isUrl(reference)) { // is a url so don't try to parse
-            return {id: reference};
+            return { id: reference };
         }
         const parts = reference.split('/');
         let resourceType;
@@ -32,7 +32,7 @@ class ReferenceParser {
                 sourceAssigningAuthority = idParts[1];
             }
         }
-        return {resourceType, id, sourceAssigningAuthority};
+        return { resourceType, id, sourceAssigningAuthority };
     }
 
     /**
@@ -41,7 +41,7 @@ class ReferenceParser {
      * @param {string} id
      * @param {string|undefined} [sourceAssigningAuthority]
      */
-    static createReference ({resourceType, id, sourceAssigningAuthority}) {
+    static createReference ({ resourceType, id, sourceAssigningAuthority }) {
         let reference = '';
         if (resourceType) {
             reference = `${resourceType}/`;
@@ -59,7 +59,7 @@ class ReferenceParser {
      * @return {boolean}
      */
     static isUuidReference (reference) {
-        const {id} = ReferenceParser.parseReference(reference);
+        const { id } = ReferenceParser.parseReference(reference);
         return isUuid(id);
     }
 
@@ -69,7 +69,7 @@ class ReferenceParser {
      * @return {string|undefined}
      */
     static getResourceType (reference) {
-        const {resourceType} = ReferenceParser.parseReference(reference);
+        const { resourceType } = ReferenceParser.parseReference(reference);
         return resourceType;
     }
 
@@ -79,7 +79,7 @@ class ReferenceParser {
      * @return {string|undefined}
      */
     static getSourceAssigningAuthority (reference) {
-        const {sourceAssigningAuthority} = ReferenceParser.parseReference(reference);
+        const { sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
         return sourceAssigningAuthority;
     }
 
@@ -90,7 +90,7 @@ class ReferenceParser {
      */
     static createReferenceWithoutSourceAssigningAuthority (reference) {
         const { id, resourceType } = ReferenceParser.parseReference(reference);
-        return ReferenceParser.createReference({resourceType, id});
+        return ReferenceParser.createReference({ resourceType, id });
     }
 }
 

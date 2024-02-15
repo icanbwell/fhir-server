@@ -6,11 +6,11 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const {logDebug, logError} = require('../operations/common/logging');
-const {isTrue} = require('../utils/isTrue');
+const { logDebug, logError } = require('../operations/common/logging');
+const { isTrue } = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
-const {Issuer} = require('openid-client');
+const { Issuer } = require('openid-client');
 const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
@@ -107,9 +107,9 @@ const cookieExtractor = function (req) {
     let token = null;
     if (req && req.cookies) {
         token = req.cookies['jwt'];
-        logDebug('Found cookie jwt', {user: '', args: {token: token}});
+        logDebug('Found cookie jwt', { user: '', args: { token: token } });
     } else {
-        logDebug('No cookies found', {user: ''});
+        logDebug('No cookies found', { user: '' });
     }
     return token;
 };
@@ -134,7 +134,7 @@ const cookieExtractor = function (req) {
  * @param {string|null} scope
  * @return {Object}
  */
-function parseUserInfoFromPayload ({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, done, client_id, scope }) {
     const context = {};
     if (username) {
         context['username'] = username;
@@ -148,7 +148,7 @@ function parseUserInfoFromPayload ({username, subject, isUser, jwt_payload, done
         let validInput = true;
         requiredJWTFields.forEach((field) => {
             if (!jwt_payload[`${field}`]) {
-                logDebug(`Error: ${field} field is missing`, {user: ''});
+                logDebug(`Error: ${field} field is missing`, { user: '' });
                 validInput = false;
             }
         });
@@ -167,7 +167,7 @@ function parseUserInfoFromPayload ({username, subject, isUser, jwt_payload, done
         context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
     }
 
-    return done(null, {id: client_id, isUser, name: username, username: username}, {scope, context});
+    return done(null, { id: client_id, isUser, name: username, username: username }, { scope, context });
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
@@ -285,7 +285,7 @@ class MyJwtStrategy extends JwtStrategy {
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?` +
                 `response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
                 `&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-            logDebug('Redirecting', {user: '', args: {redirect: redirectUrl}});
+            logDebug('Redirecting', { user: '', args: { redirect: redirectUrl } });
             return self.redirect(redirectUrl);
         }
 
@@ -317,7 +317,7 @@ module.exports.strategy = new MyJwtStrategy(
             },
             handleSigningKeyError: (err, cb) => {
                 if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                    logDebug('No Signing Key found!', {user: ''});
+                    logDebug('No Signing Key found!', { user: '' });
                     return cb(new Error('No Signing Key found!'));
                 }
                 return cb(err);

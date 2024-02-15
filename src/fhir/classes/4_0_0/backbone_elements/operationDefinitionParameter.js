@@ -87,7 +87,7 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -119,7 +119,7 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -294,7 +294,7 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const OperationDefinitionBinding = require('../backbone_elements/operationDefinitionBinding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.binding = FhirResourceCreator.create(valueProvided, OperationDefinitionBinding);
             }
         });
@@ -315,7 +315,7 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const OperationDefinitionReferencedFrom = require('../backbone_elements/operationDefinitionReferencedFrom.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referencedFrom = FhirResourceCreator.createArray(valueProvided, OperationDefinitionReferencedFrom);
             }
         });
@@ -334,7 +334,7 @@ class OperationDefinitionParameter extends Element {
                     this.__data.part = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.part = FhirResourceCreator.createArray(valueProvided, OperationDefinitionParameter);
             }
         });
@@ -363,7 +363,7 @@ class OperationDefinitionParameter extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -388,12 +388,12 @@ class OperationDefinitionParameter extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.binding) { await this.binding.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.referencedFrom) { await async.each(this.referencedFrom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.part) { await async.each(this.part, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.binding) { await this.binding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.referencedFrom) { await async.each(this.referencedFrom, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.part) { await async.each(this.part, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -401,7 +401,7 @@ class OperationDefinitionParameter extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

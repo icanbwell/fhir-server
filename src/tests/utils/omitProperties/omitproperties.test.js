@@ -1,7 +1,7 @@
 const { commonBeforeEach, commonAfterEach } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { omitProperty } = require('../../../utils/omitProperties');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {

@@ -131,8 +131,8 @@ module.exports.startCollection = function () {
  */
 module.exports.requestCounters = function (req, res, next) {
     if (req.path !== '/metrics') {
-        numOfRequests.inc({method: req.method});
-        pathsTaken.inc({path: req.path});
+        numOfRequests.inc({ method: req.method });
+        pathsTaken.inc({ path: req.path });
     }
     next();
 };

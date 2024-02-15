@@ -1,12 +1,12 @@
-const {GenericController} = require('./4_0_0/controllers/generic.controller');
-const {assertTypeEquals} = require('../../utils/assertType');
+const { GenericController } = require('./4_0_0/controllers/generic.controller');
+const { assertTypeEquals } = require('../../utils/assertType');
 
 class ControllerUtils {
     /**
      * constructor
      * @param {GenericController} genericController
      */
-    constructor ({genericController}) {
+    constructor ({ genericController }) {
         assertTypeEquals(genericController, GenericController);
         /**
          * @type {GenericController}

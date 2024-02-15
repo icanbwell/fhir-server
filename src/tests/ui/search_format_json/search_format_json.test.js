@@ -9,7 +9,7 @@ const {
     getHtmlHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('Patient UI Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction

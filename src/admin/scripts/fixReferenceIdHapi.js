@@ -9,10 +9,10 @@ if (process.argv.includes('--dotenv')) {
 }
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixReferenceIdHapiRunner} = require('../runners/fixReferenceIdHapiRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixReferenceIdHapiRunner } = require('../runners/fixReferenceIdHapiRunner');
 
 const hapiResources = [
     'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiagnosticReport',

@@ -4,12 +4,12 @@
 // expected
 // const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {EnrichmentManager} = require('../../../enrich/enrich');
-const {R4ArgsParser} = require('../../../operations/query/r4ArgsParser');
-const {VERSIONS} = require('../../../middleware/fhir/utils/constants');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { EnrichmentManager } = require('../../../enrich/enrich');
+const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
+const { VERSIONS } = require('../../../middleware/fhir/utils/constants');
 const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 describe('Observation Tests', () => {

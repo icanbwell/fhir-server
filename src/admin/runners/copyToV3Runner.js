@@ -4,7 +4,7 @@ const { MongoCollectionManager } = require('../../utils/mongoCollectionManager')
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
-const {mongoConfig} = require('../../config');
+const { mongoConfig } = require('../../config');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -258,7 +258,7 @@ totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount:
                         { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } } :
                         { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
                     // // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
-                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments]} : queryToFetchDocuments;
+                    const query = this._idAbove ? { $and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments] } : queryToFetchDocuments;
 
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
@@ -281,7 +281,7 @@ totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount:
 
                     while (await cursor.hasNext()) {
                         const liveDocument = await cursor.next();
-                        operations.push({updateOne: {filter: {_id: liveDocument._id}, update: {$set: liveDocument}, upsert: true }});
+                        operations.push({ updateOne: { filter: { _id: liveDocument._id }, update: { $set: liveDocument }, upsert: true } });
 
                         if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
                             result = await this.v3BulkWrite(collection, v3DatabaseCollection, operations);

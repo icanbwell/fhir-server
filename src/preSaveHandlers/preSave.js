@@ -1,4 +1,4 @@
-const {assertTypeEquals} = require('../utils/assertType');
+const { assertTypeEquals } = require('../utils/assertType');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 class PreSaveManager {
@@ -24,7 +24,7 @@ class PreSaveManager {
      */
     async preSaveAsync (resource) {
         for (const preSaveHandler of this.preSaveHandlers) {
-            resource = await preSaveHandler.preSaveAsync({resource});
+            resource = await preSaveHandler.preSaveAsync({ resource });
             assertTypeEquals(resource, Resource,
                 `return value ${typeof resource} from ${preSaveHandler.constructor.name} was not a resource`);
         }

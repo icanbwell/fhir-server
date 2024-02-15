@@ -1,5 +1,5 @@
 const async = require('async');
-const {logInfo, logError} = require('../../../operations/common/logging');
+const { logInfo, logError } = require('../../../operations/common/logging');
 
 /***
  * Plugin to log calls to GraphQL

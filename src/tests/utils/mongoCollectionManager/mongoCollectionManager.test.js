@@ -3,7 +3,7 @@ const {
     commonAfterEach
 } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('mongoCollectionManager cache Test', () => {
     beforeEach(async () => {
@@ -30,12 +30,12 @@ describe('mongoCollectionManager cache Test', () => {
 
             const db = await mongoDatabaseManager.getClientDbAsync();
 
-            await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
+            await mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName: documentReferenceCollection });
 
             expect(mongoCollectionManager.databaseCollectionNameSet.size).toEqual(1);
             expect(mongoCollectionManager.databaseCollectionNameSet.has(documentReferenceCollection)).toBeTrue();
 
-            await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
+            await mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName: documentReferenceCollection });
 
             expect(mongoCollectionManager.databaseCollectionNameSet.size).toEqual(1);
         });
@@ -59,7 +59,7 @@ describe('mongoCollectionManager cache Test', () => {
             */
             const mongoCollectionManager = container.mongoCollectionManager;
 
-            await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
+            await mongoCollectionManager.getOrCreateCollectionAsync({ db, collectionName: documentReferenceCollection });
 
             expect(mongoCollectionManager.databaseCollectionNameSet.size).toEqual(2);
             expect(mongoCollectionManager.databaseCollectionNameSet.has(documentReferenceCollection)).toBeTrue();

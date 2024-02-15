@@ -136,7 +136,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -200,7 +200,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -222,7 +222,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -246,7 +246,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -278,7 +278,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -298,7 +298,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -356,7 +356,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.basedOn = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -377,7 +377,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.priorRequest = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -397,7 +397,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.groupIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -472,7 +472,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.codeReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -492,7 +492,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.codeCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -513,7 +513,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const DeviceRequestParameter = require('../backbone_elements/deviceRequestParameter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.parameter = FhirResourceCreator.createArray(valueProvided, DeviceRequestParameter);
             }
         });
@@ -533,7 +533,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -553,7 +553,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -591,7 +591,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.occurrencePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -611,7 +611,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.occurrenceTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -650,7 +650,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.requester = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -670,7 +670,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performerType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -690,7 +690,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -710,7 +710,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reasonCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -730,7 +730,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reasonReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -751,7 +751,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.insurance = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -773,7 +773,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.supportingInfo = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -795,7 +795,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
@@ -815,7 +815,7 @@ class DeviceRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.relevantHistory = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -1078,7 +1078,7 @@ class DeviceRequest extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1125,32 +1125,32 @@ class DeviceRequest extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.basedOn) { await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.priorRequest) { await async.each(this.priorRequest, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.groupIdentifier) { await this.groupIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.codeReference) { await this.codeReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.codeCodeableConcept) { await this.codeCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.parameter) { await async.each(this.parameter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.subject) { await this.subject.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.encounter) { await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.occurrencePeriod) { await this.occurrencePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.occurrenceTiming) { await this.occurrenceTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.requester) { await this.requester.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.performerType) { await this.performerType.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.performer) { await this.performer.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.reasonCode) { await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.reasonReference) { await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.insurance) { await async.each(this.insurance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.supportingInfo) { await async.each(this.supportingInfo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.relevantHistory) { await async.each(this.relevantHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.basedOn) { await async.each(this.basedOn, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.priorRequest) { await async.each(this.priorRequest, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.groupIdentifier) { await this.groupIdentifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.codeReference) { await this.codeReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.codeCodeableConcept) { await this.codeCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.parameter) { await async.each(this.parameter, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.occurrencePeriod) { await this.occurrencePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.occurrenceTiming) { await this.occurrenceTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.requester) { await this.requester.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performerType) { await this.performerType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performer) { await this.performer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reasonCode) { await async.each(this.reasonCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.reasonReference) { await async.each(this.reasonReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.insurance) { await async.each(this.insurance, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.supportingInfo) { await async.each(this.supportingInfo, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.relevantHistory) { await async.each(this.relevantHistory, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -1158,7 +1158,7 @@ class DeviceRequest extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

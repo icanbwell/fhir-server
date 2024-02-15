@@ -5,7 +5,7 @@ class BaseConverter {
      * @returns {string}
      */
     // eslint-disable-next-line no-unused-vars
-    convert ({resource}) {
+    convert ({ resource }) {
         throw new Error('Not Implemented by subclass');
     }
 
@@ -19,7 +19,7 @@ class BaseConverter {
             return '';
         }
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'});
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 }
 

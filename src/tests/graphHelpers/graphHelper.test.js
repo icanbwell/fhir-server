@@ -1,14 +1,14 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../common');
 const graphSimpleReverseDefinition = require('./fixtures/graphSimpleReverse.json');
 const graphSimpleForwardDefinition = require('./fixtures/graphSimpleForward.json');
 const graphDefinition = require('./fixtures/graph.json');
 const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json');
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
-const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
-const {createTestContainer} = require('../createTestContainer');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {generateUUIDv5} = require('../../utils/uid.util');
-const {ConfigManager} = require('../../utils/configManager');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
+const { createTestContainer } = require('../createTestContainer');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { generateUUIDv5 } = require('../../utils/uid.util');
+const { ConfigManager } = require('../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -103,8 +103,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync(
                 {
                     requestInfo,
@@ -157,8 +157,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -240,8 +240,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -309,8 +309,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -378,8 +378,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -445,8 +445,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -527,8 +527,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '10'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '10' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -599,8 +599,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1', '_hash_references': 1};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1', '_hash_references': 1 };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -682,8 +682,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -810,8 +810,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -969,8 +969,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1109,8 +1109,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '10'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '10' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1308,8 +1308,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1562,8 +1562,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1799,8 +1799,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', _debug: 1, 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args: args});
+            const args = { 'base_version': '4_0_0', _debug: 1, 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args: args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -2085,8 +2085,8 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', _explain: 1, 'id': '1,2'};
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const args = { 'base_version': '4_0_0', _explain: 1, 'id': '1,2' };
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,

@@ -94,7 +94,7 @@ class Dosage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +126,7 @@ class Dosage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -186,7 +186,7 @@ class Dosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additionalInstruction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -224,7 +224,7 @@ class Dosage extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.timing = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -262,7 +262,7 @@ class Dosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.asNeededCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -282,7 +282,7 @@ class Dosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.site = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -302,7 +302,7 @@ class Dosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.route = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -322,7 +322,7 @@ class Dosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.method = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -342,7 +342,7 @@ class Dosage extends Element {
                     return;
                 }
                 const DosageDoseAndRate = require('../backbone_elements/dosageDoseAndRate.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.doseAndRate = FhirResourceCreator.createArray(valueProvided, DosageDoseAndRate);
             }
         });
@@ -362,7 +362,7 @@ class Dosage extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxDosePerPeriod = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -382,7 +382,7 @@ class Dosage extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxDosePerAdministration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -402,7 +402,7 @@ class Dosage extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxDosePerLifetime = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -434,7 +434,7 @@ class Dosage extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -462,19 +462,19 @@ class Dosage extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.additionalInstruction) { await async.each(this.additionalInstruction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.timing) { await this.timing.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.asNeededCodeableConcept) { await this.asNeededCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.site) { await this.site.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.route) { await this.route.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.method) { await this.method.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.doseAndRate) { await async.each(this.doseAndRate, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.maxDosePerPeriod) { await this.maxDosePerPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.maxDosePerAdministration) { await this.maxDosePerAdministration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.maxDosePerLifetime) { await this.maxDosePerLifetime.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.additionalInstruction) { await async.each(this.additionalInstruction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.timing) { await this.timing.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.asNeededCodeableConcept) { await this.asNeededCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.site) { await this.site.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.route) { await this.route.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.method) { await this.method.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.doseAndRate) { await async.each(this.doseAndRate, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.maxDosePerPeriod) { await this.maxDosePerPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.maxDosePerAdministration) { await this.maxDosePerAdministration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.maxDosePerLifetime) { await this.maxDosePerLifetime.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -482,7 +482,7 @@ class Dosage extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

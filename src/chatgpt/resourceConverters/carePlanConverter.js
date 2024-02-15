@@ -1,10 +1,10 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class CarePlanConverter extends BaseConverter {
-    convert ({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             status,
             intent,
             category,

@@ -8,10 +8,10 @@ if (process.argv.includes('--dotenv')) {
     console.log(`Reading config from ${pathToEnv}`);
 }
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixDuplicateUuidRunner} = require('../runners/fixDuplicateUuidRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixDuplicateUuidRunner } = require('../runners/fixDuplicateUuidRunner');
 
 /**
  * main function

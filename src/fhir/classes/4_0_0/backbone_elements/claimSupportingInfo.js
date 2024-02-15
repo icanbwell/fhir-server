@@ -88,7 +88,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -120,7 +120,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -159,7 +159,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -181,7 +181,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -219,7 +219,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.timingPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -275,7 +275,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -295,7 +295,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -315,7 +315,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -336,7 +336,7 @@ class ClaimSupportingInfo extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -365,7 +365,7 @@ class ClaimSupportingInfo extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -390,16 +390,16 @@ class ClaimSupportingInfo extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.category) { await this.category.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.timingPeriod) { await this.timingPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueAttachment) { await this.valueAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.valueReference) { await this.valueReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.reason) { await this.reason.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.category) { await this.category.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.timingPeriod) { await this.timingPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueAttachment) { await this.valueAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueReference) { await this.valueReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reason) { await this.reason.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -407,7 +407,7 @@ class ClaimSupportingInfo extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

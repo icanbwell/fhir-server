@@ -1,7 +1,7 @@
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {MongoQuerySimplifier} = require('../../../utils/mongoQuerySimplifier');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('mongoQuerySimplifier Tests', () => {
     beforeEach(async () => {
@@ -48,8 +48,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             };
 
-            const columns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
-            logInfo('', {columns});
+            const columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
+            logInfo('', { columns });
             expect(columns).toStrictEqual(new Set(['meta.security.code', 'birthDate']));
         });
         test('mongoQuerySimplifier works for findColumn query nested', () => {
@@ -62,8 +62,8 @@ describe('mongoQuerySimplifier Tests', () => {
                 }
             };
 
-            const columns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
-            logInfo('', {columns});
+            const columns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
+            logInfo('', { columns });
             expect(Array.from(columns)).toStrictEqual(['identifier.system', 'identifier.value']);
         });
     });

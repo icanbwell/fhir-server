@@ -4,8 +4,8 @@
 
 const hash = require('object-hash');
 const crypto = require('crypto');
-const {v5: uuidv5, validate: uuidValidate} = require('uuid');
-const {UUID} = require('mongodb').BSON;
+const { v5: uuidv5, validate: uuidValidate } = require('uuid');
+const { UUID } = require('mongodb').BSON;
 const OID_NAMESPACE = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
 
 /**

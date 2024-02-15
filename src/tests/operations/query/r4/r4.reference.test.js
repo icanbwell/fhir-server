@@ -1,12 +1,12 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AccessIndexManager} = require('../../../../operations/common/accessIndexManager');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {IndexProvider} = require('../../../../indexes/indexProvider');
-const {VERSIONS} = require('../../../../middleware/fhir/utils/constants');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AccessIndexManager } = require('../../../../operations/common/accessIndexManager');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { IndexProvider } = require('../../../../indexes/indexProvider');
+const { VERSIONS } = require('../../../../middleware/fhir/utils/constants');
 
 class MockAccessIndexManager extends AccessIndexManager {
-    resourceHasAccessIndexForAccessCodes ({resourceType, accessCodes}) {
+    resourceHasAccessIndexForAccessCodes ({ resourceType, accessCodes }) {
         return ['AuditEvent', 'Task'].includes(resourceType) &&
             accessCodes.every(a => a === 'client');
     }
@@ -19,7 +19,7 @@ class MockConfigManager extends ConfigManager {
 }
 
 class MockIndexProvider extends IndexProvider {
-    hasIndexForAccessCodes ({accessCodes}) {
+    hasIndexForAccessCodes ({ accessCodes }) {
         return accessCodes.every(ac => ac === 'client');
     }
 }
@@ -60,7 +60,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -99,7 +99,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -133,7 +133,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '1234'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -172,7 +172,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/1234'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -206,7 +206,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/1234|abc'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -249,7 +249,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '7708d86f-1d3e-4389-a8c6-3a88075934f1,6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -290,7 +290,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1,Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -329,7 +329,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123,456'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -370,7 +370,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123,Group/456'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -409,7 +409,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123|client,456|client'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -457,7 +457,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123|client,Group/456|client'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -503,7 +503,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123|healthsystem1,456|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -568,7 +568,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -623,7 +623,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123|healthsystem1,456|healthsystem2,789|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -690,7 +690,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -752,7 +752,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -803,7 +803,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -844,7 +844,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123|client,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -902,7 +902,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123|client,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -950,7 +950,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': '123|healthsystem1,456|healthsystem2,789|healthsystem2,7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
@@ -1025,7 +1025,7 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2,Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
             };
-            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType: resourceType, args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: resourceType, parsedArgs: parsedArgs
             });

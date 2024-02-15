@@ -1,5 +1,5 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ChatGPTMeta} = require('./chatgptMeta');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ChatGPTMeta } = require('./chatgptMeta');
 
 class ChatGPTDocument {
     /**

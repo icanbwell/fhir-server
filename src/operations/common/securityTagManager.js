@@ -1,11 +1,11 @@
 const env = require('var');
-const {ForbiddenError} = require('../../utils/httpErrors');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {AccessIndexManager} = require('./accessIndexManager');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {PatientFilterManager} = require('../../fhir/patientFilterManager');
-const {isUuid} = require('../../utils/uid.util');
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { AccessIndexManager } = require('./accessIndexManager');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { isUuid } = require('../../utils/uid.util');
 
 /**
  * This class manages queries for security tags
@@ -17,7 +17,7 @@ class SecurityTagManager {
      * @param {AccessIndexManager} accessIndexManager
      * @param {PatientFilterManager} patientFilterManager
      */
-    constructor ({scopesManager, accessIndexManager, patientFilterManager}) {
+    constructor ({ scopesManager, accessIndexManager, patientFilterManager }) {
         /**
          * @type {ScopesManager}
          */
@@ -41,7 +41,7 @@ class SecurityTagManager {
      * @param {boolean} hasPatientScope
      * @return {string[]}
      */
-    getSecurityTagsFromScope ({user, scope, hasPatientScope}) {
+    getSecurityTagsFromScope ({ user, scope, hasPatientScope }) {
         /**
          * @type {string[]}
          */
@@ -115,11 +115,11 @@ class SecurityTagManager {
                     })
             ) {
                 if (securityTags.length === 1) {
-                    securityTagQuery = {[`_access.${securityTags[0]}`]: 1}; // optimize query for a single code
+                    securityTagQuery = { [`_access.${securityTags[0]}`]: 1 }; // optimize query for a single code
                 } else {
                     securityTagQuery = {
                         $or: securityTags.map(s => {
-                                return {[`_access.${s}`]: 1};
+                                return { [`_access.${s}`]: 1 };
                             }
                         )
                     };
@@ -159,8 +159,8 @@ class SecurityTagManager {
      * @param {string} resourceType
      * @return {import('mongodb').Document}
      */
-    getQueryWithPatientFilter ({patientIds, query, resourceType}) {
-        if (!this.patientFilterManager.canAccessResourceWithPatientScope({resourceType})) {
+    getQueryWithPatientFilter ({ patientIds, query, resourceType }) {
+        if (!this.patientFilterManager.canAccessResourceWithPatientScope({ resourceType })) {
             throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
         }
         // separate uuids from non-uuids
@@ -182,16 +182,16 @@ class SecurityTagManager {
                         '$or': patientFilterProperty.map(p => {
                                 // if patient itself then search by _uuid
                                 if (p === 'id') {
-                                    return {'_uuid': inQuery};
+                                    return { '_uuid': inQuery };
                                 }
-                                return {[p.replace('.reference', '._uuid')]: inQuery};
+                                return { [p.replace('.reference', '._uuid')]: inQuery };
                             }
                         )
                     };
                 } else {
                     // if patient itself then search by _uuid
                     if (patientFilterProperty === 'id') {
-                        patientsUuidQuery = {'_uuid': inQuery};
+                        patientsUuidQuery = { '_uuid': inQuery };
                     } else {
                         patientsUuidQuery = {
                             [patientFilterProperty.replace('.reference', '._uuid')]: inQuery
@@ -217,18 +217,18 @@ class SecurityTagManager {
                         '$or': patientFilterProperty.map(p => {
                                 // if patient itself then search by _sourceId
                                 if (p === 'id') {
-                                    return {'_sourceId': inQuery};
+                                    return { '_sourceId': inQuery };
                                 }
-                                return {[p.replace('.reference', '._sourceId')]: inQuery};
+                                return { [p.replace('.reference', '._sourceId')]: inQuery };
                             }
                         )
                     };
                 } else {
                     // if patient itself then search by _sourceId
                     if (patientFilterProperty === 'id') {
-                        patientsNonUuidQuery = {'_sourceId': inQuery};
+                        patientsNonUuidQuery = { '_sourceId': inQuery };
                     } else {
-                        patientsNonUuidQuery = {[patientFilterProperty.replace('.reference', '._sourceId')]: inQuery};
+                        patientsNonUuidQuery = { [patientFilterProperty.replace('.reference', '._sourceId')]: inQuery };
                     }
                 }
             }

@@ -21,7 +21,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
 
 class MockConfigManager extends ConfigManager {
@@ -60,7 +60,7 @@ describe('Disabled Consent Based Data Access Test', () => {
                 clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource, consentGivenResource])
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         const expectedClintObservationCopy = deepcopy(expectedClintObservation);
         expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';

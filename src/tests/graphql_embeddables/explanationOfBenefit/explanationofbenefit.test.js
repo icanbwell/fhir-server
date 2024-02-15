@@ -19,7 +19,7 @@ const {
     getGraphQLHeadersWithPerson,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GraphQL ExplanationOfBenefit Tests', () => {
     beforeEach(async () => {
@@ -40,28 +40,28 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 .send(explanationofbenefit1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge?validate=true')
                 .send(explanationofbenefit2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const graphqlQueryText = explanationofbenefitQuery.replace(/\\n/g, '');
             // ACT & ASSERT

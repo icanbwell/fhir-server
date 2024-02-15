@@ -1,26 +1,26 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
-const {validate, applyPatch, compare} = require('fast-json-patch');
+const { BadRequestError, NotFoundError } = require('../../utils/httpErrors');
+const { validate, applyPatch, compare } = require('fast-json-patch');
 const moment = require('moment-timezone');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {ConfigManager} = require('../../utils/configManager');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { fhirContentTypes } = require('../../utils/contentTypes');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
-const {GRIDFS: {DELETE, RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
+const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 
 class PatchOperation {
     /**
@@ -112,7 +112,7 @@ class PatchOperation {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async patchAsync ({requestInfo, parsedArgs, resourceType}) {
+    async patchAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -169,7 +169,7 @@ class PatchOperation {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
-            const {base_version, id} = parsedArgs;
+            const { base_version, id } = parsedArgs;
             // Get current record
             // Query our collection for this observation
             /**

@@ -17,7 +17,7 @@ class IdParser {
             id1 = id;
         }
 
-        return {id: id1, sourceAssigningAuthority};
+        return { id: id1, sourceAssigningAuthority };
     }
 }
 

@@ -1,10 +1,10 @@
 const env = require('var');
 const winston = require('winston');
-const {MongoDB} = require('winston-mongodb');
-const {isTrue} = require('./isTrue');
+const { MongoDB } = require('winston-mongodb');
+const { isTrue } = require('./isTrue');
 const Transport = require('winston-transport');
-const {accessLogsMongoConfig} = require('../config');
-const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
+const { accessLogsMongoConfig } = require('../config');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -111,7 +111,7 @@ class FhirLogger {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
-            defaultMeta: {service: env.DD_SERVICE || 'fhir-server'},
+            defaultMeta: { service: env.DD_SERVICE || 'fhir-server' },
             transports: []
         });
 
@@ -135,7 +135,7 @@ class FhirLogger {
             logger.add(mongodbTransport);
 
             mongodbTransport.on('error', (error) => {
-                console.error(JSON.stringify({message: 'Error in mongodbTransport caught', error}));
+                console.error(JSON.stringify({ message: 'Error in mongodbTransport caught', error }));
             });
         } else {
             /**
@@ -155,7 +155,7 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error(JSON.stringify({message: 'Error in fhirLogger caught', error}));
+            console.error(JSON.stringify({ message: 'Error in fhirLogger caught', error }));
         });
 
         return logger;
@@ -169,7 +169,7 @@ class FhirLogger {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
-            defaultMeta: {service: env.DD_SERVICE || 'fhir-server'},
+            defaultMeta: { service: env.DD_SERVICE || 'fhir-server' },
             transports: [
                 (env.LOGLEVEL === 'DEBUG') ?
                     new NullTransport() : // the secure logger will write to console in debug mode
@@ -181,7 +181,7 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error(JSON.stringify({message: 'Error in fhirLogger caught', error}));
+            console.error(JSON.stringify({ message: 'Error in fhirLogger caught', error }));
         });
 
         return logger;

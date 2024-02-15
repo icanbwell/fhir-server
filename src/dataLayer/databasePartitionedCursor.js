@@ -1,13 +1,13 @@
 /**
  * This class provides a cursor that can span multiple partitioned collections
  */
-const {assertIsValid, assertFail} = require('../utils/assertType');
+const { assertIsValid, assertFail } = require('../utils/assertType');
 const async = require('async');
-const {RethrownError} = require('../utils/rethrownError');
-const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { RethrownError } = require('../utils/rethrownError');
+const { partitionedCollectionsCount } = require('../utils/prometheus.utils');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 
 /**
  * @typedef CursorInfo
@@ -24,7 +24,7 @@ class DatabasePartitionedCursor {
      * @param {CursorInfo[]} cursors
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      */
-    constructor ({base_version, resourceType, cursors, query}) {
+    constructor ({ base_version, resourceType, cursors, query }) {
         /**
          * @type {CursorInfo[]}
          * @private
@@ -63,7 +63,7 @@ class DatabasePartitionedCursor {
      * @param {number} milliSecs
      * @return {DatabasePartitionedCursor}
      */
-    maxTimeMS ({milliSecs}) {
+    maxTimeMS ({ milliSecs }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.maxTimeMS(milliSecs);
         }
@@ -111,7 +111,7 @@ class DatabasePartitionedCursor {
      * @param {Object} doc
      * @return {Promise<Resource|BundleEntry>}
      */
-    async mapDocumentToResourceAsync ({doc}) {
+    async mapDocumentToResourceAsync ({ doc }) {
         const resourceType = doc.resource ? 'BundleEntry' : doc.resourceType || this.resourceType;
         try {
             if (resourceType === 'BundleEntry') {
@@ -156,7 +156,7 @@ class DatabasePartitionedCursor {
                  */
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
-                    return await this.mapDocumentToResourceAsync({doc: result});
+                    return await this.mapDocumentToResourceAsync({ doc: result });
                 } else {
                     assertFail({
                         source: 'DatabasePartitionedCursor.next',
@@ -249,7 +249,7 @@ class DatabasePartitionedCursor {
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabasePartitionedCursor}
      */
-    project ({projection}) {
+    project ({ projection }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.project(projection);
         }
@@ -261,7 +261,7 @@ class DatabasePartitionedCursor {
      * @param {function({Object}): Object} mapping
      * @return {DatabasePartitionedCursor}
      */
-    map ({mapping}) {
+    map ({ mapping }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.map(mapping);
         }
@@ -323,7 +323,7 @@ class DatabasePartitionedCursor {
              * @type {import('mongodb').DefaultSchema[]}
              */
             const docs = await this.toArrayRawAsync();
-            return await async.map(docs, async doc => await this.mapDocumentToResourceAsync({doc}));
+            return await async.map(docs, async doc => await this.mapDocumentToResourceAsync({ doc }));
         } catch (e) {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),
@@ -339,7 +339,7 @@ class DatabasePartitionedCursor {
      * @param {string | [string, number][] | import('mongodb').SortOptionObject<import('mongodb').DefaultSchema>} sortOption
      * @return {DatabasePartitionedCursor}
      */
-    sort ({sortOption}) {
+    sort ({ sortOption }) {
         for (const index in this._cursors) {
             // noinspection JSCheckFunctionSignatures
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.sort(sortOption, 1);
@@ -352,7 +352,7 @@ class DatabasePartitionedCursor {
      * @param {number} size
      * @return {DatabasePartitionedCursor}
      */
-    batchSize ({size}) {
+    batchSize ({ size }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.batchSize(size);
         }
@@ -364,7 +364,7 @@ class DatabasePartitionedCursor {
      * @param {string|null} indexHint
      * @return {DatabasePartitionedCursor}
      */
-    hint ({indexHint}) {
+    hint ({ indexHint }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.hint(indexHint);
         }

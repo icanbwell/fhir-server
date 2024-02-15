@@ -179,7 +179,7 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
             }
         }
     }
-    return {queryParameterValue, notQueryParameterValue};
+    return { queryParameterValue, notQueryParameterValue };
 }
 
 module.exports = {

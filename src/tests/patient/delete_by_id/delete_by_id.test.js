@@ -11,8 +11,8 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('Practitioner Delete Tests', () => {
     beforeEach(async () => {
@@ -30,7 +30,7 @@ describe('Practitioner Delete Tests', () => {
 
             expect(resp.body.length).toBe(0);
             logInfo('------- response 1 ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { 'resp': resp.body });
             logInfo('------- end response 1 ------------');
 
             resp = await request
@@ -40,7 +40,7 @@ describe('Practitioner Delete Tests', () => {
                 .expect(200);
 
             logInfo('------- response patient1Resource ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { 'resp': resp.body });
             logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
@@ -51,7 +51,7 @@ describe('Practitioner Delete Tests', () => {
                 .expect(200);
 
             logInfo('------- response patient2Resource ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { 'resp': resp.body });
             logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
@@ -61,7 +61,7 @@ describe('Practitioner Delete Tests', () => {
 
             expect(resp.body.length).toBe(1);
             logInfo('------- response 3 ------------');
-            logInfo('', {'resp': resp.body});
+            logInfo('', { 'resp': resp.body });
             logInfo('------- end response 3 ------------');
 
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders()).expect(200);

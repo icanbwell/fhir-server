@@ -1,14 +1,14 @@
 const moment = require('moment-timezone');
 const env = require('var');
-const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {logDebug} = require('./logging');
+const { mongoQueryAndOptionsStringify, mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+const { logDebug } = require('./logging');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {MongoExplainPlanHelper} = require('../../utils/mongoExplainPlanHelper');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ResourceManager} = require('./resourceManager');
-const {removeDuplicatesWithLambda} = require('../../utils/list.util');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {QueryItem} = require('../graph/queryItem');
+const { MongoExplainPlanHelper } = require('../../utils/mongoExplainPlanHelper');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ResourceManager } = require('./resourceManager');
+const { removeDuplicatesWithLambda } = require('../../utils/list.util');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { QueryItem } = require('../graph/queryItem');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleLink = require('../../fhir/classes/4_0_0/backbone_elements/bundleLink');
 
@@ -92,7 +92,7 @@ class BundleManager {
                     id: resource.id,
                     resource: resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
-                        {protocol, host, base_version, resource})
+                        { protocol, host, base_version, resource })
                 }
             );
         });
@@ -244,7 +244,7 @@ class BundleManager {
             const tag = [
                 {
                     system: 'https://www.icanbwell.com/query',
-                    display: mongoQueryAndOptionsStringify({query: originalQuery, options: originalOptions})
+                    display: mongoQueryAndOptionsStringify({ query: originalQuery, options: originalOptions })
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
@@ -321,7 +321,7 @@ class BundleManager {
             bundle['meta'] = {
                 tag: tag
             };
-            logDebug('', {user, args: bundle});
+            logDebug('', { user, args: bundle });
         }
         return bundle;
     }
@@ -356,7 +356,7 @@ class BundleManager {
      * @param {BundleEntry[]} entries
      * @return {BundleEntry[]}
      */
-    removeDuplicateEntries ({entries}) {
+    removeDuplicateEntries ({ entries }) {
         if (entries.length === 0) {
             return entries;
         }

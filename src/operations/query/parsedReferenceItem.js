@@ -1,4 +1,4 @@
-const {removeNull} = require('../../utils/nullRemover');
+const { removeNull } = require('../../utils/nullRemover');
 
 class ParsedReferenceItem {
     /**
@@ -7,7 +7,7 @@ class ParsedReferenceItem {
      * @param {string} id
      * @param {string|undefined} sourceAssigningAuthority
      */
-    constructor ({resourceType, id, sourceAssigningAuthority}) {
+    constructor ({ resourceType, id, sourceAssigningAuthority }) {
         /**
          * @type {string|undefined}
          */

@@ -1,9 +1,9 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
-const {IndexProvider} = require('../../../indexes/indexProvider');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
-const {customIndexes} = require('./mockCustomIndexes');
+const { customIndexes } = require('./mockCustomIndexes');
 
 class MockIndexProvider extends IndexProvider {
     getIndexes () {
@@ -56,7 +56,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -142,7 +142,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -270,7 +270,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -406,7 +406,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -536,7 +536,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientHistoryCollection = fhirDb.collection(collectionName);
-            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientHistoryCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -594,7 +594,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventHistoryCollection = auditEventDb.collection(collectionName);
-            await auditEventHistoryCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventHistoryCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -657,7 +657,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventHistoryCollection = auditEventDb.collection(collectionName);
-            await auditEventHistoryCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventHistoryCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -728,7 +728,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,

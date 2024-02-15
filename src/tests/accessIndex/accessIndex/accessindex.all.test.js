@@ -6,12 +6,12 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 const expectedPatientResourcesAccessIndex = require('./fixtures/expected/expected_Patient_access_index.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const {ConfigManager} = require('../../../utils/configManager');
-const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
-const {IndexProvider} = require('../../../indexes/indexProvider');
+const { ConfigManager } = require('../../../utils/configManager');
+const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
 class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
     /**
@@ -35,7 +35,7 @@ class MockIndexProvider extends IndexProvider {
      * @param {string[]} accessCodes
      * @return {boolean}
      */
-    hasIndexForAccessCodes ({accessCodes}) {
+    hasIndexForAccessCodes ({ accessCodes }) {
         return accessCodes.every(a => a === 'client1');
     }
 }
@@ -74,13 +74,13 @@ describe('AuditEvent when all is set Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -118,7 +118,7 @@ describe('AuditEvent when all is set Tests', () => {
             const allAuditEntries = await internalAuditEventCollection.find({}).toArray();
             expect(allAuditEntries.length).toBe(2);
 
-            const client1AuditEntries = await internalAuditEventCollection.find({id: 'MixP-0001r5i3yr8g2cuj'}).toArray();
+            const client1AuditEntries = await internalAuditEventCollection.find({ id: 'MixP-0001r5i3yr8g2cuj' }).toArray();
             expect(client1AuditEntries.length).toBe(1);
             expect(client1AuditEntries[0]._access.client1).toBe(1);
 
@@ -147,14 +147,14 @@ describe('AuditEvent when all is set Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
             const container = getTestContainer();
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */

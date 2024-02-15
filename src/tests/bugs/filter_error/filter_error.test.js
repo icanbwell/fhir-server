@@ -1,5 +1,5 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {

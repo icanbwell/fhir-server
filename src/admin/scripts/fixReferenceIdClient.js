@@ -1,10 +1,10 @@
 // load config from .env.  Should be first thing so env vars are available to rest of the code
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixReferenceIdClientRunner} = require('../runners/fixReferenceIdClientRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixReferenceIdClientRunner } = require('../runners/fixReferenceIdClientRunner');
 
 const clientResources = [
     'AllergyIntolerance', 'CarePlan', 'Condition', 'Patient', 'DiagnosticReport',

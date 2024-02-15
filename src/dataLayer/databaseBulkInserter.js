@@ -1,7 +1,7 @@
 'use strict';
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
-const {EventEmitter} = require('events');
+const { EventEmitter } = require('events');
 const {
     logVerboseAsync,
     logInfo,
@@ -11,31 +11,31 @@ const {
     logSystemErrorAsync,
     logTraceSystemEventAsync
 } = require('../operations/common/systemEventLogging');
-const {ResourceManager} = require('../operations/common/resourceManager');
-const {PostRequestProcessor} = require('../utils/postRequestProcessor');
-const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
+const { ResourceManager } = require('../operations/common/resourceManager');
+const { PostRequestProcessor } = require('../utils/postRequestProcessor');
+const { MongoCollectionManager } = require('../utils/mongoCollectionManager');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
-const {RethrownError} = require('../utils/rethrownError');
-const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
-const {PreSaveManager} = require('../preSaveHandlers/preSave');
-const {RequestSpecificCache} = require('../utils/requestSpecificCache');
+const { RethrownError } = require('../utils/rethrownError');
+const { databaseBulkInserterTimer } = require('../utils/prometheus.utils');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { RequestSpecificCache } = require('../utils/requestSpecificCache');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
-const {ResourceMerger} = require('../operations/common/resourceMerger');
-const {ConfigManager} = require('../utils/configManager');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const { DatabaseUpdateFactory } = require('./databaseUpdateFactory');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
+const { ConfigManager } = require('../utils/configManager');
+const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
-const {MergeResultEntry} = require('../operations/common/mergeResultEntry');
-const {BulkInsertUpdateEntry} = require('./bulkInsertUpdateEntry');
-const {PostSaveProcessor} = require('./postSaveProcessor');
+const { MongoFilterGenerator } = require('../utils/mongoFilterGenerator');
+const { MergeResultEntry } = require('../operations/common/mergeResultEntry');
+const { BulkInsertUpdateEntry } = require('./bulkInsertUpdateEntry');
+const { PostSaveProcessor } = require('./postSaveProcessor');
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -145,8 +145,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} requestId
      * @return {Map<string, BulkInsertUpdateEntry[]>}
      */
-    getOperationsByResourceTypeMap ({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'OperationsByResourceTypeMap'});
+    getOperationsByResourceTypeMap ({ requestId }) {
+        return this.requestSpecificCache.getMap({ requestId, name: 'OperationsByResourceTypeMap' });
     }
 
     /**
@@ -156,8 +156,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} requestId
      * @return {Map<string, BulkInsertUpdateEntry[]>}
      */
-    getHistoryOperationsByResourceTypeMap ({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'HistoryOperationsByResourceTypeMap'});
+    getHistoryOperationsByResourceTypeMap ({ requestId }) {
+        return this.requestSpecificCache.getMap({ requestId, name: 'HistoryOperationsByResourceTypeMap' });
     }
 
     /**
@@ -190,7 +190,7 @@ class DatabaseBulkInserter extends EventEmitter {
         assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
         assertIsValid(resource._uuid, `resource _uuid is not set: ${JSON.stringify(resource)}`);
         // If there is no entry for this collection then create one
-        const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+        const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({ requestId });
         if (!(operationsByResourceTypeMap.has(resourceType))) {
             operationsByResourceTypeMap.set(`${resourceType}`, []);
         }
@@ -228,7 +228,7 @@ class DatabaseBulkInserter extends EventEmitter {
         }
     ) {
         // If there is no entry for this collection then create one
-        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (!(historyOperationsByResourceTypeMap.has(resourceType))) {
             historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
@@ -263,7 +263,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {getOperationForResourceAsyncParam}
      * @returns {BulkInsertUpdateEntry}
      */
-    getOperationForResourceAsync ({requestId, resourceType, doc, operationType, operation, patches}) {
+    getOperationForResourceAsync ({ requestId, resourceType, doc, operationType, operation, patches }) {
         try {
             assertTypeEquals(doc, Resource);
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -303,7 +303,7 @@ args: {
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync ({requestId, resourceType, doc}) {
+    async insertOneAsync ({ requestId, resourceType, doc }) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
@@ -319,7 +319,7 @@ args: {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
-            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({ requestId });
             /**
              * @type {BulkInsertUpdateEntry[]}
              */
@@ -395,7 +395,7 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({requestId, method, base_version, resourceType, doc, patches, userRequestId}) {
+    async insertOneHistoryAsync ({ requestId, method, base_version, resourceType, doc, patches, userRequestId }) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
@@ -477,7 +477,7 @@ args: {
             /**
              * @type {BulkInsertUpdateEntry[]}
              */
-            const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
+            const pendingUpdates = this.getPendingUpdates({ requestId, resourceType })
                 .filter(a => a.uuid === doc._uuid);
             // noinspection JSValidateTypes
             /**
@@ -494,7 +494,7 @@ args: {
                 /**
                  * @type {BulkInsertUpdateEntry[]}
                  */
-                const pendingInserts = this.getPendingInsertsWithUniqueId({requestId, resourceType})
+                const pendingInserts = this.getPendingInsertsWithUniqueId({ requestId, resourceType })
                     .filter(a => a.uuid === doc._uuid);
                 // noinspection JSValidateTypes
                 /**
@@ -505,7 +505,7 @@ args: {
                     previousInsert.resource = doc;
                     previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                 } else { // no previuous insert or update found
-                    const filter = {_uuid: uuid};
+                    const filter = { _uuid: uuid };
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
                             requestId,
@@ -562,7 +562,7 @@ args: {
             /**
              * @type {BulkInsertUpdateEntry[]}
              */
-            const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
+            const pendingUpdates = this.getPendingUpdates({ requestId, resourceType })
                 .filter(a => a.uuid === doc._uuid);
             // noinspection JSValidateTypes
             /**
@@ -578,7 +578,7 @@ args: {
                  * returns null if doc is the same
                  * @type {Resource|null}
                  */
-                const {updatedResource, patches: mergePatches} = await this.resourceMerger.mergeResourceAsync(
+                const { updatedResource, patches: mergePatches } = await this.resourceMerger.mergeResourceAsync(
                     {
                         currentResource: previousResource,
                         resourceToMerge: doc,
@@ -597,7 +597,7 @@ args: {
                 /**
                  * @type {BulkInsertUpdateEntry[]}
                  */
-                const pendingInserts = this.getPendingInsertsWithUniqueId({requestId, resourceType})
+                const pendingInserts = this.getPendingInsertsWithUniqueId({ requestId, resourceType })
                     .filter(a => a.uuid === doc._uuid);
                 // noinspection JSValidateTypes
                 /**
@@ -613,7 +613,7 @@ args: {
                      * returns null if doc is the same
                      * @type {Resource|null}
                      */
-                    const {updatedResource} = await this.resourceMerger.mergeResourceAsync({
+                    const { updatedResource } = await this.resourceMerger.mergeResourceAsync({
                         currentResource: previousResource,
                         resourceToMerge: doc,
                         incrementVersion: false
@@ -627,8 +627,8 @@ args: {
                     }
                 } else { // no previuous insert or update found
                     const filter = lastVersionId && lastVersionId !== '0' ?
-                        {$and: [{_uuid: doc._uuid}, {'meta.versionId': `${lastVersionId}`}]} :
-                        {_uuid: doc._uuid};
+                        { $and: [{ _uuid: doc._uuid }, { 'meta.versionId': `${lastVersionId}` }] } :
+                        { _uuid: doc._uuid };
                     assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
@@ -670,14 +670,14 @@ args: {
      * @param {executeAsyncParams}
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync ({requestId, currentDate, base_version, method, userRequestId, operationsMap}) {
+    async executeAsync ({ requestId, currentDate, base_version, method, userRequestId, operationsMap }) {
         assertIsValid(requestId, 'requestId is null');
         try {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
             const operationsByResourceTypeMap = operationsMap ?
-                operationsMap : this.getOperationsByResourceTypeMap({requestId});
+                operationsMap : this.getOperationsByResourceTypeMap({ requestId });
 
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
@@ -741,8 +741,8 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async executeHistoryInPostRequestAsync ({requestId, currentDate, base_version, method, userRequestId}) {
-        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
+    async executeHistoryInPostRequestAsync ({ requestId, currentDate, base_version, method, userRequestId }) {
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({ requestId });
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
                     requestId,
@@ -879,7 +879,7 @@ args: {
             /**
              * @type {import('mongodb').BulkWriteOptions|null}
              */
-            const options = {ordered: true};
+            const options = { ordered: true };
             /**
              * @type {import('mongodb').BulkWriteResult|undefined}
              */
@@ -1056,16 +1056,16 @@ args: {
                             collection: collectionName
                         }
                     });
-                    return {resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries};
+                    return { resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries };
                 }
             }
-            return {resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries};
+            return { resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };
         } catch (e) {
             throw new RethrownError({
                 error: e
             });
         } finally {
-            timer({resourceType});
+            timer({ resourceType });
         }
     }
 
@@ -1139,7 +1139,7 @@ args: {
             mergeResultEntry.issue = new OperationOutcomeIssue({
                 severity: 'error',
                 code: 'exception',
-                details: new CodeableConcept({text: bulkWriteResultError.message}),
+                details: new CodeableConcept({ text: bulkWriteResultError.message }),
                 diagnostics: diagnostics,
                 expression: [
                     resourceType + '/' + bulkInsertUpdateEntry.uuid
@@ -1181,11 +1181,11 @@ args: {
      * @param {string} resourceType
      * @returns {BulkInsertUpdateEntry[]}
      */
-    getPendingInsertsWithUniqueId ({requestId, resourceType}) {
+    getPendingInsertsWithUniqueId ({ requestId, resourceType }) {
         /**
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
-        const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
+        const operationsByResourceType = this.getOperationsByResourceTypeMap({ requestId }).get(resourceType);
         return operationsByResourceType ?
             operationsByResourceType.filter(operation => operation.operationType === 'insertUniqueId') :
             [];
@@ -1197,11 +1197,11 @@ args: {
      * @param {string} resourceType
      * @returns {BulkInsertUpdateEntry[]}
      */
-    getPendingUpdates ({requestId, resourceType}) {
+    getPendingUpdates ({ requestId, resourceType }) {
         /**
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
-        const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
+        const operationsByResourceType = this.getOperationsByResourceTypeMap({ requestId }).get(resourceType);
         return operationsByResourceType ?
             operationsByResourceType.filter(operation => operation.isUpdateOperation) :
             [];
@@ -1212,7 +1212,7 @@ args: {
      * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync ({bulkInsertUpdateEntries}) {
+    async updateResourcesOneByOneAsync ({ bulkInsertUpdateEntries }) {
         let i = 0;
         for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
             i = i + 1;
@@ -1237,7 +1237,7 @@ args: {
             /**
              * @type {Resource|null}
              */
-            const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync(
+            const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync(
                 {
                     doc: bulkInsertUpdateEntry.resource
                 }

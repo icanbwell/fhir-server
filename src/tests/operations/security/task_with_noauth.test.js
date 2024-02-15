@@ -7,8 +7,8 @@ const {
     getHeadersWithCustomPayload,
     createTestRequest
 } = require('../../common');
-const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeAll, afterAll, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     get authEnabled () {
@@ -40,7 +40,7 @@ describe('taskTests', () => {
                 .send(task1Resource)
                 .set(getHeadersWithCustomPayload(app_client_payload));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
         });
     });
 });

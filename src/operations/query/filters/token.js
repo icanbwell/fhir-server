@@ -1,5 +1,5 @@
-const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/querybuilder.util');
-const {BaseFilter} = require('./baseFilter');
+const { tokenQueryBuilder, exactMatchQueryBuilder } = require('../../../utils/querybuilder.util');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * Filters by token

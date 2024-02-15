@@ -1,22 +1,22 @@
 const env = require('var');
-const {MongoError} = require('../../utils/mongoErrors');
-const {logDebug} = require('../common/logging');
-const {isTrue} = require('../../utils/isTrue');
-const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SearchManager} = require('./searchManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ConfigManager} = require('../../utils/configManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { MongoError } = require('../../utils/mongoErrors');
+const { logDebug } = require('../common/logging');
+const { isTrue } = require('../../utils/isTrue');
+const { mongoQueryAndOptionsStringify } = require('../../utils/mongoQueryStringify');
+const { fhirRequestTimer } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SearchManager } = require('./searchManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ConfigManager } = require('../../utils/configManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class SearchBundleOperation {
     /**
@@ -107,7 +107,7 @@ class SearchBundleOperation {
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundleAsync (
-        {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
+        { requestInfo, parsedArgs, resourceType, useAggregationPipeline }
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -160,7 +160,7 @@ class SearchBundleOperation {
          */
         const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
-        const {/** @type {string} **/base_version} = parsedArgs;
+        const { /** @type {string} **/base_version } = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -209,7 +209,7 @@ class SearchBundleOperation {
          * @type {ResourceLocator}
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version});
+            { resourceType, base_version });
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
@@ -272,7 +272,7 @@ class SearchBundleOperation {
                     user, args: {
                         query:
                             mongoQueryAndOptionsStringify(
-                                {query: originalQuery, options: originalOptions})
+                                { query: originalQuery, options: originalOptions })
                     }
                 });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
@@ -398,7 +398,7 @@ class SearchBundleOperation {
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {
-            timer({action: currentOperationName, resourceType});
+            timer({ action: currentOperationName, resourceType });
         }
     }
 }

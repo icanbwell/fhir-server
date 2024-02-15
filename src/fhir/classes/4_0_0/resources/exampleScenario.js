@@ -115,7 +115,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -179,7 +179,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -201,7 +201,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -225,7 +225,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -257,7 +257,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -303,7 +303,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -447,7 +447,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
@@ -471,7 +471,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
@@ -492,7 +492,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -552,7 +552,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const ExampleScenarioActor = require('../backbone_elements/exampleScenarioActor.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.actor = FhirResourceCreator.createArray(valueProvided, ExampleScenarioActor);
             }
         });
@@ -572,7 +572,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const ExampleScenarioInstance = require('../backbone_elements/exampleScenarioInstance.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.instance = FhirResourceCreator.createArray(valueProvided, ExampleScenarioInstance);
             }
         });
@@ -592,7 +592,7 @@ class ExampleScenario extends Resource {
                     return;
                 }
                 const ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.process = FhirResourceCreator.createArray(valueProvided, ExampleScenarioProcess);
             }
         });
@@ -833,7 +833,7 @@ class ExampleScenario extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -870,19 +870,19 @@ class ExampleScenario extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.actor) { await async.each(this.actor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.instance) { await async.each(this.instance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.process) { await async.each(this.process, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.actor) { await async.each(this.actor, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.instance) { await async.each(this.instance, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.process) { await async.each(this.process, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -890,7 +890,7 @@ class ExampleScenario extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

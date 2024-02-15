@@ -11,7 +11,7 @@ class RethrownError extends Error {
      * @param {Object|undefined} [args]
      * @param {string|undefined} [source]
      */
-    constructor ({message, error, args, source}) {
+    constructor ({ message, error, args, source }) {
         super(!message && error && error.message ? error.message : message);
 
         if (!message && error && error.message) {
@@ -128,8 +128,8 @@ class RethrownError extends Error {
  * @param {string} message
  * @param {Error} error
  */
-function reThrow ({message, error}) {
-    throw new RethrownError({message, error});
+function reThrow ({ message, error }) {
+    throw new RethrownError({ message, error });
 }
 
 module.exports = {

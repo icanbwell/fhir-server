@@ -1,12 +1,12 @@
-const {PreSaveHandler} = require('./preSaveHandler');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const { PreSaveHandler } = require('./preSaveHandler');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 
 /**
  * @classdesc Adds the owner meta security tag if not present (by using first access tag)
  */
 class OwnerColumnHandler extends PreSaveHandler {
-    async preSaveAsync ({resource}) {
+    async preSaveAsync ({ resource }) {
         if (resource.meta && resource.meta.security) {
             /**
              * @type {string[]}

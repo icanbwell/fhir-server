@@ -126,7 +126,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -190,7 +190,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -212,7 +212,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -236,7 +236,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -268,7 +268,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -314,7 +314,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -473,7 +473,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
@@ -514,7 +514,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
@@ -534,7 +534,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -631,7 +631,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.effectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -655,7 +655,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const SubscriptionTopicResourceTrigger = require('../backbone_elements/subscriptionTopicResourceTrigger.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.resourceTrigger = FhirResourceCreator.createArray(valueProvided, SubscriptionTopicResourceTrigger);
             }
         });
@@ -675,7 +675,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const SubscriptionTopicEventTrigger = require('../backbone_elements/subscriptionTopicEventTrigger.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.eventTrigger = FhirResourceCreator.createArray(valueProvided, SubscriptionTopicEventTrigger);
             }
         });
@@ -697,7 +697,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const SubscriptionTopicCanFilterBy = require('../backbone_elements/subscriptionTopicCanFilterBy.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.canFilterBy = FhirResourceCreator.createArray(valueProvided, SubscriptionTopicCanFilterBy);
             }
         });
@@ -718,7 +718,7 @@ class SubscriptionTopic extends Resource {
                     return;
                 }
                 const SubscriptionTopicNotificationShape = require('../backbone_elements/subscriptionTopicNotificationShape.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.notificationShape = FhirResourceCreator.createArray(valueProvided, SubscriptionTopicNotificationShape);
             }
         });
@@ -961,7 +961,7 @@ class SubscriptionTopic extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1003,21 +1003,21 @@ class SubscriptionTopic extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.effectivePeriod) { await this.effectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.resourceTrigger) { await async.each(this.resourceTrigger, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.eventTrigger) { await async.each(this.eventTrigger, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.canFilterBy) { await async.each(this.canFilterBy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.notificationShape) { await async.each(this.notificationShape, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.effectivePeriod) { await this.effectivePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.resourceTrigger) { await async.each(this.resourceTrigger, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.eventTrigger) { await async.each(this.eventTrigger, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.canFilterBy) { await async.each(this.canFilterBy, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.notificationShape) { await async.each(this.notificationShape, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -1025,7 +1025,7 @@ class SubscriptionTopic extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

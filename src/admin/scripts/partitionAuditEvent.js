@@ -5,12 +5,12 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {logInfo} = require('../../operations/common/logging');
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
+const { logInfo } = require('../../operations/common/logging');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
 const moment = require('moment-timezone');
-const {PartitionAuditEventRunner} = require('../runners/partitionAuditEventRunner');
-const {AdminLogger} = require('../adminLogger');
+const { PartitionAuditEventRunner } = require('../runners/partitionAuditEventRunner');
+const { AdminLogger } = require('../adminLogger');
 
 /**
  * main function
@@ -29,7 +29,7 @@ async function main () {
     // set up all the standard services in the container
     const container = createContainer();
 
-    logInfo('Parameters', {parameters});
+    logInfo('Parameters', { parameters });
     // now add our class
     container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner(
             {

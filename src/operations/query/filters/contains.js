@@ -4,8 +4,8 @@
  * @name {string} name
  * @returns {string}
  */
-const {escapeRegExp} = require('../../../utils/regexEscaper');
-const {BaseFilter} = require('./baseFilter');
+const { escapeRegExp } = require('../../../utils/regexEscaper');
+const { BaseFilter } = require('./baseFilter');
 const {
     tokenQueryContainsBuilder
 } = require('../../../utils/querybuilder.util');

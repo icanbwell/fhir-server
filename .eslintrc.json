@@ -11,7 +11,6 @@
     "rules": {
       "indent": "off",
       "semi": "off",
-      "object-curly-spacing": "off",
       "dot-notation": "off",
       "quote-props": "off",
       "camelcase": "off",

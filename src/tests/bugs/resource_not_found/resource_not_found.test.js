@@ -4,9 +4,9 @@ const person1Resource = require('./fixtures/Person/person1.json');
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
     get enableTwoStepOptimization () {
@@ -50,7 +50,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
@@ -72,7 +72,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back

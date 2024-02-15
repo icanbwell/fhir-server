@@ -8,7 +8,7 @@ class ChatGPTError extends Error {
      * @param {Error} error
      * @param {Object|undefined} [args]
      */
-    constructor ({message, error, args}) {
+    constructor ({ message, error, args }) {
         let errorMessage = !message && error && error.message ? error.message : message;
         if (error.response && error.response.data && error.response.data.error && error.response.data.error.message) {
             errorMessage += '. ' + error.response.data.error.message;

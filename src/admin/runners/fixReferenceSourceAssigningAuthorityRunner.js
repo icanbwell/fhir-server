@@ -1,19 +1,19 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {generateUUIDv5} = require('../../utils/uid.util');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { generateUUIDv5 } = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
-const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
-const {ResourceMerger} = require('../../operations/common/resourceMerger');
-const {RethrownError} = require('../../utils/rethrownError');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
+const { ResourceMerger } = require('../../operations/common/resourceMerger');
+const { RethrownError } = require('../../utils/rethrownError');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
 
 /**
@@ -231,7 +231,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             }
 
             // if the _uuid reference works then we're good
-            const {resourceType, id} = ReferenceParser.parseReference(reference.reference);
+            const { resourceType, id } = ReferenceParser.parseReference(reference.reference);
             if (!resourceType) {
                 return reference;
             }
@@ -240,7 +240,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              */
             let uuid;
             if (reference._uuid) {
-                ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
+                ({ id: uuid } = ReferenceParser.parseReference(reference._uuid));
             }
 
             // find collection for resource
@@ -283,7 +283,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             }
             if (!foundInCache) {
                 // find a match on _sourceId and _sourceAssigningAuthority
-                for (const {_uuid, _sourceId, _sourceAssigningAuthority} of cache.values()) {
+                for (const { _uuid, _sourceId, _sourceAssigningAuthority } of cache.values()) {
                     if (_sourceId === id) { // if source id matches then use that uuid and sourceAssigningAuthority
                         // save this uuid in reference
                         reference.reference = ReferenceParser.createReference(
@@ -472,13 +472,13 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             // batch up the calls to update
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             if (this.properties && this.properties.length > 0) {
-                const {patches} = await this.resourceMerger.mergeResourceAsync({
+                const { patches } = await this.resourceMerger.mergeResourceAsync({
                     currentResource: currentResource,
                     resourceToMerge: resource,
                     smartMerge: false,
                     limitToPaths: this.properties.map(p => `/${p}`)
                 });
-                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
                 if (Object.keys(updateOperation).length > 0) {
                     operations.push({
                         updateOne: {
@@ -490,7 +490,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     });
                 }
             } else {
-                const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
+                const result = { replaceOne: { filter: { _id: doc._id }, replacement: resource.toJSONInternal() } };
                 operations.push(result);
             }
 
@@ -659,7 +659,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async preloadCollectionAsync ({mongoConfig, collectionName}) {
+    async preloadCollectionAsync ({ mongoConfig, collectionName }) {
         const {
             sourceCollection
         } = await this.createConnectionAsync(
@@ -685,7 +685,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              * @type {import('mongodb').WithId<import('mongodb').Document>}
              */
             const doc = await cursor.next();
-            this.getCacheForResourceType({collectionName})
+            this.getCacheForResourceType({ collectionName })
                 .set(
                     doc._uuid,
                     {
@@ -702,7 +702,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string} collectionName
      * @return {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
      */
-    getCacheForResourceType ({collectionName}) {
+    getCacheForResourceType ({ collectionName }) {
         if (!this.caches.has(collectionName)) {
             this.caches.set(collectionName, new Map());
         }

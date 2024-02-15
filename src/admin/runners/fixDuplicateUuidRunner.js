@@ -176,7 +176,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
                             $group: {
                                 _id: '$_uuid',
                                 count: { $count: {} },
-                                meta: { $push: '$meta'},
+                                meta: { $push: '$meta' },
                                 id: { $push: '$_id' }
                             }
                         },

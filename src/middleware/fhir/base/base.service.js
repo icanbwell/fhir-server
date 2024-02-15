@@ -62,7 +62,7 @@ const createRequestPromises = (entries, req, baseVersion) => {
             return err;
         }));
     });
-    return {requestPromises, results};
+    return { requestPromises, results };
 };
 
 const processRequest = requestType => {
@@ -85,7 +85,7 @@ const processRequest = requestType => {
             return reject(errors.internal(`Expected 'type: ${requestType}'. Received 'type: ${type}'.`, baseVersion));
         }
 
-        const {requestPromises, results} = createRequestPromises(entries, req, baseVersion);
+        const { requestPromises, results } = createRequestPromises(entries, req, baseVersion);
         return Promise.all(requestPromises).then(responses => {
             for (let i = 0; i < responses.length; i++) {
                 results[`${i}`].status = responses[`${i}`].status;

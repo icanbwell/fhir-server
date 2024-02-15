@@ -9,10 +9,10 @@ if (process.argv.includes('--dotenv')) {
 }
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixCodeableConceptsRunner} = require('../runners/fixCodeableConceptsRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixCodeableConceptsRunner } = require('../runners/fixCodeableConceptsRunner');
 const oidToStandardUrlMapDefault = require('../utils/oidToStandardSystemUrlMapping.json');
 
 const proaResources = [
@@ -68,7 +68,7 @@ async function main () {
     const promiseConcurrency = parameters.promiseConcurrency || 10;
 
     const oidToStandardSystemUrlMap = parameters.oidToStandardUrlMap ?
-        { ...JSON.parse(parameters.oidToStandardUrlMap), ...oidToStandardUrlMapDefault} :
+        { ...JSON.parse(parameters.oidToStandardUrlMap), ...oidToStandardUrlMapDefault } :
         oidToStandardUrlMapDefault;
 
     /**

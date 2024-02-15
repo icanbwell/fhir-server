@@ -1,9 +1,9 @@
-const {Transform} = require('stream');
-const {logInfo, logError} = require('../common/logging');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {RethrownError} = require('../../utils/rethrownError');
-const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const { Transform } = require('stream');
+const { logInfo, logError } = require('../common/logging');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { RethrownError } = require('../../utils/rethrownError');
+const { convertErrorToOperationOutcome } = require('../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../common/sentry');
 
 class ResourcePreparerTransform extends Transform {
@@ -34,7 +34,7 @@ class ResourcePreparerTransform extends Transform {
             response
         }
     ) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+        super({ objectMode: true, highWaterMark: highWaterMark });
         /**
          * @type {string|null}
          */

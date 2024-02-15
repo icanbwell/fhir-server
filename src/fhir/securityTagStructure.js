@@ -1,4 +1,4 @@
-const {SecurityTagSystem} = require('../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../utils/securityTagSystem');
 
 class SecurityTagStructure {
     /**
@@ -8,7 +8,7 @@ class SecurityTagStructure {
      * @param {string[]|undefined} vendor
      * @param {string[]|undefined} sourceAssigningAuthority
      */
-    constructor ({owner, access, vendor, sourceAssigningAuthority}) {
+    constructor ({ owner, access, vendor, sourceAssigningAuthority }) {
         /**
          * @type {string[]|undefined}
          */
@@ -35,7 +35,7 @@ class SecurityTagStructure {
      * @param {SecurityTagStructure} other
      * @return {boolean}
      */
-    matchesOnSourceAssigningAuthority ({other}) {
+    matchesOnSourceAssigningAuthority ({ other }) {
         return this.sourceAssigningAuthority.some(s => other.sourceAssigningAuthority.includes(s));
     }
 
@@ -44,9 +44,9 @@ class SecurityTagStructure {
      * @param {Resource} resource
      * @returns {SecurityTagStructure}
      */
-    static fromResource ({resource}) {
+    static fromResource ({ resource }) {
         // noinspection JSCheckFunctionSignatures
-        return SecurityTagStructure.fromDocument({doc: resource});
+        return SecurityTagStructure.fromDocument({ doc: resource });
     }
 
     /**
@@ -54,7 +54,7 @@ class SecurityTagStructure {
      * @param {meta: {security: {system: string, code: string}[]}} doc
      * @returns {SecurityTagStructure}
      */
-    static fromDocument ({doc}) {
+    static fromDocument ({ doc }) {
         return new SecurityTagStructure(
             {
                 owner: doc.meta && doc.meta.security ?

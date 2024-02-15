@@ -93,7 +93,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -157,7 +157,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -179,7 +179,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -203,7 +203,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -235,7 +235,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -255,7 +255,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.class = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -275,7 +275,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.geometry = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -295,7 +295,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.copolymerConnectivity = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -333,7 +333,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const SubstancePolymerMonomerSet = require('../backbone_elements/substancePolymerMonomerSet.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.monomerSet = FhirResourceCreator.createArray(valueProvided, SubstancePolymerMonomerSet);
             }
         });
@@ -353,7 +353,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const SubstancePolymerRepeat = require('../backbone_elements/substancePolymerRepeat.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.repeat = FhirResourceCreator.createArray(valueProvided, SubstancePolymerRepeat);
             }
         });
@@ -532,7 +532,7 @@ class SubstancePolymer extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -558,17 +558,17 @@ class SubstancePolymer extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.class) { await this.class.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.geometry) { await this.geometry.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.copolymerConnectivity) { await async.each(this.copolymerConnectivity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.monomerSet) { await async.each(this.monomerSet, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.repeat) { await async.each(this.repeat, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.class) { await this.class.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.geometry) { await this.geometry.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.copolymerConnectivity) { await async.each(this.copolymerConnectivity, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.monomerSet) { await async.each(this.monomerSet, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.repeat) { await async.each(this.repeat, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -576,7 +576,7 @@ class SubstancePolymer extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

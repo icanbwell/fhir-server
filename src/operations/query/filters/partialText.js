@@ -1,5 +1,5 @@
-const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
-const {BaseFilter} = require('./baseFilter');
+const { partialTextQueryBuilder } = require('../../../utils/querybuilder.util');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * @classdesc Filters by missing

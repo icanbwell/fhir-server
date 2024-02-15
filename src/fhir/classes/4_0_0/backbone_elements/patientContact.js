@@ -79,7 +79,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -111,7 +111,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -131,7 +131,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.relationship = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -151,7 +151,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.name = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
@@ -171,7 +171,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
@@ -191,7 +191,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.address = FhirResourceCreator.create(valueProvided, Address);
             }
         });
@@ -231,7 +231,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.organization = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -252,7 +252,7 @@ class PatientContact extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -277,7 +277,7 @@ class PatientContact extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -298,15 +298,15 @@ class PatientContact extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.relationship) { await async.each(this.relationship, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.name) { await this.name.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.address) { await this.address.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.organization) { await this.organization.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.period) { await this.period.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.relationship) { await async.each(this.relationship, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.name) { await this.name.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.address) { await this.address.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.organization) { await this.organization.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.period) { await this.period.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -314,7 +314,7 @@ class PatientContact extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

@@ -1,5 +1,5 @@
 const request = require('superagent');
-const {ResponseChunkParser} = require('./responseChunkParser');
+const { ResponseChunkParser } = require('./responseChunkParser');
 
 const token = '';
 

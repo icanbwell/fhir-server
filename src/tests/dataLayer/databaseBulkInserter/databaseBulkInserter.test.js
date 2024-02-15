@@ -5,11 +5,11 @@ const bwellPerson = require('./fixtures/bwellPerson.json');
 const clientPerson = require('./fixtures/clientPerson.json');
 const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
-const {describe, beforeEach, afterEach, jest, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, jest, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const {commonBeforeEach, commonAfterEach} = require('../../common');
-const {createTestContainer} = require('../../createTestContainer');
-const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
+const { commonBeforeEach, commonAfterEach } = require('../../common');
+const { createTestContainer } = require('../../createTestContainer');
+const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
 const env = require('var');
 const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
@@ -25,9 +25,9 @@ const BundleResponse = require('../../../fhir/classes/4_0_0/backbone_elements/bu
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {generateUUIDv5} = require('../../../utils/uid.util');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
-const {Collection} = require('mongodb');
+const { Collection } = require('mongodb');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -158,8 +158,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -247,8 +247,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
             expect(onPatientChangeAsyncMock).toBeCalledTimes(0);
@@ -365,8 +365,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // Check the result has errors
             expect(result).not.toBeNull();
@@ -511,7 +511,7 @@ describe('databaseBulkInserter Tests', () => {
                     id: 'loinc-1'
                 },
                 codeSystem1.toJSONInternal(),
-                {includeResultMetadata: true}
+                { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
                 'n': 1,
@@ -658,8 +658,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId, userRequestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId, userRequestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
@@ -1022,9 +1022,9 @@ describe('databaseBulkInserter Tests', () => {
                 ]
             });
             const updateResult = await codeSystemCollection.findOneAndReplace(
-                {id: 'loinc-1'},
+                { id: 'loinc-1' },
                 codeSystem1.toJSONInternal(),
-                {includeResultMetadata: true}
+                { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
                 'n': 1,
@@ -1107,8 +1107,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId, userRequestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId, userRequestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
@@ -1479,8 +1479,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -1678,8 +1678,8 @@ describe('databaseBulkInserter Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId});
-            await postRequestProcessor.waitTillDoneAsync({requestId});
+            await postRequestProcessor.executeAsync({ requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}

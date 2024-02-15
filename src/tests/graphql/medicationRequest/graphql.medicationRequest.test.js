@@ -17,8 +17,8 @@ const {
     getGraphQLHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {logError} = require('../../../operations/common/logging');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logError } = require('../../../operations/common/logging');
 
 describe('GraphQL MedicationRequest Tests', () => {
     beforeEach(async () => {
@@ -43,7 +43,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/4_0_0/MedicationRequest/$merge')
@@ -51,7 +51,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/4_0_0/MedicationDispense/$merge')
@@ -59,7 +59,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/graphql')
@@ -72,7 +72,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .expect(200);
             const body = resp.body;
             if (body.errors) {
-                logError('', {'errors': body.errors});
+                logError('', { 'errors': body.errors });
                 expect(body.errors).toBeUndefined();
             }
             expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
@@ -92,7 +92,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/4_0_0/MedicationRequest/$merge')
@@ -100,7 +100,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/4_0_0/MedicationDispense/$merge')
@@ -108,7 +108,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/graphql')
@@ -121,7 +121,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .expect(200);
             const body = resp.body;
             if (body.errors) {
-                logError('', {'errors': body.errors});
+                logError('', { 'errors': body.errors });
                 expect(body.errors).toBeUndefined();
             }
             expect(resp).toHaveResponse(expectedGraphQlFilterByCodeResponse, r => {

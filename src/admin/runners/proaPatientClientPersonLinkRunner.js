@@ -1,16 +1,16 @@
 const fs = require('fs');
-const {RethrownError} = require('../../utils/rethrownError');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {compare} = require('fast-json-patch');
-const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
-const {ProaPersonPatientLinkageRunner} = require('./proaPersonPatientLinkageRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {generateUUID} = require('../../utils/uid.util');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
+const { RethrownError } = require('../../utils/rethrownError');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { compare } = require('fast-json-patch');
+const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
+const { ProaPersonPatientLinkageRunner } = require('./proaPersonPatientLinkageRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { generateUUID } = require('../../utils/uid.util');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 
 /**
  * @classdesc Linking of Proa Patient with Client Person
@@ -77,17 +77,17 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * Populate proaPatientToClientPersonMap & proaPersonToProaPatientMap
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async getPersonsMapFromProaPatient ({mongoConfig}) {
+    async getPersonsMapFromProaPatient ({ mongoConfig }) {
         this.adminLogger.logInfo('Fetching Proa persons from db');
         const collectionName = 'Person_4_0_0';
         /**
          * @type {Object}
          */
-        const projection = {id: 1, _uuid: 1, meta: 1, link: 1};
+        const projection = { id: 1, _uuid: 1, meta: 1, link: 1 };
         /**
          * @type {require('mongodb').collection}
          */
-        const {collection, session, client} = await this.createSingeConnectionAsync({
+        const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
             collectionName
         });
@@ -107,7 +107,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
             /**
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
              */
-            const cursor = collection.find(query, {projection});
+            const cursor = collection.find(query, { projection });
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
                 if (resource && resource.id) {
@@ -191,7 +191,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
         /**
          * @type {require('mongodb').collection}
          */
-        const {db, session, client} = await this.createSingeConnectionAsync({
+        const { db, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
             collectionName: 'Person_4_0_0'
         });
@@ -212,16 +212,16 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     this.adminLogger.logError(`Invalid reference present in Master person having UUID: ${doc._uuid}`);
                     continue;
                 }
-                const {id: targetIdWithoutPrefix, resourceType: prefix} = ReferenceParser.parseReference(refTargetUuid);
+                const { id: targetIdWithoutPrefix, resourceType: prefix } = ReferenceParser.parseReference(refTargetUuid);
                 let resource;
                 try {
                     if (prefix === 'Patient') {
-                        resource = await db.collection('Patient_4_0_0').findOne({_uuid: targetIdWithoutPrefix});
+                        resource = await db.collection('Patient_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
                         if (resource?.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)?.code === 'bwell') {
                             linkedMasterPatients.push(targetIdWithoutPrefix);
                         }
                     } else {
-                        resource = await db.collection('Person_4_0_0').findOne({_uuid: targetIdWithoutPrefix});
+                        resource = await db.collection('Person_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
                         this.personDataMap.set(resource._uuid, {
                             id: resource._uuid,
                             sourceAssigningAuthority: resource.meta.security.find(
@@ -261,7 +261,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                         continue;
                     }
                     alreadyProcessedProaPatients.add(proaPatients[parseInt(j)].id);
-                    const {id: proaPatientUUID, sourceAssigningAuthority} = proaPatients[parseInt(j)];
+                    const { id: proaPatientUUID, sourceAssigningAuthority } = proaPatients[parseInt(j)];
                     const proaPatientUUIDWithoutPrefix = proaPatientUUID.replace('Patient/', '');
                     const proaPatientData = this.proaPatientUUIDToIdOwnerMap.get(proaPatientUUIDWithoutPrefix);
                     const proaPersonData = this.personDataMap.get(linkedProaPersons[`${i}`]);
@@ -385,7 +385,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                                     }
                                 };
                                 const patches = compare({}, updatedResource);
-                                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+                                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
                                 if (Object.keys(updateOperation).length > 0) {
                                     operations.push({
                                         updateOne: {
@@ -488,7 +488,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * @param {{ id: string; _uuid: string; }[]} proaPersonInfo
      * @returns {Promise<string>}
      */
-    async getClientPersonToProaPatientMatch ({proaPatientUUID, clientPersonUUID}) {
+    async getClientPersonToProaPatientMatch ({ proaPatientUUID, clientPersonUUID }) {
         let score = 'N/A';
         if (this.getPersonMatchingScore) {
             try {
@@ -549,8 +549,8 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
 
             try {
                 const startFromIdContainer = this.createStartFromIdContainer();
-                await this.getProaPatientsIdMap({mongoConfig});
-                await this.getPersonsMapFromProaPatient({mongoConfig});
+                await this.getProaPatientsIdMap({ mongoConfig });
+                await this.getPersonsMapFromProaPatient({ mongoConfig });
 
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -607,7 +607,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     });
                 }
             } catch (err) {
-                this.adminLogger.logError(err.message, {stack: err.stack});
+                this.adminLogger.logError(err.message, { stack: err.stack });
             }
 
             // Getting Proa Patients without Proa Person
@@ -633,7 +633,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 new Promise((resolve) => this.writeStreamError.on('close', resolve))
             ]);
         } catch (e) {
-            this.adminLogger.logError(`ERROR: ${e.message}`, {stack: e.stack});
+            this.adminLogger.logError(`ERROR: ${e.message}`, { stack: e.stack });
         }
     }
 }

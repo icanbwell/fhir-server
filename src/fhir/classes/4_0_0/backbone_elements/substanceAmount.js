@@ -83,7 +83,7 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -115,7 +115,7 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -135,7 +135,7 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -155,7 +155,7 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -199,7 +199,7 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -237,7 +237,7 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const SubstanceAmountReferenceRange = require('../backbone_elements/substanceAmountReferenceRange.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referenceRange = FhirResourceCreator.create(valueProvided, SubstanceAmountReferenceRange);
             }
         });
@@ -261,7 +261,7 @@ class SubstanceAmount extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -281,13 +281,13 @@ class SubstanceAmount extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.amountQuantity) { await this.amountQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.amountRange) { await this.amountRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.amountType) { await this.amountType.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.referenceRange) { await this.referenceRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.amountQuantity) { await this.amountQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountRange) { await this.amountRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountType) { await this.amountType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.referenceRange) { await this.referenceRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -295,7 +295,7 @@ class SubstanceAmount extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

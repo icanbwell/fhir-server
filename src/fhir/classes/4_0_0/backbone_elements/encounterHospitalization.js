@@ -83,7 +83,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -115,7 +115,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -135,7 +135,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.preAdmissionIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -155,7 +155,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.origin = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -175,7 +175,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.admitSource = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -195,7 +195,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reAdmission = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -215,7 +215,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dietPreference = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -235,7 +235,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specialCourtesy = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -256,7 +256,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specialArrangement = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -276,7 +276,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.destination = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -296,7 +296,7 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dischargeDisposition = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -323,7 +323,7 @@ class EncounterHospitalization extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -346,18 +346,18 @@ class EncounterHospitalization extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.preAdmissionIdentifier) { await this.preAdmissionIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.origin) { await this.origin.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.admitSource) { await this.admitSource.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.reAdmission) { await this.reAdmission.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.dietPreference) { await async.each(this.dietPreference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.specialCourtesy) { await async.each(this.specialCourtesy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.specialArrangement) { await async.each(this.specialArrangement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.destination) { await this.destination.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.dischargeDisposition) { await this.dischargeDisposition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.preAdmissionIdentifier) { await this.preAdmissionIdentifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.origin) { await this.origin.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.admitSource) { await this.admitSource.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reAdmission) { await this.reAdmission.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.dietPreference) { await async.each(this.dietPreference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.specialCourtesy) { await async.each(this.specialCourtesy, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.specialArrangement) { await async.each(this.specialArrangement, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.destination) { await this.destination.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.dischargeDisposition) { await this.dischargeDisposition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -365,7 +365,7 @@ class EncounterHospitalization extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

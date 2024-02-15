@@ -1,11 +1,11 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { YearMonthPartitioner } = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {IndexManager} = require('../../indexes/indexManager');
-const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
+const { IndexManager } = require('../../indexes/indexManager');
+const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -110,7 +110,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          */
         const result = {
             replaceOne: {
-                filter: {_id: doc._id},
+                filter: { _id: doc._id },
                 replacement: doc,
                 upsert: true
             }
@@ -141,7 +141,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
                 // batch up the calls to update
-            const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
+            const result = { updateOne: { filter: { _id: doc._id }, update: { $set: setCommand } } };
             operations.push(result);
         }
 
@@ -184,8 +184,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                  */
                 const query = {
                     $and: [
-                        {'recorded': {$gt: recordedAfterForLoop.utc().toDate()}},
-                        {'recorded': {$lt: recordedBeforeForLoop.utc().toDate()}}
+                        { 'recorded': { $gt: recordedAfterForLoop.utc().toDate() } },
+                        { 'recorded': { $lt: recordedBeforeForLoop.utc().toDate() } }
                     ]
                 };
                 try {
@@ -201,8 +201,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                      */
                     const db = client.db(config.db_name);
                     let destinationCollectionExists = await db.listCollections(
-                        {name: destinationCollectionName},
-                        {nameOnly: true}
+                        { name: destinationCollectionName },
+                        { nameOnly: true }
                     ).hasNext();
                     if (this.dropDestinationCollection) {
                         if (destinationCollectionExists) {
@@ -231,7 +231,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             $out: destinationCollectionName
                         }
                     ];
-                    this.adminLogger.logInfo('Running aggregation pipeline with specified pipeline', {pipeline});
+                    this.adminLogger.logInfo('Running aggregation pipeline with specified pipeline', { pipeline });
                     const sourceCollection = db.collection(sourceCollectionName);
                     this.adminLogger.logInfo(
                         `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -249,7 +249,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                          * @type {import('mongodb').Document[]}
                          */
                         const documents = await aggregationResult.toArray();
-                        this.adminLogger.logInfo('Aggregation result', {'result': documents});
+                        this.adminLogger.logInfo('Aggregation result', { 'result': documents });
 
                         // get the count
                         this.adminLogger.logInfo(
@@ -301,7 +301,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     }
                     await this.mongoDatabaseManager.disconnectClientAsync(client);
                 } catch (e) {
-                    this.adminLogger.logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
+                    this.adminLogger.logError(`Got error at ${this.startFromIdContainer.startFromId}`, { 'error': e });
                 }
                 this.adminLogger.logInfo(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}\n\n`);
 
@@ -312,7 +312,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             await this.shutdown();
             this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
-            this.adminLogger.logError('ERROR', {'error': e});
+            this.adminLogger.logError('ERROR', { 'error': e });
         }
     }
 }

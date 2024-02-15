@@ -1,14 +1,14 @@
 const deepEqual = require('fast-deep-equal');
-const {mergeObject} = require('../../utils/mergeHelper');
-const {compare, applyPatch} = require('fast-json-patch');
+const { mergeObject } = require('../../utils/mergeHelper');
+const { compare, applyPatch } = require('fast-json-patch');
 const moment = require('moment-timezone');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
-const {getFirstElementOrNull} = require('../../utils/list.util');
-const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {isUuid} = require('../../utils/uid.util');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { getFirstElementOrNull } = require('../../utils/list.util');
+const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { isUuid } = require('../../utils/uid.util');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 
 /**
@@ -65,7 +65,7 @@ class ResourceMerger {
      * constructor
      * @param {PreSaveManager} preSaveManager
      */
-    constructor ({preSaveManager}) {
+    constructor ({ preSaveManager }) {
         /**
          * @type {PreSaveManager}
          */
@@ -78,7 +78,7 @@ class ResourceMerger {
      * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    overWriteNonWritableFields ({currentResource, resourceToMerge}) {
+    overWriteNonWritableFields ({ currentResource, resourceToMerge }) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -155,7 +155,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects ({currentObject, mergedObject, limitToPaths}) {
+    compareObjects ({ currentObject, mergedObject, limitToPaths }) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -195,7 +195,7 @@ class ResourceMerger {
      * @param {UpdateMetaProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    updateMeta ({patched_resource_incoming, currentResource, original_source, incrementVersion}) {
+    updateMeta ({ patched_resource_incoming, currentResource, original_source, incrementVersion }) {
         // update the metadata to increment versionId
         /**
          * @type {Meta}
@@ -227,7 +227,7 @@ class ResourceMerger {
      * @param {ApplyPatchProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    applyPatch ({currentResource, patchContent, original_source, incrementVersion}) {
+    applyPatch ({ currentResource, patchContent, original_source, incrementVersion }) {
         /**
          * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
          */
@@ -243,7 +243,7 @@ class ResourceMerger {
          */
         let patched_resource_incoming = currentResource.create(patched_incoming_data);
 
-        patched_resource_incoming = this.updateMeta({patched_resource_incoming, currentResource, original_source, incrementVersion});
+        patched_resource_incoming = this.updateMeta({ patched_resource_incoming, currentResource, original_source, incrementVersion });
 
         return patched_resource_incoming;
     }
@@ -270,14 +270,14 @@ class ResourceMerger {
         const original_source = resourceToMerge?.meta?.source;
 
         // overwrite fields that should not be changed once resource is created
-        resourceToMerge = this.overWriteNonWritableFields({currentResource, resourceToMerge});
+        resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
         // fix up any data that we normally fix up before saving so the comparison is correct
         await this.preSaveManager.preSaveAsync(resourceToMerge);
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
-            return {updatedResource: null, patches: null};
+            return { updatedResource: null, patches: null };
         }
 
         const currentResourceWithAttachmentData = currentResource.clone();
@@ -307,7 +307,7 @@ class ResourceMerger {
 
         // see if there are any changes
         if (patchContent.length === 0) {
-            return {updatedResource: null, patches: null};
+            return { updatedResource: null, patches: null };
         }
 
         // now apply the patches to the found resource

@@ -27,13 +27,13 @@ const {
     getSearchParameters
 } = require('./utils/params.utils');
 
-const {VERSIONS, INTERACTIONS} = require('./utils/constants');
+const { VERSIONS, INTERACTIONS } = require('./utils/constants');
 
-const {CustomOperationsController} = require('./4_0_0/controllers/operations.controller');
+const { CustomOperationsController } = require('./4_0_0/controllers/operations.controller');
 
 const cors = require('cors');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {NotFoundError} = require('../../utils/httpErrors');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { NotFoundError } = require('../../utils/httpErrors');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
@@ -43,7 +43,7 @@ class FhirRouter {
      * @param {ControllerUtils} controllerUtils
      * @param {CustomOperationsController} customOperationsController
      */
-    constructor ({controllerUtils, customOperationsController}) {
+    constructor ({ controllerUtils, customOperationsController }) {
         assertTypeEquals(controllerUtils, ControllerUtils);
         /**
          * @type {ControllerUtils}

@@ -18,7 +18,7 @@ const path = require('path');
 
 const communicationQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 async function setupDatabaseAsync (
     mongoDatabaseManager,

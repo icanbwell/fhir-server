@@ -11,12 +11,12 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
-const {IdentifierSystem} = require('../../../../utils/identifierSystem');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { RunPreSaveRunner } = require('../../../../admin/runners/runPreSaveRunner');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -39,7 +39,7 @@ async function setupDatabaseAsync (mongoDatabaseManager, explanationOfBenefitRes
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: explanationOfBenefitResource.id});
+    const resource = await collection.findOne({ id: explanationOfBenefitResource.id });
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
@@ -109,7 +109,7 @@ describe('ExplanationOfBenefit Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 1
-            const explanationOfBenefit1 = await collection.findOne({id: explanationOfBenefit1Resource.id});
+            const explanationOfBenefit1 = await collection.findOne({ id: explanationOfBenefit1Resource.id });
             expect(explanationOfBenefit1).toBeDefined();
             delete explanationOfBenefit1._id;
             expect(explanationOfBenefit1._uuid).toBeDefined();

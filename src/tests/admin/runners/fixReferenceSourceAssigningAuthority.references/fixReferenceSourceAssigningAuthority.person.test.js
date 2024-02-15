@@ -17,14 +17,14 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
 const {
     FixReferenceSourceAssigningAuthorityRunner
 } = require('../../../../admin/runners/fixReferenceSourceAssigningAuthorityRunner');
-const {IdentifierSystem} = require('../../../../utils/identifierSystem');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport () {
@@ -48,7 +48,7 @@ async function setupDatabaseAsync (mongoDatabaseManager, personResource, expecte
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: personResource.id});
+    const resource = await collection.findOne({ id: personResource.id });
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
@@ -136,7 +136,7 @@ describe('Person Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const person1 = await collection.findOne({id: person1Resource.id});
+            const person1 = await collection.findOne({ id: person1Resource.id });
             expect(person1).toBeDefined();
             delete person1._id;
             expect(person1._uuid).toBeDefined();
@@ -220,7 +220,7 @@ describe('Person Tests', () => {
             await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
-            const person1 = await collection.findOne({id: person1Resource.id});
+            const person1 = await collection.findOne({ id: person1Resource.id });
             expect(person1).toBeDefined();
             delete person1._id;
             expect(person1._uuid).toBeDefined();

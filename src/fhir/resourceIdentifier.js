@@ -1,4 +1,4 @@
-const {ResourceComparer} = require('./resourceComparer');
+const { ResourceComparer } = require('./resourceComparer');
 
 class ResourceIdentifier {
     /**

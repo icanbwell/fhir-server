@@ -72,7 +72,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -104,7 +104,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -124,7 +124,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.process = FhirResourceCreator.createArray(valueProvided, ExampleScenarioProcess);
             }
         });
@@ -162,7 +162,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioOperation = require('../backbone_elements/exampleScenarioOperation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.operation = FhirResourceCreator.create(valueProvided, ExampleScenarioOperation);
             }
         });
@@ -183,7 +183,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.alternative = FhirResourceCreator.createArray(valueProvided, ExampleScenarioAlternative);
             }
         });
@@ -205,7 +205,7 @@ class ExampleScenarioStep extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -223,12 +223,12 @@ class ExampleScenarioStep extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.process) { await async.each(this.process, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.operation) { await this.operation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.alternative) { await async.each(this.alternative, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.process) { await async.each(this.process, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.operation) { await this.operation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.alternative) { await async.each(this.alternative, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -236,7 +236,7 @@ class ExampleScenarioStep extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

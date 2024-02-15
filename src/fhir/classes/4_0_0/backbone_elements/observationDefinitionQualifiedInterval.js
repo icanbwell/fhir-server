@@ -81,7 +81,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -113,7 +113,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -153,7 +153,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.range = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -174,7 +174,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.context = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -194,7 +194,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.appliesTo = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -233,7 +233,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.age = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -254,7 +254,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.gestationalAge = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -298,7 +298,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -320,14 +320,14 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.range) { await this.range.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.context) { await this.context.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.appliesTo) { await async.each(this.appliesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.age) { await this.age.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.gestationalAge) { await this.gestationalAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.range) { await this.range.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.context) { await this.context.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.appliesTo) { await async.each(this.appliesTo, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.age) { await this.age.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.gestationalAge) { await this.gestationalAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -335,7 +335,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

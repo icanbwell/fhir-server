@@ -1,14 +1,14 @@
-const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
-const {ChatGPTDocument} = require('../structures/chatgptDocument');
-const {ChatGPTMeta} = require('../structures/chatgptMeta');
-const {RethrownError} = require('../../utils/rethrownError');
+const { BaseFhirToDocumentConverter } = require('./baseFhirToDocumentConverter');
+const { ChatGPTDocument } = require('../structures/chatgptDocument');
+const { ChatGPTMeta } = require('../structures/chatgptMeta');
+const { RethrownError } = require('../../utils/rethrownError');
 
 class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * constructor
      * @param {ResourceConverterFactory} resourceConverterFactory
      */
-    constructor ({resourceConverterFactory}) {
+    constructor ({ resourceConverterFactory }) {
         super();
         /**
          * @type {ResourceConverterFactory}
@@ -24,7 +24,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
      * @returns {Promise<ChatGPTDocument[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async convertBundleToDocumentsAsync ({parentResourceType, parentUuid, bundle}) {
+    async convertBundleToDocumentsAsync ({ parentResourceType, parentUuid, bundle }) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -46,7 +46,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                         resource
                     }
                 );
-                const content = resourceConverter ? resourceConverter.convert({resource}) : JSON.stringify(resource);
+                const content = resourceConverter ? resourceConverter.convert({ resource }) : JSON.stringify(resource);
                 documents.push(
                     new ChatGPTDocument(
                         {
@@ -65,7 +65,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
             } catch (e) {
                 throw new RethrownError({
                     message: `Error in convertBundleToDocumentsAsync(): ${e.message}`, error: e,
-                    args: {parentResourceType, parentUuid, resource: resource.toJSONInternal()}
+                    args: { parentResourceType, parentUuid, resource: resource.toJSONInternal() }
                 });
             }
         }

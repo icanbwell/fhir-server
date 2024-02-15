@@ -18,7 +18,7 @@ class DatabaseAttachmentManager {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {ConfigManager} configManager
     */
-    constructor ({mongoDatabaseManager, configManager}) {
+    constructor ({ mongoDatabaseManager, configManager }) {
         /**
          * @type {MongoDatabaseManager}
         */
@@ -181,7 +181,7 @@ class DatabaseAttachmentManager {
                     stream.push(null);
                     const gridFSResult = pipeline(
                         stream,
-                        gridFSBucket.openUploadStream(filename, {metadata}),
+                        gridFSBucket.openUploadStream(filename, { metadata }),
                         (err) => {
                             if (err) {
                                 reject(err);

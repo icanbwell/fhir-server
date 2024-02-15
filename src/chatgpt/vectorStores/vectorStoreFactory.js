@@ -1,5 +1,5 @@
-const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
-const {assertTypeEquals} = require('../../utils/assertType');
+const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
+const { assertTypeEquals } = require('../../utils/assertType');
 
 /**
  * @classdesc Base factory to create a vector store from documents

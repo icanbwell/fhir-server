@@ -1,12 +1,12 @@
 /**
  * simple test for the app
  */
-const {createTestRequest} = require('./tests/common');
+const { createTestRequest } = require('./tests/common');
 
-const {Kafka} = require('kafkajs');
-const {describe, beforeAll, afterAll, test, jest, expect} = require('@jest/globals');
+const { Kafka } = require('kafkajs');
+const { describe, beforeAll, afterAll, test, jest, expect } = require('@jest/globals');
 const env = require('var');
-const {KafkaClient} = require('./utils/kafkaClient');
+const { KafkaClient } = require('./utils/kafkaClient');
 
 // Mocking connect and disconnect methods of producer class
 const mockProducerMethods = {
@@ -44,7 +44,7 @@ class MockKafkaClient extends KafkaClient {
      * @param {InitProps}
      */
     // eslint-disable-next-line no-unused-vars
-    init ({clientId, brokers, ssl, sasl}) {
+    init ({ clientId, brokers, ssl, sasl }) {
         // do nothing
         this.client = new (require('kafkajs').Kafka)();
 
@@ -73,12 +73,12 @@ describe('#app', () => {
 
     test('it should startup and return health check status ok', async () => {
         const request = await createTestRequest((c) => {
-            c.register('kafkaClient', () => new MockKafkaClient({configManager: c.configManager}));
+            c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
             return c;
         });
         const response = await request.get('/health');
         expect(response.status).toBe(200);
-        expect(response.body).toMatchObject({status: 'OK'});
+        expect(response.body).toMatchObject({ status: 'OK' });
     });
 
     test('it should startup check kafka health and return health check status ok', async () => {
@@ -89,13 +89,13 @@ describe('#app', () => {
         env.ENABLE_KAFKA_HEALTHCHECK = '1';
 
         let request = await createTestRequest((c) => {
-            c.register('kafkaClient', () => new MockKafkaClient({configManager: c.configManager}));
+            c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
             return c;
         });
         let response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
-        expect(response.body).toMatchObject({status: 'OK'});
+        expect(response.body).toMatchObject({ status: 'OK' });
         // Kafka class has been called
         expect(Kafka).toHaveBeenCalledTimes(1);
         // A connection request is being made
@@ -108,7 +108,7 @@ describe('#app', () => {
         response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
-        expect(response.body).toMatchObject({status: 'OK'});
+        expect(response.body).toMatchObject({ status: 'OK' });
         // Since the request has been made with 30 seconds of the previous request. Kafka class won't be called
         expect(Kafka).toHaveBeenCalledTimes(0);
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(0);
@@ -118,13 +118,13 @@ describe('#app', () => {
         jest.restoreAllMocks();
         jest.advanceTimersByTime(40000);
         request = await createTestRequest((c) => {
-            c.register('kafkaClient', () => new MockKafkaClient({configManager: c.configManager}));
+            c.register('kafkaClient', () => new MockKafkaClient({ configManager: c.configManager }));
             return c;
         });
         response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
-        expect(response.body).toMatchObject({status: 'OK'});
+        expect(response.body).toMatchObject({ status: 'OK' });
         // Since the KafkaClient is being stored in a variable. Kafka class won't be called.
         expect(Kafka).toHaveBeenCalledTimes(0);
         // Ensuring the connect() is being called.

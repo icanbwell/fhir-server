@@ -74,7 +74,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +106,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +126,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.substance = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -146,7 +146,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.strength = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -166,7 +166,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.strengthLowLimit = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -204,7 +204,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.country = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -227,7 +227,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -246,13 +246,13 @@ class MedicinalProductIngredientReferenceStrength extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.substance) { await this.substance.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.strength) { await this.strength.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.strengthLowLimit) { await this.strengthLowLimit.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.country) { await async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.substance) { await this.substance.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.strength) { await this.strength.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.strengthLowLimit) { await this.strengthLowLimit.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.country) { await async.each(this.country, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -260,7 +260,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

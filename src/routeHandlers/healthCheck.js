@@ -2,7 +2,7 @@
  * This route handler implements the /health endpoint which returns the health of the system
  */
 
-const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
+const { handleKafkaHealthCheck } = require('../utils/kafkaHealthCheck');
 
 let container;
 
@@ -21,5 +21,5 @@ module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
         // kafka health check failed
         status = 'Failed';
     }
-    return res.json({status});
+    return res.json({ status });
 };

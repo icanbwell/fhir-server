@@ -25,7 +25,7 @@ class ResourceWithId {
         if (references.length !== 2) {
             return null;
         }
-        return {resourceType: references[0], id: references[1]};
+        return { resourceType: references[0], id: references[1] };
     }
 
     /**

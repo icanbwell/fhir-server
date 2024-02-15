@@ -73,7 +73,7 @@ class CoverageEligibilityResponseInsurance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +105,7 @@ class CoverageEligibilityResponseInsurance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +127,7 @@ class CoverageEligibilityResponseInsurance extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.coverage = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -166,7 +166,7 @@ class CoverageEligibilityResponseInsurance extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.benefitPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -187,7 +187,7 @@ class CoverageEligibilityResponseInsurance extends Element {
                     return;
                 }
                 const CoverageEligibilityResponseItem = require('../backbone_elements/coverageEligibilityResponseItem.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.item = FhirResourceCreator.createArray(valueProvided, CoverageEligibilityResponseItem);
             }
         });
@@ -209,7 +209,7 @@ class CoverageEligibilityResponseInsurance extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -227,12 +227,12 @@ class CoverageEligibilityResponseInsurance extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.coverage) { await this.coverage.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.benefitPeriod) { await this.benefitPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.item) { await async.each(this.item, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.coverage) { await this.coverage.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.benefitPeriod) { await this.benefitPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.item) { await async.each(this.item, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -240,7 +240,7 @@ class CoverageEligibilityResponseInsurance extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

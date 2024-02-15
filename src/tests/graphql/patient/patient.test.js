@@ -46,9 +46,9 @@ const {
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
-const {cleanMeta} = require('../../customMatchers');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
+const { cleanMeta } = require('../../customMatchers');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
     get enableTwoStepOptimization () {
@@ -91,35 +91,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -171,35 +171,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -251,35 +251,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -326,35 +326,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -392,7 +392,7 @@ describe('GraphQL Patient Tests', () => {
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
@@ -426,35 +426,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -496,35 +496,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -568,35 +568,35 @@ describe('GraphQL Patient Tests', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders());
             // noinspection JSUnresolvedFunction

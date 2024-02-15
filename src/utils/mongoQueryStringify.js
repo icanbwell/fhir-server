@@ -3,8 +3,8 @@
  * @param {Object} query
  * @returns {string|undefined}
  */
-const {assertIsValid} = require('./assertType');
-const {BadRequestError} = require('./httpErrors');
+const { assertIsValid } = require('./assertType');
+const { BadRequestError } = require('./httpErrors');
 const mongoQueryStringify = (query) => {
     const isArray = (value) => {
         return Array.isArray(value) && typeof value === 'object';
@@ -165,7 +165,7 @@ const mongoQueryAndOptionsStringifySingleQuery = (
  * @returns {string|undefined}
  */
 const mongoQueryAndOptionsStringify = (
-    {query, options}
+    { query, options }
 ) => {
     if (Array.isArray(query)) {
         let result = '';

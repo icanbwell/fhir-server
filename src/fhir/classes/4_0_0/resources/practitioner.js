@@ -102,7 +102,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -166,7 +166,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -188,7 +188,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -212,7 +212,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -244,7 +244,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -264,7 +264,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -302,7 +302,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.name = FhirResourceCreator.createArray(valueProvided, HumanName);
             }
         });
@@ -323,7 +323,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
@@ -346,7 +346,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.address = FhirResourceCreator.createArray(valueProvided, Address);
             }
         });
@@ -403,7 +403,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.photo = FhirResourceCreator.createArray(valueProvided, Attachment);
             }
         });
@@ -426,7 +426,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const PractitionerQualification = require('../backbone_elements/practitionerQualification.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.qualification = FhirResourceCreator.createArray(valueProvided, PractitionerQualification);
             }
         });
@@ -446,7 +446,7 @@ class Practitioner extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.communication = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -641,7 +641,7 @@ class Practitioner extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -671,19 +671,19 @@ class Practitioner extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.name) { await async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.address) { await async.each(this.address, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.photo) { await async.each(this.photo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.qualification) { await async.each(this.qualification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.communication) { await async.each(this.communication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.name) { await async.each(this.name, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.address) { await async.each(this.address, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.photo) { await async.each(this.photo, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.qualification) { await async.each(this.qualification, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.communication) { await async.each(this.communication, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
@@ -691,7 +691,7 @@ class Practitioner extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

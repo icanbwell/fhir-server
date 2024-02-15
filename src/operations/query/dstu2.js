@@ -5,7 +5,7 @@
  */
 module.exports.buildDstu2SearchQuery = (args) => {
     // Common search params
-    const {id} = args;
+    const { id } = args;
 
     // Search Result params
 

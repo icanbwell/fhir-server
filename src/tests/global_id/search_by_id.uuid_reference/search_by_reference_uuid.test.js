@@ -8,9 +8,9 @@ const expectedPatient1Resource = require('./fixtures/expected/expected_patient.j
 const expectedResult = require('./fixtures/expected/expected_result.json');
 const expectedResultWithId = require('./fixtures/expected/expected_result_with_id.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Encounter Tests', () => {
     beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('Encounter Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get(`/4_0_0/Patient/${patient1Resource.id}`)
@@ -50,7 +50,7 @@ describe('Encounter Tests', () => {
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get(`/4_0_0/Encounter/${encounter1Resource.id}`)

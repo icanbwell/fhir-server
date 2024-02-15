@@ -10,8 +10,8 @@ const {
     getHeaders,
     createTestRequest, getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {VERSIONS} = require('../../../middleware/fhir/utils/constants');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { VERSIONS } = require('../../../middleware/fhir/utils/constants');
 
 describe('Measure Tests', () => {
     beforeEach(async () => {
@@ -32,14 +32,14 @@ describe('Measure Tests', () => {
                 .send(measure1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Measure/$merge')
                 .send(measure2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Measure/?_bundle=1')
@@ -59,7 +59,7 @@ describe('Measure Tests', () => {
             const resourceType = 'Measure';
             const collection = db.collection(`${resourceType}_${VERSIONS['4_0_0']}`);
 
-            const measure = await collection.findOne({id: 'AWVCNE2'});
+            const measure = await collection.findOne({ id: 'AWVCNE2' });
             expect(measure).not.toBeUndefined();
 
             resp = await request

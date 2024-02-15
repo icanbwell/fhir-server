@@ -76,7 +76,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +108,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -130,7 +130,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outcomeCodeableConcept = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -154,7 +154,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outcomeReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -174,7 +174,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.progress = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
@@ -194,7 +194,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -216,7 +216,7 @@ class CarePlanActivity extends Element {
                     return;
                 }
                 const CarePlanDetail = require('../backbone_elements/carePlanDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detail = FhirResourceCreator.create(valueProvided, CarePlanDetail);
             }
         });
@@ -239,7 +239,7 @@ class CarePlanActivity extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -258,14 +258,14 @@ class CarePlanActivity extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.outcomeCodeableConcept) { await async.each(this.outcomeCodeableConcept, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.outcomeReference) { await async.each(this.outcomeReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.progress) { await async.each(this.progress, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.reference) { await this.reference.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.detail) { await this.detail.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.outcomeCodeableConcept) { await async.each(this.outcomeCodeableConcept, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.outcomeReference) { await async.each(this.outcomeReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.progress) { await async.each(this.progress, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.reference) { await this.reference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.detail) { await this.detail.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -273,7 +273,7 @@ class CarePlanActivity extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

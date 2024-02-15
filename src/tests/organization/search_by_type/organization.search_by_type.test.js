@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Organization Everything Tests', () => {
     beforeEach(async () => {
@@ -35,7 +35,7 @@ describe('Organization Everything Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/1234/$merge')
@@ -43,7 +43,7 @@ describe('Organization Everything Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get(

@@ -1,4 +1,4 @@
-const {BaseFilter} = require('./baseFilter');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * @classdesc filters by above FHIR search parameters

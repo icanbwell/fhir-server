@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {AccessIndexManager} = require('./accessIndexManager');
-const {ResourceManager} = require('./resourceManager');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { AccessIndexManager } = require('./accessIndexManager');
+const { ResourceManager } = require('./resourceManager');
 
 class ResourcePreparer {
     /**
@@ -51,7 +51,7 @@ class ResourcePreparer {
      * @param {string} resourceType
      * @return {Resource}
      */
-    selectSpecificElements ({parsedArgs, element, resourceType}) {
+    selectSpecificElements ({ parsedArgs, element, resourceType }) {
         /**
          * @type {string[]|null}
          */
@@ -98,7 +98,7 @@ class ResourcePreparer {
          */
         let resources = [];
         if (parsedArgs.get('_elements')) {
-            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
+            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({ resourceType })) {
                 // TODO: discuss this double check and update accrodingly
                 // if the whole resource is returned then we have security tags to check again to be double sure
                 // if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(

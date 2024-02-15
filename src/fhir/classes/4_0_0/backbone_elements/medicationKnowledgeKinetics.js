@@ -70,7 +70,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -102,7 +102,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -122,7 +122,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.areaUnderCurve = FhirResourceCreator.createArray(valueProvided, Quantity);
             }
         });
@@ -142,7 +142,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.lethalDose50 = FhirResourceCreator.createArray(valueProvided, Quantity);
             }
         });
@@ -163,7 +163,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.halfLifePeriod = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -184,7 +184,7 @@ class MedicationKnowledgeKinetics extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -201,12 +201,12 @@ class MedicationKnowledgeKinetics extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.areaUnderCurve) { await async.each(this.areaUnderCurve, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.lethalDose50) { await async.each(this.lethalDose50, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.halfLifePeriod) { await this.halfLifePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.areaUnderCurve) { await async.each(this.areaUnderCurve, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.lethalDose50) { await async.each(this.lethalDose50, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.halfLifePeriod) { await this.halfLifePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -214,7 +214,7 @@ class MedicationKnowledgeKinetics extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

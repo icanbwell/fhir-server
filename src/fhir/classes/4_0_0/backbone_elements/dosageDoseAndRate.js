@@ -78,7 +78,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -110,7 +110,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -130,7 +130,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -150,7 +150,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.doseRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -170,7 +170,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.doseQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -190,7 +190,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.rateRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -210,7 +210,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.rateRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -230,7 +230,7 @@ class DosageDoseAndRate extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.rateQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -254,7 +254,7 @@ class DosageDoseAndRate extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -274,15 +274,15 @@ class DosageDoseAndRate extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.doseRange) { await this.doseRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.doseQuantity) { await this.doseQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.rateRatio) { await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.rateRange) { await this.rateRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.rateQuantity) { await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.doseRange) { await this.doseRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.doseQuantity) { await this.doseQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.rateRatio) { await this.rateRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.rateRange) { await this.rateRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.rateQuantity) { await this.rateQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -290,7 +290,7 @@ class DosageDoseAndRate extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

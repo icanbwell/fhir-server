@@ -1,29 +1,29 @@
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {ResourceValidator} = require('../common/resourceValidator');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ResourceMerger} = require('../common/resourceMerger');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {ConfigManager} = require('../../utils/configManager');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { NotValidatedError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { ResourceValidator } = require('../common/resourceValidator');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ResourceMerger } = require('../common/resourceMerger');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 
 /**
  * Update Operation
@@ -148,7 +148,7 @@ class UpdateOperation {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async updateAsync ({requestInfo, parsedArgs, resourceType}) {
+    async updateAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -196,7 +196,7 @@ class UpdateOperation {
          * @type {Object}
          */
         const resource_incoming_json = body;
-        const {base_version, id} = parsedArgs;
+        const { base_version, id } = parsedArgs;
 
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
@@ -232,7 +232,7 @@ class UpdateOperation {
                     resourceObj: resource_incoming
                 });
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 if (this.configManager.logValidationFailures) {
                     await sendToS3('validation_failures',
                         resourceType,
@@ -279,7 +279,7 @@ class UpdateOperation {
 
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
 
             /**
@@ -346,7 +346,7 @@ class UpdateOperation {
                         foundResource.resourceType + ' with id ' + id);
                 }
 
-                const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
+                const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
@@ -380,7 +380,7 @@ class UpdateOperation {
                 // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
-                await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
+                await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
             }
 
             if (doc) {

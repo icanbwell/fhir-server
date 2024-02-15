@@ -8,14 +8,14 @@ const {
     getHeaders,
     createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 const nock = require('nock');
 const USCorePractitionerProfile = require('./fixtures/us_core_profile_practitioner.json');
 const validPractitionerResourceWithProfile = require('./fixtures/valid_practitioner_with_profile.json');
 const expectedValidPractitionerResponseWithProfile = require('./expected/valid_practitioner_response_with_profile.json');
 const deepcopy = require('deepcopy');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const invalidPractitionerResource = require('./fixtures/invalid_practitioner.json');
 const invalidPractitionerResource1 = require('./fixtures/invalid_practitioner_1.json');
 const invalidPractitionerResource2 = require('./fixtures/invalid_practitioner_2.json');
@@ -86,7 +86,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate')
@@ -158,7 +158,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate')
@@ -231,7 +231,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -315,14 +315,14 @@ describe('Practitioner Update Tests', () => {
                 .send(profile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/$merge')
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -403,7 +403,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -488,7 +488,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -567,7 +567,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource1)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // http://hl7.org/fhir/us/core/StructureDefinition/invalid
             const getProfileScopeInternal = nock('http://hl7.org')
@@ -654,7 +654,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // http://hl7.org/fhir/us/core/StructureDefinition/invalid
             const getProfileScopeInternal = nock('http://hl7.org')

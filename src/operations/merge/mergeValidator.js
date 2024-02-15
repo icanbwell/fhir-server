@@ -1,4 +1,4 @@
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 class MergeValidator {
     /**
@@ -75,7 +75,7 @@ class MergeValidator {
             mergePreCheckErrors.push(...preCheckErrors);
         }
 
-        return {mergePreCheckErrors, resourcesIncomingArray: incomingResources, wasIncomingAList};
+        return { mergePreCheckErrors, resourcesIncomingArray: incomingResources, wasIncomingAList };
     }
 }
 

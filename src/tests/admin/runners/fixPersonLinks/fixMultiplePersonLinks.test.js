@@ -15,7 +15,7 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { assertTypeEquals } = require('../../../../utils/assertType');

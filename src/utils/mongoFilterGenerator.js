@@ -1,5 +1,5 @@
-const {assertTypeEquals} = require('./assertType');
-const {ConfigManager} = require('./configManager');
+const { assertTypeEquals } = require('./assertType');
+const { ConfigManager } = require('./configManager');
 
 /**
  * @classdesc Generates filters for use in Mongo queries
@@ -26,11 +26,11 @@ class MongoFilterGenerator {
      * @param {SecurityTagStructure} securityTagStructure
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    generateFilterForIdAndSecurityTags ({id, securityTagStructure}) {
+    generateFilterForIdAndSecurityTags ({ id, securityTagStructure }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
-        let filter = {'id': id.toString()};
+        let filter = { 'id': id.toString() };
         if (this.configManager.enableGlobalIdSupport && securityTagStructure.sourceAssigningAuthority.length > 0) {
             /**
              * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
@@ -45,10 +45,10 @@ class MongoFilterGenerator {
                         }
                     )
                 } :
-                {'_sourceAssigningAuthority': securityTagStructure.sourceAssigningAuthority[0]};
+                { '_sourceAssigningAuthority': securityTagStructure.sourceAssigningAuthority[0] };
             filter = {
                 $and: [
-                    {'_sourceId': id.toString()},
+                    { '_sourceId': id.toString() },
                     sourceAssigningAuthorityFilter
                 ]
             };
@@ -61,11 +61,11 @@ class MongoFilterGenerator {
      * @param {string} uuid
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    generateFilterForUuid ({uuid}) {
+    generateFilterForUuid ({ uuid }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
-        const filter = {'_uuid': uuid.toString()};
+        const filter = { '_uuid': uuid.toString() };
         return filter;
     }
 }

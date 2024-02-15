@@ -1,5 +1,5 @@
 const moment = require('moment-timezone');
-const {BasePartitioner} = require('./basePartitioner');
+const { BasePartitioner } = require('./basePartitioner');
 
 /**
  * @classdesc this partitioner partitions a collection by year & month
@@ -11,7 +11,7 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {string} resourceWithBaseVersion
      * @returns {string}
      */
-    static getPartitionNameFromYearMonth ({fieldValue, resourceWithBaseVersion}) {
+    static getPartitionNameFromYearMonth ({ fieldValue, resourceWithBaseVersion }) {
         const fieldDate = new Date(fieldValue);
         const year = fieldDate.getUTCFullYear();
         const month = fieldDate.getUTCMonth() + 1; // 0 indexed
@@ -26,14 +26,14 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {string} resourceWithBaseVersion
      * @returns {Promise<string>}
      */
-    async getPartitionByResourceAsync ({resource, field, resourceWithBaseVersion}) {
+    async getPartitionByResourceAsync ({ resource, field, resourceWithBaseVersion }) {
         // get value of field
         const fieldValue = resource[`${field}`];
         if (!fieldValue) {
             return resourceWithBaseVersion;
         } else {
             return YearMonthPartitioner.getPartitionNameFromYearMonth(
-                {fieldValue, resourceWithBaseVersion});
+                { fieldValue, resourceWithBaseVersion });
         }
     }
 

@@ -120,7 +120,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -184,7 +184,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -206,7 +206,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -230,7 +230,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -262,7 +262,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -282,7 +282,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -302,7 +302,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -322,7 +322,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.status = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -342,7 +342,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.domain = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -380,7 +380,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -418,7 +418,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.moiety = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationMoiety);
             }
         });
@@ -439,7 +439,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.property = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationProperty);
             }
         });
@@ -459,7 +459,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referenceInformation = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -479,7 +479,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationStructure = require('../backbone_elements/substanceSpecificationStructure.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.structure = FhirResourceCreator.create(valueProvided, SubstanceSpecificationStructure);
             }
         });
@@ -499,7 +499,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationCode);
             }
         });
@@ -519,7 +519,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.name = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationName);
             }
         });
@@ -540,7 +540,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.molecularWeight = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationMolecularWeight);
             }
         });
@@ -560,7 +560,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.relationship = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationRelationship);
             }
         });
@@ -580,7 +580,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.nucleicAcid = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -600,7 +600,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.polymer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -620,7 +620,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.protein = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -640,7 +640,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.sourceMaterial = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -871,7 +871,7 @@ class SubstanceSpecification extends Resource {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -910,29 +910,29 @@ class SubstanceSpecification extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.status) { await this.status.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.domain) { await this.domain.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.moiety) { await async.each(this.moiety, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.property) { await async.each(this.property, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.referenceInformation) { await this.referenceInformation.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.structure) { await this.structure.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.name) { await async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.molecularWeight) { await async.each(this.molecularWeight, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.relationship) { await async.each(this.relationship, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.nucleicAcid) { await this.nucleicAcid.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.polymer) { await this.polymer.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.protein) { await this.protein.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.sourceMaterial) { await this.sourceMaterial.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.status) { await this.status.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.domain) { await this.domain.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.moiety) { await async.each(this.moiety, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.property) { await async.each(this.property, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.referenceInformation) { await this.referenceInformation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.structure) { await this.structure.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.name) { await async.each(this.name, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.molecularWeight) { await async.each(this.molecularWeight, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.relationship) { await async.each(this.relationship, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.nucleicAcid) { await this.nucleicAcid.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.polymer) { await this.polymer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.protein) { await this.protein.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.sourceMaterial) { await this.sourceMaterial.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -940,7 +940,7 @@ class SubstanceSpecification extends Resource {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,

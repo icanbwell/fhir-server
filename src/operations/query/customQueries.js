@@ -1,7 +1,7 @@
 /**
  * This file defines the custom query filters
  */
-const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
+const { SearchParameterDefinition } = require('../../searchParameters/searchParameterTypes');
 /**
  * This is the enum for the types of filters we support
  * @type {Object.<string, SearchParameterDefinitionType>}

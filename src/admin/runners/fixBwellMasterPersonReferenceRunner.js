@@ -134,7 +134,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             }
                         }
                     }
-                    return {...link, target: reference};
+                    return { ...link, target: reference };
                     // remove duplicate fields as they were duplicates
                 }).filter(link => {
                     if (uuidSet.has(link.target._uuid)) {
@@ -366,7 +366,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     const query = this.getQueryForResource(isHistoryCollection);
 
                     if (isHistoryCollection) {
-                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                        await this.addIndexesToCollection({ collectionName, mongoConfig });
                     }
                     const startFromIdContainer = this.createStartFromIdContainer();
 

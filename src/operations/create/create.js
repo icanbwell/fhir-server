@@ -1,25 +1,25 @@
-const {logDebug} = require('../common/logging');
-const {generateUUID} = require('../../utils/uid.util');
+const { logDebug } = require('../common/logging');
+const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {ResourceValidator} = require('../common/resourceValidator');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ConfigManager} = require('../../utils/configManager');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { ResourceValidator } = require('../common/resourceValidator');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ConfigManager } = require('../../utils/configManager');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 
 class CreateOperation {
     /**
@@ -123,7 +123,7 @@ class CreateOperation {
      * @returns {Resource}
      */
     // eslint-disable-next-line no-unused-vars
-    async createAsync ({requestInfo, parsedArgs, path, resourceType}) {
+    async createAsync ({ requestInfo, parsedArgs, path, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -132,7 +132,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method, /** @type {string} */ userRequestId } = requestInfo;
+        const { user, body, /** @type {string} */ requestId, /** @type {string} */ method, /** @type {string} */ userRequestId } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -155,7 +155,7 @@ class CreateOperation {
             );
         }
 
-        const {base_version} = parsedArgs;
+        const { base_version } = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
@@ -193,7 +193,7 @@ class CreateOperation {
                     resourceObj: resource
                 });
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -238,7 +238,7 @@ class CreateOperation {
              * @type {Resource}
              */
             const doc = resource;
-            Object.assign(doc, {id: resource_incoming.id});
+            Object.assign(doc, { id: resource_incoming.id });
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -257,10 +257,10 @@ class CreateOperation {
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
-            logDebug('Inserting', {user, args: {doc: doc}});
+            logDebug('Inserting', { user, args: { doc: doc } });
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
+            await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
             /**
              * @type {MergeResultEntry[]}
              */

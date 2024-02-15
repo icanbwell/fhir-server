@@ -104,7 +104,7 @@ class TimingRepeat extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -136,7 +136,7 @@ class TimingRepeat extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -156,7 +156,7 @@ class TimingRepeat extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.boundsDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -176,7 +176,7 @@ class TimingRepeat extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.boundsRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -196,7 +196,7 @@ class TimingRepeat extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.boundsPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -499,7 +499,7 @@ class TimingRepeat extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -530,12 +530,12 @@ class TimingRepeat extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.boundsDuration) { await this.boundsDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.boundsRange) { await this.boundsRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.boundsPeriod) { await this.boundsPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.boundsDuration) { await this.boundsDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.boundsRange) { await this.boundsRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.boundsPeriod) { await this.boundsPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -543,7 +543,7 @@ class TimingRepeat extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

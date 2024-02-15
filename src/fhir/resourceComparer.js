@@ -5,7 +5,7 @@ class ResourceComparer {
      * @param {{id:string, resourceType: string, _uuid: string, _sourceAssigningAuthority: string}} second
      * @return {boolean}
      */
-    static isSameResourceByIdAndSecurityTag ({first, second}) {
+    static isSameResourceByIdAndSecurityTag ({ first, second }) {
         if (first.resourceType !== second.resourceType) {
             return false;
         }

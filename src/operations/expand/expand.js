@@ -1,14 +1,14 @@
-const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ValueSetManager} = require('../../utils/valueSet.util');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { ValueSetManager } = require('../../utils/valueSet.util');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { RETRIEVE } = require('../../constants').GRIDFS;
 
 class ExpandOperation {
     /**
@@ -79,7 +79,7 @@ class ExpandOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expandAsync ({requestInfo, parsedArgs, resourceType}) {
+    async expandAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -89,7 +89,7 @@ class ExpandOperation {
          */
         const startTime = Date.now();
 
-        const {user, scope} = requestInfo;
+        const { user, scope } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -101,8 +101,8 @@ class ExpandOperation {
         });
 
         // Common search params
-        const {id} = parsedArgs;
-        const {base_version} = parsedArgs;
+        const { id } = parsedArgs;
+        const { base_version } = parsedArgs;
 
         const query = {};
         query.id = id;
@@ -112,8 +112,8 @@ class ExpandOperation {
         let resource;
         try {
             resource = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findOneAsync({query: {id: id.toString()}});
+                { resourceType, base_version }
+            ).findOneAsync({ query: { id: id.toString() } });
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,

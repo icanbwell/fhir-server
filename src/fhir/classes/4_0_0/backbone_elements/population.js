@@ -76,7 +76,7 @@ class Population extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +108,7 @@ class Population extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -128,7 +128,7 @@ class Population extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.ageRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -148,7 +148,7 @@ class Population extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.ageCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -168,7 +168,7 @@ class Population extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.gender = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -188,7 +188,7 @@ class Population extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.race = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -209,7 +209,7 @@ class Population extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.physiologicalCondition = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -232,7 +232,7 @@ class Population extends Element {
      * @return {Object}
      */
     toJSON () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -251,14 +251,14 @@ class Population extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
-            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
-            if (this.ageRange) { await this.ageRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.ageCodeableConcept) { await this.ageCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.gender) { await this.gender.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.race) { await this.race.updateReferencesAsync({fnUpdateReferenceAsync}); }
-            if (this.physiologicalCondition) { await this.physiologicalCondition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.ageRange) { await this.ageRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.ageCodeableConcept) { await this.ageCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.gender) { await this.gender.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.race) { await this.race.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.physiologicalCondition) { await this.physiologicalCondition.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
@@ -266,7 +266,7 @@ class Population extends Element {
      * @return {Object}
      */
     toJSONInternal () {
-        const {removeNull} = require('../../../../utils/nullRemover');
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),

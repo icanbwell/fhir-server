@@ -1,13 +1,13 @@
-const {validateResource} = require('../utils/validator.util');
-const {assertFail, assertIsValid} = require('../utils/assertType');
-const {diff} = require('jest-diff');
+const { validateResource } = require('../utils/validator.util');
+const { assertFail, assertIsValid } = require('../utils/assertType');
+const { diff } = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
-const {expect} = require('@jest/globals');
+const { expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
-const {ndjsonToJsonText} = require('ndjson-to-json-text');
-const {fhirContentTypes} = require('../utils/contentTypes');
-const {csv2json} = require('csv42');
+const { YearMonthPartitioner } = require('../partitioners/yearMonthPartitioner');
+const { ndjsonToJsonText } = require('ndjson-to-json-text');
+const { fhirContentTypes } = require('../utils/contentTypes');
+const { csv2json } = require('csv42');
 
 /**
  * @typedef JestUtils
@@ -24,7 +24,7 @@ function cleanMeta (resource) {
      * @type {string}
      */
     const auditCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-        {fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0'}
+        { fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0' }
     );
 
     if (resource.meta && resource.meta.tag) {
@@ -71,7 +71,7 @@ function cleanRequestId (request) {
  * @param {boolean} ignoreMetaTags
  * @returns {boolean}
  */
-function compareBundles ({body, expected, fnCleanResource, ignoreMetaTags = false}) {
+function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = false }) {
     // logInfo(body);
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -160,17 +160,17 @@ function compareBundles ({body, expected, fnCleanResource, ignoreMetaTags = fals
  * @param [fnCleanResource]
  * @returns {{actual, pass: boolean, expected, message: {(): string, (): string}}}
  */
-function checkContent ({actual, expected, utils, options, expand, fnCleanResource}) {
+function checkContent ({ actual, expected, utils, options, expand, fnCleanResource }) {
     let pass = false;
     if (!(Array.isArray(actual)) && actual.resourceType === 'Bundle') {
         if (!Array.isArray(expected)) {
-            pass = compareBundles({body: actual, expected, fnCleanResource});
+            pass = compareBundles({ body: actual, expected, fnCleanResource });
         } else {
             pass = deepEqual(actual.entry.map(e => e.resource), expected);
         }
     } else if (!(Array.isArray(expected)) && expected.resourceType === 'Bundle') {
         if (!Array.isArray(actual)) {
-            pass = compareBundles({body: actual, expected, fnCleanResource});
+            pass = compareBundles({ body: actual, expected, fnCleanResource });
         } else {
             pass = deepEqual(actual, expected.entry.map(e => e.resource));
         }
@@ -207,7 +207,7 @@ function checkContent ({actual, expected, utils, options, expand, fnCleanResourc
                         `Received: ${utils.printReceived(actual)}`))
             );
         };
-    return {actual: actual, expected: expected, message, pass};
+    return { actual: actual, expected: expected, message, pass };
 }
 
 /**
@@ -252,7 +252,7 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
                 resourceType: 'Bundle',
                 type: 'searchset',
                 entry: expected.map((e) => {
-                    return {resource: e};
+                    return { resource: e };
                 })
             };
         }
@@ -378,7 +378,7 @@ function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
                 resourceType: 'Bundle',
                 type: 'searchset',
                 entry: expected.map((e) => {
-                    return {resource: e};
+                    return { resource: e };
                 })
             };
         }
@@ -479,7 +479,7 @@ function toHaveStatusCode (resp, expectedStatusCode) {
     const message = pass ? () =>
             `Status Code did match: ${resp.text}`
         : () => `Status Code did not match: ${resp.text}`;
-    return {actual: resp.status, expected: expectedStatusCode, message, pass};
+    return { actual: resp.status, expected: expectedStatusCode, message, pass };
 }
 
 /**
@@ -523,7 +523,7 @@ function toHaveMergeResponse (resp, checks) {
     } catch (e) {
         const pass = false;
         const message = () => `Merge failed: ${JSON.stringify(resp.body)} ${e}`;
-        return {actual: resp.body, expected: checks, message, pass};
+        return { actual: resp.body, expected: checks, message, pass };
     }
     return {
         pass: true,
@@ -563,7 +563,7 @@ function toHaveResourceCount (resp, expected) {
     const message = pass ? () =>
             `Resource count matched: ${resp.text}`
         : () => `Resource count did not match: ${resp.text}`;
-    return {actual: count, expected: expected, message, pass};
+    return { actual: count, expected: expected, message, pass };
 }
 
 // NOTE: Also need to register any new ones with Jest in src/tests/testSetup.js

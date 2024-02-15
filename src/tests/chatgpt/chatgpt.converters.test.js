@@ -7,15 +7,15 @@ dotenv.config({
 
 const patientBundleResource = require('./fixtures/patient.json');
 const patientCondensedBundleResource = require('./fixtures/patient_condensed.json');
-const {describe, test} = require('@jest/globals');
-const {ChatGPTManagerDirect} = require('../../chatgpt/managers/chatgptManagerDirect');
-const {ChatGPTMessage} = require('../../chatgpt/structures/chatgptMessage');
-const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
-const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
-const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
-const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
-const {ConfigManager} = require('../../utils/configManager');
-const {createTestRequest, getTestContainer} = require('../common');
+const { describe, test } = require('@jest/globals');
+const { ChatGPTManagerDirect } = require('../../chatgpt/managers/chatgptManagerDirect');
+const { ChatGPTMessage } = require('../../chatgpt/structures/chatgptMessage');
+const { FhirToJsonDocumentConverter } = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
+const { FhirToCsvDocumentConverter } = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
+const { FhirToSummaryDocumentConverter } = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const { ResourceConverterFactory } = require('../../chatgpt/resourceConverters/resourceConverterFactory');
+const { ConfigManager } = require('../../utils/configManager');
+const { createTestRequest, getTestContainer } = require('../common');
 
 class MockConfigManager extends ConfigManager {
     get writeFhirSummaryToVectorStore () {

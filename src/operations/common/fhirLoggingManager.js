@@ -1,11 +1,11 @@
 const os = require('os');
 const moment = require('moment-timezone');
-const {FhirLogger: fhirLogger} = require('../../utils/fhirLogger');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const { FhirLogger: fhirLogger } = require('../../utils/fhirLogger');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../../constants');
+const { REQUEST_ID_TYPE } = require('../../constants');
 
 class FhirLoggingManager {
     /**
@@ -13,7 +13,7 @@ class FhirLoggingManager {
      * @param {ScopesManager} scopesManager
      * @param {string|null} imageVersion
      */
-    constructor ({scopesManager, imageVersion}) {
+    constructor ({ scopesManager, imageVersion }) {
         /**
          * @type {ScopesManager}
          */
