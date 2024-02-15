@@ -694,6 +694,8 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
     /**
      * Handles the following errors
+     * - Proa Patient directly linked to master person
+     * - Proa Patient linked to multiple Proa Persons
      * - Proa Person not linked to master person
      * - Master Person Related to multiple or No Master Patients
      * - Client Person Related to multiple or No Client Patients
@@ -784,7 +786,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             // check if every masterPerson is related to atleast one client person
             for (const masterPersonUuid of masterPersonUuids) {
                 if (!masterPersonUuid) {
-                    message += 'null, ';
+                    message += `${prefix}Proa Person not linked to master person, `;
                 } else if (
                     !this.masterPersonToClientPersonMap.has(masterPersonUuid) ||
                     this.masterPersonToClientPersonMap.get(masterPersonUuid).length === 0
@@ -829,7 +831,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
             for (const clientPersonUuid of clientPersonUuids) {
                 if (!clientPersonUuid) {
-                    message += 'null, ';
+                    message += `${prefix}Master Person not Linked to Client Person, `;
                 } else if (
                     !this.clientPersonToClientPatientMap.has(clientPersonUuid) ||
                     this.clientPersonToClientPatientMap.get(clientPersonUuid).length === 0
@@ -844,6 +846,28 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             }
 
             if (deleteProaPatient) {
+                this.writeErrorCases({
+                    proaPatientData,
+                    proaPersonsData,
+                    masterPersonsData,
+                    clientPersonsData,
+                    message,
+                });
+
+                this.proaPatientDataMap.delete(proaPatientUuid);
+                return;
+            }
+
+            message = '';
+            if (masterPersonUuids.filter(u => !u).length > 0) {
+                proaPersonUuids.forEach(proaPersonUuid => {
+                    if (this.proaPersonToMasterPersonMap.has(proaPersonUuid)) {
+                        message += `${prefix}Proa Person with Valid Master Person, `;
+                    } else {
+                        message += `${prefix}Proa Person not linked to master person, `;
+                    }
+                });
+
                 this.writeErrorCases({
                     proaPatientData,
                     proaPersonsData,
