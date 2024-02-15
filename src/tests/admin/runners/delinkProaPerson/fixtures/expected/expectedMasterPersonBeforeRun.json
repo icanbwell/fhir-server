@@ -34,6 +34,28 @@
         ],
         "reference": "Person/person1|test"
       }
+    },
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/client1"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/38d42169-3890-5e22-9a49-03491df941f8"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "client"
+          }
+        ],
+        "reference": "Person/client1|client"
+      }
     }
   ],
   "meta": {

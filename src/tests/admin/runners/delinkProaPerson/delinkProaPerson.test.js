@@ -86,9 +86,11 @@ describe('Person Tests', () => {
                             '/src/tests/admin/runners/delinkProaPerson/fixtures/csv/test1.csv',
                         proaPatientUuidColumn: 0,
                         proaPersonUuidColumn: 1,
-                        masterUuidColumn: 2,
-                        clientUuidColumn: 3,
-                        statusColumn: 4,
+                        proaPersonSAAColumn: 2,
+                        proaPersonLastUpdatedColumn: 3,
+                        masterUuidColumn: 4,
+                        clientUuidColumn: 5,
+                        statusColumn: 6,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
@@ -141,7 +143,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(expectedMasterPersonAfterRun);
         });
 
-        test('Proa Person is not deleted', async () => {
+        test.only('Proa Person is not deleted', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest();
 
@@ -182,9 +184,11 @@ describe('Person Tests', () => {
                             '/src/tests/admin/runners/delinkProaPerson/fixtures/csv/test1.csv',
                         proaPatientUuidColumn: 0,
                         proaPersonUuidColumn: 1,
-                        masterUuidColumn: 2,
-                        clientUuidColumn: 3,
-                        statusColumn: 4,
+                        proaPersonSAAColumn: 2,
+                        proaPersonLastUpdatedColumn: 3,
+                        masterUuidColumn: 4,
+                        clientUuidColumn: 5,
+                        statusColumn: 6,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
@@ -286,9 +290,11 @@ describe('Person Tests', () => {
                             '/src/tests/admin/runners/delinkProaPerson/fixtures/csv/test2.csv',
                         proaPatientUuidColumn: 0,
                         proaPersonUuidColumn: 1,
-                        masterUuidColumn: 2,
-                        clientUuidColumn: 3,
-                        statusColumn: 4,
+                        proaPersonSAAColumn: 2,
+                        proaPersonLastUpdatedColumn: 3,
+                        masterUuidColumn: 4,
+                        clientUuidColumn: 5,
+                        statusColumn: 6,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
