@@ -12,6 +12,7 @@ class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
     get enableTwoStepOptimization() {
         return true;
     }
+
     get streamResponse() {
         return false;
     }
@@ -21,6 +22,7 @@ class MockConfigManagerWithTwoStepOptimizationStreaming extends ConfigManager {
     get enableTwoStepOptimization() {
         return true;
     }
+
     get streamResponse() {
         return true;
     }

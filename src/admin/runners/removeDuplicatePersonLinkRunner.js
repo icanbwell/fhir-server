@@ -165,6 +165,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             this.adminLogger.logError(`Got error ${e.message}.  At ${this.startFromIdContainer.startFromId}`);
         }
     }
+
     /**
      * Runs a loop to process all the documents and remove duplicate person links
      * @returns {Promise<void>}

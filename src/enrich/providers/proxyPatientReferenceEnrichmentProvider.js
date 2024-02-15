@@ -19,6 +19,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
     }
+
     /**
      * enrich the specified resources
      * @param {Resource[]} resources

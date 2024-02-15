@@ -13,6 +13,7 @@ class ControllerUtils {
          */
         this.genericController = genericController;
     }
+
     /**
      *
      * @param {string} version

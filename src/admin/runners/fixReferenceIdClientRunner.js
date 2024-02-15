@@ -52,6 +52,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
          */
         this.idCache = new Map();
     }
+
     /**
      * Gets the incomingMessage object and gets data from it and converts it to json format
      * @param {require('http').IncomingMessage} incomingMessage

@@ -70,6 +70,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
          */
         this.proaPatientUUIDToIdOwnerMap = new Map();
     }
+
     /**
      * Fetch proa patient uuid to id & owner map
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig

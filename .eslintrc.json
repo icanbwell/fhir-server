@@ -34,7 +34,6 @@
       "object-curly-newline": "off",
       "array-bracket-spacing": "off",
       "no-useless-computed-key": "off",
-      "lines-between-class-members": "off",
       "no-mixed-operators": "off"
     }
 }

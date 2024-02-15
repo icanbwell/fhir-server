@@ -16,6 +16,7 @@ class FakeLLMFactory extends LLMFactory {
          */
         this.fnCreateLLM = fnCreateLLM;
     }
+
     /**
      * creates a model
      * @param verbose

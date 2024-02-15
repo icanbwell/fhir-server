@@ -39,6 +39,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             this.writeStream.write('{\n');
         }
     }
+
     /**
      * Updates the reference if it is present in cache and removes duplicate references
      * @param {Resource} resource
