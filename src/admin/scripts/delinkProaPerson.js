@@ -37,6 +37,16 @@ async function main() {
      */
     const proaPersonUuidColumn = parameters.proaPersonUuidColumn || 3;
     /**
+     * column in which proa person sourceAssigningAuthority is present
+     * @type {number}
+     */
+    const proaPersonSAAColumn = parameters.proaPersonSAAColumn || 4;
+    /**
+     * column in which proa person lastUpdated is present
+     * @type {number}
+     */
+    const proaPersonLastUpdatedColumn = parameters.proaPersonLastUpdatedColumn || 5;
+    /**
      * column in which master person uuid is present
      * @type {number}
      */
@@ -65,6 +75,8 @@ async function main() {
         csvFileName,
         proaPatientUuidColumn,
         proaPersonUuidColumn,
+        proaPersonSAAColumn,
+        proaPersonLastUpdatedColumn,
         masterUuidColumn,
         clientUuidColumn,
         statusColumn,
@@ -95,6 +107,8 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --csvFileName client
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPatientUuidColumn 0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonUuidColumn 3
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonSAAColumn 4
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonLastUpdatedColumn 5
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --masterUuidColumn 6
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --clientUuidColumn 9
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --statusColumn 12

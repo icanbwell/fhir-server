@@ -15,6 +15,11 @@
             "target": {
                 "reference": "Person/person1|test"
             }
+        },
+        {
+            "target": {
+                "reference": "Person/client1|client"
+            }
         }
     ]
 }
