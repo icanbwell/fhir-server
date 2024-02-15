@@ -1,4 +1,5 @@
 const env = require('var');
+const { expect } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
 const { jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint } = require('./mocks/jwks');
@@ -13,7 +14,6 @@ const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
-const { jest, expect } = require('@jest/globals');
 
 /**
  * @type {import('http').Server}
@@ -85,6 +85,7 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  */
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
+    // eslint-disable-next-line no-undef
     jest.setTimeout(30000);
     env.VALIDATE_SCHEMA = true;
     process.env.AUTH_ENABLED = '1';
@@ -435,6 +436,7 @@ module.exports.mockHttpContext = ({
                                       systemGeneratedRequestId,
                                       userRequestId
                                   } = {}) => {
+    // eslint-disable-next-line no-undef
     jest.spyOn(httpContext, 'get');
     const values = {
         systemGeneratedRequestId: systemGeneratedRequestId || '12345678',

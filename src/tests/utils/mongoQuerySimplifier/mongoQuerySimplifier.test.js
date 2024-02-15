@@ -1,6 +1,6 @@
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach } = require('../../common');
 const { MongoQuerySimplifier } = require('../../../utils/mongoQuerySimplifier');
-const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { logInfo } = require('../../../operations/common/logging');
 
 describe('mongoQuerySimplifier Tests', () => {
