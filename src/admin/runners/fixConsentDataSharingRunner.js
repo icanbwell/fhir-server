@@ -67,7 +67,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
 
         /**@type {Map<string, { id: string; items: Array} */
-        this.questionaireValues = new Map();
+        this.questionnaireValues = new Map();
 
         /**@type {Map<string, Resource> */
         this.questionnaireIdToResource = new Map();
@@ -88,7 +88,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
         // preload the cache
-        await this.cacheQuestionaireValues(mongoConfig);
+        await this.cacheQuestionnaireValues(mongoConfig);
         // preload the questionnaire response cache
         await this.cacheQuestionnaireResponseToQuestionnaireId(mongoConfig);
 
@@ -156,8 +156,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         let resource = FhirResourceCreator.create(doc);
 
-        const questionaire = await this.lookupQuestionaire(doc);
-        if (!questionaire) {
+        const questionnaireItem = await this.lookupQuestionnaire(doc);
+        if (!questionnaireItem) {
             return operations;
         }
 
@@ -167,11 +167,11 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         const currentResource = resource.clone();
         // Update category
         this.adminLogger.logInfo('Adding category coding');
-        resource = await this.addCategoryCodingToConsent({resource, questionaire});
+        resource = await this.addCategoryCodingToConsent({resource, questionnaireItem});
 
         // Update provision
         this.adminLogger.logInfo('adding provision class');
-        resource = await this.addProvisionClassToConsent({ resource, questionaire });
+        resource = await this.addProvisionClassToConsent({ resource, questionnaireItem });
 
         // for speed, first check if the incoming resource is exactly the same
         let updatedResourceJsonInternal = resource.toJSONInternal();
@@ -194,9 +194,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         /**
      * Adds coding to resource.category
-     * @param {{ resource: Resource, questionaire: any}} options
+     * @param {{ resource: Resource, questionaireItem: any}} options
      */
-    async addCategoryCodingToConsent({ resource, questionaire}) {
+    async addCategoryCodingToConsent({ resource, questionnaireItem}) {
         const category = resource.category;
         if (!category) {
             return resource;
@@ -217,7 +217,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             }
         });
 
-        await this.lookupCategoryCoding({resource, category, questionaire});
+        await this.lookupCategoryCoding({resource, category, questionnaireItem});
 
         // setting the value
         resource.category = category;
@@ -225,23 +225,21 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         resource = await this.preSaveManager.preSaveAsync(resource);
         // add the reference
         return resource;
-
     }
 
     /**
      * Get coding from questionare and add to category
-     * @param {{ resource: Resource, category: any, questionaire: any}} options
+     * @param {{ resource: Resource, category: any, questionaireItem: any}} options
      */
-    async lookupCategoryCoding({resource, category, questionaire}) {
+    async lookupCategoryCoding({resource, category, questionnaireItem}) {
         if (!resource) {
             return null;
         }
-        if (!questionaire) {
+        if (!questionnaireItem) {
             return null;
         }
         let coding = {};
-        const item = questionaire.item;
-        item.code.forEach((code) => {
+        questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-category') {
                 coding.id = 'bwell-consent-type';
                 coding.system = 'http://www.icanbwell.com/consent-category';
@@ -257,9 +255,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
     /**
      * Adds Class to resource.provision
-     * @param {{ resource: Resource, questionaire: any}} options
+     * @param {{ resource: Resource, questionaireItem: any}} options
      */
-    async addProvisionClassToConsent({ resource, questionaire }) {
+    async addProvisionClassToConsent({ resource, questionnaireItem }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
@@ -278,7 +276,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         if (provisionClass.length === 0)
         {
-            await this.lookupProvisionClass({resource, provisionClass, questionaire});
+            await this.lookupProvisionClass({resource, provisionClass, questionnaireItem});
         }
 
         // setting the value
@@ -291,19 +289,18 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
     /**
      * Adds Class to resource.provision
-     * @param {{ resource: Resource, provisionClass: any, questionaire: any}} options
+     * @param {{ resource: Resource, provisionClass: any, questionnaireItem: any}} options
      */
-    async lookupProvisionClass({resource, provisionClass, questionaire}) {
+    async lookupProvisionClass({resource, provisionClass, questionnaireItem}) {
         if (!resource) {
             return null;
         }
-        if (!questionaire) {
+        if (!questionnaireItem) {
             return null;
         }
 
         let qClass = {};
-        const item = questionaire.item;
-        item.code.forEach((code) => {
+        questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-display') {
                 qClass.code = code.code;
                 qClass.display = code.display;
@@ -317,7 +314,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Caches questionaire of dataSharing type
      * @param mongoConfig: any; params
      */
-    async cacheQuestionaireValues(mongoConfig) {
+    async cacheQuestionnaireValues(mongoConfig) {
         const collectionName = 'Questionnaire_4_0_0';
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
@@ -333,18 +330,18 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 .sort({ _id: 1 });
 
             while (await cursor.hasNext()) {
-                const questionaire = await cursor.next();
-                this.adminLogger.logInfo('***Questionaire***', `${questionaire._uuid}`);
-                this.questionnaireIdToResource.set(questionaire.id, questionaire);
-                this.questionnaireIdToResource.set(questionaire._uuid, questionaire);
+                const questionnaire = await cursor.next();
+                this.adminLogger.logInfo('***Questionaire***', `${questionnaire._uuid}`);
+                this.questionnaireIdToResource.set(questionnaire.id, questionnaire);
+                this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
                 // only cache if questionaire is datasharing type
-                questionaire.item?.forEach((item) => {
+                questionnaire.item?.forEach((item) => {
                     // this.adminLogger.logInfo('Questionaire Item', { item });
                     if (item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent') {
-                        this.questionaireValues.set(questionaire._uuid, item);
+                        this.questionnaireValues.set(questionnaire._uuid, item);
                         this.adminLogger.logInfo(
-                            `Cached ${questionaire._uuid} with item ${item}`);
+                            `Cached ${questionnaire._uuid} with item ${item}`);
                     }
                 });
             }
@@ -358,12 +355,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         } finally {
             await session.endSession();
             await client.close();
-            //const keys = Array.from(this.questionaireValues.keys());
-            for (const key in this.questionaireValues.keys()) {
-                this.adminLogger.logInfo('Questionaire key', `key = ${key}`);
+            for (const key in this.questionnaireValues.keys()) {
+                this.adminLogger.logInfo('Questionnaire key', `key = ${key}`);
             }
-             //
-             // this.adminLogger.logInfo('Questionaires', `${keys}`);
         }
     }
 
@@ -387,10 +381,12 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     const point = qid.lastIndexOf('/');
                     const uuid = qid.substring(point);
                     // only cache if questionaire is already cached
-                    if (this.questionaireValues.has(uuid)) {
+                    if (this.questionnaireValues.has(uuid)) {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
                         this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
+                    } else {
+                        this.adminLogger.logInfo(`NO questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
                  }
             }
@@ -470,36 +466,37 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * returns questionaire associated with consent if questionaire is dataSharing type
+     * returns questionnaire associated with consent if questionnaire is dataSharing type
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
-    async lookupQuestionaire(doc){
+    async lookupQuestionnaire(doc){
         if (!doc) {
             return null;
         }
         let questionnaire;
 
         // Iterate over the sourceReferences
-        if (doc.sourceReference) {
-                const reference = doc.sourceReference.reference;
-                // Check if the reference starts with "QuestionnaireResponse"
-                //const reference = ref.extension?.find(ext => ext.url === 'https://www.icanbwell.com/uuid')?.valueString || ref.reference;
-                const {id, resourceType} = ReferenceParser.parseReference(reference);
-                if (resourceType === 'QuestionnaireResponse') {
-                    // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
-                    const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
-                    if (questionnaireId) {
-                        const questionnaireResource = this.questionnaireIdToResource.get(questionnaireId);
-                        if (questionnaireResource) {
-                            questionnaire = questionnaireResource;
-                        } else {
-                            this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
-                        }
+        if (!doc.sourceReference) {
+            return null;
+        } else {
+            const reference = doc.sourceReference.reference;
+            // Check if the reference starts with "QuestionnaireResponse"
+            const {id, resourceType} = ReferenceParser.parseReference(reference);
+            if (resourceType === 'QuestionnaireResponse') {
+                // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
+                const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
+                if (questionnaireId) {
+                    const questionnaireItem = this.questionnaireValues.get(questionnaireId);
+                    if (questionnaireItem) {
+                        questionnaire = questionnaireItem;
                     } else {
-                        this.adminLogger.logInfo(`Questionnaire ID not found for reference ${reference}`);
+                        this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
                     }
+                } else {
+                    this.adminLogger.logInfo(`Questionnaire ID not found for reference ${reference}`);
                 }
+            }
         }
         return questionnaire;
     }
