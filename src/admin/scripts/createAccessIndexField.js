@@ -38,7 +38,7 @@ async function main () {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
-                useAuditDatabase: parameters.audit ? true : false,
+                useAuditDatabase: !!parameters.audit,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 configManager: c.configManager

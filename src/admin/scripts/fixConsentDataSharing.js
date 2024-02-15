@@ -62,7 +62,7 @@ async function main () {
                 limit: parameters.limit,
                 skip: parameters.skip,
                 startFromId: parameters.startFromId,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 bwellPersonFinder: c.bwellPersonFinder,
                 preSaveManager: c.preSaveManager,
                 beforeLastUpdatedDate,

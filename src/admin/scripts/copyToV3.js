@@ -51,7 +51,7 @@ async function main () {
                 _idAbove,
                 collections,
                 startWithCollection,
-                skipHistoryCollections: parameters.skipHistoryCollections ? true : false,
+                skipHistoryCollections: !!parameters.skipHistoryCollections,
                 adminLogger
             })
     );

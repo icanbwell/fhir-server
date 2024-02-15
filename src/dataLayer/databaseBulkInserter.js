@@ -676,8 +676,7 @@ args: {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
-            const operationsByResourceTypeMap = operationsMap
-                ? operationsMap : this.getOperationsByResourceTypeMap({ requestId });
+            const operationsByResourceTypeMap = operationsMap || this.getOperationsByResourceTypeMap({ requestId });
 
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',

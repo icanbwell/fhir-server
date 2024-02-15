@@ -63,9 +63,9 @@ async function main () {
             beforeLastUpdatedDate,
             adminLogger,
             limit: parameters.limit,
-            useTransaction: parameters.useTransaction ? true : false,
+            useTransaction: !!parameters.useTransaction,
             skip: parameters.skip,
-            patientPersonMatching: parameters.patientPersonMatching ? true : false,
+            patientPersonMatching: !!parameters.patientPersonMatching,
             connectionType: parameters.connectionType || 'proa',
             clientSourceAssigningAuthorities
         }

@@ -35,7 +35,7 @@ async function showIndexesAsync (
     const indexManager = container.indexManager;
     const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
-            audit: audit ? true : false,
+            audit: !!audit,
             filterToProblems
         }
     );

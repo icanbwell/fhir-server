@@ -28,14 +28,14 @@ async function main () {
         {
             indexManager: c.indexManager,
             collections,
-            dropIndexes: parameters.drop ? true : false,
-            useAuditDatabase: parameters.audit ? true : false,
-            useAccessLogsDatabase: parameters.accessLogs ? true : false,
-            addMissingIndexesOnly: parameters.addMissingIndexesOnly ? true : false,
-            removeExtraIndexesOnly: parameters.dropExtraIndexesOnly ? true : false,
-            includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+            dropIndexes: !!parameters.drop,
+            useAuditDatabase: !!parameters.audit,
+            useAccessLogsDatabase: !!parameters.accessLogs,
+            addMissingIndexesOnly: !!parameters.addMissingIndexesOnly,
+            removeExtraIndexesOnly: !!parameters.dropExtraIndexesOnly,
+            includeHistoryCollections: !!parameters.includeHistoryCollections,
             adminLogger: new AdminLogger(),
-            synchronizeIndexes: parameters.synchronize ? true : false,
+            synchronizeIndexes: !!parameters.synchronize,
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager
         }));

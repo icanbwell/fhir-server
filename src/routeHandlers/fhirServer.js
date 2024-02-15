@@ -35,7 +35,7 @@ class MyFHIRServer {
         /**
          * @type {import('express').Express}
          */
-        this.app = app ? app : express(); // Setup some environment variables handy for setup
+        this.app = app || express(); // Setup some environment variables handy for setup
 
         /**
          * @type {SimpleContainer}

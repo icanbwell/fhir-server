@@ -57,9 +57,9 @@ async function main () {
                 beforeLastUpdatedDate,
                 adminLogger,
                 limit: parameters.limit,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 skip: parameters.skip,
-                delinkRemoveProaPerson: parameters.delinkRemoveProaPerson ? true : false,
+                delinkRemoveProaPerson: !!parameters.delinkRemoveProaPerson,
                 connectionType: parameters.connectionType || 'proa'
             })
     );

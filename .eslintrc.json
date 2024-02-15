@@ -14,7 +14,6 @@
       "dot-notation": "off",
       "camelcase": "off",
       "prefer-regex-literals": "off",
-      "no-unneeded-ternary": "off",
       "multiline-ternary": "off",
       "no-mixed-operators": "off"
     }

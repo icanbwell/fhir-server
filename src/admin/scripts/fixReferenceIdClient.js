@@ -110,7 +110,7 @@ async function main () {
                 AWS_FOLDER,
                 AWS_REGION,
                 resourceMerger: c.resourceMerger,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 skip: parameters.skip,
                 filterToRecordsWithFields,
                 startFromId: parameters.startFromId,

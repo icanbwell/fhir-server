@@ -27,16 +27,12 @@ function assertTypeEquals (obj, type, message) {
         /**
          * @type {string}
          */
-        const message1 = message
-            ? message
-            : `obj of type ${type.name} is null or undefined`;
+        const message1 = message || `obj of type ${type.name} is null or undefined`;
         throw new AssertionError(message1);
     }
     if (!(obj instanceof type)) {
         throw new AssertionError(
-            message
-                ? message
-                : `Type of obj ${typeof obj} is not the expected type ${type.name}`
+            message || `Type of obj ${typeof obj} is not the expected type ${type.name}`
         );
     }
 }
@@ -49,7 +45,7 @@ function assertTypeEquals (obj, type, message) {
  */
 function assertIsValid (obj, message) {
     if (!obj) {
-        throw new AssertionError(message ? message : 'obj is null or undefined');
+        throw new AssertionError(message || 'obj is null or undefined');
     }
 }
 

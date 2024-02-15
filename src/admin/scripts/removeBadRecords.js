@@ -35,8 +35,8 @@ async function main () {
         {
             indexManager: c.indexManager,
             collections,
-            useAuditDatabase: parameters.audit ? true : false,
-            includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+            useAuditDatabase: !!parameters.audit,
+            includeHistoryCollections: !!parameters.includeHistoryCollections,
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager

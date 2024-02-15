@@ -99,7 +99,7 @@ class FilterByToken extends BaseFilter {
                 case 'boolean':
                     return exactMatchQueryBuilder(
                         {
-                            target: value === 'true' ? true : false,
+                            target: value === 'true',
                             field: this.fieldMapper.getFieldName(field)
                         }
                     );

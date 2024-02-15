@@ -40,7 +40,7 @@ async function main () {
         adminLogger,
         batchSize,
         clientSourceAssigningAuthorities,
-        skipAlreadyLinked: parameters.skipAlreadyLinked ? true : false
+        skipAlreadyLinked: !!parameters.skipAlreadyLinked
     }));
 
     /**

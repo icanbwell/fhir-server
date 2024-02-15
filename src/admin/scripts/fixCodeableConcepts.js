@@ -107,10 +107,10 @@ async function main () {
                 databaseQueryFactory: c.databaseQueryFactory,
                 startFromCollection: parameters.startFromCollection,
                 limit: parameters.limit,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 startFromId: parameters.startFromId,
                 skip: parameters.skip,
-                updateResources: parameters.updateResources ? true : false,
+                updateResources: !!parameters.updateResources,
                 properties,
                 filterToRecordsWithFields
             }

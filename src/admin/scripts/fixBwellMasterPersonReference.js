@@ -71,10 +71,10 @@ async function main () {
             adminLogger,
             startFromCollection: parameters.startFromCollection,
             limit: parameters.limit,
-            useTransaction: parameters.useTransaction ? true : false,
+            useTransaction: !!parameters.useTransaction,
             skip: parameters.skip,
             startFromId: parameters.startFromId,
-            logUnresolvedReferencesToFile: parameters.logUnresolvedReferencesToFile ? true : false
+            logUnresolvedReferencesToFile: !!parameters.logUnresolvedReferencesToFile
         }
     )
     );

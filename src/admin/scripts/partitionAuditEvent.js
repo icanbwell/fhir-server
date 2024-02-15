@@ -38,9 +38,9 @@ async function main () {
                 recordedAfter: moment.utc(recordedAfter),
                 recordedBefore: moment.utc(recordedBefore),
                 batchSize,
-                skipExistingIds: parameters.skipExistingIds ? true : false,
-                useAuditDatabase: parameters.audit ? true : false,
-                dropDestinationCollection: parameters.dropDestinationCollection ? true : false,
+                skipExistingIds: !!parameters.skipExistingIds,
+                useAuditDatabase: !!parameters.audit,
+                dropDestinationCollection: !!parameters.dropDestinationCollection,
                 adminLogger: new AdminLogger(),
                 indexManager: c.indexManager,
                 sourceCollection: parameters.source || 'AuditEvent_4_0_0'

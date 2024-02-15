@@ -73,7 +73,7 @@ async function main () {
                 limit: parameters.limit,
                 properties,
                 resourceMerger: c.resourceMerger,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 skip: parameters.skip,
                 filterToRecordsWithFields,
                 startFromId: parameters.startFromId
