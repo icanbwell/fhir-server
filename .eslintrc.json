@@ -28,7 +28,6 @@
       "multiline-ternary": "off",
       "space-before-blocks": "off",
       "space-in-parens": "off",
-      "brace-style": "off",
       "object-property-newline": "off",
       "no-mixed-operators": "off"
     }

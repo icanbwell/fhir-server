@@ -1,16 +1,16 @@
 const fs = require('fs');
-const { RethrownError } = require('../../utils/rethrownError');
-const { ReferenceParser } = require('../../utils/referenceParser');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
-const { compare } = require('fast-json-patch');
-const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
-const { ProaPersonPatientLinkageRunner } = require('./proaPersonPatientLinkageRunner');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { generateUUID } = require('../../utils/uid.util');
-const { getCircularReplacer } = require('../../utils/getCircularReplacer');
-const { VERSIONS } = require('../../middleware/fhir/utils/constants');
-const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
-const { IdentifierSystem } = require('../../utils/identifierSystem');
+const {RethrownError} = require('../../utils/rethrownError');
+const {ReferenceParser} = require('../../utils/referenceParser');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {compare} = require('fast-json-patch');
+const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
+const {ProaPersonPatientLinkageRunner} = require('./proaPersonPatientLinkageRunner');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {generateUUID} = require('../../utils/uid.util');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
+const {IdentifierSystem} = require('../../utils/identifierSystem');
 
 /**
  * @classdesc Linking of Proa Patient with Client Person
@@ -29,11 +29,11 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * @param {constructorProps}
      */
     constructor({
-        linkClientPersonToProaPatient,
-        getPersonMatchingScore,
-        resourceLocatorFactory,
-        ...args
-    }) {
+                    linkClientPersonToProaPatient,
+                    getPersonMatchingScore,
+                    resourceLocatorFactory,
+                    ...args
+                }) {
         super(args);
         /**
          * @type {boolean}
@@ -77,17 +77,17 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * Populate proaPatientToClientPersonMap & proaPersonToProaPatientMap
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async getPersonsMapFromProaPatient({ mongoConfig }) {
+    async getPersonsMapFromProaPatient({mongoConfig}) {
         this.adminLogger.logInfo('Fetching Proa persons from db');
         const collectionName = 'Person_4_0_0';
         /**
          * @type {Object}
          */
-        const projection = { id: 1, _uuid: 1, meta: 1, link: 1 };
+        const projection = {id: 1, _uuid: 1, meta: 1, link: 1};
         /**
          * @type {require('mongodb').collection}
          */
-        const { collection, session, client } = await this.createSingeConnectionAsync({
+        const {collection, session, client} = await this.createSingeConnectionAsync({
             mongoConfig,
             collectionName
         });
@@ -107,7 +107,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
             /**
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
              */
-            const cursor = collection.find(query, { projection });
+            const cursor = collection.find(query, {projection});
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
                 if (resource && resource.id) {
@@ -191,7 +191,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
         /**
          * @type {require('mongodb').collection}
          */
-        const { db, session, client } = await this.createSingeConnectionAsync({
+        const {db, session, client} = await this.createSingeConnectionAsync({
             mongoConfig,
             collectionName: 'Person_4_0_0'
         });
@@ -212,16 +212,16 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     this.adminLogger.logError(`Invalid reference present in Master person having UUID: ${doc._uuid}`);
                     continue;
                 }
-                const { id: targetIdWithoutPrefix, resourceType: prefix } = ReferenceParser.parseReference(refTargetUuid);
+                const {id: targetIdWithoutPrefix, resourceType: prefix} = ReferenceParser.parseReference(refTargetUuid);
                 let resource;
                 try {
                     if (prefix === 'Patient') {
-                        resource = await db.collection('Patient_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
+                        resource = await db.collection('Patient_4_0_0').findOne({_uuid: targetIdWithoutPrefix});
                         if (resource?.meta?.security?.find((item) => item.system === SecurityTagSystem.owner)?.code === 'bwell') {
                             linkedMasterPatients.push(targetIdWithoutPrefix);
                         }
                     } else {
-                        resource = await db.collection('Person_4_0_0').findOne({ _uuid: targetIdWithoutPrefix });
+                        resource = await db.collection('Person_4_0_0').findOne({_uuid: targetIdWithoutPrefix});
                         this.personDataMap.set(resource._uuid, {
                             id: resource._uuid,
                             sourceAssigningAuthority: resource.meta.security.find(
@@ -257,11 +257,11 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
             for (let i = 0; i < linkedProaPersons.length; i++) {
                 const proaPatients = this.proaPersonToProaPatientMap.get(linkedProaPersons[parseInt(i)]) ?? [];
                 for (let j = 0; j < proaPatients.length; j++) {
-                    if (alreadyProcessedProaPatients.has(proaPatients[parseInt(j)].id)){
+                    if (alreadyProcessedProaPatients.has(proaPatients[parseInt(j)].id)) {
                         continue;
                     }
                     alreadyProcessedProaPatients.add(proaPatients[parseInt(j)].id);
-                    const { id: proaPatientUUID, sourceAssigningAuthority } = proaPatients[parseInt(j)];
+                    const {id: proaPatientUUID, sourceAssigningAuthority} = proaPatients[parseInt(j)];
                     const proaPatientUUIDWithoutPrefix = proaPatientUUID.replace('Patient/', '');
                     const proaPatientData = this.proaPatientUUIDToIdOwnerMap.get(proaPatientUUIDWithoutPrefix);
                     const proaPersonData = this.personDataMap.get(linkedProaPersons[`${i}`]);
@@ -275,73 +275,64 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Multiple Proa Persons linked to master Person found| ${linkedProaPersons}| \n`
                         );
-                    }
-                    else if (proaPatients.length > 1) {
+                    } else if (proaPatients.length > 1) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Multiple Proa Patients linked to single Proa Person| ${proaPatients.map(p => p.id.replace('Patient/', ''))}| \n`
                         );
-                    }
-                    else if (doc?.link.find(l => l?.target?._uuid === `Patient/${proaPatientUUID}`)) {
+                    } else if (doc?.link.find(l => l?.target?._uuid === `Patient/${proaPatientUUID}`)) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Proa Patient directly linked to master person| ${linkedMasterPersons}| \n`
                         );
-                    }
-                    else if (linkedMasterPersons.length) {
+                    } else if (linkedMasterPersons.length) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Master person is linked with other master persons having ids as mentioned| ${linkedMasterPersons}| \n`
                         );
-                    }
-                    else if (!linkedMasterPatients.length) {
+                    } else if (!linkedMasterPatients.length) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Master person does not have any linked master patient| ${''}| \n`
                         );
-                    }
-                    else if (linkedMasterPatients.length > 1) {
+                    } else if (linkedMasterPatients.length > 1) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Master person have multiple linked master patients having ids as mentioned| ${linkedMasterPatients}| \n`
                         );
-                    }
-                    else if (!linkedClientPersons.length) {
+                    } else if (!linkedClientPersons.length) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Master person does not have any linked client person| ${''}| \n`
                         );
-                    }
-                    else if (linkedClientPersons.length > 1) {
+                    } else if (linkedClientPersons.length > 1) {
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Master person have multiple linked client persons having ids as mentioned| ${linkedClientPersons}| \n`
                         );
-                    }
-                    // Case when nothing is linked to client person, i.e. no client patient also
-                    else if (!this.clientPerson.link) {
+                    } else if (!this.clientPerson.link) {
+                        // Case when nothing is linked to client person, i.e. no client patient also
                         this.writeStreamError.write(
                             `${proaPatientUUIDWithoutPrefix}| ${proaPatientData.sourceAssigningAuthority}| ${proaPatientData.lastUpdated}| ` +
                             `${proaPersonData.id}| ${proaPersonData.sourceAssigningAuthority}| ${proaPersonData.lastUpdated}| ` +
                             `${doc._uuid}| ${doc._sourceAssigningAuthority}| ${new Date(doc.meta?.lastUpdated).toISOString()}| ` +
                             `Client person linked to master person does not have any client patient linked| ${linkedClientPersons[0]}| \n`
                         );
-                    }
-                    else {
+                    } else {
                         const proaPatientClientPersonMatchingScore = await this.getClientPersonToProaPatientMatch({
                             proaPatientUUID, clientPersonUUID: linkedClientPersons[0]
                         });
@@ -356,14 +347,12 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                             this.writeStream.write(
                                 `${proaPatientClientPersonMatchingScore}| Already linked| \n`
                             );
-                        }
-                        else {
+                        } else {
                             if (!this.linkClientPersonToProaPatient) {
                                 this.writeStream.write(
                                     `${proaPatientClientPersonMatchingScore}| Can be linked| \n`
                                 );
-                            }
-                            else {
+                            } else {
                                 this.writeStream.write(
                                     `${proaPatientClientPersonMatchingScore}| Linked| \n`
                                 );
@@ -396,7 +385,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                                     }
                                 };
                                 const patches = compare({}, updatedResource);
-                                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
+                                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
                                 if (Object.keys(updateOperation).length > 0) {
                                     operations.push({
                                         updateOne: {
@@ -452,16 +441,16 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 {
                     status: '200',
                     outcome:
-                    {
-                        resourceType: 'OperationOutcome',
-                        issue: patches.map(
-                            p => ({
-                                severity: 'information',
-                                code: 'informational',
-                                diagnostics: JSON.stringify(p, getCircularReplacer())
-                            })
-                        )
-                    }
+                        {
+                            resourceType: 'OperationOutcome',
+                            issue: patches.map(
+                                p => ({
+                                    severity: 'information',
+                                    code: 'informational',
+                                    diagnostics: JSON.stringify(p, getCircularReplacer())
+                                })
+                            )
+                        }
                 } : null
         };
 
@@ -499,7 +488,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * @param {{ id: string; _uuid: string; }[]} proaPersonInfo
      * @returns {Promise<string>}
      */
-    async getClientPersonToProaPatientMatch({ proaPatientUUID, clientPersonUUID }) {
+    async getClientPersonToProaPatientMatch({proaPatientUUID, clientPersonUUID}) {
         let score = 'N/A';
         if (this.getPersonMatchingScore) {
             try {
@@ -560,8 +549,8 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
 
             try {
                 const startFromIdContainer = this.createStartFromIdContainer();
-                await this.getProaPatientsIdMap({ mongoConfig });
-                await this.getPersonsMapFromProaPatient({ mongoConfig });
+                await this.getProaPatientsIdMap({mongoConfig});
+                await this.getPersonsMapFromProaPatient({mongoConfig});
 
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -618,7 +607,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                     });
                 }
             } catch (err) {
-                this.adminLogger.logError(err.message, { stack: err.stack });
+                this.adminLogger.logError(err.message, {stack: err.stack});
             }
 
             // Getting Proa Patients without Proa Person
@@ -644,7 +633,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 new Promise((resolve) => this.writeStreamError.on('close', resolve))
             ]);
         } catch (e) {
-            this.adminLogger.logError(`ERROR: ${e.message}`, { stack: e.stack });
+            this.adminLogger.logError(`ERROR: ${e.message}`, {stack: e.stack});
         }
     }
 }

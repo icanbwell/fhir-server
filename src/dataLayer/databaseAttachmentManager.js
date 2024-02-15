@@ -96,8 +96,7 @@ class DatabaseAttachmentManager {
                     });
                 }
             }
-        }
-        else if (enabledGridFsResources.includes(resources.resourceType)) {
+        } else if (enabledGridFsResources.includes(resources.resourceType)) {
             resources = await this.changeAttachmentWithGridFS({
                 resource: resources,
                 resourceId: resources.id,
@@ -196,8 +195,7 @@ class DatabaseAttachmentManager {
                 } catch (err) {
                     reject(err);
                 }
-            }
-            else {
+            } else {
                 resolve(resource);
             }
         });

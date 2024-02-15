@@ -1071,22 +1071,19 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 ]
             };
-        }
-        else if (this.afterLastUpdatedDate) {
+        } else if (this.afterLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
                     $gt: this.afterLastUpdatedDate
                 }
             };
-        }
-        else if (this.beforeLastUpdatedDate) {
+        } else if (this.beforeLastUpdatedDate) {
             query = {
                 [`${queryPrefix}meta.lastUpdated`]: {
                     $lt: this.beforeLastUpdatedDate
                 }
             };
-        }
-        else {
+        } else {
             query = this.properties && this.properties.length > 0 ?
                 this.getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
                 this.getFilter(this.filterToRecordsWithFields);

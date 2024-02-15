@@ -73,8 +73,7 @@ class FhirLogger {
         if (!this._secureLogger) {
             const release = await mutex.acquire();
             try {
-                if (!this._secureLogger)
-                {
+                if (!this._secureLogger) {
                     this._secureLogger = await this.createSecureLoggerAsync();
                 }
             } finally {
@@ -93,8 +92,7 @@ class FhirLogger {
         if (!this._inSecureLogger) {
             const release = await mutex.acquire();
             try {
-                 if (!this._inSecureLogger)
-                 {
+                 if (!this._inSecureLogger) {
                      this._inSecureLogger = await this.createInSecureLoggerAsync();
                  }
             } finally {

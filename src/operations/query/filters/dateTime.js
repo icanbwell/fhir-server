@@ -116,8 +116,7 @@ class FilterByDateTime extends BaseFilter {
                         nestedKeys.forEach((k) => {
                             simplifiedRangeQuery[`${k}`] = nestedRangeQuery[`${k}`];
                         });
-                    }
-                    else {
+                    } else {
                         newChildQueries.push(childQuery);
                     }
                 });

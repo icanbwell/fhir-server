@@ -266,8 +266,7 @@ class BwellPersonFinder {
             const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
                 foundPersonId = nextPersonId;
-            }
-            else {
+            } else {
                 // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
                     currentSubject: `Person/${nextPersonId}`,

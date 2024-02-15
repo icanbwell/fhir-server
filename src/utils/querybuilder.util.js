@@ -99,8 +99,8 @@ const nameQueryBuilder = function ({target}) {
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
  for (const i in queryBuilder) {
-			 query[i] = queryBuilder[i];
-		}
+ query[i] = queryBuilder[i];
+ }
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
@@ -178,8 +178,8 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
  for (const i in queryBuilder) {
-			 query[i] = queryBuilder[i];
-		}
+ query[i] = queryBuilder[i];
+ }
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
@@ -259,8 +259,8 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
  for (const i in queryBuilder) {
-			 query[i] = queryBuilder[i];
-		}
+ query[i] = queryBuilder[i];
+ }
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
@@ -321,9 +321,8 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
     // Check if target is a url
     if (match) {
         queryBuilder[`${field}`] = match[2];
-    }
-    // target = type/id
-    else if (typeof target === 'string' && target.includes(',')) { // list was passed
+    } else if (typeof target === 'string' && target.includes(',')) { // list was passed
+        // target = type/id
         const searchItems = target.split(',');
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
@@ -343,9 +342,8 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
         } else {
             queryBuilder[`${field}`] = `${type}/${id}`;
         }
-    }
-    // target = id The type may be there so we need to check the end of the field for the id
-    else {
+    } else {
+        // target = id The type may be there so we need to check the end of the field for the id
         queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
     }
 
@@ -404,9 +402,8 @@ const referenceQueryBuilderOptimized = function (
     // Check if target is a url
     if (match) {
         queryBuilder[`${field}`] = match[2];
-    }
-    // target = type/id
-    else if (typeof target === 'string' && target.includes(',')) { // list was passed
+    } else if (typeof target === 'string' && target.includes(',')) { // list was passed
+        // target = type/id
         const searchItems = target.split(',');
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
@@ -426,9 +423,8 @@ const referenceQueryBuilderOptimized = function (
         } else {
             queryBuilder[`${field}`] = `${resourceType}/${id}`;
         }
-    }
-    // target = id The type may be there so we need to check the end of the field for the id
-    else {
+    } else {
+        // target = id The type may be there so we need to check the end of the field for the id
         queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
     }
 

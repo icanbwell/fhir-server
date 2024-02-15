@@ -274,8 +274,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             return resource;
         }
 
-        if (provisionClass.length === 0)
-        {
+        if (provisionClass.length === 0) {
             await this.lookupProvisionClass({resource, provisionClass, questionaire});
         }
 

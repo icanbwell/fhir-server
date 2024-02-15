@@ -17,7 +17,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {ParsedArgs} = require('../query/parsedArgs');
-const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 
 class RemoveOperation {
     /**
@@ -148,9 +148,8 @@ class RemoveOperation {
             if (accessCodes.length === 0) {
                 const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
                 throw new ForbiddenError(errorMessage);
-            }
-            // see if we have the * access code
-            else if (accessCodes.includes('*')) {
+            } else if (accessCodes.includes('*')) {
+                // see if we have the * access code
                 // no security check since user has full access to everything
             } else {
                 securityTags = accessCodes;
@@ -271,4 +270,3 @@ class RemoveOperation {
 module.exports = {
     RemoveOperation
 };
-
