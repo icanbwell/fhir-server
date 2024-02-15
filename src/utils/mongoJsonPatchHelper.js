@@ -28,7 +28,7 @@ class MongoJsonPatchHelper {
                         positionPart = '';
                         key = parts.join('.');
                     }
-                    const $position = positionPart && parseInt(positionPart, 10) || null;
+                    const $position = (positionPart && parseInt(positionPart, 10)) || null;
 
                     update.$push = update.$push || {};
 

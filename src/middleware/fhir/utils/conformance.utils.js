@@ -14,7 +14,7 @@ const conformanceSearchParamsFilter = base_version => route_arg => {
         ? false // Else check our versions property, there are two possible cases
         // If no versions are provided, it is available for all versions
         : !route_arg.versions || // If versions are provided, make sure this arg is meant for this version
-        route_arg.versions && route_arg.versions.indexOf(base_version) > -1;
+        (route_arg.versions && route_arg.versions.indexOf(base_version) > -1);
 };
 /**
  * @description Map function for taking a router argument and mapping it

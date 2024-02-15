@@ -10,7 +10,7 @@ const graphqlFieldsToMongoProjection = (obj) => {
             if (v && typeof v === 'object') {
                 graphqlFieldsToMongoProjection(v);
             }
-            if (v && typeof v === 'object' && !Object.keys(v).length || v === null || v === undefined) {
+            if ((v && typeof v === 'object' && !Object.keys(v).length) || v === null || v === undefined) {
                 obj[`${k}`] = 1;
             }
         });

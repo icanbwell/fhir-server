@@ -395,7 +395,7 @@ const getFieldValue = (res, name) => {
             }
             return '';
         case '_security':
-            return (res.meta && res.meta.security || [])
+            return ((res.meta && res.meta.security) || [])
                 .map(n => `${n.code}(${n.system.split('/').pop()})`)
                 .join(',<br>');
     }
