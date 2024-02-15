@@ -410,7 +410,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         // only those without provision.class considered
         query.$and.push({
-            ['provision.class']: {
+            'provision.class': {
                 $exists: false,
             }
         });
@@ -418,20 +418,20 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
             query.$and.push({
-                ['meta.lastUpdated']: {
+                'meta.lastUpdated': {
                     $lt: this.beforeLastUpdatedDate,
                     $gt: this.afterLastUpdatedDate,
                 },
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
-                ['meta.lastUpdated']: {
+                'meta.lastUpdated': {
                     $lt: this.beforeLastUpdatedDate,
                 },
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
-                ['meta.lastUpdated']: {
+                'meta.lastUpdated': {
                     $gt: this.afterLastUpdatedDate,
                 },
             });

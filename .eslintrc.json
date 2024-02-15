@@ -33,7 +33,6 @@
       "object-property-newline": "off",
       "object-curly-newline": "off",
       "array-bracket-spacing": "off",
-      "no-useless-computed-key": "off",
       "no-mixed-operators": "off"
     }
 }
