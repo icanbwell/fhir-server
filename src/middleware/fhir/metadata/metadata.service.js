@@ -10,7 +10,6 @@ const errors = require('../utils/error.utils.js');
 
 let getStatementGenerators = base_version => {
     if (base_version) {
-        // eslint-disable-next-line security/detect-non-literal-require
         return require(`./capability.${base_version}`);
     } else {
         return require('./capability.4_0_0');
@@ -85,7 +84,6 @@ let generateCapabilityStatement = ({
     let customMakeResource = null;
     serverStatement.resource = active_profiles.map(profile => {
         if (profile.metadata) {
-            // eslint-disable-next-line security/detect-non-literal-require
             customMakeResource = require(profile.metadata).makeResource;
         }
 

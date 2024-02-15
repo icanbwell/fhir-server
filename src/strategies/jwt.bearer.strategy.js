@@ -265,10 +265,6 @@ const verify = (request, jwt_payload, done) => {
  *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
-    constructor(options, verifyFn) {
-        super(options, verifyFn);
-    }
-
     authenticate(req, options) {
         const self = this;
         const token = self._jwtFromRequest(req);

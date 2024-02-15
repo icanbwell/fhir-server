@@ -6,7 +6,6 @@ const personBundleResource = require('./fixtures/person_bundle.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const personQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_person.graphql'),
     'utf8'

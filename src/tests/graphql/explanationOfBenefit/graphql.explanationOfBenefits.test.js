@@ -9,13 +9,11 @@ const coverageBundleResource = require('./fixtures/coverages.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const explanationOfBenefitQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query.graphql'),
     'utf8'
 );
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const explanationOfBenefitWithExplainQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_explain.graphql'),
     'utf8'

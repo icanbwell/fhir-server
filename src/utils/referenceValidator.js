@@ -14,7 +14,6 @@ function checkReferenceValue(referenceObj, path) {
         return null;
     }
     const isContainedReference = referenceValue => referenceValue[0] === '#';
-    // eslint-disable-next-line security/detect-unsafe-regex
     const absoluteUrlRegex = new RegExp('^(?:[a-z+]+:)?//', 'i');
     const isAbsoluteUrl = referenceValue => absoluteUrlRegex.test(referenceValue);
     const isRelativeUrl = referenceValue => referenceValue.split('/').length - 1 === 1;

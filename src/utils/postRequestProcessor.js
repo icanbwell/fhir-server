@@ -155,7 +155,7 @@ class PostRequestProcessor {
         assertIsValid(this.executionRunningForRequest({requestId}) || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
         let secondsWaiting = 0;
         while (queue.length > 0) {
-            await new Promise((r) => setTimeout(r, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             secondsWaiting += 1;
             if (timeoutInSeconds && secondsWaiting > timeoutInSeconds) {
                 throw new Error(`PostRequestProcessor.waitTillDoneAsync() for ${requestId} did not finish in specified time: ${timeoutInSeconds}`);
@@ -180,4 +180,3 @@ class PostRequestProcessor {
 module.exports = {
     PostRequestProcessor
 };
-

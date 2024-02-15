@@ -8,7 +8,6 @@ const practitionerBundleResource = require('./fixtures/practitioners.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const updatePractitionerQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/updatePractitioner.graphql'),
     'utf8'

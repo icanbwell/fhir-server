@@ -100,7 +100,6 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     if (queryParameterValue['notEquals']) {
                         const notEqualsObject = queryParameterValue['notEquals'];
                         Object.keys(notEqualsObject).forEach(key => {
-                            // eslint-disable-next-line security/detect-object-injection
                             queryParameterValue[key] = notEqualsObject[key];
                         });
                         useNotEquals = true;

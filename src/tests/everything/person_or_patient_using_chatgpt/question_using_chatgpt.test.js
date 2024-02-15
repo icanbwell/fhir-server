@@ -203,19 +203,19 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);
             resp = await request
-                .get('/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}&contained=true')
+                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}&contained=true`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientContainedResources);
 
             // Second get person everything from topLevel
             resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?_question=${urlEncodedQuestion}')
+                .get(`/4_0_0/Person/personTopLevel/$everything?_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelResources);
             resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything?contained=true&_question=${urlEncodedQuestion}')
+                .get(`/4_0_0/Person/personTopLevel/$everything?contained=true&_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);

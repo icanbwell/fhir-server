@@ -421,7 +421,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         cursor = cursor.skip(skip);
                     }
 
-                    var refreshTimestamp = moment(); // take note of time at operation start
+                    let refreshTimestamp = moment(); // take note of time at operation start
                     // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
                     // const fnRefreshSessionAsync = async () => {
                     //     session = sourceClient.startSession();

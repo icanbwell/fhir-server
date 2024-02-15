@@ -211,7 +211,6 @@ class MyFHIRServer {
         if (this.config.auth && this.config.auth.strategy) {
             let {
                 strategy
-                // eslint-disable-next-line security/detect-non-literal-require
             } = require(path.resolve(this.config.auth.strategy.service));
 
             // noinspection JSCheckFunctionSignatures

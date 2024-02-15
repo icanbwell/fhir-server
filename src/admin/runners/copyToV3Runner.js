@@ -306,7 +306,6 @@ class CopyToV3Runner {
                     this.adminLogger.logInfo(
                         `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
                     );
-                    // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
                         totalLiveDocuments: totalLiveDocuments,
                         totalLiveMatchedDocuments: liveDocumentLastUpdatedGreaterThanUpdatedAfter,

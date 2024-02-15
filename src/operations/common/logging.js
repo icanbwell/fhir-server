@@ -75,7 +75,7 @@ const logWarn = (message, args) => {
  * @param {Object} args
  * @return {Promise<void>}
  */
-const logVerboseAsync = async ({source, args: args}) => {
+const logVerboseAsync = async ({source, args}) => {
     if (env.LOGLEVEL === 'DEBUG') {
         logInfo(`${source}`, {args});
     }

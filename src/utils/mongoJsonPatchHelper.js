@@ -13,7 +13,7 @@ class MongoJsonPatchHelper {
             patches
         }
     ) {
-        var update = {};
+        let update = {};
         patches.map(function (patch) {
             switch (patch.op) {
                 case 'add':
@@ -80,6 +80,7 @@ class MongoJsonPatchHelper {
                 default:
                     throw new Error('Unsupported Operation! op = ' + patch.op);
             }
+            return patch;
         });
         return update;
     }

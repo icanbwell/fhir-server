@@ -3,7 +3,6 @@ const patientData = require('./fixtures/patient_with_photo.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const query = fs.readFileSync(path.resolve(__dirname, './fixtures/query_patient_with_gridfs.graphql'), 'utf8');
 const {
     commonBeforeEach,

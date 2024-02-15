@@ -8,11 +8,6 @@ const {REQUEST_ID_TYPE} = require('../../constants');
  * @classdesc Writes response in FHIR
  */
 class FhirResponseWriter {
-    constructor() {
-        // ok to not specify
-    }
-
-
     /**
      * @function getContentType
      * @description Get the correct application type for the response

@@ -321,7 +321,6 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const defaultSortId = this.configManager.defaultSortId;
-            // eslint-disable-next-line security/detect-object-injection
             const last_id = resources.length > 0 ? resources[resources.length - 1][defaultSortId] : null;
             /**
              * @type {string[]}
@@ -408,4 +407,3 @@ class SearchBundleOperation {
 module.exports = {
     SearchBundleOperation
 };
-

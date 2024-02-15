@@ -438,7 +438,6 @@ module.exports.mockHttpContext = ({
         'userRequestId': userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
-        // eslint-disable-next-line security/detect-object-injection
         return values[key];
     });
     return values.systemGeneratedRequestId;

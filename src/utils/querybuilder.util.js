@@ -18,7 +18,6 @@ const {FhirTypesManager} = require('../fhir/fhirTypesManager');
 const stringQueryBuilder = function ({target}) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
-    // eslint-disable-next-line security/detect-non-literal-regexp
     return {$regex: new RegExp('^' + escapeRegExp(t2), 'i')};
 };
 
@@ -41,21 +40,14 @@ const addressQueryBuilder = function ({target}) {
         /**
          * @type {RegExp}
          */
-            // eslint-disable-next-line security/detect-non-literal-regexp
         const regExpObject = new RegExp(escapeRegExp(regExPattern), 'i');
         ors.push({
             $or: [
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'address.line': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'address.city': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'address.district': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'address.state': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'address.postalCode': {$regex: regExpObject}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'address.country': {$regex: regExpObject}},
             ],
         });
@@ -78,19 +70,13 @@ const nameQueryBuilder = function ({target}) {
         /**
          * @type {RegExp}
          */
-            // eslint-disable-next-line security/detect-non-literal-regexp
         const regExpObject = new RegExp(escapeRegExp(split[`${i}`]));
         ors.push({
             $or: [
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'name.text': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'name.family': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'name.given': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'name.suffix': {$regex: regExpObject, '$options': 'i'}},
-                // eslint-disable-next-line security/detect-non-literal-regexp
                 {'name.prefix': {$regex: regExpObject, '$options': 'i'}},
             ],
         });
@@ -330,7 +316,6 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
         queryBuilder[`${field}`] = `${target_type}/${target}`;
         return queryBuilder;
     }
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
     const match = typeof target === 'string' && target.match(regex);
 
@@ -362,7 +347,6 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
     }
     // target = id The type may be there so we need to check the end of the field for the id
     else {
-        // eslint-disable-next-line security/detect-non-literal-regexp
         queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
     }
 
@@ -415,7 +399,6 @@ const referenceQueryBuilderOptimized = function (
         }
         return queryBuilder;
     }
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
     const match = typeof target === 'string' && target.match(regex);
 
@@ -447,7 +430,6 @@ const referenceQueryBuilderOptimized = function (
     }
     // target = id The type may be there so we need to check the end of the field for the id
     else {
-        // eslint-disable-next-line security/detect-non-literal-regexp
         queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
     }
 
@@ -605,7 +587,6 @@ const getDateFromNum = function (days) {
  */
 const dateQueryBuilder = function ({date, type, path}) {
     // noinspection RegExpSingleCharAlternation
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
     const match = date.match(regex);
     let str = '';
@@ -704,7 +685,6 @@ const dateQueryBuilder = function ({date, type, path}) {
                         }
                         pArr[5] = str + '$';
                         str = str + 'T' + ('0' + hrs).slice(-2) + ':' + ('0' + mins).slice(-2); //proper formatting for leading 0's
-                        // eslint-disable-next-line security/detect-unsafe-regex
                         const match2 = str.match(/^(\d{4})(-\d{2})?(-\d{2})(?:(T\d{2}:\d{2})(:\d{2})?)?/);
                         if (match2 && match2.length >= 1) {
                             pArr[0] = match2[1] + '$'; //YYYY
@@ -752,7 +732,6 @@ const dateQueryBuilder = function ({date, type, path}) {
                     pArr[4] +
                     ')';
                 const regPoss = {
-                    // eslint-disable-next-line security/detect-non-literal-regexp
                     $regex: new RegExp(escapeRegExp(regexPattern)),
                 };
                 if (type === 'period') {
@@ -779,7 +758,6 @@ const dateQueryBuilder = function ({date, type, path}) {
                     toReturn = [
                         {
                             [pDT]: {
-                                // eslint-disable-next-line security/detect-non-literal-regexp
                                 $regex: new RegExp(
                                     escapeRegExp(
                                         '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
@@ -803,7 +781,6 @@ const dateQueryBuilder = function ({date, type, path}) {
                     return toReturn;
                 }
                 return {
-                    // eslint-disable-next-line security/detect-non-literal-regexp
                     $regex: new RegExp(
                         escapeRegExp(
                             '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
@@ -891,7 +868,6 @@ const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
  * @returns {Object[]}
  */
 const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /([a-z]+)(.+)/;
     const match = dateQueryItem.match(regex);
 
@@ -1126,7 +1102,6 @@ const partialTextQueryBuilder = function ({field, partialText, ignoreCase}) {
     /**
      * @type {RegExp}
      */
-        // eslint-disable-next-line security/detect-non-literal-regexp
     const regexObject = new RegExp(escapeRegExp(`${partialText}`));
     if (ignoreCase) {
         queryBuilder[`${field}`] = {$regex: regexObject, '$options': 'i'};

@@ -13,7 +13,6 @@ function removeAllGeneralPractitioner(arr, id) {
     let i = 0;
     if (arr && id) {
         while (i < arr.length) {
-            // eslint-disable-next-line security/detect-object-injection
             if (arr[i].reference.indexOf(id, id.length - arr[i].reference.length) !== -1) {
                 arr.splice(i, 1);
             } else {

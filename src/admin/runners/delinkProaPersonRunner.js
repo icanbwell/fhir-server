@@ -120,8 +120,8 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         this.writeStream.close();
 
         return Promise.all([
-            new Promise((res) => this.errorStream.once('close', res)),
-            new Promise((res) => this.writeStream.once('close', res))
+            new Promise((resolve) => this.errorStream.once('close', resolve)),
+            new Promise((resolve) => this.writeStream.once('close', resolve))
         ]);
     }
 

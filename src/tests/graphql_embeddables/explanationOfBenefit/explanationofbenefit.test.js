@@ -10,7 +10,6 @@ const expectedExplanationOfBenefitResources = require('./fixtures/expected/expec
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const explanationofbenefitQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
 const {

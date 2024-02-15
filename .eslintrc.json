@@ -1,0 +1,45 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": "standard",
+    "parserOptions": {
+        "ecmaVersion": 2023
+    },
+    "rules": {
+      "indent": "off",
+      "semi": "off",
+      "object-curly-spacing": "off",
+      "dot-notation": "off",
+      "quote-props": "off",
+      "camelcase": "off",
+      "prefer-const": "off",
+      "space-before-function-paren": "off",
+      "object-shorthand": "off",
+      "comma-dangle": "off",
+      "no-tabs": "off",
+      "no-undef": "off",
+      "no-multiple-empty-lines": "off",
+      "block-spacing": "off",
+      "padded-blocks": "off",
+      "operator-linebreak": "off",
+      "spaced-comment": "off",
+      "prefer-regex-literals": "off",
+      "no-unneeded-ternary": "off",
+      "multiline-ternary": "off",
+      "space-before-blocks": "off",
+      "space-in-parens": "off",
+      "brace-style": "off",
+      "object-property-newline": "off",
+      "no-var": "off",
+      "object-curly-newline": "off",
+      "array-bracket-spacing": "off",
+      "no-useless-computed-key": "off",
+      "lines-between-class-members": "off",
+      "one-var": "off",
+      "no-useless-return": "off",
+      "no-mixed-operators": "off"
+    }
+}

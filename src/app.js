@@ -84,7 +84,6 @@ function createFhirApp(fnGetContainer, app1) {
  */
 function createApp({fnGetContainer, trackMetrics}) {
     const swaggerUi = require('swagger-ui-express');
-    // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
     /**

@@ -2,11 +2,8 @@ class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
     /**
      * This plugin set the meta from each query into the results to provide debugging information
      */
-    constructor() {
-        // ok to not specify
-    }
 
-    // noinspection JSUnusedLocalSymbols
+    // noinspection JSUnusedLoclSymbols
     // eslint-disable-next-line no-unused-vars
     async requestDidStart(requestContext1) {
         // noinspection JSUnusedGlobalSymbols
@@ -62,5 +59,3 @@ module.exports = {
     BundleMetaApolloServerPlugin: BundleMetaApolloServerPlugin,
     getBundleMetaApolloServerPlugin: getBundleMetaApolloServerPlugin
 };
-
-

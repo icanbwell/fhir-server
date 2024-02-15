@@ -13,24 +13,20 @@ const binary1Resource = require('./fixtures/binary/binary1.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const codeSystemQueryWithoutFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_codesystem_without_filter.graphql'),
     'utf8'
 );
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const codeSystemQueryWithFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_codesystem_with_filter.graphql'),
     'utf8'
 );
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const getCodeSystemCodesQueryWithFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter.graphql'),
     'utf8'
 );
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const getCodeSystemCodesQueryWithFilterWithDefaultValue = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter_with_default_value.graphql'),
     'utf8'

@@ -34,7 +34,7 @@ describe('JSON 2 CSV', () => {
             .on('line', (line) => console.log(line));
 
         const processor = input.pipe(parser).pipe(output);
-        await new Promise(fulfill => processor.on('finish', fulfill));
+        await new Promise(resolve => processor.on('finish', resolve));
     });
     test('json2csv tests with custom Transform', async () => {
         class MyTransform extends Transform {
@@ -55,7 +55,7 @@ describe('JSON 2 CSV', () => {
 
         const parser = new MyTransform();
         const processor = input.pipe(parser).pipe(output);
-        await new Promise(fulfill => processor.on('finish', fulfill));
+        await new Promise(resolve => processor.on('finish', resolve));
     });
     test('json2csv tests with custom Transform in objectMode', async () => {
         class MyTransform extends Transform {
@@ -94,7 +94,7 @@ describe('JSON 2 CSV', () => {
 
         const parser = new MyTransform();
         const processor = objectReadableStream.pipe(parser).pipe(output);
-        await new Promise(fulfill => processor.on('finish', fulfill));
+        await new Promise(resolve => processor.on('finish', resolve));
     });
     test('json2csv tests with FhirCsvResoureWriter Transform in objectMode', async () => {
         const outputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner_out.json');
@@ -121,7 +121,7 @@ describe('JSON 2 CSV', () => {
             configManager: new ConfigManager()
         });
         const processor = objectReadableStream.pipe(parser).pipe(output);
-        await new Promise(fulfill => processor.on('finish', fulfill));
+        await new Promise(resolve => processor.on('finish', resolve));
     });
     test('json2csv tests with multiple rows with FhirCsvResoureWriter Transform in objectMode', async () => {
         const outputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner_out.json');
@@ -150,6 +150,6 @@ describe('JSON 2 CSV', () => {
             configManager: new ConfigManager()
         });
         const processor = objectReadableStream.pipe(parser).pipe(output);
-        await new Promise(fulfill => processor.on('finish', fulfill));
+        await new Promise(resolve => processor.on('finish', resolve));
     });
 });

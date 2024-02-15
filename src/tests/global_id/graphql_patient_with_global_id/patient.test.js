@@ -14,19 +14,16 @@ const personBundleResource = require('./fixtures/person.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const patientQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query.graphql'),
     'utf8'
 );
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const patientQueryWithExplain = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_explain.graphql'),
     'utf8'
 );
 
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const patientNonExistentQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_non_existent.graphql'),
     'utf8'

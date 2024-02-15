@@ -141,7 +141,6 @@ class PersonToPatientIdsExpander {
             const patientIdsMap = patientIdsOrMap;
             const plainMap = {};
             for (const [personId, patientIds] of patientIdsMap) {
-                // eslint-disable-next-line security/detect-object-injection
                 plainMap[personId] = Array.from(patientIds);
             }
 

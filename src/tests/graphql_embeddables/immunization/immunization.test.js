@@ -9,7 +9,6 @@ const expectedImmunizationResources = require('./fixtures/expected/expected_immu
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const immunizationQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
 const {

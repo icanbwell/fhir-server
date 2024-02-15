@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 const versionValidationMiddleware = require('./version-validation.middleware');
 
 const authenticationMiddleware = require('./authentication.middleware');
@@ -240,6 +239,7 @@ class FhirRouter {
             if (profile.baseUrls && profile.baseUrls.length) {
                 return profile;
             }
+            return null;
         }).filter(profile => profile !== null && profile !== undefined);
         const inferredProfiles = Object.keys(profiles).map(profileName => {
             const profile = profiles[profileName];
@@ -247,6 +247,7 @@ class FhirRouter {
             if (!profile.baseUrls || !profile.baseUrls.length) {
                 return profile;
             }
+            return null;
         }).filter(profile => profile !== null && profile !== undefined); // Determine which versions need a metadata endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
 

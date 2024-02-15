@@ -1169,7 +1169,6 @@ class GraphHelper {
                  * @type {string}
                  */
                 for (const link_reference of uniqueReferences) {
-                    // eslint-disable-next-line security/detect-non-literal-regexp
                     let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
                     parent_entity = JSON.parse(parent_entity.toJSONInternal().replace(re, '#'.concat(link_reference)));
                 }

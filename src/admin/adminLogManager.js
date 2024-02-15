@@ -18,6 +18,7 @@ class AdminLogManager {
         this.mongoDatabaseManager = mongoDatabaseManager;
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
+
     /**
      * gets logs
      * @param id

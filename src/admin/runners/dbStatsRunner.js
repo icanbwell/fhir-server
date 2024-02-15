@@ -102,7 +102,6 @@ class DatabaseStats extends BaseScriptRunner {
                 totalMainDocuments += documntsInMainDb;
                 // Keep tracks of the total socuments processed in history db.
                 totalHistoryDocuments += documentsInHistoryDb;
-                // eslint-disable-next-line security/detect-object-injection
                 result[mainCollection] = {
                   documntsInMainDb,
                   documentsInHistoryDb

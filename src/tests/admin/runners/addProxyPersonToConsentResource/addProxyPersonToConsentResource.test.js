@@ -89,7 +89,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -140,7 +140,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -192,7 +192,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -244,7 +244,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();
@@ -297,7 +297,7 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         const addProxyPatientToConsentResourceRunner =
             container.addProxyPatientToConsentResourceRunner;
         expect(
-            typeof addProxyPatientToConsentResourceRunner === AddProxyPatientToConsentResourceRunner
+            addProxyPatientToConsentResourceRunner instanceof AddProxyPatientToConsentResourceRunner
         );
 
         await addProxyPatientToConsentResourceRunner.processAsync();

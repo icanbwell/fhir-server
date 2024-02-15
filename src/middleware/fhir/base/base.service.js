@@ -11,13 +11,10 @@ const request = require('superagent');
 const errors = require('../utils/error.utils');
 
 const makeResultBundle = (results, res, baseVersion, type) => {
-    // eslint-disable-next-line security/detect-non-literal-require
     let Bundle = require(`../resources/${baseVersion}/schemas/bundle`);
 
-    // eslint-disable-next-line security/detect-non-literal-require
     let BundleLink = require(`../resources/${baseVersion}/schemas/bundlelink`);
 
-    // eslint-disable-next-line security/detect-non-literal-require
     let BundleEntry = require(`../resources/${baseVersion}/schemas/bundleentry`);
 
     let selfLink = new BundleLink({

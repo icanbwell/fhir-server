@@ -9,7 +9,6 @@ const expectedEncounterResources = require('./fixtures/expected/expected_encount
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const encounterQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
 const {

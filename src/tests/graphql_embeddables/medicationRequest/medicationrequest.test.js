@@ -18,7 +18,6 @@ const expectedMedicationStatementResources = require('./fixtures/expected/expect
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const medicationrequestQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/query.graphql'), 'utf8');
 
 const {

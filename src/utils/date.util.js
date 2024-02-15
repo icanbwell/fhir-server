@@ -8,7 +8,6 @@ const moment = require('moment-timezone');
  */
 function parseDate(date) {
     // supports date formats with prefix
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /(^\D\D)?([\d-Tt:+]+)([\d: ]+)?/;
     const match = date.match(regex);
     let prefix = '$eq';

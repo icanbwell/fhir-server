@@ -410,7 +410,7 @@ class DatabaseQueryManager {
                     options
                 }
             );
-            while (await cursor.hasNext()) {
+            if (await cursor.hasNext()) {
                 /**
                  * @type {Object|null}
                  */
@@ -466,7 +466,7 @@ class DatabaseQueryManager {
                     options
                 }
             );
-            while (await cursor.hasNext()) {
+            if (await cursor.hasNext()) {
                 /**
                  * @type {Object|null}
                  */

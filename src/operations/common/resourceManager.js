@@ -5,12 +5,6 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
  */
 class ResourceManager {
     /**
-     */
-    constructor() {
-        // ok to not specify
-    }
-
-    /**
      * Gets name of the patient field from resource
      * @param {string} resourceType
      * @return {string|null}
@@ -79,4 +73,3 @@ class ResourceManager {
 module.exports = {
     ResourceManager
 };
-

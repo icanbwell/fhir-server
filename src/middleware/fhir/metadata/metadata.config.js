@@ -1,7 +1,7 @@
 const controller = require('./metadata.controller.js');
 
 const {
-    routeArgs: routeArgs
+    routeArgs
 } = require('../route.config.js');
 
 let route = {

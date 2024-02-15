@@ -314,7 +314,6 @@ class UpdateCollectionsRunner {
                     this.adminLogger.logInfo(
                         `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount}. The source documents that have a missing lastUpdated value: ${sourceMissingLastUpdated} and target documents that have missing lastUpdated value are: ${targetMissingLastUpdated} `
                     );
-                    // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
                         totalSourceDocuments: totalSourceDocuments,
                         totalTargetDocuments: totalTargetDocuments,
