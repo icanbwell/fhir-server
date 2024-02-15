@@ -233,7 +233,7 @@ class ConfigManager {
      * The default sort id currently used
      */
     get defaultSortId() {
-        return env.DEFAULT_SORT_ID || 'id';
+        return env.DEFAULT_SORT_ID || '_uuid';
     }
 
     /**
