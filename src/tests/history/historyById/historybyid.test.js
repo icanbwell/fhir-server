@@ -5,7 +5,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {

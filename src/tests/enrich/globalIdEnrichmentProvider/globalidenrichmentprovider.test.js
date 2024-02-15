@@ -5,7 +5,7 @@
 // const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {EnrichmentManager} = require('../../../enrich/enrich');
 const {R4ArgsParser} = require('../../../operations/query/r4ArgsParser');

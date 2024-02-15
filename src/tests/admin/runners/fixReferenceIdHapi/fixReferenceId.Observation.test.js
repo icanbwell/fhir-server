@@ -26,6 +26,8 @@ const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+
 describe('Observation Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();

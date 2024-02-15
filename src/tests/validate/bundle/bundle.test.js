@@ -6,7 +6,7 @@ const expectedBundleValidation = require('./fixtures/expected/expected_bundle_va
 const expectedProcedure = require('./fixtures/expected/expected_procedure.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Bundle Tests', () => {
     beforeEach(async () => {

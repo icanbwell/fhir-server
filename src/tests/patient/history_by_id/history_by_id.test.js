@@ -13,7 +13,7 @@ const {
     getTestContainer,
     mockHttpContext,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     let requestId;

@@ -8,7 +8,7 @@ const expectedObservationResources = require('./fixtures/expected/expected_obser
 const expectedObservationByIdResources = require('./fixtures/expected/expected_observation_by_id.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {

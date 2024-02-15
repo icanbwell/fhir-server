@@ -39,8 +39,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
-const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
+const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
+const {DatabasePartitionedCursor} = require('../../../dataLayer/databasePartitionedCursor');
 
 const headers = getHeaders();
 const client1Headers = getHeaders('user/*.read access/client-1.*');
@@ -88,7 +88,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
             ])
             .set(headers);
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
+        expect(resp).toHaveMergeResponse({created: true});
         expect(resp).toHaveResourceCount(14);
 
         resp = await request
@@ -121,7 +121,7 @@ describe('Consent Based Data Access Test With Shared Patient', () => {
             .send([consentGivenClient1, consentGivenClient2])
             .set(headers);
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({ created: true });
+        expect(resp).toHaveMergeResponse({created: true});
         expect(resp).toHaveResourceCount(2);
 
         // now it should return consented resources

@@ -13,7 +13,7 @@ const {
     getTestContainer,
     mockHttpContext,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {MockKafkaClient} = require('../../mocks/mockKafkaClient');
 const { generateUUIDv5 } = require('../../../utils/uid.util');

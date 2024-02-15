@@ -1,5 +1,5 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 const {SecurityTagSystem} = require('../../../../utils/securityTagSystem');
 const Resource = require('../../../../fhir/classes/4_0_0/resources/resource');

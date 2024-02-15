@@ -20,7 +20,7 @@ const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expect
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 const {FakeLLMFactory} = require('../../../chatgpt/llms/fakeLLMFactory');
 const {FakeLLM} = require('../../../chatgpt/llms/fakeLLM');

@@ -1,4 +1,4 @@
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {commonBeforeEach, commonAfterEach} = require('../../../common');
 const {PartitioningManager} = require('../../../../partitioners/partitioningManager');
 const {ConfigManager} = require('../../../../utils/configManager');

@@ -1,4 +1,4 @@
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getGraphQLHeaders } = require('../../common');
 const { customIndexes } = require('./mockCustomIndexes');
 const { IndexProvider } = require('../../../indexes/indexProvider');

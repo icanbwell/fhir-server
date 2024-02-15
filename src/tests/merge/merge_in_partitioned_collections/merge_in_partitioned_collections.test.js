@@ -6,7 +6,7 @@ const expectedAuditEventResources = require('./fixtures/expected/expected_AuditE
 const expectedAuditEventFirstTwoResources = require('./fixtures/expected/expected_AuditEvent_first _two.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {

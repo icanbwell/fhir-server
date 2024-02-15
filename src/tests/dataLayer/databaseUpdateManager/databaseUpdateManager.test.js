@@ -9,7 +9,7 @@ const expectedPersonBeforeUpdateResources = require('./fixtures/expected/expecte
 const expectedPerson3Resources = require('./fixtures/expected/expected_Person3.json');
 
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const Person = require('../../../fhir/classes/4_0_0/resources/person');
 
 describe('Person Tests', () => {

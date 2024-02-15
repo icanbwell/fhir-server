@@ -22,7 +22,7 @@ const {
     createTestRequest,
     getTestContainer, mockHttpContext,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
 

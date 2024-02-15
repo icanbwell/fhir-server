@@ -1,4 +1,4 @@
-const {describe, test} = require('@jest/globals');
+const {describe, test, expect} = require('@jest/globals');
 const {PatientFilterManager} = require('../../../fhir/patientFilterManager');
 
 

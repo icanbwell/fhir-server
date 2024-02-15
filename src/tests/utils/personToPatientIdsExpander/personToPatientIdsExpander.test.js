@@ -9,7 +9,7 @@ const {
     getHeaders,
     createTestRequest, getTestContainer
 } = require('../../common');
-const { describe, expect, test, beforeEach, afterEach} = require('@jest/globals');
+const { describe, test, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('personToPatientIdsExpanders Test', () => {
     beforeEach(async () => {

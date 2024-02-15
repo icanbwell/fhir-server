@@ -7,7 +7,7 @@ const expectedCodeSystemHistoryResources = require('./fixtures/expected/expected
 const expectedCodeSystemsFromDatabase = require('./fixtures/expected/expected_codesystem_from_database.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const moment = require('moment-timezone');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');

@@ -6,7 +6,7 @@ const expectedAuditEventResources = require('./fixtures/expected/expected_AuditE
 const expectedMergeResponse = require('./fixtures/expected/expectedMergeResponse.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('AuditEvent Tests', () => {
     beforeEach(async () => {

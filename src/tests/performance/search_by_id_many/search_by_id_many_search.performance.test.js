@@ -8,7 +8,7 @@ const {
     getHeadersNdJson,
     createTestRequest, getTestContainer,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const env = require('var');
 const {ConfigManager} = require('../../../utils/configManager');
 const {ResponseChunkParser} = require('../responseChunkParser');

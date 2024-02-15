@@ -7,6 +7,7 @@ const updatedDocumentReferenceData = require('./fixtures/document_reference/upda
 const expectedCreateResponse = require('./fixtures/expected/create_response.json');
 const expectedUpdateResponse = require('./fixtures/expected/update_response.json');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('GridFS merge tests', () => {
     beforeEach(async () => {

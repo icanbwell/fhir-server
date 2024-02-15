@@ -9,7 +9,7 @@ const expectedPatient1UpdateGenderResources = require('./fixtures/expected/expec
 const expectedPatient1UpdateReferenceResources = require('./fixtures/expected/expected_patient1_update_reference.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {

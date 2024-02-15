@@ -14,6 +14,7 @@ const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
 const patch4 = require('./fixtures/patches/patch4.json');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('GridFs Patch Test', () => {
     beforeEach(async () => {

@@ -5,7 +5,7 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {

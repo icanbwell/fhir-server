@@ -6,7 +6,7 @@ const consent2Resource = require('./fixtures/Consent/consent2.json');
 const expectedConsentResources = require('./fixtures/expected/expected_Consent.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Consent Tests', () => {
     beforeEach(async () => {

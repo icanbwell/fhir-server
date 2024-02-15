@@ -19,7 +19,7 @@ const expectedObservationProxyPatientNested = require('./fixtures/expected/expec
 const expectedObservationProxyPatientWithDirectLink = require('./fixtures/expected/expectedObservationProxyPatientWithDirectLink.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const deepcopy = require('deepcopy');
 const {ConfigManager} = require('../../../../utils/configManager');
 

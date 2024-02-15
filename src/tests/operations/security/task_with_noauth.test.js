@@ -7,7 +7,7 @@ const {
     getHeadersWithCustomPayload,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeAll, afterAll, expect, test} = require('@jest/globals');
+const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {

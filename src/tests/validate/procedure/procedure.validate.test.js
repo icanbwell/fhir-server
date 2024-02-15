@@ -5,7 +5,7 @@ const procedure1Resource = require('./fixtures/Procedure/procedure1.json');
 const expectedProcedureResources = require('./fixtures/expected/expected_procedure.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Procedure Validate Tests', () => {
     beforeEach(async () => {

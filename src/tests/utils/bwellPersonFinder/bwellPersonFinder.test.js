@@ -10,7 +10,7 @@ const {
     getHeaders,
     createTestRequest, getTestContainer
 } = require('../../common');
-const { describe, expect, test, beforeEach, afterEach} = require('@jest/globals');
+const { describe, test, beforeEach, afterEach, expect} = require('@jest/globals');
 const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('bwellPersonFinder Tests', () => {

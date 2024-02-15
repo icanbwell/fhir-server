@@ -5,6 +5,8 @@ const documentReferenceData = require('./fixtures/document_reference/document_re
 const documentReferenceWithoutData = require('./fixtures/document_reference/document_reference_without_data.json');
 const updatedDocumentReferenceData = require('./fixtures/document_reference/updated_document_reference.json');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+
 describe('GridFS update tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();

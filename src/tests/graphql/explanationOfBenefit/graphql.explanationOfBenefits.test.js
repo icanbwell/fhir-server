@@ -26,7 +26,7 @@ const {
     getGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
 const {removeNull} = require('../../../utils/nullRemover');
 

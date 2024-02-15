@@ -6,7 +6,7 @@ const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {createTestContainer} = require('../createTestContainer');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {generateUUIDv5} = require('../../utils/uid.util');
 const {ConfigManager} = require('../../utils/configManager');
 

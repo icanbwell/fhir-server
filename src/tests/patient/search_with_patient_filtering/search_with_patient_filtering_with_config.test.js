@@ -34,7 +34,7 @@ const {
     getCustomGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeAll, afterAll, expect, test} = require('@jest/globals');
+const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 const {logInfo} = require('../../../operations/common/logging');
 

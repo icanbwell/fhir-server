@@ -16,7 +16,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {generateUUIDv5} = require('../../../utils/uid.util');
 
 describe('Claim Graph By Id Contained Tests', () => {

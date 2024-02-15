@@ -14,7 +14,7 @@ const unlinkedObservationResource = require('./fixtures/Observation/unlinked_obs
 const expectedPatientDeletedResources = require('./fixtures/expected/expected_Patient_deleted.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Delete Person and Patient $everything Tests', () => {
     beforeEach(async () => {

@@ -10,6 +10,8 @@ const expectedResultWithId = require('./fixtures/expected/expected_result_with_i
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+
 describe('Encounter Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();

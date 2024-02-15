@@ -26,6 +26,8 @@ const {
     ProaPatientClientPersonLinkRunner,
 } = require('../../../../admin/runners/proaPatientClientPersonLinkRunner');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+
 describe('Proa patient client persons linking tests', () => {
     beforeEach(async () => {
         const container = getTestContainer();

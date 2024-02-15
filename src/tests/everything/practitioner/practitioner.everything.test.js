@@ -33,7 +33,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {findDuplicateResourcesById} = require('../../../utils/list.util');
 
 describe('Practitioner Everything Tests', () => {

@@ -8,6 +8,8 @@ const {
     toHaveGraphQLResponse
 } = require('./customMatchers');
 
+const {expect} = require('@jest/globals');
+
 expect.extend({toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount, toHaveGraphQLResponse});
 
 const {

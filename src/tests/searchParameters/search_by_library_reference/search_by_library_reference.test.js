@@ -10,7 +10,7 @@ const {
     getHeaders,
     createTestRequest, getTestContainer,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {VERSIONS} = require('../../../middleware/fhir/utils/constants');
 
 describe('Measure Tests', () => {

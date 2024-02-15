@@ -3,7 +3,7 @@ const {
     mongoQueryStringify,
     mongoQueryAndOptionsStringify,
 } = require('../../../utils/mongoQueryStringify');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 const {logInfo} = require('../../../operations/common/logging');
 const {QueryItem} = require('../../../operations/graph/queryItem');

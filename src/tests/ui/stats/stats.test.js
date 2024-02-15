@@ -8,7 +8,7 @@ const {
     getHeaders,
     createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, jest, test, expect} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 const { ConfigManager } = require('../../../utils/configManager');

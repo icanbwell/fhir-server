@@ -25,7 +25,7 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {

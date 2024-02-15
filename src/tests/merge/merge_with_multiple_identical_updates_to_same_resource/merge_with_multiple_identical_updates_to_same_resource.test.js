@@ -6,7 +6,7 @@ const personMergeResource = require('./fixtures/Person/person2.json');
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Person Tests', () => {
     let requestId;

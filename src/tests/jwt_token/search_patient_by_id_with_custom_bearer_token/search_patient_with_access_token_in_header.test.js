@@ -11,7 +11,7 @@ const {
     createTestRequest,
     getHeadersWithCustomPayload, getTokenWithCustomPayload, setupMockOpenIdServer, getHeaders,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('PatientReturnIdWithCustomBearerTokenTests', () => {
     beforeEach(async () => {

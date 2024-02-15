@@ -13,7 +13,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('search_by_security_tag', () => {
     const scope = 'user/*.read user/*.write access/client.* access/client-1.*';

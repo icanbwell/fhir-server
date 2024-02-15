@@ -8,7 +8,7 @@ const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expect
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {ConfigManager} = require('../../../utils/configManager');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');

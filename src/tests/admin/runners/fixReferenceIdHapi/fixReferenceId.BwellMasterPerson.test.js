@@ -18,6 +18,7 @@ const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixRefer
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatientIdsExpander');
 const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {

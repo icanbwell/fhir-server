@@ -1,5 +1,5 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {AccessIndexManager} = require('../../../../operations/common/accessIndexManager');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {IndexProvider} = require('../../../../indexes/indexProvider');

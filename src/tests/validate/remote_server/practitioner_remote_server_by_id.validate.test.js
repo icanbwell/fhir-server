@@ -8,7 +8,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 const nock = require('nock');
 const USCorePractitionerProfile = require('./fixtures/us_core_profile_practitioner.json');

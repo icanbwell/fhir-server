@@ -13,7 +13,7 @@ const {
     getFullAccessToken,
     getHeadersWithCustomPayload
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
 
 describe('PatientReturnIdWithCustomBearerTokenTests', () => {

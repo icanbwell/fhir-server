@@ -12,7 +12,8 @@ const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const {fhirContentTypes} = require('../utils/contentTypes');
-const { TestConfigManager } = require('./testConfigManager');
+const {TestConfigManager} = require('./testConfigManager');
+const {jest, expect} = require('@jest/globals');
 
 /**
  * @type {import('http').Server}
@@ -83,6 +84,7 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  * @return {Promise<void>}
  */
 module.exports.commonBeforeEach = async () => {
+    // noinspection DynamicallyGeneratedCodeJS
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
@@ -149,7 +151,7 @@ module.exports.commonAfterEach = async () => {
 
     const configManager = testContainer?.configManager ?? new TestConfigManager();
 
-    const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
+    const testMongoDatabaseManager = new TestMongoDatabaseManager({configManager});
     await testMongoDatabaseManager.dropDatabasesAsync();
     if (server) {
         await server.close();
@@ -429,9 +431,9 @@ module.exports.getRequestId = (resp) => {
  * @returns {string}
  */
 module.exports.mockHttpContext = ({
-    systemGeneratedRequestId,
-    userRequestId
-} = {}) => {
+                                      systemGeneratedRequestId,
+                                      userRequestId
+                                  } = {}) => {
     jest.spyOn(httpContext, 'get');
     const values = {
         'systemGeneratedRequestId': systemGeneratedRequestId || '12345678',

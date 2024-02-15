@@ -1,5 +1,5 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 const {IndexProvider} = require('../../../indexes/indexProvider');
 

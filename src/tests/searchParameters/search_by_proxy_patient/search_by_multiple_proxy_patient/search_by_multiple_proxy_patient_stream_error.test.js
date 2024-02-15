@@ -24,7 +24,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { IdEnrichmentProvider } = require('../../../../enrich/providers/idEnrichmentProvider');
 

@@ -28,6 +28,7 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const {
     DelinkProaPersonPatientRunner,
 } = require('../../../../admin/runners/delinkProaPersonPatientRunner');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Proa patient client persons delinking tests', () => {
     beforeEach(async () => {

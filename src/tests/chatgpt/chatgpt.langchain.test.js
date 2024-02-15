@@ -19,7 +19,7 @@ const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 
 const patientBundleResource = require('./fixtures/patient.json');
 
-const {describe, test} = require('@jest/globals');
+const {describe, test, expect} = require('@jest/globals');
 // const {FaissStore} = require('langchain/vectorstores/faiss');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
@@ -631,4 +631,3 @@ describe('ChatGPT Tests', () => {
         });
     });
 });
-

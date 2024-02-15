@@ -14,7 +14,7 @@ const {
     getHeadersFormUrlEncoded,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerStreaming extends ConfigManager {

@@ -4,7 +4,7 @@ const practitionerRoleResource = require('./fixtures/providers/practitioner_role
 const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Practitioner Integration Tests', () => {
     beforeEach(async () => {

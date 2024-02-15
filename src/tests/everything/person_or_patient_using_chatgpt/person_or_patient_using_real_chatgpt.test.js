@@ -19,7 +19,7 @@ const expectedPatient = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;

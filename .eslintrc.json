@@ -20,7 +20,6 @@
       "object-shorthand": "off",
       "comma-dangle": "off",
       "no-tabs": "off",
-      "no-undef": "off",
       "no-multiple-empty-lines": "off",
       "block-spacing": "off",
       "padded-blocks": "off",

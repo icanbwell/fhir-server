@@ -5,7 +5,7 @@ const personResource = require('./fixtures/person.json');
 const expectedPersonResult = require('./fixtures/expectedPersonResult.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 // const { customIndexes } = require('./mockCustomIndexes');
 const { ConfigManager } = require('../../utils/configManager');

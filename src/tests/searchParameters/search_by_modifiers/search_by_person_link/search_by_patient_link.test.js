@@ -5,6 +5,8 @@ const person2Resource = require('./fixtures/Person/person2.json');
 
 const expectedPerson1Resource = require('./fixtures/expected/person1.json');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+
 const {
     commonBeforeEach,
     commonAfterEach,

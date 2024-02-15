@@ -16,6 +16,7 @@ const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../utils/configManager');
 
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
