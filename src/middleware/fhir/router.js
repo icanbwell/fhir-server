@@ -135,7 +135,7 @@ class FhirRouter {
             // let hasController = profile.serviceModule ? true : false; // Check for required configurations, must have name, route, method, and
             // a matching controller
 
-            if (!op.name || !op.route || !op.method /*|| !hasController*/) {
+            if (!op.name || !op.route || !op.method /* || !hasController */) {
                 throw new Error(errorMessage);
             }
 

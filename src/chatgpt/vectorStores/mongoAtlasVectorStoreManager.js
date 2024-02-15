@@ -102,7 +102,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      */
     getFilter(filter) {
         // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
-        return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}*/ {
+        return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter} */ {
             compound: {
                 should: [
                     {

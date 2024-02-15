@@ -84,9 +84,9 @@ class GenericController {
      */
     search(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {boolean}
@@ -130,9 +130,9 @@ class GenericController {
      */
     searchById(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const resource = await this.fhirOperationsManager.searchById(req.sanitized_args, {
                         req,
@@ -158,9 +158,9 @@ class GenericController {
      */
     searchByVersionId(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const resource = await this.fhirOperationsManager.searchByVersionId(
                     req.sanitized_args,
@@ -189,9 +189,9 @@ class GenericController {
      */
     create(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {Resource}
@@ -223,9 +223,9 @@ class GenericController {
      */
     merge(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const resource = await this.fhirOperationsManager.merge(req.sanitized_args, {
                         req,
@@ -254,9 +254,9 @@ class GenericController {
      */
     update(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {{id: string, created: boolean, resource_version: string, resource: Resource}}
@@ -288,9 +288,9 @@ class GenericController {
      */
     remove(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const json = await this.fhirOperationsManager.remove(req.sanitized_args, {
                         req,
@@ -317,9 +317,9 @@ class GenericController {
      */
     patch(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {{id: string, created: boolean, resource_version: string, resource: Resource}}
@@ -353,9 +353,9 @@ class GenericController {
      */
     history(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const bundle = await this.fhirOperationsManager.history(req.sanitized_args, {
                         req,
@@ -382,9 +382,9 @@ class GenericController {
      */
     historyById(service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const bundle = await this.fhirOperationsManager.historyById(req.sanitized_args, {
                         req,

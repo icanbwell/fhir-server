@@ -22,7 +22,6 @@
       "block-spacing": "off",
       "padded-blocks": "off",
       "operator-linebreak": "off",
-      "spaced-comment": "off",
       "prefer-regex-literals": "off",
       "no-unneeded-ternary": "off",
       "multiline-ternary": "off",

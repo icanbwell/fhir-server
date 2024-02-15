@@ -84,10 +84,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 );
 
 
-                 /**@type {{[k: string]: string}} */
+                 /** @type {{[k: string]: string}} */
                 const patientToPersonMap = {};
 
-                /**@type {string[]} */
+                /** @type {string[]} */
                 const patientProxyIds = [];
                 Object.entries(patientProxyMap).forEach(([personId, ids]) => {
                     patientProxyIds.push(...ids);

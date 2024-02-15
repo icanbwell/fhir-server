@@ -69,7 +69,7 @@ class MyFHIRServer {
      * @return {MyFHIRServer}
      */
     configureMiddleware() {
-        //Enable error tracking request handler if supplied in config
+        // Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
             this.app.use(this.config.errorTracking.requestHandler());
         }
@@ -251,7 +251,7 @@ class MyFHIRServer {
         /**
          * @type {import('winston').logger}
          */
-        //Enable error tracking error handler if supplied in config
+        // Enable error tracking error handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.errorHandler) {
             this.app.use(this.config.errorTracking.errorHandler());
         }

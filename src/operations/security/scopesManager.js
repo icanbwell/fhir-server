@@ -127,7 +127,7 @@ class ScopesManager {
         }
         const hasPatientScope = this.hasPatientScope({scope});
         if (hasPatientScope) {
-            return true; //TODO: should double check here that the resources belong to this patient
+            return true; // TODO: should double check here that the resources belong to this patient
         }
         // add any access codes from scopes
         /**

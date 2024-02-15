@@ -12,7 +12,7 @@ class ProfileUrlMapper {
         const mapper = canonicalToOriginalUrlMap['4_0_0'];
         const urls = Object.create({});
 
-        /**@type {Set<string>} */
+        /** @type {Set<string>} */
         this._supportedResources = new Set();
 
         for (const resourceName in mapper) {

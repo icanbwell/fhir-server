@@ -213,7 +213,7 @@ describe('Missing Index Tests', () => {
             let indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
 
-            //now add meta.lastUpdated_1 index but with different keys
+            // now add meta.lastUpdated_1 index but with different keys
             indexResult = await patientCollection.createIndex(
                 {
                     'meta.source': 1

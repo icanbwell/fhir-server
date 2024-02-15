@@ -308,12 +308,12 @@ class DataSharingManager {
 
         updatedParsedArgs
             .parsedArgItems
-            .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
+            .forEach((/** @type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
                 // if property is related to patient
                 if (
                     item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient') && resourceType !== 'Patient'
                 ) {
-                    /**@type {string[]} */
+                    /** @type {string[]} */
                     const newQueryParameterValues = [];
 
                     // update the query-param values
@@ -410,9 +410,9 @@ class DataSharingManager {
 
         const modifiersToSkip = ['not'];
 
-        /**@type {import('../query/filters/searchFilterFromReference').IReferences} */
+        /** @type {import('../query/filters/searchFilterFromReference').IReferences} */
         const idReferenceMap = parsedArgs.parsedArgItems
-            .reduce((/**@type {import('../query/filters/searchFilterFromReference').IReferences}*/refs, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
+            .reduce((/** @type {import('../query/filters/searchFilterFromReference').IReferences} */refs, /** @type {import('../query/parsedArgsItem').ParsedArgsItem} */currArg) => {
                 const queryParamReferences = currArg.references;
 
                 // if patient id is passed and resource type is patient
@@ -467,7 +467,7 @@ class DataSharingManager {
                 securityTags
             });
         // convert to patientReference -> PersonUuid
-        /**@type {{[key: string]: string[]}} */
+        /** @type {{[key: string]: string[]}} */
         const patientReferenceToPersonUuid = {};
         for (const [patientReference, immediatePersons] of patientToImmediatePersonAsync.entries()) {
             // reference without Patient prefix
@@ -562,7 +562,7 @@ class DataSharingManager {
          * @type {Map<string, number>}
          * */
         const patientIdToCount = new Map();
-        /**@type {Set<string>} */
+        /** @type {Set<string>} */
         const idsWithMultipleResourcesSet = new Set();
         patientReferences.forEach((ref) => {
             const {id, sourceAssigningAuthority} = ref;
@@ -596,7 +596,7 @@ class DataSharingManager {
             patientIdToCount.set(patientId, count);
         });
 
-        /**@type {string[]} */
+        /** @type {string[]} */
         const idsWithMultipleResources = Array.from(idsWithMultipleResourcesSet);
         if (idsWithMultipleResources.length > 0) {
             const message = [

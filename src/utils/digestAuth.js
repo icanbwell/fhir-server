@@ -39,7 +39,7 @@ class RequestWithDigestAuth {
      * @returns {import('superagent').Response}
      */
     async request(options) {
-        /**@type {number} */
+        /** @type {number} */
         const retriedWithDigestTimes = options.retriedWithDigestTimes ?? 0;
 
         try {

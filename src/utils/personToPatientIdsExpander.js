@@ -48,7 +48,7 @@ class PersonToPatientIdsExpander {
             ) : [
                 ids.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
             ];
-        /**@type {Set<string>} */
+        /** @type {Set<string>} */
         const unvisitedPersonIds = new Set(personIds);
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
@@ -78,7 +78,7 @@ class PersonToPatientIdsExpander {
              * @type {Map<string, Set<string>}
              */
             const personToPatientMap = patientIds;
-            /**@type {{[key: string]: string[]}} */
+            /** @type {{[key: string]: string[]}} */
             const plainMap = {};
             for (const [personId, patientIdsSet] of personToPatientMap) {
 
@@ -120,7 +120,7 @@ class PersonToPatientIdsExpander {
             base_version: base_version
         });
 
-        /**@type {string[]} */
+        /** @type {string[]} */
         const ids = [];
         idsSet.forEach((person) => {
             ids.push(person.replace(PERSON_REFERENCE_PREFIX, ''));
@@ -137,7 +137,7 @@ class PersonToPatientIdsExpander {
         );
 
         if (toMap === true) {
-            /**@type {Map<string, Set<string>} */
+            /** @type {Map<string, Set<string>} */
             const patientIdsMap = patientIdsOrMap;
             const plainMap = {};
             for (const [personId, patientIds] of patientIdsMap) {

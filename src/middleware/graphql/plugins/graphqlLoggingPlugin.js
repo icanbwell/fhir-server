@@ -4,7 +4,7 @@ const {logInfo, logError} = require('../../../operations/common/logging');
 /***
  * Plugin to log calls to GraphQL
  */
-class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
+class MyApolloServerLoggingPlugin /* extends ApolloServerPlugin */ {
     /***
      * This plugin logs calls to the GraphQL
      * https://www.apollographql.com/docs/apollo-server/integrations/plugins/

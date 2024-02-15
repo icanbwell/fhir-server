@@ -429,7 +429,7 @@ describe('patient Tests', () => {
 
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
-            //Make sure patient 123 can only access his Conditions
+            // Make sure patient 123 can only access his Conditions
 
             test('A user can access their subject-filtered resources by id', async () => {
                 const request = await createTestRequest();
@@ -454,7 +454,7 @@ describe('patient Tests', () => {
         });
 
         describe('App clients security filtering if no patient id is passed', () => {
-            //Make sure app clients can access all patients
+            // Make sure app clients can access all patients
             test('App clients cannot access all id-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
                 const resp = await request
@@ -466,7 +466,7 @@ describe('patient Tests', () => {
 
             test('App clients cannot access all patient-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
-                //Make sure app clients can access all patient filtered resources
+                // Make sure app clients can access all patient filtered resources
                 const resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));

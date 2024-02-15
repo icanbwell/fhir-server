@@ -168,7 +168,7 @@ class ProaConsentManager {
                 });
 
                 if (proxyPersonActor?.reference?._uuid) {
-                    /**@type {string} */
+                    /** @type {string} */
                     const uuidRef = proxyPersonActor.reference._uuid;
                     const personUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
                     if (immediatePersonToInputPatientId.has(personUuid)) {

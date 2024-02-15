@@ -40,39 +40,39 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         super(args);
 
         if (collections.length === 1 && collections[0] === 'all') {
-            /**@type {string[]} */
+            /** @type {string[]} */
             this.collections = [...AvailableCollections];
         } else {
-            /**@type {string[]} */
+            /** @type {string[]} */
             this.collections = collections.filter(
                 (c) => AvailableCollections.includes(c)
             );
         }
-        /**@type {number|undefined} */
+        /** @type {number|undefined} */
         this.skip = skip;
-        /**@type {number|undefined} */
+        /** @type {number|undefined} */
         this.limit = limit;
-        /**@type {string|undefined} */
+        /** @type {string|undefined} */
         this.startFromId = startFromId;
-        /**@type {boolean|undefined} */
+        /** @type {boolean|undefined} */
         this.useTransaction = useTransaction;
-        /**@type {Date|undefined} */
+        /** @type {Date|undefined} */
         this.afterLastUpdatedDate = afterLastUpdatedDate;
-        /**@type {Date|undefined} */
+        /** @type {Date|undefined} */
         this.beforeLastUpdatedDate = beforeLastUpdatedDate;
 
-        /**@type {PreSaveManager} */
+        /** @type {PreSaveManager} */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
 
 
-        /**@type {Map<string, { id: string; items: Array} */
+        /** @type {Map<string, { id: string; items: Array} */
         this.questionaireValues = new Map();
 
-        /**@type {Map<string, Resource> */
+        /** @type {Map<string, Resource> */
         this.questionnaireIdToResource = new Map();
 
-        /**@type {Map<string, string>} */
+        /** @type {Map<string, string>} */
         this.questionnaireResponseToQuestionnaireId = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
@@ -209,7 +209,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 if (coding[0].id === 'bwell-consent-type' &&
                     coding[0].system === 'http://www.icanbwell.com/consent-category' &&
                     coding[0].code && coding[0].display) {
-                    //coding already set correctly
+                    // coding already set correctly
                     return resource;
                 }
             }

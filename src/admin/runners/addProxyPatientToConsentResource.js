@@ -51,25 +51,25 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
         super(args);
 
         if (collections.length === 1 && collections[0] === 'all') {
-            /**@type {string[]} */
+            /** @type {string[]} */
             this.collections = [...AvailableCollections];
         } else {
-            /**@type {string[]} */
+            /** @type {string[]} */
             this.collections = collections.filter(
                 (c) => AvailableCollections.includes(c)
             );
         }
-        /**@type {number|undefined} */
+        /** @type {number|undefined} */
         this.skip = skip;
-        /**@type {number|undefined} */
+        /** @type {number|undefined} */
         this.limit = limit;
-        /**@type {string|undefined} */
+        /** @type {string|undefined} */
         this.startFromId = startFromId;
-        /**@type {boolean|undefined} */
+        /** @type {boolean|undefined} */
         this.useTransaction = useTransaction;
-        /**@type {Date|undefined} */
+        /** @type {Date|undefined} */
         this.afterLastUpdatedDate = afterLastUpdatedDate;
-        /**@type {Date|undefined} */
+        /** @type {Date|undefined} */
         this.beforeLastUpdatedDate = beforeLastUpdatedDate;
         /**
          * @type {BwellPersonFinder}
@@ -77,7 +77,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
-        /**@type {PreSaveManager} */
+        /** @type {PreSaveManager} */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
 
@@ -116,13 +116,13 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             }
         });
 
-        /**@type {Map<string, { id: string; sourceAssigningAuthority: string}} */
+        /** @type {Map<string, { id: string; sourceAssigningAuthority: string}} */
         this.consentToImmediatePersonCache = new Map();
 
-        /**@type {Map<string, string>} */
+        /** @type {Map<string, string>} */
         this.consentWithNoPerson = new Map();
 
-        /**@type {Map<string, string>} */
+        /** @type {Map<string, string>} */
         this.consentToPatientWithMultiplePerson = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
@@ -297,7 +297,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
         )}`;
         let wrongPersonActor;
 
-        /**@type {boolean} */
+        /** @type {boolean} */
         const isAlreadyPresent = provisionActor.some((actor) => {
             let alreadyPresent;
             alreadyPresent =

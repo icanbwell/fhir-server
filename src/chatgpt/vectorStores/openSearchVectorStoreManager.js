@@ -81,7 +81,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      */
     getFilter(filter) {
         // OpenSearchFilter is just of type object
-        return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
+        return /** @type {import('langchain/vectorstores').OpenSearchFilter} */ {
             parentResourceType: filter.resourceType,
             parentUuid: filter.uuid
         };

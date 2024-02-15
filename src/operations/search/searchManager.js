@@ -813,7 +813,7 @@ class SearchManager {
                 originalOptions.push(options);
             } else {
                 // no results
-                query = null; //no need to query
+                query = null; // no need to query
             }
             return {options, actualQuery: originalQuery, query, actualOptions: originalOptions};
         } catch (e) {

@@ -202,7 +202,7 @@ class BwellPersonFinder {
      * @return {string[]} references linked to given person
      */
     getAllLinkedReferencesFromPerson(person, referencesToSearchFrom) {
-        /**@type {string[]} */
+        /** @type {string[]} */
         const linkedIds = [];
 
         /**

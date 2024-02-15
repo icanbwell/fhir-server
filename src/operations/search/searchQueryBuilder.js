@@ -32,9 +32,9 @@ class SearchQueryBuilder {
      * @returns {{ query: import('mongodb').Document, columns: Set<string> | undefined }}
      */
     buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable}) {
-        /**@type {import('mongodb').Document} */
+        /** @type {import('mongodb').Document} */
         let query;
-        /**@type {Set<string>} */
+        /** @type {Set<string>} */
         let columns;
         try {
             if (base_version === VERSIONS['3_0_1']) {

@@ -8,7 +8,7 @@ const deepmerge = require('deepmerge');
  * @type {{customMerge: (function(*): *)}}
  */
 const options = {
-    customMerge: (/*key*/) => {
+    customMerge: (/* key */) => {
         // this requires a forward declaration since it uses recursion
         // eslint-disable-next-line no-use-before-define
         return mergeObjectOrArray;

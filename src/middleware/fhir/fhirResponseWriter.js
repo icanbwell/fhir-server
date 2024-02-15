@@ -151,7 +151,7 @@ class FhirResponseWriter {
         } else {
             res.status(201).json(resource).end();
         }
-        //TODO: handle return=OperationOutcome
+        // TODO: handle return=OperationOutcome
     }
 
     /**

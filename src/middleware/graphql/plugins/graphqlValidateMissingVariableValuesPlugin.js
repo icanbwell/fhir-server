@@ -3,7 +3,7 @@ const { ApolloServerErrorCode } = require('@apollo/server/errors');
 
 const { GraphQLError } = require('graphql');
 
-class ValidateMissingVariableValuesPlugin /*extends ApolloServerPlugin*/ {
+class ValidateMissingVariableValuesPlugin /* extends ApolloServerPlugin */ {
     /**
      * This plugin validates that all the GraphQL Variables have corresponding values provided
      */

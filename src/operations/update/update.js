@@ -169,7 +169,7 @@ class UpdateOperation {
             body, /** @type {string|null} */
             requestId, /** @type {string} */
             method,
-            /**@type {string} */ userRequestId,
+            /** @type {string} */ userRequestId,
             /** @type {string[]} */
             patientIdsFromJwtToken,
             /** @type {boolean} */

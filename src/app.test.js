@@ -25,7 +25,7 @@ const mockProducer = {
 
 // Mocking kafkajs library
 jest.mock('kafkajs', () => {
-    //Mock the Kafka class
+    // Mock the Kafka class
     return {
         __esmodule: true,
         Kafka: jest.fn(() => mockProducer)

@@ -53,9 +53,9 @@ class CustomOperationsController {
             resourceType
         }) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             const {
                 base_version,
                 id
@@ -100,9 +100,9 @@ class CustomOperationsController {
             resourceType
         }) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             const {
                 base_version,
                 id
@@ -139,9 +139,9 @@ class CustomOperationsController {
             resourceType
         }) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const result = await
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {

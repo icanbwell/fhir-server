@@ -28,7 +28,7 @@ class ParsedArgsItem {
             patientToPersonMap
         }
     ) {
-        /**'
+        /** '
          * @type {string}
          */
         this.queryParameter = queryParameter;
