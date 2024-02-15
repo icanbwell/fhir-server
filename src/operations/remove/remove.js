@@ -196,10 +196,10 @@ class RemoveOperation {
                 query.$and.push(
                     {
                         'meta.security': {
-                            '$elemMatch': {
-                                'system': SecurityTagSystem.access,
-                                'code': {
-                                    '$in': securityTags
+                            $elemMatch: {
+                                system: SecurityTagSystem.access,
+                                code: {
+                                    $in: securityTags
                                 }
                             }
                         }

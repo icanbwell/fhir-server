@@ -12,7 +12,6 @@
       "indent": "off",
       "semi": "off",
       "dot-notation": "off",
-      "quote-props": "off",
       "camelcase": "off",
       "object-shorthand": "off",
       "prefer-regex-literals": "off",

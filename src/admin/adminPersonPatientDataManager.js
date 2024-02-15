@@ -73,8 +73,8 @@ class AdminPersonPatientDataManager {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
             const args = {
-                'base_version': base_version,
-                'id': patientId
+                base_version: base_version,
+                id: patientId
             };
             const bundle = await this.everythingOperation.everythingAsync({
                 requestInfo,
@@ -172,8 +172,8 @@ databaseUpdateManagerForPerson,
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
             const args = {
-                'base_version': base_version,
-                'id': personId
+                base_version: base_version,
+                id: personId
             };
             const bundle = await this.everythingOperation.everythingAsync({
                 requestInfo,
@@ -240,7 +240,7 @@ databaseUpdateManagerForPerson,
                  * @type {DatabasePartitionedCursor}
                  */
                 const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
-                    query: { 'link.target._uuid': { '$in': deletedResourceIdsWithResourceType } }
+                    query: { 'link.target._uuid': { $in: deletedResourceIdsWithResourceType } }
                 });
                 /**
                  * @type {import('mongodb').DefaultSchema[]}

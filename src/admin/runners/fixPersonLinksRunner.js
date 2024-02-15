@@ -379,29 +379,29 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
             });
             const result = await dbCollection.aggregate([
                 {
-                    '$match': {
+                    $match: {
                         'meta.security': {
-                            '$elemMatch': {
-                                'system': 'https://www.icanbwell.com/owner',
-                                'code': 'bwell'
+                            $elemMatch: {
+                                system: 'https://www.icanbwell.com/owner',
+                                code: 'bwell'
                             }
                         }
                     }
                 }, {
-                    '$unwind': {
-                        'path': '$link'
+                    $unwind: {
+                        path: '$link'
                     }
                 }, {
-                    '$group': {
-                        '_id': '$_id',
-                        'count': {
-                            '$count': {}
+                    $group: {
+                        _id: '$_id',
+                        count: {
+                            $count: {}
                         }
                     }
                 }, {
-                    '$match': {
-                        'count': {
-                            '$gte': parseInt(`${this.minLinks ? this.minLinks : 20}`)
+                    $match: {
+                        count: {
+                            $gte: parseInt(`${this.minLinks ? this.minLinks : 20}`)
                         }
                     }
                 }

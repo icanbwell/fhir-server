@@ -95,11 +95,11 @@ class AuditLogger {
         }
     ) {
         const operationCodeMapping = {
-            'create': 'C',
-            'read': 'R',
-            'update': 'U',
-            'delete': 'D',
-            'execute': 'E'
+            create: 'C',
+            read: 'R',
+            update: 'U',
+            delete: 'D',
+            execute: 'E'
         };
 
         // Get current record
@@ -112,12 +112,12 @@ class AuditLogger {
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
                 security: [
                     new Coding({
-                        'system': SecurityTagSystem.owner,
-                        'code': 'bwell'
+                        system: SecurityTagSystem.owner,
+                        code: 'bwell'
                     }),
                     new Coding({
-                        'system': SecurityTagSystem.access,
-                        'code': 'bwell'
+                        system: SecurityTagSystem.access,
+                        code: 'bwell'
                     })
                 ]
             }),

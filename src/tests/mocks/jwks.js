@@ -42,13 +42,13 @@ function jwksDiscoveryEndpoint (host) {
         .persist()
         .get('/.well-known/openid-configuration')
         .reply(200, {
-            'id_token_signing_alg_values_supported': ['RS256'],
-            'issuer': host,
-            'jwks_uri': `${host}/.well-known/jwks.json`,
-            'response_types_supported': ['code', 'token'],
-            'scopes_supported': ['openid', 'email', 'phone', 'profile'],
-            'subject_types_supported': ['public'],
-            'userinfo_endpoint': `${host}/userInfo`
+            id_token_signing_alg_values_supported: ['RS256'],
+            issuer: host,
+            jwks_uri: `${host}/.well-known/jwks.json`,
+            response_types_supported: ['code', 'token'],
+            scopes_supported: ['openid', 'email', 'phone', 'profile'],
+            subject_types_supported: ['public'],
+            userinfo_endpoint: `${host}/userInfo`
         });
 }
 
@@ -74,12 +74,12 @@ function jwksUserInfoEndpoint ({ host, token, patientId, personId }) {
             return {
                 'custom:bwellFhirPatientId': patientId,
                 'custom:bwellFhirPersonId': personId,
-                'sub': 'f559569d-a6c8-4f70-8447-489b42f48b07',
-                'email_verified': 'true',
+                sub: 'f559569d-a6c8-4f70-8447-489b42f48b07',
+                email_verified: 'true',
                 'custom:clientFhirPersonId': personId,
                 'custom:clientFhirPatientId': patientId,
-                'email': 'imran@icanbwell.com',
-                'username': 'bwell-demo-provider'
+                email: 'imran@icanbwell.com',
+                username: 'bwell-demo-provider'
             };
         });
 }

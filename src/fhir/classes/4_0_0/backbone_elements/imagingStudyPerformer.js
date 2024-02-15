@@ -27,7 +27,7 @@ class ImagingStudyPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor
         }
     ) {
@@ -154,7 +154,7 @@ class ImagingStudyPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor
         });
     }

@@ -450,13 +450,13 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                         {
                             'meta.security': {
                                 $elemMatch: {
-                                    'system': 'https://www.icanbwell.com/connectionType',
-                                    'code': 'proa'
+                                    system: 'https://www.icanbwell.com/connectionType',
+                                    code: 'proa'
                                 }
                             }
                         },
                         {
-                            '_sourceAssigningAuthority': 'humanapi'
+                            _sourceAssigningAuthority: 'humanapi'
                         }
                     ]
                 }
@@ -523,7 +523,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
                                     }
                                 },
                                 {
-                                    '_sourceAssigningAuthority': 'humanapi'
+                                    _sourceAssigningAuthority: 'humanapi'
                                 }
                             ]
                         });

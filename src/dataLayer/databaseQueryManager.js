@@ -411,7 +411,7 @@ cursors,
          */
         const options = {
             projection: {
-                '_uuid': 1
+                _uuid: 1
             }
         };
         try {
@@ -461,10 +461,10 @@ error: e,
          */
         const options = {
             projection: {
-                'id': 1,
-                '_uuid': 1,
-                '_sourceId': 1,
-                'meta': 1
+                id: 1,
+                _uuid: 1,
+                _sourceId: 1,
+                meta: 1
             }
         };
         try {

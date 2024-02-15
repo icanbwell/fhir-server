@@ -211,8 +211,8 @@ class KafkaClient {
                     key: m.key,
                     value: m.value,
                     headers: {
-                        'b3': m.requestId,
-                        'version': m.fhirVersion
+                        b3: m.requestId,
+                        version: m.fhirVersion
                     }
                 };
             });

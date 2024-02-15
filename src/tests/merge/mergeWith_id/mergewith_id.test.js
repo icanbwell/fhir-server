@@ -154,7 +154,7 @@ describe('Person Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const personCollection = fhirDb.collection(mongoCollectionName);
-            const person = await personCollection.findOne({ 'id': 'aba5bcf41cf64435839cf0568c121843' });
+            const person = await personCollection.findOne({ id: 'aba5bcf41cf64435839cf0568c121843' });
             const initialPersonUuid = person._uuid;
 
             const person1ResourceWithChange = deepcopy(person1Resource);
@@ -167,7 +167,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse({ created: false, updated: true });
 
             // check that the uuid has not changed
-            const finalPersonUuid = (await personCollection.findOne({ 'id': 'aba5bcf41cf64435839cf0568c121843' }))._uuid;
+            const finalPersonUuid = (await personCollection.findOne({ id: 'aba5bcf41cf64435839cf0568c121843' }))._uuid;
             expect(finalPersonUuid).toBe(initialPersonUuid);
         });
         test('mergeWith_id fails with missing permissions (create)', async () => {

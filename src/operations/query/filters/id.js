@@ -17,7 +17,7 @@ class FilterById extends BaseFilter {
      */
     static getListFilter (values) {
         if (!values || values.length === 0) {
-            return { '_uuid': { $in: [] } };
+            return { _uuid: { $in: [] } };
         }
 
         const idFieldMapper = new FieldMapper({ useHistoryTable: false });

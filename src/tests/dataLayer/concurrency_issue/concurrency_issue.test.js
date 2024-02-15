@@ -62,26 +62,26 @@ describe('CodeSystem Tests', () => {
             // Currently we don't handle concurrent inserts of same resource so create
             // a simple one first
             const simpleCodeSystem = new CodeSystem({
-                'id': 'medline-loinc-labs',
-                'meta': new Meta({
-                    'source': 'https://connect.medlineplus.gov/service',
-                    'security': [
+                id: 'medline-loinc-labs',
+                meta: new Meta({
+                    source: 'https://connect.medlineplus.gov/service',
+                    security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'medlineplus'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'medlineplus'
                         }),
                         new Coding({
-                            'system': 'https://www.icanbwell.com/access',
-                            'code': 'medlineplus'
+                            system: 'https://www.icanbwell.com/access',
+                            code: 'medlineplus'
                         }),
                         new Coding({
-                            'system': 'https://www.icanbwell.com/vendor',
-                            'code': 'medlineplus'
+                            system: 'https://www.icanbwell.com/vendor',
+                            code: 'medlineplus'
                         })
                     ]
                 }),
-                'status': 'active',
-                'content': 'fragment'
+                status: 'active',
+                content: 'fragment'
             });
             let resp = await request
                 .post('/4_0_0/CodeSystem/1/$merge?validate=true')
@@ -89,7 +89,7 @@ describe('CodeSystem Tests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ 'created': true });
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
 
@@ -107,9 +107,9 @@ describe('CodeSystem Tests', () => {
                 ]
             );
             // noinspection JSUnresolvedFunction
-            expect(response1).toHaveMergeResponse({ 'id': 'medline-loinc-labs' });
+            expect(response1).toHaveMergeResponse({ id: 'medline-loinc-labs' });
             // noinspection JSUnresolvedFunction
-            expect(response2).toHaveMergeResponse({ 'id': 'medline-loinc-labs' });
+            expect(response2).toHaveMergeResponse({ id: 'medline-loinc-labs' });
 
             await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
 
@@ -206,7 +206,7 @@ describe('CodeSystem Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': 'medline-loinc-labs' }
+                    query: { id: 'medline-loinc-labs' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -312,7 +312,7 @@ describe('CodeSystem Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': 'medline-loinc-labs' }
+                    query: { id: 'medline-loinc-labs' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -428,7 +428,7 @@ describe('CodeSystem Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': 'medline-loinc-labs' }
+                    query: { id: 'medline-loinc-labs' }
                 }
             );
             resource.meta.lastUpdated = null;

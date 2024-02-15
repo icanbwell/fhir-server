@@ -46,7 +46,7 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -55,17 +55,17 @@ describe('Practitioner Update Tests', () => {
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -102,7 +102,7 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -112,7 +112,7 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -121,17 +121,17 @@ describe('Practitioner Update Tests', () => {
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -169,7 +169,7 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -179,7 +179,7 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -188,17 +188,17 @@ describe('Practitioner Update Tests', () => {
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -247,7 +247,7 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -257,7 +257,7 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -266,17 +266,17 @@ describe('Practitioner Update Tests', () => {
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -320,7 +320,7 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -330,7 +330,7 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
                 }
             })
@@ -339,21 +339,21 @@ describe('Practitioner Update Tests', () => {
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'resourceType': 'OperationOutcome',
-                        'issue': [
+                        resourceType: 'OperationOutcome',
+                        issue: [
                             {
-                                'severity': 'error',
-                                'code': 'processing',
-                                'details': {
-                                    'coding': [
+                                severity: 'error',
+                                code: 'processing',
+                                details: {
+                                    coding: [
                                         {
-                                            'system': 'http://hl7.org/fhir/java-core-messageId',
-                                            'code': 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
+                                            system: 'http://hl7.org/fhir/java-core-messageId',
+                                            code: 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
                                         }
                                     ]
                                 },
-                                'diagnostics': "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
-                                'location': [
+                                diagnostics: "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+                                location: [
                                     'Patient.meta.profile[0]',
                                     'Line 1, Col 2'
                                 ]

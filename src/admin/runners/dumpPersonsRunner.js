@@ -102,7 +102,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         let refreshTimestamp = moment(); // take note of time at operation start
         // Filter to process only certain documents depending on the owner code passed.
         const accessFilter = this.accessCode
-            ? { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode } } }
+            ? { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: this.accessCode } } }
             : {};
         // Fetch only docs that were lastUpdated before beforeDate
         const beforeDateQuery = this.beforeDate
@@ -162,10 +162,10 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
            // Check if more than 5 minutes have passed since the last refresh
            if (moment().diff(refreshTimestamp, 'seconds') > this.numberOfSecondsBetweenSessionRefreshes) {
                 this.adminLogger.logInfo(
-                                    'refreshing session with sessionId', { 'session_id': sessionId });
-                const adminResult = await sourceDb.admin().command({ 'refreshSessions': [sessionId] });
+                                    'refreshing session with sessionId', { session_id: sessionId });
+                const adminResult = await sourceDb.admin().command({ refreshSessions: [sessionId] });
                 this.adminLogger.logInfo(
-                    'result from refreshing session', { 'result': adminResult });
+                    'result from refreshing session', { result: adminResult });
                 refreshTimestamp = moment();
             }
         }

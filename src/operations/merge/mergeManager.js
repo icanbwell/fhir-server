@@ -169,9 +169,9 @@ class MergeManager {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
-                    'old': currentResource,
-                    'new': resourceToMerge,
-                    'after': patched_resource_incoming
+                    old: currentResource,
+                    new: resourceToMerge,
+                    after: patched_resource_incoming
                 },
                 currentDate,
                 uuid,

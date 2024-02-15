@@ -252,7 +252,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     {
                         'resource.meta.security.system': 1,
                         'resource.meta.security.code': 1,
-                        '_id': 1
+                        _id: 1
                     },
                     {
                         name: indexName
@@ -598,8 +598,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             {
                 [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {
                     $elemMatch: {
-                        'system': SecurityTagSystem.owner,
-                        'code': 'bwell'
+                        system: SecurityTagSystem.owner,
+                        code: 'bwell'
                     }
                 }
             }

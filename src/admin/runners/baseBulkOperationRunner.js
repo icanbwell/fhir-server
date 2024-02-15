@@ -161,7 +161,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             if (skipExistingIds) {
                 // get latest id from destination
-                const lastIdFromDestinationList = await destinationCollection.find({}).sort({ 'id': -1 }).project(
+                const lastIdFromDestinationList = await destinationCollection.find({}).sort({ id: -1 }).project(
                     {
                         id: 1,
                         _id: 0
@@ -431,14 +431,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         // Check if more than 5 minutes have passed since the last refresh
                         if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                             this.adminLogger.logInfo(
-                                'refreshing session with sessionId', { 'session_id': sessionId });
+                                'refreshing session with sessionId', { session_id: sessionId });
                             this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
                             /**
                              * @type {import('mongodb').Document}
                              */
-                            const adminResult = await sourceDb.admin().command({ 'refreshSessions': [sessionId] });
+                            const adminResult = await sourceDb.admin().command({ refreshSessions: [sessionId] });
                             this.adminLogger.logInfo(
-                                'result from refreshing session', { 'result': adminResult });
+                                'result from refreshing session', { result: adminResult });
                             refreshTimestamp = moment();
                         }
                         /**
@@ -583,10 +583,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
-                    this.adminLogger.logError('Caught MongoNetworkTimeoutError', { 'error': e });
+                    this.adminLogger.logError('Caught MongoNetworkTimeoutError', { error: e });
                     continueLoop = true;
                 } else {
-                    this.adminLogger.logError('Caught UnKnown error', { 'error': e });
+                    this.adminLogger.logError('Caught UnKnown error', { error: e });
                     // statements to handle any unspecified exceptions
                     throw (e); // pass exception object to error handler
                 }

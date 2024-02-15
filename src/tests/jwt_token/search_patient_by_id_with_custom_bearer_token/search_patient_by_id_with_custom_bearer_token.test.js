@@ -34,7 +34,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 .expect(200);
             expect(resp.body.length).toBe(0);
             logInfo('------- response 1 ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 1 ------------');
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
@@ -42,12 +42,12 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 .set(getHeadersWithCustomToken())
                 .expect(200);
             logInfo('------- response patient1Resource ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
             resp = await request.get('/4_0_0/Patient').set(getHeadersWithCustomToken()).expect(200);
             logInfo('------- response 3 ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 3 ------------');
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
@@ -85,7 +85,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 .expect(200);
             expect(resp.body.length).toBe(0);
             logInfo('------- response 1 ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 1 ------------');
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
@@ -93,12 +93,12 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 .set(headers)
                 .expect(200);
             logInfo('------- response patient1Resource ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
             resp = await request.get('/4_0_0/Patient').set(getHeadersWithCustomToken()).expect(200);
             logInfo('------- response 3 ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 3 ------------');
             resp = await request
                 .get('/4_0_0/Patient/00100000000')

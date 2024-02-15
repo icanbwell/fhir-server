@@ -190,14 +190,14 @@ class ResourceValidator {
         }
         if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
             operationOutcome.issue = new OperationOutcomeIssue({
-                'code': 'informational',
-                'details': {
-                    'text': 'OK'
+                code: 'informational',
+                details: {
+                    text: 'OK'
                 },
-                'expression': [
+                expression: [
                     'Practitioner'
                 ],
-                'severity': 'information'
+                severity: 'information'
             });
         }
         return operationOutcome;

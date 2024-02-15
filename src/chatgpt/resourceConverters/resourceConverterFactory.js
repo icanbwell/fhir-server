@@ -15,16 +15,16 @@ class ResourceConverterFactory {
          * @type {{CarePlan: BaseConverter}}
          */
         this.converterMapping = {
-            'CarePlan': new CarePlanConverter(),
-            'Condition': new ConditionConverter(),
-            'Coverage': new CoverageConverter(),
-            'ExplanationOfBenefit': new ExplanationOfBenefitConverter(),
-            'Immunization': new ImmunizationConverter(),
-            'MedicationDispense': new MedicationDispenseConverter(),
-            'MedicationRequest': new MedicationRequestConverter(),
-            'Observation': new ObservationConverter(),
-            'Patient': new PatientConverter(),
-            'Procedure': new ProcedureConverter()
+            CarePlan: new CarePlanConverter(),
+            Condition: new ConditionConverter(),
+            Coverage: new CoverageConverter(),
+            ExplanationOfBenefit: new ExplanationOfBenefitConverter(),
+            Immunization: new ImmunizationConverter(),
+            MedicationDispense: new MedicationDispenseConverter(),
+            MedicationRequest: new MedicationRequestConverter(),
+            Observation: new ObservationConverter(),
+            Patient: new PatientConverter(),
+            Procedure: new ProcedureConverter()
         };
     }
 

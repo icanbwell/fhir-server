@@ -251,7 +251,7 @@ describe('patient Tests', () => {
             // clear out the lastUpdated column since that changes
             const body = resp.body;
             logInfo('------- response graphql ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response graphql  ------------');
             expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry).toBeDefined();

@@ -314,7 +314,7 @@ module.exports.getUnAuthenticatedGraphQLHeaders = () => {
 module.exports.getUnAuthenticatedHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
-        'Accept': 'application/fhir+json'
+        Accept: 'application/fhir+json'
     };
 };
 
@@ -437,8 +437,8 @@ module.exports.mockHttpContext = ({
                                   } = {}) => {
     jest.spyOn(httpContext, 'get');
     const values = {
-        'systemGeneratedRequestId': systemGeneratedRequestId || '12345678',
-        'userRequestId': userRequestId || '1234'
+        systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
+        userRequestId: userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
         return values[key];

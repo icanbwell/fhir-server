@@ -167,15 +167,15 @@ class PersonMatchManager {
         }
 
         const parameters = {
-            'resourceType': 'Parameters',
-            'parameter': [
+            resourceType: 'Parameters',
+            parameter: [
                 {
-                    'name': 'resource',
-                    'resource': source[0].toJSON()
+                    name: 'resource',
+                    resource: source[0].toJSON()
                 },
                 {
-                    'name': 'match',
-                    'resource': target[0].toJSON()
+                    name: 'match',
+                    resource: target[0].toJSON()
                 }
             ]
         };
@@ -187,7 +187,7 @@ class PersonMatchManager {
             'Content-Type': 'application/json',
             Accept: 'application/json'
         };
-        logInfo(`Calling ${url} with body`, { 'body': parameters });
+        logInfo(`Calling ${url} with body`, { body: parameters });
         try {
             /**
              * @type {request.Response}

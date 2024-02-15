@@ -114,7 +114,7 @@ describe('Add Missing Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');

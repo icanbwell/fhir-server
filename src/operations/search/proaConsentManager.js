@@ -71,19 +71,19 @@ class ProaConsentManager {
         const query =
         {
             $and: [
-                { 'status': 'active' },
+                { status: 'active' },
                 {
-                    '$and': [
+                    $and: [
                         {
                             'provision.actor.reference._uuid': {
-                                '$in': proxyPersonReferences
+                                $in: proxyPersonReferences
                             }
                         },
                         {
                             'provision.actor.role.coding': {
-                                '$elemMatch': {
-                                    'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
-                                    'code': PROXY_PERSON_CONSENT_CODING.CODE
+                                $elemMatch: {
+                                    system: PROXY_PERSON_CONSENT_CODING.SYSTEM,
+                                    code: PROXY_PERSON_CONSENT_CODING.CODE
                                 }
                             }
                         }
@@ -93,9 +93,9 @@ class ProaConsentManager {
                 { 'provision.type': 'permit' },
                 {
 'meta.security': {
-                    '$elemMatch': {
-                        'system': 'https://www.icanbwell.com/owner',
-                        'code': { $in: ownerTags }
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/owner',
+                        code: { $in: ownerTags }
                     }
                 }
 }

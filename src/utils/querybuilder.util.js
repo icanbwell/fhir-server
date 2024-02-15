@@ -72,11 +72,11 @@ const nameQueryBuilder = function ({ target }) {
         const regExpObject = new RegExp(escapeRegExp(split[`${i}`]));
         ors.push({
             $or: [
-                { 'name.text': { $regex: regExpObject, '$options': 'i' } },
-                { 'name.family': { $regex: regExpObject, '$options': 'i' } },
-                { 'name.given': { $regex: regExpObject, '$options': 'i' } },
-                { 'name.suffix': { $regex: regExpObject, '$options': 'i' } },
-                { 'name.prefix': { $regex: regExpObject, '$options': 'i' } }
+                { 'name.text': { $regex: regExpObject, $options: 'i' } },
+                { 'name.family': { $regex: regExpObject, $options: 'i' } },
+                { 'name.given': { $regex: regExpObject, $options: 'i' } },
+                { 'name.suffix': { $regex: regExpObject, $options: 'i' } },
+                { 'name.prefix': { $regex: regExpObject, $options: 'i' } }
             ]
         });
     }
@@ -752,7 +752,7 @@ const dateQueryBuilder = function ({ date, type, path }) {
                                     escapeRegExp(
                                         '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
                                 ),
-'$options': 'i'
+$options: 'i'
                             }
                         },
                         {
@@ -776,7 +776,7 @@ const dateQueryBuilder = function ({ date, type, path }) {
                         escapeRegExp(
                             '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
                     ),
-'$options': 'i'
+$options: 'i'
                 };
             } else {
                 for (let i = 2; i < 10; i++) {
@@ -1094,7 +1094,7 @@ const partialTextQueryBuilder = function ({ field, partialText, ignoreCase }) {
      */
     const regexObject = new RegExp(escapeRegExp(`${partialText}`));
     if (ignoreCase) {
-        queryBuilder[`${field}`] = { $regex: regexObject, '$options': 'i' };
+        queryBuilder[`${field}`] = { $regex: regexObject, $options: 'i' };
     } else {
         queryBuilder[`${field}`] = { $regex: regexObject };
     }

@@ -135,7 +135,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const models = response.data.map(
             m => {
                 return {
-                    'name': m.id
+                    name: m.id
                 };
             }
         );

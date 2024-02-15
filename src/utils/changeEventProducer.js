@@ -127,25 +127,25 @@ class ChangeEventProducer extends BasePostSaveHandler {
         const currentDate = moment.utc().format('YYYY-MM-DD');
         const auditEvent = new AuditEvent(
             {
-                'id': generateUUID(),
-                'action': isCreate ? 'C' : 'U',
+                id: generateUUID(),
+                action: isCreate ? 'C' : 'U',
                 type: new Coding({
                     code: '110100'
                 }),
                 recorded: currentDate,
-                'period':
+                period:
                     new Period({
-                        'start': timestamp,
-                        'end': timestamp
+                        start: timestamp,
+                        end: timestamp
                     }),
                 purposeOfEvent:
                     [
                         new CodeableConcept({
-                            'coding':
+                            coding:
                                 [
                                     new Coding({
-                                        'system': 'https://www.icanbwell.com/event-purpose',
-                                        'code': eventName
+                                        system: 'https://www.icanbwell.com/event-purpose',
+                                        code: eventName
                                     })
                                 ]
                         })
@@ -155,13 +155,13 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         new AuditEventAgent({
                             who: new Reference(
                                 {
-                                    'reference': `${resourceType}/${id}`
+                                    reference: `${resourceType}/${id}`
                                 }),
                             requestor: true
                         })
                     ],
                 source: new AuditEventSource({
-                    'site': requestId,
+                    site: requestId,
                     observer: new Reference(
                         { reference: 'Organization/bwell' }
                     )

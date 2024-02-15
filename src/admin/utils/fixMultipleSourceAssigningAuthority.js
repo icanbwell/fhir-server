@@ -98,7 +98,7 @@ function fixResource (resource) {
 
 function fixMultipleAuthorities (resource, fixMultipleOwners) {
     const resourceFixFnMap = {
-        'Practitioner': fixPractitionerResource
+        Practitioner: fixPractitionerResource
     };
     return resourceFixFnMap[`${resource.resourceType}`] ? resourceFixFnMap[`${resource.resourceType}`](resource, fixMultipleOwners) : fixResource(resource);
 }

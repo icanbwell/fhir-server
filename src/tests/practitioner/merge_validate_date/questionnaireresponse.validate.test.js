@@ -28,7 +28,7 @@ describe('Practitioner Update Tests', () => {
 
             expect(resp.body.length).toBe(0);
             logInfo('------- response 1 ------------');
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
             logInfo('------- end response 1 ------------');
 
             resp = await request

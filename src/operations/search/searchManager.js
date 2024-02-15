@@ -1198,7 +1198,7 @@ error: new RethrownError(
                 const message = 'Atleast two operations lt/le and gt/ge need to be passed in params to query AuditEvent';
                 throw new BadRequestError(
                     {
-                        'message': message,
+                        message: message,
                         toString: function () {
                             return message;
                         }
@@ -1214,7 +1214,7 @@ error: new RethrownError(
                 const message = `The difference between dates to query AuditEvent should not be greater than ${this.configManager.auditEventMaxRangePeriod}`;
                 throw new BadRequestError(
                     {
-                        'message': message,
+                        message: message,
                         toString: function () {
                             return message;
                         }
@@ -1235,7 +1235,7 @@ error: new RethrownError(
                 const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
                 throw new BadRequestError(
                     {
-                        'message': message,
+                        message: message,
                         toString: function () {
                             return message;
                         }
@@ -1262,7 +1262,7 @@ error: new RethrownError(
             if (!regexMatch) {
                 const message = `${dateParam} is not valid to query AuditEvent. [lt, gt] operation is required`;
                 throw new BadRequestError({
-                    'message': message,
+                    message: message,
                     toString: function () {
                         return message;
                     }
@@ -1272,7 +1272,7 @@ error: new RethrownError(
             if (!allowedOperations.includes(regexMatch[1]) || !moment.utc(regexMatch[2]).isValid()) {
                 const message = `${regexMatch[0]} is not a valid query.`;
                 throw new BadRequestError({
-                    'message': message,
+                    message: message,
                     toString: function () {
                         return message;
                     }

@@ -184,8 +184,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                  */
                 const query = {
                     $and: [
-                        { 'recorded': { $gt: recordedAfterForLoop.utc().toDate() } },
-                        { 'recorded': { $lt: recordedBeforeForLoop.utc().toDate() } }
+                        { recorded: { $gt: recordedAfterForLoop.utc().toDate() } },
+                        { recorded: { $lt: recordedBeforeForLoop.utc().toDate() } }
                     ]
                 };
                 try {
@@ -217,8 +217,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         },
                         {
                             $merge: {
-                                'into': destinationCollectionName,
-                                'on': '_id',
+                                into: destinationCollectionName,
+                                on: '_id',
                                 whenMatched: 'keepExisting',
                                 whenNotMatched: 'insert'
                             }
@@ -249,7 +249,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                          * @type {import('mongodb').Document[]}
                          */
                         const documents = await aggregationResult.toArray();
-                        this.adminLogger.logInfo('Aggregation result', { 'result': documents });
+                        this.adminLogger.logInfo('Aggregation result', { result: documents });
 
                         // get the count
                         this.adminLogger.logInfo(
@@ -301,7 +301,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     }
                     await this.mongoDatabaseManager.disconnectClientAsync(client);
                 } catch (e) {
-                    this.adminLogger.logError(`Got error at ${this.startFromIdContainer.startFromId}`, { 'error': e });
+                    this.adminLogger.logError(`Got error at ${this.startFromIdContainer.startFromId}`, { error: e });
                 }
                 this.adminLogger.logInfo(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}\n\n`);
 
@@ -312,7 +312,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             await this.shutdown();
             this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
-            this.adminLogger.logError('ERROR', { 'error': e });
+            this.adminLogger.logError('ERROR', { error: e });
         }
     }
 }

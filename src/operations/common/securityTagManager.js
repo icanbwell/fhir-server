@@ -127,19 +127,19 @@ class SecurityTagManager {
             } else if (securityTags.length === 1) {
                 securityTagQuery = {
                     'meta.security': {
-                        '$elemMatch': {
-                            'system': SecurityTagSystem.access,
-                            'code': securityTags[0]
+                        $elemMatch: {
+                            system: SecurityTagSystem.access,
+                            code: securityTags[0]
                         }
                     }
                 };
             } else {
                 securityTagQuery = {
                     'meta.security': {
-                        '$elemMatch': {
-                            'system': SecurityTagSystem.access,
-                            'code': {
-                                '$in': securityTags
+                        $elemMatch: {
+                            system: SecurityTagSystem.access,
+                            code: {
+                                $in: securityTags
                             }
                         }
                     }
@@ -168,7 +168,7 @@ class SecurityTagManager {
         let patientsUuidQuery, patientsNonUuidQuery;
         if (patientUuids && patientUuids.length > 0) {
             const inQuery = {
-                '$in': resourceType === 'Patient' ? patientUuids : patientUuids.map(p => `Patient/${p}`)
+                $in: resourceType === 'Patient' ? patientUuids : patientUuids.map(p => `Patient/${p}`)
             };
             /**
              * @type {string|string[]|null}
@@ -179,10 +179,10 @@ class SecurityTagManager {
             if (patientFilterProperty) {
                 if (Array.isArray(patientFilterProperty)) {
                     patientsUuidQuery = {
-                        '$or': patientFilterProperty.map(p => {
+                        $or: patientFilterProperty.map(p => {
                                 // if patient itself then search by _uuid
                                 if (p === 'id') {
-                                    return { '_uuid': inQuery };
+                                    return { _uuid: inQuery };
                                 }
                                 return { [p.replace('.reference', '._uuid')]: inQuery };
                             }
@@ -191,7 +191,7 @@ class SecurityTagManager {
                 } else {
                     // if patient itself then search by _uuid
                     if (patientFilterProperty === 'id') {
-                        patientsUuidQuery = { '_uuid': inQuery };
+                        patientsUuidQuery = { _uuid: inQuery };
                     } else {
                         patientsUuidQuery = {
                             [patientFilterProperty.replace('.reference', '._uuid')]: inQuery
@@ -203,7 +203,7 @@ class SecurityTagManager {
         const patientNonUuids = patientIds.filter(id => !isUuid(id));
         if (patientNonUuids && patientNonUuids.length > 0) {
             const inQuery = {
-                '$in': resourceType === 'Patient' ? patientNonUuids : patientNonUuids.map(p => `Patient/${p}`)
+                $in: resourceType === 'Patient' ? patientNonUuids : patientNonUuids.map(p => `Patient/${p}`)
             };
             /**
              * @type {string|string[]|null}
@@ -214,10 +214,10 @@ class SecurityTagManager {
             if (patientFilterProperty) {
                 if (Array.isArray(patientFilterProperty)) {
                     patientsNonUuidQuery = {
-                        '$or': patientFilterProperty.map(p => {
+                        $or: patientFilterProperty.map(p => {
                                 // if patient itself then search by _sourceId
                                 if (p === 'id') {
-                                    return { '_sourceId': inQuery };
+                                    return { _sourceId: inQuery };
                                 }
                                 return { [p.replace('.reference', '._sourceId')]: inQuery };
                             }
@@ -226,7 +226,7 @@ class SecurityTagManager {
                 } else {
                     // if patient itself then search by _sourceId
                     if (patientFilterProperty === 'id') {
-                        patientsNonUuidQuery = { '_sourceId': inQuery };
+                        patientsNonUuidQuery = { _sourceId: inQuery };
                     } else {
                         patientsNonUuidQuery = { [patientFilterProperty.replace('.reference', '._sourceId')]: inQuery };
                     }
@@ -236,7 +236,7 @@ class SecurityTagManager {
         let patientsQuery;
         if (patientsUuidQuery && patientsNonUuidQuery) {
             patientsQuery = {
-                '$or': [patientsUuidQuery, patientsNonUuidQuery]
+                $or: [patientsUuidQuery, patientsNonUuidQuery]
             };
         } else if (patientsUuidQuery || patientsNonUuidQuery) {
             patientsQuery = patientsUuidQuery || patientsNonUuidQuery;

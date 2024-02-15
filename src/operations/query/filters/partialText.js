@@ -13,7 +13,7 @@ class FilterByPartialText extends BaseFilter {
      */
     filterByItem (field, value) {
         return {
-            '$or': [
+            $or: [
                 // 1. search in text field
                 partialTextQueryBuilder(
                     {

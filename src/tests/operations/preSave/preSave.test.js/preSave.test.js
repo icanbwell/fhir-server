@@ -30,16 +30,16 @@ describe('Patient Tests', () => {
              * @type {Resource}
              */
             const resource = new Resource({
-                'id': '123',
-                'meta': {
-                    'security': [
+                id: '123',
+                meta: {
+                    security: [
                         {
-                            'system': SecurityTagSystem.access,
-                            'code': 'myAccess'
+                            system: SecurityTagSystem.access,
+                            code: 'myAccess'
                         },
                         {
-                            'system': SecurityTagSystem.sourceAssigningAuthority,
-                            'code': 'myAssigningAuthority'
+                            system: SecurityTagSystem.sourceAssigningAuthority,
+                            code: 'myAssigningAuthority'
                         }
                     ]
                 }

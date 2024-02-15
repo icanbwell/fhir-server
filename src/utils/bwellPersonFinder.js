@@ -113,7 +113,7 @@ class BwellPersonFinder {
         const personRefToPersonRefObj = new Map();
 
         let query = {
-            '$or': [
+            $or: [
                 ...searchFilters,
                 personIdFilter
             ]
@@ -126,9 +126,9 @@ class BwellPersonFinder {
                     query,
                     {
                         'meta.security': {
-                            '$elemMatch': {
-                                'system': SecurityTagSystem.owner,
-                                'code': {
+                            $elemMatch: {
+                                system: SecurityTagSystem.owner,
+                                code: {
                                     $in: securityTags
                                 }
                             }

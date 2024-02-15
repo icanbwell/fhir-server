@@ -58,13 +58,13 @@ describe('Bad url Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'not-found',
-                        'details': {
-                            'text': 'Invalid url: /Patient/$graph'
+                        severity: 'error',
+                        code: 'not-found',
+                        details: {
+                            text: 'Invalid url: /Patient/$graph'
                         }
                     }
                 ]

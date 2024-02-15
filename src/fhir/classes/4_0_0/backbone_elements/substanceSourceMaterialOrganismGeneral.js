@@ -40,7 +40,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             modifierExtension,
             kingdom,
             phylum,
-            'class': class_,
+            class: class_,
             order
         }
     ) {
@@ -209,7 +209,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             modifierExtension,
             kingdom,
             phylum,
-            'class': class_,
+            class: class_,
             order
         });
     }

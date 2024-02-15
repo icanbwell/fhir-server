@@ -380,8 +380,8 @@ class DataSharingManager {
         const connectionTypeQuery = {
             'meta.security': {
                 $elemMatch: {
-                    'system': 'https://www.icanbwell.com/connectionType',
-                    'code': {
+                    system: 'https://www.icanbwell.com/connectionType',
+                    code: {
                         $in: allowedConnectionTypesList
                     }
                 }
@@ -514,7 +514,7 @@ class DataSharingManager {
         // find all patients for given array of ids.
         const cursor = await query.findAsync({
             query: {
-                '$or': SearchFilterFromReference.buildFilter(patientReferences, null)
+                $or: SearchFilterFromReference.buildFilter(patientReferences, null)
             },
             options: { projection: { id: 1, _sourceId: 1, _uuid: 1, meta: { security: 1 } } }
         });

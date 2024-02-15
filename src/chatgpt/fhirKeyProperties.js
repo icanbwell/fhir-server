@@ -1,5 +1,5 @@
 const fhirKeyProperties = {
-    'Patient': [
+    Patient: [
         'name',
         'telecom',
         'gender',
@@ -8,8 +8,8 @@ const fhirKeyProperties = {
         'maritalStatus',
         'generalPractitioner'
     ],
-    'Condition': [],
-    'Observation': [
+    Condition: [],
+    Observation: [
         'status',
         'category',
         'code',
@@ -19,7 +19,7 @@ const fhirKeyProperties = {
         'performer',
         'value*'
     ],
-    'Procedure': [
+    Procedure: [
         'status',
         'category',
         'code',
@@ -28,13 +28,13 @@ const fhirKeyProperties = {
         'recorder',
         'performer'
     ],
-    'MedicationDispense': [],
-    'MedicationRequest': [],
-    'Coverage': [],
-    'ExplanationOfBenefit': [],
-    'Encounter': [],
-    'CarePlan': [],
-    'Immunization': []
+    MedicationDispense: [],
+    MedicationRequest: [],
+    Coverage: [],
+    ExplanationOfBenefit: [],
+    Encounter: [],
+    CarePlan: [],
+    Immunization: []
 };
 
 module.exports = {

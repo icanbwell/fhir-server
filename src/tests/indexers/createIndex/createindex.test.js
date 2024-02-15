@@ -72,48 +72,48 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(5);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.lastUpdated': 1
                     },
-                    'name': 'meta.lastUpdated_1'
+                    name: 'meta.lastUpdated_1'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -157,86 +157,86 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded'
+                    name: 'helix_auditEvent_recorded'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         '_access.client': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_client'
+                    name: 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         '_access.client': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_client'
+                    name: 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_audit_event_security'
+                    name: 'helix_audit_event_security'
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[7]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -298,86 +298,86 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded'
+                    name: 'helix_auditEvent_recorded'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         '_access.client': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_client'
+                    name: 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         '_access.client': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_client'
+                    name: 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_audit_event_security'
+                    name: 'helix_audit_event_security'
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[7]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -426,86 +426,86 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded'
+                    name: 'helix_auditEvent_recorded'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         '_access.client': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_client'
+                    name: 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         '_access.client': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_client'
+                    name: 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_audit_event_security'
+                    name: 'helix_audit_event_security'
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[7]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -552,20 +552,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                 }
             );
         });
@@ -609,20 +609,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
@@ -685,20 +685,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
@@ -748,20 +748,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                     // 'unique': true
                 }
             );

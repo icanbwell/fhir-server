@@ -78,14 +78,14 @@ class SearchFilterFromReference {
     // add uuid filter
     filters.push({
       [`${prop}_uuid`]: {
-        '$in': uuidOrItsRefs
+        $in: uuidOrItsRefs
       }
     });
 
     // add sourceId filter
     filters.push({
       [`${prop}_sourceId`]: {
-        '$in': sourceIdOrItsRefs
+        $in: sourceIdOrItsRefs
       }
     });
 
@@ -94,14 +94,14 @@ class SearchFilterFromReference {
       .forEach(([sourceAssigningAuthority, idOrItsRefWithSourceAssigningAuthority]) => {
         filters.push(
           {
-            '$and': [
+            $and: [
               {
                 [`${prop}_sourceAssigningAuthority`]: sourceAssigningAuthority
               },
               {
                 [`${prop}_sourceId`]: {
                   // for Patient/id|client -> Patient/id and for id|client -> id
-                  '$in': idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref))
+                  $in: idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref))
                 }
               }
             ]

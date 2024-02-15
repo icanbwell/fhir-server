@@ -327,7 +327,7 @@ prompt: prompt,
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id
+                            my_document_id: e.id
                         }
                     }
                 ));
@@ -385,7 +385,7 @@ prompt: prompt,
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id
+                            my_document_id: e.id
                         }
                     }
                 ));
@@ -481,7 +481,7 @@ prompt: prompt,
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id
+                            my_document_id: e.id
                         }
                     }
                 ));
@@ -503,7 +503,7 @@ prompt: prompt,
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id
+                            my_document_id: e.id
                         }
                     }
                 ));

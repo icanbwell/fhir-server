@@ -61,7 +61,7 @@ describe('Person Tests', () => {
              */
             const resourceBeforeReplace = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
+                    query: { id: '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resourceBeforeReplace.meta.lastUpdated = null;
@@ -75,7 +75,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
+                    query: { id: '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -123,7 +123,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
+                    query: { id: '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -171,7 +171,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
+                    query: { id: '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;
@@ -219,7 +219,7 @@ describe('Person Tests', () => {
              */
             const resource = await databaseQueryManager.findOneAsync(
                 {
-                    query: { 'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
+                    query: { id: '9b3326ba-2421-4b9a-9d57-1eba0481cbd4' }
                 }
             );
             resource.meta.lastUpdated = null;

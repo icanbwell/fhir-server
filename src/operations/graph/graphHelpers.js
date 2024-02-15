@@ -299,7 +299,7 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            const args = Object.assign({ 'base_version': base_version }, { 'id': relatedReferenceIds.join(',') });
+            const args = Object.assign({ base_version: base_version }, { id: relatedReferenceIds.join(',') });
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
@@ -1773,7 +1773,7 @@ containedEntries: []
                     resource: FhirResourceCreator.create({
                         id: resource.id,
                         _uuid: resource._uuid,
-                        'resourceType': resultResourceType
+                        resourceType: resultResourceType
                     }, ResourceContainer),
                     request: new BundleRequest(
                         {

@@ -478,12 +478,12 @@ doc: new Patient(patient)
                     versionId: '2',
                     security: [
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/owner'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/owner'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
@@ -522,8 +522,8 @@ doc: new Patient(patient)
                 { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
-                'n': 1,
-                'updatedExisting': true
+                n: 1,
+                updatedExisting: true
             });
             const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
@@ -536,12 +536,12 @@ doc: new Patient(patient)
                     versionId: '2',
                     security: [
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/owner'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/owner'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
@@ -588,8 +588,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -654,12 +654,12 @@ doc: new Patient(patient)
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'created': false,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': true,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    created: false,
+                    id: 'loinc-1',
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: true,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
@@ -681,25 +681,25 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
                 identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': 'b627381e-4838-46cf-b9b0-02ad7b179219'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: 'b627381e-4838-46cf-b9b0-02ad7b179219'
                     })
                 ],
                 concept: [
@@ -754,11 +754,11 @@ doc: new Patient(patient)
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': generateUUIDv5('loinc-1|client'),
-                    'request': new BundleRequest({
-                        'id': userRequestId,
-                        'method': 'POST',
-                        'url': '/4_0_0/CodeSystem/loinc-1'
+                    id: generateUUIDv5('loinc-1|client'),
+                    request: new BundleRequest({
+                        id: userRequestId,
+                        method: 'POST',
+                        url: '/4_0_0/CodeSystem/loinc-1'
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
@@ -770,25 +770,25 @@ doc: new Patient(patient)
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
-                                    'system': 'https://www.icanbwell.com/owner',
-                                    'code': 'client'
+                                    system: 'https://www.icanbwell.com/owner',
+                                    code: 'client'
                                 }),
                                 new Coding({
-                                    'code': 'client',
-                                    'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                    code: 'client',
+                                    system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]
                         }),
-                        'identifier': [
+                        identifier: [
                             new Identifier({
-                                'id': 'sourceId',
-                                'system': 'https://www.icanbwell.com/sourceId',
-                                'value': 'loinc-1'
+                                id: 'sourceId',
+                                system: 'https://www.icanbwell.com/sourceId',
+                                value: 'loinc-1'
                             }),
                             new Identifier({
-                                'id': 'uuid',
-                                'system': 'https://www.icanbwell.com/uuid',
-                                'value': 'e7f9d7f5-f443-4aa6-aaa8-90bbb676f252'
+                                id: 'uuid',
+                                system: 'https://www.icanbwell.com/uuid',
+                                value: 'e7f9d7f5-f443-4aa6-aaa8-90bbb676f252'
                             })
                         ],
                         concept: [
@@ -831,26 +831,26 @@ doc: new Patient(patient)
                         ]
                     }),
                     response: new BundleResponse({
-                        'outcome': new OperationOutcome({
-                            'issue': [
+                        outcome: new OperationOutcome({
+                            issue: [
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
+                                        severity: 'information'
                                     }
                                 ),
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"e7f9d7f5-f443-4aa6-aaa8-90bbb676f252"}]}',
+                                        severity: 'information'
                                     }
                                 )
                             ],
-                            'resourceType': 'OperationOutcome'
+                            resourceType: 'OperationOutcome'
                         }),
-                        'status': '200'
+                        status: '200'
                     })
                 }
             );
@@ -905,8 +905,8 @@ doc: new Patient(patient)
                     security: [
                         new Coding(
                             {
-                                'system': 'https://www.icanbwell.com/owner',
-                                'code': 'client'
+                                system: 'https://www.icanbwell.com/owner',
+                                code: 'client'
                             }
                         )
                     ]
@@ -956,8 +956,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -997,8 +997,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1035,8 +1035,8 @@ doc: new Patient(patient)
                 { includeResultMetadata: true }
             );
             expect(updateResult.lastErrorObject).toStrictEqual({
-                'n': 1,
-                'updatedExisting': true
+                n: 1,
+                updatedExisting: true
             });
             const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
@@ -1051,8 +1051,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1103,12 +1103,12 @@ doc: new Patient(patient)
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'id': 'loinc-1',
-                    'created': false,
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': true,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    id: 'loinc-1',
+                    created: false,
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: true,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
@@ -1131,25 +1131,25 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
-                'identifier': [
+                identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': '30567620-6073-44c1-b77a-83cb11fc971e'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: '30567620-6073-44c1-b77a-83cb11fc971e'
                     })
                 ],
                 concept: [
@@ -1204,11 +1204,11 @@ doc: new Patient(patient)
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': generateUUIDv5('loinc-1|client'),
-                    'request': new BundleRequest({
-                        'id': userRequestId,
-                        'method': 'POST',
-                        'url': '/4_0_0/CodeSystem/loinc-1'
+                    id: generateUUIDv5('loinc-1|client'),
+                    request: new BundleRequest({
+                        id: userRequestId,
+                        method: 'POST',
+                        url: '/4_0_0/CodeSystem/loinc-1'
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
@@ -1220,25 +1220,25 @@ doc: new Patient(patient)
                             source: 'http://www/icanbwell.com',
                             security: [
                                 new Coding({
-                                    'system': 'https://www.icanbwell.com/owner',
-                                    'code': 'client'
+                                    system: 'https://www.icanbwell.com/owner',
+                                    code: 'client'
                                 }),
                                 new Coding({
-                                    'code': 'client',
-                                    'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                    code: 'client',
+                                    system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                                 })
                             ]
                         }),
-                        'identifier': [
+                        identifier: [
                             new Identifier({
-                                'id': 'sourceId',
-                                'system': 'https://www.icanbwell.com/sourceId',
-                                'value': 'loinc-1'
+                                id: 'sourceId',
+                                system: 'https://www.icanbwell.com/sourceId',
+                                value: 'loinc-1'
                             }),
                             new Identifier({
-                                'id': 'uuid',
-                                'system': 'https://www.icanbwell.com/uuid',
-                                'value': 'f67ac4cf-d135-46ac-b23d-a16289a61074'
+                                id: 'uuid',
+                                system: 'https://www.icanbwell.com/uuid',
+                                value: 'f67ac4cf-d135-46ac-b23d-a16289a61074'
                             })
                         ],
                         concept: [
@@ -1280,34 +1280,34 @@ doc: new Patient(patient)
                             )
                         ]
                     }),
-                    'response': new BundleResponse({
-                        'outcome': new OperationOutcome({
-                            'issue': [
+                    response: new BundleResponse({
+                        outcome: new OperationOutcome({
+                            issue: [
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
+                                        severity: 'information'
                                     }
                                 ),
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
+                                        severity: 'information'
                                     }
                                 ),
                                 new OperationOutcomeIssue(
                                     {
-                                        'code': 'informational',
-                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}',
-                                        'severity': 'information'
+                                        code: 'informational',
+                                        diagnostics: '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"93289a07-f21f-514b-9224-532b574c16cd"}]}',
+                                        severity: 'information'
                                     }
                                 )
                             ],
-                            'resourceType': 'OperationOutcome'
+                            resourceType: 'OperationOutcome'
                         }),
-                        'status': '200'
+                        status: '200'
                     })
                 }
             );
@@ -1359,8 +1359,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1391,8 +1391,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1422,8 +1422,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1475,12 +1475,12 @@ doc: new Patient(patient)
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'created': true,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': false,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    created: true,
+                    id: 'loinc-1',
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: false,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
@@ -1512,25 +1512,25 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         }),
                         new Coding({
-                            'code': 'client',
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            code: 'client',
+                            system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                         })
                     ]
                 }),
-                'identifier': [
+                identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': '946e32d8-2645-4d3c-8fac-5fd96ee3a29c'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: '946e32d8-2645-4d3c-8fac-5fd96ee3a29c'
                     })
                 ],
                 concept: [
@@ -1619,8 +1619,8 @@ doc: new Patient(patient)
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding({
-                            'system': 'https://www.icanbwell.com/owner',
-                            'code': 'client'
+                            system: 'https://www.icanbwell.com/owner',
+                            code: 'client'
                         })
                     ]
                 }),
@@ -1674,12 +1674,12 @@ doc: new Patient(patient)
             });
             expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'created': true,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'sourceAssigningAuthority': 'client',
-                    'updated': false,
-                    'uuid': '93289a07-f21f-514b-9224-532b574c16cd'
+                    created: true,
+                    id: 'loinc-1',
+                    resourceType: 'CodeSystem',
+                    sourceAssigningAuthority: 'client',
+                    updated: false,
+                    uuid: '93289a07-f21f-514b-9224-532b574c16cd'
                 }
             ]);
             /**
@@ -1703,52 +1703,52 @@ doc: new Patient(patient)
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
-                'concept': [
+                concept: [
                     new CodeSystemConcept({
-                        'code': '3565-4',
-                        'id': '3565-4',
-                        'property': [
+                        code: '3565-4',
+                        id: '3565-4',
+                        property: [
                             new CodeSystemProperty1({
-                                'code': 'medline_plus',
-                                'valueString': '1'
+                                code: 'medline_plus',
+                                valueString: '1'
                             })
                         ]
                     })
                 ],
-                'content': 'complete',
-                'id': 'loinc-1',
-                'meta': new Meta({
-                    'versionId': '1',
+                content: 'complete',
+                id: 'loinc-1',
+                meta: new Meta({
+                    versionId: '1',
                     source: 'http://www/icanbwell.com',
                     security: [
                         new Coding(
                             {
-                                'system': 'https://www.icanbwell.com/owner',
-                                'code': 'client'
+                                system: 'https://www.icanbwell.com/owner',
+                                code: 'client'
                             }
                         ),
                         new Coding(
                             {
-                                'code': 'client',
-                                'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                code: 'client',
+                                system: 'https://www.icanbwell.com/sourceAssigningAuthority'
                             }
                         )
                     ]
                 }),
                 identifier: [
                     new Identifier({
-                        'id': 'sourceId',
-                        'system': 'https://www.icanbwell.com/sourceId',
-                        'value': 'loinc-1'
+                        id: 'sourceId',
+                        system: 'https://www.icanbwell.com/sourceId',
+                        value: 'loinc-1'
                     }),
                     new Identifier({
-                        'id': 'uuid',
-                        'system': 'https://www.icanbwell.com/uuid',
-                        'value': 'd05fce76-7645-41f0-968a-9b42dd579a6d'
+                        id: 'uuid',
+                        system: 'https://www.icanbwell.com/uuid',
+                        value: 'd05fce76-7645-41f0-968a-9b42dd579a6d'
                     })
                 ],
-                'resourceType': 'CodeSystem',
-                'status': 'active'
+                resourceType: 'CodeSystem',
+                status: 'active'
             });
             // noinspection JSCheckFunctionSignatures
             const actualCodeSystem = new CodeSystem(codeSystems[0]);

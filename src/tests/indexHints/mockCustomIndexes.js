@@ -7,7 +7,7 @@ module.exports = {
         '*': [
             {
                 keys: {
-                    'id': 1
+                    id: 1
                 },
                 options: {
                     // unique: true,
@@ -49,7 +49,7 @@ module.exports = {
         '*_History': [
             {
                 keys: {
-                    'id': 1
+                    id: 1
                 },
                 options: {
                     // unique: true,
@@ -57,7 +57,7 @@ module.exports = {
                 }
             }
         ],
-        'ExplanationOfBenefit_4_0_0': [
+        ExplanationOfBenefit_4_0_0: [
             {
                 keys: {
                     'patient.reference': 1
@@ -67,7 +67,7 @@ module.exports = {
                 }
             }
         ],
-        'PractitionerRole_4_0_0': [
+        PractitionerRole_4_0_0: [
             {
                 keys: {
                     'practitioner.reference': 1
@@ -93,7 +93,7 @@ module.exports = {
                 }
             }
         ],
-        'Schedule_4_0_0': [
+        Schedule_4_0_0: [
             {
                 keys: {
                     'actor.reference': 1
@@ -103,7 +103,7 @@ module.exports = {
                 }
             }
         ],
-        'Location_4_0_0': [
+        Location_4_0_0: [
             {
                 keys: {
                     'managingOrganization.reference': 1
@@ -113,10 +113,10 @@ module.exports = {
                 }
             }
         ],
-        'AuditEvent_4_0_0': [
+        AuditEvent_4_0_0: [
             {
                 keys: {
-                    'id': 1
+                    id: 1
                 },
                 options: {
                     // unique: true,
@@ -127,7 +127,7 @@ module.exports = {
                 keys: {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    'id': 1,
+                    id: 1,
                     'meta.lastUpdated': 1
                 },
                 options: {
@@ -137,7 +137,7 @@ module.exports = {
             {
                 keys: {
                     '_access.client': 1,
-                    'id': 1,
+                    id: 1,
                     'meta.lastUpdated': 1
                 },
                 options: {
@@ -147,8 +147,8 @@ module.exports = {
             {
                 keys: {
                     '_access.client': 1,
-                    'id': 1,
-                    'recorded': 1
+                    id: 1,
+                    recorded: 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_access_client'
@@ -158,8 +158,8 @@ module.exports = {
                 keys: {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    'id': 1,
-                    'recorded': 1
+                    id: 1,
+                    recorded: 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded'
@@ -186,11 +186,11 @@ module.exports = {
             //     'meta.lastUpdated',
             // ]
         ],
-        'Observation_4_0_0': [
+        Observation_4_0_0: [
             {
                 keys: {
-                    'effectiveDateTime': 1,
-                    'id': 1,
+                    effectiveDateTime: 1,
+                    id: 1,
                     'subject.reference': 1
                 },
                 options: {
@@ -200,8 +200,8 @@ module.exports = {
             {
                 keys: {
                     'subject.reference': 1,
-                    'effectiveDateTime': 1,
-                    'id': 1
+                    effectiveDateTime: 1,
+                    id: 1
                 },
                 options: {
                     name: 'helix_observation_effective_2'

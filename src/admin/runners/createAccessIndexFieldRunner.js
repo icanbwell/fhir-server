@@ -159,13 +159,13 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                  * @type {import('mongodb').Collection<import('mongodb').Document>}
                  */
                 const projection = {
-                    'id': 1,
+                    id: 1,
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    '_access': 1,
-                    '_sourceAssigningAuthority': 1,
-                    '_sourceId': 1,
-                    '_uuid': 1
+                    _access: 1,
+                    _sourceAssigningAuthority: 1,
+                    _sourceId: 1,
+                    _uuid: 1
                 };
                 try {
                     await this.runForQueryBatchesAsync(
@@ -183,7 +183,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                         }
                     );
                 } catch (e) {
-                    logError(`Got error at ${this.startFromIdContainer.startFromId}`, { 'error': e });
+                    logError(`Got error at ${this.startFromIdContainer.startFromId}`, { error: e });
                 }
                 this.adminLogger.logInfo(`Finished loop ${collectionName}`);
             }
@@ -192,7 +192,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             await this.shutdown();
             this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
-            logError('ERROR', { 'error': e });
+            logError('ERROR', { error: e });
         }
     }
 }

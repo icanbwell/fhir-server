@@ -1129,7 +1129,7 @@ args: {
          * @type {MergeResultEntry}
          */
         const mergeResultEntry = new MergeResultEntry({
-            'id': bulkInsertUpdateEntry.id,
+            id: bulkInsertUpdateEntry.id,
             uuid: bulkInsertUpdateEntry.uuid,
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
             created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,

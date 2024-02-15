@@ -131,7 +131,7 @@ describe('GraphQL Patient Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
-                logError('', { 'errors': body.errors });
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction

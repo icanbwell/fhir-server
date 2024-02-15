@@ -103,7 +103,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const args = { base_version: '4_0_0', id: '1' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync(
                 {
@@ -157,7 +157,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const args = { base_version: '4_0_0', id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -240,7 +240,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const args = { base_version: '4_0_0', id: '1' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -309,7 +309,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const args = { base_version: '4_0_0', id: '1' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -378,7 +378,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const args = { base_version: '4_0_0', id: '1' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -445,7 +445,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const args = { base_version: '4_0_0', id: '1' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -527,7 +527,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '10' };
+            const args = { base_version: '4_0_0', id: '10' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -599,7 +599,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1', '_hash_references': 1 };
+            const args = { base_version: '4_0_0', id: '1', _hash_references: 1 };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -682,7 +682,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1' };
+            const args = { base_version: '4_0_0', id: '1' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -810,7 +810,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const args = { base_version: '4_0_0', id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -969,7 +969,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const args = { base_version: '4_0_0', id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -1109,7 +1109,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '10' };
+            const args = { base_version: '4_0_0', id: '10' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -1308,7 +1308,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const args = { base_version: '4_0_0', id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -1562,7 +1562,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', 'id': '1,2' };
+            const args = { base_version: '4_0_0', id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -1799,7 +1799,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', _debug: 1, 'id': '1,2' };
+            const args = { base_version: '4_0_0', _debug: 1, id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args: args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -1920,36 +1920,36 @@ describe('graphHelper Tests', () => {
                         }
                     }
                 ],
-                'meta': {
-                    'tag': [
+                meta: {
+                    tag: [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'practitioner._uuid':{'$in':['Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15','Practitioner/941f082a-39a9-5f55-9630-5839a010e1bc']}}, {}) | db.Organization_4_0_0.find({'_uuid':{'$in':['a10b7ea7-4439-5613-be67-ff64a5e45c1c','199445e8-35aa-576b-84ae-839040a283ab']}}, {}) | db.InsurancePlan_4_0_0.find({'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'}, {})",
-                            'system': 'https://www.icanbwell.com/query'
+                            display: "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'practitioner._uuid':{'$in':['Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15','Practitioner/941f082a-39a9-5f55-9630-5839a010e1bc']}}, {}) | db.Organization_4_0_0.find({'_uuid':{'$in':['a10b7ea7-4439-5613-be67-ff64a5e45c1c','199445e8-35aa-576b-84ae-839040a283ab']}}, {}) | db.InsurancePlan_4_0_0.find({'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'}, {})",
+                            system: 'https://www.icanbwell.com/query'
                         },
                         {
-                            'code': 'Practitioner_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|InsurancePlan_4_0_0',
-                            'system': 'https://www.icanbwell.com/queryCollection'
+                            code: 'Practitioner_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|InsurancePlan_4_0_0',
+                            system: 'https://www.icanbwell.com/queryCollection'
                         },
                         {
-                            'display': '[{\'projection\':{\'_id\':0}}]',
-                            'system': 'https://www.icanbwell.com/queryOptions'
+                            display: '[{\'projection\':{\'_id\':0}}]',
+                            system: 'https://www.icanbwell.com/queryOptions'
                         },
                         {
-                            'display': '[]',
-                            'system': 'https://www.icanbwell.com/queryFields'
+                            display: '[]',
+                            system: 'https://www.icanbwell.com/queryFields'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryTime'
+                            system: 'https://www.icanbwell.com/queryTime'
                         },
                         {
-                            'display': '{\'useTwoStepSearchOptimization\':undefined}',
-                            'system': 'https://www.icanbwell.com/queryOptimization'
+                            display: '{\'useTwoStepSearchOptimization\':undefined}',
+                            system: 'https://www.icanbwell.com/queryOptimization'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryExplain'
+                            system: 'https://www.icanbwell.com/queryExplain'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryExplainSimple'
+                            system: 'https://www.icanbwell.com/queryExplainSimple'
                         }
                     ]
                 },
@@ -2085,7 +2085,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = { 'base_version': '4_0_0', _explain: 1, 'id': '1,2' };
+            const args = { base_version: '4_0_0', _explain: 1, id: '1,2' };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -2112,94 +2112,94 @@ describe('graphHelper Tests', () => {
                 }
             }
             expect(result.toJSON()).toStrictEqual({
-                'resourceType': 'Bundle',
-                'id': '1',
-                'meta': {
-                    'tag': [
+                resourceType: 'Bundle',
+                id: '1',
+                meta: {
+                    tag: [
                         {
-                            'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'practitioner._uuid':'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'}, {}) | db.Organization_4_0_0.find({'_uuid':'a10b7ea7-4439-5613-be67-ff64a5e45c1c'}, {}) | db.InsurancePlan_4_0_0.find({'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'}, {})"
+                            system: 'https://www.icanbwell.com/query',
+                            display: "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'practitioner._uuid':'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'}, {}) | db.Organization_4_0_0.find({'_uuid':'a10b7ea7-4439-5613-be67-ff64a5e45c1c'}, {}) | db.InsurancePlan_4_0_0.find({'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'}, {})"
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryCollection',
-                            'code': 'Practitioner_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|InsurancePlan_4_0_0'
+                            system: 'https://www.icanbwell.com/queryCollection',
+                            code: 'Practitioner_4_0_0|PractitionerRole_4_0_0|Organization_4_0_0|InsurancePlan_4_0_0'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryOptions',
-                            'display': '[{\'projection\':{\'_id\':0}}]'
+                            system: 'https://www.icanbwell.com/queryOptions',
+                            display: '[{\'projection\':{\'_id\':0}}]'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryFields',
-                            'display': '[]'
+                            system: 'https://www.icanbwell.com/queryFields',
+                            display: '[]'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryTime'
+                            system: 'https://www.icanbwell.com/queryTime'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryOptimization',
-                            'display': '{\'useTwoStepSearchOptimization\':undefined}'
+                            system: 'https://www.icanbwell.com/queryOptimization',
+                            display: '{\'useTwoStepSearchOptimization\':undefined}'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryExplain'
+                            system: 'https://www.icanbwell.com/queryExplain'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/queryExplainSimple'
+                            system: 'https://www.icanbwell.com/queryExplainSimple'
                         }
                     ]
                 },
-                'type': 'searchset',
-                'entry': [
+                type: 'searchset',
+                entry: [
                     {
-                        'id': '1',
-                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
-                        'resource': {
-                            'resourceType': 'Practitioner',
-                            'id': '1',
-                            'contained': [
+                        id: '1',
+                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        resource: {
+                            resourceType: 'Practitioner',
+                            id: '1',
+                            contained: [
                                 {
-                                    'resourceType': 'PractitionerRole',
-                                    'id': '10',
-                                    'extension': [
+                                    resourceType: 'PractitionerRole',
+                                    id: '10',
+                                    extension: [
                                         {
-                                            'id': 'IDHP',
-                                            'extension': [
+                                            id: 'IDHP',
+                                            extension: [
                                                 {
-                                                    'url': 'for_system',
-                                                    'valueUri': 'http://clienthealth.org/IDHP'
+                                                    url: 'for_system',
+                                                    valueUri: 'http://clienthealth.org/IDHP'
                                                 },
                                                 {
-                                                    'url': 'availability_score',
-                                                    'valueDecimal': 0.1234567890123
+                                                    url: 'availability_score',
+                                                    valueDecimal: 0.1234567890123
                                                 }
                                             ],
-                                            'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search'
                                         },
                                         {
-                                            'extension': [
+                                            extension: [
                                                 {
-                                                    'url': 'plan',
-                                                    'valueReference': {
-                                                        'reference': 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                                    url: 'plan',
+                                                    valueReference: {
+                                                        reference: 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
                                                     }
                                                 }
                                             ],
-                                            'url': 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan'
                                         }
                                     ],
-                                    'practitioner': {
-                                        'reference': 'Practitioner/1'
+                                    practitioner: {
+                                        reference: 'Practitioner/1'
                                     },
-                                    'organization': {
-                                        'reference': 'Organization/100'
+                                    organization: {
+                                        reference: 'Organization/100'
                                     }
                                 },
                                 {
-                                    'resourceType': 'InsurancePlan',
-                                    'id': 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                    resourceType: 'InsurancePlan',
+                                    id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
                                 },
                                 {
-                                    'resourceType': 'Organization',
-                                    'id': '100'
+                                    resourceType: 'Organization',
+                                    id: '100'
                                 }
                             ]
                         }

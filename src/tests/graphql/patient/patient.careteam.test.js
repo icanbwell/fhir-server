@@ -68,7 +68,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
             const body = resp.body;
             if (body.errors) {
-                logError('', { 'errors': body.errors });
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction

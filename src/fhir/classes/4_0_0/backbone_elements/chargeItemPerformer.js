@@ -27,7 +27,7 @@ class ChargeItemPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor
         }
     ) {
@@ -155,7 +155,7 @@ class ChargeItemPerformer extends Element {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor
         });
     }

@@ -30,7 +30,7 @@ class MongoFilterGenerator {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
-        let filter = { 'id': id.toString() };
+        let filter = { id: id.toString() };
         if (this.configManager.enableGlobalIdSupport && securityTagStructure.sourceAssigningAuthority.length > 0) {
             /**
              * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
@@ -40,15 +40,15 @@ class MongoFilterGenerator {
                     $or: securityTagStructure.sourceAssigningAuthority.map(
                         sa => {
                             return {
-                                '_sourceAssigningAuthority': sa
+                                _sourceAssigningAuthority: sa
                             };
                         }
                     )
                 }
-                : { '_sourceAssigningAuthority': securityTagStructure.sourceAssigningAuthority[0] };
+                : { _sourceAssigningAuthority: securityTagStructure.sourceAssigningAuthority[0] };
             filter = {
                 $and: [
-                    { '_sourceId': id.toString() },
+                    { _sourceId: id.toString() },
                     sourceAssigningAuthorityFilter
                 ]
             };
@@ -65,7 +65,7 @@ class MongoFilterGenerator {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
-        const filter = { '_uuid': uuid.toString() };
+        const filter = { _uuid: uuid.toString() };
         return filter;
     }
 }

@@ -36,7 +36,7 @@ class AdminLogManager {
                 return result;
             }
         } catch (e) {
-            logError(e.message, { 'error': e });
+            logError(e.message, { error: e });
         }
         return [];
     }

@@ -89,7 +89,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithoutFilterResponse, r => {
@@ -141,7 +141,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set({ 'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders() });
 
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -218,7 +218,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -302,7 +302,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterBinaryResponse, r => {
@@ -350,7 +350,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .post('/graphql')
                 .send({
                     operationName: null,
-                    variables: { 'code': ['3584-4', 'random'], 'id': ['loinc-consumer'] },
+                    variables: { code: ['3584-4', 'random'], id: ['loinc-consumer'] },
                     query: graphqlQueryText
                 })
                 .set({ 'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders() });
@@ -401,10 +401,10 @@ describe('GraphQL CodeSystem Tests', () => {
                 .post('/graphql')
                 .send({
                     operationName: null,
-                    variables: { 'id': ['loinc-consumer'] },
+                    variables: { id: ['loinc-consumer'] },
                     query: graphqlQueryText
                 })
-                .set({ 'handling': 'strict', ...getGraphQLHeaders() });
+                .set({ handling: 'strict', ...getGraphQLHeaders() });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
@@ -417,7 +417,7 @@ describe('GraphQL CodeSystem Tests', () => {
                     variables: {},
                     query: graphqlQueryText
                 })
-                .set({ 'handling': 'strict', ...getGraphQLHeaders() });
+                .set({ handling: 'strict', ...getGraphQLHeaders() });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
@@ -485,7 +485,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 .post('/graphql')
                 .send({
                     operationName: null,
-                    variables: { 'id': ['loinc-consumer'], 'code': ['3584-4', 'random'] },
+                    variables: { id: ['loinc-consumer'], code: ['3584-4', 'random'] },
                     query: graphqlQueryText
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));

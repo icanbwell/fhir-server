@@ -357,30 +357,30 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                                     `${proaPatientClientPersonMatchingScore}| Linked| \n`
                                 );
                                 const updatedResource = {
-                                    'link': {
-                                        'target': {
-                                            'extension': [
+                                    link: {
+                                        target: {
+                                            extension: [
                                                 {
-                                                    'id': 'sourceId',
-                                                    'url': 'https://www.icanbwell.com/sourceId',
-                                                    'valueString': proaPatientUUID
+                                                    id: 'sourceId',
+                                                    url: 'https://www.icanbwell.com/sourceId',
+                                                    valueString: proaPatientUUID
                                                 },
                                                 {
-                                                    'id': 'uuid',
-                                                    'url': 'https://www.icanbwell.com/uuid',
-                                                    'valueString': proaPatientUUID
+                                                    id: 'uuid',
+                                                    url: 'https://www.icanbwell.com/uuid',
+                                                    valueString: proaPatientUUID
                                                 },
                                                 {
-                                                    'id': 'sourceAssigningAuthority',
-                                                    'url': 'https://www.icanbwell.com/sourceAssigningAuthority',
-                                                    'valueString': sourceAssigningAuthority
+                                                    id: 'sourceAssigningAuthority',
+                                                    url: 'https://www.icanbwell.com/sourceAssigningAuthority',
+                                                    valueString: sourceAssigningAuthority
                                                 }
                                             ],
-                                            'reference': `${proaPatientUUID}|${sourceAssigningAuthority}`,
-                                            'type': 'Patient',
-                                            '_sourceAssigningAuthority': sourceAssigningAuthority,
-                                            '_uuid': proaPatientUUID,
-                                            '_sourceId': proaPatientUUID
+                                            reference: `${proaPatientUUID}|${sourceAssigningAuthority}`,
+                                            type: 'Patient',
+                                            _sourceAssigningAuthority: sourceAssigningAuthority,
+                                            _uuid: proaPatientUUID,
+                                            _sourceId: proaPatientUUID
                                         }
                                     }
                                 };

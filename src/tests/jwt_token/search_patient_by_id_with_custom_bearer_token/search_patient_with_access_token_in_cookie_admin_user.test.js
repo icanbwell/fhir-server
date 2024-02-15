@@ -27,15 +27,15 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
             const payload = {
-                'sub': 'f559569d-a6c8-4f70-8447-489b42f48b07',
-                'groups': [
+                sub: 'f559569d-a6c8-4f70-8447-489b42f48b07',
+                groups: [
                     'admin/*.*',
                     'user/*.*',
                     'access/*.*'
                 ],
-                'token_use': 'access',
-                'scope': 'phone openid profile email',
-                'username': 'bwell-demo-provider'
+                token_use: 'access',
+                scope: 'phone openid profile email',
+                username: 'bwell-demo-provider'
             };
             const token = getTokenWithCustomPayload(payload);
             const patientId = '00100000000';

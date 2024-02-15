@@ -400,8 +400,8 @@ class FhirDataSource {
                         keys,
                         requestInfo: this.requestInfo,
                         args: { // these args should appy to every nested property
-                            '_debug': args._debug,
-                            '_explain': args._explain
+                            _debug: args._debug,
+                            _explain: args._explain
                         }
                     }
                 )

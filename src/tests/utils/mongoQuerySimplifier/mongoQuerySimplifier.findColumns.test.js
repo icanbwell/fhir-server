@@ -15,11 +15,11 @@ describe('mongoQuerySimplifier Tests', () => {
     describe('Patient mongoQuerySimplifier findColumn Tests', () => {
         test('mongoQuerySimplifier works for findColumn query 1', () => {
             const query = {
-                '$and': [
+                $and: [
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                                     }
@@ -28,17 +28,17 @@ describe('mongoQuerySimplifier Tests', () => {
                         ]
                     },
                     {
-                        '$or': [
+                        $or: [
                             {
-                                '$and': [
+                                $and: [
                                     {
-                                        'birthDate': {
-                                            '$lt': '2021-09-22T00:00:00+00:00'
+                                        birthDate: {
+                                            $lt: '2021-09-22T00:00:00+00:00'
                                         }
                                     },
                                     {
-                                        'birthDate': {
-                                            '$gte': '2021-09-19T00:00:00+00:00'
+                                        birthDate: {
+                                            $gte: '2021-09-19T00:00:00+00:00'
                                         }
                                     }
                                 ]
@@ -54,10 +54,10 @@ describe('mongoQuerySimplifier Tests', () => {
         });
         test('mongoQuerySimplifier works for findColumn query nested', () => {
             const query = {
-                'identifier': {
-                    '$elemMatch': {
-                        'system': 'http://www.client.com/profileid',
-                        'value': '1000000-a-01'
+                identifier: {
+                    $elemMatch: {
+                        system: 'http://www.client.com/profileid',
+                        value: '1000000-a-01'
                     }
                 }
             };

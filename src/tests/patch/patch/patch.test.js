@@ -77,15 +77,15 @@ describe('Person Tests', () => {
                 .send(patch1)
                 .set(getHeaders());
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                         },
-                        'diagnostics': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        diagnostics: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                     }
                 ]
             });
@@ -108,17 +108,17 @@ describe('Person Tests', () => {
                 .set(getHeadersJsonPatch());
 
             expect(resp.body).toStrictEqual({
-                'issue': [
+                issue: [
                     {
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
+                        code: 'invalid',
+                        details: {
+                            text: 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
-                        'diagnostics': 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
-                        'severity': 'error'
+                        diagnostics: 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        severity: 'error'
                     }
                 ],
-                'resourceType': 'OperationOutcome'
+                resourceType: 'OperationOutcome'
             });
         });
 

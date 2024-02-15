@@ -87,7 +87,7 @@ class AdminPersonPatientLinkManager {
             if (bwellPerson.link) {
                 // check if a link target already exists in bwellPerson for externalPersonId
                 if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
-                    logInfo('link before (non-empty)', { 'link': bwellPerson.link });
+                    logInfo('link before (non-empty)', { link: bwellPerson.link });
                     bwellPerson.link = bwellPerson.link.concat([
                         new PersonLink(
                             {
@@ -96,24 +96,24 @@ class AdminPersonPatientLinkManager {
                                 )
                             })
                     ]);
-                    logInfo('link after (non-empty)', { 'link': bwellPerson.link });
+                    logInfo('link after (non-empty)', { link: bwellPerson.link });
                 } else {
                     return {
-                        'message': `Link already exists from ${bwellPersonId} to ${externalPersonId}`,
-                        'bwellPersonId': bwellPersonId,
-                        'externalPersonId': externalPersonId
+                        message: `Link already exists from ${bwellPersonId} to ${externalPersonId}`,
+                        bwellPersonId: bwellPersonId,
+                        externalPersonId: externalPersonId
                     };
                 }
             } else {
                 // no existing link array so create one
-                logInfo('link before (empty)', { 'link': bwellPerson.link });
+                logInfo('link before (empty)', { link: bwellPerson.link });
                 bwellPerson.link = [new PersonLink(
                     {
                         target: new Reference(
                             { reference: `Person/${externalPersonId}` }
                         )
                     })];
-                logInfo('link after (empty)', { 'link': bwellPerson.link });
+                logInfo('link after (empty)', { link: bwellPerson.link });
             }
             // eslint-disable-next-line no-unused-vars
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
@@ -127,15 +127,15 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Added link from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                'bwellPersonId': bwellPersonId,
-                'externalPersonId': externalPersonId
+                message: `Added link from Person/${bwellPersonId} to Person/${externalPersonId}`,
+                bwellPersonId: bwellPersonId,
+                externalPersonId: externalPersonId
             };
         } else {
             return {
-                'message': `No Person found with id ${bwellPersonId}`,
-                'bwellPersonId': bwellPersonId,
-                'externalPersonId': externalPersonId
+                message: `No Person found with id ${bwellPersonId}`,
+                bwellPersonId: bwellPersonId,
+                externalPersonId: externalPersonId
             };
         }
     }
@@ -177,23 +177,23 @@ class AdminPersonPatientLinkManager {
                     l.target._uuid === `Person/${externalPersonId}`
                 ))) {
                     return {
-                        'message': `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                        'bwellPersonId': bwellPersonId,
-                        'externalPersonId': externalPersonId
+                        message: `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
+                        bwellPersonId: bwellPersonId,
+                        externalPersonId: externalPersonId
                     };
                 } else {
-                    logInfo('link before', { 'link': bwellPerson.link });
+                    logInfo('link before', { link: bwellPerson.link });
                     bwellPerson.link = bwellPerson.link.filter(l => (
                         l.target.reference !== `Person/${externalPersonId}` &&
                         l.target._uuid !== `Person/${externalPersonId}`
                     ));
-                    logInfo('link after', { 'link': bwellPerson.link });
+                    logInfo('link after', { link: bwellPerson.link });
                 }
             } else {
                 return {
-                    'message': `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                    'bwellPersonId': bwellPersonId,
-                    'externalPersonId': externalPersonId
+                    message: `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
+                    bwellPersonId: bwellPersonId,
+                    externalPersonId: externalPersonId
                 };
             }
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
@@ -213,15 +213,15 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Removed link from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                'bwellPersonId': bwellPersonId,
-                'externalPersonId': externalPersonId
+                message: `Removed link from Person/${bwellPersonId} to Person/${externalPersonId}`,
+                bwellPersonId: bwellPersonId,
+                externalPersonId: externalPersonId
             };
         } else {
             return {
-                'message': `No Person found with id ${bwellPersonId}`,
-                'bwellPersonId': bwellPersonId,
-                'externalPersonId': externalPersonId
+                message: `No Person found with id ${bwellPersonId}`,
+                bwellPersonId: bwellPersonId,
+                externalPersonId: externalPersonId
             };
         }
     }
@@ -275,9 +275,9 @@ class AdminPersonPatientLinkManager {
             });
             if (!patient) {
                 return {
-                    'message': `No Patient found for id: ${patientId}`,
-                    'patientId': patientId,
-                    'externalPersonId': externalPersonId
+                    message: `No Patient found for id: ${patientId}`,
+                    patientId: patientId,
+                    externalPersonId: externalPersonId
                 };
             }
             /**
@@ -285,15 +285,15 @@ class AdminPersonPatientLinkManager {
              */
             const meta = patient.meta;
             sourcePerson = new Person({
-                'id': generateUUID(),
-                'meta': {
-                    'id': generateUUID(),
-                    'versionId': 1,
-                    'lastUpdated': new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-                    'source': meta.source,
-                    'security': meta.security
+                id: generateUUID(),
+                meta: {
+                    id: generateUUID(),
+                    versionId: 1,
+                    lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
+                    source: meta.source,
+                    security: meta.security
                 },
-                'link': [
+                link: [
                     new PersonLink(
                         {
                             target: new Reference({ reference: `Patient/${patientId}` }
@@ -310,15 +310,15 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Created Person and added link from Person/${externalPersonId} to Patient/${patientId}`,
-                'patientId': patientId,
-                'externalPersonId': externalPersonId
+                message: `Created Person and added link from Person/${externalPersonId} to Patient/${patientId}`,
+                patientId: patientId,
+                externalPersonId: externalPersonId
             };
         } else {
             if (sourcePerson.link) {
                 // check if a link target already exists in sourcePerson for externalPersonId
                 if (!sourcePerson.link.some(l => l.target && l.target.reference === `Patient/${patientId}`)) {
-                    logInfo('link before (non-empty)', { 'link': sourcePerson.link });
+                    logInfo('link before (non-empty)', { link: sourcePerson.link });
                     sourcePerson.link = sourcePerson.link.concat([
                         new PersonLink(
                             {
@@ -326,16 +326,16 @@ class AdminPersonPatientLinkManager {
                                 )
                             })
                     ]);
-                    logInfo('link before (non-empty)', { 'link': sourcePerson.link });
+                    logInfo('link before (non-empty)', { link: sourcePerson.link });
                 } else {
                     return {
-                        'message': `Link already exists from Person/${externalPersonId} to Patient/${patientId}`,
-                        'patientId': patientId,
-                        'externalPersonId': externalPersonId
+                        message: `Link already exists from Person/${externalPersonId} to Patient/${patientId}`,
+                        patientId: patientId,
+                        externalPersonId: externalPersonId
                     };
                 }
             } else {
-                logInfo('link before (empty)', { 'link': sourcePerson.link });
+                logInfo('link before (empty)', { link: sourcePerson.link });
                 sourcePerson.link = [
                     new PersonLink(
                         {
@@ -343,7 +343,7 @@ class AdminPersonPatientLinkManager {
                                 { reference: `Patient/${patientId}` }
                             )
                         })];
-                logInfo('link after', { 'link': sourcePerson.link });
+                logInfo('link after', { link: sourcePerson.link });
             }
             // eslint-disable-next-line no-unused-vars
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
@@ -357,9 +357,9 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Added link from Person/${externalPersonId} to Patient/${patientId}`,
-                'patientId': patientId,
-                'externalPersonId': externalPersonId
+                message: `Added link from Person/${externalPersonId} to Patient/${patientId}`,
+                patientId: patientId,
+                externalPersonId: externalPersonId
             };
         }
     }
@@ -402,23 +402,23 @@ class AdminPersonPatientLinkManager {
                     ))
                 ) {
                     return {
-                        'message': `No Link exists from Person/${personId} to Patient/${patientId}`,
-                        'personId': personId,
-                        'patientId': patientId
+                        message: `No Link exists from Person/${personId} to Patient/${patientId}`,
+                        personId: personId,
+                        patientId: patientId
                     };
                 } else {
-                    logInfo('link before', { 'link': person.link });
+                    logInfo('link before', { link: person.link });
                     person.link = person.link.filter(l => (
                         l.target.reference !== `Patient/${patientId}` &&
                         l.target._uuid !== `Patient/${patientId}`
                     ));
-                    logInfo('link after', { 'link': person.link });
+                    logInfo('link after', { link: person.link });
                 }
             } else {
                 return {
-                    'message': `No Link exists from Person/${personId} to Patient/${patientId}`,
-                    'personId': personId,
-                    'patientId': patientId
+                    message: `No Link exists from Person/${personId} to Patient/${patientId}`,
+                    personId: personId,
+                    patientId: patientId
                 };
             }
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
@@ -438,15 +438,15 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Removed link from Person/${personId} to Patient/${patientId}`,
-                'personId': personId,
-                'patientId': patientId
+                message: `Removed link from Person/${personId} to Patient/${patientId}`,
+                personId: personId,
+                patientId: patientId
             };
         } else {
             return {
-                'message': `No Person found with id ${personId}`,
-                'personId': personId,
-                'patientId': patientId
+                message: `No Person found with id ${personId}`,
+                personId: personId,
+                patientId: patientId
             };
         }
     }

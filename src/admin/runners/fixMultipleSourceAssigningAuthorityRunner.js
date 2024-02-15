@@ -197,24 +197,24 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                     });
                     const result = await dbCollection.aggregate([
                         {
-                            '$unwind': {
-                                'path': '$meta.security'
+                            $unwind: {
+                                path: '$meta.security'
                             }
                         },
                         {
-                            '$match': {
+                            $match: {
                                 'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`
                             }
                         },
                         {
-                            '$group': {
+                            $group: {
                                 _id: '$_id',
                                 count: { $count: {} }
                             }
                         },
                         {
-                            '$match': {
-                                'count': {
+                            $match: {
+                                count: {
                                     $gte: 2
                                 }
                             }

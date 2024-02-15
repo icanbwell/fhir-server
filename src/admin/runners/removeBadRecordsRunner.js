@@ -76,7 +76,7 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
             }
             for (const collectionName of this.collections) {
                 this.adminLogger.logInfo(`Processing ${collectionName}`);
-                let filter = { 'id': null };
+                let filter = { id: null };
                 this.adminLogger.logInfo(`Deleting in ${collectionName} by filter: ${JSON.stringify(filter)}`);
                 let result = await db.collection(collectionName).deleteMany(filter);
                 this.adminLogger.logInfo(`Deleted ${result.deletedCount} records by filter: ${JSON.stringify(filter)}`);

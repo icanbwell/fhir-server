@@ -89,7 +89,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                     {
                         'resource.meta.security.system': 1,
                         'resource.meta.security.code': 1,
-                        '_id': 1
+                        _id: 1
                     },
                     {
                         name: indexName
@@ -227,8 +227,8 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
         const filterQuery = {
             [`${queryPrefix}meta.security`]: {
                 $elemMatch: {
-                    'system': SecurityTagSystem.owner,
-                    'code': this.oldSourceAssigningAuthority
+                    system: SecurityTagSystem.owner,
+                    code: this.oldSourceAssigningAuthority
                 }
             }
         };

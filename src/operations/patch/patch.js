@@ -143,7 +143,7 @@ class PatchOperation {
                 `Only ${fhirContentTypes.jsonPatch} is supported.`;
             throw new BadRequestError(
                 {
-                    'message': message,
+                    message: message,
                     toString: function () {
                         return message;
                     }

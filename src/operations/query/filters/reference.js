@@ -60,7 +60,7 @@ class FilterByReference extends BaseFilter {
                 uuidFilters.push(
                     {
                         [`${field}._uuid`]: {
-                            '$in': uuidReferences.flatMap(
+                            $in: uuidReferences.flatMap(
                                 r => this.getReferences(
                                     {
                                         targets: this.propertyObj.target,
@@ -74,7 +74,7 @@ class FilterByReference extends BaseFilter {
 
                 if (uuidFilters.length > 0) {
                     filters.push({
-                        '$or': uuidFilters
+                        $or: uuidFilters
                     });
                 }
             }
@@ -98,13 +98,13 @@ class FilterByReference extends BaseFilter {
                         ) {
                         idFilters.push(
                             {
-                                '$and': [
+                                $and: [
                                     {
                                         [`${field}._sourceAssigningAuthority`]: sourceAssigningAuthority
                                     },
                                     {
                                         [`${field}._sourceId`]: {
-                                            '$in': references.flatMap(
+                                            $in: references.flatMap(
                                                 r => this.getReferences({
                                                     targets: this.propertyObj.target,
                                                     reference: r
@@ -121,7 +121,7 @@ class FilterByReference extends BaseFilter {
                     idFilters.push(
                         {
                             [`${field}._sourceId`]: {
-                                '$in': idReferencesWithoutSourceAssigningAuthority.flatMap(
+                                $in: idReferencesWithoutSourceAssigningAuthority.flatMap(
                                     r => this.getReferences({
                                         targets: this.propertyObj.target,
                                         reference: r
@@ -134,12 +134,12 @@ class FilterByReference extends BaseFilter {
             }
             if (idFilters.length > 0) {
                 filters.push({
-                    '$or': idFilters
+                    $or: idFilters
                 });
             }
         }
         const filter = {
-            '$or': filters
+            $or: filters
         };
         and_segments.push(filter);
         return and_segments;

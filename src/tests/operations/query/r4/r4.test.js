@@ -56,9 +56,9 @@ describe('r4 search Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                '_security': 'https://www.icanbwell.com/access%7Cclient',
-                'birthdate': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
+                base_version: VERSIONS['4_0_0'],
+                _security: 'https://www.icanbwell.com/access%7Cclient',
+                birthdate: ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient',
@@ -90,9 +90,9 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                '_security': 'https://www.icanbwell.com/access%7Cfoobar',
-                'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
+                base_version: VERSIONS['4_0_0'],
+                _security: 'https://www.icanbwell.com/access%7Cfoobar',
+                date: ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent',
@@ -125,9 +125,9 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                '_security': 'https://www.icanbwell.com/access%7Cclient',
-                'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
+                base_version: VERSIONS['4_0_0'],
+                _security: 'https://www.icanbwell.com/access%7Cclient',
+                date: ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent',
@@ -159,8 +159,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'subject': 'Patient/1234'
+                base_version: VERSIONS['4_0_0'],
+                subject: 'Patient/1234'
             };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType: 'Task', args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -191,8 +191,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': '1234,4567'
+                base_version: VERSIONS['4_0_0'],
+                patient: '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Person', parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Person', args })
@@ -222,8 +222,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/1234,Patient/4567'
+                base_version: VERSIONS['4_0_0'],
+                patient: 'Patient/1234,Patient/4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Person',
@@ -254,8 +254,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'subject': '1234,4567'
+                base_version: VERSIONS['4_0_0'],
+                subject: '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task',
@@ -288,8 +288,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'code': '1234,4567'
+                base_version: VERSIONS['4_0_0'],
+                code: '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task',
@@ -320,8 +320,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'subject': 'Patient/1234,Patient/4567'
+                base_version: VERSIONS['4_0_0'],
+                subject: 'Patient/1234,Patient/4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task',
@@ -352,8 +352,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'active': 'true'
+                base_version: VERSIONS['4_0_0'],
+                active: 'true'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'PractitionerRole',
@@ -384,8 +384,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'active': 'false'
+                base_version: VERSIONS['4_0_0'],
+                active: 'false'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'PractitionerRole',
@@ -416,8 +416,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                base_version: VERSIONS['4_0_0'],
+                id: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
                 'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -426,7 +426,7 @@ describe('r4 search Tests', () => {
             });
             expect(result.query.$and['0']._sourceId).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
             expect(result.query.$and['1']._sourceId).toStrictEqual({
-                '$gt': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+                $gt: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             });
         });
         test('r4 works with :not for id', async () => {
@@ -452,7 +452,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 '_id:not': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -484,7 +484,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 '_security:not': 'https://www.icanbwell.com/access|bwell'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -492,8 +492,8 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query.$nor['0']['meta.security'].$elemMatch).toStrictEqual({
-                'system': 'https://www.icanbwell.com/access',
-                'code': 'bwell'
+                system: 'https://www.icanbwell.com/access',
+                code: 'bwell'
             });
         });
         test('r4 works with :not for _security', async () => {
@@ -519,7 +519,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 '_security:not': 'https://www.icanbwell.com/access|bwell'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -527,8 +527,8 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query.$nor['0']['meta.security'].$elemMatch).toStrictEqual({
-                'system': 'https://www.icanbwell.com/access',
-                'code': 'bwell'
+                system: 'https://www.icanbwell.com/access',
+                code: 'bwell'
             });
         });
         test('r4 works with :contains for identifier value', async () => {
@@ -554,7 +554,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'identifier:contains': '465'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -563,8 +563,8 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual({
                 'identifier.value': {
-                    '$regex': '465',
-                    '$options': 'i'
+                    $regex: '465',
+                    $options: 'i'
                 }
             });
         });
@@ -591,7 +591,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'identifier:contains': '465,789'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -599,17 +599,17 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                '$or': [
+                $or: [
                     {
                         'identifier.value': {
-                            '$options': 'i',
-                            '$regex': '465'
+                            $options: 'i',
+                            $regex: '465'
                         }
                     },
                     {
                         'identifier.value': {
-                            '$options': 'i',
-                            '$regex': '789'
+                            $options: 'i',
+                            $regex: '789'
                         }
                     }
                 ]
@@ -638,7 +638,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'identifier:contains': 'foo|465'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -646,15 +646,15 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                'identifier': {
-                    '$elemMatch': {
-                        'system': {
-                            '$options': 'i',
-                            '$regex': 'foo'
+                identifier: {
+                    $elemMatch: {
+                        system: {
+                            $options: 'i',
+                            $regex: 'foo'
                         },
-                        'value': {
-                            '$options': 'i',
-                            '$regex': '465'
+                        value: {
+                            $options: 'i',
+                            $regex: '465'
                         }
                     }
                 }
@@ -683,7 +683,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'given:contains': 'foo'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -692,8 +692,8 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual({
                 'name.given': {
-                    '$options': 'i',
-                    '$regex': 'foo'
+                    $options: 'i',
+                    $regex: 'foo'
                 }
             });
         });
@@ -720,7 +720,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'gender:contains': 'foo'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -728,9 +728,9 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args })
             });
             expect(result.query).toStrictEqual({
-                'gender': {
-                    '$options': 'i',
-                    '$regex': 'foo'
+                gender: {
+                    $options: 'i',
+                    $regex: 'foo'
                 }
             });
         });
@@ -757,7 +757,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'depends-on': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -766,12 +766,12 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    '$or': [
+                    $or: [
                         {
                             'relatedArtifact.resource': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
                         },
                         {
-                            'library': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                            library: 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
                         }
                     ]
                 });
@@ -799,8 +799,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'date': '2019-10-16T22:12:29'
+                base_version: VERSIONS['4_0_0'],
+                date: '2019-10-16T22:12:29'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Observation',
@@ -808,25 +808,25 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    '$or': [
+                    $or: [
                         {
-                            'effectiveDateTime': {
-                                '$options': 'i',
-                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            effectiveDateTime: {
+                                $options: 'i',
+                                $regex: new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
                             }
                         },
                         {
-                            '$and': [
+                            $and: [
                                 {
                                     'effectivePeriod.start': {
-                                        '$lte': '2019-10-16T22:12:29+00:00'
+                                        $lte: '2019-10-16T22:12:29+00:00'
                                     }
                                 },
                                 {
-                                    '$or': [
+                                    $or: [
                                         {
                                             'effectivePeriod.end': {
-                                                '$gte': '2019-10-16T22:12:29+00:00'
+                                                $gte: '2019-10-16T22:12:29+00:00'
                                             }
                                         },
                                         {
@@ -837,15 +837,15 @@ describe('r4 search Tests', () => {
                             ]
                         },
                         {
-                            'effectiveTiming': {
-                                '$options': 'i',
-                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            effectiveTiming: {
+                                $options: 'i',
+                                $regex: new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
                             }
                         },
                         {
-                            'effectiveInstant': {
-                                '$options': 'i',
-                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            effectiveInstant: {
+                                $options: 'i',
+                                $regex: new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
                             }
                         }
                     ]
@@ -875,8 +875,8 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
-                'date': '2019-10-16T22:12:29.000Z'
+                base_version: VERSIONS['4_0_0'],
+                date: '2019-10-16T22:12:29.000Z'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Observation',
@@ -884,25 +884,25 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    '$or': [
+                    $or: [
                         {
-                            'effectiveDateTime': {
-                                '$options': 'i',
-                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            effectiveDateTime: {
+                                $options: 'i',
+                                $regex: new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
                             }
                         },
                         {
-                            '$and': [
+                            $and: [
                                 {
                                     'effectivePeriod.start': {
-                                        '$lte': '2019-10-16T22:12:29+00:00'
+                                        $lte: '2019-10-16T22:12:29+00:00'
                                     }
                                 },
                                 {
-                                    '$or': [
+                                    $or: [
                                         {
                                             'effectivePeriod.end': {
-                                                '$gte': '2019-10-16T22:12:29+00:00'
+                                                $gte: '2019-10-16T22:12:29+00:00'
                                             }
                                         },
                                         {
@@ -913,15 +913,15 @@ describe('r4 search Tests', () => {
                             ]
                         },
                         {
-                            'effectiveTiming': {
-                                '$options': 'i',
-                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            effectiveTiming: {
+                                $options: 'i',
+                                $regex: new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
                             }
                         },
                         {
-                            'effectiveInstant': {
-                                '$options': 'i',
-                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            effectiveInstant: {
+                                $options: 'i',
+                                $regex: new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
                             }
                         }
                     ]
@@ -950,7 +950,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
-                'base_version': VERSIONS['4_0_0'],
+                base_version: VERSIONS['4_0_0'],
                 'address:contains': '',
                 'address-city:contains': '',
                 'address-country:contains': '',
@@ -958,17 +958,17 @@ describe('r4 search Tests', () => {
                 'address-state:contains': '',
                 'name:contains': '',
                 'phonetic:contains': '',
-                '_lastUpdated': ['', ''],
-                'given': 'DONOTUSE',
-                'family': 'HIEMASTERONE',
-                'email': '',
-                '_security': '',
-                'id': '',
-                'identifier': ['', ''],
+                _lastUpdated: ['', ''],
+                given: 'DONOTUSE',
+                family: 'HIEMASTERONE',
+                email: '',
+                _security: '',
+                id: '',
+                identifier: ['', ''],
                 '_source:contains': '',
-                '_getpagesoffset': '',
-                '_sort': '',
-                '_count': '100'
+                _getpagesoffset: '',
+                _sort: '',
+                _count: '100'
 
             };
             const resourceType = 'Patient';
@@ -978,7 +978,7 @@ describe('r4 search Tests', () => {
             });
             expect(result.query).toStrictEqual(
                 {
-                    '$and': [
+                    $and: [
                         {
                             'name.given': 'DONOTUSE'
                         },

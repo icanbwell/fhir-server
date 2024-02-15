@@ -10,7 +10,7 @@ class CoverageConverter extends BaseConverter {
             subscriberName,
             beneficiary,
             payor,
-            'class': coverageClass,
+            class: coverageClass,
             period,
             relationship
         } = resource;

@@ -600,7 +600,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 await collection.createIndex(
                                     {
                                         [isHistoryCollection ? `resource.${reference.field}._sourceId` : `${reference.field}._sourceId`]: 1,
-                                        '_id': 1
+                                        _id: 1
                                     },
                                     {
                                         name: indexName,
@@ -626,7 +626,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
 
                         await collection.createIndex(
-                            { 'resource._sourceId': 1, '_id': 1 },
+                            { 'resource._sourceId': 1, _id: 1 },
                             {
                                 name: indexName,
                                 maxTimeMS: 6 * 60 * 60 * 1000,

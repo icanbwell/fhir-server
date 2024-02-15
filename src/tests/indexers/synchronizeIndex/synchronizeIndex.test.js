@@ -112,7 +112,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
@@ -207,7 +207,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
@@ -230,72 +230,72 @@ describe('Synchronize Index Tests', () => {
             expect(sortedIndexes.length).toBe(6);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_recorded'
+                    options: {
+                        name: 'helix_auditEvent_recorded'
                     }
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         '_access.client': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_recorded_access_client'
+                    options: {
+                        name: 'helix_auditEvent_recorded_access_client'
                     }
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         '_access.client': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_security_access_client'
+                    options: {
+                        name: 'helix_auditEvent_security_access_client'
                     }
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'options': {
-                        'name': 'helix_audit_event_security'
+                    options: {
+                        name: 'helix_audit_event_security'
                     }
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.source': 1
                     },
-                    'options': {
-                        'name': 'meta.source_1'
+                    options: {
+                        name: 'meta.source_1'
                     }
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'options': {
-                        'name': 'security.system_code_1'
+                    options: {
+                        name: 'security.system_code_1'
                     }
                 }
             );
@@ -400,11 +400,11 @@ describe('Synchronize Index Tests', () => {
             const indexes = synchronizeIndexesResult.created[0].indexes;
             expect(indexes.length).toStrictEqual(1);
             expect(indexes[0]).toStrictEqual({
-                'keys': {
-                    'id': 1
+                keys: {
+                    id: 1
                 },
-                'options': {
-                    'name': 'id_1'
+                options: {
+                    name: 'id_1'
                 }
             });
         });
@@ -442,7 +442,7 @@ describe('Synchronize Index Tests', () => {
              */
             const extraIndex = {
                 keys: {
-                    'id': 1
+                    id: 1
                 },
                 options: {
                     // unique: true,
@@ -471,7 +471,7 @@ describe('Synchronize Index Tests', () => {
             expect(sortedIndexes).toStrictEqual([
                 {
                     keys: {
-                        'id': 1
+                        id: 1
                     },
                     options: {
                         name: 'id_1'
@@ -518,7 +518,7 @@ describe('Synchronize Index Tests', () => {
             expect(droppedIndexes[0]).toStrictEqual(
                 {
                     keys: {
-                        'id': 1
+                        id: 1
                     },
                     options: {
                         name: extraIndex.options.name,

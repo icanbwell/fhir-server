@@ -81,7 +81,7 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            logInfo('', { 'resp': resp.body });
+            logInfo('', { resp: resp.body });
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {

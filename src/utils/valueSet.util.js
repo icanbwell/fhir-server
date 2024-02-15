@@ -123,8 +123,8 @@ class ValueSetManager {
         const concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
         resource1['expansion'] = {
             contains: concepts,
-            'offset': 0,
-            'total': concepts.length
+            offset: 0,
+            total: concepts.length
         };
         // remove compose
         delete resource1['compose'];

@@ -3,12 +3,12 @@
  * @type {{FETCH: string, GROUP: string, SHARD_MERGE: string, COLLSCAN: string, SHARDING_FILTER: string, IXSCAN: string}}
  */
 const friendlyDescriptionOfStages = {
-    'COLLSCAN': 'for a collection scan',
-    'IXSCAN': 'scanning index keys',
-    'FETCH': 'retrieving documents',
-    'GROUP': 'for grouping documents',
-    'SHARD_MERGE': 'for merging results from shards',
-    'SHARDING_FILTER': 'for filtering out orphan documents from shards'
+    COLLSCAN: 'for a collection scan',
+    IXSCAN: 'scanning index keys',
+    FETCH: 'retrieving documents',
+    GROUP: 'for grouping documents',
+    SHARD_MERGE: 'for merging results from shards',
+    SHARDING_FILTER: 'for filtering out orphan documents from shards'
 };
 
 /**

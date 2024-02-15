@@ -72,7 +72,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .expect(200);
             const body = resp.body;
             if (body.errors) {
-                logError('', { 'errors': body.errors });
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
             expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
@@ -121,7 +121,7 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .expect(200);
             const body = resp.body;
             if (body.errors) {
-                logError('', { 'errors': body.errors });
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
             expect(resp).toHaveResponse(expectedGraphQlFilterByCodeResponse, r => {

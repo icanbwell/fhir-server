@@ -45,19 +45,19 @@ describe('Observation Tests', () => {
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
-                    'base_version': VERSIONS['4_0_0']
+                    base_version: VERSIONS['4_0_0']
                 }
             });
 
             parsedArgs.headers = {
-                'prefer': 'global_id=true'
+                prefer: 'global_id=true'
             };
 
             const resources = [
                 new Resource(
                     {
-                        'id': '1',
-                        '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a'
+                        id: '1',
+                        _uuid: '57881c89-78ca-4c66-91f7-2b8a9f99406a'
                     })
             ];
 
@@ -67,9 +67,9 @@ describe('Observation Tests', () => {
             });
             expect(updatedResources.map(r => r.toJSONInternal())).toStrictEqual([
                 {
-                    '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a',
-                    'id': '57881c89-78ca-4c66-91f7-2b8a9f99406a',
-                    'resourceType': 'Resource'
+                    _uuid: '57881c89-78ca-4c66-91f7-2b8a9f99406a',
+                    id: '57881c89-78ca-4c66-91f7-2b8a9f99406a',
+                    resourceType: 'Resource'
                 }
             ]);
         });
