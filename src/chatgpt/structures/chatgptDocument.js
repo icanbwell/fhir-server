@@ -7,7 +7,7 @@ class ChatGPTDocument {
      * @param {string} content
      * @param {ChatGPTMeta} metadata
      */
-    constructor(
+    constructor (
         {
             content,
             metadata

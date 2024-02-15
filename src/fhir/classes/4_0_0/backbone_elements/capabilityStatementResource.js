@@ -37,7 +37,7 @@ class CapabilityStatementResource extends Element {
      * @param {CapabilityStatementSearchParam[]|undefined} [searchParam],
      * @param {CapabilityStatementOperation[]|undefined} [operation],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -508,7 +508,7 @@ class CapabilityStatementResource extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -540,7 +540,7 @@ class CapabilityStatementResource extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.interaction) { await async.each(this.interaction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -552,7 +552,7 @@ class CapabilityStatementResource extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

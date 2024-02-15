@@ -28,7 +28,7 @@ const expected404FromProfilesInsideResource = require('./expected/404_from_multi
 const fhirValidationUrl = 'http://foo/fhir';
 
 class MockConfigManager extends ConfigManager {
-    get fhirValidationUrl() {
+    get fhirValidationUrl () {
         return fhirValidationUrl;
     }
 }

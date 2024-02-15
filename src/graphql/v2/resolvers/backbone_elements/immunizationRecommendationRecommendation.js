@@ -4,12 +4,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     ImmunizationRecommendationRecommendationSupportingImmunization: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ImmunizationRecommendationRecommendationSupportingPatientInformationV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

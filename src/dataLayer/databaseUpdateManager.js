@@ -25,7 +25,7 @@ class DatabaseUpdateManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     resourceLocatorFactory,
                     resourceMerger,
                     preSaveManager,
@@ -84,7 +84,7 @@ class DatabaseUpdateManager {
      * @param {Resource} doc
      * @return {Promise<Resource>}
      */
-    async insertOneAsync({doc}) {
+    async insertOneAsync ({doc}) {
         try {
             doc = await this.preSaveManager.preSaveAsync(doc);
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
@@ -107,7 +107,7 @@ class DatabaseUpdateManager {
      * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync({doc, smartMerge = true}) {
+    async replaceOneAsync ({doc, smartMerge = true}) {
         const originalDoc = doc.clone();
         doc = await this.preSaveManager.preSaveAsync(doc);
         /**
@@ -282,7 +282,7 @@ class DatabaseUpdateManager {
      * @param {string} method
      * @param {Resource} doc
      */
-    async postSaveAsync(
+    async postSaveAsync (
         {
             requestId,
             method,

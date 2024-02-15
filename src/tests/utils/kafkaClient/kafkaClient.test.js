@@ -9,7 +9,7 @@ class MockKafkaClient extends KafkaClient {
      * returns config for kafka
      * @return {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
      */
-    getConfigAsync() {
+    getConfigAsync () {
         return { clientId: 'clientId', brokers: ['broker1', 'broker12'], ssl: true, sasl: false };
     }
 }

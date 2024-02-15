@@ -5,7 +5,7 @@
  * @param {string} queryParameter
  * @return {Object}
  */
-function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
+function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
     let notQueryParameterValue;
     if (queryParameterValue) {
         // un-bundle any objects coming from graphql

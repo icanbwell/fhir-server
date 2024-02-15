@@ -1,7 +1,7 @@
 const {BaseConverter} = require('./baseConverter');
 
 class ProcedureConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({resource}) {
         const {
             id,
             meta: {lastUpdated, source},

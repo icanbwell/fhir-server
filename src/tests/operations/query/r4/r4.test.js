@@ -6,20 +6,20 @@ const {IndexProvider} = require('../../../../indexes/indexProvider');
 const {VERSIONS} = require('../../../../middleware/fhir/utils/constants');
 
 class MockAccessIndexManager extends AccessIndexManager {
-    resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
+    resourceHasAccessIndexForAccessCodes ({resourceType, accessCodes}) {
         return ['AuditEvent', 'Task'].includes(resourceType) &&
             accessCodes.every(a => a === 'client');
     }
 }
 
 class MockConfigManager extends ConfigManager {
-    get useAccessIndex() {
+    get useAccessIndex () {
         return true;
     }
 }
 
 class MockIndexProvider extends IndexProvider {
-    hasIndexForAccessCodes({accessCodes}) {
+    hasIndexForAccessCodes ({accessCodes}) {
         return accessCodes.every(ac => ac === 'client');
     }
 }

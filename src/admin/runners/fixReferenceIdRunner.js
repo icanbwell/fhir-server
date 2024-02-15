@@ -50,7 +50,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string[]|undefined} [filterToRecordsWithFields]
      * @param {string|undefined} [startFromId]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -202,7 +202,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @return {import('mongodb').Filter<import('mongodb').Document>}
      */
     // eslint-disable-next-line no-unused-vars
-    getFilter(properties) {
+    getFilter (properties) {
         if (!properties || properties.length === 0) {
             return {};
         }
@@ -234,7 +234,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -256,7 +256,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync(reference, databaseQueryFactory) {
+    async updateReferenceAsync (reference, databaseQueryFactory) {
         try {
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
             if (!reference || !reference.reference) {
@@ -382,7 +382,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
-    async updateRecordReferencesAsync(resource) {
+    async updateRecordReferencesAsync (resource) {
         // iterate over all the references of the resource and run the updateReferenceAsync on them
         await resource.updateReferencesAsync(
             {
@@ -401,7 +401,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
-    async updateRecordIdAsync(resource) {
+    async updateRecordIdAsync (resource) {
         // create original id with the resource
         /**
          * @type {string}
@@ -447,7 +447,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {function(resource: Resource):Promise<Resource>} updateRecord
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc, updateRecord) {
+    async processRecordAsync (doc, updateRecord) {
         try {
             /**
              * @type {boolean}
@@ -531,7 +531,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async preloadReferencesAsync({mongoConfig}) {
+    async preloadReferencesAsync ({mongoConfig}) {
         const cacheCollectionReferences = async (proaCollection) => {
             this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
 
@@ -565,7 +565,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @returns {boolean}
      */
-    collectionExistsInDb({collectionName}) {
+    collectionExistsInDb ({collectionName}) {
         if (!this.collectionsInDb) {
             throw new Error('Please Run createSingleCollections before using this function');
         }
@@ -579,7 +579,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async addIndexesToCollection({ collectionName, referenceFieldNames, mongoConfig }) {
+    async addIndexesToCollection ({ collectionName, referenceFieldNames, mongoConfig }) {
         /**
          * @type {Boolean}
          */
@@ -658,7 +658,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async dropIndexesofCollection({ collectionName, referenceFieldNames, mongoConfig }) {
+    async dropIndexesofCollection ({ collectionName, referenceFieldNames, mongoConfig }) {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         try {
@@ -700,7 +700,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -919,7 +919,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 let queue = async.queue(updateCollectionReferences, this.collectionConcurrency);
                 let queueErrored = false;
                 const adminLogger = this.adminLogger;
-                queue.error(function(err, task) {
+                queue.error(function (err, task) {
                     adminLogger.logError(err, { task });
                     queueErrored = true;
                 });
@@ -1023,7 +1023,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 };
                 queue = async.queue(updateCollectionids, this.collectionConcurrency);
-                queue.error(function(err, task) {
+                queue.error(function (err, task) {
                     adminLogger.logError(err, { task });
                     throw err;
                 });
@@ -1050,7 +1050,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} queryPrefix
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryFromParameters({queryPrefix}) {
+    getQueryFromParameters ({queryPrefix}) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -1121,7 +1121,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @returns {Promise<{collection: require('mongodb').Collection<import('mongodb').Document>|undefined, session: require('mongodb').ClientSession}>}
      */
-    async createSingeConnectionAsync({ mongoConfig, collectionName }) {
+    async createSingeConnectionAsync ({ mongoConfig, collectionName }) {
         /**
          * @type {require('mongodb').MongoClient}
          */
@@ -1157,7 +1157,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async cacheReferencesAsync({ mongoConfig, collectionName }) {
+    async cacheReferencesAsync ({ mongoConfig, collectionName }) {
         /**
          * @type {boolean}
          */
@@ -1227,7 +1227,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -1265,7 +1265,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {boolean} _sanitize
      * @returns {string}
      */
-    getOriginalId({ doc, _sanitize }) {
+    getOriginalId ({ doc, _sanitize }) {
         const id = doc.meta?.source?.split('/').pop() || '';
         if (_sanitize === null || _sanitize === undefined) {
             _sanitize = false;
@@ -1279,7 +1279,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} _sourceAssigningAuthority
      * @returns {[string]}
      */
-    getCurrentIds({ originalId, _sourceAssigningAuthority }) {
+    getCurrentIds ({ originalId, _sourceAssigningAuthority }) {
         if (_sourceAssigningAuthority) {
             _sourceAssigningAuthority = _sourceAssigningAuthority.toString();
         }
@@ -1293,7 +1293,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {Resource} doc
      * @param {string} collectionName
      */
-    cacheReferenceFromResource({ doc, collectionName }) {
+    cacheReferenceFromResource ({ doc, collectionName }) {
         // originating id with which to replace the current id
         /**
          * @type {string}
@@ -1343,7 +1343,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @return {Map<string, Map<string, string>>}
      */
-    getCacheForReference({ collectionName }) {
+    getCacheForReference ({ collectionName }) {
         collectionName = collectionName.split('_')[0];
 
         if (!this.caches.has(collectionName)) {

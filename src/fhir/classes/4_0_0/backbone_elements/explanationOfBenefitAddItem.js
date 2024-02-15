@@ -40,7 +40,7 @@ class ExplanationOfBenefitAddItem extends Element {
      * @param {ExplanationOfBenefitAdjudication[]|undefined} [adjudication],
      * @param {ExplanationOfBenefitDetail1[]|undefined} [detail],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -604,7 +604,7 @@ class ExplanationOfBenefitAddItem extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -640,7 +640,7 @@ class ExplanationOfBenefitAddItem extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.provider) { await async.each(this.provider, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -664,7 +664,7 @@ class ExplanationOfBenefitAddItem extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

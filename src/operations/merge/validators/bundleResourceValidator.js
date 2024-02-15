@@ -7,7 +7,7 @@ class BundleResourceValidator extends BaseValidator {
     /**
      * @param {ResourceValidator} resourceValidator
      */
-    constructor({resourceValidator}) {
+    constructor ({resourceValidator}) {
         super();
         /**
          * @type {ResourceValidator}
@@ -24,7 +24,7 @@ class BundleResourceValidator extends BaseValidator {
      * @param {string} resourceType
      * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
      */
-    async validate({incomingResources, path, currentDate, currentOperationName, resourceType}) {
+    async validate ({incomingResources, path, currentDate, currentOperationName, resourceType}) {
         // if the incoming request is a bundle then unwrap the bundle
         if (!Array.isArray(incomingResources) && incomingResources.resourceType === 'Bundle') {
             /**

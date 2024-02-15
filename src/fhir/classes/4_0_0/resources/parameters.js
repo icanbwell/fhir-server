@@ -25,7 +25,7 @@ class Parameters extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -226,7 +226,7 @@ class Parameters extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Parameters';
     }
 
@@ -243,7 +243,7 @@ class Parameters extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Parameters}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -273,7 +273,7 @@ class Parameters extends Resource {
      * @description creates a copy of this resource
      * @returns {Parameters}
     */
-    clone() {
+    clone () {
         return new Parameters(this.toJSONInternal());
     }
 
@@ -282,7 +282,7 @@ class Parameters extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -300,7 +300,7 @@ class Parameters extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.parameter) { await async.each(this.parameter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
@@ -309,7 +309,7 @@ class Parameters extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,

@@ -18,7 +18,7 @@ class ClientPersonToProaPatientLinkRunner {
      *
      * @param {ConstructorProps}
      */
-    constructor({
+    constructor ({
         csvFileName,
         proaPatientUuidColumn,
         proaPatientSourceAssigningAuthorityColumn,
@@ -90,7 +90,7 @@ class ClientPersonToProaPatientLinkRunner {
      * Main process
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
         this.adminLogger.logInfo(`Reading file: ${this.csvFileName}`);
         try {

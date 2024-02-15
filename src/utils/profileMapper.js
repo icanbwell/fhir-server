@@ -8,7 +8,7 @@ const { canonicalToOriginalUrlMap } = require('./data/profile.map');
  * Its helps in getting the profile.json data.
  */
 class ProfileUrlMapper {
-    constructor() {
+    constructor () {
         const mapper = canonicalToOriginalUrlMap['4_0_0'];
         const urls = Object.create({});
 
@@ -34,7 +34,7 @@ class ProfileUrlMapper {
         });
     }
 
-    get supportedResources() {
+    get supportedResources () {
         return this._supportedResources;
     }
 
@@ -43,7 +43,7 @@ class ProfileUrlMapper {
      * @param {string} canonicalUrl
      * @returns {string} Url
      */
-    getOriginalUrl(canonicalUrl) {
+    getOriginalUrl (canonicalUrl) {
         return this._canonicalToOriginalMap[`${canonicalUrl}`] ?? canonicalUrl;
     }
 }

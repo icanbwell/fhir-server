@@ -27,7 +27,7 @@ class Attachment extends Element {
      * @param {dateTime|undefined} [creation],
      * @param {string|undefined} [_file_id]
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -275,7 +275,7 @@ class Attachment extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -298,7 +298,7 @@ class Attachment extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
@@ -306,7 +306,7 @@ class Attachment extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

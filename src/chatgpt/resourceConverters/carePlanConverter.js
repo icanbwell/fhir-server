@@ -1,7 +1,7 @@
 const {BaseConverter} = require('./baseConverter');
 
 class CarePlanConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({resource}) {
         const {
             id,
             meta: {lastUpdated, source},

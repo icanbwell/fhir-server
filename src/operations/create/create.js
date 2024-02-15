@@ -36,7 +36,7 @@ class CreateOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PostSaveProcessor} postSaveProcessor
      */
-    constructor(
+    constructor (
         {
             auditLogger,
             postRequestProcessor,
@@ -123,7 +123,7 @@ class CreateOperation {
      * @returns {Resource}
      */
     // eslint-disable-next-line no-unused-vars
-    async createAsync({requestInfo, parsedArgs, path, resourceType}) {
+    async createAsync ({requestInfo, parsedArgs, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

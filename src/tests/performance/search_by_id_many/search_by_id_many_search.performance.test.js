@@ -18,27 +18,27 @@ const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner
 let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return '_uuid';
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get streamingHighWaterMark() {
+    get streamingHighWaterMark () {
         return 100;
     }
 
-    get logStreamSteps() {
+    get logStreamSteps () {
         return false;
     }
 
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return false;
     }
 }

@@ -9,7 +9,7 @@ class ResourceManager {
      * @param {string} resourceType
      * @return {string|null}
      */
-    getPatientFieldNameFromResource(resourceType) {
+    getPatientFieldNameFromResource (resourceType) {
         if (resourceType === 'Patient') {
             return 'id';
         }
@@ -35,7 +35,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {Promise<string|null>}
      */
-    async getPatientIdFromResourceAsync(resourceType, resource) {
+    async getPatientIdFromResourceAsync (resourceType, resource) {
         /**
          * @type {string|null}
          */
@@ -65,7 +65,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {string}
      */
-    getFullUrlForResource({protocol, host, base_version, resource}) {
+    getFullUrlForResource ({protocol, host, base_version, resource}) {
         return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
     }
 }

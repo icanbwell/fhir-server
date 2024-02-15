@@ -19,7 +19,7 @@ class CopyToV3Runner {
      * @param {Object|string|undefined} collections
      * @param {AdminLogger} adminLogger
      */
-    constructor({
+    constructor ({
         mongoDatabaseManager,
         mongoCollectionManager,
         updatedAfter,
@@ -90,7 +90,7 @@ class CopyToV3Runner {
      * @description Creates config for the v3 cluster using connection string
      * @returns {Object}
      */
-    getV3ClusterConfig() {
+    getV3ClusterConfig () {
         let v3MongoUrl = process.env.V3_MONGO_URL;
         v3MongoUrl = v3MongoUrl.replace(
             'mongodb+srv://',
@@ -111,7 +111,7 @@ class CopyToV3Runner {
      * @description Creates config for the Live cluster using connection string
      * @returns {Object}
      */
-    getLiveClusterConfig() {
+    getLiveClusterConfig () {
         this.adminLogger.logInfo(
             `Connecting to live cluster with db_name: ${mongoConfig.db_name}`
         );
@@ -123,7 +123,7 @@ class CopyToV3Runner {
      * @param {Array} collectionList
      * @return {Array}
      */
-    getListOfCollections(collectionList) {
+    getListOfCollections (collectionList) {
         const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
@@ -150,7 +150,7 @@ class CopyToV3Runner {
      * @param {Array} operations List of docs with operation
      * @returns {Object}
      */
-    async v3BulkWrite(collection, v3DatabaseCollection, operations) {
+    async v3BulkWrite (collection, v3DatabaseCollection, operations) {
         let totalDocumentUpdatedCount = 0;
         let totalDocumentCreatedCount = 0;
         let totalDocumentHavingSameDataCount = 0;
@@ -185,7 +185,7 @@ totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount:
     /**
      * Runs a loop to process all the documents.
      */
-    async processAsync() {
+    async processAsync () {
         // If idabove is to be used and but collections is not provided or collections contains multiple values return
         if (this._idAbove && (!this.collections || this.collections.length > 1)) {
             this.adminLogger.logError(

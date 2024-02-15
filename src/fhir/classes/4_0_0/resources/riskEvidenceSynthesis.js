@@ -59,7 +59,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -1051,7 +1051,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'RiskEvidenceSynthesis';
     }
 
@@ -1102,7 +1102,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {RiskEvidenceSynthesis}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -1200,7 +1200,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @description creates a copy of this resource
      * @returns {RiskEvidenceSynthesis}
     */
-    clone() {
+    clone () {
         return new RiskEvidenceSynthesis(this.toJSONInternal());
     }
 
@@ -1209,7 +1209,7 @@ class RiskEvidenceSynthesis extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -1261,7 +1261,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -1293,7 +1293,7 @@ class RiskEvidenceSynthesis extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,

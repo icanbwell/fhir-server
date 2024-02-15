@@ -17,7 +17,7 @@ const errors = require('./utils/error.utils');
  */
 
 
-function deriveActionFromInteraction(interaction) {
+function deriveActionFromInteraction (interaction) {
     switch (interaction) {
         case INTERACTIONS.SEARCH:
         case INTERACTIONS.HISTORY:
@@ -48,7 +48,7 @@ function deriveActionFromInteraction(interaction) {
  */
 
 
-function parseScopes(user = {}, scopeKey = 'scope') {
+function parseScopes (user = {}, scopeKey = 'scope') {
     const scopes = user[`${scopeKey}`];
 
     if (Array.isArray(scopes)) {
@@ -64,7 +64,7 @@ function parseScopes(user = {}, scopeKey = 'scope') {
  */
 
 
-module.exports = function sofScopeCheckMiddleware(options = {}) {
+module.exports = function sofScopeCheckMiddleware (options = {}) {
     const {
         route = {},
         name = '',
@@ -83,7 +83,7 @@ module.exports = function sofScopeCheckMiddleware(options = {}) {
     } // At this point, we have determined we want Smart on FHIR authentication
 
 
-    return function sofScopeMiddleware(req, res, next) {
+    return function sofScopeMiddleware (req, res, next) {
         // name is lowercased, we want upper, foo -> Foo
         const resource = name.slice(0, 1).toUpperCase() + name.slice(1);
         const action = deriveActionFromInteraction(route.interaction);

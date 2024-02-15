@@ -21,7 +21,7 @@ class ExpandOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             valueSetManager,
@@ -79,7 +79,7 @@ class ExpandOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expandAsync({requestInfo, parsedArgs, resourceType}) {
+    async expandAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

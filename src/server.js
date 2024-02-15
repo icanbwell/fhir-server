@@ -41,7 +41,7 @@ const flushBuffer = async (fnGetContainer) => {
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<import('http').Server>}
  */
-async function createServer(fnGetContainer) {
+async function createServer (fnGetContainer) {
     const container = fnGetContainer();
     await new MongoDatabaseManager({
         configManager: container.configManager

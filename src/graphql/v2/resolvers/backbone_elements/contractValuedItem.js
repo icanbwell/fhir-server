@@ -4,12 +4,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     ContractValuedItemResponsible: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     ContractValuedItemRecipient: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

@@ -11,7 +11,7 @@ let mongoRepl;
 
 let myMongoUrl;
 
-async function startTestMongoServerAsync() {
+async function startTestMongoServerAsync () {
     mongoRepl = await MongoMemoryReplSet.create({
         replSet: {count: 1, storageEngine: 'wiredTiger'}
     });
@@ -20,7 +20,7 @@ async function startTestMongoServerAsync() {
     global.__MONGO_URI__ = myMongoUrl;
 }
 
-async function stopTestMongoServerAsync() {
+async function stopTestMongoServerAsync () {
     if (mongoRepl) {
         await mongoRepl.stop({doCleanup: true});
         mongoRepl = null;
@@ -33,7 +33,7 @@ async function stopTestMongoServerAsync() {
     myMongoUrl = null;
 }
 
-async function getMongoUrlAsync() {
+async function getMongoUrlAsync () {
     if (!myMongoUrl) {
         await startTestMongoServerAsync();
     }

@@ -22,7 +22,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      */
-    constructor(
+    constructor (
         {
             indexManager,
             collections,
@@ -91,7 +91,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             await this.init();
             /**

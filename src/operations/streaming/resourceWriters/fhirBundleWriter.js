@@ -20,7 +20,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response}) {
+    constructor ({fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response}) {
         super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark, response});
         /**
          * @type {function (string | null, number): Bundle}
@@ -70,7 +70,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -136,7 +136,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {Error} error
      * @param {import('stream').BufferEncoding} encoding
      */
-    writeErrorAsOperationOutcome({error}) {
+    writeErrorAsOperationOutcome ({error}) {
         /**
          * @type {OperationOutcome}
          */
@@ -160,7 +160,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _flush(callback) {
+    _flush (callback) {
         try {
             /**
              * @type {number}
@@ -223,7 +223,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {OperationOutcome} operationOutcome
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
-    writeOperationOutcome({operationOutcome, encoding}) {
+    writeOperationOutcome ({operationOutcome, encoding}) {
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
             // write the beginning json

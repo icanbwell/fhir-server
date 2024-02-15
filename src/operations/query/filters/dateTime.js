@@ -6,7 +6,7 @@ const {
 const {isColumnDateType} = require('../../common/isColumnDateType');
 const {BaseFilter} = require('./baseFilter');
 
-function isPeriodField(fieldString) {
+function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
 }
 
@@ -20,7 +20,7 @@ class FilterByDateTime extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         // prettier-ignore
         const isDateSearchingPeriod = isPeriodField(field);
         if (isDateSearchingPeriod) {
@@ -58,7 +58,7 @@ class FilterByDateTime extends BaseFilter {
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
@@ -82,7 +82,7 @@ class FilterByDateTime extends BaseFilter {
      * @param {string} field
      * @param {import('../queryParameterValue').QueryParameterValue} queryParameterValue
      */
-    filterByField(field, queryParameterValue) {
+    filterByField (field, queryParameterValue) {
         const childQueries = queryParameterValue.values.flatMap((v) => {
             return this.filterByItem(field, v);
         });

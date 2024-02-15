@@ -19,7 +19,7 @@ class MergeResourceValidator extends BaseValidator {
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
         scopesManager,
         mergeManager,
         databaseBulkLoader,
@@ -68,7 +68,7 @@ class MergeResourceValidator extends BaseValidator {
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
+    async validate ({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
         /**
          * @type {string[]}
          */

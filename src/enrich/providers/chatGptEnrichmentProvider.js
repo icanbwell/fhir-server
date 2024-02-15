@@ -12,7 +12,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {ChatGPTManager} chatgptManager
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             chatgptManager,
             configManager
@@ -39,7 +39,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({resources, parsedArgs}) {
         if (!this.configManager.openAIApiKey) {
             return resources;
         }
@@ -70,7 +70,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {boolean|undefined} _explain
      * @return {Promise<void>}
      */
-    async updateResourceWithAnswerAsync({resource, question, _debug, _explain}) {
+    async updateResourceWithAnswerAsync ({resource, question, _debug, _explain}) {
         /** @type {DomainResource} */
         const domainResource = /** @type {DomainResource} */ resource;
         /**
@@ -127,7 +127,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
         if (!this.configManager.openAIApiKey) {
             return entries;
         }

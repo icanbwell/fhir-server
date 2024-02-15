@@ -14,7 +14,7 @@ class DatabaseHistoryManager {
      * @param {string} resourceType
      * @param {string} base_version
      */
-    constructor(
+    constructor (
         {
             resourceLocatorFactory,
             resourceType,
@@ -53,7 +53,7 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({query, options = null}) {
+    async findOneAsync ({query, options = null}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -88,7 +88,7 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {DatabasePartitionedCursor}
      */
-    async findAsync({query, options = null}) {
+    async findAsync ({query, options = null}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */

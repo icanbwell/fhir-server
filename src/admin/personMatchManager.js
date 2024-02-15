@@ -14,7 +14,7 @@ class PersonMatchManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             configManager
@@ -41,7 +41,7 @@ class PersonMatchManager {
      * @param {string|undefined} targetType
      * @return {Promise<Object>}
      */
-    async personMatchAsync(
+    async personMatchAsync (
         {
             sourceId,
             sourceType,

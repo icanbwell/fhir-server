@@ -7,7 +7,7 @@ class SearchOperation {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor ({configManager}) {
         /**
          * @type {ConfigManager}
          */
@@ -23,7 +23,7 @@ class SearchOperation {
      * @param {boolean} filter
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
-    async searchAsync(
+    async searchAsync (
         requestInfo, args, resourceType,
         filter = true
     ) {

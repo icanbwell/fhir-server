@@ -34,7 +34,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
      * @param {CodeableConcept|undefined} [class_],
      * @param {CodeableConcept|undefined} [order],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -225,7 +225,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -244,7 +244,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.kingdom) { await this.kingdom.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -257,7 +257,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

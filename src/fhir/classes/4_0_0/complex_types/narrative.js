@@ -21,7 +21,7 @@ class Narrative extends Element {
      * @param {code} status,
      * @param {xhtml} div,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -132,7 +132,7 @@ class Narrative extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -148,7 +148,7 @@ class Narrative extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
@@ -156,7 +156,7 @@ class Narrative extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

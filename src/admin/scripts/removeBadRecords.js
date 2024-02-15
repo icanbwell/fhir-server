@@ -14,7 +14,7 @@ const {RemoveBadRecordsRunner} = require('../runners/removeBadRecordsRunner');
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */

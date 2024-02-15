@@ -17,11 +17,11 @@ const {createTestRequest, getTestContainer} = require('../common');
 const {ConfigManager} = require('../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get writeFhirSummaryToVectorStore() {
+    get writeFhirSummaryToVectorStore () {
         return true;
     }
 
-    get enableMemoryVectorStore() {
+    get enableMemoryVectorStore () {
         return true;
     }
 }

@@ -33,7 +33,7 @@ const s3 = new S3({
  * @param filename_postfix - Optional postfix for filename
  * @return {Promise<data|err>}
  */
-module.exports = function sendToS3(prefix, resourceType, resource, currentDate, id, filename_postfix) {
+module.exports = function sendToS3 (prefix, resourceType, resource, currentDate, id, filename_postfix) {
     if (!AWS_BUCKET) {
         return Promise.resolve(null);
     }

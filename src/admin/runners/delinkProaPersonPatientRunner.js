@@ -22,7 +22,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      *
      * @param {constructorProps}
      */
-    constructor({ delinkRemoveProaPerson, connectionType, databaseUpdateFactory, ...args }) {
+    constructor ({ delinkRemoveProaPerson, connectionType, databaseUpdateFactory, ...args }) {
         super(args);
 
         this.writeStream = fs.createWriteStream('proa_person_removal_delinking_report.csv');
@@ -77,7 +77,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      * Fetch proa patient uuid to id & owner map
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async getProaPatientsIdMap({ mongoConfig }) {
+    async getProaPatientsIdMap ({ mongoConfig }) {
         this.adminLogger.logInfo('Fetching Proa patients from db');
         const collectionName = 'Patient_4_0_0';
         /**
@@ -138,7 +138,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @param {string} collectionName
      */
-    async getPersonsMapFromProaPatient({ mongoConfig, collectionName }) {
+    async getPersonsMapFromProaPatient ({ mongoConfig, collectionName }) {
         this.adminLogger.logInfo('Fetching Proa persons from db');
         /**
          * @type {Object}
@@ -239,7 +239,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc, mongoConfig, collectionName) {
+    async processRecordAsync (doc, mongoConfig, collectionName) {
         /**
          * @type {require('mongodb').collection}
          */
@@ -467,7 +467,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @param {string} collectionName
      */
-    async delinkResources(delinkResourceIds, person, mongoConfig, collectionName) {
+    async delinkResources (delinkResourceIds, person, mongoConfig, collectionName) {
         /**
          * @type {require('mongodb').collection}
          */
@@ -531,7 +531,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @param {string} collectionName
      */
-    async removeProaPersons(proaPersonIdsToRemove, mongoConfig, collectionName) {
+    async removeProaPersons (proaPersonIdsToRemove, mongoConfig, collectionName) {
         /**
          * @type {require('mongodb').collection}
          */
@@ -572,7 +572,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             await this.init();

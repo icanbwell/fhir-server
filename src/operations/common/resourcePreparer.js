@@ -14,7 +14,7 @@ class ResourcePreparer {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ResourceManager} resourceManager
      */
-    constructor({
+    constructor ({
                     scopesManager, accessIndexManager,
                     enrichmentManager,
                     resourceManager
@@ -51,7 +51,7 @@ class ResourcePreparer {
      * @param {string} resourceType
      * @return {Resource}
      */
-    selectSpecificElements({parsedArgs, element, resourceType}) {
+    selectSpecificElements ({parsedArgs, element, resourceType}) {
         /**
          * @type {string[]|null}
          */
@@ -89,7 +89,7 @@ class ResourcePreparer {
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync({
+    async prepareResourceAsync ({
                                    user, scope, parsedArgs,
                                    element, resourceType, useAccessIndex
                                }) {

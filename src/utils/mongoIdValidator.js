@@ -4,7 +4,7 @@
  * @returns {boolean}
  */
 const { ObjectId } = require('mongodb');
-module.exports.isValidMongoObjectId = function(id) {
+module.exports.isValidMongoObjectId = function (id) {
     if (ObjectId.isValid(id)) {
         return (String)(new ObjectId(id)) === id;
     }

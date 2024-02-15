@@ -17,7 +17,7 @@ const {FixMultipleSourceAssigningAuthorityRunner} = require('../runners/fixMulti
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */

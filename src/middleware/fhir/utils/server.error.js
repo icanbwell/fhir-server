@@ -5,7 +5,7 @@
  * @class ServerError
  */
 class ServerError extends Error {
-    constructor(message, options) {
+    constructor (message, options) {
         super(message);
         Object.setPrototypeOf(this, ServerError.prototype); // Make message enumerable
 

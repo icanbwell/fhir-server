@@ -36,7 +36,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * @property {Date|undefined} afterLastUpdatedDate
      * @param {AddProxyPatientToConsentResourceRunnerParams} options
      */
-    constructor({
+    constructor ({
         limit,
         startFromId,
         skip,
@@ -91,7 +91,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             get: function () {
                 return this.cache.get('consentToImmediatePersonCache');
             },
-            set(value) {
+            set (value) {
                 this.cache.set('consentToImmediatePersonCache', value);
             }
         });
@@ -101,7 +101,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             get: function () {
                 return this.cache.get('consentWithNoPerson');
             },
-            set(value) {
+            set (value) {
                 this.cache.set('consentWithNoPerson', value);
             }
         });
@@ -111,7 +111,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             get: function () {
                 return this.cache.get('consentToPatientWithMultiplePerson');
             },
-            set(value) {
+            set (value) {
                 this.cache.set('consentToPatientWithMultiplePerson', value);
             }
         });
@@ -132,7 +132,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * Runs a loop to process records async
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         /**
          * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
          */
@@ -217,7 +217,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<Operations[]>}
      */
-    async processRecordsAsync(doc) {
+    async processRecordsAsync (doc) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
         /**
          * @type {boolean}
@@ -262,7 +262,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * Adds Proxy Person reference in resource.provision.actor array
      * @param {{ resource: Resource, isHistoryDoc: boolean}} options
      */
-    async addProxyPersonLinkToConsent({ resource }) {
+    async addProxyPersonLinkToConsent ({ resource }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
@@ -375,7 +375,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<string>}
      */
-    async getUuidsForMainResourceAsync({ collectionName, mongoConfig }) {
+    async getUuidsForMainResourceAsync ({ collectionName, mongoConfig }) {
         this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
         const result = [];
         /**
@@ -443,7 +443,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * Caches consent to person
      * @param {{limit: number; skip: number; mongoConfig: any; startFromId: string | undefined }} params
      */
-    async cacheConsentToPersonUuidRef({ mongoConfig, limit, skip, startFromId }) {
+    async cacheConsentToPersonUuidRef ({ mongoConfig, limit, skip, startFromId }) {
         const collectionName = 'Consent_4_0_0';
         const projection = {
             _id: 1,
@@ -559,7 +559,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * If null values are present then return else process. Pass the processPatientReference which gets called if uuids are present.
      * @param {{ doc: import('mongodb').Document, processPatientReference: (consentId: string, patientId: string): Promise<void>}} params
      */
-    async consentCacheHelper({ doc, processPatientReference }) {
+    async consentCacheHelper ({ doc, processPatientReference }) {
         if (!doc._uuid) {
             this.adminLogger.logInfo(
                 `Uuid is not present for the consent resource with sourceId: ${doc._sourceId}`
@@ -587,7 +587,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * }} options
      * @returns Query
      */
-    async getQueryForConsent({ startFromId, isHistoryCollection }) {
+    async getQueryForConsent ({ startFromId, isHistoryCollection }) {
         const query = {};
         const prefix = isHistoryCollection ? 'resource.' : '';
         const properties = ['_uuid', 'patient'];
@@ -627,7 +627,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
         return query;
     }
 
-    filterPropExist(propertyName) {
+    filterPropExist (propertyName) {
         return { [propertyName]: { $exists: true } };
     }
 }

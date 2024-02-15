@@ -28,7 +28,7 @@ class DocumentReferenceContext extends Element {
      * @param {Reference|undefined} [sourcePatientInfo],
      * @param {Reference[]|undefined} [related],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -292,7 +292,7 @@ class DocumentReferenceContext extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -314,7 +314,7 @@ class DocumentReferenceContext extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.encounter) { await async.each(this.encounter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -330,7 +330,7 @@ class DocumentReferenceContext extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

@@ -9,7 +9,7 @@ class IndexHinter {
      * constructor
      * @param {IndexProvider} indexProvider
      */
-    constructor(
+    constructor (
         {
             indexProvider
         }
@@ -27,7 +27,7 @@ class IndexHinter {
      * @param {Set} bs
      * @return {boolean}
      */
-    eqSet(as, bs) {
+    eqSet (as, bs) {
         if (as.size !== bs.size) {
             return false;
         }
@@ -51,7 +51,7 @@ class IndexHinter {
      * @param {string | undefined} indexName
      * @return {string|null}
      */
-    findIndexForFields(collectionName, fields, indexName) {
+    findIndexForFields (collectionName, fields, indexName) {
         const isIndexName = indexName && indexName !== 'true' && indexName !== '1';
 
         if (!fields || fields.length === 0) {

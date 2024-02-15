@@ -13,7 +13,7 @@ class ScopesValidator {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ConfigManager} configManager
      */
-    constructor({scopesManager, fhirLoggingManager, configManager}) {
+    constructor ({scopesManager, fhirLoggingManager, configManager}) {
         /**
          * @type {ScopesManager}
          */
@@ -40,7 +40,7 @@ class ScopesValidator {
      * @param {string} action
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
      */
-    async verifyHasValidScopesAsync(
+    async verifyHasValidScopesAsync (
         {
             requestInfo,
             parsedArgs,

@@ -40,7 +40,7 @@ class DatabaseQueryManager {
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({
+    constructor ({
                     resourceLocatorFactory,
                     resourceType,
                     base_version,
@@ -89,7 +89,7 @@ class DatabaseQueryManager {
      * @param {FindOneOption} options
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({query, options = null}) {
+    async findOneAsync ({query, options = null}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -122,7 +122,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */
-    async deleteManyAsync({query, requestId, options = {}}) {
+    async deleteManyAsync ({query, requestId, options = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -191,7 +191,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {Promise<DatabasePartitionedCursor>}
      */
-    async findAsync({query, options = null, extraInfo = {}}) {
+    async findAsync ({query, options = null, extraInfo = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -232,7 +232,7 @@ class DatabaseQueryManager {
      * @param {Object} extraInfo
      * @return {DatabasePartitionedCursor}
      */
-    async findUsingAggregationAsync({query, projection, options = null, extraInfo = {}}) {
+    async findUsingAggregationAsync ({query, projection, options = null, extraInfo = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -282,7 +282,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').EstimatedDocumentCountOptions} options
      * @return {Promise<*>}
      */
-    async estimatedDocumentCountAsync({options}) {
+    async estimatedDocumentCountAsync ({options}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -314,7 +314,7 @@ class DatabaseQueryManager {
      * @param { import('mongodb').MongoCountPreferences|null} options
      * @return {Promise<*>}
      */
-    async exactDocumentCountAsync({query, options}) {
+    async exactDocumentCountAsync ({query, options}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -344,7 +344,7 @@ class DatabaseQueryManager {
      * @param {Resource[]} resources
      * @return {Promise<DatabasePartitionedCursor>}
      */
-    async findResourcesInDatabaseAsync({resources}) {
+    async findResourcesInDatabaseAsync ({resources}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -384,7 +384,7 @@ class DatabaseQueryManager {
      * @param {SecurityTagStructure} securityTagStructure
      * @return {Promise<string>}
      */
-    async getUuidForReferenceAsync({id, securityTagStructure}) {
+    async getUuidForReferenceAsync ({id, securityTagStructure}) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
@@ -435,7 +435,7 @@ class DatabaseQueryManager {
      * @param {string} uuid
      * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
      */
-    async getIdAndSourceAssigningAuthorityForUuidAsync({uuid}) {
+    async getIdAndSourceAssigningAuthorityForUuidAsync ({uuid}) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */

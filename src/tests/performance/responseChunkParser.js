@@ -2,7 +2,7 @@ class ResponseChunkParser {
     /**
      * Parser that reads chunks as they are received from server
      */
-    getFhirBundleParser() {
+    getFhirBundleParser () {
         return (req, callback) => {
             req.text = '';
             let text = '';
@@ -25,7 +25,7 @@ class ResponseChunkParser {
     /**
      * Parser that reads chunks as they are received from server
      */
-    getTextParser() {
+    getTextParser () {
         return (req, callback) => {
             req.text = '';
             let text = '';

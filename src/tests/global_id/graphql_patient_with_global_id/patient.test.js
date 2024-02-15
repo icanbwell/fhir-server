@@ -42,11 +42,11 @@ const {ConfigManager} = require('../../../utils/configManager');
 const {cleanMeta} = require('../../customMatchers');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return true;
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return false;
     }
 }

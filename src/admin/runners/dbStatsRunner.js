@@ -32,7 +32,7 @@ class DatabaseStats extends BaseScriptRunner {
      * @param {Object} collectionNames
      * @returns {Object}
     */
-    validateCollections(collectionNames) {
+    validateCollections (collectionNames) {
         const validCollections = [];
         for (const collection of collectionNames) {
             // Skip collections which are of type views or collection whose name contains 'system.
@@ -50,7 +50,7 @@ class DatabaseStats extends BaseScriptRunner {
      * @param {Object} collectionNames
      * @returns {Object}
     */
-    filterCollections(collectionNames) {
+    filterCollections (collectionNames) {
         const filteredCollections = [];
         const listOfCollections = this.collections ? this.collections : collectionNames;
         for (const collection of collectionNames) {
@@ -68,7 +68,7 @@ class DatabaseStats extends BaseScriptRunner {
         return filteredCollections;
     }
 
-    async processAsync() {
+    async processAsync () {
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         // Fetch all the collection names for the source database.
         const collectionNames = await db.listCollections().toArray();

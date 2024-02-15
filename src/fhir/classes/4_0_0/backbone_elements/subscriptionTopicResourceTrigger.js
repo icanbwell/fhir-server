@@ -23,7 +23,7 @@ class SubscriptionTopicResourceTrigger extends Element {
      * @param {SubscriptionTopicQueryCriteria|undefined} [queryCriteria],
      * @param {String|undefined} [fhirPathCriteria],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -241,7 +241,7 @@ class SubscriptionTopicResourceTrigger extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -261,7 +261,7 @@ class SubscriptionTopicResourceTrigger extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.supportedInteraction) { await async.each(this.supportedInteraction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -272,7 +272,7 @@ class SubscriptionTopicResourceTrigger extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

@@ -12,7 +12,7 @@ class HashReferencesEnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({resources, parsedArgs}) {
         /**
          * @type {boolean}
          */
@@ -51,7 +51,7 @@ class HashReferencesEnrichmentProvider {
      * @return {Promise<BundleEntry[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
         /**
          * @type {boolean}
          */
@@ -94,7 +94,7 @@ class HashReferencesEnrichmentProvider {
      * @param {Set} resourceTypeAndIdSet
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync({reference, resourceTypeAndIdSet}) {
+    async updateReferenceAsync ({reference, resourceTypeAndIdSet}) {
         if (reference.reference) {
             const {
                 resourceType,

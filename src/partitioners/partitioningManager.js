@@ -19,7 +19,7 @@ class PartitioningManager {
      * @param {ConfigManager} configManager
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({configManager, mongoDatabaseManager}) {
+    constructor ({configManager, mongoDatabaseManager}) {
         assertTypeEquals(configManager, ConfigManager);
         /**
          * @type {string[]}
@@ -49,7 +49,7 @@ class PartitioningManager {
     /**
      * @return {Promise<void>}
      */
-    async loadPartitionsFromDatabaseAsync(extraInfo = {}) {
+    async loadPartitionsFromDatabaseAsync (extraInfo = {}) {
         // if cache is still valid then just return
         if (this.partitionCacheLastLoaded &&
             this.partitionCacheLastLoaded.diff(moment.utc(), 'day') === 0) {
@@ -111,7 +111,7 @@ class PartitioningManager {
      * @param {string} partition
      * @returns {Promise<void>}
      */
-    async addPartitionsToCacheAsync({resourceType, partition}) {
+    async addPartitionsToCacheAsync ({resourceType, partition}) {
         assertIsValid(resourceType, 'resourceType is empty');
 
         if (this.partitionsCache.has(resourceType) &&
@@ -148,7 +148,7 @@ class PartitioningManager {
      * @param {string} resourceType
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseConnectionAsync({resourceType, extraInfo = {}}) {
+    async getDatabaseConnectionAsync ({resourceType, extraInfo = {}}) {
         return await this.mongoDatabaseManager.getDatabaseForResourceAsync({resourceType, extraInfo});
     }
 
@@ -158,7 +158,7 @@ class PartitioningManager {
      * @param {string} base_version
      * @returns {Promise<string>}
      */
-    async getPartitionNameByResourceAsync({resource, base_version}) {
+    async getPartitionNameByResourceAsync ({resource, base_version}) {
         assertIsValid(resource, 'Resource is null');
 
         const resourceType = resource.resourceType;
@@ -214,7 +214,7 @@ class PartitioningManager {
      * @param {string} base_version
      * @return {Promise<string[]>}
      */
-    async getPartitionNamesByResourcesAsync({resources, base_version}) {
+    async getPartitionNamesByResourcesAsync ({resources, base_version}) {
         if (resources.length === 0) {
             return [];
         }
@@ -234,7 +234,7 @@ class PartitioningManager {
         return Array.from(new Set(partitions)); // remove duplicates
     }
 
-    isResourcePartitioned(resourceType) {
+    isResourcePartitioned (resourceType) {
         return this.partitionResources.includes(resourceType) ||
             this.partitionResources.includes('all');
     }
@@ -246,7 +246,7 @@ class PartitioningManager {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {Promise<string[]>}
      */
-    async getPartitionNamesByQueryAsync({resourceType, base_version, query, extraInfo = {}}) {
+    async getPartitionNamesByQueryAsync ({resourceType, base_version, query, extraInfo = {}}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
 
         await this.loadPartitionsFromDatabaseAsync(extraInfo);
@@ -294,7 +294,7 @@ class PartitioningManager {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {Promise<string[]>}
      */
-    async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version, query}) {
+    async getAllHistoryPartitionsForResourceTypeAsync ({resourceType, base_version, query}) {
         assertIsValid(resourceType, 'resourceType is empty');
 
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
@@ -306,7 +306,7 @@ class PartitioningManager {
         return partitions.map(partition => `${partition}_History`);
     }
 
-    clearCache() {
+    clearCache () {
         this.partitionsCache.clear();
         this.partitionCacheLastLoaded = null;
     }
@@ -316,7 +316,7 @@ class PartitioningManager {
      * @param resourceType
      * @return {BasePartitioner|null}
      */
-    getPartitionerForResourceType({resourceType}) {
+    getPartitionerForResourceType ({resourceType}) {
         // see if there is a partitionConfig defined for this resource
         const partitionConfig = partitionConfiguration[`${resourceType}`];
 

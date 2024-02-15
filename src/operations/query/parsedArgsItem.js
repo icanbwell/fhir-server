@@ -18,7 +18,7 @@ class ParsedArgsItem {
      * @param {ParsedReferenceItem[]|undefined} [references]
      * @param {Object} patientToPersonMap
      */
-    constructor(
+    constructor (
         {
             queryParameter,
             queryParameterValue,
@@ -63,7 +63,7 @@ class ParsedArgsItem {
             enumerable: true,
             configurable: true,
             get: () => this._patientToPersonMap,
-            set(map) {
+            set (map) {
                 this._patientToPersonMap = map;
             }
         });
@@ -77,7 +77,7 @@ class ParsedArgsItem {
     /**
      * Changes queryParameterValue if modifier contains resource types of target references
      */
-    applyModifierToQueryParameterValue() {
+    applyModifierToQueryParameterValue () {
         if (!this.propertyObj || !this.queryParameterValue) {
             return;
         }
@@ -107,7 +107,7 @@ class ParsedArgsItem {
      * calculates query parameter value
      * @return {QueryParameterValue|null}
      */
-    get queryParameterValue() {
+    get queryParameterValue () {
         return this._queryParameterValue;
     }
 
@@ -115,7 +115,7 @@ class ParsedArgsItem {
      * sets the queryParameterValue
      * @param {QueryParameterValue} value
      */
-    set queryParameterValue(value) {
+    set queryParameterValue (value) {
         assertTypeEquals(value, QueryParameterValue);
         this._queryParameterValue = value;
         this.updateReferences();
@@ -124,7 +124,7 @@ class ParsedArgsItem {
     /**
      * calculate references
      */
-    updateReferences() {
+    updateReferences () {
         this.references = this.parseQueryParameterValueIntoReferences(
             {
                 queryParameterValue: this.queryParameterValue,
@@ -139,7 +139,7 @@ class ParsedArgsItem {
      * @param {SearchParameterDefinition|undefined} propertyObj
      * @return {ParsedReferenceItem[]}
      */
-    parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
+    parseQueryParameterValueIntoReferences ({queryParameterValue, propertyObj}) {
         assertTypeEquals(queryParameterValue, QueryParameterValue);
         if (!propertyObj) {
             return [];
@@ -191,7 +191,7 @@ class ParsedArgsItem {
         return result;
     }
 
-    clone() {
+    clone () {
         return new ParsedArgsItem(
             {
                 queryParameter: this.queryParameter,
@@ -208,7 +208,7 @@ class ParsedArgsItem {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             queryParameter: this.queryParameter,
             queryParameterValue: this._queryParameterValue.toJSON(),

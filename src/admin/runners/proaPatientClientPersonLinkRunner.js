@@ -28,7 +28,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      *
      * @param {constructorProps}
      */
-    constructor({
+    constructor ({
                     linkClientPersonToProaPatient,
                     getPersonMatchingScore,
                     resourceLocatorFactory,
@@ -77,7 +77,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * Populate proaPatientToClientPersonMap & proaPersonToProaPatientMap
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async getPersonsMapFromProaPatient({mongoConfig}) {
+    async getPersonsMapFromProaPatient ({mongoConfig}) {
         this.adminLogger.logInfo('Fetching Proa persons from db');
         const collectionName = 'Person_4_0_0';
         /**
@@ -183,7 +183,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         /**
          * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
          */
@@ -424,7 +424,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * @param {MergePatchEntry[]} patches
      * @param {Object} updatedResource
      */
-    async createHistoryForUpdatedResource(resourceType, patches, updatedResource) {
+    async createHistoryForUpdatedResource (resourceType, patches, updatedResource) {
         const base_version = VERSIONS['4_0_0'];
 
         // Append new link in client person class object
@@ -488,7 +488,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * @param {{ id: string; _uuid: string; }[]} proaPersonInfo
      * @returns {Promise<string>}
      */
-    async getClientPersonToProaPatientMatch({proaPatientUUID, clientPersonUUID}) {
+    async getClientPersonToProaPatientMatch ({proaPatientUUID, clientPersonUUID}) {
         let score = 'N/A';
         if (this.getPersonMatchingScore) {
             try {
@@ -515,7 +515,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * Initialize write stream
      * @returns {void}
      */
-    initializeWriteStream() {
+    initializeWriteStream () {
         this.writeStream = fs.createWriteStream('proa_patient_client_person_link_report.csv');
         this.writeStreamError = fs.createWriteStream('proa_patient_client_person_link_report_errors.csv');
 
@@ -538,7 +538,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             this.initializeWriteStream();
 

@@ -44,7 +44,7 @@ class MockKafkaClient extends KafkaClient {
      * @param {InitProps}
      */
     // eslint-disable-next-line no-unused-vars
-    init({clientId, brokers, ssl, sasl}) {
+    init ({clientId, brokers, ssl, sasl}) {
         // do nothing
         this.client = new (require('kafkajs').Kafka)();
 
@@ -58,7 +58,7 @@ class MockKafkaClient extends KafkaClient {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async sendMessagesAsync(topic, messages) {
+    async sendMessagesAsync (topic, messages) {
     }
 }
 

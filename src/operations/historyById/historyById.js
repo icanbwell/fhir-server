@@ -31,7 +31,7 @@ class HistoryByIdOperation {
      * @param {ResourceManager} resourceManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseHistoryFactory,
             scopesManager,
@@ -108,7 +108,7 @@ class HistoryByIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyByIdAsync({requestInfo, parsedArgs, resourceType}) {
+    async historyByIdAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

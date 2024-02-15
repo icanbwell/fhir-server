@@ -22,7 +22,7 @@ const { ObjectId } = require('mongodb');
  * @param {string[]} properties
  * @return {import('mongodb').Document}
  */
-function getProjection(properties) {
+function getProjection (properties) {
     /**
      * @type {import('mongodb').Document}
      */
@@ -44,7 +44,7 @@ function getProjection(properties) {
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
 // eslint-disable-next-line no-unused-vars
-function getFilter(properties) {
+function getFilter (properties) {
     if (!properties || properties.length === 0) {
         return {};
     }
@@ -97,7 +97,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string[]|undefined} [filterToRecordsWithFields]
      * @param {string|undefined} [startFromId]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -224,7 +224,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync(reference, databaseQueryFactory) {
+    async updateReferenceAsync (reference, databaseQueryFactory) {
         try {
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
             if (!reference.reference) {
@@ -435,7 +435,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             const operations = [];
             /**
@@ -514,7 +514,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -662,7 +662,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async preloadCollectionAsync({mongoConfig, collectionName}) {
+    async preloadCollectionAsync ({mongoConfig, collectionName}) {
         const {
             sourceCollection
         } = await this.createConnectionAsync(
@@ -705,7 +705,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string} collectionName
      * @return {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
      */
-    getCacheForResourceType({collectionName}) {
+    getCacheForResourceType ({collectionName}) {
         if (!this.caches.has(collectionName)) {
             this.caches.set(collectionName, new Map());
         }

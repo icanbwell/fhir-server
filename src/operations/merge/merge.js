@@ -37,7 +37,7 @@ class MergeOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {MergeValidator} mergeValidator
      */
-    constructor(
+    constructor (
         {
             mergeManager,
             databaseBulkInserter,
@@ -126,7 +126,7 @@ class MergeOperation {
      * @param {MergeResultEntry[]} currentMergeResults
      * @return {MergeResultEntry[]}
      */
-    addSuccessfulMergesToMergeResult(resourcesIncomingArray, currentMergeResults) {
+    addSuccessfulMergesToMergeResult (resourcesIncomingArray, currentMergeResults) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -160,7 +160,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async mergeAsync({requestInfo, parsedArgs, resourceType}) {
+    async mergeAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

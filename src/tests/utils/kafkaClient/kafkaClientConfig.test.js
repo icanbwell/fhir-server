@@ -5,26 +5,26 @@ const {KafkaClient} = require('../../../utils/kafkaClient');
 
 class MockConfigManager extends ConfigManager {
 
-    get kafkaEnableEvents() {
+    get kafkaEnableEvents () {
         return true;
     }
 
-    get kafkaUseSasl() {
+    get kafkaUseSasl () {
         return true;
     }
 
-    get kafkaClientId() {
+    get kafkaClientId () {
         return 'kafka_client_id';
     }
 
-    get kafkaBrokers() {
+    get kafkaBrokers () {
         return [
             'broker1',
             'broker2'
         ];
     }
 
-    get kafkaUseSsl() {
+    get kafkaUseSsl () {
         return true;
     }
 }

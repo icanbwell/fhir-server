@@ -31,7 +31,7 @@ class SearchBundleOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             searchManager,
             resourceLocatorFactory,
@@ -106,7 +106,7 @@ class SearchBundleOperation {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
-    async searchBundleAsync(
+    async searchBundleAsync (
         {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
     ) {
         assertIsValid(requestInfo !== undefined);

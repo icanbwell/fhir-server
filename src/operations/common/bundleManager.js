@@ -20,7 +20,7 @@ class BundleManager {
      * constructor
      * @param {ResourceManager} resourceManager
      */
-    constructor(
+    constructor (
         {
             resourceManager
         }
@@ -58,7 +58,7 @@ class BundleManager {
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {Bundle}
      */
-    createBundle(
+    createBundle (
         {
             requestId,
             type,
@@ -151,7 +151,7 @@ class BundleManager {
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {Bundle}
      */
-    createBundleFromEntries(
+    createBundleFromEntries (
         {
             requestId,
             type,
@@ -331,7 +331,7 @@ class BundleManager {
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {string|undefined}
      */
-    getQueryCollection(allCollectionsToSearch, collectionName) {
+    getQueryCollection (allCollectionsToSearch, collectionName) {
         return allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName;
     }
 
@@ -339,7 +339,7 @@ class BundleManager {
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
      * @return {string|undefined}
      */
-    getQueryOptions(originalOptions) {
+    getQueryOptions (originalOptions) {
         return originalOptions ? mongoQueryStringify(originalOptions) : null;
     }
 
@@ -347,7 +347,7 @@ class BundleManager {
      * @param {Set|undefined} columns
      * @return {string|undefined}
      */
-    getQueryFields(columns) {
+    getQueryFields (columns) {
         return columns ? mongoQueryStringify(Array.from(columns)) : null;
     }
 
@@ -356,7 +356,7 @@ class BundleManager {
      * @param {BundleEntry[]} entries
      * @return {BundleEntry[]}
      */
-    removeDuplicateEntries({entries}) {
+    removeDuplicateEntries ({entries}) {
         if (entries.length === 0) {
             return entries;
         }

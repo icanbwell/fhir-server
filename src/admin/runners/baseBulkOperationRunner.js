@@ -22,7 +22,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             batchSize,
@@ -61,7 +61,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean} useEstimatedCount
      * @returns {Promise<string>}
      */
-    async runForQueryBatchesAsync(
+    async runForQueryBatchesAsync (
         {
             config,
             sourceCollectionName,
@@ -277,7 +277,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {string|undefined} [filterToIdProperty]
      * @returns {Promise<string>}
      */
-    async runLoopAsync(
+    async runLoopAsync (
         {
             startFromIdContainer,
             query,
@@ -597,7 +597,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         return previouslyCheckedId;
     }
 
-    async createConnectionAsync({config, destinationCollectionName, sourceCollectionName}) {
+    async createConnectionAsync ({config, destinationCollectionName, sourceCollectionName}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -648,7 +648,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {string} collectionName
      * @returns {Promise<{collection: import('mongodb').Collection<import('mongodb').Document>|undefined, session: import('mongodb').ClientSession, sessionId: import('mongodb').ServerSessionId; client: import('mongodb').MongoClient}>}
      */
-    async createSingeConnectionAsync({ mongoConfig, collectionName }) {
+    async createSingeConnectionAsync ({ mongoConfig, collectionName }) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -683,7 +683,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
      * @returns {Promise<*>}
      */
-    async next(cursor) {
+    async next (cursor) {
         return await cursor.next();
     }
 
@@ -692,7 +692,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
      * @returns {Promise<unknown>}
      */
-    async hasNext(cursor) {
+    async hasNext (cursor) {
         // noinspection JSDeprecatedSymbols,JSCheckFunctionSignatures
         return await cursor.hasNext();
     }

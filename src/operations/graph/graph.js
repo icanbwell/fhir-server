@@ -22,7 +22,7 @@ class GraphOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(
+    constructor (
         {
             graphHelper,
             fhirLoggingManager,
@@ -70,7 +70,7 @@ class GraphOperation {
      * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
-    async graph({requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId = true }) {
+    async graph ({requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId = true }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);

@@ -25,7 +25,7 @@ class FhirRequestInfo {
      * @param {string} method
      * @param {import('content-type').ContentType|null} contentTypeFromHeader
      */
-    constructor(
+    constructor (
         {
             user,
             scope,

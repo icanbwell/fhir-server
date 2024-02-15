@@ -4,17 +4,17 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     CoverageEligibilityRequestItemProvider: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     CoverageEligibilityRequestItemFacility: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     CoverageEligibilityRequestItemDetailV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

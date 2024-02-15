@@ -26,7 +26,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @property {Date|undefined} beforeLastUpdatedDate
      * @property {Date|undefined} afterLastUpdatedDate} options
      */
-    constructor({
+    constructor ({
         limit,
         startFromId,
         skip,
@@ -82,7 +82,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Runs a loop to process records async
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         /**
          * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
          */
@@ -147,7 +147,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<Operations[]>}
      */
-    async processRecordsAsync(doc) {
+    async processRecordsAsync (doc) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
 
         const operations = [];
@@ -194,7 +194,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds coding to resource.category
      * @param {{ resource: Resource, questionaire: any}} options
      */
-    async addCategoryCodingToConsent({ resource, questionaire}) {
+    async addCategoryCodingToConsent ({ resource, questionaire}) {
         const category = resource.category;
         if (!category) {
             return resource;
@@ -230,7 +230,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Get coding from questionare and add to category
      * @param {{ resource: Resource, category: any, questionaire: any}} options
      */
-    async lookupCategoryCoding({resource, category, questionaire}) {
+    async lookupCategoryCoding ({resource, category, questionaire}) {
         if (!resource) {
             return null;
         }
@@ -257,7 +257,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds Class to resource.provision
      * @param {{ resource: Resource, questionaire: any}} options
      */
-    async addProvisionClassToConsent({ resource, questionaire }) {
+    async addProvisionClassToConsent ({ resource, questionaire }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
@@ -290,7 +290,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds Class to resource.provision
      * @param {{ resource: Resource, provisionClass: any, questionaire: any}} options
      */
-    async lookupProvisionClass({resource, provisionClass, questionaire}) {
+    async lookupProvisionClass ({resource, provisionClass, questionaire}) {
         if (!resource) {
             return null;
         }
@@ -314,7 +314,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Caches questionaire of dataSharing type
      * @param mongoConfig: any; params
      */
-    async cacheQuestionaireValues(mongoConfig) {
+    async cacheQuestionaireValues (mongoConfig) {
         const collectionName = 'Questionnaire_4_0_0';
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
@@ -360,7 +360,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Caches questionaire response
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async cacheQuestionnaireResponseToQuestionnaireId(mongoConfig) {
+    async cacheQuestionnaireResponseToQuestionnaireId (mongoConfig) {
         const collectionName = 'QuestionnaireResponse_4_0_0';
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
@@ -402,7 +402,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * }} options
      * @returns Query
      */
-    async getQueryForConsent({ startFromId }) {
+    async getQueryForConsent ({ startFromId }) {
         const query = {};
         const properties = ['_uuid', 'patient'];
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
@@ -448,7 +448,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         return query;
     }
 
-    filterPropExist(propertyName) {
+    filterPropExist (propertyName) {
         return { [propertyName]: { $exists: true } };
     }
 
@@ -457,7 +457,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
-    async lookupQuestionaire(doc) {
+    async lookupQuestionaire (doc) {
         if (!doc) {
             return null;
         }

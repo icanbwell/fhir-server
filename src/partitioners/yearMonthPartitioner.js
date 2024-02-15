@@ -11,7 +11,7 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {string} resourceWithBaseVersion
      * @returns {string}
      */
-    static getPartitionNameFromYearMonth({fieldValue, resourceWithBaseVersion}) {
+    static getPartitionNameFromYearMonth ({fieldValue, resourceWithBaseVersion}) {
         const fieldDate = new Date(fieldValue);
         const year = fieldDate.getUTCFullYear();
         const month = fieldDate.getUTCMonth() + 1; // 0 indexed
@@ -26,7 +26,7 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {string} resourceWithBaseVersion
      * @returns {Promise<string>}
      */
-    async getPartitionByResourceAsync({resource, field, resourceWithBaseVersion}) {
+    async getPartitionByResourceAsync ({resource, field, resourceWithBaseVersion}) {
         // get value of field
         const fieldValue = resource[`${field}`];
         if (!fieldValue) {
@@ -46,7 +46,7 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {Map<string, string[]>} partitionsCache
      * @returns {Promise<*[]>}
      */
-    async getPartitionByQueryAsync(
+    async getPartitionByQueryAsync (
         {
             resourceType,
             query,
@@ -101,7 +101,7 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {string} field
      * @return {function(string, string): number}
      */
-    getUpdateDateRangeForField(clausesForDate, field) {
+    getUpdateDateRangeForField (clausesForDate, field) {
         /**
          * init to an initial value
          * @type {moment.Moment}
@@ -134,7 +134,7 @@ class YearMonthPartitioner extends BasePartitioner {
      * Returns a function used for sorting the partitions
      * @return {function(string, string): number}
      */
-    getSortingFunction() {
+    getSortingFunction () {
         return (a, b) => (a > b ? -1 : 1);
     }
 }

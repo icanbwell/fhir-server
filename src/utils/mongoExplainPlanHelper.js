@@ -53,7 +53,7 @@ class MongoExplainPlanHelper {
      * @param {import('mongodb').Document} query
      * @return {ExplainResult}
      */
-    quick_explain({explanation, query}) {
+    quick_explain ({explanation, query}) {
         // https://www.mongodb.com/docs/manual/reference/explain-results/
         /**
          * if there are execution stages then use those since they have timing information
@@ -94,7 +94,7 @@ class MongoExplainPlanHelper {
      * @param {Object} step
      * @return {Step}
      */
-    parseInputStage({stepNo, step}) {
+    parseInputStage ({stepNo, step}) {
         /**
          * @type {Step}
          */

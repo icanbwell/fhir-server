@@ -18,7 +18,7 @@ class FhirDataSource {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
-    constructor(
+    constructor (
         {
             requestInfo,
             searchBundleOperation,
@@ -63,7 +63,7 @@ class FhirDataSource {
      * @param {Bundle} bundle
      * @return {Resource[]}
      */
-    unBundle(bundle) {
+    unBundle (bundle) {
         if (bundle.meta) {
             this.metaList.push(bundle.meta);
         }
@@ -78,7 +78,7 @@ class FhirDataSource {
      * @param {string[]} keys
      * @return {(Resource|null)[]}
      */
-    async reorderResources(resources, keys) {
+    async reorderResources (resources, keys) {
         // now order them the same way
         /**
          * @type {(Resource|null)[]}
@@ -110,7 +110,7 @@ class FhirDataSource {
      * @param {Object} args
      * @return {Promise<(Resource|null)[]>}>}
      */
-    async getResourcesInBatch({keys, requestInfo, args}) {
+    async getResourcesInBatch ({keys, requestInfo, args}) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -185,7 +185,7 @@ class FhirDataSource {
      */
     // noinspection JSUnusedLocalSymbols
     // eslint-disable-next-line no-unused-vars
-    resolveType(obj, context, info) {
+    resolveType (obj, context, info) {
         if (!Array.isArray(obj)) {
             return obj.resourceType;
         }
@@ -207,7 +207,7 @@ class FhirDataSource {
      * @param {{reference: string}} reference
      * @return {Promise<null|Resource>}
      */
-    async findResourceByReference(parent, args, context, info, reference) {
+    async findResourceByReference (parent, args, context, info, reference) {
         if (!reference) {
             return null;
         }
@@ -272,7 +272,7 @@ class FhirDataSource {
      * @param {{reference: string}[]} references
      * @return {Promise<null|Resource[]>}
      */
-    async findResourcesByReference(parent, args, context, info, references) {
+    async findResourcesByReference (parent, args, context, info, references) {
         if (!references) {
             return null;
         }
@@ -290,7 +290,7 @@ class FhirDataSource {
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
-    async getResources(parent, args, context, info, resourceType) {
+    async getResources (parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
@@ -324,7 +324,7 @@ class FhirDataSource {
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
-    async getResourcesForMutation(parent, args, context, info, resourceType) {
+    async getResourcesForMutation (parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
@@ -359,7 +359,7 @@ class FhirDataSource {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>}
      */
-    async getResourcesBundle(parent, args, context, info, resourceType, useAggregationPipeline = false) {
+    async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -392,7 +392,7 @@ class FhirDataSource {
      * Creates the data loader if it does not exist (lazy init)
      * @param {Object} args
      */
-    createDataLoader(args) {
+    createDataLoader (args) {
         if (!this.dataLoader) {
             this.dataLoader = new DataLoader(
                 async (keys) => await this.getResourcesInBatch(
@@ -413,7 +413,7 @@ class FhirDataSource {
      * combined the meta tags of all the queries and returns as one
      * @return {null|Meta}
      */
-    getBundleMeta() {
+    getBundleMeta () {
         if (this.metaList.length === 0) {
             return null;
         }
@@ -456,7 +456,7 @@ class FhirDataSource {
      * @param {Coding | undefined} targetMetaTag
      * @param {Coding | undefined} sourceMetaTag
      */
-    updateCombinedMetaTag(targetMetaTag, sourceMetaTag) {
+    updateCombinedMetaTag (targetMetaTag, sourceMetaTag) {
         if (sourceMetaTag.display && targetMetaTag.display) {
             targetMetaTag.display = targetMetaTag.display + ',' + sourceMetaTag.display;
         }
@@ -472,7 +472,7 @@ class FhirDataSource {
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType, headers}) {
+    async getParsedArgsAsync ({args, resourceType, headers}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
@@ -502,7 +502,7 @@ class FhirDataSource {
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-     async getParsedArgsForMutationAsync({args, resourceType, headers}) {
+     async getParsedArgsForMutationAsync ({args, resourceType, headers}) {
         /**
          * @type {ParsedArgs}
          */
@@ -526,7 +526,7 @@ class FhirDataSource {
      * @param resourceType
      * @returns {{extension}|*|{}}
      */
-    enrichResourceWithReferenceData(resolvedResource, reference, resourceType) {
+    enrichResourceWithReferenceData (resolvedResource, reference, resourceType) {
         let resource = resolvedResource;
         const dataToEnrich = ['display', 'type'];
         const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;

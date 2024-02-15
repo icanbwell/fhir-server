@@ -4,7 +4,7 @@ const {assertTypeEquals} = require('../../../../utils/assertType');
 const {SimpleContainer} = require('../../../../utils/simpleContainer');
 const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
 
-function mapParticipants(members) {
+function mapParticipants (members) {
     const result = [];
     members.forEach((m) => {
         result.push({
@@ -18,7 +18,7 @@ function mapParticipants(members) {
     return result;
 }
 
-function mapManagingOrganization(organizations) {
+function mapManagingOrganization (organizations) {
     const result = [];
     organizations.forEach((org) => {
         result.push({
@@ -29,7 +29,7 @@ function mapManagingOrganization(organizations) {
     return result;
 }
 
-function mapCareTeam(team) {
+function mapCareTeam (team) {
     const careTeamMap = {
         resourceType: 'CareTeam',
         id: team.id,

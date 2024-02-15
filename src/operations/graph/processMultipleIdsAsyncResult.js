@@ -7,7 +7,7 @@ class ProcessMultipleIdsAsyncResult {
      * @param {import('mongodb').Document[]} explanations
      * @param {ResourceIdentifier[]} bundleEntryIdsProcessed
      */
-    constructor({
+    constructor ({
                     entries,
                     queryItems,
                     options,

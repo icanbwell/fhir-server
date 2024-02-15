@@ -22,7 +22,7 @@ const expectedInvalidPractitionerResponse = require('./expected/invalid_practiti
 const fhirValidationUrl = 'http://foo/fhir';
 
 class MockConfigManager extends ConfigManager {
-    get fhirValidationUrl() {
+    get fhirValidationUrl () {
         return fhirValidationUrl;
     }
 }

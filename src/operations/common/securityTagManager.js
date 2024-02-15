@@ -17,7 +17,7 @@ class SecurityTagManager {
      * @param {AccessIndexManager} accessIndexManager
      * @param {PatientFilterManager} patientFilterManager
      */
-    constructor({scopesManager, accessIndexManager, patientFilterManager}) {
+    constructor ({scopesManager, accessIndexManager, patientFilterManager}) {
         /**
          * @type {ScopesManager}
          */
@@ -41,7 +41,7 @@ class SecurityTagManager {
      * @param {boolean} hasPatientScope
      * @return {string[]}
      */
-    getSecurityTagsFromScope({user, scope, hasPatientScope}) {
+    getSecurityTagsFromScope ({user, scope, hasPatientScope}) {
         /**
          * @type {string[]}
          */
@@ -69,7 +69,7 @@ class SecurityTagManager {
      * @param {import('mongodb').Document} andQuery
      * @return {import('mongodb').Document}
      */
-    appendAndQuery(query, andQuery) {
+    appendAndQuery (query, andQuery) {
         if (query.$and) {
             query.$and.push(
                 andQuery
@@ -99,7 +99,7 @@ class SecurityTagManager {
      * @param {boolean} useAccessIndex
      * @return {import('mongodb').Document}
      */
-    getQueryWithSecurityTags(
+    getQueryWithSecurityTags (
         {
             resourceType, securityTags, query, useAccessIndex = false
         }
@@ -159,7 +159,7 @@ class SecurityTagManager {
      * @param {string} resourceType
      * @return {import('mongodb').Document}
      */
-    getQueryWithPatientFilter({patientIds, query, resourceType}) {
+    getQueryWithPatientFilter ({patientIds, query, resourceType}) {
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({resourceType})) {
             throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
         }

@@ -20,7 +20,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor(
+    constructor (
         {
             user,
             scope,
@@ -82,7 +82,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -178,7 +178,7 @@ class ResourcePreparerTransform extends Transform {
      * @param chunk1
      * @returns {Promise<Resource[]>}
      */
-    async processChunkAsync(chunk1) {
+    async processChunkAsync (chunk1) {
         return this.resourcePreparer.prepareResourceAsync(
             {
                 user: this.user, scope: this.scope, parsedArgs: this.parsedArgs, element: chunk1,
@@ -204,7 +204,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _flush(callback) {
+    _flush (callback) {
         if (this.configManager.logStreamSteps) {
             logInfo('ResourcePreparerTransform: _flush', {});
         }

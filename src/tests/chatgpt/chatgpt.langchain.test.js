@@ -32,11 +32,11 @@ const {ConfigManager} = require('../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 class MockConfigManager extends ConfigManager {
-    get writeFhirSummaryToVectorStore() {
+    get writeFhirSummaryToVectorStore () {
         return true;
     }
 
-    get enableMemoryVectorStore() {
+    get enableMemoryVectorStore () {
         return true;
     }
 }

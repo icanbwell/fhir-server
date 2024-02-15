@@ -19,7 +19,7 @@ class R4ArgsParser {
      * @param {FhirTypesManager} fhirTypesManager
      * @param {ConfigManager} configManager
      */
-    constructor({fhirTypesManager, configManager}) {
+    constructor ({fhirTypesManager, configManager}) {
         /**
          * @type {FhirTypesManager}
          */
@@ -40,7 +40,7 @@ class R4ArgsParser {
      * @param {boolean|undefined} [useOrFilterForArrays]  whether to use OR filters for arrays
      * @return {ParsedArgs}
      */
-    parseArgs({resourceType, args, useOrFilterForArrays}) {
+    parseArgs ({resourceType, args, useOrFilterForArrays}) {
         /**
          * @type {ParsedArgsItem[]}
          */

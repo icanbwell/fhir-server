@@ -8,7 +8,7 @@ class ReferenceParser {
      * @param {string} reference
      * @return {{ resourceType: string|undefined, id: string, sourceAssigningAuthority: string|undefined}}
      */
-    static parseReference(reference) {
+    static parseReference (reference) {
         if (UrlParser.isUrl(reference)) { // is a url so don't try to parse
             return {id: reference};
         }
@@ -41,7 +41,7 @@ class ReferenceParser {
      * @param {string} id
      * @param {string|undefined} [sourceAssigningAuthority]
      */
-    static createReference({resourceType, id, sourceAssigningAuthority}) {
+    static createReference ({resourceType, id, sourceAssigningAuthority}) {
         let reference = '';
         if (resourceType) {
             reference = `${resourceType}/`;
@@ -58,7 +58,7 @@ class ReferenceParser {
      * @param reference
      * @return {boolean}
      */
-    static isUuidReference(reference) {
+    static isUuidReference (reference) {
         const {id} = ReferenceParser.parseReference(reference);
         return isUuid(id);
     }
@@ -68,7 +68,7 @@ class ReferenceParser {
      * @param {string} reference
      * @return {string|undefined}
      */
-    static getResourceType(reference) {
+    static getResourceType (reference) {
         const {resourceType} = ReferenceParser.parseReference(reference);
         return resourceType;
     }
@@ -78,7 +78,7 @@ class ReferenceParser {
      * @param {string} reference
      * @return {string|undefined}
      */
-    static getSourceAssigningAuthority(reference) {
+    static getSourceAssigningAuthority (reference) {
         const {sourceAssigningAuthority} = ReferenceParser.parseReference(reference);
         return sourceAssigningAuthority;
     }
@@ -88,7 +88,7 @@ class ReferenceParser {
      * @param {string} reference
      * @return {string}
      */
-    static createReferenceWithoutSourceAssigningAuthority(reference) {
+    static createReferenceWithoutSourceAssigningAuthority (reference) {
         const { id, resourceType } = ReferenceParser.parseReference(reference);
         return ReferenceParser.createReference({resourceType, id});
     }

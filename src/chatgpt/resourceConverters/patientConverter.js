@@ -6,7 +6,7 @@ class PatientConverter extends BaseConverter {
      * @param {Resource} resource
      * @returns {string}
      */
-    convert({resource}) {
+    convert ({resource}) {
         const {
             id,
             meta: {lastUpdated, source},

@@ -37,7 +37,7 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const { FixBwellMasterPersonReferenceRunner } = require('../../../../admin/runners/fixBwellMasterPersonReferenceRunner');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
-async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0`);
@@ -58,7 +58,7 @@ async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expect
     return collection;
 }
 
-async function setupHistoryDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupHistoryDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0_History`);

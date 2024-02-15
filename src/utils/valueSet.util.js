@@ -11,7 +11,7 @@ class ValueSetManager {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor({databaseQueryFactory}) {
+    constructor ({databaseQueryFactory}) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {DatabaseQueryFactory}
@@ -26,7 +26,7 @@ class ValueSetManager {
      * @param {string} valueSetUrl
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getContentsOfValueSetAsync(resourceType, base_version, valueSetUrl) {
+    async getContentsOfValueSetAsync (resourceType, base_version, valueSetUrl) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery(
             {resourceType, base_version}
         );
@@ -42,7 +42,7 @@ class ValueSetManager {
      * @param {string} display
      * @return {{system, code, display, version: string}}
      */
-    createConcept(system, version, code, display) {
+    createConcept (system, version, code, display) {
         return {
             system: system,
             version: version,
@@ -58,7 +58,7 @@ class ValueSetManager {
      * @param {{valueSet:string[],system:string,version:string,concept:Coding[] }} include
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getIncludeAsync(resourceType, base_version, include) {
+    async getIncludeAsync (resourceType, base_version, include) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
@@ -88,7 +88,7 @@ class ValueSetManager {
      * @param {Resource} resource1
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getValueSetConceptsAsync(resourceType, base_version, resource1) {
+    async getValueSetConceptsAsync (resourceType, base_version, resource1) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
@@ -116,7 +116,7 @@ class ValueSetManager {
      * @param {Resource} resource1
      * @return {Resource}
      */
-    async getExpandedValueSetAsync(resourceType, base_version, resource1) {
+    async getExpandedValueSetAsync (resourceType, base_version, resource1) {
         /**
          * @type {{system, code, display, version: string}[]}
          */

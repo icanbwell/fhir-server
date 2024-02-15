@@ -1,7 +1,7 @@
 const {removeNull} = require('../../../../utils/nullRemover');
 
 class ResourceContainer {
-    constructor(opts) {
+    constructor (opts) {
         // Create an object to store all props
         Object.defineProperty(this, '__data', {
             value: {}
@@ -52,7 +52,7 @@ class ResourceContainer {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             resourceType: this.resourceType,
             id: this.id,

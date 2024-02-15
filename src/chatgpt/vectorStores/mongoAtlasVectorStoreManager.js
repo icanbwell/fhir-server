@@ -14,7 +14,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }) {
         super();
@@ -30,7 +30,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * returns whether the vector store is enabled
      * @returns {Promise<boolean>}
      */
-    async isEnabledAsync() {
+    async isEnabledAsync () {
         return this.configManager.mongoAtlasVectorStoreUrl;
     }
 
@@ -38,7 +38,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreInternalAsync() {
+    async createVectorStoreInternalAsync () {
         let mongoUrl = this.configManager.mongoAtlasVectorStoreUrl;
         const collectionName = this.configManager.mongoAtlasVectorStoreCollection;
         const indexName = this.configManager.mongoAtlasVectorStoreIndexName;
@@ -88,7 +88,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store from a list of langchain documents
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreAsync() {
+    async createVectorStoreAsync () {
         if (!this.vectorStore) {
             this.vectorStore = await this.createVectorStoreInternalAsync();
         }
@@ -100,7 +100,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter} filter
      * @returns {function(*): boolean| import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter}
      */
-    getFilter(filter) {
+    getFilter (filter) {
         // https://www.mongodb.com/docs/atlas/atlas-search/operators-and-collectors
         return /** @type {import('langchain/vectorstores/mongodb_atlas').MongoDBAtlasFilter} */ {
             compound: {
@@ -128,7 +128,7 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter|undefined} [filter]
      * @return {import('langchain/schema/retriever').BaseRetriever}
      */
-    asRetriever({filter}) {
+    asRetriever ({filter}) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever({
                 filter: this.getFilter(filter)

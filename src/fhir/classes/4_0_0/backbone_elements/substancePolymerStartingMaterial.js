@@ -21,7 +21,7 @@ class SubstancePolymerStartingMaterial extends Element {
      * @param {Boolean|undefined} [isDefining],
      * @param {SubstanceAmount|undefined} [amount],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -210,7 +210,7 @@ class SubstancePolymerStartingMaterial extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -229,7 +229,7 @@ class SubstancePolymerStartingMaterial extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.material) { await this.material.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -241,7 +241,7 @@ class SubstancePolymerStartingMaterial extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

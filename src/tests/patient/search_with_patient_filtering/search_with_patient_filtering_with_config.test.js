@@ -39,7 +39,7 @@ const {ConfigManager} = require('../../../utils/configManager');
 const {logInfo} = require('../../../operations/common/logging');
 
 class MockConfigManager extends ConfigManager {
-    get doNotRequirePersonOrPatientIdForPatientScope() {
+    get doNotRequirePersonOrPatientIdForPatientScope () {
         return true;
     }
 }

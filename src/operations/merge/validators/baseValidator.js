@@ -10,7 +10,7 @@ class BaseValidator {
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     // eslint-disable-next-line no-unused-vars
-    async validate({scope, user, path, currentDate, incomingResources, requestId, base_version}) {
+    async validate ({scope, user, path, currentDate, incomingResources, requestId, base_version}) {
         throw Error('Not implemented');
     }
 }

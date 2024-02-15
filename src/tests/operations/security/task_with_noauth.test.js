@@ -11,7 +11,7 @@ const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get authEnabled() {
+    get authEnabled () {
         return false;
     }
 }

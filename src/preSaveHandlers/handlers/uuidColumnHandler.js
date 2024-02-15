@@ -14,7 +14,7 @@ class UuidColumnHandler extends PreSaveHandler {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor ({configManager}) {
         super();
         /**
          * @type {ConfigManager}
@@ -23,7 +23,7 @@ class UuidColumnHandler extends PreSaveHandler {
         assertTypeEquals(configManager, ConfigManager);
     }
 
-    async preSaveAsync({resource}) {
+    async preSaveAsync ({resource}) {
         if (isUuid(resource.id)) {
             resource._uuid = resource.id;
         } else if (!resource.id) {

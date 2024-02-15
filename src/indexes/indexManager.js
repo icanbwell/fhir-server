@@ -28,7 +28,7 @@ class IndexManager {
      * @param {IndexProvider} indexProvider
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({
+    constructor ({
                     indexProvider,
                     mongoDatabaseManager
                 }) {
@@ -54,7 +54,7 @@ class IndexManager {
      * @param {string} collectionName
      * @return {Promise<boolean>}
      */
-    async createIndexIfNotExistsAsync({db, indexConfig, collectionName}) {
+    async createIndexIfNotExistsAsync ({db, indexConfig, collectionName}) {
         assertIsValid(collectionName);
         /**
          * @type {import('mongodb').IndexSpecification}
@@ -115,7 +115,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}>}
      */
-    async indexCollectionAsync({collectionName, db}) {
+    async indexCollectionAsync ({collectionName, db}) {
         /**
          * @type {{collectionName: string, indexes: IndexConfig[]}}
          */
@@ -149,7 +149,7 @@ class IndexManager {
      * @param {string} collectionName
      * @returns {Promise<{collectionName: string, indexes: IndexConfig[]}>}
      */
-    async getIndexesToCreateForCollectionAsync({collectionName}) {
+    async getIndexesToCreateForCollectionAsync ({collectionName}) {
         const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME ?
             collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
@@ -208,7 +208,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
-    async indexAllCollectionsAsync({collectionRegex} = {}) {
+    async indexAllCollectionsAsync ({collectionRegex} = {}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -234,7 +234,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @returns {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
-    async indexAllCollectionsInDatabaseAsync({db, collectionRegex}) {
+    async indexAllCollectionsInDatabaseAsync ({db, collectionRegex}) {
         /**
          * @type {string[]}
          */
@@ -267,7 +267,7 @@ class IndexManager {
      * @param {boolean|undefined} filterToProblems
      * @returns {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}>}
      */
-    async compareCurrentIndexesWithConfigurationInCollectionAsync(
+    async compareCurrentIndexesWithConfigurationInCollectionAsync (
         {
             db,
             collectionName,
@@ -369,7 +369,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes: IndexConfig[], collectionName: string}>}
      */
-    async getIndexesInCollectionAsync({collectionName, db}) {
+    async getIndexesInCollectionAsync ({collectionName, db}) {
         // check if index exists
         const indexes = await db.collection(collectionName).indexes();
         return {
@@ -392,7 +392,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes:IndexConfig[], name}>}
      */
-    async deleteIndexesInCollectionAsync({collection_name, db}) {
+    async deleteIndexesInCollectionAsync ({collection_name, db}) {
         await db.collection(collection_name).dropIndexes();
     }
 
@@ -403,7 +403,7 @@ class IndexManager {
      * @param {string} indexName
      * @return {Promise<{indexes:IndexConfig[], name}>}
      */
-    async deleteIndexInCollectionAsync({collectionName, db, indexName}) {
+    async deleteIndexInCollectionAsync ({collectionName, db, indexName}) {
         const message = `Dropping index ${indexName} from ${collectionName} `;
         await logSystemEventAsync(
             {
@@ -437,7 +437,7 @@ class IndexManager {
      * Gets indexes on all the collections
      * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
      */
-    async getIndexesInAllCollectionsAsync() {
+    async getIndexesInAllCollectionsAsync () {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -480,7 +480,7 @@ class IndexManager {
      * @param {boolean|undefined} filterToProblems
      * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}[]>}
      */
-    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
+    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync (
         {
             audit,
             accessLogs,
@@ -528,7 +528,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @return {Promise<*>}
      */
-    async deleteIndexesInAllCollectionsAsync({collectionRegex}) {
+    async deleteIndexesInAllCollectionsAsync ({collectionRegex}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -551,7 +551,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @returns {Promise<void>}
      */
-    async deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex}) {
+    async deleteIndexesInAllCollectionsInDatabaseAsync ({db, collectionRegex}) {
         /**
          * @type {string[]}
          */
@@ -581,7 +581,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @returns {Promise<IndexConfig[]>}
      */
-    async createCollectionIndexAsync({indexProblem, db}) {
+    async createCollectionIndexAsync ({indexProblem, db}) {
         /**
          * @type {IndexConfig[]}
          */
@@ -610,7 +610,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @returns {Promise<IndexConfig[]>}
      */
-    async dropCollectionIndexAsync({indexProblem, db}) {
+    async dropCollectionIndexAsync ({indexProblem, db}) {
         /**
          * @type {IndexConfig[]}
          */
@@ -639,7 +639,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @returns {Promise<{indexConfigsCreated: IndexConfig[], indexConfigsDropped: IndexConfig[]}>}
      */
-    async renameIndexes({indexProblem, db}) {
+    async renameIndexes ({indexProblem, db}) {
         /**
          * @type {{string: string}}
          */
@@ -706,7 +706,7 @@ class IndexManager {
      * @param {string[]} collections
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async synchronizeIndexesWithConfigAsync({audit = false, accessLogs = false, collections = ['all']}) {
+    async synchronizeIndexesWithConfigAsync ({audit = false, accessLogs = false, collections = ['all']}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -810,7 +810,7 @@ class IndexManager {
      * @param {string[]} collections
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async addMissingIndexesAsync({audit = false, accessLogs = false, collections = ['all']}) {
+    async addMissingIndexesAsync ({audit = false, accessLogs = false, collections = ['all']}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -864,7 +864,7 @@ class IndexManager {
      * @param {string[]} collections
      * @returns {Promise<{dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async dropExtraIndexesAsync({audit = false, accessLogs = false, collections = ['all']}) {
+    async dropExtraIndexesAsync ({audit = false, accessLogs = false, collections = ['all']}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -916,7 +916,7 @@ class IndexManager {
      * @param {String} collectionName
      * @returns {boolean}
      */
-    isNotSystemCollection(collectionName) {
+    isNotSystemCollection (collectionName) {
         const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
         return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }

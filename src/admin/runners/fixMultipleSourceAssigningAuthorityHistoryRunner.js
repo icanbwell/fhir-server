@@ -20,7 +20,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
      * @param {boolean|undefined} [skipIfResourcePresent]
      * @param {string|undefined} [startFromCollection]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -65,7 +65,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         let hasChanges = false;
         if (!doc.resource) {
@@ -99,7 +99,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {

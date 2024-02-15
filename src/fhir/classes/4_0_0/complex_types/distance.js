@@ -21,7 +21,7 @@ class Distance extends Element {
      * @param {uri|undefined} [system],
      * @param {code|undefined} [code],
     */
-    constructor(
+    constructor (
         {
             value,
             comparator,
@@ -147,7 +147,7 @@ class Distance extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -164,14 +164,14 @@ class Distance extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             value: this.value,

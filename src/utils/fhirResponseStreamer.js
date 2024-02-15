@@ -11,7 +11,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {string} requestId
      * @param {string} bundleType
      */
-    constructor(
+    constructor (
         {
             response,
             requestId,
@@ -57,7 +57,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * Starts response
      * @return {Promise<void>}
      */
-    async startAsync() {
+    async startAsync () {
         const contentType = 'application/fhir+json';
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
@@ -73,7 +73,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({bundleEntry}) {
+    async writeBundleEntryAsync ({bundleEntry}) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {string}
@@ -97,7 +97,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * sets the bundle to use
      * @param {Bundle} bundle
      */
-    setBundle({bundle}) {
+    setBundle ({bundle}) {
         this._bundle = bundle;
     }
 
@@ -105,7 +105,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * ends response
      * @return {Promise<void>}
      */
-    async endAsync() {
+    async endAsync () {
         const bundle = this._bundle || new Bundle({
             id: this.requestId,
             type: this._bundleType,

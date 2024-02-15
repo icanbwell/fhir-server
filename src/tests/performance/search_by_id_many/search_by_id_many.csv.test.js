@@ -71,7 +71,7 @@ describe('CSV Performance tests', () => {
                  * @param {import('http').IncomingMessage} req
                  * @param callback
                  */
-                function chunkParser(req, callback) {
+                function chunkParser (req, callback) {
                     req.text = '';
                     let text = '';
                     req.setEncoding('utf8');

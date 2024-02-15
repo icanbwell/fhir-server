@@ -62,7 +62,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         this.numberOfSecondsBetweenSessionRefreshes = 10 * 60;
    }
 
-    async formatDocument(doc) {
+    async formatDocument (doc) {
         delete doc['_uuid'];
         delete doc['_id'];
         delete doc['_access'];
@@ -77,7 +77,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
      * Runs a loop to access all the documents and dump into output file
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         await this.init();
         const writeStream = (writer, data) => {
             // return a promise only when we get a drain

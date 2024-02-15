@@ -7,7 +7,7 @@ class DatabaseHistoryFactory {
      * Constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor({resourceLocatorFactory}) {
+    constructor ({resourceLocatorFactory}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
@@ -20,7 +20,7 @@ class DatabaseHistoryFactory {
      * @param {string} resourceType
      * @param {string} base_version
      */
-    createDatabaseHistoryManager({resourceType, base_version}) {
+    createDatabaseHistoryManager ({resourceType, base_version}) {
         return new DatabaseHistoryManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,

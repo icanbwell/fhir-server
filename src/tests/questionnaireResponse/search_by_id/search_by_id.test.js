@@ -11,15 +11,15 @@ const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals')
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return '_uuid';
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }

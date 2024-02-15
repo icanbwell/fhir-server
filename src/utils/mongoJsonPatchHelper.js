@@ -1,4 +1,4 @@
-function toDot(path) {
+function toDot (path) {
     return path.replace(/^\//, '').replace(/\//g, '.').replace(/~1/g, '/').replace(/~0/g, '~');
 }
 
@@ -8,7 +8,7 @@ class MongoJsonPatchHelper {
      * @param {import('fast-json-patch').Operation[]} patches
      * @return {{}}
      */
-    static convertJsonPatchesToMongoUpdateCommand(
+    static convertJsonPatchesToMongoUpdateCommand (
         {
             patches
         }

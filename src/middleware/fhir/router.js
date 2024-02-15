@@ -43,7 +43,7 @@ class FhirRouter {
      * @param {ControllerUtils} controllerUtils
      * @param {CustomOperationsController} customOperationsController
      */
-    constructor({controllerUtils, customOperationsController}) {
+    constructor ({controllerUtils, customOperationsController}) {
         assertTypeEquals(controllerUtils, ControllerUtils);
         /**
          * @type {ControllerUtils}
@@ -63,7 +63,7 @@ class FhirRouter {
      * @return {Array<String>} Array of versions we need to support
      */
 
-    getAllConfiguredVersions(profiles = {}) {
+    getAllConfiguredVersions (profiles = {}) {
         const supportedVersions = Object.values(VERSIONS);
         const providedVersions = Object.getOwnPropertyNames(profiles).reduce((set, profile_key) => {
             const {
@@ -98,7 +98,7 @@ class FhirRouter {
      * @param {string} resourceType
      * @return {Function} express middleware
      */
-    loadController(lowercaseKey, interaction, service, resourceType) {
+    loadController (lowercaseKey, interaction, service, resourceType) {
         return async (req, res, next) => {
             const {
                 base_version
@@ -126,7 +126,7 @@ class FhirRouter {
      * @param {Array<Object>} parameters - Parameters allowed for this profile
      * @param {Object} corsDefaults - Default cors settings
      */
-    enableOperationRoutesForProfile(app, config, profile, key, parameters, corsDefaults) {
+    enableOperationRoutesForProfile (app, config, profile, key, parameters, corsDefaults) {
         // Error message we will use for invalid configurations
         const errorMessage = `Invalid operation configuration for ${key}. Please ` + 'see the wiki on how to use operations. ' + 'https://github.com/icanbwell/fhir-server#cheat-sheet';
 
@@ -227,7 +227,7 @@ class FhirRouter {
         }
     }
 
-    enableMetadataRoute(app, config, corsDefaults) {
+    enableMetadataRoute (app, config, corsDefaults) {
         const {
             profiles,
             security,
@@ -294,13 +294,13 @@ class FhirRouter {
      * @param {Array<Object>} parameters - Parameters allowed for this profile
      * @param {Object} corsDefaults - Default cors settings
      */
-    enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults) {
+    enableProfileRoutes (app, config, profile, profileName, parameters, corsDefaults) {
         if (profile.operation && profile.operation.length) {
             this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
         } // Start iterating over potential routes to enable for this profile
     }
 
-    enableResourceRoutes(app, config, corsDefaults) {
+    enableResourceRoutes (app, config, corsDefaults) {
         // Iterate over all of our provided profiles
         for (const profileName in config.profiles) {
             /**
@@ -399,7 +399,7 @@ class FhirRouter {
         }
     }
 
-    enableBaseRoute(app, config, corsDefaults) {
+    enableBaseRoute (app, config, corsDefaults) {
         // Determine which versions need a base endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
         const routes1 = require('./base/base.config');
@@ -440,7 +440,7 @@ class FhirRouter {
      * Sets up the routes for FHIR resources
      * @param options
      */
-    setRoutes(options = {}) {
+    setRoutes (options = {}) {
         const {
             app,
             config

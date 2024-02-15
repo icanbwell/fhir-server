@@ -24,7 +24,7 @@ class AdminPersonPatientLinkManager {
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {FhirOperationsManager} fhirOperationsManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             databaseUpdateFactory,
@@ -57,7 +57,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} externalPersonId
      * @return {Promise<Object>}
      */
-    async createPersonToPersonLinkAsync({req, bwellPersonId, externalPersonId}) {
+    async createPersonToPersonLinkAsync ({req, bwellPersonId, externalPersonId}) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
         externalPersonId = externalPersonId.replace('Person/', '');
         /**
@@ -147,7 +147,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} externalPersonId
      * @return {Promise<Object>}
      */
-    async removePersonToPersonLinkAsync({req, bwellPersonId, externalPersonId}) {
+    async removePersonToPersonLinkAsync ({req, bwellPersonId, externalPersonId}) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
         externalPersonId = externalPersonId.replace('Person/', '');
 
@@ -233,7 +233,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} patientId
      * @return {Promise<Object>}
      */
-    async createPersonToPatientLinkAsync({req, externalPersonId, patientId}) {
+    async createPersonToPatientLinkAsync ({req, externalPersonId, patientId}) {
         externalPersonId = externalPersonId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
@@ -371,7 +371,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} patientId
      * @return {Promise<Object>}
      */
-    async removePersonToPatientLinkAsync({req, personId, patientId}) {
+    async removePersonToPatientLinkAsync ({req, personId, patientId}) {
         personId = personId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
@@ -457,7 +457,7 @@ class AdminPersonPatientLinkManager {
      * @param {number} level
      * @return {Promise<{id:string, source: string|null, security: string[], children: *[]}>}
      */
-    async findPersonAndChildrenAsync({personId, level}) {
+    async findPersonAndChildrenAsync ({personId, level}) {
         /**
          * @type {DatabaseQueryManager}
          */
@@ -585,7 +585,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} bwellPersonId
      * @return {Promise<{id: string, source: (string|null), security: string[], children: *[]}>}
      */
-    async showPersonToPersonLinkAsync({bwellPersonId}) {
+    async showPersonToPersonLinkAsync ({bwellPersonId}) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
         return await this.findPersonAndChildrenAsync({personId: bwellPersonId, level: 1});
     }
@@ -596,7 +596,7 @@ class AdminPersonPatientLinkManager {
      * @param {string} personId
      * @return {Promise<{deletedCount: (number|null), error: (Error|null)}>}
      */
-    async deletePersonAsync({req, requestId, personId}) {
+    async deletePersonAsync ({req, requestId, personId}) {
         personId = personId.replace('Person/', '');
 
         /**

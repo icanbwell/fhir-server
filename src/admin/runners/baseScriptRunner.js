@@ -26,7 +26,7 @@ class BaseScriptRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             adminLogger,
@@ -51,7 +51,7 @@ class BaseScriptRunner {
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
-    async init() {
+    async init () {
         /**
          * For reporting progress
          * @type {StartFromIdContainer}
@@ -59,7 +59,7 @@ class BaseScriptRunner {
         this.startFromIdContainer = this.createStartFromIdContainer();
     }
 
-    createStartFromIdContainer() {
+    createStartFromIdContainer () {
         return {
             startFromId: '',
             skippedIdsForHavingAccessField: 0,
@@ -75,7 +75,7 @@ class BaseScriptRunner {
         };
     }
 
-    async shutdown() {
+    async shutdown () {
         // ok to not specify
     }
 
@@ -86,7 +86,7 @@ class BaseScriptRunner {
      * @param {boolean|undefined} [includeHistoryCollections]
      * @returns {Promise<string[]>}
      */
-    async getAllCollectionNamesAsync({useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections}) {
+    async getAllCollectionNamesAsync ({useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections}) {
         const config = useAuditDatabase ?
             await this.mongoDatabaseManager.getAuditConfigAsync() :
             useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsConfigAsync() :

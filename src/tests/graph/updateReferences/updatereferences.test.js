@@ -20,19 +20,19 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return 'id';
     }
 
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         return false;
     }
 }
@@ -66,7 +66,7 @@ describe('UpdateReferences Tests', () => {
              * @param {Reference} reference
              * @return {Promise<Reference>}
              */
-            async function fnUpdateReferenceAsync(reference) {
+            async function fnUpdateReferenceAsync (reference) {
                 logInfo('', {reference});
                 if (reference.reference && reference.reference.startsWith('Patient/')) {
                     reference.reference = 'Patient/ProxyPatient';

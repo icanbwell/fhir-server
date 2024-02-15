@@ -14,7 +14,7 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
      * @param {Resource} resource
      * @param {EntityAndContainedBase[]} containedEntries
      */
-    constructor(
+    constructor (
         {
             entityId,
             entityUuid,

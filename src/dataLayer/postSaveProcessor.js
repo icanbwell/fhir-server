@@ -16,7 +16,7 @@ class PostSaveProcessor {
      *
      * @param {params}
      */
-    constructor(
+    constructor (
         {
             handlers,
             configManager
@@ -50,7 +50,7 @@ class PostSaveProcessor {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({requestId, eventType, resourceType, doc}) {
         try {
             for (const handler of this.handlers) {
                 await handler.afterSaveAsync({requestId, eventType, resourceType, doc});
@@ -66,7 +66,7 @@ class PostSaveProcessor {
      * flushes the change event buffer
      * @return {Promise<void>}
      */
-    async flushAsync() {
+    async flushAsync () {
         for (const handler of this.handlers) {
             await handler.flushAsync();
         }

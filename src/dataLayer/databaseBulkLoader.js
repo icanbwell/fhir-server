@@ -17,7 +17,7 @@ class DatabaseBulkLoader {
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     databaseQueryFactory,
                     requestSpecificCache,
                     configManager
@@ -52,7 +52,7 @@ class DatabaseBulkLoader {
      * @param {Resource[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesAsync({requestId, base_version, requestedResources}) {
+    async loadResourcesAsync ({requestId, base_version, requestedResources}) {
         try {
             /**
              * merge results grouped by resourceType
@@ -95,7 +95,7 @@ class DatabaseBulkLoader {
      * @param {string} requestId
      * @returns {Map<string, Resource[]>}
      */
-    getBulkCache({requestId}) {
+    getBulkCache ({requestId}) {
         return this.requestSpecificCache.getMap({requestId, name: this.cacheName});
     }
 
@@ -108,7 +108,7 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     // eslint-disable-next-line no-unused-vars
-    async getResourcesAsync({requestId, base_version, resourceType, resources}) {
+    async getResourcesAsync ({requestId, base_version, resourceType, resources}) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
@@ -142,7 +142,7 @@ class DatabaseBulkLoader {
      * @param {DatabasePartitionedCursor} cursor
      * @returns {Promise<Resource[]>}
      */
-    async cursorToResourcesAsync({cursor}) {
+    async cursorToResourcesAsync ({cursor}) {
         try {
             /**
              * @type {Resource[]}
@@ -171,7 +171,7 @@ class DatabaseBulkLoader {
      * @param {string} uuid
      * @return {null|Resource}
      */
-    getResourceFromExistingList({requestId, resourceType, uuid}) {
+    getResourceFromExistingList ({requestId, resourceType, uuid}) {
         const bulkCache = this.getBulkCache({requestId});
         // see if there is cache for this resourceType
         /**
@@ -195,7 +195,7 @@ class DatabaseBulkLoader {
      * @param {string} uuid
      * @return {Resource|null}
      */
-    getMatchingResource({cacheEntryResources, uuid}) {
+    getMatchingResource ({cacheEntryResources, uuid}) {
         /**
          * @type {Resource[]}
          */

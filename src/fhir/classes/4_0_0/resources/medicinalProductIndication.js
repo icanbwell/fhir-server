@@ -35,7 +35,7 @@ class MedicinalProductIndication extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -524,7 +524,7 @@ class MedicinalProductIndication extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'MedicinalProductIndication';
     }
 
@@ -553,7 +553,7 @@ class MedicinalProductIndication extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProductIndication}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -607,7 +607,7 @@ class MedicinalProductIndication extends Resource {
      * @description creates a copy of this resource
      * @returns {MedicinalProductIndication}
     */
-    clone() {
+    clone () {
         return new MedicinalProductIndication(this.toJSONInternal());
     }
 
@@ -616,7 +616,7 @@ class MedicinalProductIndication extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -646,7 +646,7 @@ class MedicinalProductIndication extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -667,7 +667,7 @@ class MedicinalProductIndication extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,

@@ -9,7 +9,7 @@ class SearchQueryBuilder {
      * constructor
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      */
-    constructor(
+    constructor (
         {
             r4SearchQueryCreator
         }
@@ -31,7 +31,7 @@ class SearchQueryBuilder {
      * @param {BuildSearchQueryBasedOnVersion} param Params for building search query based on version
      * @returns {{ query: import('mongodb').Document, columns: Set<string> | undefined }}
      */
-    buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable}) {
+    buildSearchQueryBasedOnVersion ({ base_version, parsedArgs, resourceType, useHistoryTable}) {
         /** @type {import('mongodb').Document} */
         let query;
         /** @type {Set<string>} */

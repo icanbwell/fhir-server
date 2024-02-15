@@ -16,7 +16,7 @@ const { ProaPatientLinkCsvRunner } = require('../runners/proaPatientLinkCsvRunne
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     const parameters = CommandLineParser.parseCommandLine();
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;

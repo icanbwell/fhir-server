@@ -6,7 +6,7 @@ class ControllerUtils {
      * constructor
      * @param {GenericController} genericController
      */
-    constructor({genericController}) {
+    constructor ({genericController}) {
         assertTypeEquals(genericController, GenericController);
         /**
          * @type {GenericController}
@@ -20,7 +20,7 @@ class ControllerUtils {
      * @param {string} resourceName
      */
     // eslint-disable-next-line no-unused-vars
-    getController(version, resourceName) {
+    getController (version, resourceName) {
         switch (version) {
             case '4_0_0':
                 return this.genericController;

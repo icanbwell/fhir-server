@@ -5,7 +5,7 @@ const {OpenSearchVectorStore} = require('langchain/vectorstores/opensearch');
  * which allows us to replace documents
  */
 class FhirOpenSearchVectorStore extends OpenSearchVectorStore {
-    async addVectors(vectors, documents) {
+    async addVectors (vectors, documents) {
         await this.ensureIndexExists(
             vectors[0].length,
             this.engine,

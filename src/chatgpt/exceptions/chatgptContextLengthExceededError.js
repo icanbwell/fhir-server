@@ -10,7 +10,7 @@ class ChatGPTContextLengthExceededError extends ChatGPTError {
      * @param {Error} error
      * @param {Object|undefined} [args]
      */
-    constructor({message, error, args}) {
+    constructor ({message, error, args}) {
         super({message, error, args});
     }
 }

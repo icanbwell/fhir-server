@@ -11,7 +11,7 @@ class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
      * @returns {Promise<ChatGPTDocument[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
+    async convertBundleToDocumentsAsync ({parentResourceType, parentUuid, bundle}) {
         return bundle.entry.map(
             e => {
                 return new ChatGPTDocument(

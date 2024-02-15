@@ -27,7 +27,7 @@ class DataSharingManager {
      * @param {ProaConsentManager} proaConsentManager
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             configManager,
@@ -85,7 +85,7 @@ class DataSharingManager {
      * @param {string} requestId
      * @returns {Map<string, Resource[]>}
      */
-    getDataSharingManagerCache({requestId}) {
+    getDataSharingManagerCache ({requestId}) {
         return this.requestSpecificCache.getMap({requestId, name: 'dataSharingManager'});
     }
 
@@ -101,7 +101,7 @@ class DataSharingManager {
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @param {RewriteDataSharingQuery} param
      */
-    async updateQueryConsideringDataSharing({
+    async updateQueryConsideringDataSharing ({
                                                 base_version,
                                                 resourceType,
                                                 parsedArgs,
@@ -239,7 +239,7 @@ class DataSharingManager {
      * @property {string[]} securityTags security Tags
      * @param {ValidatedPatientIdsMap} param
      */
-    async getValidatedPatientIdsMap({resourceType, parsedArgs, securityTags}) {
+    async getValidatedPatientIdsMap ({resourceType, parsedArgs, securityTags}) {
         /**
          * Patient id to immediate person map.
          * @type {{[key: string]: string[]}}
@@ -291,7 +291,7 @@ class DataSharingManager {
      * @property {any[]} patientsList List of patients containing id, _sourceId, _uuid & meta.security
      * @param {RewriteDataSharingQuery2} param
      */
-    getConnectionTypeFilteredQuery({
+    getConnectionTypeFilteredQuery ({
                                        base_version,
                                        resourceType,
                                        allowedPatientIds,
@@ -404,7 +404,7 @@ class DataSharingManager {
      * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
      * @returns {import('../query/filters/searchFilterFromReference').IReferences} Array of resource Id's present in query
      */
-    getResourceReferencesFromFilter(resourceType, parsedArgs) {
+    getResourceReferencesFromFilter (resourceType, parsedArgs) {
         assertIsValid(typeof resourceType === 'string');
         assertIsValid(parsedArgs instanceof ParsedArgs);
 
@@ -456,7 +456,7 @@ class DataSharingManager {
      * @param {GetPatientToPersonParams} options
      * @returns {Promise<{[key: string]: string[]}>}
      */
-    async getPatientToImmediatePersonMapAsync({patientReferences, securityTags}) {
+    async getPatientToImmediatePersonMapAsync ({patientReferences, securityTags}) {
 
         /**
          * @type {Map<string, string[]>}
@@ -495,7 +495,7 @@ class DataSharingManager {
      * @property {string[]} allowedConnectionTypesList allowed connection types list
      * @param {FilterPatientsByConnectionType} param
      */
-    filterPatientsByConnectionType({allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList}) {
+    filterPatientsByConnectionType ({allowedPatientIds, patientIdToConnectionTypeMap, allowedConnectionTypesList}) {
         allowedPatientIds.forEach((patientId) => {
             if (!patientIdToConnectionTypeMap.has(patientId) ||
                 !allowedConnectionTypesList.includes(patientIdToConnectionTypeMap.get(patientId))) {
@@ -508,7 +508,7 @@ class DataSharingManager {
      * For array of patient references passed, fetch & return patients list.
      * @param {import('../query/filters/searchFilterFromReference').IReferences} references Passed PatientIds in query.
      */
-    async getPatientsList({patientReferences}) {
+    async getPatientsList ({patientReferences}) {
         const query = this.databaseQueryFactory.createQuery({
             resourceType: 'Patient',
             base_version: '4_0_0'
@@ -535,7 +535,7 @@ class DataSharingManager {
      * For array of patients, fetch & return patient id to connection type map.
      * @property {string[]} patientsList list of patients for which map is to be created
      */
-    async getPatientIDToConnectionTypeMap({patientsList}) {
+    async getPatientIDToConnectionTypeMap ({patientsList}) {
         /**
          * Patient id to corresponding connection type map.
          * @type {Map<string, string[]>}
@@ -556,7 +556,7 @@ class DataSharingManager {
      * For array of patients passed, checks if there are more than two resources for
      * any id. If its there, then throws a bad-request error else returns true
      */
-    async validatePatientIdsAsync({patientsList, patientReferences}) {
+    async validatePatientIdsAsync ({patientsList, patientReferences}) {
         /**
          * PatientId -> No of Patient Resources
          * @type {Map<string, number>}

@@ -32,7 +32,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {Object} oidToStandardSystemUrlMap
      * @param {boolean} updateResources
      */
-    constructor({
+    constructor ({
         mongoCollectionManager,
         batchSize,
         adminLogger,
@@ -135,7 +135,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @return {import('mongodb').Filter<import('mongodb').Document>}
      */
     // eslint-disable-next-line no-unused-vars
-    getFilter(properties) {
+    getFilter (properties) {
         if (!properties || properties.length === 0) {
             return {};
         }
@@ -167,7 +167,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -195,7 +195,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             /**
              * @type {boolean}
@@ -279,7 +279,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {import('../../fhir/classes/4_0_0/resources/resource')} resource
      * @returns {boolean}
      */
-    isUpdateNeeded(resource) {
+    isUpdateNeeded (resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
                 if (coding.system) {
@@ -323,7 +323,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {import('../../fhir/classes/4_0_0/resources/resource')} resource
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    updateResource(resource) {
+    updateResource (resource) {
         if (resource instanceof CodeableConcept && resource.coding) {
             for (const coding of resource.coding) {
                 if (coding.system) {
@@ -360,7 +360,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {string} queryPrefix
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryFromParameters({queryPrefix = ''}) {
+    getQueryFromParameters ({queryPrefix = ''}) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -431,7 +431,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * @param {string[]} uuidChunk
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource({ queryPrefix = '', uuidChunk }) {
+    getQueryForResource ({ queryPrefix = '', uuidChunk }) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -479,7 +479,7 @@ class FixCodeableConceptsRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.startFromCollection) {

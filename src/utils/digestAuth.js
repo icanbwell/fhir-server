@@ -19,7 +19,7 @@ class RequestWithDigestAuth {
      * @property {number} retry No of times we should retry sending digest auth
      * @param {RequestWithDigestAuthConstructor}
      */
-    constructor({ password, username, retry }) {
+    constructor ({ password, username, retry }) {
         if (!username || !password) {
             throw new Error('Username and password are required');
         }
@@ -38,7 +38,7 @@ class RequestWithDigestAuth {
      * @param {DigestRequestOptions} options
      * @returns {import('superagent').Response}
      */
-    async request(options) {
+    async request (options) {
         /** @type {number} */
         const retriedWithDigestTimes = options.retriedWithDigestTimes ?? 0;
 
@@ -109,7 +109,7 @@ class RequestWithDigestAuth {
      * @param {DigestRequestOptions}
      * @returns {import('superagent').Response}
      */
-    async _sendRequest({ method, url, headers, auth, query, data }) {
+    async _sendRequest ({ method, url, headers, auth, query, data }) {
         if (superagent[`${method}`] instanceof Function) {
             const request = superagent[`${method}`](url);
             if (headers) {

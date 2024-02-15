@@ -530,7 +530,7 @@ const quantityQueryBuilder = function ({target, field}) {
 };
 
 // for modular arithmetic because % is just for remainder -> JS is a cruel joke
-function mod(n, m) {
+function mod (n, m) {
     return ((n % m) + m) % m;
 }
 

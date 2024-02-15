@@ -4,7 +4,7 @@ const { RequestWithDigestAuth } = require('../../utils/digestAuth');
 const ARCHIVE_DEFAULT_EXPIRE_AFTER_DAYS = 60;
 
 class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
-    constructor({
+    constructor ({
         mongoDatabaseManager,
         mongoCollectionManager,
         adminLogger,
@@ -32,7 +32,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
      * @param {Object} collectionNames
      * @returns {Object}
      */
-    filterAuditEventCollections(collectionNames) {
+    filterAuditEventCollections (collectionNames) {
         return collectionNames.filter((name) => name.includes('AuditEvent_4_0_0'));
     }
 
@@ -43,7 +43,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
      * @return {Promise<import('superagent').Response>}
      * @throws {Error | import('superagent').Response}
      */
-    async createCollection({ config, collectionName }) {
+    async createCollection ({ config, collectionName }) {
         const data = {
             collName: collectionName,
             dbName: config.db_name,
@@ -85,7 +85,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     /**
      * Creates collection in audit event online archive with the same name as that of audit event cluster.
      */
-    async processAsync() {
+    async processAsync () {
         // Creating a config of audit event cluster and initiating a client connection
         const auditEventConfig = await this.mongoDatabaseManager.getAuditConfigAsync();
         const auditEventClient =

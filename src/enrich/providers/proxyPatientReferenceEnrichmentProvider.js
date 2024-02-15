@@ -14,7 +14,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * constructor
      * @param {ProxyPatientReferenceEnrichmentProviderParams} params
      */
-    constructor({ configManager}) {
+    constructor ({ configManager}) {
         super();
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
@@ -26,7 +26,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({resources, parsedArgs}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const rewritePatientReference = isTrueWithFallback(parsedArgs['_rewritePatientReference'], this.configManager.rewritePatientReference);
         // if rewrite is false, then don't enrich the resources
@@ -91,7 +91,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {{ id: string, _uuid: string }} resource Reference or resource containing these felids
      * @returns {string|undefined}
      */
-    findPersonIdFromMap(patientToPersonMap, resource) {
+    findPersonIdFromMap (patientToPersonMap, resource) {
         if (patientToPersonMap) {
             if (patientToPersonMap[`${resource.id}`]) { return patientToPersonMap[`${resource.id}`]; }
             if (patientToPersonMap[`${resource._uuid}`]) { return patientToPersonMap[`${resource._uuid}`]; }
@@ -104,7 +104,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {ParsedArgs} parsedArgs
      * @return {{proxyPatientPersonId: (string|null), proxyPatientPersonIdKey: null}}
      */
-    getProxyPatientFromArgs({parsedArgs}) {
+    getProxyPatientFromArgs ({parsedArgs}) {
         /**
          * @type {string|null}
          */
@@ -141,7 +141,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
         for (const entry of entries) {
             if (entry.resource) {
                 entry.resource = (await this.enrichAsync(
@@ -162,7 +162,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param proxyPatientPersonId {string|null}
      * @returns {function(*): {reference}|*}
      */
-    getUpdateReferenceFn(proxyPatientIds, proxyPatientPersonId) {
+    getUpdateReferenceFn (proxyPatientIds, proxyPatientPersonId) {
         return (reference) => {
             if (reference.reference && proxyPatientIds.includes(reference.reference)) {
                 reference.reference = proxyPatientPersonId.startsWith('Patient/') ?

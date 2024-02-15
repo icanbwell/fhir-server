@@ -29,7 +29,7 @@ class R4SearchQueryCreator {
      * @param {AccessIndexManager} accessIndexManager
      * @param {R4ArgsParser} r4ArgsParser
      */
-    constructor({
+    constructor ({
                     configManager,
                     accessIndexManager,
                     r4ArgsParser
@@ -59,7 +59,7 @@ class R4SearchQueryCreator {
      * @param {boolean|undefined} [useHistoryTable]
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery({resourceType, parsedArgs, useHistoryTable}) {
+    buildR4SearchQuery ({resourceType, parsedArgs, useHistoryTable}) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -166,7 +166,7 @@ class R4SearchQueryCreator {
      * @param {FilterParameters} filterParameters
      * @returns {{andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
-    getColumnsAndSegmentsForParameterType(
+    getColumnsAndSegmentsForParameterType (
         {
             parsedArg,
             filterParameters

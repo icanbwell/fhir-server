@@ -9,7 +9,7 @@ const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
  @param {string} id the id to remove from the list
  @returns {array} the collection of ids after processing
  */
-function removeAllGeneralPractitioner(arr, id) {
+function removeAllGeneralPractitioner (arr, id) {
     let i = 0;
     if (arr && id) {
         while (i < arr.length) {

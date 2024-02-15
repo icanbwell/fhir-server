@@ -36,7 +36,7 @@ class PatchOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             postSaveProcessor,
@@ -112,7 +112,7 @@ class PatchOperation {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async patchAsync({requestInfo, parsedArgs, resourceType}) {
+    async patchAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

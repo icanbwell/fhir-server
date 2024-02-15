@@ -4,7 +4,7 @@
  * @param {string} text
  * @returns {string}
  */
-function escapeRegExp(text) {
+function escapeRegExp (text) {
     return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 

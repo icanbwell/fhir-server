@@ -29,7 +29,7 @@ class MyFHIRServer {
      * @param {Object} config
      * @param {import('express').Express} app
      */
-    constructor(fnGetContainer, config = {}, app = null) {
+    constructor (fnGetContainer, config = {}, app = null) {
         this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
         /**
@@ -68,7 +68,7 @@ class MyFHIRServer {
      * Configures middleware
      * @return {MyFHIRServer}
      */
-    configureMiddleware() {
+    configureMiddleware () {
         // Enable error tracking request handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.requestHandler) {
             this.app.use(this.config.errorTracking.requestHandler());
@@ -157,7 +157,7 @@ class MyFHIRServer {
      * @param [helmetConfig]
      * @return {MyFHIRServer}
      */
-    configureHelmet(helmetConfig) {
+    configureHelmet (helmetConfig) {
         /**
          * The following headers are turned on by default:
          * - dnsPrefetchControl (Control browser DNS prefetching). https://helmetjs.github.io/docs/dns-prefetch-control
@@ -187,7 +187,7 @@ class MyFHIRServer {
      * @param {Object|undefined} [session]
      * @return {MyFHIRServer}
      */
-    configureSession(session) {
+    configureSession (session) {
         // Session config can come from the core config as well, let's handle both cases
         const {server = {}} = this.config; // If a session was passed in the config, let's use it
 
@@ -207,7 +207,7 @@ class MyFHIRServer {
     //     return super.configurePassport();
     // }
 
-    configurePassport() {
+    configurePassport () {
         if (this.config.auth && this.config.auth.strategy) {
             const {
                 strategy
@@ -226,7 +226,7 @@ class MyFHIRServer {
      * @param {string} publicDirectory
      * @return {MyFHIRServer}
      */
-    setPublicDirectory(publicDirectory = '') {
+    setPublicDirectory (publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
         const {server = {}} = this.config;
 
@@ -247,7 +247,7 @@ class MyFHIRServer {
      * Sets up routes to catch and show errors
      * @return {MyFHIRServer}
      */
-    setErrorRoutes() {
+    setErrorRoutes () {
         /**
          * @type {import('winston').logger}
          */
@@ -368,7 +368,7 @@ class MyFHIRServer {
      * Sets routes for all the operations
      * @return {MyFHIRServer}
      */
-    setProfileRoutes() {
+    setProfileRoutes () {
         this.fhirRouter.setRoutes(this); // return self for chaining
         return this;
     } // Setup custom logging

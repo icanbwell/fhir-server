@@ -28,7 +28,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {number|undefined} [limit]
      * * @param {number|undefined} [skip]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -111,7 +111,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
             return operations;
@@ -150,7 +150,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {

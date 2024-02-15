@@ -55,7 +55,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {PostSaveProcessor} postSaveProcessor
      */
-    constructor({
+    constructor ({
                     resourceManager,
                     postRequestProcessor,
                     mongoCollectionManager,
@@ -145,7 +145,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} requestId
      * @return {Map<string, BulkInsertUpdateEntry[]>}
      */
-    getOperationsByResourceTypeMap({requestId}) {
+    getOperationsByResourceTypeMap ({requestId}) {
         return this.requestSpecificCache.getMap({requestId, name: 'OperationsByResourceTypeMap'});
     }
 
@@ -156,7 +156,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} requestId
      * @return {Map<string, BulkInsertUpdateEntry[]>}
      */
-    getHistoryOperationsByResourceTypeMap({requestId}) {
+    getHistoryOperationsByResourceTypeMap ({requestId}) {
         return this.requestSpecificCache.getMap({requestId, name: 'HistoryOperationsByResourceTypeMap'});
     }
 
@@ -170,7 +170,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {MergePatchEntry[]|null} patches
      * @private
      */
-    addOperationForResourceType(
+    addOperationForResourceType (
         {
             requestId,
             resourceType,
@@ -217,7 +217,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {MergePatchEntry[]|null} patches
      * @private
      */
-    addHistoryOperationForResourceType(
+    addHistoryOperationForResourceType (
         {
             requestId,
             resourceType,
@@ -263,7 +263,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {getOperationForResourceAsyncParam}
      * @returns {BulkInsertUpdateEntry}
      */
-    getOperationForResourceAsync({requestId, resourceType, doc, operationType, operation, patches}) {
+    getOperationForResourceAsync ({requestId, resourceType, doc, operationType, operation, patches}) {
         try {
             assertTypeEquals(doc, Resource);
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
@@ -303,7 +303,7 @@ args: {
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync({requestId, resourceType, doc}) {
+    async insertOneAsync ({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
@@ -395,7 +395,7 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({requestId, method, base_version, resourceType, doc, patches, userRequestId}) {
+    async insertOneHistoryAsync ({requestId, method, base_version, resourceType, doc, patches, userRequestId}) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
@@ -457,7 +457,7 @@ args: {
      * @param {MergePatchEntry[]|null} patches
      * @returns {Promise<void>}
      */
-    async replaceOneAsync(
+    async replaceOneAsync (
         {
             requestId,
             resourceType,
@@ -541,7 +541,7 @@ args: {
      * @param {MergePatchEntry[]|null} patches
      * @returns {Promise<void>}
      */
-    async mergeOneAsync(
+    async mergeOneAsync (
         {
             requestId,
             resourceType,
@@ -670,7 +670,7 @@ args: {
      * @param {executeAsyncParams}
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync({requestId, currentDate, base_version, method, userRequestId, operationsMap}) {
+    async executeAsync ({requestId, currentDate, base_version, method, userRequestId, operationsMap}) {
         assertIsValid(requestId, 'requestId is null');
         try {
             /**
@@ -741,7 +741,7 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async executeHistoryInPostRequestAsync({requestId, currentDate, base_version, method, userRequestId}) {
+    async executeHistoryInPostRequestAsync ({requestId, currentDate, base_version, method, userRequestId}) {
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
         if (historyOperationsByResourceTypeMap.size > 0) {
             this.postRequestProcessor.add({
@@ -778,7 +778,7 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<BulkResultEntry>}
      */
-    async performBulkForResourceTypeWithMapEntryAsync(
+    async performBulkForResourceTypeWithMapEntryAsync (
         {
             requestId,
             currentDate,
@@ -820,7 +820,7 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<BulkResultEntry>}
      */
-    async performBulkForResourceTypeAsync(
+    async performBulkForResourceTypeAsync (
         {
             requestId,
             currentDate,
@@ -1081,7 +1081,7 @@ args: {
      * @param {string} userRequestId
      * @returns {Promise<MergeResultEntry>}
      */
-    async postSaveAsync(
+    async postSaveAsync (
         {
             requestId,
             method,
@@ -1182,7 +1182,7 @@ args: {
      * @param {string} resourceType
      * @returns {BulkInsertUpdateEntry[]}
      */
-    getPendingInsertsWithUniqueId({requestId, resourceType}) {
+    getPendingInsertsWithUniqueId ({requestId, resourceType}) {
         /**
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
@@ -1198,7 +1198,7 @@ args: {
      * @param {string} resourceType
      * @returns {BulkInsertUpdateEntry[]}
      */
-    getPendingUpdates({requestId, resourceType}) {
+    getPendingUpdates ({requestId, resourceType}) {
         /**
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
@@ -1213,7 +1213,7 @@ args: {
      * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync({bulkInsertUpdateEntries}) {
+    async updateResourcesOneByOneAsync ({bulkInsertUpdateEntries}) {
         let i = 0;
         for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
             i = i + 1;
@@ -1260,7 +1260,7 @@ args: {
      * @param {Object} fieldValue - The new document with which the field is to be updated
      * @param {boolean} upsert - If true a new document is created if filter is not matched
       */
-    async patchFieldAsync({
+    async patchFieldAsync ({
         requestId, resource, fieldName, fieldValue, upsert = false
     }) {
         if (resource._id) {

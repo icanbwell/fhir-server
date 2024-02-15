@@ -21,7 +21,7 @@ class MongoReadableStream extends Readable {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor(
+    constructor (
         {
             cursor,
             signal,
@@ -65,7 +65,7 @@ class MongoReadableStream extends Readable {
     }
 
     // eslint-disable-next-line no-unused-vars
-    async _read(size) {
+    async _read (size) {
         // Ensure we are not already fetching data
         if (!this.isFetchingData) {
             this.isFetchingData = true;
@@ -85,7 +85,7 @@ class MongoReadableStream extends Readable {
      * @param size
      * @returns {Promise<void>}
      */
-    async readAsync(size) {
+    async readAsync (size) {
         let count = 0;
         while (count <= size) {
             try {

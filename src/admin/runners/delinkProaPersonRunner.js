@@ -25,7 +25,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {ConstructorProps}
      */
-    constructor({
+    constructor ({
         csvFileName,
         proaPatientUuidColumn,
         proaPersonUuidColumn,
@@ -83,7 +83,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Main process
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
 
@@ -106,7 +106,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Initializes write streams
      * @returns {Promise<void>}
      */
-    initializeWriteStreams() {
+    initializeWriteStreams () {
         // write stream to write person status
         this.writeStream = fs.createWriteStream('deleted_persons.csv');
         this.writeStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated|\n');
@@ -115,7 +115,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         this.errorStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated| Status|\n');
     }
 
-    handleStreamClose() {
+    handleStreamClose () {
         this.errorStream.close();
         this.writeStream.close();
 
@@ -129,7 +129,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Processes data from the csv and creates map of proaPatient, proaPerson, masterPerson, clientPerson, status
      * @returns {Promise<void>}
      */
-    async processDataFromCsv() {
+    async processDataFromCsv () {
         try {
             this.adminLogger.logInfo('Processing CSV Data');
             /**
@@ -206,7 +206,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Handles Delinking of proa person and master person
      * @returns {Promise<void>}
      */
-    async handleDelink() {
+    async handleDelink () {
         this.adminLogger.logInfo('Starting first iteration to remove links');
         const file = await open(this.csvFileName);
 
@@ -265,7 +265,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Handle deletion of person
      * @returns {Promise<void>}
      */
-    async handlePersonDelete() {
+    async handlePersonDelete () {
         this.adminLogger.logInfo('Starting second iteration to delete proa persons');
 
         const file = await open(this.csvFileName);
@@ -307,7 +307,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {RemoveProaPersonToMasterPersonLinkProps}
      */
-    async removeProaPersonToMasterPersonLink({ proaPersonUuid, masterPersonUuids }) {
+    async removeProaPersonToMasterPersonLink ({ proaPersonUuid, masterPersonUuids }) {
         for (const masterPersonUuid of masterPersonUuids) {
             this.adminLogger.logInfo(
                 `Removing link from master person ${masterPersonUuid} to proa person ${proaPersonUuid}`
@@ -330,7 +330,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {RemoveProaPersonToProaPatientLinkProps}
      */
-    async removeProaPersonToProaPatientLink({ proaPersonUuid, proaPatientUuid }) {
+    async removeProaPersonToProaPatientLink ({ proaPersonUuid, proaPatientUuid }) {
         this.adminLogger.logInfo(
             `Removing link from proa person ${proaPersonUuid} to proa patient ${proaPatientUuid}`
         );
@@ -353,7 +353,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {DeletePersonProps}
      */
-    async deletePerson({ personUuid, sourceAssigningAuthority, lastUpdated, slug }) {
+    async deletePerson ({ personUuid, sourceAssigningAuthority, lastUpdated, slug }) {
         try {
             // Get person data to check for links
             /**

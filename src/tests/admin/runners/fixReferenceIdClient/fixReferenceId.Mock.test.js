@@ -22,7 +22,7 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 class MockFixReferenceIdClientRunner extends FixReferenceIdClientRunner {
-    async getDataFromS3() {
+    async getDataFromS3 () {
         this.idCache.set('Observation', new Map());
 
         this.idCache.get('Observation').set(
@@ -36,7 +36,7 @@ class MockFixReferenceIdClientRunner extends FixReferenceIdClientRunner {
         );
     }
 
-    async updateRecordReferencesAsync(doc) {
+    async updateRecordReferencesAsync (doc) {
         throw new Error(`To test if the script fails while updating the references ${JSON.stringify(doc)}`);
     }
 }

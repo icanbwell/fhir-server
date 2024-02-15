@@ -18,7 +18,7 @@ class DatabaseAttachmentManager {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {ConfigManager} configManager
     */
-    constructor({mongoDatabaseManager, configManager}) {
+    constructor ({mongoDatabaseManager, configManager}) {
         /**
          * @type {MongoDatabaseManager}
         */
@@ -38,7 +38,7 @@ class DatabaseAttachmentManager {
      * @param {String} operation
      * @returns {Object}
     */
-    getMetadata(resource, operation) {
+    getMetadata (resource, operation) {
         const metadata = {};
         if (operation === INSERT || operation === DELETE) {
             if (resource._uuid) {
@@ -58,7 +58,7 @@ class DatabaseAttachmentManager {
      * @param {Object} patchContent
      * @returns {Boolean}
     */
-    isUpdated(path, patchContent) {
+    isUpdated (path, patchContent) {
         const pathArray = path.split('/');
         return patchContent.some(patch => {
             path = '';
@@ -81,7 +81,7 @@ class DatabaseAttachmentManager {
      * @param {String} operation
      * @param {Object} patchContent
     */
-    async transformAttachments(resources, operation = INSERT, patchContent = null) {
+    async transformAttachments (resources, operation = INSERT, patchContent = null) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
@@ -118,7 +118,7 @@ class DatabaseAttachmentManager {
      * @param {Object} patchContent
      * @param {String} path
     */
-    async changeAttachmentWithGridFS({
+    async changeAttachmentWithGridFS ({
         resource, resourceId, metadata, index = 0, operation = null, patchContent = null, path = ''
     }) {
         if (!resource) {
@@ -171,7 +171,7 @@ class DatabaseAttachmentManager {
      * @param {import('mongodb').GridFSBucket} gridFSBucket
      * @param {Object} metadata
     */
-    async convertDataToFileId(resource, filename, gridFSBucket, metadata) {
+    async convertDataToFileId (resource, filename, gridFSBucket, metadata) {
         return new Promise((resolve, reject) => {
             if (resource.data) {
                 try {
@@ -207,7 +207,7 @@ class DatabaseAttachmentManager {
      * @param {import('mongodb').GridFSBucket} gridFSBucket
      * @returns {Promise<Resource>}
     */
-    async convertFileIdToData(resource, gridFSBucket) {
+    async convertFileIdToData (resource, gridFSBucket) {
         return new Promise((resolve, reject) => {
             if (resource._file_id) {
                 try {
@@ -235,7 +235,7 @@ class DatabaseAttachmentManager {
      * @param {Resource} resource
      * @param {Object} metadata
     */
-    async deleteFile(resource, metadata) {
+    async deleteFile (resource, metadata) {
         if (resource._file_id) {
             const db = await this.mongoDatabaseManager.getClientDbAsync();
             try {

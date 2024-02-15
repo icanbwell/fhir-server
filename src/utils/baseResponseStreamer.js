@@ -9,7 +9,7 @@ class BaseResponseStreamer {
      * @param {import('express').Response} response
      * @param {string} requestId
      */
-    constructor(
+    constructor (
         {
             response,
             requestId
@@ -31,7 +31,7 @@ class BaseResponseStreamer {
      * Starts response
      * @return {Promise<void>}
      */
-    async startAsync() {
+    async startAsync () {
         throw new Error('Method not implemented.');
     }
 
@@ -41,7 +41,7 @@ class BaseResponseStreamer {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async writeBundleEntryAsync({bundleEntry}) {
+    async writeBundleEntryAsync ({bundleEntry}) {
         throw new Error('Method not implemented.');
     }
 
@@ -51,7 +51,7 @@ class BaseResponseStreamer {
      * @returns {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async writeAsync({content}) {
+    async writeAsync ({content}) {
         // ok to not specify
     }
 
@@ -60,7 +60,7 @@ class BaseResponseStreamer {
      * @param {Bundle} bundle
      */
     // eslint-disable-next-line no-unused-vars
-    setBundle({bundle}) {
+    setBundle ({bundle}) {
         // ok to not specify
     }
 
@@ -69,7 +69,7 @@ class BaseResponseStreamer {
      * @param {number} statusCode
      * @returns {Promise<void>}
      */
-    async setStatusCodeAsync({statusCode}) {
+    async setStatusCodeAsync ({statusCode}) {
         this.response.status(statusCode);
     }
 
@@ -77,7 +77,7 @@ class BaseResponseStreamer {
      * ends response
      * @return {Promise<void>}
      */
-    async endAsync() {
+    async endAsync () {
         throw new Error('Method not implemented.');
     }
 }

@@ -18,7 +18,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {string} client
      * @param {Object} args
      */
-    constructor({ s3QueryBatchSize, AWS_BUCKET, AWS_FOLDER, AWS_REGION, client, ...args }) {
+    constructor ({ s3QueryBatchSize, AWS_BUCKET, AWS_FOLDER, AWS_REGION, client, ...args }) {
         super(args);
 
         /**
@@ -58,7 +58,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {require('http').IncomingMessage} incomingMessage
      * @returns {Promise<Object>}
      */
-    extractDataFromS3Response(incomingMessage) {
+    extractDataFromS3Response (incomingMessage) {
         return new Promise((resolve, reject) => {
             /**
              * @type {Buffer[]}
@@ -95,7 +95,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * Get data from S3 bucket
      * @returns {Promise<void>}
      */
-    async getDataFromS3() {
+    async getDataFromS3 () {
         /**
          * @type {require('@aws-sdk/client-s3').S3}
          */
@@ -217,7 +217,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * Loads data from S3 bucket and caches the references
      * @returns {Promise<void>}
      */
-    async preloadReferencesAsync({ _mongoConfig }) {
+    async preloadReferencesAsync ({ _mongoConfig }) {
         try {
             if (fs.existsSync('./cachedResourceIds.json')) {
                 this.adminLogger.logInfo('Loading cache from cachedResourceIds.json');
@@ -270,7 +270,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {Resource} doc
      * @param {string} collectionName
      */
-    cacheReferenceFromResource({ doc, collectionName }) {
+    cacheReferenceFromResource ({ doc, collectionName }) {
         // originating id with which to replace the current id
         /**
          * @type {string}
@@ -318,7 +318,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         const queryPrefix = isHistoryCollection ? 'resource.' : '';
         // create a query from the parameters
         /**
@@ -353,7 +353,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {string} collectionName
      * @return {Map<string, string>}
      */
-    getCacheForId({ collectionName }) {
+    getCacheForId ({ collectionName }) {
         collectionName = collectionName.split('_')[0];
 
         if (!this.idCache.has(collectionName)) {
@@ -368,7 +368,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {boolean} _sanitize
      * @returns {string}
      */
-    getOriginalId({ doc, _sanitize }) {
+    getOriginalId ({ doc, _sanitize }) {
         if (!doc.resourceType) {
             return doc._sourceId;
         }
@@ -388,7 +388,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      * @param {string} originalId
      * @returns {[string]}
      */
-    getCurrentIds({ originalId }) {
+    getCurrentIds ({ originalId }) {
         // we only need to check for originalId sliced to 63 characters as
         // sourceAssigningAuthority is not present in client ids
         return [originalId.slice(0, 63)];

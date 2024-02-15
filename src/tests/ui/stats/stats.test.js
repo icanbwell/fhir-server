@@ -14,7 +14,7 @@ const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableStatsEndpoint() {
+    get enableStatsEndpoint () {
         return true;
     }
 }

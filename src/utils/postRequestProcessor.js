@@ -15,7 +15,7 @@ class PostRequestProcessor {
      * Constructor
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor({requestSpecificCache}) {
+    constructor ({requestSpecificCache}) {
         /**
          * @type {Map<string,boolean>}
          */
@@ -32,7 +32,7 @@ class PostRequestProcessor {
      * @param {string} requestId
      * @return {(() =>void)[]}
      */
-    getQueue({requestId}) {
+    getQueue ({requestId}) {
         assertIsValid(requestId, 'requestId is null');
         return this.requestSpecificCache.getList({requestId, name: 'PostRequestProcessorQueue'});
     }
@@ -42,7 +42,7 @@ class PostRequestProcessor {
      * @param {string} requestId
      * @param {() =>void} fnTask
      */
-    add({requestId, fnTask}) {
+    add ({requestId, fnTask}) {
         assertIsValid(requestId, 'requestId is null');
         this.getQueue({requestId}).push(fnTask);
     }
@@ -51,7 +51,7 @@ class PostRequestProcessor {
      * @param {string} requestId
      * @return {boolean}
      */
-    executionRunningForRequest({requestId}) {
+    executionRunningForRequest ({requestId}) {
         return this.executionRunningForRequestIdMap.get(requestId) || false;
     }
 
@@ -59,7 +59,7 @@ class PostRequestProcessor {
      * @param {string} requestId
      * @param {boolean} value
      */
-    setExecutionRunningForRequest({requestId, value}) {
+    setExecutionRunningForRequest ({requestId, value}) {
         if (value) {
             this.executionRunningForRequestIdMap.set(requestId, true);
         } else {
@@ -72,7 +72,7 @@ class PostRequestProcessor {
      * @param {string} requestId
      * @return {Promise<void>}
      */
-    async executeAsync({requestId}) {
+    async executeAsync ({requestId}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
         if (this.executionRunningForRequest({requestId}) || queue.length === 0) {
@@ -136,7 +136,7 @@ class PostRequestProcessor {
      * @param {number|null|undefined} [timeoutInSeconds]
      * @return {Promise<boolean>}
      */
-    async waitTillDoneAsync({requestId, timeoutInSeconds}) {
+    async waitTillDoneAsync ({requestId, timeoutInSeconds}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
         await logTraceSystemEventAsync(
@@ -169,7 +169,7 @@ class PostRequestProcessor {
      * @param {number|null|undefined} [timeoutInSeconds]
      * @return {Promise<void>}
      */
-    async waitTillAllRequestsDoneAsync({timeoutInSeconds}) {
+    async waitTillAllRequestsDoneAsync ({timeoutInSeconds}) {
         const requestIds = this.requestSpecificCache.getRequestIds();
         for (const requestId of requestIds) {
             await this.waitTillDoneAsync({requestId, timeoutInSeconds});

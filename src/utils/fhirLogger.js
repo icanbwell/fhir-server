@@ -14,13 +14,13 @@ const mutex = new Mutex();
  * uses: https://www.npmjs.com/package/winston-transport
  */
 class NullTransport extends Transport {
-    constructor(opts) {
+    constructor (opts) {
         super(opts);
 
         this.name = 'NullTransport';
     }
 
-    log(info, callback) {
+    log (info, callback) {
         callback();
         return this;
     }
@@ -38,7 +38,7 @@ class FhirLogger {
     /**
      * Constructor
      */
-    constructor() {
+    constructor () {
         this._secureLogger = null;
         this._inSecureLogger = null;
     }
@@ -47,7 +47,7 @@ class FhirLogger {
      * Gets the secure logger (creates it if it does not exist yet)
      * @return {Promise<Logger>}
      */
-    static async getSecureLoggerAsync() {
+    static async getSecureLoggerAsync () {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
@@ -58,7 +58,7 @@ class FhirLogger {
      * Gets the In Secure logger (creates it if it does not exist yet)
      * @return {Logger}
      */
-    static async getInSecureLoggerAsync() {
+    static async getInSecureLoggerAsync () {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
@@ -69,7 +69,7 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    async getOrCreateSecureLoggerAsync() {
+    async getOrCreateSecureLoggerAsync () {
         if (!this._secureLogger) {
             const release = await mutex.acquire();
             try {
@@ -88,7 +88,7 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    async getOrCreateInSecureLoggerAsync() {
+    async getOrCreateInSecureLoggerAsync () {
         if (!this._inSecureLogger) {
             const release = await mutex.acquire();
             try {
@@ -107,7 +107,7 @@ class FhirLogger {
      * Creates a secure logger
      * @return {Logger}
      */
-    async createSecureLoggerAsync() {
+    async createSecureLoggerAsync () {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
@@ -165,7 +165,7 @@ class FhirLogger {
      * Creates an insecure logger
      * @return {Logger}
      */
-    async createInSecureLoggerAsync() {
+    async createInSecureLoggerAsync () {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
@@ -187,7 +187,7 @@ class FhirLogger {
         return logger;
     }
 
-    static addLogging() {
+    static addLogging () {
         winston.add(winston.transports.Logstash);
     }
 }

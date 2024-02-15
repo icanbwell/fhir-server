@@ -18,7 +18,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * constructor
      * @param {PatientProxyQueryRewriterProps} params
      */
-    constructor(
+    constructor (
         {
             personToPatientIdsExpander,
             configManager
@@ -47,7 +47,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @param {boolean} cachePatientToPersonMap
      * @returns {ParsedArgsItem}
      */
-    async rewriteQueryParametersAsync({ parsedArg, base_version, includePatientPrefix, cachePatientToPersonMap }) {
+    async rewriteQueryParametersAsync ({ parsedArg, base_version, includePatientPrefix, cachePatientToPersonMap }) {
         const queryParameterValues = parsedArg.queryParameterValue.values;
         if (queryParameterValues && queryParameterValues.length > 0) {
             /**
@@ -122,7 +122,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
+    async rewriteArgsAsync ({base_version, parsedArgs, resourceType}) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
         // const foo = undefined[1];

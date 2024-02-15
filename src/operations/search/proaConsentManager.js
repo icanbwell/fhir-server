@@ -15,7 +15,7 @@ class ProaConsentManager {
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {BwellPersonFinder} bwellPersonFinder
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             configManager,
@@ -62,7 +62,7 @@ class ProaConsentManager {
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources({ownerTags, personIds}) {
+    async getConsentResources ({ownerTags, personIds}) {
 
         // get all consents where provision.actor.reference is of proxy-patient with valid code
         const proxyPersonReferences = personIds.map(
@@ -130,7 +130,7 @@ class ProaConsentManager {
      * @property {string[]} securityTags security Tags
      * @param {PatientIdsWithConsent} param
      */
-    async getPatientIdsWithConsent({patientIdToImmediatePersonUuid, securityTags}) {
+    async getPatientIdsWithConsent ({patientIdToImmediatePersonUuid, securityTags}) {
         /**
         * @type {Set<string>}
         */

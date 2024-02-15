@@ -7,7 +7,7 @@ class IndexProvider {
      * cosntructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }) {
 
@@ -15,7 +15,7 @@ class IndexProvider {
         assertTypeEquals(configManager, ConfigManager);
     }
 
-    getIndexes() {
+    getIndexes () {
         return customIndexes;
     }
 
@@ -24,7 +24,7 @@ class IndexProvider {
      * @param string[] accessCodes
      * @returns {boolean}
      */
-    hasIndexForAccessCodes({accessCodes}) {
+    hasIndexForAccessCodes ({accessCodes}) {
         const accessCodesWithIndexes = this.configManager.accessTagsIndexed || ['medstar', 'Thedacare'];
         return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }

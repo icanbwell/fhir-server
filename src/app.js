@@ -41,7 +41,7 @@ const { shouldReturnHtml } = require('./utils/requestHelpers.js');
  * @param {import('express').Express} app1
  * @returns {MyFHIRServer}
  */
-function createFhirApp(fnGetContainer, app1) {
+function createFhirApp (fnGetContainer, app1) {
     return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
@@ -82,7 +82,7 @@ function createFhirApp(fnGetContainer, app1) {
  * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp({fnGetContainer, trackMetrics}) {
+function createApp ({fnGetContainer, trackMetrics}) {
     const swaggerUi = require('swagger-ui-express');
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 

@@ -28,7 +28,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
-    async answerQuestionWithDocumentsAsync(
+    async answerQuestionWithDocumentsAsync (
         {
             // eslint-disable-next-line no-unused-vars
             startPrompt,
@@ -224,7 +224,7 @@ Question: {question}
      * @param {verbose} verbose
      * @return {Promise<string|undefined>}
      */
-    async getFhirQueryAsync({query, baseUrl, patientId, verbose}) {
+    async getFhirQueryAsync ({query, baseUrl, patientId, verbose}) {
         // https://js.langchain.com/docs/getting-started/guide-llm
         // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
         // https://nathankjer.com/introduction-to-langchain/

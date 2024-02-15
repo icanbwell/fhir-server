@@ -30,7 +30,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      * @param {number|undefined} [skip]
      * @param {number|undefined} [minLinks]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             batchSize,
@@ -103,7 +103,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
         this.caches = new Map();
     }
 
-    isPersonSame(resource, linkedResource) {
+    isPersonSame (resource, linkedResource) {
         let isSame;
         if (resource.telecom && resource.telecom.length && linkedResource.telecom && linkedResource.telecom.length) {
             const currentPersonEmail = resource.telecom.find(t => t.system === 'email')?.value;
@@ -120,7 +120,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
         return !!isSame;
     }
 
-    async fixLinks(resource) {
+    async fixLinks (resource) {
         const originalLinks = resource.link;
         if (!originalLinks || originalLinks.length === 0) {
             return resource;
@@ -235,7 +235,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
             return operations;
@@ -275,7 +275,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async preloadCollectionAsync({ mongoConfig, collectionName }) {
+    async preloadCollectionAsync ({ mongoConfig, collectionName }) {
         const {
             sourceCollection
         } = await this.createConnectionAsync(
@@ -318,7 +318,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @return {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
      */
-    getCacheForResourceType({ collectionName }) {
+    getCacheForResourceType ({ collectionName }) {
         if (!this.caches.has(collectionName)) {
             this.caches.set(collectionName, new Map());
         }
@@ -329,7 +329,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             await this.init();

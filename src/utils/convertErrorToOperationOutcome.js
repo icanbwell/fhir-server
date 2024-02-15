@@ -8,7 +8,7 @@ const env = require('var');
  * @param {Error} error
  * @returns {OperationOutcome}
  */
-function convertErrorToOperationOutcome({error}) {
+function convertErrorToOperationOutcome ({error}) {
     return error.issue && error.issue.length > 0 ?
         new OperationOutcome({
             issue: error.issue

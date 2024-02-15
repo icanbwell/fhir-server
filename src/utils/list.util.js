@@ -144,7 +144,7 @@ const getFirstBundleEntryOrNull = (sourceArray) => sourceArray.length === 0 ? nu
  * @param {(*[])[]} array_of_arrays
  * @returns {Promise<*>}
  */
-async function removeEmptyEntriesAsync(array_of_arrays) {
+async function removeEmptyEntriesAsync (array_of_arrays) {
     return array_of_arrays.filter(a => a.length > 0);
 }
 
@@ -154,7 +154,7 @@ async function removeEmptyEntriesAsync(array_of_arrays) {
  * @param fnCompare
  * @returns {*[]}
  */
-function removeDuplicatesWithLambda(array, fnCompare) {
+function removeDuplicatesWithLambda (array, fnCompare) {
     return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
 }
 
@@ -164,7 +164,7 @@ function removeDuplicatesWithLambda(array, fnCompare) {
  * @param {number} chunkSize
  * @return {*[][]}
  */
-function sliceIntoChunks(arr, chunkSize) {
+function sliceIntoChunks (arr, chunkSize) {
     /**
      * @type {*[][]}
      */

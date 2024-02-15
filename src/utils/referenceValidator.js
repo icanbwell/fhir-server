@@ -8,7 +8,7 @@
  * @param {string} path
  * @returns {string | null}
  */
-function checkReferenceValue(referenceObj, path) {
+function checkReferenceValue (referenceObj, path) {
     const reference = referenceObj.reference;
     if (!reference) {
         return null;
@@ -28,7 +28,7 @@ function checkReferenceValue(referenceObj, path) {
  * @param {string} path
  * @returns {*[]}
  */
-function validateReferences(resourceObj, path) {
+function validateReferences (resourceObj, path) {
     if (!resourceObj) {
         return [];
     }

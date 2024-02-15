@@ -13,7 +13,7 @@ class FhirLoggingManager {
      * @param {ScopesManager} scopesManager
      * @param {string|null} imageVersion
      */
-    constructor({scopesManager, imageVersion}) {
+    constructor ({scopesManager, imageVersion}) {
         /**
          * @type {ScopesManager}
          */
@@ -36,7 +36,7 @@ class FhirLoggingManager {
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
-    async logOperationStartAsync(
+    async logOperationStartAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
@@ -69,7 +69,7 @@ class FhirLoggingManager {
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
      */
-    async logOperationSuccessAsync(
+    async logOperationSuccessAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
@@ -110,7 +110,7 @@ class FhirLoggingManager {
      * @param {string|undefined} [result]
      * @param {string|undefined} [message]
      */
-    async logOperationFailureAsync(
+    async logOperationFailureAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},
@@ -154,7 +154,7 @@ class FhirLoggingManager {
      * @param {string|undefined} [result]
      * @private
      */
-    async internalLogOperationAsync(
+    async internalLogOperationAsync (
         {
             /** @type {FhirRequestInfo} */ requestInfo,
             args = {},

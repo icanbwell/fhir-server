@@ -27,16 +27,16 @@ const {IdentifierSystem} = require('../../../../utils/identifierSystem');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return false;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, personResource, expectedPersonInDatabase,
+async function setupDatabaseAsync (mongoDatabaseManager, personResource, expectedPersonInDatabase,
                                   collectionName) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 

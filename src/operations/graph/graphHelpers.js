@@ -56,7 +56,7 @@ class GraphHelper {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({
+    constructor ({
                     databaseQueryFactory,
                     securityTagManager,
                     scopesManager,
@@ -148,7 +148,7 @@ class GraphHelper {
      * @param {string?} filterValue Filter value (optional)
      * @returns {Object[]}
      */
-    getPropertiesForEntity({entity, property, filterProperty, filterValue}) {
+    getPropertiesForEntity ({entity, property, filterProperty, filterValue}) {
         const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
         if (property.includes('.')) { // this is a nested property so recurse down and find the value
             /**
@@ -183,7 +183,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @return {string[]}
      */
-    getReferencesFromPropertyValue({propertyValue, supportLegacyId = true}) {
+    getReferencesFromPropertyValue ({propertyValue, supportLegacyId = true}) {
         if (this.configManager.supportLegacyIds && supportLegacyId) {
             // concat uuids and ids so we can search both in case some reference does not have
             // _sourceAssigningAuthority set correctly
@@ -206,7 +206,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @returns {boolean}
      */
-    isPropertyAReference({entities, property, filterProperty, filterValue, supportLegacyId = true}) {
+    isPropertyAReference ({entities, property, filterProperty, filterValue, supportLegacyId = true}) {
         /**
          * @type {EntityAndContainedBase}
          */
@@ -242,7 +242,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @returns {QueryItem}
      */
-    async getForwardReferencesAsync({
+    async getForwardReferencesAsync ({
                                         requestInfo,
                                         base_version,
                                         resourceType,
@@ -457,7 +457,7 @@ class GraphHelper {
      * @param {string} queryString
      * @return {ParsedArgs}
      */
-    parseQueryStringIntoArgs({resourceType, queryString}) {
+    parseQueryStringIntoArgs ({resourceType, queryString}) {
         const args = Object.fromEntries(new URLSearchParams(queryString));
         args['base_version'] = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
@@ -483,7 +483,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @returns {QueryItem}
      */
-    async getReverseReferencesAsync({
+    async getReverseReferencesAsync ({
                                         requestInfo,
                                         base_version,
                                         parentResourceType,
@@ -712,7 +712,7 @@ class GraphHelper {
      * @param {string} filterValue
      * @returns {boolean}
      */
-    doesEntityHaveProperty({entity, property, filterProperty, filterValue}) {
+    doesEntityHaveProperty ({entity, property, filterProperty, filterValue}) {
         const item = (entity instanceof ResourceEntityAndContained) ? entity.resource : entity.item;
         if (property.includes('.')) {
             /**
@@ -750,7 +750,7 @@ class GraphHelper {
      * @param {string} property
      * @returns {{filterValue: string, filterProperty: string, property: string}}
      */
-    getFilterFromPropertyPath(property) {
+    getFilterFromPropertyPath (property) {
         /**
          * @type {string}
          */
@@ -803,7 +803,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
-    async processLinkTargetAsync(
+    async processLinkTargetAsync (
         {
             requestInfo,
             base_version,
@@ -1011,7 +1011,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @returns {QueryItem[]}
      */
-    async processOneGraphLinkAsync(
+    async processOneGraphLinkAsync (
         {
             requestInfo,
             base_version,
@@ -1087,7 +1087,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
-    async processGraphLinksAsync(
+    async processGraphLinksAsync (
         {
             requestInfo,
             base_version,
@@ -1158,7 +1158,7 @@ class GraphHelper {
      * @param {reference:string[]} linkReferences
      * @return {Promise<Resource>}
      */
-    async convertToHashedReferencesAsync({parent_entity, linkReferences}) {
+    async convertToHashedReferencesAsync ({parent_entity, linkReferences}) {
         try {
             /**
              * @type {Set<string>}
@@ -1189,7 +1189,7 @@ class GraphHelper {
      * @param {EntityAndContainedBase} entityAndContained
      * @returns {BundleEntry[]}
      */
-    getRecursiveContainedEntities(entityAndContained) {
+    getRecursiveContainedEntities (entityAndContained) {
         /**
          * @type {BundleEntry[]}
          */
@@ -1228,7 +1228,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
-    async processMultipleIdsAsync(
+    async processMultipleIdsAsync (
         {
             base_version,
             requestInfo,
@@ -1538,7 +1538,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
-    async processGraphAsync(
+    async processGraphAsync (
         {
             requestInfo,
             base_version,
@@ -1697,7 +1697,7 @@ class GraphHelper {
      * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
-    async deleteGraphAsync(
+    async deleteGraphAsync (
         {
             requestInfo,
             base_version,

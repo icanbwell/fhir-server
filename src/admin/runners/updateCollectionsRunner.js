@@ -19,7 +19,7 @@ class UpdateCollectionsRunner {
      * @param {Object|string|undefined} collections
      * @param {AdminLogger} adminLogger
      */
-    constructor({
+    constructor ({
         mongoDatabaseManager,
         mongoCollectionManager,
         updatedBefore,
@@ -90,7 +90,7 @@ class UpdateCollectionsRunner {
      * @description Creates config for the target cluster using connection string
      * @returns {Object}
      */
-    getTargetClusterConfig() {
+    getTargetClusterConfig () {
         const mongoUrl = encodeURI(`mongodb+srv://${process.env.TARGET_CLUSTER_USERNAME}:${process.env.TARGET_CLUSTER_PASSWORD}@${process.env.TARGET_CLUSTER_MONGO_URL}`);
         const db_name = process.env.TARGET_DB_NAME;
         this.adminLogger.logInfo(
@@ -111,7 +111,7 @@ class UpdateCollectionsRunner {
      * @description Creates config for the source cluster using connection string
      * @returns {Object}
      */
-    getSourceClusterConfig() {
+    getSourceClusterConfig () {
         const mongoUrl = encodeURI(`mongodb+srv://${process.env.SOURCE_CLUSTER_USERNAME}:${process.env.SOURCE_CLUSTER_PASSWORD}@${process.env.SOURCE_CLUSTER_MONGO_URL}`);
         const db_name = process.env.SOURCE_DB_NAME;
         this.adminLogger.logInfo(
@@ -131,7 +131,7 @@ class UpdateCollectionsRunner {
      * @param {Array} collectionList
      * @return {Array}
      */
-    getListOfCollections(collectionList) {
+    getListOfCollections (collectionList) {
         const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
@@ -154,7 +154,7 @@ class UpdateCollectionsRunner {
     /**
      * Runs a loop to process all the documents.
      */
-    async processAsync() {
+    async processAsync () {
         // If idabove is to be used and but collections is not provided or collections contains multiple values return
         if (this._idAbove && (!this.collections || this.collections.length > 1)) {
             this.adminLogger.logError(

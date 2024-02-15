@@ -16,7 +16,7 @@ const { DelinkProaPersonPatientRunner } = require('../runners/delinkProaPersonPa
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */

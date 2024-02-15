@@ -8,7 +8,7 @@ const env = require('var');
  * @param {string | Buffer | object} payload
  * @return {string}
  */
-function createToken(key, kid, payload) {
+function createToken (key, kid, payload) {
     return jwt.sign(payload, key, {
         noTimestamp: true,
         algorithm: 'RS256',
@@ -23,7 +23,7 @@ function createToken(key, kid, payload) {
  * @param {{noTimestamp: boolean, algorithm: string, header: { alg: string, kid: string}}} payload
  * @return {string}
  */
-function createSymmetricToken(key, payload) {
+function createSymmetricToken (key, payload) {
     return jwt.sign(payload, key, {
         noTimestamp: true,
         algorithm: 'HS256',

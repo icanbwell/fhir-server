@@ -14,7 +14,7 @@ class CustomOperationsController {
      * @param {FhirResponseWriter} fhirResponseWriter
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor({
+    constructor ({
                     postRequestProcessor,
                     fhirOperationsManager,
                     fhirResponseWriter,
@@ -47,7 +47,7 @@ class CustomOperationsController {
      * @description Controller for all POST operations
      * @param {name: string, resourceType: string}
      */
-    operationsPost(
+    operationsPost (
         {
             name,
             resourceType
@@ -94,7 +94,7 @@ class CustomOperationsController {
      * @description Controller for all DELETE operations
      * @param {name: string, resourceType: string}
      */
-    operationsDelete(
+    operationsDelete (
         {
             name,
             resourceType
@@ -133,7 +133,7 @@ class CustomOperationsController {
      * @description Controller for all GET operations
      * @param {name: string, resourceType: string}
      */
-    operationsGet(
+    operationsGet (
         {
             name,
             resourceType

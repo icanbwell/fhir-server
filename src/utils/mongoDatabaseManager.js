@@ -53,7 +53,7 @@ class MongoDatabaseManager {
      * constructor
      * @param {MongoDatabaseManagerProps} params
      */
-    constructor({ configManager }) {
+    constructor ({ configManager }) {
 
         /**
          * @type {ConfigManager}
@@ -66,7 +66,7 @@ class MongoDatabaseManager {
      * Gets client db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getClientDbAsync() {
+    async getClientDbAsync () {
         if (!clientDb) {
             await this.connectAsync();
         }
@@ -77,7 +77,7 @@ class MongoDatabaseManager {
      * Gets audit db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getAuditDbAsync() {
+    async getAuditDbAsync () {
         if (!auditClientDb) {
             await this.connectAsync();
         }
@@ -88,7 +88,7 @@ class MongoDatabaseManager {
      * Gets audit event read only db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getAuditReadOnlyDbAsync() {
+    async getAuditReadOnlyDbAsync () {
         if (!auditReadOnlyClientDb) {
             await this.connectAsync();
         }
@@ -99,7 +99,7 @@ class MongoDatabaseManager {
      * Gets access logs db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getAccessLogsDbAsync() {
+    async getAccessLogsDbAsync () {
         if (!accessLogsDb) {
             await this.connectAsync();
         }
@@ -112,7 +112,7 @@ class MongoDatabaseManager {
      * @param {Object} extraInfo
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseForResourceAsync({resourceType, extraInfo = {}}) {
+    async getDatabaseForResourceAsync ({resourceType, extraInfo = {}}) {
         const searchOperationNames = ['search', 'searchStreaming', 'searchById'];
         if (resourceType === 'AuditEvent') {
             if (searchOperationNames.includes(extraInfo.currentOperationName)) {
@@ -127,26 +127,26 @@ class MongoDatabaseManager {
      * Gets GridFs Bucket
      * @returns {Promise<import('mongodb').GridFSBucket>}
      */
-    async getGridFsBucket() {
+    async getGridFsBucket () {
         if (!gridFSBucket) {
             gridFSBucket = new GridFSBucket(await this.getClientDbAsync());
         }
         return gridFSBucket;
     }
 
-    async getClientConfigAsync() {
+    async getClientConfigAsync () {
         return mongoConfig;
     }
 
-    async getAuditConfigAsync() {
+    async getAuditConfigAsync () {
         return auditEventMongoConfig;
     }
 
-    async getAuditReadOnlyConfigAsync() {
+    async getAuditReadOnlyConfigAsync () {
         return auditEventReadOnlyMongoConfig;
     }
 
-    async getAccessLogsConfigAsync() {
+    async getAccessLogsConfigAsync () {
         return accessLogsMongoConfig;
     }
 
@@ -155,7 +155,7 @@ class MongoDatabaseManager {
      * @param {Object} clientConfig
      * @returns {Promise<import('mongodb').MongoClient>}
      */
-    async createClientAsync(clientConfig) {
+    async createClientAsync (clientConfig) {
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             clientConfig.options.monitorCommands = true;
             await logSystemEventAsync(
@@ -210,7 +210,7 @@ class MongoDatabaseManager {
     /**
      * @return {Promise<void>}
      */
-    async connectAsync() {
+    async connectAsync () {
         if (clientConnection) {
             return;
         }
@@ -241,7 +241,7 @@ class MongoDatabaseManager {
     /**
      * @return {Promise<void>}
      */
-    async dropDatabasesAsync() {
+    async dropDatabasesAsync () {
         // not implemented for production but can be implemented by sub-classes for tests
     }
 
@@ -250,7 +250,7 @@ class MongoDatabaseManager {
      * @param {import('mongodb').MongoClient} client
      * @returns {Promise<void>}
      */
-    async disconnectClientAsync(client) {
+    async disconnectClientAsync (client) {
         if (client) {
             await client.close(true);
         }
@@ -260,7 +260,7 @@ class MongoDatabaseManager {
      * disconnects all global connections
      * @returns {Promise<void>}
      */
-    async disconnectAsync() {
+    async disconnectAsync () {
         if (clientConnection) {
             await this.disconnectClientAsync(clientConnection);
         }

@@ -22,7 +22,7 @@ class KafkaClient {
     /**
      * @param {ConfigManager} configManager
      */
-    constructor({ configManager }) {
+    constructor ({ configManager }) {
         /**
          * @type {ConfigManager}
          */
@@ -42,7 +42,7 @@ class KafkaClient {
      * returns config for kafka
      * @return {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
      */
-    getConfigAsync() {
+    getConfigAsync () {
         const sasl = this.configManager.kafkaUseSasl ? {
             // https://kafka.js.org/docs/configuration#sasl
             mechanism: this.configManager.kafkaAuthMechanism,
@@ -78,7 +78,7 @@ class KafkaClient {
      *
      * @param {InitProps}
      */
-    init({ clientId, brokers, ssl, sasl }) {
+    init ({ clientId, brokers, ssl, sasl }) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
@@ -120,7 +120,7 @@ class KafkaClient {
     /**
      * Disconnects the kafka producer
      */
-    async disconnect() {
+    async disconnect () {
         if (this.producerConnected) {
             await this.producer.disconnect();
         }
@@ -132,7 +132,7 @@ class KafkaClient {
      * @param {KafkaClientMessage[]} messages
      * @return {Promise<void>}
      */
-    async sendMessagesAsync(topic, messages) {
+    async sendMessagesAsync (topic, messages) {
         const maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
 
@@ -189,7 +189,7 @@ class KafkaClient {
      * @param {KafkaClientMessage[]} messages
      * @return {Promise<void>}
      */
-    async sendMessagesAsyncHelper(topic, messages) {
+    async sendMessagesAsyncHelper (topic, messages) {
         if (!this.producerConnected) {
             try {
                 await this.producer.connect();
@@ -268,7 +268,7 @@ class KafkaClient {
      * @param label
      * @returns {Promise<void>}
      */
-    waitForConsumerToJoinGroupAsync(consumer, {maxWait = 10000, label = ''} = {}) {
+    waitForConsumerToJoinGroupAsync (consumer, {maxWait = 10000, label = ''} = {}) {
         return new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 consumer.disconnect().then(() => {
@@ -296,7 +296,7 @@ class KafkaClient {
      * @param {function(message: {key: string, value: string, headers: {key: string, value: string}[]}): Promise<void>} onMessageAsync
      * @return {Promise<void>}
      */
-    async receiveMessagesAsync({consumer, topic, fromBeginning = false, onMessageAsync}) {
+    async receiveMessagesAsync ({consumer, topic, fromBeginning = false, onMessageAsync}) {
         try {
             await consumer.connect();
         } catch (e) {
@@ -342,7 +342,7 @@ class KafkaClient {
      * @param {import('kafkajs').Consumer} consumer
      * @returns {Promise<void>}
      */
-    async removeConsumerAsync({consumer}) {
+    async removeConsumerAsync ({consumer}) {
         await consumer.disconnect();
     }
 
@@ -350,7 +350,7 @@ class KafkaClient {
      * @param {string} groupId
      * @returns {Promise<import('kafkajs').Consumer>}
      */
-    async createConsumerAsync({groupId}) {
+    async createConsumerAsync ({groupId}) {
         return this.client.consumer({groupId: groupId});
     }
 

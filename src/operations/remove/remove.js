@@ -32,7 +32,7 @@ class RemoveOperation {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             auditLogger,
@@ -109,7 +109,7 @@ class RemoveOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async removeAsync({requestInfo, parsedArgs, resourceType}) {
+    async removeAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

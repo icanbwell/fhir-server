@@ -16,7 +16,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor({signal, contentType, highWaterMark, configManager, response}) {
+    constructor ({signal, contentType, highWaterMark, configManager, response}) {
         super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark, response});
         /**
          * @type {AbortSignal}
@@ -38,7 +38,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -72,7 +72,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _flush(callback) {
+    _flush (callback) {
         if (this.configManager.logStreamSteps) {
             logInfo('FhirResourceNdJsonWriter: _flush', {});
         }
@@ -85,14 +85,14 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {OperationOutcome} operationOutcome
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
-    writeOperationOutcome({operationOutcome, encoding}) {
+    writeOperationOutcome ({operationOutcome, encoding}) {
         // this is an unexpected error so set statuscode 500
         this.response.statusCode = 500;
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         this.push(operationOutcomeJson + '\n', encoding);
     }
 
-    getContentType() {
+    getContentType () {
         return this._contentType;
     }
 }

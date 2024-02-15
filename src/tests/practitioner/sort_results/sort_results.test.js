@@ -22,7 +22,7 @@ describe('PractitionerReturnIdTests', () => {
         await commonAfterEach();
     });
 
-    function sleep(milliseconds) {
+    function sleep (milliseconds) {
         const date = Date.now();
         let currentDate = null;
         do {

@@ -22,7 +22,7 @@ class AdminPersonPatientDataManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
-    constructor(
+    constructor (
         {
             fhirOperationsManager,
             everythingOperation,
@@ -69,7 +69,7 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePatientDataGraphAsync({req, res, patientId, responseStreamer, method = 'DELETE'}) {
+    async deletePatientDataGraphAsync ({req, res, patientId, responseStreamer, method = 'DELETE'}) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
@@ -111,7 +111,7 @@ class AdminPersonPatientDataManager {
      * @param {Bundle} bundle
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksFromOtherPersonsAsync({requestId, responseStreamer, bundle}) {
+    async removeLinksFromOtherPersonsAsync ({requestId, responseStreamer, bundle}) {
         try {
             /**
              * @type {DatabaseQueryManager}
@@ -162,7 +162,7 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePersonDataGraphAsync({req, res, personId, responseStreamer, method = 'DELETE' }) {
+    async deletePersonDataGraphAsync ({req, res, personId, responseStreamer, method = 'DELETE' }) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
@@ -204,7 +204,7 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksToResourceTypeAsync(
+    async removeLinksToResourceTypeAsync (
         {
             requestId,
             bundle,

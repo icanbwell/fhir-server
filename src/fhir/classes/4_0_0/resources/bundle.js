@@ -29,7 +29,7 @@ class Bundle extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -362,7 +362,7 @@ class Bundle extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Bundle';
     }
 
@@ -385,7 +385,7 @@ class Bundle extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Bundle}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -427,7 +427,7 @@ class Bundle extends Resource {
      * @description creates a copy of this resource
      * @returns {Bundle}
     */
-    clone() {
+    clone () {
         return new Bundle(this.toJSONInternal());
     }
 
@@ -436,7 +436,7 @@ class Bundle extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -460,7 +460,7 @@ class Bundle extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -472,7 +472,7 @@ class Bundle extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,

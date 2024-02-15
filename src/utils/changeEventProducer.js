@@ -36,7 +36,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      *
      * @param {Params}
      */
-    constructor({
+    constructor ({
         kafkaClient,
         resourceManager,
         patientChangeTopic,
@@ -90,7 +90,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * This map stores an entry per message id
      * @return {Map<string, Object>} id, resource
      */
-    getPatientMessageMap() {
+    getPatientMessageMap () {
         return this.patientMessageMap;
     }
 
@@ -98,7 +98,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * This map stores an entry per consent id
      * @return {Map<string, Object>} id, resource
      */
-    getConsentMessageMap() {
+    getConsentMessageMap () {
         return this.consentMessageMap;
     }
 
@@ -114,7 +114,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @return {AuditEvent}
      * @private
      */
-    _createMessage({
+    _createMessage ({
                        requestId,
                        id,
                        timestamp,
@@ -181,7 +181,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientCreateAsync({requestId, patientId, timestamp, sourceType}) {
+    async onPatientCreateAsync ({requestId, patientId, timestamp, sourceType}) {
         const isCreate = true;
 
         const resourceType = 'Patient';
@@ -206,7 +206,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync({requestId, patientId, timestamp, sourceType}) {
+    async onPatientChangeAsync ({requestId, patientId, timestamp, sourceType}) {
         const isCreate = false;
 
         const resourceType = 'Patient';
@@ -235,7 +235,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentCreateAsync ({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -260,7 +260,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onConsentChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentChangeAsync ({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -290,7 +290,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({requestId, eventType, resourceType, doc}) {
         try {
             /**
              * @type {string}
@@ -384,7 +384,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * flushes the change event buffer
      * @return {Promise<void>}
      */
-    async flushAsync() {
+    async flushAsync () {
         const patientMessageMap = this.getPatientMessageMap();
         if (!env.ENABLE_EVENTS_KAFKA) {
             patientMessageMap.clear();

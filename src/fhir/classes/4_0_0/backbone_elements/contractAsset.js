@@ -33,7 +33,7 @@ class ContractAsset extends Element {
      * @param {unsignedInt[]|undefined} [securityLabelNumber],
      * @param {ContractValuedItem[]|undefined} [valuedItem],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -463,7 +463,7 @@ class ContractAsset extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -493,7 +493,7 @@ class ContractAsset extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.scope) { await this.scope.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -513,7 +513,7 @@ class ContractAsset extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

@@ -11,7 +11,7 @@ class NonResourceEntityAndContained extends EntityAndContainedBase {
      * @param {Object} item
      * @param {EntityAndContainedBase[]} containedEntries
      */
-    constructor({includeInOutput, item, containedEntries}) {
+    constructor ({includeInOutput, item, containedEntries}) {
         super({includeInOutput});
         /**
          * @type {*}

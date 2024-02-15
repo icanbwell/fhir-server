@@ -19,7 +19,7 @@ const queryWithIndexHint2 = fs.readFileSync(
 );
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         // noinspection JSValidateTypes
         return customIndexes;
     }

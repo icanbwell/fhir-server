@@ -14,7 +14,7 @@ class BwellPersonFinder {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory
         }
@@ -31,7 +31,7 @@ class BwellPersonFinder {
      * @param {string} patientId
      * @return {Promise<string>}
      */
-    async getBwellPersonIdAsync({ patientId}) {
+    async getBwellPersonIdAsync ({ patientId}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -49,7 +49,7 @@ class BwellPersonFinder {
      * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean, securityTags?: string[] }} options List of patient and proxy-patient References
      * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>} Returns map with key as patientId and value as next level persons-id
      */
-    async getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject, securityTags }) {
+    async getImmediatePersonIdsOfPatientsAsync ({ patientReferences, asObject, securityTags }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -68,7 +68,7 @@ class BwellPersonFinder {
      * @param {GetImmediatePersonIdsHelperProps}
      * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>} Returns a map of patientRefs -> array of immediate person uuid refs
      */
-    async getImmediatePersonIdHelperAsync({ references, databaseQueryManager, asObject, securityTags }) {
+    async getImmediatePersonIdHelperAsync ({ references, databaseQueryManager, asObject, securityTags }) {
         if (!references || Object.keys(references).length === 0) {
             return new Map();
         }
@@ -201,7 +201,7 @@ class BwellPersonFinder {
      * @param {string[]} referencesToSearchFrom references to search from If can be uuid reference or sourceId reference
      * @return {string[]} references linked to given person
      */
-    getAllLinkedReferencesFromPerson(person, referencesToSearchFrom) {
+    getAllLinkedReferencesFromPerson (person, referencesToSearchFrom) {
         /** @type {string[]} */
         const linkedIds = [];
 
@@ -247,7 +247,7 @@ class BwellPersonFinder {
      * @param {Set} visitedSubjects subjects that have already been visited (to avoid infinite loops)
      * @return {Promise<string>}
      */
-    async searchForBwellPersonAsync({currentSubject, databaseQueryManager, visitedSubjects}) {
+    async searchForBwellPersonAsync ({currentSubject, databaseQueryManager, visitedSubjects}) {
         if (visitedSubjects.has(currentSubject)) {
             return null;
         }
@@ -284,7 +284,7 @@ class BwellPersonFinder {
      * @param {Resource} person
      * @returns {boolean}
      */
-    isBwellPerson(person) {
+    isBwellPerson (person) {
         return person.meta.security &&
             person.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&
             person.meta.security.find(s => s.system === SecurityTagSystem.owner && s.code === BwellMasterPersonCode);

@@ -10,7 +10,7 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { PRACTITIONER_SOURCE_OWNER_MAP } = require('../runners/constants');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
-function fixPractitionerResource(resource, fixMultipleOwners) {
+function fixPractitionerResource (resource, fixMultipleOwners) {
     const security = resource.meta.security || [];
     if (!security.length) {
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
@@ -67,7 +67,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
     return resource;
 }
 
-function fixResource(resource) {
+function fixResource (resource) {
     const security = resource.meta.security || [];
     if (!security.length) {
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
@@ -96,7 +96,7 @@ function fixResource(resource) {
     return resource;
 }
 
-function fixMultipleAuthorities(resource, fixMultipleOwners) {
+function fixMultipleAuthorities (resource, fixMultipleOwners) {
     const resourceFixFnMap = {
         'Practitioner': fixPractitionerResource
     };

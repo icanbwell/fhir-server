@@ -37,7 +37,7 @@ class AuditLogger {
      *
      * @param {params}
      */
-    constructor({
+    constructor ({
                     postRequestProcessor,
                     databaseBulkInserter,
                     configManager,
@@ -88,7 +88,7 @@ class AuditLogger {
      * @param {string[]} ids
      * @returns {Resource}
      */
-    createAuditEntry(
+    createAuditEntry (
         {
             requestInfo, operation,
             ids, resourceType, cleanedArgs
@@ -178,7 +178,7 @@ class AuditLogger {
      * @param {string[]} ids
      * @return {Promise<void>}
      */
-    async logAuditEntryAsync({
+    async logAuditEntryAsync ({
         requestInfo, base_version, resourceType, operation, args, ids
     }) {
         if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
@@ -222,7 +222,7 @@ class AuditLogger {
      * Flush
      * @return {Promise<void>}
      */
-    async flushAsync() {
+    async flushAsync () {
         if (this.queue.length === 0) {
             return;
         }

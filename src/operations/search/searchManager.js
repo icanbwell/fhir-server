@@ -54,7 +54,7 @@ class SearchManager {
      * @param {DataSharingManager} dataSharingManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             resourceLocatorFactory,
@@ -174,7 +174,7 @@ class SearchManager {
      * @param {'READ'|'WRITE'} operation
      * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
-    async constructQueryAsync(
+    async constructQueryAsync (
         {
             user,
             scope,
@@ -325,7 +325,7 @@ class SearchManager {
      * @param {Object} extraInfo
      * @returns {Promise<GetCursorResult>}
      */
-    async getCursorForQueryAsync(
+    async getCursorForQueryAsync (
         {
             resourceType,
             base_version,
@@ -566,7 +566,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @return {Promise<string[]>}
      */
-    async getPatientIdsByPersonIdAsync(
+    async getPatientIdsByPersonIdAsync (
         {
             base_version,
             personIdFromJwtToken
@@ -600,7 +600,7 @@ class SearchManager {
      * @param {boolean} isStreaming
      * @return {{options: Object}} columns selected and changed options
      */
-    handleCountOption({parsedArgs, options, isStreaming}) {
+    handleCountOption ({parsedArgs, options, isStreaming}) {
         /**
          * @type {number}
          */
@@ -629,7 +629,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
-    handleElementsQuery(
+    handleElementsQuery (
         {
             parsedArgs, columns, resourceType, options,
             // eslint-disable-next-line no-unused-vars
@@ -691,7 +691,7 @@ class SearchManager {
      * @param {number} maxMongoTimeMS
      * @return {Promise<number>}
      */
-    async handleGetTotalsAsync(
+    async handleGetTotalsAsync (
         {
             resourceType, base_version,
             query, maxMongoTimeMS
@@ -723,7 +723,7 @@ class SearchManager {
      * @param {Object} options
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
-    handleSortQuery(
+    handleSortQuery (
         {
             parsedArgs, columns, options
         }
@@ -770,7 +770,7 @@ class SearchManager {
      * @param {number} maxMongoTimeMS
      * @return {Promise<{query: Object, options: Object, actualQuery: (Object|Object[]), actualOptions: Object}>}
      */
-    async handleTwoStepSearchOptimizationAsync(
+    async handleTwoStepSearchOptimizationAsync (
         {
             resourceType,
             base_version,
@@ -834,7 +834,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
-    async readResourcesFromCursorAsync(
+    async readResourcesFromCursorAsync (
         {
             cursor, user, scope,
             parsedArgs, resourceType,
@@ -881,7 +881,7 @@ class SearchManager {
                 new Transform({
                     writableObjectMode: true,
 
-                    transform(chunk, encoding, callback) {
+                    transform (chunk, encoding, callback) {
                         if (ac.signal.aborted) {
                             callback();
                             return;
@@ -908,7 +908,7 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursorQuery
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
-    setCursorBatchSize({parsedArgs, cursorQuery}) {
+    setCursorBatchSize ({parsedArgs, cursorQuery}) {
         const cursorBatchSize = parsedArgs['_cursorBatchSize'] ?
             parseInt(parsedArgs['_cursorBatchSize']) :
             parseInt(env.MONGO_BATCH_SIZE);
@@ -923,7 +923,7 @@ class SearchManager {
      * @param {ParsedArgs} parsedArgs
      * @param {Object} options
      */
-    setDefaultLimit(
+    setDefaultLimit (
         {
             parsedArgs,
             options
@@ -946,7 +946,7 @@ class SearchManager {
      * @param {string | undefined} indexName
      * @return {{cursor: DatabasePartitionedCursor, indexHint: (string|null)}}
      */
-    setIndexHint(
+    setIndexHint (
         {
             mongoCollectionName,
             columns,
@@ -989,7 +989,7 @@ class SearchManager {
      * @param {string} defaultSortId
      * @returns {Promise<string[]>} ids of resources streamed
      */
-    async streamResourcesFromCursorAsync(
+    async streamResourcesFromCursorAsync (
         {
             requestId,
             cursor,
@@ -1027,7 +1027,7 @@ class SearchManager {
          */
         const ac = new AbortController();
 
-        function onResponseClose() {
+        function onResponseClose () {
             ac.abort();
         }
 
@@ -1143,7 +1143,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @return {Promise<string[]>}
      */
-    async getLinkedPatientsAsync(
+    async getLinkedPatientsAsync (
         {
             base_version, isUser, personIdFromJwtToken
         }
@@ -1168,7 +1168,7 @@ class SearchManager {
      * @description Validates if the correct arguments are being sent that will query AuditEvents.
      * @param {ParsedArgs} parsedArgs
      */
-    validateAuditEventQueryParameters(parsedArgs) {
+    validateAuditEventQueryParameters (parsedArgs) {
         const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
         // Validate all the required parameters are passed for AuditEvent.
         this.auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent);
@@ -1218,7 +1218,7 @@ class SearchManager {
      * @param {ParsedArgs} parsedArgs
      * @param {string[]|null} requiredFiltersForAuditEvent
      */
-    auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
+    auditEventValidateRequiredFilters (parsedArgs, requiredFiltersForAuditEvent) {
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
             if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
                 const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
@@ -1240,7 +1240,7 @@ class SearchManager {
      * @param {Object} queryParams
      * @returns {Object}
      */
-    getAuditEventValidDateOperationList(queryParams) {
+    getAuditEventValidDateOperationList (queryParams) {
         const allowedOperations = ['gt', 'ge', 'lt', 'le'];
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;

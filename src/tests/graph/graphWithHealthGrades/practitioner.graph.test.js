@@ -22,11 +22,11 @@ const {ConfigManager} = require('../../../utils/configManager');
 const {IndexProvider} = require('../../../indexes/indexProvider');
 
 class MockConfigManager extends ConfigManager {
-    get useAccessIndex() {
+    get useAccessIndex () {
         return true;
     }
 
-    get resourcesWithAccessIndex() {
+    get resourcesWithAccessIndex () {
         return ['all'];
     }
 }
@@ -36,7 +36,7 @@ class MockIndexProvider extends IndexProvider {
      * @param {string[]} accessCodes
      * @return {boolean}
      */
-    hasIndexForAccessCodes({accessCodes}) {
+    hasIndexForAccessCodes ({accessCodes}) {
         return accessCodes.every(a => a === 'client');
     }
 }

@@ -21,7 +21,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      *
      * @param {constructorProps}
      */
-    constructor({
+    constructor ({
         personMatchManager,
         patientPersonMatching,
         clientSourceAssigningAuthorities,
@@ -75,7 +75,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * Fetch proa patient uuid to id & owner map
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async getProaPatientsIdMap({ mongoConfig }) {
+    async getProaPatientsIdMap ({ mongoConfig }) {
         this.adminLogger.logInfo('Fetching Proa patients from db');
         const collectionName = 'Patient_4_0_0';
         /**
@@ -141,7 +141,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             const operations = [];
             /**
@@ -219,7 +219,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @param {Map<string, { id: string, _uuid: string, owner: string }[]>} personToMasterPersonMap
      * @returns {Promise<ids: string, uuids: string, owners: string, matchingResult: string>}
      */
-    async fetchMasterPersonInfo(personInfoList, personToMasterPersonMap) {
+    async fetchMasterPersonInfo (personInfoList, personToMasterPersonMap) {
         const clientMasterPersonInfo = [];
         for (const personInfo of personInfoList) {
             const masterPersons = personToMasterPersonMap.get(`Person/${personInfo._uuid}`) || [];
@@ -293,7 +293,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<Map<string, { id: string, _uuid: string, owner: string }[]>>}
      */
-    async getPersonToMasterPersonMap({ mongoConfig }) {
+    async getPersonToMasterPersonMap ({ mongoConfig }) {
         this.adminLogger.logInfo('Fetching Master persons from db');
         const collectionName = 'Person_4_0_0';
         /**
@@ -366,7 +366,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * @param {{ id: string; _uuid: string; }[]} proaPersonInfo
      * @returns {Promise<string>}
      */
-    async getProaPatientToPersonMatch(patientUuid, personInfo) {
+    async getProaPatientToPersonMatch (patientUuid, personInfo) {
         const proaPersonMatchingScores = [];
         for (const person of personInfo) {
             try {
@@ -396,7 +396,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * Initialize write stream
      * @returns {void}
      */
-    initializeWriteStream() {
+    initializeWriteStream () {
         this.writeStream = fs.createWriteStream('proa_person_patient_linkage_report.csv');
 
         // Write the CSV content to a file
@@ -426,7 +426,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             /**
              * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
@@ -500,7 +500,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
      * Creates CSV file with the data fetched from db
      * @returns {Promise<void>}
      */
-    async createCSV() {
+    async createCSV () {
         /**
          * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
          */

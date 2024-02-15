@@ -38,7 +38,7 @@ describe('JSON 2 CSV', () => {
     });
     test('json2csv tests with custom Transform', async () => {
         class MyTransform extends Transform {
-            constructor() {
+            constructor () {
                 const opts = {
                     transforms: [
                         flatten({objects: true, arrays: true, separator: '_'})
@@ -59,7 +59,7 @@ describe('JSON 2 CSV', () => {
     });
     test('json2csv tests with custom Transform in objectMode', async () => {
         class MyTransform extends Transform {
-            constructor() {
+            constructor () {
                 const opts = {
                     transforms: [
                         flatten({objects: true, arrays: true, separator: '_'})
@@ -75,7 +75,7 @@ describe('JSON 2 CSV', () => {
                 super(opts, transformOpts, asyncOpts);
             }
 
-            _transform(chunk, encoding, done) {
+            _transform (chunk, encoding, done) {
                 super._transform(chunk, encoding, done);
             }
         }
@@ -85,7 +85,7 @@ describe('JSON 2 CSV', () => {
 
         const objectReadableStream = new Readable({
             objectMode: true,
-            read() {
+            read () {
                 // Push your object(s) to the stream
                 this.push(practitionerResource);
                 this.push(null); // Signal the end of the stream
@@ -102,7 +102,7 @@ describe('JSON 2 CSV', () => {
 
         const objectReadableStream = new Readable({
             objectMode: true,
-            read() {
+            read () {
                 // Push your object(s) to the stream
                 this.push(new Practitioner(practitionerResource));
                 this.push(null); // Signal the end of the stream
@@ -129,7 +129,7 @@ describe('JSON 2 CSV', () => {
 
         const objectReadableStream = new Readable({
             objectMode: true,
-            read() {
+            read () {
                 // Push your object(s) to the stream
                 this.push(new Practitioner(practitionerResource));
                 this.push(new Practitioner(practitionerResource2));

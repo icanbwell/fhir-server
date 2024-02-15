@@ -46,7 +46,7 @@ class UpdateOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             postSaveProcessor,
@@ -148,7 +148,7 @@ class UpdateOperation {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async updateAsync({requestInfo, parsedArgs, resourceType}) {
+    async updateAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

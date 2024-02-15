@@ -4,12 +4,12 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     DocumentReferenceContextEncounter: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },
     DocumentReferenceContextRelatedV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         }
     },

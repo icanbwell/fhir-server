@@ -6,7 +6,7 @@ class PreSaveManager {
      * constructor
      * @param {PreSaveHandler[]} preSaveHandlers
      */
-    constructor(
+    constructor (
         {
             preSaveHandlers
         }
@@ -22,7 +22,7 @@ class PreSaveManager {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
-    async preSaveAsync(resource) {
+    async preSaveAsync (resource) {
         for (const preSaveHandler of this.preSaveHandlers) {
             resource = await preSaveHandler.preSaveAsync({resource});
             assertTypeEquals(resource, Resource,

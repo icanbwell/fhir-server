@@ -17,7 +17,7 @@ const {csv2json} = require('csv42');
  * @property {function(Object): string} printReceived
  */
 
-function cleanMeta(resource) {
+function cleanMeta (resource) {
     assertIsValid(resource, 'resource is null');
     const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
     /**
@@ -57,7 +57,7 @@ function cleanMeta(resource) {
  * cleans request Id
  * @param {Object} request
  */
-function cleanRequestId(request) {
+function cleanRequestId (request) {
     if (request && request.id) {
         delete request.id;
     }
@@ -71,7 +71,7 @@ function cleanRequestId(request) {
  * @param {boolean} ignoreMetaTags
  * @returns {boolean}
  */
-function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
+function compareBundles ({body, expected, fnCleanResource, ignoreMetaTags = false}) {
     // logInfo(body);
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -160,7 +160,7 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
  * @param [fnCleanResource]
  * @returns {{actual, pass: boolean, expected, message: {(): string, (): string}}}
  */
-function checkContent({actual, expected, utils, options, expand, fnCleanResource}) {
+function checkContent ({actual, expected, utils, options, expand, fnCleanResource}) {
     let pass = false;
     if (!(Array.isArray(actual)) && actual.resourceType === 'Bundle') {
         if (!Array.isArray(expected)) {
@@ -218,7 +218,7 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveResponse(resp, expectedIn, fnCleanResource) {
+function toHaveResponse (resp, expectedIn, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
@@ -352,7 +352,7 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
+function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
@@ -474,7 +474,7 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
  * @param {import('http').ServerResponse} resp
  * @param {number} expectedStatusCode
  */
-function toHaveStatusCode(resp, expectedStatusCode) {
+function toHaveStatusCode (resp, expectedStatusCode) {
     const pass = resp.status === expectedStatusCode;
     const message = pass ? () =>
             `Status Code did match: ${resp.text}`
@@ -486,7 +486,7 @@ function toHaveStatusCode(resp, expectedStatusCode) {
  *
  * @param {import('http').ServerResponse} resp
  */
-function toHaveStatusOk(resp) {
+function toHaveStatusOk (resp) {
     return toHaveStatusCode(resp, 200);
 }
 
@@ -495,7 +495,7 @@ function toHaveStatusOk(resp) {
  * @param {import('http').ServerResponse} resp
  * @param {Object[]|Object} checks
  */
-function toHaveMergeResponse(resp, checks) {
+function toHaveMergeResponse (resp, checks) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }
@@ -536,7 +536,7 @@ function toHaveMergeResponse(resp, checks) {
  * @param {import('http').ServerResponse} resp
  * @param {number} expected
  */
-function toHaveResourceCount(resp, expected) {
+function toHaveResourceCount (resp, expected) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }

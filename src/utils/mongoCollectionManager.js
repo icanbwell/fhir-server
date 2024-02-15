@@ -19,7 +19,7 @@ class MongoCollectionManager {
      * @param {ConfigManager} configManager
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({indexManager, configManager, mongoDatabaseManager}) {
+    constructor ({indexManager, configManager, mongoDatabaseManager}) {
         /**
          * @type {IndexManager}
          */
@@ -48,7 +48,7 @@ class MongoCollectionManager {
      * adds existing collections in db to databaseCollectionStatusMap
      * @return {Promise<void>}
      */
-    async addExisitingCollectionsToMap() {
+    async addExisitingCollectionsToMap () {
         if (this.databaseCollectionNameSet === null) {
             const fhirDb = await this.mongoDatabaseManager.getClientDbAsync();
             const auditDb = await this.mongoDatabaseManager.getAuditDbAsync();
@@ -70,7 +70,7 @@ class MongoCollectionManager {
      * @param {string} collectionName
      * @return {Promise<import('mongodb').Collection>}
      */
-    async getOrCreateCollectionAsync({db, collectionName}) {
+    async getOrCreateCollectionAsync ({db, collectionName}) {
         assertIsValid(db !== undefined);
         assertIsValid(collectionName !== undefined);
 
@@ -105,7 +105,7 @@ class MongoCollectionManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<string[]>}
      */
-    async getAllCollectionNames({db}) {
+    async getAllCollectionNames ({db}) {
         /**
          * @type {string[]}
          */
@@ -124,7 +124,7 @@ class MongoCollectionManager {
      * @param {String} collectionName
      * @returns {boolean}
      */
-    isNotSystemCollection(collectionName) {
+    isNotSystemCollection (collectionName) {
         const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
         return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }
@@ -136,7 +136,7 @@ class MongoCollectionManager {
      * @param {string} groupKey
      * @returns {Promise<number>}
      */
-    async distinctCountAsync({collection, query, groupKey}) {
+    async distinctCountAsync ({collection, query, groupKey}) {
         /**
          * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
          */
@@ -171,7 +171,7 @@ class MongoCollectionManager {
      * @param {import('mongodb').Filter<import('mongodb').Document>} query
      * @returns {Promise<number|null>}
      */
-    async countDocumentsWithFilterAsync({collection, query}) {
+    async countDocumentsWithFilterAsync ({collection, query}) {
         /**
          * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
          */
@@ -203,7 +203,7 @@ class MongoCollectionManager {
      * @param {number|undefined} [limit]
      * @returns {Promise<{name: string, count: number}[]>}
      */
-    async getDuplicateItems({collection, query, groupKey, limit = 100000000}) {
+    async getDuplicateItems ({collection, query, groupKey, limit = 100000000}) {
         /**
          * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
          */
@@ -254,7 +254,7 @@ class MongoCollectionManager {
      * @param {string} collectionName
      * @return {Promise<import('mongodb').DeleteResult>}
      */
-    async clearCollectionAsync({db, collectionName}) {
+    async clearCollectionAsync ({db, collectionName}) {
         /**
          * @type {Collection<Document>}
          */

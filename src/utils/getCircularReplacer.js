@@ -3,7 +3,7 @@
  * inspired by: https://bobbyhadz.com/blog/javascript-typeerror-converting-circular-structure-to-json
  * @return {function(string, *): *}
  */
-function getCircularReplacer() {
+function getCircularReplacer () {
     const seen = new WeakSet();
     return (key, value) => {
         if (value instanceof RegExp) {

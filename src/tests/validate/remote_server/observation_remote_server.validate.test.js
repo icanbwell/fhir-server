@@ -17,7 +17,7 @@ const fhirValidationUrl = 'http://foo/fhir';
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
-    get fhirValidationUrl() {
+    get fhirValidationUrl () {
         return fhirValidationUrl;
     }
 }

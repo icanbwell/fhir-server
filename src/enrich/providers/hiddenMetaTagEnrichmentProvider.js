@@ -8,7 +8,7 @@ class HiddenMetaTagEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({resources, parsedArgs}) {
         // if id is specified, return all resources
         if (parsedArgs.id) {
             return resources;
@@ -25,7 +25,7 @@ class HiddenMetaTagEnrichmentProvider extends EnrichmentProvider {
     }
 
     // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
         // if id is specified, return all resources
         if (parsedArgs.id) {
             return entries;

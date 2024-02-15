@@ -8,7 +8,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
      * constructor
      * @param {ResourceConverterFactory} resourceConverterFactory
      */
-    constructor({resourceConverterFactory}) {
+    constructor ({resourceConverterFactory}) {
         super();
         /**
          * @type {ResourceConverterFactory}
@@ -24,7 +24,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
      * @returns {Promise<ChatGPTDocument[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
+    async convertBundleToDocumentsAsync ({parentResourceType, parentUuid, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}

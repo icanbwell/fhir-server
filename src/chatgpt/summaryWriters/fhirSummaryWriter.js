@@ -23,7 +23,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @param {ConfigManager} configManager
      * @param {PatientFilterManager} patientFilterManager
      */
-    constructor(
+    constructor (
         {
             fhirToDocumentConverter,
             vectorStoreFactory,
@@ -66,7 +66,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({requestId, eventType, resourceType, doc}) {
         try {
             if (!this.configManager.writeFhirSummaryToVectorStore) {
                 return;
@@ -171,7 +171,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @returns {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async flushAsync() {
+    async flushAsync () {
     }
 }
 

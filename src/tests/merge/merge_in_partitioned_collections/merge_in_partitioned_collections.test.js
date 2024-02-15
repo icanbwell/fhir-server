@@ -13,7 +13,7 @@ class MockConfigManager extends ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources() {
+    get partitionResources () {
         return ['AuditEvent'];
     }
 }

@@ -16,7 +16,7 @@ const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 }

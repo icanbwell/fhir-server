@@ -27,7 +27,7 @@ class ResourceValidator {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
-    constructor(
+    constructor (
         {
             configManager,
             remoteFhirValidator,
@@ -72,7 +72,7 @@ class ResourceValidator {
      * @param {string|undefined} profile
      * @returns {OperationOutcome | null}
      */
-    async validateResourceAsync(
+    async validateResourceAsync (
         {
             id,
             resourceType,
@@ -148,7 +148,7 @@ class ResourceValidator {
      * @param {string|undefined} profile
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
-    async validateResourceFromServerAsync(
+    async validateResourceFromServerAsync (
         {
             resourceBody,
             resourceName,
@@ -209,7 +209,7 @@ class ResourceValidator {
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer({ profile, resourceType }) {
+    async upsertProfileInRemoteServer ({ profile, resourceType }) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
@@ -341,7 +341,7 @@ class ResourceValidator {
      * @param {{ profileJson: Record<string, any>}} params
      * @returns {StructureDefinition}
      */
-    createProfileResourceFromJson({ profileJson }) {
+    createProfileResourceFromJson ({ profileJson }) {
         const profileResourceNew = new StructureDefinition(profileJson);
         if (!profileResourceNew.meta) {
             profileResourceNew.meta = new Meta({});

@@ -88,7 +88,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @param {Resource} resource
      * @returns
      */
-    async removeDuplicateLinks(resource) {
+    async removeDuplicateLinks (resource) {
         const linkSet = new Set();
         resource.link = resource.link.reduce((uniqueLinks, link) => {
             const reference = link?.target?._uuid;
@@ -107,7 +107,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         assertIsValid(doc.resourceType);
         /**
@@ -138,7 +138,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         return operations;
     }
 
-    async processBatch(uuidList) {
+    async processBatch (uuidList) {
         const query = {};
         try {
             this.adminLogger.logInfo(`Total resources being processed: ${uuidList.length}`);
@@ -170,7 +170,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents and remove duplicate person links
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         await this.init();
         this.startFromIdContainer.startFromId = '';
         const db = await this.mongoDatabaseManager.getClientDbAsync();

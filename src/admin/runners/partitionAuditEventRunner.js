@@ -25,7 +25,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {IndexManager} indexManager
      * @param {string} sourceCollection
      */
-    constructor({
+    constructor ({
                     mongoDatabaseManager,
                     mongoCollectionManager,
                     recordedAfter,
@@ -94,7 +94,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async copyRecordAsync(doc) {
+    async copyRecordAsync (doc) {
         const operations = [];
         const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
 
@@ -125,7 +125,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async setAccessIndexRecordAsync(doc) {
+    async setAccessIndexRecordAsync (doc) {
         const operations = [];
         const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
 
@@ -152,7 +152,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         const sourceCollectionName = this.sourceCollection;
         try {
             await this.init();

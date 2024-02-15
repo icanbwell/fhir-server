@@ -14,7 +14,7 @@ class FhirResourceCsvWriter extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor({signal, delimiter, contentType, highWaterMark, configManager}) {
+    constructor ({signal, delimiter, contentType, highWaterMark, configManager}) {
         /**
          * @type {import('@json2csv/node').Json2CSVBaseOptions}
          */
@@ -64,7 +64,7 @@ class FhirResourceCsvWriter extends Transform {
      * @param done
      * @private
      */
-    _transform(
+    _transform (
         chunk,
         encoding,
         done
@@ -81,10 +81,10 @@ class FhirResourceCsvWriter extends Transform {
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
     // eslint-disable-next-line no-unused-vars
-    writeOperationOutcome({operationOutcome, encoding}) {
+    writeOperationOutcome ({operationOutcome, encoding}) {
     }
 
-    getContentType() {
+    getContentType () {
         return this._contentType;
     }
 }

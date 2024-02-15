@@ -12,7 +12,7 @@ class EnrichmentManager {
      * constructor
      * @param {EnrichmentProvider[]} enrichmentProviders
      */
-    constructor({enrichmentProviders}) {
+    constructor ({enrichmentProviders}) {
         /**
          * @type {EnrichmentProvider[]}
          */
@@ -25,7 +25,7 @@ class EnrichmentManager {
      * @param {Resource[]} resources
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({resources, parsedArgs}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
@@ -53,7 +53,7 @@ class EnrichmentManager {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
         try {
             assertIsValid(entries !== null && entries !== undefined, 'entries is null');
             assertIsValid(Array.isArray(entries), 'entries is not an array');

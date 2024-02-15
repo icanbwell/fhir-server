@@ -13,7 +13,7 @@ class GetCursorResult {
      * @param {QueryItem|QueryItem[]} originalQuery
      * @param {import('mongodb').FindOneOptions|import('mongodb').FindOneOptions[]} originalOptions
      */
-    constructor(
+    constructor (
         {
             cursorBatchSize,
             cursor,

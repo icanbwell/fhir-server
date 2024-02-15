@@ -54,7 +54,7 @@ const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
  * @param {string|undefined|null} text
  * @return {boolean}
  */
-function isUuid(text) {
+function isUuid (text) {
     // uuidValidate does not support UUIDv7 yet: https://github.com/uuidjs/uuid/issues/580
     return text && (uuidValidate(text) || uuidRegex.test(text));
 }
@@ -64,7 +64,7 @@ function isUuid(text) {
  * @param uuid
  * @return {import('mongodb').BSON.UUID}
  */
-function convertToMongoUuid(uuid) {
+function convertToMongoUuid (uuid) {
     if (uuid instanceof UUID) {
         return uuid;
     }
@@ -76,7 +76,7 @@ function convertToMongoUuid(uuid) {
  * Converts a mongo uuid to a uuid string
  * @param {import('mongodb').BSON.UUID} uuid
  */
-function convertFromMongoUuid(uuid) {
+function convertFromMongoUuid (uuid) {
     if (uuid instanceof String) {
         return uuid;
     }

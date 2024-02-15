@@ -17,7 +17,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {string[]} preLoadCollections
      * @param {boolean} logUnresolvedReferencesToFile
      */
-    constructor({ preLoadCollections, logUnresolvedReferencesToFile, ...args }) {
+    constructor ({ preLoadCollections, logUnresolvedReferencesToFile, ...args }) {
         super(args);
 
         /**
@@ -45,7 +45,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {Resource} resource
      * @return {Promise<Reference>}
      */
-    async updateResourceReferenceAsync(resource, isHistoryDoc) {
+    async updateResourceReferenceAsync (resource, isHistoryDoc) {
         /**
          * @type {Set<string>}
          */
@@ -179,7 +179,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             /**
              * @type {boolean}
@@ -239,7 +239,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async addIndexesToCollection({ collectionName, mongoConfig }) {
+    async addIndexesToCollection ({ collectionName, mongoConfig }) {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         try {
@@ -280,7 +280,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {String[]}
      */
-    async getUuidsForMainResource({ collectionName, mongoConfig }) {
+    async getUuidsForMainResource ({ collectionName, mongoConfig }) {
         this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
         const result = [];
         /**
@@ -330,7 +330,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -432,7 +432,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async preloadReferencesAsync({ mongoConfig }) {
+    async preloadReferencesAsync ({ mongoConfig }) {
         const promises = [];
 
         if (this.preLoadCollections.length > 0 && this.preLoadCollections[0] === 'all') {
@@ -455,7 +455,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async cacheReferencesAsync({ mongoConfig, collectionName }) {
+    async cacheReferencesAsync ({ mongoConfig, collectionName }) {
         this.adminLogger.logInfo(`Starting reference caching for collection: ${collectionName}`);
         /**
          * @type {boolean}
@@ -530,7 +530,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {Resource} doc
      * @param {string} collectionName
      */
-    cacheReferenceFromResource({ doc, collectionName }) {
+    cacheReferenceFromResource ({ doc, collectionName }) {
         /**
          * @type {string}
          */
@@ -584,7 +584,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}

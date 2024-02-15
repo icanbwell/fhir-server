@@ -9,7 +9,7 @@ const async = require('async');
  * @param {[{pub: string, kid: string}]} certs
  * @return {Scope}
  */
-function jwksEndpoint(host, path, certs) {
+function jwksEndpoint (host, path, certs) {
     return nock(host)
         .persist()
         .get(`${path}`)
@@ -37,7 +37,7 @@ function jwksEndpoint(host, path, certs) {
  * @param {string} host
  * @return {Scope}
  */
-function jwksDiscoveryEndpoint(host) {
+function jwksDiscoveryEndpoint (host) {
     return nock(host)
         .persist()
         .get('/.well-known/openid-configuration')
@@ -60,7 +60,7 @@ function jwksDiscoveryEndpoint(host) {
  * @param {string} personId
  * @return {Scope}
  */
-function jwksUserInfoEndpoint({host, token, patientId, personId}) {
+function jwksUserInfoEndpoint ({host, token, patientId, personId}) {
     return nock(
         host,
         {

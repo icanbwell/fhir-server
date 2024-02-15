@@ -22,7 +22,7 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 class MockFixReferenceIdHapiRunner extends FixReferenceIdHapiRunner {
-    async updateRecordReferencesAsync(doc) {
+    async updateRecordReferencesAsync (doc) {
         throw new Error(`To test if the script fails while updating the references ${JSON.stringify(doc)}`);
     }
 }

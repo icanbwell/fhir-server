@@ -17,10 +17,10 @@ const schema = require('../fhir/generator/json/fhir.schema.json');
 const validatorConfig = {
     allErrors: true,
     logger: {
-        log: function log() {
+        log: function log () {
             // ok to not specify
         },
-        warn: function warn() {
+        warn: function warn () {
             // ok to not specify
         },
         error: console.error.bind(console)
@@ -37,7 +37,7 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {Object} resourceObj - fhir resource object
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource({resourceBody, resourceName, path, resourceObj = null}) {
+function validateResource ({resourceBody, resourceName, path, resourceObj = null}) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [

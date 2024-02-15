@@ -15,7 +15,6 @@
       "dot-notation": "off",
       "quote-props": "off",
       "camelcase": "off",
-      "space-before-function-paren": "off",
       "object-shorthand": "off",
       "no-tabs": "off",
       "no-multiple-empty-lines": "off",

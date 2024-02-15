@@ -54,7 +54,7 @@ class FhirOperationsManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
-    constructor(
+    constructor (
         {
             searchBundleOperation,
             searchStreamingOperation,
@@ -169,7 +169,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @return {FhirRequestInfo}
      */
-    getRequestInfo(req) {
+    getRequestInfo (req) {
         assertIsValid(req, 'req is null');
         /**
          * @type {string | null}
@@ -275,7 +275,7 @@ class FhirOperationsManager {
      * @param {string} operation
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType, headers, operation}) {
+    async getParsedArgsAsync ({args, resourceType, headers, operation}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
@@ -300,7 +300,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource[] | Resource} array of resources
      */
-    async search(args, {req}, resourceType) {
+    async search (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -331,7 +331,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource[] | Resource} array of resources
      */
-    async searchStreaming(args, {req, res}, resourceType) {
+    async searchStreaming (args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -355,7 +355,7 @@ class FhirOperationsManager {
             });
     }
 
-    parseParametersFromBody({req, combined_args}) {
+    parseParametersFromBody ({req, combined_args}) {
         let args = combined_args;
         if (req.body) {
             if (req.headers['content-type'] === fhirContentTypes.form_urlencoded) {
@@ -384,7 +384,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async searchById(args, {req}, resourceType) {
+    async searchById (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -413,7 +413,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    async create(args, {req}, resourceType) {
+    async create (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -446,7 +446,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async update(args, {req}, resourceType) {
+    async update (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -475,7 +475,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Resource | Resource[]}
      */
-    async merge(args, {req}, resourceType) {
+    async merge (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -505,7 +505,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @returns {Bundle}
      */
-    async everything(args, {req, res}, resourceType) {
+    async everything (args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -578,7 +578,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async remove(args, {req}, resourceType) {
+    async remove (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -606,7 +606,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async remove_by_query(args, {req}, resourceType) {
+    async remove_by_query (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -634,7 +634,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async searchByVersionId(args, {req}, resourceType) {
+    async searchByVersionId (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -663,7 +663,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async history(args, {req}, resourceType) {
+    async history (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -693,7 +693,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async historyById(args, {req}, resourceType) {
+    async historyById (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -722,7 +722,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async patch(args, {req}, resourceType) {
+    async patch (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -750,7 +750,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async validate(args, {req}, resourceType) {
+    async validate (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -780,7 +780,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Promise<Bundle>}
      */
-    async graph(args, {req, res}, resourceType) {
+    async graph (args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {Object}
@@ -837,7 +837,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
      */
-    async expand(args, {req}, resourceType) {
+    async expand (args, {req}, resourceType) {
         /**
          * combined args
          * @type {Object}

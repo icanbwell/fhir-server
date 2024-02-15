@@ -15,7 +15,7 @@ class RemoteFhirValidator {
      * @param {ConfigManager} configManager
      * @param {ProfileUrlMapper} ProfileUrlMapper
      */
-    constructor(
+    constructor (
         {
             configManager,
             profileUrlMapper
@@ -39,7 +39,7 @@ class RemoteFhirValidator {
      * @param {string} url
      * @returns {Promise<Object>}
      */
-    async fetchProfileAsync({url}) {
+    async fetchProfileAsync ({url}) {
         assertIsValid(url, 'url must be specified');
         const originalUrl = this.profileUrlMapper.getOriginalUrl(url);
         try {
@@ -71,7 +71,7 @@ class RemoteFhirValidator {
      * @param {Object} profileJson
      * @returns {Promise<void>}
      */
-    async updateProfileAsync({profileJson}) {
+    async updateProfileAsync ({profileJson}) {
         const fhirValidationUrl = this.configManager.fhirValidationUrl;
         assertIsValid(fhirValidationUrl, 'fhirValidationUrl must be specified');
         const url = new URL(fhirValidationUrl);
@@ -112,7 +112,7 @@ class RemoteFhirValidator {
      * @param {string|undefined} profile
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
-    async validateResourceAsync({resourceBody, resourceName, path, profile}) {
+    async validateResourceAsync ({resourceBody, resourceName, path, profile}) {
         if (resourceBody.resourceType !== resourceName) {
             return new OperationOutcome({
                 issue: [

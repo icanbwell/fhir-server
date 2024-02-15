@@ -15,7 +15,7 @@ class ReferenceQueryRewriter extends QueryRewriter {
      * @param {RewriteArgsAsyncOpt} opt
      * @return {Promise<import('../../operations/query/parsedArgs').ParsedArgs>}
      */
-    async rewriteArgsAsync({ parsedArgs }) {
+    async rewriteArgsAsync ({ parsedArgs }) {
         parsedArgs.parsedArgItems = parsedArgs.parsedArgItems.map((parsedArg) => {
             if (
                 (

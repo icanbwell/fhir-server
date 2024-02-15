@@ -24,7 +24,7 @@ class DataRequirementDateFilter extends Element {
      * @param {Period|undefined} [valuePeriod],
      * @param {Quantity|undefined} [valueDuration],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -206,7 +206,7 @@ class DataRequirementDateFilter extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -225,7 +225,7 @@ class DataRequirementDateFilter extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.valuePeriod) { await this.valuePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.valueDuration) { await this.valueDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -235,7 +235,7 @@ class DataRequirementDateFilter extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

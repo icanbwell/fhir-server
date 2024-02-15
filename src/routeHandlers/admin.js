@@ -22,7 +22,7 @@ const httpContext = require('express-http-context');
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync(
+async function showIndexesAsync (
     {
         req, container, res,
         filterToProblems
@@ -49,7 +49,7 @@ async function showIndexesAsync(
  * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
-async function synchronizeIndexesAsync(
+async function synchronizeIndexesAsync (
     {
         req,
         container,
@@ -75,7 +75,7 @@ async function synchronizeIndexesAsync(
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
-async function handleAdmin(
+async function handleAdmin (
     fnGetContainer,
     req,
     res

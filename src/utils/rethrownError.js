@@ -11,7 +11,7 @@ class RethrownError extends Error {
      * @param {Object|undefined} [args]
      * @param {string|undefined} [source]
      */
-    constructor({message, error, args, source}) {
+    constructor ({message, error, args, source}) {
         super(!message && error && error.message ? error.message : message);
 
         if (!message && error && error.message) {
@@ -62,7 +62,7 @@ class RethrownError extends Error {
      * returns list of resource not to be shown in error messages
      * @returns {string[]}
      */
-    getExcludedResources() {
+    getExcludedResources () {
         return env.LOG_EXCLUDE_RESOURCES ? env.LOG_EXCLUDE_RESOURCES.split(',') : [];
     }
 
@@ -70,7 +70,7 @@ class RethrownError extends Error {
      * remove sensitive resources from args passed
      * @param {Object|undefined} [args]
      */
-    removeExcludedResources(args) {
+    removeExcludedResources (args) {
         if (!args) {
             return;
         }
@@ -93,7 +93,7 @@ class RethrownError extends Error {
      * @param {Error} nested
      * @return {{value: string}|{get: (function(): string)}}
      */
-    buildStackDescriptor(oldStackDescriptor, nested) {
+    buildStackDescriptor (oldStackDescriptor, nested) {
         if (oldStackDescriptor.get) {
             return {
                 get: function () {
@@ -115,7 +115,7 @@ class RethrownError extends Error {
      * @param {Error} nested
      * @return {string}
      */
-    buildCombinedStacks(stack, nested) {
+    buildCombinedStacks (stack, nested) {
         if (nested) {
             stack = nested.stack + '\r\nCauses: ' + stack;
         }
@@ -128,7 +128,7 @@ class RethrownError extends Error {
  * @param {string} message
  * @param {Error} error
  */
-function reThrow({message, error}) {
+function reThrow ({message, error}) {
     throw new RethrownError({message, error});
 }
 

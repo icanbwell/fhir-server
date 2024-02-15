@@ -9,7 +9,7 @@ class AdminLogManager {
     /**
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({
+    constructor ({
         mongoDatabaseManager
     }) {
         /**
@@ -24,7 +24,7 @@ class AdminLogManager {
      * @param id
      * @returns {Promise<Object[]>}
      */
-    async getLogAsync(id) {
+    async getLogAsync (id) {
         try {
             if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
                 const accessLogsDb = await this.mongoDatabaseManager.getAccessLogsDbAsync();

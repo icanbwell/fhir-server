@@ -11,15 +11,15 @@ const {generateUUIDv5} = require('../../utils/uid.util');
 const {ConfigManager} = require('../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         return false;
     }
 }
@@ -28,7 +28,7 @@ class MockConfigManager extends ConfigManager {
  * Gets graph helper
  * @return {GraphHelper}
  */
-function getGraphHelper() {
+function getGraphHelper () {
     const container = createTestContainer((c) => {
         c.register('configManager', () => new MockConfigManager());
         return c;

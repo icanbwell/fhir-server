@@ -13,7 +13,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }) {
         super();
@@ -29,7 +29,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * returns whether the vector store is enabled
      * @returns {Promise<boolean>}
      */
-    async isEnabledAsync() {
+    async isEnabledAsync () {
         return this.configManager.openSearchVectorStoreUrl;
     }
 
@@ -37,7 +37,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreInternalAsync() {
+    async createVectorStoreInternalAsync () {
         let openSearchVectorStoreUrl = this.configManager.openSearchVectorStoreUrl;
         if (this.configManager.openSearchVectorStoreUserName !== undefined) {
             openSearchVectorStoreUrl = openSearchVectorStoreUrl.replace(
@@ -67,7 +67,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store from a list of langchain documents
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreAsync() {
+    async createVectorStoreAsync () {
         if (!this.vectorStore) {
             this.vectorStore = await this.createVectorStoreInternalAsync();
         }
@@ -79,7 +79,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter} filter
      * @returns {function(*): boolean| import('langchain/vectorstores/opensearch').OpenSearchFilter}
      */
-    getFilter(filter) {
+    getFilter (filter) {
         // OpenSearchFilter is just of type object
         return /** @type {import('langchain/vectorstores').OpenSearchFilter} */ {
             parentResourceType: filter.resourceType,
@@ -92,7 +92,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter|undefined} [filter]
      * @return {import('langchain/schema/retriever').BaseRetriever}
      */
-    asRetriever({filter}) {
+    asRetriever ({filter}) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
     }

@@ -23,7 +23,7 @@ class SubstanceSpecificationIsotope extends Element {
      * @param {Quantity|undefined} [halfLife],
      * @param {SubstanceSpecificationMolecularWeight|undefined} [molecularWeight],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -237,7 +237,7 @@ class SubstanceSpecificationIsotope extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -257,7 +257,7 @@ class SubstanceSpecificationIsotope extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -271,7 +271,7 @@ class SubstanceSpecificationIsotope extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

@@ -20,7 +20,7 @@ const communicationQuery = fs.readFileSync(path.resolve(__dirname, './fixtures/q
 
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
-async function setupDatabaseAsync(
+async function setupDatabaseAsync (
     mongoDatabaseManager,
     incomingResource,
     expectedResourceInDatabase

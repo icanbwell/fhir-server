@@ -42,20 +42,20 @@ const {assertTypeEquals} = require('../../../../utils/assertType');
 const {generateUUIDv5} = require('../../../../utils/uid.util');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return false;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
-function sleepAsync(time) {
+function sleepAsync (time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, patientResource, expectedPatientInDatabase) {
+async function setupDatabaseAsync (mongoDatabaseManager, patientResource, expectedPatientInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection('Patient_4_0_0');

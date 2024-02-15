@@ -9,7 +9,7 @@ class OpenAILLMFactory extends LLMFactory {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             configManager
         }
@@ -24,7 +24,7 @@ class OpenAILLMFactory extends LLMFactory {
      * @param verbose
      * @return {Promise<import('langchain/chat_models').BaseChatModel>}
      */
-    async createAsync({verbose}) {
+    async createAsync ({verbose}) {
         return new ChatOpenAI(
             {
                 openAIApiKey: this.configManager.openAIApiKey,

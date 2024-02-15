@@ -5,7 +5,7 @@ class SystemValueParser {
      * @param {string} text
      * @return {{ system: string|undefined, value: string}}
      */
-    static parse(text) {
+    static parse (text) {
         let system;
         let value;
 

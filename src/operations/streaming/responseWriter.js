@@ -15,7 +15,7 @@ class HttpResponseWriter extends Writable {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             requestId,
             response,
@@ -55,7 +55,7 @@ class HttpResponseWriter extends Writable {
         assertTypeEquals(configManager, ConfigManager);
     }
 
-    _construct(callback) {
+    _construct (callback) {
         if (this.configManager.logStreamSteps) {
             logger.info(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
@@ -77,7 +77,7 @@ class HttpResponseWriter extends Writable {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _write(chunk, encoding, callback) {
+    _write (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -128,7 +128,7 @@ class HttpResponseWriter extends Writable {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _final(callback) {
+    _final (callback) {
         if (this.configManager.logStreamSteps) {
             logger.verbose('HttpResponseWriter: _flush');
         }

@@ -8,7 +8,7 @@ const {IndexProvider} = require('../../../indexes/indexProvider');
 const {logInfo} = require('../../../operations/common/logging');
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         // noinspection JSValidateTypes
         return customIndexes;
     }

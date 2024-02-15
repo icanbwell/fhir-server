@@ -17,7 +17,7 @@ const { DelinkProaPersonRunner } = require('../runners/delinkProaPersonRunner');
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     const parameters = CommandLineParser.parseCommandLine();
 
     /**

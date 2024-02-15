@@ -27,7 +27,7 @@ class ExampleScenarioOperation extends Element {
      * @param {ExampleScenarioContainedInstance|undefined} [request],
      * @param {ExampleScenarioContainedInstance|undefined} [response],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -334,7 +334,7 @@ class ExampleScenarioOperation extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -359,7 +359,7 @@ class ExampleScenarioOperation extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.request) { await this.request.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -370,7 +370,7 @@ class ExampleScenarioOperation extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

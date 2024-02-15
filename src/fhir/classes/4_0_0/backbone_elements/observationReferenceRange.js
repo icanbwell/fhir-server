@@ -24,7 +24,7 @@ class ObservationReferenceRange extends Element {
      * @param {Range|undefined} [age],
      * @param {String|undefined} [text],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -272,7 +272,7 @@ class ObservationReferenceRange extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -293,7 +293,7 @@ class ObservationReferenceRange extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.low) { await this.low.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -307,7 +307,7 @@ class ObservationReferenceRange extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

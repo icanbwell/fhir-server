@@ -6,7 +6,7 @@ class MongoQuerySimplifier {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    static simplifyFilter({filter}) {
+    static simplifyFilter ({filter}) {
         if (filter === null || filter === undefined) {
             return filter;
         }
@@ -147,7 +147,7 @@ class MongoQuerySimplifier {
      * @param {*} value
      * @return {boolean}
      */
-    static isEmpty(value) {
+    static isEmpty (value) {
         if (!value) {
             return true;
         }
@@ -165,7 +165,7 @@ class MongoQuerySimplifier {
      * @param {*} value
      * @return {boolean}
      */
-    static isFilter(value) {
+    static isFilter (value) {
         return !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp) && (value instanceof Object);
     }
 
@@ -175,7 +175,7 @@ class MongoQuerySimplifier {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
      * @return {Set<string>}
      */
-    static findColumnsInFilter({parentKey, filter}) {
+    static findColumnsInFilter ({parentKey, filter}) {
         const columns = new Set();
         if (!this.isFilter(filter)) {
             return columns;

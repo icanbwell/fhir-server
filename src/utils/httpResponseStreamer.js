@@ -9,7 +9,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
      * @param {string|undefined} [html]
      * @param {function(BundleEntry): string|null} fnGetHtmlForBundleEntry
      */
-    constructor(
+    constructor (
         {
             response,
             requestId,
@@ -34,7 +34,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
      * Starts response
      * @return {Promise<void>}
      */
-    async startAsync() {
+    async startAsync () {
         const contentType = 'text/html; charset=UTF-8';
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
@@ -60,7 +60,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeBundleEntryAsync({bundleEntry}) {
+    async writeBundleEntryAsync ({bundleEntry}) {
         if (this.fnGetHtmlForBundleEntry) {
             const html = this.fnGetHtmlForBundleEntry(bundleEntry);
             if (html) {
@@ -69,7 +69,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
         }
     }
 
-    async writeAsync({content}) {
+    async writeAsync ({content}) {
         this.response.write(content);
     }
 
@@ -77,7 +77,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
      * ends response
      * @return {Promise<void>}
      */
-    async endAsync() {
+    async endAsync () {
         // since this is the last chunk, close the stream.
         const html =
             '</body>\n' +

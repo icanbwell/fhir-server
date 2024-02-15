@@ -6,7 +6,7 @@ const {IndexProvider} = require('../../../indexes/indexProvider');
 const {customIndexes} = require('./mockCustomIndexes');
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         return customIndexes;
     }
 }

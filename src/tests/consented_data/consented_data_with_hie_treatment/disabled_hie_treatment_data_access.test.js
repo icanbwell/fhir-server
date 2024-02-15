@@ -28,7 +28,7 @@ class MockConfigManager extends ConfigManager {
     /**
      * @returns {boolean}
      */
-    get enableHIETreatmentRelatedDataAccess() {
+    get enableHIETreatmentRelatedDataAccess () {
         return false;
     }
 }

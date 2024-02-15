@@ -12,7 +12,7 @@ class MergeResultEntry {
      * @param {boolean} updated
      * @param {string} sourceAssigningAuthority
      */
-    constructor(
+    constructor (
         {
             operationOutcome,
             issue,
@@ -58,7 +58,7 @@ class MergeResultEntry {
         this._sourceAssigningAuthority = sourceAssigningAuthority;
     }
 
-    toJSON() {
+    toJSON () {
         return removeNull(
             {
                 operationOutcome: this.operationOutcome,

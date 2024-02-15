@@ -21,7 +21,7 @@ const options = {
  * @param {Object} newArrayItem
  * @returns {Object[]}
  */
-function mergeArraysWithSequenceNumbers(oldArray, newArrayItem) {
+function mergeArraysWithSequenceNumbers (oldArray, newArrayItem) {
     /**
      * @type {Object[]}
      */
@@ -65,7 +65,7 @@ function mergeArraysWithSequenceNumbers(oldArray, newArrayItem) {
  * @param {Object[] | null} resultArray
  * @returns {{foundMatch: boolean, resultArray: Object[] | null}}
  */
-function mergeArraysWithId(oldArray, newArrayItem, resultArray) {
+function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
     // find item in oldArray array that matches this one by id
     /**
      * @type {number}
@@ -95,7 +95,7 @@ function mergeArraysWithId(oldArray, newArrayItem, resultArray) {
  * @param {Object[]}newArray
  * @returns {Object[]}
  */
-function mergeArrays(oldArray, newArray) {
+function mergeArrays (oldArray, newArray) {
     // if this is an array of primitive types then just replace with new array
     if (oldArray.length > 0 && typeof oldArray[0] !== 'object' && newArray.length > 0) {
         return newArray;

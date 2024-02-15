@@ -6,7 +6,7 @@ const {ServerError} = require('../middleware/fhir/utils/server.error');
 const env = require('var');
 
 class BadRequestError extends ServerError {
-    constructor(error, options = {}) {
+    constructor (error, options = {}) {
         super(error.message, {
             // Set this to make the HTTP status code 409
             statusCode: 400,
@@ -30,14 +30,14 @@ class BadRequestError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 400;
     }
 }
 
 
 class NotFoundError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 409
             statusCode: 404,
@@ -61,13 +61,13 @@ class NotFoundError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 404;
     }
 }
 
 class NotAllowedError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 409
             statusCode: 409,
@@ -89,7 +89,7 @@ class NotAllowedError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 409;
     }
 }
@@ -100,7 +100,7 @@ class NotValidatedError extends ServerError {
      * @param {OperationOutcome} operationOutcome
      * @param {Object} options
      */
-    constructor(operationOutcome, options = {}) {
+    constructor (operationOutcome, options = {}) {
         super('Validation Failed', {
             // Set this to make the HTTP status code 400
             statusCode: 400,
@@ -116,13 +116,13 @@ class NotValidatedError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 400;
     }
 }
 
 class UnauthorizedError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 401
             statusCode: 401,
@@ -144,13 +144,13 @@ class UnauthorizedError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 401;
     }
 }
 
 class ForbiddenError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             // Set this to make the HTTP status code 401
             statusCode: 403,
@@ -173,13 +173,13 @@ class ForbiddenError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 403;
     }
 }
 
 class ExternalTimeoutError extends ServerError {
-    constructor(message, options = {}) {
+    constructor (message, options = {}) {
         super(message, {
             statusCode: 504,
             // Add any normal operation outcome stuff here
@@ -201,7 +201,7 @@ class ExternalTimeoutError extends ServerError {
         }
     }
 
-    get statusCode() {
+    get statusCode () {
         return 504;
     }
 }

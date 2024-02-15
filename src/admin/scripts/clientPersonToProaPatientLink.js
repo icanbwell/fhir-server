@@ -17,7 +17,7 @@ const { ClientPersonToProaPatientLinkRunner } = require('../runners/clientPerson
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     const parameters = CommandLineParser.parseCommandLine();
 
     /**

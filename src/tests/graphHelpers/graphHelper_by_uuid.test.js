@@ -13,7 +13,7 @@ const {generateUUIDv5} = require('../../utils/uid.util');
  * Gets graph helper
  * @return {GraphHelper}
  */
-function getGraphHelper() {
+function getGraphHelper () {
     const container = createTestContainer();
     return container.graphHelper;
 }

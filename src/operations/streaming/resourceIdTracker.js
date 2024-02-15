@@ -11,7 +11,7 @@ class ResourceIdTracker extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor({tracker, signal, highWaterMark, configManager}) {
+    constructor ({tracker, signal, highWaterMark, configManager}) {
         super({objectMode: true, highWaterMark: highWaterMark});
         /**
          * @type {{id: string[]}}
@@ -41,7 +41,7 @@ class ResourceIdTracker extends Transform {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;

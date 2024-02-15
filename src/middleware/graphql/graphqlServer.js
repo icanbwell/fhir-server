@@ -73,7 +73,7 @@ const graphql = async (fnGetContainer) => {
      * @param {import('http').ServerResponse} res
      * @return {Promise<GraphQLContext>}
      */
-    async function getContext({req, res}) {
+    async function getContext ({req, res}) {
 
         /**
          * @type {import('content-type').ContentType}

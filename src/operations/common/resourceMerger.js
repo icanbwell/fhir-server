@@ -65,7 +65,7 @@ class ResourceMerger {
      * constructor
      * @param {PreSaveManager} preSaveManager
      */
-    constructor({preSaveManager}) {
+    constructor ({preSaveManager}) {
         /**
          * @type {PreSaveManager}
          */
@@ -78,7 +78,7 @@ class ResourceMerger {
      * @param {OverWriteNonWritableFieldsProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    overWriteNonWritableFields({currentResource, resourceToMerge}) {
+    overWriteNonWritableFields ({currentResource, resourceToMerge}) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -155,7 +155,7 @@ class ResourceMerger {
      * @param {CompareObjectsProp}
      * @returns {import('fast-json-patch').Operation[]}
      */
-    compareObjects({currentObject, mergedObject, limitToPaths}) {
+    compareObjects ({currentObject, mergedObject, limitToPaths}) {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
@@ -195,7 +195,7 @@ class ResourceMerger {
      * @param {UpdateMetaProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    updateMeta({patched_resource_incoming, currentResource, original_source, incrementVersion}) {
+    updateMeta ({patched_resource_incoming, currentResource, original_source, incrementVersion}) {
         // update the metadata to increment versionId
         /**
          * @type {Meta}
@@ -227,7 +227,7 @@ class ResourceMerger {
      * @param {ApplyPatchProp}
      * @returns {import('../../fhir/classes/4_0_0/resources/resource')}
      */
-    applyPatch({currentResource, patchContent, original_source, incrementVersion}) {
+    applyPatch ({currentResource, patchContent, original_source, incrementVersion}) {
         /**
          * @type {import('fast-json-patch').PatchResult<import('../../fhir/classes/4_0_0/resources/resource')>}
          */
@@ -254,7 +254,7 @@ class ResourceMerger {
      * @param {MergeResourceAsyncProp}
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
-    async mergeResourceAsync(
+    async mergeResourceAsync (
         {
             currentResource,
             resourceToMerge,

@@ -11,7 +11,7 @@ class DatabaseQueryFactory {
      * @param {MongoFilterGenerator} mongoFilterGenerator
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({resourceLocatorFactory, mongoFilterGenerator, databaseAttachmentManager}) {
+    constructor ({resourceLocatorFactory, mongoFilterGenerator, databaseAttachmentManager}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
@@ -36,7 +36,7 @@ class DatabaseQueryFactory {
      * @param {string} base_version
      * @return {DatabaseQueryManager}
      */
-    createQuery({resourceType, base_version}) {
+    createQuery ({resourceType, base_version}) {
         assertIsValid(resourceType, 'resourceType is null');
         return new DatabaseQueryManager(
             {

@@ -54,7 +54,7 @@ class DeviceRequest extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -935,7 +935,7 @@ class DeviceRequest extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'DeviceRequest';
     }
 
@@ -982,7 +982,7 @@ class DeviceRequest extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {DeviceRequest}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -1072,7 +1072,7 @@ class DeviceRequest extends Resource {
      * @description creates a copy of this resource
      * @returns {DeviceRequest}
     */
-    clone() {
+    clone () {
         return new DeviceRequest(this.toJSONInternal());
     }
 
@@ -1081,7 +1081,7 @@ class DeviceRequest extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -1129,7 +1129,7 @@ class DeviceRequest extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -1161,7 +1161,7 @@ class DeviceRequest extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,

@@ -10,7 +10,7 @@ class AssertionError extends Error {
      * Constructor
      * @param {string} message
      */
-    constructor(message) {
+    constructor (message) {
         super(message);
         this.name = this.constructor.name;
     }
@@ -23,7 +23,7 @@ class AssertionError extends Error {
  * @param {string|undefined} [message]
  * @throws {AssertionError}
  */
-function assertTypeEquals(obj, type, message) {
+function assertTypeEquals (obj, type, message) {
     if (!obj) {
         /**
          * @type {string}
@@ -48,7 +48,7 @@ function assertTypeEquals(obj, type, message) {
  * @param {string|undefined} [message]
  * @throws {AssertionError}
  */
-function assertIsValid(obj, message) {
+function assertIsValid (obj, message) {
     if (!obj) {
         throw new AssertionError(message ? message : 'obj is null or undefined');
     }
@@ -61,7 +61,7 @@ function assertIsValid(obj, message) {
  * @param {Object} args
  * @param {Error|undefined} [error]
  */
-function assertFail({source, message, args, error}) {
+function assertFail ({source, message, args, error}) {
     /**
      * @type {string}
      */

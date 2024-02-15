@@ -8,7 +8,7 @@ class FhirResourceWriterBase extends Transform {
      * @param {number} highWaterMark
      * @param {import('http').ServerResponse} response
      */
-    constructor(
+    constructor (
         {
             objectMode,
             contentType,
@@ -32,7 +32,7 @@ class FhirResourceWriterBase extends Transform {
     /**
      * @returns {string}
      */
-    getContentType() {
+    getContentType () {
         return this._contentType;
     }
 }

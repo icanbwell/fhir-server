@@ -9,21 +9,21 @@ const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals')
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return true;
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return false;
     }
 }
 
 class MockConfigManagerWithTwoStepOptimizationStreaming extends ConfigManager {
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return true;
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 }

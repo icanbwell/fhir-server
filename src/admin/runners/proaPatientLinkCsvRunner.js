@@ -32,7 +32,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      *
      * @param {ConstructorProps}
      */
-    constructor({
+    constructor ({
                     adminLogger,
                     mongoDatabaseManager,
                     mongoCollectionManager,
@@ -136,7 +136,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * main process function
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             this.initializeWriteStream();
 
@@ -174,7 +174,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Initialize write stream
      * @returns {void}
      */
-    initializeWriteStream() {
+    initializeWriteStream () {
         this.writeStream = fs.createWriteStream('proa_patient_link_data.csv');
         this.writeErrorStream = fs.createWriteStream('proa_patient_link_data_errors.csv');
 
@@ -198,7 +198,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Closes Write streams
      * @returns {Promise<void>}
      */
-    async handleWriteStreamClose() {
+    async handleWriteStreamClose () {
         this.writeStream.close();
         this.writeErrorStream.close();
 
@@ -213,7 +213,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @param {CsvDataType[]} data
      * @returns {CsvDataType}
      */
-    convertToCsvFormat(data) {
+    convertToCsvFormat (data) {
         return {
             uuid: data.reduce((arr, d) => arr.push(d.uuid) && arr, []).join(', '),
             sourceAssigningAuthority: data
@@ -235,7 +235,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @param {WriteDataProps}
      * @returns {void}
      */
-    writeData({proaPatientData, proaPersonsData, masterPersonsData, clientPersonsData, message}) {
+    writeData ({proaPatientData, proaPersonsData, masterPersonsData, clientPersonsData, message}) {
         const proaPersonData = this.convertToCsvFormat(proaPersonsData);
 
         const masterPersonData = this.convertToCsvFormat(masterPersonsData);
@@ -270,7 +270,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @param {WriteErrorCasesProps}
      * @returns {void}
      */
-    writeErrorCases({proaPatientData, proaPersonsData, masterPersonsData, clientPersonsData, message}) {
+    writeErrorCases ({proaPatientData, proaPersonsData, masterPersonsData, clientPersonsData, message}) {
         const proaPersonData = this.convertToCsvFormat(proaPersonsData);
 
         const masterPersonData = this.convertToCsvFormat(masterPersonsData);
@@ -297,7 +297,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Fetch proa patient data from database
      * @returns {Promise<void>}
      */
-    async getProaPatientData() {
+    async getProaPatientData () {
         /**
          * @type {MongoConfigType}
          */
@@ -372,7 +372,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @param {LinkProaPatientDataProps}
      * @returns {void}
      */
-    linkProaPatientData({
+    linkProaPatientData ({
                             personUuid,
                             personSourceAssigningAuthority,
                             personSource,
@@ -415,7 +415,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Fetch persons related to proa patients
      * @returns {Promise<void>}
      */
-    async getProaPatientRelatedPersons() {
+    async getProaPatientRelatedPersons () {
         /**
          * @type {MongoConfigType}
          */
@@ -501,7 +501,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Creates Proa Person to Proa Patient map
      * @returns {void}
      */
-    createProaPersonToProaPatientMap() {
+    createProaPersonToProaPatientMap () {
         this.proaPatientToProaPersonMap.forEach((proaPersonUuids, proaPatientUuid) => {
             if (this.proaPatientDataMap.has(proaPatientUuid)) {
                 proaPersonUuids.forEach((proaPersonUuid) => {
@@ -525,7 +525,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * @param {LinkMasterPersonDataProps}
      * @returns {Promise<void>}
      */
-    async linkMasterPersonData({masterPersonUuid, otherUuid, otherResourceType, db}) {
+    async linkMasterPersonData ({masterPersonUuid, otherUuid, otherResourceType, db}) {
         try {
             if (otherResourceType === 'Patient') {
                 const patientCollection = db.collection(this.patientCollectionName);
@@ -608,7 +608,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Fetch master person related to proa persons
      * @returns {Promise<void>}
      */
-    async getMasterPersonFromProaPersons() {
+    async getMasterPersonFromProaPersons () {
         /**
          * @type {MongoConfigType}
          */
@@ -699,7 +699,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      *
      * @returns {void}
      */
-    handleAllErrorCases() {
+    handleAllErrorCases () {
         Array.from(this.proaPatientDataMap.keys()).forEach(proaPatientUuid => {
             const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
             // check if master person is present
@@ -881,7 +881,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Creates Proa Person to Master Person map
      * @returns {void}
      */
-    createProaPersonToMasterPersonMap() {
+    createProaPersonToMasterPersonMap () {
         this.masterPersonToProaPersonMap.forEach((proaPersonUuids, masterPersonUuid) => {
             proaPersonUuids.forEach((proaPersonUuid) => {
                 if (!this.proaPersonToMasterPersonMap.has(proaPersonUuid)) {
@@ -896,7 +896,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
      * Writes Proa patient data graph from all the maps
      * @returns {void}
      */
-    writeProaPatientDataGraph() {
+    writeProaPatientDataGraph () {
         for (const proaPatientUuid of Array.from(this.proaPatientDataMap.keys())) {
             const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
             if (this.proaPatientToProaPersonMap.has(proaPatientUuid)) {

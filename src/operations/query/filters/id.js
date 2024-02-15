@@ -16,7 +16,7 @@ class FilterById extends BaseFilter {
      * @param {String[]} values
      * @returns {{_uuid: {$in}}|{_sourceId: {$in}}|{$or: ({_uuid: {$in}}|{_sourceId: {$in}})[]}}
      */
-    static getListFilter(values) {
+    static getListFilter (values) {
         if (!values || values.length === 0) {
             return { '_uuid': { $in: [] }};
         }
@@ -38,7 +38,7 @@ class FilterById extends BaseFilter {
      * Generates filter for parsedArgItem
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
@@ -67,7 +67,7 @@ class FilterById extends BaseFilter {
      * @param {import('./fieldMapper').FieldMapper} fieldMapper
      * @returns {Array<Object>}
      */
-    static filterByItems(field, values, fieldMapper) {
+    static filterByItems (field, values, fieldMapper) {
         const filters = [];
         /**
          * 2 types of values are possible

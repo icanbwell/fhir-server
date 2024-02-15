@@ -14,7 +14,7 @@ class FilterByReference extends BaseFilter {
      * @param {string} reference
      * @return {string[]}
      */
-    getReferences({targets, reference}) {
+    getReferences ({targets, reference}) {
         const {resourceType, id} = ReferenceParser.parseReference(reference);
         if (resourceType) {
             return [
@@ -39,7 +39,7 @@ class FilterByReference extends BaseFilter {
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {Object[]}
          */

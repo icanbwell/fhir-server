@@ -24,7 +24,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} [startFromCollection]
      * @param {number|undefined} [limit]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -93,7 +93,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
             return operations;
@@ -130,7 +130,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {

@@ -14,7 +14,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {string} oldSourceAssigningAuthority
      * @param {string} newSourceAssigningAuthority
      */
-    constructor({ oldSourceAssigningAuthority, newSourceAssigningAuthority, ...args }) {
+    constructor ({ oldSourceAssigningAuthority, newSourceAssigningAuthority, ...args }) {
         super(args);
 
         /**
@@ -35,7 +35,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
-    async updateRecordAsync(resource) {
+    async updateRecordAsync (resource) {
         if (resource.meta?.security) {
             resource.meta.security = resource.meta.security.map(security => {
                 if (security.code && security.code === this.oldSourceAssigningAuthority) {
@@ -76,7 +76,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async addIndexesToCollection({ collectionName, mongoConfig }) {
+    async addIndexesToCollection ({ collectionName, mongoConfig }) {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         const indexName = 'fixChangeSourceAssigningAuthorityRunner_meta.security_1';
@@ -119,7 +119,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -209,7 +209,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}

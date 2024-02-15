@@ -16,27 +16,27 @@ const {ResponseChunkParser} = require('../responseChunkParser');
 let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return '_uuid';
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get streamingHighWaterMark() {
+    get streamingHighWaterMark () {
         return 1;
     }
 
-    get logStreamSteps() {
+    get logStreamSteps () {
         return true;
     }
 
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return false;
     }
 }

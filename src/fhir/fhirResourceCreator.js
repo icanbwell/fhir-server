@@ -12,7 +12,7 @@ class FhirResourceCreator {
      * @param {*} [ResourceConstructor]
      * @return {Resource}
      */
-    static create(obj, ResourceConstructor) {
+    static create (obj, ResourceConstructor) {
         assertIsValid(obj, 'obj is null');
         try {
             if (obj instanceof Resource) {
@@ -50,7 +50,7 @@ class FhirResourceCreator {
      * @param {string} resourceType
      * @return {Resource}
      */
-    static createByResourceType(obj, resourceType) {
+    static createByResourceType (obj, resourceType) {
         assertIsValid(obj, 'obj is null');
         try {
             if (obj instanceof Resource
@@ -79,7 +79,7 @@ class FhirResourceCreator {
      * @param {*} [ResourceConstructor]
      * @return {Resource[]}
      */
-    static createArray(obj, ResourceConstructor) {
+    static createArray (obj, ResourceConstructor) {
         try {
             if (Array.isArray(obj)) {
                 return obj

@@ -23,7 +23,7 @@ const fs = require('fs');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 class MockFixReferenceIdClientRunner extends FixReferenceIdClientRunner {
-    async getDataFromS3() {
+    async getDataFromS3 () {
         this.idCache.set('Observation', new Map());
 
         this.idCache.get('Observation').set(

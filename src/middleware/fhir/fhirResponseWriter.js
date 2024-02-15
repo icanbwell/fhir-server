@@ -13,7 +13,7 @@ class FhirResponseWriter {
      * @description Get the correct application type for the response
      * @param {string} version Version of resources we are working with
      */
-    getContentType(version) {
+    getContentType (version) {
         switch (version) {
             case '1_0_2':
                 return 'application/json+fhir';
@@ -32,7 +32,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource} result - json to send to client
      */
-    read({req, res, result}) {
+    read ({req, res, result}) {
         assertTypeEquals(result, Resource);
         this.setBaseResponseHeaders({req, res});
         res.status(200).json(result.toJSON());
@@ -45,7 +45,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
-    readCustomOperation({req, res, result}) {
+    readCustomOperation ({req, res, result}) {
         this.setBaseResponseHeaders({req, res});
         res.status(200).json(result instanceof Resource ? result.toJSON() : result);
     }
@@ -57,7 +57,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
-    graph({req, res}) {
+    graph ({req, res}) {
         this.setBaseResponseHeaders({req, res});
     }
 
@@ -68,7 +68,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
-    everything({req, res, result}) {
+    everything ({req, res, result}) {
         this.setBaseResponseHeaders({req, res});
         // don't write if we're streaming the response
         if (!res.headersSent) {
@@ -83,7 +83,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {MergeResultEntry[]} result - json to send to client
      */
-    merge({req, res, result}) {
+    merge ({req, res, result}) {
         this.setBaseResponseHeaders({req, res});
         res.status(200).json(result);
     }
@@ -95,7 +95,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - resource to send to client
      */
-    readOne({req, res, resource}) {
+    readOne ({req, res, resource}) {
         const fhirVersion = req.params.base_version;
 
         if (resource && resource.meta) {
@@ -124,7 +124,7 @@ class FhirResponseWriter {
      * @param {Resource} resource - json to send to client
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
-    create({req, res, resource, options}) {
+    create ({req, res, resource, options}) {
         const fhirVersion = req.params.base_version ? req.params.base_version : '';
         const baseUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -162,7 +162,7 @@ class FhirResponseWriter {
      * @param {{id: string, resource_version: string|undefined, created: boolean, resource: Resource}} result - json to send to client
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
-    update({req, res, result, options}) {
+    update ({req, res, result, options}) {
         const fhirVersion = req.params.base_version;
         const baseUrl = `${req.protocol}://${req.get('host')}`;
         const location = `${fhirVersion}/${options.type}/${result.id}`;
@@ -196,7 +196,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Object} json - json to send to client
      */
-    remove({req, res, json}) {
+    remove ({req, res, json}) {
         if (json && json.deleted) {
             res.set('ETag', json.deleted);
         }
@@ -213,7 +213,7 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Object} json - json to send to client
      */
-    history({req, res, json}) {
+    history ({req, res, json}) {
         const version = req.params.base_version;
         res.type(this.getContentType(version));
         if (req.id && !res.headersSent) {
@@ -228,7 +228,7 @@ class FhirResponseWriter {
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('express').Response} res - Express response object
      */
-    setBaseResponseHeaders({req, res}) {
+    setBaseResponseHeaders ({req, res}) {
         if (!res.headersSent) {
             const fhirVersion = req.params.base_version;
             res.type(this.getContentType(fhirVersion));

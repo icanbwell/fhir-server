@@ -11,7 +11,7 @@ const jsonMimeTypes = ['application/fhir+json', 'application/json', 'json'];
  * @param query
  * @returns {boolean}
  */
-function hasJsonMimeTypeInFormatQuery({query}) {
+function hasJsonMimeTypeInFormatQuery ({query}) {
     const urlParams = new URLSearchParams(query);
     return urlParams.has('_format') && jsonMimeTypes.includes(urlParams.get('_format'));
 }
@@ -22,7 +22,7 @@ function hasJsonMimeTypeInFormatQuery({query}) {
  * @returns {boolean}
  */
 // eslint-disable-next-line no-unused-vars
-function hasJsonMimeTypeInAcceptsHeader({req}) {
+function hasJsonMimeTypeInAcceptsHeader ({req}) {
     // https://www.npmjs.com/package/accepts
     const acceptHeader = accepts(req);
     return acceptHeader.type(jsonMimeTypes) !== false;

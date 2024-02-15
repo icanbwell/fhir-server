@@ -8,7 +8,7 @@ class QueryItem {
      * @param {string} [reverse_filter]
      * @param {import('mongodb').Document[]} [explanations]
      */
-    constructor(
+    constructor (
         {
             query,
             resourceType,

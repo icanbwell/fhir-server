@@ -28,7 +28,7 @@ class MockConfigManager extends ConfigManager {
     /**
      * @returns {boolean}
      */
-    get enableConsentedProaDataAccess() {
+    get enableConsentedProaDataAccess () {
         return false;
     }
 }

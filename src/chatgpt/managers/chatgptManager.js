@@ -15,7 +15,7 @@ class ChatGPTManager {
      * @param {ConfigManager} configManager
      * @param {LLMFactory} llmFactory
      */
-    constructor(
+    constructor (
         {
             fhirToDocumentConverter,
             vectorStoreFactory,
@@ -58,7 +58,7 @@ class ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @return {Promise<ChatGPTResponse>}
      */
-    async answerQuestionAsync({resourceType, uuid, question, outputFormat, verbose}) {
+    async answerQuestionAsync ({resourceType, uuid, question, outputFormat, verbose}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -105,7 +105,7 @@ class ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
-    async answerQuestionWithDocumentsAsync(
+    async answerQuestionWithDocumentsAsync (
         {
             // eslint-disable-next-line no-unused-vars
             startPrompt,
@@ -127,7 +127,7 @@ class ChatGPTManager {
      * @param {{content: string}[]} documents
      * @return {Promise<number>}
      */
-    async getTokenCountAsync({documents}) {
+    async getTokenCountAsync ({documents}) {
         const tokenizer = await encoding_for_model('gpt-3.5-turbo');
         const token_counts = documents.map(doc => tokenizer.encode(doc.content).length);
         tokenizer.free();

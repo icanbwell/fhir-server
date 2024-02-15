@@ -21,7 +21,7 @@ class Resource extends ResourceContainer {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -200,7 +200,7 @@ class Resource extends ResourceContainer {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Resource';
     }
 
@@ -216,7 +216,7 @@ class Resource extends ResourceContainer {
      * @param {string|undefined} [_sourceId]
      * @returns {Resource}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -244,7 +244,7 @@ class Resource extends ResourceContainer {
      * @description creates a copy of this resource
      * @returns {Resource}
     */
-    clone() {
+    clone () {
         return new Resource(this.toJSONInternal());
     }
 
@@ -253,7 +253,7 @@ class Resource extends ResourceContainer {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -270,7 +270,7 @@ class Resource extends ResourceContainer {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
@@ -278,7 +278,7 @@ class Resource extends ResourceContainer {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
@@ -309,7 +309,7 @@ class Resource extends ResourceContainer {
      * Returns a structure based on values in meta.security tags
      * @return {SecurityTagStructure}
      */
-    get securityTagStructure() {
+    get securityTagStructure () {
         const {SecurityTagStructure} = require('../../../securityTagStructure');
         return SecurityTagStructure.fromResource({resource: this});
     }
@@ -319,7 +319,7 @@ class Resource extends ResourceContainer {
      * @param {Resource|{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}} other
      * @return {boolean}
      */
-    isSameResourceByIdAndSecurityTag({other}) {
+    isSameResourceByIdAndSecurityTag ({other}) {
         if (this.resourceType !== other.resourceType) {
             return false;
         }

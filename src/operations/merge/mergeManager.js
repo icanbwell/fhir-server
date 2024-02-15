@@ -44,7 +44,7 @@ class MergeManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             auditLogger,
@@ -139,7 +139,7 @@ class MergeManager {
      * @param {string} requestId
      * @returns {Promise<void>}
      */
-    async mergeExistingAsync(
+    async mergeExistingAsync (
         {
             resourceToMerge,
             currentResource,
@@ -196,7 +196,7 @@ class MergeManager {
      * @param {string|null} scope
      * @returns {Promise<void>}
      */
-    async mergeInsertAsync(
+    async mergeInsertAsync (
         {
             requestId,
             resourceToMerge,
@@ -235,7 +235,7 @@ class MergeManager {
      * @param {string | null} scope
      * @return {Promise<void>}
      */
-    async mergeResourceAsync(
+    async mergeResourceAsync (
         {
             resourceToMerge,
             resourceType,
@@ -387,7 +387,7 @@ class MergeManager {
      * @param {string} scope
      * @returns {Promise<void>}
      */
-    async mergeResourceListAsync(
+    async mergeResourceListAsync (
         {
             resources_incoming,
             user,
@@ -455,7 +455,7 @@ class MergeManager {
      * @param {string} scope
      * @return {Promise<void>}
      */
-    async mergeResourceWithRetryAsync(
+    async mergeResourceWithRetryAsync (
         {
             resourceToMerge,
             resourceType,
@@ -493,7 +493,7 @@ class MergeManager {
      * @param {MergePatchEntry[]} patches
      * @returns {Promise<void>}
      */
-    async performMergeDbUpdateAsync(
+    async performMergeDbUpdateAsync (
         {
             requestId,
             resourceToMerge,
@@ -529,7 +529,7 @@ class MergeManager {
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
-    async performMergeDbInsertAsync(
+    async performMergeDbInsertAsync (
         {
             requestId,
             resourceToMerge
@@ -563,7 +563,7 @@ class MergeManager {
      * @param {string} currentDate
      * @returns {Promise<MergeResultEntry|null>}
      */
-    async preMergeChecksAsync(
+    async preMergeChecksAsync (
         {
             resourceToMerge,
             resourceType,
@@ -773,7 +773,7 @@ class MergeManager {
      * @param {string} currentDate
      * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], validResources: Resource[]}>}
      */
-    async preMergeChecksMultipleAsync(
+    async preMergeChecksMultipleAsync (
         {
             resourcesToMerge, scopes, user, path, currentDate
         }) {
@@ -824,7 +824,7 @@ class MergeManager {
      * @param {MergeResultEntry[]} mergeResults
      * @returns {Promise<void>}
      */
-    async logAuditEntriesForMergeResults(
+    async logAuditEntriesForMergeResults (
         {
             requestInfo,
             requestId,

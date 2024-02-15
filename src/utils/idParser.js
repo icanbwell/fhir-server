@@ -5,7 +5,7 @@ class IdParser {
      * @param {string} id
      * @return {{ id: string, sourceAssigningAuthority: string|undefined}}
      */
-    static parse(id) {
+    static parse (id) {
         let id1;
         let sourceAssigningAuthority;
 

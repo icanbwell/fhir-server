@@ -15,7 +15,7 @@ class QueryRewriterManager {
      *
      * @param {params}
      */
-    constructor({queryRewriters, operationSpecificQueryRewriters}) {
+    constructor ({queryRewriters, operationSpecificQueryRewriters}) {
         /**
          * @type {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -38,7 +38,7 @@ class QueryRewriterManager {
      * @param {rewriteQueryAsyncParams}
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
-    async rewriteQueryAsync({base_version, query, columns, resourceType, operation}) {
+    async rewriteQueryAsync ({base_version, query, columns, resourceType, operation}) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -75,7 +75,7 @@ class QueryRewriterManager {
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType, operation}) {
+    async rewriteArgsAsync ({base_version, parsedArgs, resourceType, operation}) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */

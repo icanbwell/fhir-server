@@ -10,7 +10,7 @@ class UuidToIdReplacer {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory
         }
@@ -28,7 +28,7 @@ class UuidToIdReplacer {
      * @param {string} uuid
      * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
      */
-    async getIdAndSourceAssigningAuthorityForUuidAsync({resourceType, uuid}) {
+    async getIdAndSourceAssigningAuthorityForUuidAsync ({resourceType, uuid}) {
         assertIsValid(resourceType, 'resourceType is null');
         /**
          * @type {DatabaseQueryManager}

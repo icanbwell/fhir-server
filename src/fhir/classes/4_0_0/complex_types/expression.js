@@ -25,7 +25,7 @@ class Expression extends Element {
      * @param {String|undefined} [expression],
      * @param {uri|undefined} [reference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -196,7 +196,7 @@ class Expression extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -215,7 +215,7 @@ class Expression extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
@@ -223,7 +223,7 @@ class Expression extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

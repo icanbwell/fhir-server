@@ -6,7 +6,7 @@ const moment = require('moment-timezone');
  *
  * @param {*} date
  */
-function parseDate(date) {
+function parseDate (date) {
     // supports date formats with prefix
     const regex = /(^\D\D)?([\d-Tt:+]+)([\d: ]+)?/;
     const match = date.match(regex);
@@ -61,7 +61,7 @@ const validateDate = function (dates) {
  * @param {Date} end
  * @returns {boolean}
  */
-function isUTCDayDifferent(start, end) {
+function isUTCDayDifferent (start, end) {
     return start.getUTCDay() !== end.getUTCDay();
 }
 

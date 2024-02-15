@@ -5,7 +5,7 @@ class FakeLLMFactory extends LLMFactory {
      * constructor
      * @param {function(): FakeLLM } fnCreateLLM
      */
-    constructor(
+    constructor (
         {
             fnCreateLLM
         }
@@ -23,7 +23,7 @@ class FakeLLMFactory extends LLMFactory {
      * @return {Promise<import('langchain/chat_models').BaseChatModel>}
      */
     // eslint-disable-next-line no-unused-vars
-    async createAsync({verbose}) {
+    async createAsync ({verbose}) {
          return this.fnCreateLLM();
     }
 }

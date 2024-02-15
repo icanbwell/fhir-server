@@ -21,7 +21,7 @@ class DataRequirementSort extends Element {
      * @param {String} path,
      * @param {code} direction,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -133,7 +133,7 @@ class DataRequirementSort extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -149,7 +149,7 @@ class DataRequirementSort extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
@@ -157,7 +157,7 @@ class DataRequirementSort extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

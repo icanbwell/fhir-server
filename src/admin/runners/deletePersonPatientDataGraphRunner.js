@@ -21,7 +21,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {number} concurrencyBatchSize
      * @param {boolean} dryRun
      */
-    constructor({
+    constructor ({
         mongoCollectionManager,
         batchSize,
         adminLogger,
@@ -94,7 +94,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -120,7 +120,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * @param {string} uuid
      * @param {string} resource
      */
-    async processRecordAsync(uuid, resource) {
+    async processRecordAsync (uuid, resource) {
         const req = {
             requestId: generateUUID(),
             path: `4_0_0/${resource}`,
@@ -201,7 +201,7 @@ class DeletePersonPatientDataGraphRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             /**
              * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}

@@ -2,7 +2,7 @@ const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const {getMongoUrlAsync} = require('./mongoTestRunner');
 
 class TestMongoDatabaseManager extends MongoDatabaseManager {
-    async getClientConfigAsync() {
+    async getClientConfigAsync () {
         const mongoUrl = await getMongoUrlAsync();
         return {
             connection: mongoUrl, // set by https://github.com/shelfio/jest-mongodb
@@ -11,7 +11,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
-    async getAuditConfigAsync() {
+    async getAuditConfigAsync () {
         const mongoUrl = await getMongoUrlAsync();
         return {
             connection: mongoUrl,
@@ -20,7 +20,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
-    async getAuditReadOnlyConfigAsync() {
+    async getAuditReadOnlyConfigAsync () {
         const mongoUrl = await getMongoUrlAsync();
         return {
             connection: mongoUrl,
@@ -29,7 +29,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
-    async getAccessLogsConfigAsync() {
+    async getAccessLogsConfigAsync () {
         const mongoUrl = await getMongoUrlAsync();
         return {
             connection: mongoUrl,
@@ -38,7 +38,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
-    async dropDatabasesAsync() {
+    async dropDatabasesAsync () {
         const db = await this.getClientDbAsync();
         await db.dropDatabase();
 

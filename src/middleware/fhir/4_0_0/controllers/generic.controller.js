@@ -37,7 +37,7 @@ class GenericController {
      * @param {ConfigManager} configManager
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor(
+    constructor (
         {
             postRequestProcessor,
             fhirOperationsManager,
@@ -82,7 +82,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise<Any>
      */
-    search(service, resourceType) {
+    search (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -128,7 +128,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    searchById(service, resourceType) {
+    searchById (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -156,7 +156,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    searchByVersionId(service, resourceType) {
+    searchByVersionId (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -187,7 +187,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    create(service, resourceType) {
+    create (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -221,7 +221,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    merge(service, resourceType) {
+    merge (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -252,7 +252,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    update(service, resourceType) {
+    update (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -286,7 +286,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    remove(service, resourceType) {
+    remove (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -315,7 +315,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    patch(service, resourceType) {
+    patch (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -351,7 +351,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    history(service, resourceType) {
+    history (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,
@@ -380,7 +380,7 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    historyById(service, resourceType) {
+    historyById (service, resourceType) {
         return async (
             /** @type {import('http').IncomingMessage} */req,
             /** @type {import('http').ServerResponse} */res,

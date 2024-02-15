@@ -15,7 +15,7 @@ class DatabaseUpdateFactory {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             resourceLocatorFactory,
             resourceMerger,
@@ -61,7 +61,7 @@ class DatabaseUpdateFactory {
      * @param {string} base_version
      * @return {DatabaseUpdateManager}
      */
-    createDatabaseUpdateManager({resourceType, base_version}) {
+    createDatabaseUpdateManager ({resourceType, base_version}) {
         return new DatabaseUpdateManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,

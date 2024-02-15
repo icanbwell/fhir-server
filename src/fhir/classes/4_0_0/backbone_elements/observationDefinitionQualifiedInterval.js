@@ -26,7 +26,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @param {Range|undefined} [gestationalAge],
      * @param {String|undefined} [condition],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -304,7 +304,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -327,7 +327,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.range) { await this.range.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -341,7 +341,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

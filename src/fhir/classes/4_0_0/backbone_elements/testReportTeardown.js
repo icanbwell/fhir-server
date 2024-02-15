@@ -18,7 +18,7 @@ class TestReportTeardown extends Element {
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {TestReportAction2[]} action,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -143,7 +143,7 @@ class TestReportTeardown extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -159,7 +159,7 @@ class TestReportTeardown extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.action) { await async.each(this.action, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -169,7 +169,7 @@ class TestReportTeardown extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

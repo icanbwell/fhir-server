@@ -9,7 +9,7 @@ class MongoFilterGenerator {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }
     ) {
@@ -26,7 +26,7 @@ class MongoFilterGenerator {
      * @param {SecurityTagStructure} securityTagStructure
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    generateFilterForIdAndSecurityTags({id, securityTagStructure}) {
+    generateFilterForIdAndSecurityTags ({id, securityTagStructure}) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
@@ -61,7 +61,7 @@ class MongoFilterGenerator {
      * @param {string} uuid
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    generateFilterForUuid({uuid}) {
+    generateFilterForUuid ({uuid}) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */

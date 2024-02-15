@@ -14,7 +14,7 @@ class ResourceLocatorFactory {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PartitioningManager} partitioningManager
      */
-    constructor({mongoCollectionManager, mongoDatabaseManager, partitioningManager}) {
+    constructor ({mongoCollectionManager, mongoDatabaseManager, partitioningManager}) {
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}
@@ -38,7 +38,7 @@ class ResourceLocatorFactory {
      * @param {string} base_version
      * @return {ResourceLocator}
      */
-    createResourceLocator({resourceType, base_version}) {
+    createResourceLocator ({resourceType, base_version}) {
         assertIsValid(resourceType, 'resourceType is missing');
         assertIsValid(base_version, 'base_version is missing');
         return new ResourceLocator(

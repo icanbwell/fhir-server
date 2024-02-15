@@ -16,7 +16,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
-    async answerQuestionWithDocumentsAsync(
+    async answerQuestionWithDocumentsAsync (
         {
             startPrompt,
             question,
@@ -125,7 +125,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         }
     }
 
-    async listModelsAsync() {
+    async listModelsAsync () {
         const configuration = {
             apiKey: this.configManager.openAIApiKey
         };

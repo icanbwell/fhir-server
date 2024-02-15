@@ -24,7 +24,7 @@ class SearchByVersionIdOperation {
      * @param {SearchManager} searchManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseHistoryFactory,
             scopesManager,
@@ -86,7 +86,7 @@ class SearchByVersionIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async searchByVersionIdAsync({requestInfo, parsedArgs, resourceType}) {
+    async searchByVersionIdAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

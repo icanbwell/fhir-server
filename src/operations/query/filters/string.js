@@ -12,7 +12,7 @@ class FilterByString extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         // If the field type is HumanName, use name query builder to apply the search in all the HumanName attributes.
         if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'humanname') {
             const ors = nameQueryBuilder({target: value});

@@ -134,7 +134,7 @@ const cookieExtractor = function (req) {
  * @param {string|null} scope
  * @return {Object}
  */
-function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+function parseUserInfoFromPayload ({username, subject, isUser, jwt_payload, done, client_id, scope}) {
     const context = {};
     if (username) {
         context['username'] = username;
@@ -265,7 +265,7 @@ const verify = (request, jwt_payload, done) => {
  *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
-    authenticate(req, options) {
+    authenticate (req, options) {
         const self = this;
         const token = self._jwtFromRequest(req);
         // can't just urlencode per https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html

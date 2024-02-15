@@ -43,7 +43,7 @@ class CoverageEligibilityResponse extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -679,7 +679,7 @@ class CoverageEligibilityResponse extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'CoverageEligibilityResponse';
     }
 
@@ -715,7 +715,7 @@ class CoverageEligibilityResponse extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {CoverageEligibilityResponse}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -783,7 +783,7 @@ class CoverageEligibilityResponse extends Resource {
      * @description creates a copy of this resource
      * @returns {CoverageEligibilityResponse}
     */
-    clone() {
+    clone () {
         return new CoverageEligibilityResponse(this.toJSONInternal());
     }
 
@@ -792,7 +792,7 @@ class CoverageEligibilityResponse extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -829,7 +829,7 @@ class CoverageEligibilityResponse extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
             if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
@@ -850,7 +850,7 @@ class CoverageEligibilityResponse extends Resource {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,

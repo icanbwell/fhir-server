@@ -17,7 +17,7 @@ class ResourceLocator {
      * @param {string} base_version
      * @param {PartitioningManager} partitioningManager
      */
-    constructor({
+    constructor ({
                     mongoDatabaseManager,
                     mongoCollectionManager, resourceType, base_version, partitioningManager
                 }) {
@@ -57,7 +57,7 @@ class ResourceLocator {
      * @param {Resource} resource
      * @returns {Promise<string>}
      */
-    async getCollectionNameAsync(resource) {
+    async getCollectionNameAsync (resource) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         assertIsValid(resource, 'resource is null');
         return await this.partitioningManager.getPartitionNameByResourceAsync(
@@ -69,7 +69,7 @@ class ResourceLocator {
      * @param {Resource[]} resources
      * @returns {Promise<string[]>}
      */
-    async getCollectionNamesAsync({resources}) {
+    async getCollectionNamesAsync ({resources}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return await this.partitioningManager.getPartitionNamesByResourcesAsync(
             {resources, base_version: this._base_version}
@@ -82,7 +82,7 @@ class ResourceLocator {
      * @param {Object} [extraInfo]
      * @returns {Promise<string[]>}
      */
-    async getCollectionNamesForQueryAsync({query, extraInfo = {}}) {
+    async getCollectionNamesForQueryAsync ({query, extraInfo = {}}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return await this.partitioningManager.getPartitionNamesByQueryAsync({
             resourceType: this._resourceType,
@@ -97,7 +97,7 @@ class ResourceLocator {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {Promise<string>}
      */
-    async getFirstCollectionNameForQueryDebugOnlyAsync({query}) {
+    async getFirstCollectionNameForQueryDebugOnlyAsync ({query}) {
         try {
             assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
             /**
@@ -125,7 +125,7 @@ class ResourceLocator {
      * @param {Resource} resource
      * @returns {Promise<string>}
      */
-    async getHistoryCollectionNameAsync(resource) {
+    async getHistoryCollectionNameAsync (resource) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
         /**
          * @type {string}
@@ -142,7 +142,7 @@ class ResourceLocator {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {Promise<string[]>}
      */
-    async getHistoryCollectionNamesForQueryAsync({query}) {
+    async getHistoryCollectionNamesForQueryAsync ({query}) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
         return await this.partitioningManager.getAllHistoryPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,
@@ -156,7 +156,7 @@ class ResourceLocator {
      * @param {Object} [extraInfo]
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseConnectionAsync(extraInfo = {}) {
+    async getDatabaseConnectionAsync (extraInfo = {}) {
         // noinspection JSValidateTypes
         return await this.mongoDatabaseManager.getDatabaseForResourceAsync(
             {
@@ -170,7 +170,7 @@ class ResourceLocator {
      * @param {string} collectionName
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionAsync(collectionName) {
+    async getOrCreateCollectionAsync (collectionName) {
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
@@ -185,7 +185,7 @@ class ResourceLocator {
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateCollectionForResourceAsync(resource) {
+    async getOrCreateCollectionForResourceAsync (resource) {
         assertTypeEquals(resource, Resource);
         /**
          * @type {string}
@@ -199,7 +199,7 @@ class ResourceLocator {
      * @param {Resource[]} resources
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
-    async getOrCreateCollectionsAsync({resources}) {
+    async getOrCreateCollectionsAsync ({resources}) {
         /**
          * @type {string[]}
          */
@@ -220,7 +220,7 @@ class ResourceLocator {
      * @param {Object} extraInfo
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
-    async getOrCreateCollectionsForQueryAsync({query, extraInfo = {}}) {
+    async getOrCreateCollectionsForQueryAsync ({query, extraInfo = {}}) {
         /**
          * @type {string[]}
          */
@@ -240,7 +240,7 @@ class ResourceLocator {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
-    async getOrCreateHistoryCollectionsForQueryAsync({query}) {
+    async getOrCreateHistoryCollectionsForQueryAsync ({query}) {
         /**
          * @type {string[]}
          */
@@ -260,7 +260,7 @@ class ResourceLocator {
      * @param {Resource} resource
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
-    async getOrCreateHistoryCollectionAsync(resource) {
+    async getOrCreateHistoryCollectionAsync (resource) {
         /**
          * @type {string}
          */

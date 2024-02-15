@@ -14,7 +14,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor ({configManager}) {
         super();
         /**
          * @type {ConfigManager}
@@ -28,7 +28,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
-    async preSaveAsync({resource}) {
+    async preSaveAsync ({resource}) {
         // get sourceAssigningAuthority of resource
         /**
          * @type {string[]}
@@ -63,7 +63,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @param {Reference} reference
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync({sourceAssigningAuthority, reference}) {
+    async updateReferenceAsync ({sourceAssigningAuthority, reference}) {
         assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority is null');
         /**
          * @type {string}

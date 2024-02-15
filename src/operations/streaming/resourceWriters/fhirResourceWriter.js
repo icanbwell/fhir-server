@@ -15,7 +15,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor({signal, contentType, highWaterMark, configManager, response}) {
+    constructor ({signal, contentType, highWaterMark, configManager, response}) {
         super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark, response});
         /**
          * @type {boolean}
@@ -42,7 +42,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -86,7 +86,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _flush(callback) {
+    _flush (callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -109,7 +109,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {OperationOutcome} operationOutcome
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
-    writeOperationOutcome({operationOutcome, encoding}) {
+    writeOperationOutcome ({operationOutcome, encoding}) {
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {
             // write the beginning json

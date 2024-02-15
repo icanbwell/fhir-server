@@ -10,7 +10,7 @@ const {PatientConverter} = require('./patientConverter');
 const {ProcedureConverter} = require('./procedureConverter');
 
 class ResourceConverterFactory {
-    constructor() {
+    constructor () {
         /**
          * @type {{CarePlan: BaseConverter}}
          */
@@ -33,7 +33,7 @@ class ResourceConverterFactory {
      * @param {Resource} resource
      * @returns {BaseConverter|undefined}
      */
-    getConverterForResource({resource}) {
+    getConverterForResource ({resource}) {
         return this.converterMapping[resource.resourceType];
     }
 }

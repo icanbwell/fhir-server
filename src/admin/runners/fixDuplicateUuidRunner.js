@@ -21,7 +21,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} afterLastUpdatedDate
      * @param {string|undefined} beforeLastUpdatedDate
      */
-    constructor({
+    constructor ({
         mongoCollectionManager,
         collections,
         batchSize,
@@ -104,7 +104,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * converts list of properties to a projection
      * @return {import('mongodb').Document}
      */
-    getProjection() {
+    getProjection () {
         /**
          * @type {import('mongodb').Document}
          */
@@ -132,7 +132,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string[]} duplicateUuidArray
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForDuplicateUuidResources({ duplicateUuidArray }) {
+    getQueryForDuplicateUuidResources ({ duplicateUuidArray }) {
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
@@ -167,7 +167,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {require('mongodb').collection} collection
      * @returns {Promise<string[]>}
      */
-    async getDuplicateUuidArrayAsync({ collection }) {
+    async getDuplicateUuidArrayAsync ({ collection }) {
         const result = (
             await collection
                 .aggregate(
@@ -208,7 +208,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processResourceAsync({ uuid, collectionName }) {
+    async processResourceAsync ({ uuid, collectionName }) {
         try {
             if (
                 this.processedUuids.has(collectionName) &&
@@ -290,7 +290,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
      * Runs a loop on all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {

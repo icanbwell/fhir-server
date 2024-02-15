@@ -8,7 +8,7 @@ class IdEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({resources, parsedArgs}) {
         for (const resource of resources) {
             if (resource._sourceId) {
                 resource.id = resource._sourceId;
@@ -24,7 +24,7 @@ class IdEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<BundleEntry[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({entries, parsedArgs}) {
         return entries;
     }
 }

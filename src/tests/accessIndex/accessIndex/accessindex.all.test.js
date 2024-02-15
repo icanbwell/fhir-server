@@ -17,15 +17,15 @@ class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources() {
+    get partitionResources () {
         return ['all'];
     }
 
-    get resourcesWithAccessIndex() {
+    get resourcesWithAccessIndex () {
         return ['all'];
     }
 
-    get useAccessIndex() {
+    get useAccessIndex () {
         return true;
     }
 }
@@ -35,7 +35,7 @@ class MockIndexProvider extends IndexProvider {
      * @param {string[]} accessCodes
      * @return {boolean}
      */
-    hasIndexForAccessCodes({accessCodes}) {
+    hasIndexForAccessCodes ({accessCodes}) {
         return accessCodes.every(a => a === 'client1');
     }
 }

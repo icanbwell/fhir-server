@@ -22,7 +22,7 @@ class MolecularSequenceStructureVariant extends Element {
      * @param {MolecularSequenceOuter|undefined} [outer],
      * @param {MolecularSequenceInner|undefined} [inner],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -232,7 +232,7 @@ class MolecularSequenceStructureVariant extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         const {removeNull} = require('../../../../utils/nullRemover');
 
         return removeNull({
@@ -252,7 +252,7 @@ class MolecularSequenceStructureVariant extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({fnUpdateReferenceAsync}) {
             if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
             if (this.variantType) { await this.variantType.updateReferencesAsync({fnUpdateReferenceAsync}); }
@@ -264,7 +264,7 @@ class MolecularSequenceStructureVariant extends Element {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
+    toJSONInternal () {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,

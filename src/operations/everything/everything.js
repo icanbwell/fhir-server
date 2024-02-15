@@ -20,7 +20,7 @@ class EverythingOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ChatGPTLangChainManager} chatgptManager
      */
-    constructor(
+    constructor (
         {
             graphOperation,
             fhirLoggingManager,
@@ -60,7 +60,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async everythingAsync ({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
@@ -102,7 +102,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everythingBundleAsync(
+    async everythingBundleAsync (
         {
             requestInfo,
             res,

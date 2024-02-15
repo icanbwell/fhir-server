@@ -24,7 +24,7 @@ module.exports.handleStats = async ({fnGetContainer, req, res}) => {
      * @param {import('mongodb').Db} db
      * @return {Promise<{name, count: number, indexes: Omit<IndexInfo, 'v'>[]}>}
      */
-    async function getStatsForCollectionAsync(collection_name, db) {
+    async function getStatsForCollectionAsync (collection_name, db) {
         logInfo(collection_name, {});
         const count = await db.collection(collection_name).estimatedDocumentCount();
         /**

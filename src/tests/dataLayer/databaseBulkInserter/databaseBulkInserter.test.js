@@ -40,7 +40,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     kafkaClient,
                     resourceManager,
                     patientChangeTopic,

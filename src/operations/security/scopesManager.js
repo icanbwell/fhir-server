@@ -8,7 +8,7 @@ class ScopesManager {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }) {
 
@@ -21,7 +21,7 @@ class ScopesManager {
      * @param {string} scope
      * @return {string[]}
      */
-    parseScopes(scope) {
+    parseScopes (scope) {
         if (!scope) {
             return [];
         }
@@ -35,7 +35,7 @@ class ScopesManager {
      * @param {string|null} scope
      * @return {string[]} security tags allowed by scopes
      */
-    getAccessCodesFromScopes(action, user, scope) {
+    getAccessCodesFromScopes (action, user, scope) {
         if (this.configManager.authEnabled) {
             assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
@@ -77,7 +77,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource) {
+    doesResourceHaveAnyAccessCodeFromThisList (accessCodes, user, scope, resource) {
         if (!this.configManager.authEnabled) {
             return true;
         }
@@ -121,7 +121,7 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags({resource, user, scope}) {
+    isAccessToResourceAllowedBySecurityTags ({resource, user, scope}) {
         if (!this.configManager.authEnabled) {
             return true;
         }
@@ -146,7 +146,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveAccessTags(resource) {
+    doesResourceHaveAccessTags (resource) {
         return (
             resource &&
             resource.meta &&
@@ -160,7 +160,7 @@ class ScopesManager {
      * @param {Resource|Object} resource
      * @return {boolean}
      */
-    doesResourceHaveOwnerTags(resource) {
+    doesResourceHaveOwnerTags (resource) {
         return (
             resource &&
             resource.meta &&
@@ -174,7 +174,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveMetaSource(resource) {
+    doesResourceHaveMetaSource (resource) {
         return (
             resource &&
             resource.meta &&
@@ -187,7 +187,7 @@ class ScopesManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    doesResourceHaveSourceAssigningAuthority(resource) {
+    doesResourceHaveSourceAssigningAuthority (resource) {
         return (
             resource &&
             resource.meta &&
@@ -201,7 +201,7 @@ class ScopesManager {
      * @param {string|undefined} scope
      * @returns {string[]}
      */
-    getAdminScopes({scope}) {
+    getAdminScopes ({scope}) {
         if (!scope) {
             return [];
         }
@@ -217,7 +217,7 @@ class ScopesManager {
      * @param {import('http').IncomingMessage} req
      * @return {string|undefined}
      */
-    getScopeFromRequest({req}) {
+    getScopeFromRequest ({req}) {
         return req.authInfo && req.authInfo.scope;
     }
 
@@ -226,7 +226,7 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    hasPatientScope({scope}) {
+    hasPatientScope ({scope}) {
         if (this.configManager.authEnabled) {
             assertIsValid(scope);
             if (scope.includes('patient/')) {

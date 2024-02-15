@@ -11,7 +11,7 @@ class FhirResourceWriterFactory {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             configManager
         }
@@ -38,7 +38,7 @@ class FhirResourceWriterFactory {
      * @param {import('http').ServerResponse} response
      * @return {FhirResourceWriterBase| {getContentType: function()}}
      */
-    createResourceWriter(
+    createResourceWriter (
         {
             accepts,
             signal,

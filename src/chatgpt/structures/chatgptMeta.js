@@ -8,7 +8,7 @@ class ChatGPTMeta {
      * @param {string} parentUuid
      * @param {string} parentResourceType
      */
-    constructor({_id, uuid, reference, resourceType, parentUuid, parentResourceType}) {
+    constructor ({_id, uuid, reference, resourceType, parentUuid, parentResourceType}) {
         /**
          * @type {string}
          */

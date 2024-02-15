@@ -8,7 +8,7 @@ const errors = require('./utils/error.utils');
  */
 
 
-module.exports = function versionValidationMiddleware(profile = {}) {
+module.exports = function versionValidationMiddleware (profile = {}) {
     const {
         versions = [],
         baseUrls = []

@@ -5,7 +5,7 @@ class BaseFilter {
      * constructor
      * @param {FilterParameters} filterParameters
      */
-    constructor(
+    constructor (
         filterParameters
     ) {
         /**
@@ -48,7 +48,7 @@ class BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         return {
             [this.fieldMapper.getFieldName(field)]: value
         };
@@ -58,7 +58,7 @@ class BaseFilter {
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */

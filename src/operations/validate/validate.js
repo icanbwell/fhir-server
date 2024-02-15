@@ -28,7 +28,7 @@ class ValidateOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             scopesManager,
             fhirLoggingManager,
@@ -80,7 +80,7 @@ class ValidateOperation {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validateAsync({requestInfo, parsedArgs, resourceType}) {
+    async validateAsync ({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -230,7 +230,7 @@ class ValidateOperation {
      * @param startTime
      * @returns {Promise<OperationOutcome>}
      */
-    async validateResourceAsync(
+    async validateResourceAsync (
         {
             resource_incoming,
             resourceType,
