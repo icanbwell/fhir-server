@@ -582,7 +582,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 );
                 if (!updatedResource) {
-                    return; // no change so ignore
+                     // no change so ignore
                 } else {
                     doc = updatedResource;
                     previousUpdate.resource = doc;
@@ -615,7 +615,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         incrementVersion: false
                     });
                     if (!updatedResource) {
-                        return; // no change so ignore
+                         // no change so ignore
                     } else {
                         doc = updatedResource;
                         previousInsert.resource = doc;

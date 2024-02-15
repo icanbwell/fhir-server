@@ -35,7 +35,6 @@
       "array-bracket-spacing": "off",
       "no-useless-computed-key": "off",
       "lines-between-class-members": "off",
-      "no-useless-return": "off",
       "no-mixed-operators": "off"
     }
 }
