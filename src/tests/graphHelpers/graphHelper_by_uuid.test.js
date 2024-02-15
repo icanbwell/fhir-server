@@ -99,7 +99,7 @@ describe('graphHelper Tests', () => {
                 }
             );
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -153,7 +153,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -237,7 +237,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -307,7 +307,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -377,7 +377,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -445,7 +445,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -528,7 +528,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -601,7 +601,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -685,7 +685,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -814,7 +814,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -974,7 +974,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -1113,7 +1113,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -1313,7 +1313,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -1568,7 +1568,7 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -1806,19 +1806,19 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.meta).toBeDefined();
             expect(result.meta.tag).toBeDefined();
             expect(result.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/queryExplain').length).toBe(1);
             for (const tag of result.meta.tag) {
                 if (tag.system === 'https://www.icanbwell.com/queryExplain') {
-                    delete tag['display'];
+                    delete tag.display;
                 }
                 if (tag.system === 'https://www.icanbwell.com/queryExplainSimple') {
-                    delete tag['display'];
+                    delete tag.display;
                 }
                 if (tag.system === 'https://www.icanbwell.com/queryTime') {
-                    delete tag['display'];
+                    delete tag.display;
                 }
             }
             expect(result.toJSON()).toStrictEqual({
@@ -2092,19 +2092,19 @@ describe('graphHelper Tests', () => {
                 parsedArgs
             });
             expect(result).not.toBeNull();
-            delete result['timestamp'];
+            delete result.timestamp;
             expect(result.meta).toBeDefined();
             expect(result.meta.tag).toBeDefined();
             expect(result.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/queryExplain').length).toBe(1);
             for (const tag of result.meta.tag) {
                 if (tag.system === 'https://www.icanbwell.com/queryExplain') {
-                    delete tag['display'];
+                    delete tag.display;
                 }
                 if (tag.system === 'https://www.icanbwell.com/queryExplainSimple') {
-                    delete tag['display'];
+                    delete tag.display;
                 }
                 if (tag.system === 'https://www.icanbwell.com/queryTime') {
-                    delete tag['display'];
+                    delete tag.display;
                 }
             }
             expect(result.toJSON()).toStrictEqual({

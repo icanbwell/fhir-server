@@ -77,10 +77,10 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         let hasUpdate = false;
-        if (accessCodes.length > 0 && !doc['_access']) {
+        if (accessCodes.length > 0 && !doc._access) {
             const accessColumnHandler = new AccessColumnHandler();
             doc = await accessColumnHandler.preSaveAsync({ resource: doc });
-            setCommand['_access'] = doc._access;
+            setCommand._access = doc._access;
             hasUpdate = true;
         }
         // Step 2: add any missing _sourceAssigningAuthority tags
@@ -94,27 +94,27 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             sourceAssigningAuthorityCodes = doc.meta.security.filter(
                 s => s.system === SecurityTagSystem.owner).map(s => s.code);
         }
-        if (sourceAssigningAuthorityCodes.length > 0 && !doc['_sourceAssigningAuthority']) {
+        if (sourceAssigningAuthorityCodes.length > 0 && !doc._sourceAssigningAuthority) {
             const sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler();
             doc = await sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource: doc });
-            setCommand['_sourceAssigningAuthority'] = doc._sourceAssigningAuthority;
-            setCommand['meta'] = doc.meta;
+            setCommand._sourceAssigningAuthority = doc._sourceAssigningAuthority;
+            setCommand.meta = doc.meta;
             hasUpdate = true;
         }
         // Step 3: add _sourceId
-        if (!doc['_sourceId']) {
+        if (!doc._sourceId) {
             const sourceIdColumnHandler = new SourceIdColumnHandler();
             doc = await sourceIdColumnHandler.preSaveAsync({ resource: doc });
-            setCommand['_sourceId'] = doc._sourceId;
-            setCommand['meta'] = doc.meta;
+            setCommand._sourceId = doc._sourceId;
+            setCommand.meta = doc.meta;
             hasUpdate = true;
         }
         // Step 4: add _uuid
-        if (!doc['_uuid']) {
+        if (!doc._uuid) {
             const uuidColumnHandler = new UuidColumnHandler({ configManager: this.configManager });
             doc = await uuidColumnHandler.preSaveAsync({ resource: doc });
-            setCommand['_uuid'] = doc._uuid;
-            setCommand['meta'] = doc.meta;
+            setCommand._uuid = doc._uuid;
+            setCommand.meta = doc.meta;
             hasUpdate = true;
         }
         // if there are any updates to be done

@@ -73,8 +73,8 @@ class ResourcePreparer {
 
         // this is a hack for the CQL Evaluator since it does not request these fields but expects them
         if (resourceType === 'Library') {
-            element_to_return['id'] = element['id'];
-            element_to_return['url'] = element['url'];
+            element_to_return.id = element.id;
+            element_to_return.url = element.url;
         }
         return element_to_return;
     }

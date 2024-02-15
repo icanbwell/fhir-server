@@ -16,7 +16,7 @@ class HashReferencesEnrichmentProvider {
         /**
          * @type {boolean}
          */
-        const hash_references = isTrue(parsedArgs['_hash_references']);
+        const hash_references = isTrue(parsedArgs._hash_references);
         if (hash_references) {
             for (const /** @type {Resource} */ resource of resources) {
                 // collect set of included resources
@@ -55,7 +55,7 @@ class HashReferencesEnrichmentProvider {
         /**
          * @type {boolean}
          */
-        const hash_references = isTrue(parsedArgs['_hash_references']);
+        const hash_references = isTrue(parsedArgs._hash_references);
         if (hash_references) {
             for (const /** @type {BundleEntry} */ entry of entries) {
                 // collect set of included resources

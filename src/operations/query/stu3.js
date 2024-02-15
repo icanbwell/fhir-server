@@ -10,7 +10,7 @@ module.exports.buildStu3SearchQuery = (args) => {
     // Search Result params
 
     // Patient search params
-    const active = args['active'];
+    const active = args.active;
 
     const query = {};
 

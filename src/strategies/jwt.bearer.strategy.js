@@ -106,7 +106,7 @@ const cookieExtractor = function (req) {
      */
     let token = null;
     if (req && req.cookies) {
-        token = req.cookies['jwt'];
+        token = req.cookies.jwt;
         logDebug('Found cookie jwt', { user: '', args: { token } });
     } else {
         logDebug('No cookies found', { user: '' });
@@ -137,13 +137,13 @@ const cookieExtractor = function (req) {
 function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, done, client_id, scope }) {
     const context = {};
     if (username) {
-        context['username'] = username;
+        context.username = username;
     }
     if (subject) {
-        context['subject'] = subject;
+        context.subject = subject;
     }
     if (isUser) {
-        context['isUser'] = isUser;
+        context.isUser = isUser;
         // Test that required fields are populated
         let validInput = true;
         requiredJWTFields.forEach((field) => {
@@ -159,12 +159,12 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         if (jwt_payload['custom:bwell_fhir_ids']) {
             const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
             if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
-                context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
+                context.patientIdsFromJwtToken = patientIdsFromJwtToken;
             }
         } else if (fhirPatientId) {
-            context['patientIdsFromJwtToken'] = [fhirPatientId];
+            context.patientIdsFromJwtToken = [fhirPatientId];
         }
-        context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+        context.personIdFromJwtToken = jwt_payload['custom:bwellFhirPersonId'];
     }
 
     return done(null, { id: client_id, isUser, name: username, username }, { scope, context });

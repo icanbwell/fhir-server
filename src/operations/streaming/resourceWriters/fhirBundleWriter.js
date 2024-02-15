@@ -75,7 +75,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             callback();
             return;
         }
-        const chunkId = chunk['id'];
+        const chunkId = chunk.id;
         let chunkJson = {};
         try {
             if (chunk !== null && chunk !== undefined) {
@@ -86,7 +86,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     }, getCircularReplacer()
                 );
                 if (this.configManager.logStreamSteps) {
-                    logInfo(`FhirBundleWriter _transform ${chunk['id']}`, {});
+                    logInfo(`FhirBundleWriter _transform ${chunk.id}`, {});
                 }
                 if (this._first) {
                     // write the beginning json

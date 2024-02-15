@@ -266,7 +266,7 @@ Question: {question}
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
         const parameters = { query, baseUrl };
         if (patientId) {
-            parameters['patientId'] = patientId;
+            parameters.patientId = patientId;
         }
         const fullPrompt = await prompt.format(parameters);
         const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });

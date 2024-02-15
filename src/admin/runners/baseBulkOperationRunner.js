@@ -373,7 +373,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                      */
                     const options = { session, timeout: false, noCursorTimeout: true, maxTimeMS };
                     if (projection) {
-                        options['projection'] = projection;
+                        options.projection = projection;
                     }
 
                     // loopNumber += 1;

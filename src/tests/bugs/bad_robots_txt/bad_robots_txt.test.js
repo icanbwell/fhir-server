@@ -17,7 +17,7 @@ describe('Bad url Tests', () => {
             // ARRANGE
             // add the resources to FHIR server
             const headers = getHtmlHeaders();
-            headers['Accept'] = '*/*';
+            headers.Accept = '*/*';
             const resp = await request
                 .get('/robots.txt')
                 .set(headers);

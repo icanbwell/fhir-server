@@ -192,14 +192,14 @@ class AuditLogger {
 
         const cleanedArgs = deepcopy(args);
         // remove id and _id args since they are duplicated in the items retrieved
-        if (cleanedArgs['id']) {
-            cleanedArgs['id'] = '';
+        if (cleanedArgs.id) {
+            cleanedArgs.id = '';
         }
-        if (cleanedArgs['_id']) {
-            delete cleanedArgs['_id'];
+        if (cleanedArgs._id) {
+            delete cleanedArgs._id;
         }
-        if (cleanedArgs['_source']) {
-            delete cleanedArgs['_source'];
+        if (cleanedArgs._source) {
+            delete cleanedArgs._source;
         }
         /**
          * @type {Resource}

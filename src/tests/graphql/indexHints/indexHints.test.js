@@ -87,7 +87,7 @@ describe('Graphql IndexHints Test', () => {
             let desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
 
             // noinspection JSUnresolvedFunction
-            expect(desiredObject['code']).toEqual('[id_1]');
+            expect(desiredObject.code).toEqual('[id_1]');
 
             resp = await request
                 .post('/graphql')
@@ -101,7 +101,7 @@ describe('Graphql IndexHints Test', () => {
             desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
 
             // noinspection JSUnresolvedFunction
-            expect(desiredObject['code']).toEqual('[uuid]');
+            expect(desiredObject.code).toEqual('[uuid]');
         });
     });
 });

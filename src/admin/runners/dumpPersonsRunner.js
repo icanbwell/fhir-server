@@ -63,12 +63,12 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
    }
 
     async formatDocument (doc) {
-        delete doc['_uuid'];
-        delete doc['_id'];
-        delete doc['_access'];
-        delete doc['_sourceAssigningAuthority'];
-        delete doc['_sourceId'];
-        delete doc['active'];
+        delete doc._uuid;
+        delete doc._id;
+        delete doc._access;
+        delete doc._sourceAssigningAuthority;
+        delete doc._sourceId;
+        delete doc.active;
         const newDoc = { resource: { ...doc } };
         return newDoc;
     }

@@ -237,7 +237,7 @@ class BundleManager {
             bundle.id = requestId;
         }
 
-        if (((parsedArgs['_explain'] || parsedArgs['_debug'])) || env.LOGLEVEL === 'DEBUG') {
+        if (((parsedArgs._explain || parsedArgs._debug)) || env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
@@ -318,7 +318,7 @@ class BundleManager {
                     display: `${cursorBatchSize}`
                 });
             }
-            bundle['meta'] = {
+            bundle.meta = {
                 tag
             };
             logDebug('', { user, args: bundle });

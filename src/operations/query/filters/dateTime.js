@@ -123,14 +123,14 @@ class FilterByDateTime extends BaseFilter {
             }
 
             // simplify the range query
-            if (simplifiedRangeQuery['$lt'] && simplifiedRangeQuery['$lte']) {
+            if (simplifiedRangeQuery.$lt && simplifiedRangeQuery.$lte) {
                 // give more preference to $lte
-                delete simplifiedRangeQuery['$lt'];
+                delete simplifiedRangeQuery.$lt;
             }
 
-            if (simplifiedRangeQuery['$gt'] && simplifiedRangeQuery['$gte']) {
+            if (simplifiedRangeQuery.$gt && simplifiedRangeQuery.$gte) {
                 // give more preference to $gte
-                delete simplifiedRangeQuery['$gt'];
+                delete simplifiedRangeQuery.$gt;
             }
 
             if (Object.keys(simplifiedRangeQuery).length > 0) {

@@ -148,7 +148,7 @@ class SearchStreamingOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
         const { /** @type {string} **/base_version } = parsedArgs;
 
@@ -294,9 +294,9 @@ useAccessIndex,
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG'))
+            const explanations = (cursor && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG'))
                 ? (await cursor.explainAsync()) : [];
-            if (cursor && parsedArgs['_explain']) {
+            if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -397,7 +397,7 @@ useAccessIndex,
                     res.status(200).end();
                 } else {
                     // return empty bundle
-                    if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
+                    if (this.configManager.enableReturnBundle || parsedArgs._bundle) {
                         /**
                          * @type {Bundle}
                          */

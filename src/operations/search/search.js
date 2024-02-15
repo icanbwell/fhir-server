@@ -38,7 +38,7 @@ class SearchOperation {
             requestInfo, args, resourceType,
             filter);
 
-        if (this.configManager.enableReturnBundle || args['_bundle']) {
+        if (this.configManager.enableReturnBundle || args._bundle) {
             return bundle;
         } else {
             // return resources from bundle

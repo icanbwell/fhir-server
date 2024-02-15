@@ -152,7 +152,7 @@ class HistoryOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
         /**
          * @type {{base_version, columns: Set, query: import('mongodb').Document}}
@@ -217,8 +217,8 @@ class HistoryOperation {
         /**
          * @type {import('mongodb').Document[]}
          */
-        const explanations = (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
-        if (parsedArgs['_explain']) {
+        const explanations = (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
+        if (parsedArgs._explain) {
             // if explain is requested then don't return any results
             cursor.clear();
         }

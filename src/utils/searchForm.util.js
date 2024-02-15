@@ -309,7 +309,7 @@ const getHasNext = (res) => {
 
 const getLastUpdate = function (req, index) {
     const searchParams = getSearchParams(req);
-    return searchParams['_lastUpdated'] ? searchParams['_lastUpdated'].at(index) : '';
+    return searchParams._lastUpdated ? searchParams._lastUpdated.at(index) : '';
 };
 
 const zeroPad = (number) => {

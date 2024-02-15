@@ -51,7 +51,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
             if (chunk !== null && chunk !== undefined) {
                 const resourceJson = JSON.stringify(chunk.toJSON(), getCircularReplacer());
                 if (this.configManager.logStreamSteps) {
-                    logInfo(`FhirResourceWriter _transform ${chunk['id']}`, {});
+                    logInfo(`FhirResourceWriter _transform ${chunk.id}`, {});
                 }
                 if (this._first) {
                     // write the beginning json

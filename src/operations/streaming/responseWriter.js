@@ -92,7 +92,7 @@ class HttpResponseWriter extends Writable {
                                  * @type {Object}
                                  */
                                 const jsonObject = JSON.parse(chunk);
-                                logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                                logger.verbose(`HttpResponseWriter: _write ${jsonObject.id}`);
                             } catch (e) {
                                 logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
                             }

@@ -116,7 +116,7 @@ class GraphOperation {
             /**
              * @type {boolean}
              */
-            const contained = isTrue(parsedArgs['contained']);
+            const contained = isTrue(parsedArgs.contained);
             /**
              * @type {string}
              */

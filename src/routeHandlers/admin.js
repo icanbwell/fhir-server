@@ -28,7 +28,7 @@ async function showIndexesAsync (
         filterToProblems
     }) {
     logInfo('showIndexesAsync', { 'req.query': req.query });
-    const audit = req.query['audit'];
+    const audit = req.query.audit;
     /**
      * @type {IndexManager}
      */
@@ -57,7 +57,7 @@ async function synchronizeIndexesAsync (
     }
 ) {
     logInfo('synchronizeIndexesAsync', { 'req.query': req.query });
-    const audit = req.query['audit'];
+    const audit = req.query.audit;
     /**
      * @type {IndexManager}
      */
@@ -83,7 +83,7 @@ async function handleAdmin (
     try {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         httpContext.set('requestId', req.id);
-        const operation = req.params['op'];
+        const operation = req.params.op;
         logInfo(`op=${operation}`, {});
 
         // set up all the standard services in the container
@@ -108,7 +108,7 @@ async function handleAdmin (
             switch (operation) {
                 case 'searchLogResults': {
                     logInfo('', { 'req.query': req.query });
-                    const id = req.query['id'];
+                    const id = req.query.id;
                     if (id) {
                         const adminLogManager = new AdminLogManager({ mongoDatabaseManager: container.mongoDatabaseManager });
                         const json = await adminLogManager.getLogAsync(id);
@@ -121,7 +121,7 @@ async function handleAdmin (
 
                 case 'showPersonToPersonLink': {
                     logInfo('', { 'req.query': req.query });
-                    const bwellPersonId = req.query['bwellPersonId'];
+                    const bwellPersonId = req.query.bwellPersonId;
                     if (bwellPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -139,7 +139,7 @@ async function handleAdmin (
 
                 case 'deletePerson': {
                     logInfo('', { 'req.query': req.query });
-                    const personId = req.query['personId'];
+                    const personId = req.query.personId;
                     if (personId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -159,8 +159,8 @@ async function handleAdmin (
 
                 case 'createPersonToPersonLink': {
                     logInfo('', { 'req.query': req.query });
-                    const bwellPersonId = req.query['bwellPersonId'];
-                    const externalPersonId = req.query['externalPersonId'];
+                    const bwellPersonId = req.query.bwellPersonId;
+                    const externalPersonId = req.query.externalPersonId;
                     if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -180,8 +180,8 @@ async function handleAdmin (
 
                 case 'removePersonToPersonLink': {
                     logInfo('', { 'req.query': req.query });
-                    const bwellPersonId = req.query['bwellPersonId'];
-                    const externalPersonId = req.query['externalPersonId'];
+                    const bwellPersonId = req.query.bwellPersonId;
+                    const externalPersonId = req.query.externalPersonId;
                     if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -201,8 +201,8 @@ async function handleAdmin (
 
                 case 'createPersonToPatientLink': {
                     logInfo('', { 'req.query': req.query });
-                    const externalPersonId = req.query['externalPersonId'];
-                    const patientId = req.query['patientId'];
+                    const externalPersonId = req.query.externalPersonId;
+                    const patientId = req.query.patientId;
                     if (patientId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
@@ -222,8 +222,8 @@ async function handleAdmin (
 
                 case 'removePersonToPatientLink': {
                     logInfo('', { 'req.query': req.query });
-                    const personId = req.query['personId'];
-                    const patientId = req.query['patientId'];
+                    const personId = req.query.personId;
+                    const patientId = req.query.patientId;
                     if (personId && patientId) {
                         /**
                          * @type {import('../admin/adminPersonPatientLinkManager').AdminPersonPatientLinkManager}
@@ -243,8 +243,8 @@ async function handleAdmin (
 
                 case 'deletePatientDataGraph': {
                     logInfo('', { 'req.query': req.query });
-                    const patientId = req.query['id'];
-                    const sync = req.query['sync'];
+                    const patientId = req.query.id;
+                    const sync = req.query.sync;
                     if (patientId) {
                         /**
                          * @type {string[]}
@@ -313,7 +313,7 @@ async function handleAdmin (
 
                 case 'deletePersonDataGraph': {
                     logInfo('', { 'req.query': req.query });
-                    const personId = req.query['id'];
+                    const personId = req.query.id;
                     if (personId) {
                         /**
                          * @type {string[]}
@@ -401,10 +401,10 @@ res,
 
                 case 'runPersonMatch': {
                     logInfo('', { 'req.query': req.query });
-                    const sourceId = req.query['sourceId'];
-                    const sourceType = req.query['sourceType'];
-                    const targetId = req.query['targetId'];
-                    const targetType = req.query['targetType'];
+                    const sourceId = req.query.sourceId;
+                    const sourceType = req.query.sourceType;
+                    const targetId = req.query.targetId;
+                    const targetType = req.query.targetType;
                     const personMatchManager = container.personMatchManager;
                     assertIsValid(personMatchManager);
                     const json = await personMatchManager.personMatchAsync({

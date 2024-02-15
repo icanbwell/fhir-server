@@ -10,7 +10,7 @@ module.exports.buildDstu2SearchQuery = (args) => {
     // Search Result params
 
     // Patient search params
-    const active = args['active'];
+    const active = args.active;
 
     const query = {};
     if (id) {

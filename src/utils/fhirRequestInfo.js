@@ -121,7 +121,7 @@ class FhirRequestInfo {
          * whether the client wants to use global ids
          * @type {boolean}
          */
-        this.preferGlobalId = headers['Prefer'] && isTrue(headers['Prefer'].replace('global_id=', ''));
+        this.preferGlobalId = headers.Prefer && isTrue(headers.Prefer.replace('global_id=', ''));
     }
 }
 

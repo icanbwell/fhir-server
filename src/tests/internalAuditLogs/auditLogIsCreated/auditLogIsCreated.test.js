@@ -99,20 +99,20 @@ describe('InternalAuditLog Tests', () => {
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents1.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents1);
 
@@ -131,20 +131,20 @@ describe('InternalAuditLog Tests', () => {
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents2.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
@@ -166,20 +166,20 @@ describe('InternalAuditLog Tests', () => {
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents2.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
@@ -194,20 +194,20 @@ describe('InternalAuditLog Tests', () => {
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents3.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents3);
 

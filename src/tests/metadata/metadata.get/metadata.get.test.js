@@ -23,7 +23,7 @@ describe('Meta Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMetaResources, (resource) => {
-                delete resource['date'];
+                delete resource.date;
                 return resource;
             });
         });
@@ -36,7 +36,7 @@ describe('Meta Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMetaResources, (resource) => {
-                delete resource['date'];
+                delete resource.date;
                 return resource;
             });
         });

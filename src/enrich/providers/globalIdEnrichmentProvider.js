@@ -34,7 +34,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
          * @type {string}
          */
         const preferHeader = parsedArgs.headers &&
-            (parsedArgs.headers['prefer'] || parsedArgs.headers['Prefer']);
+            (parsedArgs.headers.prefer || parsedArgs.headers.Prefer);
         if (preferHeader) {
             const parts = preferHeader.split('=');
             if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {

@@ -47,11 +47,11 @@ class R4ArgsParser {
         const parseArgItems = [];
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
         // ---- start of backward compatibility mappings ---
-        if (args['source'] && !args['_source']) {
-            args['_source'] = args['source'];
+        if (args.source && !args._source) {
+            args._source = args.source;
         }
-        if (args['id'] && !args['_id']) {
-            args['_id'] = args['id'];
+        if (args.id && !args._id) {
+            args._id = args.id;
         }
         if (args['id:above'] && !args['_id:above']) {
             args['_id:above'] = args['id:above'];
@@ -59,14 +59,14 @@ class R4ArgsParser {
         if (args['id:below'] && !args['_id:below']) {
             args['_id:below'] = args['id:below'];
         }
-        if (args['onset_date'] && !args['onset-date']) {
-            args['onset-date'] = args['onset_date'];
+        if (args.onset_date && !args['onset-date']) {
+            args['onset-date'] = args.onset_date;
         }
         // ---- end of backward compatibility mappings ---
 
         // ---- start of add range logic to args sent from the search form   ---
-        if (args['_lastUpdated'] && Array.isArray(args['_lastUpdated'])) {
-            const lastUpdatedArray = args['_lastUpdated'];
+        if (args._lastUpdated && Array.isArray(args._lastUpdated)) {
+            const lastUpdatedArray = args._lastUpdated;
             const newUpdatedArray = [];
             lastUpdatedArray.forEach((value, i) => {
                 const currentPrefix = value.replace(/[^a-z]/gi, '');
@@ -76,14 +76,14 @@ class R4ArgsParser {
                 }
             });
             if (newUpdatedArray.length > 0) {
-                args['_lastUpdated'] = newUpdatedArray;
+                args._lastUpdated = newUpdatedArray;
             }
         }
         // ---- end of add range logic to args sent from the search form   ---
 
         // Represents type of search to be conducted strict or lenient
-        const handlingType = args['handling'];
-        delete args['handling'];
+        const handlingType = args.handling;
+        delete args.handling;
 
         for (const argName in args) {
             let [queryParameter, ...modifiers] = argName.split(':');
@@ -112,7 +112,7 @@ class R4ArgsParser {
                 propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             }
             if (!propertyObj) {
-                propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
+                propertyObj = searchParameterQueries.Resource[`${queryParameter}`];
             }
             /**
              * @type {string | string[]}
@@ -207,7 +207,7 @@ class R4ArgsParser {
          */
         const parsedArgs = new ParsedArgs(
             {
-                base_version: args['base_version'],
+                base_version: args.base_version,
                 parsedArgItems: parseArgItems
             }
         );

@@ -164,7 +164,7 @@ class SearchByIdOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
@@ -258,7 +258,7 @@ base_version,
 resourceType,
                                     operation: 'read',
 args: parsedArgs.getRawArgs(),
-ids: [resource['id']]
+ids: [resource.id]
                                 }
                             );
                         }

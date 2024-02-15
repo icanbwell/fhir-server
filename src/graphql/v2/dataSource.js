@@ -537,8 +537,8 @@ args,
             dataToEnrich.forEach(dataKey => {
                 if (reference[`${dataKey}`]) {
                     const extensionData = { ...dataExtensionMap[`${dataKey}`] };
-                    extensionData[extensionData['valueKey']] = reference[`${dataKey}`];
-                    delete extensionData['valueKey'];
+                    extensionData[extensionData.valueKey] = reference[`${dataKey}`];
+                    delete extensionData.valueKey;
                     extension.push(extensionData);
                 }
             });

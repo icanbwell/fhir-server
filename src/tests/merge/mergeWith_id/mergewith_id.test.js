@@ -191,7 +191,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveStatusCode(403);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
+                delete r.issue[0].diagnostics;
             });
         });
         test('mergeWith_id fails with missing permissions (update)', async () => {
@@ -242,7 +242,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveStatusCode(403);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
+                delete r.issue[0].diagnostics;
             });
         });
         test('mergeWith_id fails with wrong access scope (create)', async () => {
@@ -266,7 +266,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
                 if (r.issue) {
-                    delete r.issue[0]['diagnostics'];
+                    delete r.issue[0].diagnostics;
                 }
             });
         });
@@ -304,7 +304,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveStatusCode(403);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
+                delete r.issue[0].diagnostics;
             });
 
             // ACT & ASSERT

@@ -179,7 +179,7 @@ class CreateOperation {
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs._validate) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -229,9 +229,9 @@ class CreateOperation {
             if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
             } else {
-                resource.meta['versionId'] = '1';
+                resource.meta.versionId = '1';
                 // noinspection JSValidateTypes,SpellCheckingInspection
-                resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
 
             /**
@@ -252,7 +252,7 @@ base_version,
 resourceType,
                                 operation: currentOperationName,
 args: parsedArgs.getRawArgs(),
-ids: [resource['id']]
+ids: [resource.id]
                             }
                         );
                     }

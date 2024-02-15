@@ -123,7 +123,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
         assertIsValid(resourceType);
         assertIsValid(base_version);
         // const foo = undefined[1];
-        const cachePatientToPersonMap = isTrueWithFallback(parsedArgs['_rewritePatientReference'], this.configManager.rewritePatientReference);
+        const cachePatientToPersonMap = isTrueWithFallback(parsedArgs._rewritePatientReference, this.configManager.rewritePatientReference);
         if (parsedArgs?.parsedArgItems) {
             parsedArgs.parsedArgItems = await Promise.all(
                 parsedArgs.parsedArgItems.map(async parsedArg => {

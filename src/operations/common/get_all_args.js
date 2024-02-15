@@ -25,7 +25,7 @@ module.exports.get_all_args = (req, args) => {
 
     // Handling specifies the type of search to be conducted strict or lenient
     // https://www.hl7.org/fhir/search.html#errors
-    args['handling'] = req.headers['handling'] ? req.headers['handling'] : LENIENT_SEARCH_HANDLING;
+    args.handling = req.headers.handling ? req.headers.handling : LENIENT_SEARCH_HANDLING;
 
     return Object.assign({}, args, sanitized_args, query_param_args);
 };

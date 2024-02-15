@@ -30,7 +30,7 @@ module.exports.handleClean = async ({ fnGetContainer, req, res }) => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             const collection_names = [];
 
-            const specific_collection = req.params['collection'];
+            const specific_collection = req.params.collection;
             logInfo('', { specific_collection });
             if (env.IS_PRODUCTION && !specific_collection) {
                 return res

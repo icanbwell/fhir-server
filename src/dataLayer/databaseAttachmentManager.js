@@ -42,10 +42,10 @@ class DatabaseAttachmentManager {
         const metadata = {};
         if (operation === INSERT || operation === DELETE) {
             if (resource._uuid) {
-                metadata['resource_uuid'] = resource._uuid;
+                metadata.resource_uuid = resource._uuid;
             }
             if (resource._sourceId) {
-                metadata['resource_sourceId'] = resource._sourceId;
+                metadata.resource_sourceId = resource._sourceId;
             }
             metadata.active = true;
         }

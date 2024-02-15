@@ -98,12 +98,12 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         const operations = [];
         const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
 
-        if (accessCodes.length > 0 && !doc['_access']) {
+        if (accessCodes.length > 0 && !doc._access) {
             const _access = {};
             for (const accessCode of accessCodes) {
                 _access[`${accessCode}`] = 1;
             }
-            doc['_access'] = _access;
+            doc._access = _access;
         }
         /**
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
@@ -129,14 +129,14 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         const operations = [];
         const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
 
-        if (accessCodes.length > 0 && !doc['_access']) {
+        if (accessCodes.length > 0 && !doc._access) {
             const _access = {};
             for (const accessCode of accessCodes) {
                 _access[`${accessCode}`] = 1;
             }
             // update only the necessary field in the document
             const setCommand = {};
-            setCommand['_access'] = _access;
+            setCommand._access = _access;
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */

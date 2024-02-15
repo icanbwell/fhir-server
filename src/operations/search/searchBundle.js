@@ -158,7 +158,7 @@ class SearchBundleOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
         const { /** @type {string} **/base_version } = parsedArgs;
 
@@ -274,8 +274,8 @@ useAccessIndex,
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && !useAggregationPipeline && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
-            if (cursor && parsedArgs['_explain']) {
+            const explanations = (cursor && !useAggregationPipeline && (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            if (cursor && parsedArgs._explain) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -312,7 +312,7 @@ parsedArgs,
                                     resourceType,
                                     operation: 'read',
                                     args: parsedArgs.getRawArgs(),
-                                    ids: resources.map((r) => r['id'])
+                                    ids: resources.map((r) => r.id)
                                 }
                             );
                         }

@@ -11,7 +11,6 @@
     "rules": {
       "indent": "off",
       "semi": "off",
-      "dot-notation": "off",
       "camelcase": "off",
       "multiline-ternary": "off"
     }

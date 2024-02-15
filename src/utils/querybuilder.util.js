@@ -130,7 +130,7 @@ const tokenQueryBuilder = function ({ target, type, field, required, exists_flag
     const queryBuilderElementMatch = {};
     if (system) {
         queryBuilder[`${field}.system`] = system;
-        queryBuilderElementMatch['system'] = system;
+        queryBuilderElementMatch.system = system;
     }
 
     if (value) {
@@ -211,7 +211,7 @@ const tokenQueryContainsBuilder = function ({ target, type, field, required, exi
             $regex: escapeRegExp(system),
             $options: 'i'
         };
-        queryBuilderElementMatch['system'] = {
+        queryBuilderElementMatch.system = {
             $regex: escapeRegExp(system),
             $options: 'i'
         };
@@ -379,7 +379,7 @@ const referenceQueryBuilderOptimized = function (
     }
     if (target_type && target) {
         if (sourceAssigningAuthority) {
-            queryBuilder['$and'] = [
+            queryBuilder.$and = [
                 {
                     [`${sourceAssigningAuthorityField}`]: sourceAssigningAuthority
                 },
@@ -816,33 +816,33 @@ const dateQueryBuilderNative = function ({ dateSearchParameter, type, path }) {
     // from http://hl7.org/fhir/r4/search.html#date
     switch (operation) {
         case 'eq':
-            query['$gte'] = moment(date).utc().startOf('day').toDate();
-            query['$lte'] = moment(date).utc().endOf('day').toDate();
+            query.$gte = moment(date).utc().startOf('day').toDate();
+            query.$lte = moment(date).utc().endOf('day').toDate();
             break;
         case 'ne':
-            query['$lt'] = moment(date).utc().startOf('day').toDate();
-            query['$gt'] = moment(date).utc().endOf('day').toDate();
+            query.$lt = moment(date).utc().startOf('day').toDate();
+            query.$gt = moment(date).utc().endOf('day').toDate();
             break;
         case 'lt':
-            query['$lt'] = date;
+            query.$lt = date;
             break;
         case 'gt':
-            query['$gt'] = date;
+            query.$gt = date;
             break;
         case 'ge':
-            query['$gte'] = date;
+            query.$gte = date;
             break;
         case 'le':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         case 'sa':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         case 'eb':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         case 'ap':
-            query['$lte'] = date;
+            query.$lte = date;
             break;
         default:
             throw new Error(`${operation} is not supported.`);

@@ -164,7 +164,7 @@ class CopyToV3Runner {
             totalDocumentCreatedCount += bulkResult.nUpserted;
             totalDocumentHavingSameDataCount += (bulkResult.nMatched - bulkResult.nModified);
 
-            lastProcessedId = operations[operations.length - 1]['updateOne']['filter']['_id'];
+            lastProcessedId = operations[operations.length - 1].updateOne.filter._id;
             const message =
                 `Processed Collection: ${collection}, upto document _id: ${lastProcessedId.toLocaleString('en-US')},` +
                 `DocumentUpdatedCount: ${totalDocumentUpdatedCount.toLocaleString('en-US')}, ` +
@@ -173,7 +173,7 @@ class CopyToV3Runner {
             this.adminLogger.logInfo(message);
         } catch (error) {
             this.adminLogger.logError(
-                `Error while updating collection: ${collection} document _id start: ${operations[0]['updateOne']['filter']['_id']}, end: ${operations[operations.length - 1]['updateOne']['filter']['_id']}. Error Message: ${error}`
+                `Error while updating collection: ${collection} document _id start: ${operations[0].updateOne.filter._id}, end: ${operations[operations.length - 1].updateOne.filter._id}. Error Message: ${error}`
             );
         }
         return {

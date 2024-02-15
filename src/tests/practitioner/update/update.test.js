@@ -38,8 +38,8 @@ describe('Practitioner Tests', () => {
             const location = resp.headers['content-location'];
             const id = location.split('/').splice(5, 1)[0];
 
-            practitioner1Resource['id'] = id;
-            practitioner1Resource['active'] = false;
+            practitioner1Resource.id = id;
+            practitioner1Resource.active = false;
 
             resp = await request
                 .put(`/4_0_0/Practitioner/${id}`)

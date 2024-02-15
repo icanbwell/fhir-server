@@ -177,11 +177,11 @@ class PartitioningManager {
             /**
              * @type {string}
              */
-            const field = partitionConfig['field'];
+            const field = partitionConfig.field;
             /**
              * @type {string}
              */
-            const type = partitionConfig['type'];
+            const type = partitionConfig.type;
             /**
              * @type {BasePartitioner|null}
              */
@@ -256,8 +256,8 @@ class PartitioningManager {
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
         if (partitionConfig && this.isResourcePartitioned(resourceType)) {
-            const field = partitionConfig['field'];
-            const type = partitionConfig['type'];
+            const field = partitionConfig.field;
+            const type = partitionConfig.type;
             /**
              * @type {BasePartitioner|null}
              */
@@ -324,7 +324,7 @@ base_version,
             /**
              * @type {string}
              */
-            const type = partitionConfig['type'];
+            const type = partitionConfig.type;
             switch (type) {
                 case 'year-month': {
                     return new YearMonthPartitioner();

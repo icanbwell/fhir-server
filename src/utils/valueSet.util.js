@@ -121,13 +121,13 @@ class ValueSetManager {
          * @type {{system, code, display, version: string}[]}
          */
         const concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
-        resource1['expansion'] = {
+        resource1.expansion = {
             contains: concepts,
             offset: 0,
             total: concepts.length
         };
         // remove compose
-        delete resource1['compose'];
+        delete resource1.compose;
         return resource1;
     }
 }

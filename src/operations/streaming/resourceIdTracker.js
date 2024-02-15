@@ -51,7 +51,7 @@ class ResourceIdTracker extends Transform {
                 if (this.configManager.logStreamSteps) {
                     logInfo(`ResourceIdTracker: _transform ${chunk.id}`, {});
                 }
-                this._tracker.id.push(chunk['id']);
+                this._tracker.id.push(chunk.id);
                 this.push(chunk, encoding);
             }
             callback();

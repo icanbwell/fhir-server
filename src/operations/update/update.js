@@ -216,7 +216,7 @@ class UpdateOperation {
          */
         const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs._validate) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
             resource_incoming_json.id = rawId.slice(0, 64);
             /**
@@ -255,7 +255,7 @@ class UpdateOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
@@ -375,8 +375,8 @@ doc,
                 if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                 } else {
-                    resource_incoming.meta['versionId'] = '1';
-                    resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                    resource_incoming.meta.versionId = '1';
+                    resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
                 // changing the attachment.data to attachment._file_id from request
@@ -419,7 +419,7 @@ base_version,
                                     resourceType,
                                     operation: currentOperationName,
                                     args: parsedArgs.getRawArgs(),
-                                    ids: [resource_incoming['id']]
+                                    ids: [resource_incoming.id]
                                 }
                             );
                         }

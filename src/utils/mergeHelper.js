@@ -42,7 +42,7 @@ function mergeArraysWithSequenceNumbers (oldArray, newArrayItem) {
          */
         const oldArrayItem = oldArray[`${index}`];
         // if item has not already been inserted then insert before the next sequence
-        if (!insertedItem && (oldArrayItem['sequence'] > newArrayItem['sequence'])) {
+        if (!insertedItem && (oldArrayItem.sequence > newArrayItem.sequence)) {
             resultArray.push(newArrayItem); // add the new item before
             resultArray.push(oldArrayItem); // then add the old item
             insertedItem = true;
@@ -70,7 +70,7 @@ function mergeArraysWithId (oldArray, newArrayItem, resultArray) {
     /**
      * @type {number}
      */
-    const matchingOldItemIndex = oldArray.findIndex(x => x['id'] === newArrayItem['id']);
+    const matchingOldItemIndex = oldArray.findIndex(x => x.id === newArrayItem.id);
     /**
      * @type {boolean}
      */

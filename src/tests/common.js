@@ -86,7 +86,7 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
     jest.setTimeout(30000);
-    env['VALIDATE_SCHEMA'] = true;
+    env.VALIDATE_SCHEMA = true;
     process.env.AUTH_ENABLED = '1';
     const urlObject = new URL(env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [

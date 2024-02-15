@@ -292,8 +292,8 @@ class GraphHelper {
             const options = {};
             const projection = {};
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection['_id'] = 0;
-            options['projection'] = projection;
+            projection._id = 0;
+            options.projection = projection;
             /**
              * @type {boolean}
              */
@@ -458,7 +458,7 @@ class GraphHelper {
      */
     parseQueryStringIntoArgs ({ resourceType, queryString }) {
         const args = Object.fromEntries(new URLSearchParams(queryString));
-        args['base_version'] = VERSIONS['4_0_0'];
+        args.base_version = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
                 resourceType,
@@ -539,7 +539,7 @@ class GraphHelper {
                 }
             );
             const args = {};
-            args['base_version'] = base_version;
+            args.base_version = base_version;
             const searchParameterName = reverse_filter.split('=')[0];
             /**
              * @type {boolean}
@@ -571,8 +571,8 @@ class GraphHelper {
             const options = {};
             const projection = {};
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection['_id'] = 0;
-            options['projection'] = projection;
+            projection._id = 0;
+            options.projection = projection;
 
             /**
              * @type {number}
@@ -1275,8 +1275,8 @@ containedEntries: []
             const options = {};
             const projection = {};
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection['_id'] = 0;
-            options['projection'] = projection;
+            projection._id = 0;
+            options.projection = projection;
 
             /**
              * @type {number}
@@ -1616,8 +1616,8 @@ containedEntries: []
                         resourceType,
                         graphDefinition,
                         contained,
-                        explain: !!parsedArgs['_explain'],
-                        debug: !!parsedArgs['_debug'],
+                        explain: !!parsedArgs._explain,
+                        debug: !!parsedArgs._debug,
                         parsedArgs: parsedArgsForChunk,
                         responseStreamer,
                         idsAlreadyProcessed: bundleEntryIdsProcessed,

@@ -20,8 +20,8 @@ if (env.MONGO_USERNAME !== undefined) {
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
 const queryParams = getQueryParams(mongoUrl);
-const writeConcern = queryParams['w'] ?? 'majority';
-delete queryParams['w'];
+const writeConcern = queryParams.w ?? 'majority';
+delete queryParams.w;
 // noinspection JSValidateTypes
 /**
  * https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
@@ -80,8 +80,8 @@ if (env.AUDIT_EVENT_MONGO_URL) {
 // url-encode the url
     auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
     const auditQueryParams = getQueryParams(auditEventMongoUrl);
-    const auditWriteConcern = auditQueryParams['w'] ?? 'majority';
-    delete auditQueryParams['w'];
+    const auditWriteConcern = auditQueryParams.w ?? 'majority';
+    delete auditQueryParams.w;
     auditEventMongoConfig = {
         connection: auditEventMongoUrl,
         db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
@@ -117,8 +117,8 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
     // url-encode the url
     auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl ? encodeURI(auditEventReadOnlyMongoUrl) : auditEventReadOnlyMongoUrl;
     const auditReadOnlyQueryParams = getQueryParams(auditEventReadOnlyMongoUrl);
-    const auditReadOnlyWriteConcern = auditReadOnlyQueryParams['w'] ?? 'majority';
-    delete auditReadOnlyQueryParams['w'];
+    const auditReadOnlyWriteConcern = auditReadOnlyQueryParams.w ?? 'majority';
+    delete auditReadOnlyQueryParams.w;
     auditEventReadOnlyMongoConfig = {
         connection: auditEventReadOnlyMongoUrl,
         db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
@@ -170,8 +170,8 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
     };
 }
 const accessLogsQueryParams = getQueryParams(accessLogsMongoConfig.connection);
-const accessLogsWriteConcern = accessLogsQueryParams['w'] ?? 1;
-delete accessLogsQueryParams['w'];
+const accessLogsWriteConcern = accessLogsQueryParams.w ?? 1;
+delete accessLogsQueryParams.w;
 accessLogsMongoConfig.options = {
     ...options,
     ...accessLogsQueryParams,

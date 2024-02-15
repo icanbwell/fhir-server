@@ -635,7 +635,7 @@ class AdminPersonPatientLinkManager {
             query: { id: personId },
             requestId
         });
-        result['linksRemoved'] = parentPersonResponses;
+        result.linksRemoved = parentPersonResponses;
         return result;
     }
 }

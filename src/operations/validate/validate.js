@@ -127,7 +127,7 @@ class ValidateOperation {
                 /**
                  * @type {boolean}
                  */
-                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
                 /**
                  * @type {{base_version, columns: Set, query: import('mongodb').Document}}

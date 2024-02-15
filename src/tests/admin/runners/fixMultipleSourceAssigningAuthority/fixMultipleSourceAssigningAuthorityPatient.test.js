@@ -110,7 +110,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             const collections = ['Patient_4_0_0'];
             const batchSize = 10000;
 
-            delete container['fixMultipleSourceAssigningAuthorityRunner'];
+            delete container.fixMultipleSourceAssigningAuthorityRunner;
             container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,

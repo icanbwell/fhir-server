@@ -27,7 +27,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      */
     async enrichAsync ({ resources, parsedArgs }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
-        const rewritePatientReference = isTrueWithFallback(parsedArgs['_rewritePatientReference'], this.configManager.rewritePatientReference);
+        const rewritePatientReference = isTrueWithFallback(parsedArgs._rewritePatientReference, this.configManager.rewritePatientReference);
         // if rewrite is false, then don't enrich the resources
         if (!rewritePatientReference) {
             return resources;

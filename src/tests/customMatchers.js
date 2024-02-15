@@ -29,20 +29,20 @@ function cleanMeta (resource) {
 
     if (resource.meta && resource.meta.tag) {
         resource.meta.tag.forEach((tag) => {
-            if (tag['system'] === 'https://www.icanbwell.com/queryTime' && tag['display']) {
-                delete tag['display'];
+            if (tag.system === 'https://www.icanbwell.com/queryTime' && tag.display) {
+                delete tag.display;
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryExplain' && tag['display']) {
-                delete tag['display'];
+            if (tag.system === 'https://www.icanbwell.com/queryExplain' && tag.display) {
+                delete tag.display;
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryExplainSimple' && tag['display']) {
-                delete tag['display'];
+            if (tag.system === 'https://www.icanbwell.com/queryExplainSimple' && tag.display) {
+                delete tag.display;
             }
-            if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
-                tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
+            if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
+                tag.display = tag.display.replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code'] && tag['code'].startsWith('AuditEvent_4_0_0')) {
-                tag['code'] = `${auditCollectionName}`;
+            if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code && tag.code.startsWith('AuditEvent_4_0_0')) {
+                tag.code = `${auditCollectionName}`;
             }
         });
     }
@@ -75,18 +75,18 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
     // logInfo(body);
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
-    delete body['timestamp'];
-    delete expected['timestamp'];
-    delete body['link'];
-    delete body['id']; // This is uniquely created each time
+    delete body.timestamp;
+    delete expected.timestamp;
+    delete body.link;
+    delete body.id; // This is uniquely created each time
 
     cleanMeta(body);
     if (body.entry) {
         body.entry.forEach((element) => {
-            cleanRequestId(element['request']);
-            cleanMeta(element['resource']);
+            cleanRequestId(element.request);
+            cleanMeta(element.resource);
             if (fnCleanResource) {
-                fnCleanResource(element['resource']);
+                fnCleanResource(element.resource);
             }
         });
         // now sort the two lists so the comparison is agnostic to order
@@ -94,22 +94,22 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
             `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
         );
         body.entry.forEach((element) => {
-            delete element['fullUrl'];
-            if (element['resource']) {
-                cleanMeta(element['resource']);
-                if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach((containedElement) => {
+            delete element.fullUrl;
+            if (element.resource) {
+                cleanMeta(element.resource);
+                if (element.resource.contained) {
+                    element.resource.contained.forEach((containedElement) => {
                         cleanMeta(containedElement);
                     });
                     // sort the list
-                    element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                    element.resource.contained = element.resource.contained.sort((a, b) =>
                         `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
                     );
                 }
             }
         });
     }
-    delete expected['link'];
+    delete expected.link;
 
     if (expected.meta && expected.meta.tag) {
         if (ignoreMetaTags) {
@@ -119,28 +119,28 @@ function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = fal
     }
     if (expected.entry) {
         expected.entry.forEach((element) => {
-            cleanRequestId(element['request']);
-            cleanMeta(element['resource']);
-            delete element['resource']['$schema'];
+            cleanRequestId(element.request);
+            cleanMeta(element.resource);
+            delete element.resource.$schema;
             if (fnCleanResource) {
-                fnCleanResource(element['resource']);
+                fnCleanResource(element.resource);
             }
         });
         expected.entry = expected.entry.sort((a, b) =>
             `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
         );
         expected.entry.forEach((element) => {
-            delete element['fullUrl'];
-            cleanMeta(element['resource']);
+            delete element.fullUrl;
+            cleanMeta(element.resource);
             if ('$schema' in element) {
-                delete element['$schema'];
+                delete element.$schema;
             }
-            if (element['resource']['contained']) {
-                element['resource']['contained'].forEach((containedElement) => {
+            if (element.resource.contained) {
+                element.resource.contained.forEach((containedElement) => {
                     cleanMeta(containedElement);
                 });
                 // sort the list
-                element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                element.resource.contained = element.resource.contained.sort((a, b) =>
                     `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
                 );
             }

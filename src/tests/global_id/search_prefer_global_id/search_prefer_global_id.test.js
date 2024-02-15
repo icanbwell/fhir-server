@@ -37,7 +37,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             const headers = getHeaders();
-            headers['Prefer'] = 'global_id=true';
+            headers.Prefer = 'global_id=true';
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
                 .set(headers);
@@ -64,7 +64,7 @@ describe('Observation Tests', () => {
 
             // ACT & ASSERT
             const headers = getHeaders();
-            headers['Prefer'] = 'global_id=true';
+            headers.Prefer = 'global_id=true';
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
                 .set(headers);
@@ -104,7 +104,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             const headers = getHeaders();
-            headers['Prefer'] = 'global_id=true';
+            headers.Prefer = 'global_id=true';
 
             const patientId = generateUUIDv5('2354|A');
             resp = await request

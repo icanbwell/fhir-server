@@ -158,7 +158,7 @@ describe('Person Tests', () => {
             // Search with invalid query parameters and handling type is lenient
             // Should return all the person resources
             const lenientHeader = getHeaders();
-            lenientHeader['handling'] = 'lenient';
+            lenientHeader.handling = 'lenient';
             resp = await request
                 .get('/4_0_0/Person?fname=singhal&_bundle=1')
                 .set(lenientHeader);
@@ -187,7 +187,7 @@ describe('Person Tests', () => {
             // Search with invalid query parameters and handlig type as strict
             // Should return an error as fname is not a valid query param for Person
             const strictHeader = getHeaders();
-            strictHeader['handling'] = 'strict';
+            strictHeader.handling = 'strict';
             resp = await request
                 .get('/4_0_0/Person?fname=singhal&_bundle=1')
                 .set(strictHeader);

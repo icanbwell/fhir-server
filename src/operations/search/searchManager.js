@@ -342,7 +342,7 @@ scope,
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
-        if (parsedArgs['_elements']) {
+        if (parsedArgs._elements) {
             const __ret = this.handleElementsQuery(
                 {
                     parsedArgs, columns, resourceType, options, useAccessIndex
@@ -351,14 +351,14 @@ scope,
             options = __ret.options;
         }
         // if _sort is specified then add sort criteria to mongo query
-        if (parsedArgs['_sort']) {
+        if (parsedArgs._sort) {
             const __ret = this.handleSortQuery({ parsedArgs, columns, options });
             columns = __ret.columns;
             options = __ret.options;
         }
 
         // if _count is specified then limit mongo query to that
-        if (parsedArgs['_count']) {
+        if (parsedArgs._count) {
             const __ret = this.handleCountOption({ parsedArgs, options, isStreaming });
             options = __ret.options;
         } else {
@@ -370,11 +370,11 @@ scope,
         const defaultSortId = this.configManager.defaultSortId;
         columns.add(defaultSortId);
         if (!('sort' in options)) {
-            options['sort'] = {};
+            options.sort = {};
         }
         // add id to end if not present in sort
-        if (!(`${defaultSortId}` in options['sort'])) {
-            options['sort'][`${defaultSortId}`] = 1;
+        if (!(`${defaultSortId}` in options.sort)) {
+            options.sort[`${defaultSortId}`] = 1;
         }
 
         /**
@@ -395,9 +395,9 @@ scope,
          * @type {boolean}
          */
         const useTwoStepSearchOptimization =
-            !parsedArgs['_elements'] &&
-            !parsedArgs['id'] &&
-            (this.configManager.enableTwoStepOptimization || parsedArgs['_useTwoStepOptimization']);
+            !parsedArgs._elements &&
+            !parsedArgs.id &&
+            (this.configManager.enableTwoStepOptimization || parsedArgs._useTwoStepOptimization);
         if (isTrue(useTwoStepSearchOptimization)) {
             const __ret = await this.handleTwoStepSearchOptimizationAsync(
                 {
@@ -464,9 +464,9 @@ scope,
         let cursorQuery;
         if (useAggregationPipeline) {
             // Projection arguement to be used for aggregation query
-            let projection = parsedArgs['projection'] || {};
-            if (options['projection']) {
-                projection = { ...projection, ...options['projection'] };
+            let projection = parsedArgs.projection || {};
+            if (options.projection) {
+                projection = { ...projection, ...options.projection };
             }
             cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
                 query,
@@ -485,7 +485,7 @@ scope,
         }
 
         // avoid double sorting since Mongo gives you different results
-        if (useTwoStepSearchOptimization && !options['sort']) {
+        if (useTwoStepSearchOptimization && !options.sort) {
             const sortOption =
                 originalOptions && originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
             if (sortOption !== null) {
@@ -494,7 +494,7 @@ scope,
         }
 
         // set batch size if specified
-        if (env.MONGO_BATCH_SIZE || parsedArgs['_cursorBatchSize']) {
+        if (env.MONGO_BATCH_SIZE || parsedArgs._cursorBatchSize) {
             // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
             const __ret = this.setCursorBatchSize({ parsedArgs, cursorQuery });
             cursorBatchSize = __ret.cursorBatchSize;
@@ -506,7 +506,7 @@ scope,
         let cursor = cursorQuery;
 
         // find columns being queried and match them to an index
-        if (isTrue(env.SET_INDEX_HINTS) || parsedArgs['_setIndexHint']) {
+        if (isTrue(env.SET_INDEX_HINTS) || parsedArgs._setIndexHint) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 { resourceType, base_version });
@@ -514,7 +514,7 @@ scope,
                 {
                     query, extraInfo
                 });
-            const indexName = parsedArgs['_setIndexHint'];
+            const indexName = parsedArgs._setIndexHint;
             const __ret = this.setIndexHint(
                 {
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
@@ -530,7 +530,7 @@ scope,
 
         // if _total is specified then ask mongo for the total else set total to 0
         // Value 'estimate' is not supported now but kept it for backward compatibility.
-        if (parsedArgs['_total'] && ['accurate', 'estimate'].includes(parsedArgs['_total'])) {
+        if (parsedArgs._total && ['accurate', 'estimate'].includes(parsedArgs._total)) {
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType,
@@ -606,18 +606,18 @@ maxMongoTimeMS
         /**
          * @type {number}
          */
-        const nPerPage = Number(parsedArgs['_count']);
+        const nPerPage = Number(parsedArgs._count);
 
         // if _getpagesoffset is specified then skip to the page starting with that offset
-        if (parsedArgs['_getpagesoffset']) {
+        if (parsedArgs._getpagesoffset) {
             /**
              * @type {number}
              */
-            const pageNumber = Number(parsedArgs['_getpagesoffset']);
-            options['skip'] = pageNumber > 0 ? pageNumber * nPerPage : 0;
+            const pageNumber = Number(parsedArgs._getpagesoffset);
+            options.skip = pageNumber > 0 ? pageNumber * nPerPage : 0;
         }
         // cap it at searchLimitForIds to avoid running out of memory
-        options['limit'] = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
+        options.limit = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
 
         return { options };
     }
@@ -665,11 +665,11 @@ maxMongoTimeMS
             }
             // this is a hack for the CQL Evaluator since it does not request these fields but expects them
             if (resourceType === 'Library') {
-                projection['id'] = 1;
-                projection['url'] = 1;
+                projection.id = 1;
+                projection.url = 1;
             }
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-            projection['_id'] = 0;
+            projection._id = 0;
             if (
                 (!useAccessIndex || properties_to_return_list.length > 1 || properties_to_return_list[0] !== 'id') &&
                 !properties_to_return_list.includes('meta')
@@ -679,7 +679,7 @@ maxMongoTimeMS
                 projection['meta.security.system'] = 1;
                 projection['meta.security.code'] = 1;
             }
-            options['projection'] = projection;
+            options.projection = projection;
         }
 
         return { columns, options };
@@ -758,7 +758,7 @@ maxMongoTimeMS
                     columns.add(sortProperty);
                 }
             }
-            options['sort'] = sort;
+            options.sort = sort;
         }
         return { columns, options };
     }
@@ -784,9 +784,9 @@ maxMongoTimeMS
         try {
             // first get just the ids
             const projection = {};
-            projection['_id'] = 0;
-            projection['id'] = 1;
-            options['projection'] = projection;
+            projection._id = 0;
+            projection.id = 1;
+            options.projection = projection;
             const originalQuery = [query];
             const originalOptions = [options];
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
@@ -916,8 +916,8 @@ signal: ac.signal,
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
     setCursorBatchSize ({ parsedArgs, cursorQuery }) {
-        const cursorBatchSize = parsedArgs['_cursorBatchSize']
-            ? parseInt(parsedArgs['_cursorBatchSize'])
+        const cursorBatchSize = parsedArgs._cursorBatchSize
+            ? parseInt(parsedArgs._cursorBatchSize)
             : parseInt(env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
             cursorQuery = cursorQuery.batchSize({ size: cursorBatchSize });
@@ -937,10 +937,10 @@ signal: ac.signal,
         }
     ) {
         // set a limit so the server does not come down due to volume of data
-        if (!parsedArgs['id'] && !parsedArgs['_elements']) {
-            options['limit'] = limit;
+        if (!parsedArgs.id && !parsedArgs._elements) {
+            options.limit = limit;
         } else {
-            options['limit'] = searchLimitForIds;
+            options.limit = searchLimitForIds;
         }
     }
 
@@ -1048,9 +1048,9 @@ signal: ac.signal,
             {
                 accepts,
                 signal: ac.signal,
-                format: parsedArgs['_format'],
+                format: parsedArgs._format,
                 url,
-                bundle: parsedArgs['_bundle'],
+                bundle: parsedArgs._bundle,
                 fnBundle,
                 defaultSortId,
                 highWaterMark,
@@ -1187,7 +1187,7 @@ error: new RethrownError(
 
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.includes('date')) {
             // Fetching all the parsed arguments for date
-            const dateQueryParameterValues = parsedArgs['date'];
+            const dateQueryParameterValues = parsedArgs.date;
             const queryParameters = Array.isArray(dateQueryParameterValues)
                 ? dateQueryParameterValues
                 : [dateQueryParameterValues];

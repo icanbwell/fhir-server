@@ -194,7 +194,7 @@ useAccessIndex: this.useAccessIndex
                         for (const /** @type {Resource} */ resource of resources) {
                             if (resource) {
                                 if (this.configManager.logStreamSteps) {
-                                    logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
+                                    logInfo(`ResourcePreparerTransform: push ${resource.id}`, {});
                                 }
                                 this.push(resource);
                             }

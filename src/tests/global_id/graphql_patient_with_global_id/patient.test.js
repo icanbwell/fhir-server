@@ -130,7 +130,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResourceCount(2);
 
             const graphQLHeaders = getGraphQLHeaders();
-            graphQLHeaders['Prefer'] = 'global_id=true';
+            graphQLHeaders.Prefer = 'global_id=true';
             resp = await request
                 .post('/graphql')
                 .send({
@@ -212,7 +212,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResourceCount(2);
 
             const graphQLHeaders = getGraphQLHeaders();
-            graphQLHeaders['Prefer'] = 'global_id=true';
+            graphQLHeaders.Prefer = 'global_id=true';
             resp = await request
                 .post('/graphql')
                 .send({
@@ -240,7 +240,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             const graphQLHeaders = getGraphQLHeaders();
-            graphQLHeaders['Prefer'] = 'global_id=true';
+            graphQLHeaders.Prefer = 'global_id=true';
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())

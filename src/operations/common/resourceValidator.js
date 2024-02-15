@@ -107,15 +107,15 @@ class ResourceValidator {
             );
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({ action: 'validate', resourceType }, 1);
-            validationOperationOutcome['expression'] = [
+            validationOperationOutcome.expression = [
                 resourceType + '/' + id
             ];
-            if (!(validationOperationOutcome['details']) || !(validationOperationOutcome['details']['text'])) {
-                validationOperationOutcome['details'] = {
+            if (!(validationOperationOutcome.details) || !(validationOperationOutcome.details.text)) {
+                validationOperationOutcome.details = {
                     text: JSON.stringify(resourceToValidateJson, getCircularReplacer())
                 };
             } else {
-                validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
+                validationOperationOutcome.details.text = validationOperationOutcome.details.text +
                     ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
             }
 

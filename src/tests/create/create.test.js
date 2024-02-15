@@ -69,7 +69,7 @@ describe('Practitioner Tests', () => {
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));
-            practitioner1Resource['active'] = false;
+            practitioner1Resource.active = false;
 
             resp = await request
                 .post('/4_0_0/Practitioner')

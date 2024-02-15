@@ -45,17 +45,17 @@ module.exports = {
             const fields = graphqlFields(info);
             let projection = {};
             if (fields) {
-                projection = graphqlFieldsToMongoProjection(fields?.['entry']?.['resource']);
+                projection = graphqlFieldsToMongoProjection(fields?.entry?.resource);
             }
-            if (args['code']) {
-                projection['concept'] = {
+            if (args.code) {
+                projection.concept = {
                     $filter: {
                         input: '$concept',
                         as: 'ct',
-                        cond: { $in: ['$$ct.code', args['code']] }
+                        cond: { $in: ['$$ct.code', args.code] }
                     }
                 };
-                delete args['code'];
+                delete args.code;
             }
             return await context.dataApi.getResourcesBundle(
                 parent,

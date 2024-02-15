@@ -197,7 +197,7 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Person', parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Person', args })
             });
-            expect(result.query['link.target._sourceId']['$in']).toStrictEqual(['Patient/1234', 'Patient/4567']);
+            expect(result.query['link.target._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
         });
         test('r4 works with Person and multiple patients with reference type', async () => {
             await createTestRequest((container) => {
@@ -229,7 +229,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Person',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Person', args })
             });
-            expect(result.query['link.target._sourceId']['$in']).toStrictEqual(['Patient/1234', 'Patient/4567']);
+            expect(result.query['link.target._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
         });
         test('r4 works with Task and multiple subjects', async () => {
             await createTestRequest((container) => {
@@ -261,9 +261,9 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Task', args })
             });
-            expect(result.query['for._sourceId']['$in'][0]).toStrictEqual('Account/1234');
-            expect(result.query['for._sourceId']['$in'][1]).toStrictEqual('ActivityDefinition/1234');
-            expect(result.query['for._sourceId']['$in'][145]).toStrictEqual('Account/4567');
+            expect(result.query['for._sourceId'].$in[0]).toStrictEqual('Account/1234');
+            expect(result.query['for._sourceId'].$in[1]).toStrictEqual('ActivityDefinition/1234');
+            expect(result.query['for._sourceId'].$in[145]).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple codes', async () => {
             await createTestRequest((container) => {
@@ -327,7 +327,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Task', args })
             });
-            expect(result.query['for._sourceId']['$in']).toStrictEqual(['Patient/1234', 'Patient/4567']);
+            expect(result.query['for._sourceId'].$in).toStrictEqual(['Patient/1234', 'Patient/4567']);
         });
         test('r4 works with boolean type true', async () => {
             await createTestRequest((container) => {

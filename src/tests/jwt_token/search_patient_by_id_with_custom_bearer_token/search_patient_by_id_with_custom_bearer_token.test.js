@@ -44,7 +44,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             logInfo('------- response patient1Resource ------------');
             logInfo('', { resp: resp.body });
             logInfo('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expect(resp.body.created).toBe(true);
             resp = await request.get('/4_0_0/Patient').set(getHeadersWithCustomToken()).expect(200);
             logInfo('------- response 3 ------------');
             logInfo('', { resp: resp.body });
@@ -95,7 +95,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             logInfo('------- response patient1Resource ------------');
             logInfo('', { resp: resp.body });
             logInfo('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expect(resp.body.created).toBe(true);
             resp = await request.get('/4_0_0/Patient').set(getHeadersWithCustomToken()).expect(200);
             logInfo('------- response 3 ------------');
             logInfo('', { resp: resp.body });

@@ -42,7 +42,7 @@ describe('Practitioner Delete Tests', () => {
             logInfo('------- response patient1Resource ------------');
             logInfo('', { resp: resp.body });
             logInfo('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expect(resp.body.created).toBe(true);
 
             resp = await request
                 .post('/4_0_0/Patient/2/$merge?validate=true')
@@ -53,7 +53,7 @@ describe('Practitioner Delete Tests', () => {
             logInfo('------- response patient2Resource ------------');
             logInfo('', { resp: resp.body });
             logInfo('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expect(resp.body.created).toBe(true);
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
