@@ -46,7 +46,7 @@ describe('Patient Tests', () => {
             });
             const result = await preSaveManager.preSaveAsync(resource);
             expect(result._uuid).toBeDefined();
-            const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+            const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
             expect(result._uuid).toMatch(uuidRegex);
             expect(result._sourceId).toStrictEqual('123');
             expect(result._access).toBeDefined();

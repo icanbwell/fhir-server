@@ -13,7 +13,6 @@
       "semi": "off",
       "dot-notation": "off",
       "camelcase": "off",
-      "prefer-regex-literals": "off",
       "multiline-ternary": "off"
     }
 }

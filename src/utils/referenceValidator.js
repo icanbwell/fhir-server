@@ -14,7 +14,7 @@ function checkReferenceValue (referenceObj, path) {
         return null;
     }
     const isContainedReference = referenceValue => referenceValue[0] === '#';
-    const absoluteUrlRegex = new RegExp('^(?:[a-z+]+:)?//', 'i');
+    const absoluteUrlRegex = /^(?:[a-z+]+:)?\/\//i;
     const isAbsoluteUrl = referenceValue => absoluteUrlRegex.test(referenceValue);
     const isRelativeUrl = referenceValue => referenceValue.split('/').length - 1 === 1;
     if (!(isContainedReference(reference) || isAbsoluteUrl(reference) || isRelativeUrl(reference))) {
