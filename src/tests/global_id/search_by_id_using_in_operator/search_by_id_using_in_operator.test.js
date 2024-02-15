@@ -59,7 +59,7 @@ describe('Patient Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // ACT AND ASSERT
             resp = await request
@@ -89,7 +89,7 @@ describe('Patient Tests', () => {
            * @type {PostRequestProcessor}
            */
           const postRequestProcessor = container.postRequestProcessor;
-          await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+          await postRequestProcessor.waitTillDoneAsync({ requestId });
 
           // ACT AND ASSERT
           resp = await request

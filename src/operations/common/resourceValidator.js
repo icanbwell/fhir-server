@@ -106,7 +106,7 @@ class ResourceValidator {
                 }
             );
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({ action: 'validate', resourceType: resourceType }, 1);
+            validationsFailedCounter.inc({ action: 'validate', resourceType }, 1);
             validationOperationOutcome['expression'] = [
                 resourceType + '/' + id
             ];

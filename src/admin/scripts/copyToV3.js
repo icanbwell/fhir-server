@@ -45,14 +45,14 @@ async function main () {
             new CopyToV3Runner({
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
-                updatedAfter: updatedAfter,
+                updatedAfter,
                 batchSize,
                 concurrentRunners,
                 _idAbove,
                 collections,
                 startWithCollection,
                 skipHistoryCollections: parameters.skipHistoryCollections ? true : false,
-                adminLogger: adminLogger
+                adminLogger
             })
     );
 

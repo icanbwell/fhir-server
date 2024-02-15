@@ -200,7 +200,7 @@ args: {
         }
 
         return {
-            collectionName: collectionName,
+            collectionName,
             indexes: indexesToCreate
         };
     }
@@ -279,7 +279,7 @@ args: {
          * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
          */
         const compareIndexesResult = {
-            collectionName: collectionName,
+            collectionName,
             indexes: []
         };
 
@@ -307,7 +307,7 @@ args: {
             if (indexesMatchingByName.length === 0) {
                 compareIndexesResult.indexes.push(
                     {
-                        indexConfig: indexConfig,
+                        indexConfig,
                         missing: true
                     }
                 );
@@ -327,7 +327,7 @@ args: {
                 ) {
                     compareIndexesResult.indexes.push(
                         {
-                            indexConfig: indexConfig,
+                            indexConfig,
                             changed: true
                         }
                     );
@@ -346,14 +346,14 @@ args: {
                 if (!filterToProblems) {
                     compareIndexesResult.indexes.push(
                         {
-                            indexConfig: indexConfig
+                            indexConfig
                         }
                     );
                 }
             } else {
                 compareIndexesResult.indexes.push(
                     {
-                        indexConfig: indexConfig,
+                        indexConfig,
                         extra: true
                     }
                 );
@@ -412,7 +412,7 @@ args: {
                 args: {
                     index: indexName,
                     collection: collectionName,
-                    indexName: indexName
+                    indexName
                 }
             }
         );

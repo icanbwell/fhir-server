@@ -27,7 +27,7 @@ async function main () {
     container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner(
         {
             indexManager: c.indexManager,
-            collections: collections,
+            collections,
             dropIndexes: parameters.drop ? true : false,
             useAuditDatabase: parameters.audit ? true : false,
             useAccessLogsDatabase: parameters.accessLogs ? true : false,

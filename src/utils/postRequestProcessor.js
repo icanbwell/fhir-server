@@ -86,7 +86,7 @@ class PostRequestProcessor {
                 event: 'executeAsync',
                 message: `executeAsync: ${requestId}`,
                 args: {
-                    requestId: requestId,
+                    requestId,
                     count: queue.length
                 }
             }
@@ -104,7 +104,7 @@ class PostRequestProcessor {
                         event: 'postRequestProcessor',
                         message: 'Error running task',
                         args: {
-                            requestId: requestId
+                            requestId
                         },
                         error: e
                     }
@@ -121,9 +121,9 @@ class PostRequestProcessor {
                     event: 'postRequestProcessor',
                     message: 'Finished',
                     args: {
-                        tasksInQueueBefore: tasksInQueueBefore,
+                        tasksInQueueBefore,
                         tasksInQueueAfter: queue.length,
-                        requestId: requestId
+                        requestId
                     }
                 }
             );
@@ -144,7 +144,7 @@ class PostRequestProcessor {
                 event: 'waitTillDoneAsync',
                 message: `waitTillDoneAsync: ${requestId}`,
                 args: {
-                    requestId: requestId,
+                    requestId,
                     count: queue.length
                 }
             }

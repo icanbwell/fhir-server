@@ -61,7 +61,7 @@ describe('Stats Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync(
                 {
-                    requestId: requestId
+                    requestId
                 }
             );
 

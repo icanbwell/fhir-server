@@ -65,11 +65,11 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
@@ -100,8 +100,8 @@ class AdminPersonPatientLinkManager {
                 } else {
                     return {
                         message: `Link already exists from ${bwellPersonId} to ${externalPersonId}`,
-                        bwellPersonId: bwellPersonId,
-                        externalPersonId: externalPersonId
+                        bwellPersonId,
+                        externalPersonId
                     };
                 }
             } else {
@@ -121,21 +121,21 @@ class AdminPersonPatientLinkManager {
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId: requestId,
-                method: method,
+                requestId,
+                method,
                 doc: savedResource
             });
 
             return {
                 message: `Added link from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                bwellPersonId: bwellPersonId,
-                externalPersonId: externalPersonId
+                bwellPersonId,
+                externalPersonId
             };
         } else {
             return {
                 message: `No Person found with id ${bwellPersonId}`,
-                bwellPersonId: bwellPersonId,
-                externalPersonId: externalPersonId
+                bwellPersonId,
+                externalPersonId
             };
         }
     }
@@ -156,7 +156,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
@@ -178,8 +178,8 @@ class AdminPersonPatientLinkManager {
                 ))) {
                     return {
                         message: `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                        bwellPersonId: bwellPersonId,
-                        externalPersonId: externalPersonId
+                        bwellPersonId,
+                        externalPersonId
                     };
                 } else {
                     logInfo('link before', { link: bwellPerson.link });
@@ -192,13 +192,13 @@ class AdminPersonPatientLinkManager {
             } else {
                 return {
                     message: `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                    bwellPersonId: bwellPersonId,
-                    externalPersonId: externalPersonId
+                    bwellPersonId,
+                    externalPersonId
                 };
             }
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
             // eslint-disable-next-line no-unused-vars
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
@@ -207,21 +207,21 @@ class AdminPersonPatientLinkManager {
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId: requestId,
-                method: method,
+                requestId,
+                method,
                 doc: savedResource
             });
 
             return {
                 message: `Removed link from Person/${bwellPersonId} to Person/${externalPersonId}`,
-                bwellPersonId: bwellPersonId,
-                externalPersonId: externalPersonId
+                bwellPersonId,
+                externalPersonId
             };
         } else {
             return {
                 message: `No Person found with id ${bwellPersonId}`,
-                bwellPersonId: bwellPersonId,
-                externalPersonId: externalPersonId
+                bwellPersonId,
+                externalPersonId
             };
         }
     }
@@ -242,11 +242,11 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
@@ -265,7 +265,7 @@ class AdminPersonPatientLinkManager {
             // first read the meta tags from the patient
             const patientDatabaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Patient',
-                base_version: base_version
+                base_version
             });
             /**
              * @type {Patient|null}
@@ -276,8 +276,8 @@ class AdminPersonPatientLinkManager {
             if (!patient) {
                 return {
                     message: `No Patient found for id: ${patientId}`,
-                    patientId: patientId,
-                    externalPersonId: externalPersonId
+                    patientId,
+                    externalPersonId
                 };
             }
             /**
@@ -304,15 +304,15 @@ class AdminPersonPatientLinkManager {
             const savedResource = await databaseUpdateManager.insertOneAsync({ doc: sourcePerson });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId: requestId,
-                method: method,
+                requestId,
+                method,
                 doc: savedResource
             });
 
             return {
                 message: `Created Person and added link from Person/${externalPersonId} to Patient/${patientId}`,
-                patientId: patientId,
-                externalPersonId: externalPersonId
+                patientId,
+                externalPersonId
             };
         } else {
             if (sourcePerson.link) {
@@ -330,8 +330,8 @@ class AdminPersonPatientLinkManager {
                 } else {
                     return {
                         message: `Link already exists from Person/${externalPersonId} to Patient/${patientId}`,
-                        patientId: patientId,
-                        externalPersonId: externalPersonId
+                        patientId,
+                        externalPersonId
                     };
                 }
             } else {
@@ -351,15 +351,15 @@ class AdminPersonPatientLinkManager {
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId: requestId,
-                method: method,
+                requestId,
+                method,
                 doc: savedResource
             });
 
             return {
                 message: `Added link from Person/${externalPersonId} to Patient/${patientId}`,
-                patientId: patientId,
-                externalPersonId: externalPersonId
+                patientId,
+                externalPersonId
             };
         }
     }
@@ -380,7 +380,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
@@ -403,8 +403,8 @@ class AdminPersonPatientLinkManager {
                 ) {
                     return {
                         message: `No Link exists from Person/${personId} to Patient/${patientId}`,
-                        personId: personId,
-                        patientId: patientId
+                        personId,
+                        patientId
                     };
                 } else {
                     logInfo('link before', { link: person.link });
@@ -417,13 +417,13 @@ class AdminPersonPatientLinkManager {
             } else {
                 return {
                     message: `No Link exists from Person/${personId} to Patient/${patientId}`,
-                    personId: personId,
-                    patientId: patientId
+                    personId,
+                    patientId
                 };
             }
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
 
             const { savedResource } = await databaseUpdateManager.replaceOneAsync({
@@ -432,21 +432,21 @@ class AdminPersonPatientLinkManager {
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId: requestId,
-                method: method,
+                requestId,
+                method,
                 doc: savedResource
             });
 
             return {
                 message: `Removed link from Person/${personId} to Patient/${patientId}`,
-                personId: personId,
-                patientId: patientId
+                personId,
+                patientId
             };
         } else {
             return {
                 message: `No Person found with id ${personId}`,
-                personId: personId,
-                patientId: patientId
+                personId,
+                patientId
             };
         }
     }
@@ -463,7 +463,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         const person = await databaseQueryManager.findOneAsync({
             query: { id: personId }
@@ -517,7 +517,7 @@ class AdminPersonPatientLinkManager {
                 .map(l => l.target.reference.replace(patientReferencePrefix, ''));
 
             const patientDatabaseManager = this.databaseQueryFactory.createQuery({
-                resourceType: 'Patient', base_version: base_version
+                resourceType: 'Patient', base_version
             });
             /**
              * @type {DatabasePartitionedCursor}
@@ -604,7 +604,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
         // find all links to this Person
         /**

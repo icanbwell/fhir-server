@@ -91,7 +91,7 @@ describe('Patient History Tests', () => {
             container.register('fixHistoryRunner', (c) => new FixHistoryRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
@@ -145,7 +145,7 @@ describe('Patient History Tests', () => {
             container.register('fixHistoryRunner', (c) => new FixHistoryRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,

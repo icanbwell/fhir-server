@@ -98,7 +98,7 @@ describe('Person Tests', () => {
                         preSaveManager: c.preSaveManager,
                         personUuids: undefined,
                         minLinks: 3,
-                        batchSize: batchSize,
+                        batchSize,
                         ownerCode: undefined,
                         uuidGreaterThan: undefined
                     }

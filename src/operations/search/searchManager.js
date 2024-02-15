@@ -421,7 +421,7 @@ scope,
                         originalQuery: new QueryItem({
                             query: originalQuery,
                             collectionName: null,
-                            resourceType: resourceType
+                            resourceType
                         }),
                         originalOptions,
                         useTwoStepSearchOptimization,
@@ -548,8 +548,8 @@ maxMongoTimeMS
                 query,
                 originalQuery: new QueryItem({
                     query: originalQuery,
-                    collectionName: collectionName,
-                    resourceType: resourceType
+                    collectionName,
+                    resourceType
                 }),
                 originalOptions,
                 useTwoStepSearchOptimization,
@@ -579,7 +579,7 @@ maxMongoTimeMS
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
             return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
                 databaseQueryManager,
@@ -619,7 +619,7 @@ maxMongoTimeMS
         // cap it at searchLimitForIds to avoid running out of memory
         options['limit'] = isStreaming ? nPerPage : Math.min(nPerPage, searchLimitForIds);
 
-        return { options: options };
+        return { options };
     }
 
     /**
@@ -682,7 +682,7 @@ maxMongoTimeMS
             options['projection'] = projection;
         }
 
-        return { columns: columns, options: options };
+        return { columns, options };
     }
 
     /**
@@ -760,7 +760,7 @@ maxMongoTimeMS
             }
             options['sort'] = sort;
         }
-        return { columns: columns, options: options };
+        return { columns, options };
     }
 
     /**
@@ -864,7 +864,7 @@ maxMongoTimeMS
                 cursor,
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager
             });
 
@@ -880,7 +880,7 @@ resourceType,
 useAccessIndex,
 signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
-                        highWaterMark: highWaterMark,
+                        highWaterMark,
                         configManager: this.configManager
                     }
                 ),
@@ -971,7 +971,7 @@ signal: ac.signal,
                 {
                     user,
                     args: {
-                        indexHint: indexHint,
+                        indexHint,
                         columns: Array.from(columns)
                     }
                 });
@@ -1046,14 +1046,14 @@ signal: ac.signal,
          */
         const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
             {
-                accepts: accepts,
+                accepts,
                 signal: ac.signal,
                 format: parsedArgs['_format'],
                 url,
                 bundle: parsedArgs['_bundle'],
                 fnBundle,
                 defaultSortId,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager,
                 response: res
             }
@@ -1068,7 +1068,7 @@ signal: ac.signal,
                 response: res,
                 contentType: fhirWriter.getContentType(),
                 signal: ac.signal,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager
             }
         );
@@ -1084,7 +1084,7 @@ resourceType,
 useAccessIndex,
 signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager,
                 response: res
             }
@@ -1096,7 +1096,7 @@ signal: ac.signal,
             {
                 tracker,
                 signal: ac.signal,
-                highWaterMark: highWaterMark,
+                highWaterMark,
                 configManager: this.configManager
             }
         );
@@ -1109,7 +1109,7 @@ signal: ac.signal,
             signal:
             ac.signal,
             databaseAttachmentManager: this.databaseAttachmentManager,
-            highWaterMark: highWaterMark,
+            highWaterMark,
             configManager: this.configManager,
             response: res
         });
@@ -1198,7 +1198,7 @@ error: new RethrownError(
                 const message = 'Atleast two operations lt/le and gt/ge need to be passed in params to query AuditEvent';
                 throw new BadRequestError(
                     {
-                        message: message,
+                        message,
                         toString: function () {
                             return message;
                         }
@@ -1214,7 +1214,7 @@ error: new RethrownError(
                 const message = `The difference between dates to query AuditEvent should not be greater than ${this.configManager.auditEventMaxRangePeriod}`;
                 throw new BadRequestError(
                     {
-                        message: message,
+                        message,
                         toString: function () {
                             return message;
                         }
@@ -1235,7 +1235,7 @@ error: new RethrownError(
                 const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
                 throw new BadRequestError(
                     {
-                        message: message,
+                        message,
                         toString: function () {
                             return message;
                         }
@@ -1262,7 +1262,7 @@ error: new RethrownError(
             if (!regexMatch) {
                 const message = `${dateParam} is not valid to query AuditEvent. [lt, gt] operation is required`;
                 throw new BadRequestError({
-                    message: message,
+                    message,
                     toString: function () {
                         return message;
                     }
@@ -1272,7 +1272,7 @@ error: new RethrownError(
             if (!allowedOperations.includes(regexMatch[1]) || !moment.utc(regexMatch[2]).isValid()) {
                 const message = `${regexMatch[0]} is not a valid query.`;
                 throw new BadRequestError({
-                    message: message,
+                    message,
                     toString: function () {
                         return message;
                     }

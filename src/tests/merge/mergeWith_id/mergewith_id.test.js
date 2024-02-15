@@ -80,7 +80,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -127,7 +127,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -216,7 +216,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // ACT & ASSERT
             // add the resources to FHIR server
@@ -294,7 +294,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
@@ -346,7 +346,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')

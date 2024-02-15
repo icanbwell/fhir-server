@@ -235,7 +235,7 @@ class FhirLoggingManager {
             type: {
                 code: 'operation'
             },
-            action: action,
+            action,
             period: {
                 start: new Date(startTime).toISOString(),
                 end: new Date(stopTime).toISOString()
@@ -263,7 +263,7 @@ class FhirLoggingManager {
             entity: [
                 {
                     name: resourceType,
-                    detail: detail
+                    detail
                 }
             ],
             message: errorMessage,

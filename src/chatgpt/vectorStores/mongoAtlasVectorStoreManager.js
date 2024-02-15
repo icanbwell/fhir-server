@@ -61,10 +61,10 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
 
             const collection = client.db(dbName).collection(collectionName);
             return new MongoDBAtlasVectorSearch(embeddings, {
-                collection: collection,
-                indexName: indexName,
-                textKey: textKey,
-                embeddingKey: embeddingKey
+                collection,
+                indexName,
+                textKey,
+                embeddingKey
             });
         } catch (e) {
             throw new RethrownError(
@@ -73,11 +73,11 @@ class MongoAtlasVectorStoreManager extends BaseVectorStoreManager {
                     error: e,
                     args: {
                         mongoAtlasVectorStoreUrl: this.configManager.mongoAtlasVectorStoreUrl,
-                        collectionName: collectionName,
-                        dbName: dbName,
-                        indexName: indexName,
-                        textKey: textKey,
-                        embeddingKey: embeddingKey
+                        collectionName,
+                        dbName,
+                        indexName,
+                        textKey,
+                        embeddingKey
                     }
                 }
             );

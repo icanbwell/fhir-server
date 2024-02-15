@@ -36,12 +36,12 @@ async function main () {
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager,
             preSaveManager: c.preSaveManager,
-            personUuids: personUuids,
+            personUuids,
             limit: parameters.limit,
             skip: parameters.skip,
-            batchSize: batchSize,
-            ownerCode: ownerCode,
-            uuidGreaterThan: uuidGreaterThan
+            batchSize,
+            ownerCode,
+            uuidGreaterThan
         }));
 
     /**

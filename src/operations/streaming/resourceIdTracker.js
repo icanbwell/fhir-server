@@ -12,7 +12,7 @@ class ResourceIdTracker extends Transform {
      * @param {ConfigManager} configManager
      */
     constructor ({ tracker, signal, highWaterMark, configManager }) {
-        super({ objectMode: true, highWaterMark: highWaterMark });
+        super({ objectMode: true, highWaterMark });
         /**
          * @type {{id: string[]}}
          * @private

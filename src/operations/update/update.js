@@ -155,7 +155,7 @@ class UpdateOperation {
 
         const currentOperationName = 'update';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         // Query our collection for this observation
         /**
@@ -227,8 +227,8 @@ class UpdateOperation {
                     id: resource_incoming_json.id,
                     resourceType,
                     resourceToValidate: resource_incoming_json,
-                    path: path,
-                    currentDate: currentDate,
+                    path,
+                    currentDate,
                     resourceObj: resource_incoming
                 });
             if (validationOperationOutcome) {
@@ -285,7 +285,7 @@ class UpdateOperation {
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
@@ -393,7 +393,7 @@ doc,
                     {
                         requestId,
 currentDate,
-base_version: base_version,
+base_version,
                         method,
                         userRequestId
                     }
@@ -430,7 +430,7 @@ base_version: base_version,
                 doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
 
                 const result = {
-                    id: id,
+                    id,
                     created: mergeResults[0].created,
                     resource_version: doc.meta.versionId,
                     resource: doc

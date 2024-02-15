@@ -89,7 +89,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -165,7 +165,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -238,7 +238,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -291,7 +291,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */

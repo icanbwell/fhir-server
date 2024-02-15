@@ -23,7 +23,7 @@ const makeResultBundle = (results, res, baseVersion, type) => {
     });
     const bundle = new Bundle({
         link: selfLink,
-        type: type
+        type
     });
     const entries = [];
     results.forEach(result => {
@@ -53,7 +53,7 @@ const createRequestPromises = (entries, req, baseVersion) => {
         const resource = entry.resource;
         const destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
         results.push({
-            method: method,
+            method,
             url: destinationUrl
         });
         requestPromises.push(Promise.resolve(

@@ -77,7 +77,7 @@ class EverythingOperation {
                 res,
                 parsedArgs,
                 resourceType,
-                responseStreamer: responseStreamer // disable response streaming if we are answering a question
+                responseStreamer // disable response streaming if we are answering a question
             });
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(

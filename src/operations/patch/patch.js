@@ -118,7 +118,7 @@ class PatchOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'patch';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         const {
             requestId,
@@ -143,7 +143,7 @@ class PatchOperation {
                 `Only ${fhirContentTypes.jsonPatch} is supported.`;
             throw new BadRequestError(
                 {
-                    message: message,
+                    message,
                     toString: function () {
                         return message;
                     }
@@ -206,7 +206,7 @@ class PatchOperation {
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
@@ -303,7 +303,7 @@ doc: resource,
                 {
                     requestId,
 currentDate,
-base_version: base_version,
+base_version,
                     method,
                     userRequestId
                 }
@@ -338,7 +338,7 @@ base_version: base_version,
                 created: false,
                 updated: true,
                 resource_version: resource.meta.versionId,
-                resource: resource
+                resource
             };
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

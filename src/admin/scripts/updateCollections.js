@@ -48,7 +48,7 @@ async function main () {
                 collections,
                 startWithCollection,
                 skipHistoryCollections: parameters.skipHistoryCollections ? true : false,
-                adminLogger: adminLogger
+                adminLogger
             })
     );
 

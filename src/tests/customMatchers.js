@@ -198,7 +198,7 @@ function checkContent ({ actual, expected, utils, options, expand, fnCleanResour
             `Received: ${utils.printReceived(actual)}`
         : () => {
             const diffString = diff(expected, actual, {
-                expand: expand
+                expand
             });
             return (
                 // eslint-disable-next-line prefer-template
@@ -207,7 +207,7 @@ function checkContent ({ actual, expected, utils, options, expand, fnCleanResour
                         `Received: ${utils.printReceived(actual)}`))
             );
         };
-    return { actual: actual, expected: expected, message, pass };
+    return { actual, expected, message, pass };
 }
 
 /**
@@ -314,7 +314,7 @@ expand: this.expand,
                         args: {
                             resourceType: body.resourceType,
                             resource: body,
-                            operationOutcome: operationOutcome
+                            operationOutcome
                         }
                     });
                 }
@@ -452,7 +452,7 @@ expand: this.expand,
                         args: {
                             resourceType: body.resourceType,
                             resource: body,
-                            operationOutcome: operationOutcome
+                            operationOutcome
                         }
                     });
                 }
@@ -587,7 +587,7 @@ function toHaveResourceCount (resp, expected) {
     const message = pass ? () =>
             `Resource count matched: ${resp.text}`
         : () => `Resource count did not match: ${resp.text}`;
-    return { actual: count, expected: expected, message, pass };
+    return { actual: count, expected, message, pass };
 }
 
 // NOTE: Also need to register any new ones with Jest in src/tests/testSetup.js

@@ -318,7 +318,7 @@ class MergeManager {
             logError(
                 'Error with merging resource',
                 {
-                    user: user,
+                    user,
                     args: {
                         resourceType: resourceToMerge.resourceType,
                         id: resourceToMerge.id,
@@ -365,7 +365,7 @@ class MergeManager {
                     args: {
                         id: resourceToMerge.id,
                         sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        resourceType: resourceType,
+                        resourceType,
                         created: false,
                         updated: false,
                         issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,

@@ -34,7 +34,7 @@ async function main () {
     container.register('removeBadRecordsRunner', (c) => new RemoveBadRecordsRunner(
         {
             indexManager: c.indexManager,
-            collections: collections,
+            collections,
             useAuditDatabase: parameters.audit ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),

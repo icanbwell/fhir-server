@@ -90,7 +90,7 @@ describe('ExplanationOfBenefit Tests', () => {
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,

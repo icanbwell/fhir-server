@@ -22,8 +22,8 @@ class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
                             uuid: e.resource._uuid,
                             reference: `${e.resource.resourceType}/${e.resource.id}`,
                             resourceType: e.resource.resourceType,
-                            parentResourceType: parentResourceType,
-                            parentUuid: parentUuid
+                            parentResourceType,
+                            parentUuid
                         })
                     });
             }

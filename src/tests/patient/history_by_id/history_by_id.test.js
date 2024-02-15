@@ -50,7 +50,7 @@ describe('PractitionerReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
                 .set(getHeaders());
@@ -68,7 +68,7 @@ describe('PractitionerReturnIdTests', () => {
 
             // assertMergeIsSuccessful(resp.body, false);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
                 .set(getHeaders())
@@ -86,7 +86,7 @@ describe('PractitionerReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ updated: true });
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
                 .set(getHeaders())

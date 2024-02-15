@@ -19,7 +19,7 @@ class FilterByReference extends BaseFilter {
             return [
                 ReferenceParser.createReference(
                     {
-                        resourceType: resourceType, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                        resourceType, id // do not set sourceAssigningAuthority since we set that as a separate $and clause
                     }
                 )
             ];
@@ -27,7 +27,7 @@ class FilterByReference extends BaseFilter {
             return targets.map(
                 t => ReferenceParser.createReference(
                     {
-                        resourceType: t, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                        resourceType: t, id // do not set sourceAssigningAuthority since we set that as a separate $and clause
                     }
                 )
             );

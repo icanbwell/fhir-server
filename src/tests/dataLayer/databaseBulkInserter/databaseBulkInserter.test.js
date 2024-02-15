@@ -121,24 +121,24 @@ describe('databaseBulkInserter Tests', () => {
             const requestId = '1234';
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Patient',
 doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Observation',
                 doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -149,7 +149,7 @@ doc: new Patient(patient)
             // now execute the bulk inserts
             const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 currentDate,
                 base_version,
                 method: 'POST'
@@ -227,12 +227,12 @@ doc: new Patient(patient)
             const requestId = '1234';
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Person',
 doc: new Person(bwellPerson)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Person',
 doc: new Person(clientPerson)
             });
@@ -240,7 +240,7 @@ doc: new Person(clientPerson)
             // now execute the bulk inserts
             const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 currentDate,
                 base_version,
                 method: 'POST'
@@ -336,24 +336,24 @@ errMsg: 'Error msg test',
             const requestId = '1234';
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Patient',
 doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Observation',
                 doc: new Observation(observation)
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Consent',
                 doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -363,7 +363,7 @@ doc: new Patient(patient)
 
             // now execute the bulk inserts
             const result = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 currentDate,
                 base_version,
                 method: 'POST'
@@ -632,7 +632,7 @@ doc: new Patient(patient)
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
@@ -646,7 +646,7 @@ doc: new Patient(patient)
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 userRequestId,
                 currentDate,
                 base_version,
@@ -977,7 +977,7 @@ doc: new Patient(patient)
                 ]
             });
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
@@ -1095,7 +1095,7 @@ doc: new Patient(patient)
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 currentDate,
                 base_version,
                 userRequestId,
@@ -1443,19 +1443,19 @@ doc: new Patient(patient)
                 ]
             });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 doc: codeSystem1
             });
 
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 doc: codeSystem2,
                 previousVersionId: null,
@@ -1468,7 +1468,7 @@ doc: new Patient(patient)
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 currentDate,
                 base_version,
                 method: 'POST'
@@ -1641,19 +1641,19 @@ doc: new Patient(patient)
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId,
+                requestId,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal
             });
 
             await databaseBulkInserter.mergeOneAsync({
-                requestId: requestId,
+                requestId,
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
                 doc: codeSystemOriginal,
@@ -1667,7 +1667,7 @@ doc: new Patient(patient)
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await databaseBulkInserter.executeAsync({
-                requestId: requestId,
+                requestId,
                 currentDate,
                 base_version,
                 method: 'POST'

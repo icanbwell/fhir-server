@@ -53,7 +53,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
                         {
                             message: `ChatGPTEnrichmentProvider: ${e.message}`,
                             error: e,
-                            resource: resource
+                            resource
                         }
                     );
                 }
@@ -80,7 +80,7 @@ class ChatGptEnrichmentProvider extends EnrichmentProvider {
             {
                 resourceType: resource.resourceType,
                 uuid: resource._uuid,
-                question: question,
+                question,
                 outputFormat: 'html',
                 verbose: _debug || _explain
             }

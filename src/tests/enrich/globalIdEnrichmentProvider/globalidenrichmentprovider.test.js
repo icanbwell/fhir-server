@@ -62,7 +62,7 @@ describe('Observation Tests', () => {
             ];
 
             const updatedResources = await enrichmentManager.enrichAsync({
-                resources: resources,
+                resources,
                 parsedArgs
             });
             expect(updatedResources.map(r => r.toJSONInternal())).toStrictEqual([

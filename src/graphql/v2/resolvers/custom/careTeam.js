@@ -117,10 +117,10 @@ module.exports = {
                     {
                         requestInfo,
                         parsedArgs: r4ArgsParser.parseArgs({
-                            resourceType: resourceType,
+                            resourceType,
                             args: { ...args, base_version: '4_0_0' }
                         }),
-                        resourceType: resourceType
+                        resourceType
                     }
                 );
                 if (result && result[0].operationOutcome) {

@@ -39,7 +39,7 @@ class BwellPersonFinder {
 
         return await this.searchForBwellPersonAsync({
             currentSubject: `${PATIENT_REFERENCE_PREFIX}${patientId}`,
-            databaseQueryManager: databaseQueryManager,
+            databaseQueryManager,
             visitedSubjects: new Set()
         });
     }
@@ -270,8 +270,8 @@ class BwellPersonFinder {
                 // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
                     currentSubject: `Person/${nextPersonId}`,
-                    databaseQueryManager: databaseQueryManager,
-                    visitedSubjects: visitedSubjects
+                    databaseQueryManager,
+                    visitedSubjects
                 });
             }
         }

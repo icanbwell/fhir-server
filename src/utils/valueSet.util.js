@@ -44,10 +44,10 @@ class ValueSetManager {
      */
     createConcept (system, version, code, display) {
         return {
-            system: system,
-            version: version,
-            code: code,
-            display: display
+            system,
+            version,
+            code,
+            display
         };
     }
 

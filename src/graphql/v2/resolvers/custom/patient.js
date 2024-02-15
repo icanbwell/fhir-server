@@ -206,7 +206,7 @@ module.exports = {
                     };
                     await removeOperation.removeAsync(
                         {
-                            requestInfo: requestInfo,
+                            requestInfo,
                             parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args: args1 }),
                             resourceType: 'Patient'
                         }

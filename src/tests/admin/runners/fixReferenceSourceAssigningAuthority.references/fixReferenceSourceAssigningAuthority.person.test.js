@@ -110,7 +110,7 @@ describe('Person Tests', () => {
                 (c) => new FixReferenceSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,
@@ -191,7 +191,7 @@ describe('Person Tests', () => {
                 (c) => new FixReferenceSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,

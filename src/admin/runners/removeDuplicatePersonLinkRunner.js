@@ -175,7 +175,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {
-                db: db, collectionName: this.collectionName
+                db, collectionName: this.collectionName
             }
         );
         // Filter to process only certain documents which match an uuid

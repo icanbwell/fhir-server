@@ -174,7 +174,7 @@ class SearchByVersionIdOperation {
                     }
                 );
                 resource = await databaseHistoryManager.findOneAsync({
-                    query: query
+                    query
                 });
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
@@ -182,7 +182,7 @@ class SearchByVersionIdOperation {
 
             if (resource) {
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource: resource, user, scope
+                    resource, user, scope
                 }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +

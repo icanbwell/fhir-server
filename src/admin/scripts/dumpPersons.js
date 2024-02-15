@@ -30,11 +30,11 @@ async function main () {
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager,
-            batchSize: batchSize,
-            accessCode: accessCode,
-            beforeDate: beforeDate,
-            outputFile: outputFile,
-            pageSize: pageSize
+            batchSize,
+            accessCode,
+            beforeDate,
+            outputFile,
+            pageSize
         }));
 
     /**

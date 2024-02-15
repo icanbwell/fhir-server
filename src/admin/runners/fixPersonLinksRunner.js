@@ -217,7 +217,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                         message: 'Error processing reference',
                         error: e,
                         args: {
-                            reference: reference
+                            reference
                         },
                         source: 'FixPersonLinksRunner.fixLinks'
                     }

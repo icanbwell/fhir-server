@@ -16,7 +16,7 @@ class FhirResourceWriterBase extends Transform {
             response
         }
     ) {
-        super({ objectMode: objectMode, highWaterMark: highWaterMark });
+        super({ objectMode, highWaterMark });
 
         /**
          * @type {string}

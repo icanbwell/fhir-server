@@ -93,8 +93,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const baseRetriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {
-                        resourceType: resourceType,
-                        uuid: uuid
+                        resourceType,
+                        uuid
                     }
                 )
             }
@@ -105,7 +105,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
 
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,
-            baseRetriever: baseRetriever
+            baseRetriever
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
@@ -177,21 +177,21 @@ Question: {question}
 
         const fullPrompt = await ANSWER_PROMPT.format({
             context: combineDocumentsFn(relevantDocuments),
-            question: question
+            question
         });
 
         const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
 
         try {
             const res3 = await conversationalRetrievalQAChain.invoke({
-                question: question,
+                question,
                 chat_history: []
             });
 
             return new ChatGPTResponse({
                 responseText: res3.content,
-                fullPrompt: fullPrompt,
-                numberTokens: numberTokens,
+                fullPrompt,
+                numberTokens,
                 documents: relevantDocuments
             });
         } catch (e) {
@@ -253,18 +253,18 @@ Question: {question}
                 ),
                 HumanMessagePromptTemplate.fromTemplate('{query}')
             ],
-            inputVariables: inputVariables
+            inputVariables
         });
 
         const chain = new LLMChain(
             {
                 llm: model,
-                prompt: prompt,
+                prompt,
                 outputKey: 'text' // For readability - otherwise the chain output will default to a property named "text"
             });
 
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
-        const parameters = { query: query, baseUrl: baseUrl };
+        const parameters = { query, baseUrl };
         if (patientId) {
             parameters['patientId'] = patientId;
         }

@@ -103,7 +103,7 @@ class BaseScriptRunner {
         /**
          * @type {string[]}
          */
-        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db: db });
+        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db });
         // exclude history tables since we always search by id on those
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));

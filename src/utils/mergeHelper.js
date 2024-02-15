@@ -194,5 +194,5 @@ const mergeObject = (oldObject, newObject) => {
 };
 
 module.exports = {
-    mergeObject: mergeObject
+    mergeObject
 };

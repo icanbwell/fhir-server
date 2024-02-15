@@ -25,7 +25,7 @@ class HttpResponseWriter extends Writable {
             configManager
         }
     ) {
-        super({ objectMode: true, highWaterMark: highWaterMark });
+        super({ objectMode: true, highWaterMark });
         assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}
@@ -116,7 +116,7 @@ class HttpResponseWriter extends Writable {
                     error: e,
                     args: {
                         id: chunk.id,
-                        chunk: chunk
+                        chunk
                     }
                 }
             );

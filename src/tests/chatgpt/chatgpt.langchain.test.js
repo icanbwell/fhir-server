@@ -57,10 +57,10 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'What is a good name for a company that makes {product}?';
             const prompt = new PromptTemplate({
-                template: template,
+                template,
                 inputVariables: ['product']
             });
-            const chain = new LLMChain({ llm: model, prompt: prompt });
+            const chain = new LLMChain({ llm: model, prompt });
             const res = await chain.call({ product: 'colorful socks' });
             console.log(res);
         });
@@ -79,10 +79,10 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'You are a software program. You are talking to a FHIR server. The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient? Give me just the url.';
             const prompt = new PromptTemplate({
-                template: template,
+                template,
                 inputVariables: ['patientId', 'resource']
             });
-            const chain = new LLMChain({ llm: model, prompt: prompt });
+            const chain = new LLMChain({ llm: model, prompt });
             const res = await chain.call({ patientId: 'imran', resource: 'condition' });
             console.log(res);
         });
@@ -118,7 +118,7 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
             const prompt = new PromptTemplate({
-                template: template,
+                template,
                 inputVariables: ['query'],
                 partialVariables: {
                     format_instructions: outputFixingParser.getFormatInstructions()
@@ -128,7 +128,7 @@ describe('ChatGPT Tests', () => {
             const chain = new LLMChain(
                 {
                     llm: model,
-prompt: prompt,
+prompt,
                     outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                     outputParser: outputFixingParser
                 });
@@ -225,10 +225,10 @@ prompt: prompt,
             );
             const template = 'Here\'s my data in FHIR schema. Write a clinical summary for a doctor: ```{data}```. ';
             const prompt = new PromptTemplate({
-                template: template,
+                template,
                 inputVariables: ['data']
             });
-            const chain = new LLMChain({ llm: model, prompt: prompt });
+            const chain = new LLMChain({ llm: model, prompt });
             const res = await chain.call({ data: patientBundleResource.entry[0] });
             console.log(res);
         });
@@ -448,7 +448,7 @@ prompt: prompt,
             //         outputParser: outputFixingParser
             //     });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, { prompt: prompt }),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt }),
                 retriever: vectorStore.asRetriever()
                 // memory: memory,
                 // returnSourceDocuments: true,
@@ -559,7 +559,7 @@ prompt: prompt,
                 // outputParser: outputFixingParser
             });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, { prompt: prompt }),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt }),
                 retriever: vectorStore.asRetriever()
                 // memory: memory,
                 // returnSourceDocuments: true,

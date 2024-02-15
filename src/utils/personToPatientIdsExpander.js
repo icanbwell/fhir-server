@@ -38,7 +38,7 @@ class PersonToPatientIdsExpander {
     async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
 
         // 1. Get person ids from id
@@ -115,7 +115,7 @@ class PersonToPatientIdsExpander {
     async getAllRelatedPatients ({ base_version, idsSet, toMap = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
 
         /** @type {string[]} */
@@ -236,7 +236,7 @@ class PersonToPatientIdsExpander {
 
         if (level === maximumRecursionDepth) {
             const message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
-            logWarn(message, { patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds] });
+            logWarn(message, { patientIds, personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds] });
             if (toMap) {
                 return personToLinkedPatient;
             }

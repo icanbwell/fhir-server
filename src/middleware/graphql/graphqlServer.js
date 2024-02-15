@@ -116,7 +116,7 @@ const graphql = async (fnGetContainer) => {
                     queryRewriterManager: container.queryRewriterManager
                 }
             ),
-            container: container
+            container
         };
     }
 
@@ -129,7 +129,7 @@ const graphql = async (fnGetContainer) => {
             // resolvers: resolvers,
             introspection: configManagerInstance.enableGraphQLPlayground,
             cache: 'bounded',
-            plugins: plugins,
+            plugins,
             formatError: (formattedError, _error) => {
                 // Formatting the error message returned from GraphQL when GraphQL Playground(Currently case of production environment) is disabled.
                 if (formattedError.message.startsWith('This operation has been blocked as a potential Cross-Site Request Forgery (CSRF)')) {

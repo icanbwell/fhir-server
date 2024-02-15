@@ -36,7 +36,7 @@ async function showIndexesAsync (
     const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
             audit: audit ? true : false,
-            filterToProblems: filterToProblems
+            filterToProblems
         }
     );
     return res.json(json);
@@ -65,7 +65,7 @@ async function synchronizeIndexesAsync (
 
     res.json({ message: 'Synchronization process triggered' });
     await indexManager.synchronizeIndexesWithConfigAsync({
-        audit: audit
+        audit
     });
 }
 
@@ -146,7 +146,7 @@ async function handleAdmin (
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.deletePersonAsync({
-                            req: req,
+                            req,
                             requestId: req.id,
                             personId
                         });
@@ -167,7 +167,7 @@ async function handleAdmin (
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPersonLinkAsync({
-                            req: req,
+                            req,
                             bwellPersonId,
                             externalPersonId
                         });
@@ -188,7 +188,7 @@ async function handleAdmin (
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
-                            req: req,
+                            req,
                             bwellPersonId,
                             externalPersonId
                         });
@@ -209,7 +209,7 @@ async function handleAdmin (
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPatientLinkAsync({
-                            req: req,
+                            req,
                             externalPersonId,
                             patientId
                         });
@@ -230,7 +230,7 @@ async function handleAdmin (
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.removePersonToPatientLinkAsync({
-                            req: req,
+                            req,
                             personId,
                             patientId
                         });

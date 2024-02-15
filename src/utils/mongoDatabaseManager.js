@@ -193,13 +193,13 @@ class MongoDatabaseManager {
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
             client.on('commandStarted', event => {
-                logInfo('AWS Received commandStarted', { event: event });
+                logInfo('AWS Received commandStarted', { event });
             });
             client.on('commandSucceeded', event => {
-                logInfo('AWS Received commandSucceeded', { event: event });
+                logInfo('AWS Received commandSucceeded', { event });
             });
             client.on('commandFailed', event => {
-                logInfo('AWS Received commandFailed', { event: event });
+                logInfo('AWS Received commandFailed', { event });
             });
         }
         return client;

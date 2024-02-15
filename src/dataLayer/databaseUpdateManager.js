@@ -161,7 +161,7 @@ class DatabaseUpdateManager {
                 {
                     currentResource: resourceInDatabase,
                     resourceToMerge: doc,
-                    smartMerge: smartMerge
+                    smartMerge
                 }
             );
             if (!updatedResource) {
@@ -298,7 +298,7 @@ class DatabaseUpdateManager {
             request: new BundleRequest(
                 {
                     id: requestId,
-                    method: method,
+                    method,
                     url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
                 }
             )

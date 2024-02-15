@@ -183,5 +183,5 @@ function convertGraphQLParameters (queryParameterValue, args, queryParameter) {
 }
 
 module.exports = {
-    convertGraphQLParameters: convertGraphQLParameters
+    convertGraphQLParameters
 };

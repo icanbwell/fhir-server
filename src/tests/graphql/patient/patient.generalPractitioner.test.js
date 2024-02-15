@@ -107,7 +107,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             expect(requestId).not.toBeUndefined();
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             const auditEntries = await internalAuditEventCollection.find({}).toArray();
             console.log(JSON.stringify(auditEntries));
@@ -138,7 +138,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResponse(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
             logInfo('', { auditLogs });

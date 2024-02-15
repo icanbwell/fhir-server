@@ -334,8 +334,8 @@ class ValidateOperation {
                 id: resource_incoming.id,
                 resourceType,
                 resourceToValidate: resourceObjectToValidate,
-                path: path,
-                currentDate: currentDate,
+                path,
+                currentDate,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
                 profile: specifiedProfile

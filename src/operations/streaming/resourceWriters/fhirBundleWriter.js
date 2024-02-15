@@ -21,7 +21,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {import('http').ServerResponse} response
      */
     constructor ({ fnBundle, url, signal, defaultSortId, highWaterMark, configManager, response }) {
-        super({ objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark, response });
+        super({ objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark, response });
         /**
          * @type {function (string | null, number): Bundle}
          * @private
@@ -141,7 +141,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @type {OperationOutcome}
          */
         const operationOutcome = convertErrorToOperationOutcome({
-            error: error
+            error
         });
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         if (this._first) {

@@ -232,7 +232,7 @@ class HistoryByIdOperation {
                         bundleEntry = new BundleEntry(
                             {
                                 id: resource.id,
-                                resource: resource,
+                                resource,
                                 fullUrl: this.resourceManager.getFullUrlForResource(
                                     { protocol, host, base_version, resource })
                             }
@@ -244,7 +244,7 @@ class HistoryByIdOperation {
                         bundleEntry = resource;
                     }
                     if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                            resource: resource, user, scope
+                            resource, user, scope
                         }
                     )) {
                         entries.push(bundleEntry);
@@ -294,7 +294,7 @@ class HistoryByIdOperation {
                         {
                             query,
                             resourceType,
-                            collectionName: collectionName
+                            collectionName
                         }
                     ),
                     originalOptions: options,

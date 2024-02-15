@@ -95,7 +95,7 @@ describe('graphHelper Tests', () => {
                     resourceType,
                     graphDefinitionJson: graphSimpleReverseDefinition,
                     contained: false,
-                    parsedArgs: parsedArgs
+                    parsedArgs
                 }
             );
             expect(result).not.toBeNull();
@@ -149,8 +149,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -194,7 +194,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -211,7 +211,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -233,8 +233,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -281,7 +281,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -303,8 +303,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -351,7 +351,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -373,8 +373,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -419,7 +419,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -441,8 +441,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: true,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -489,7 +489,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
@@ -506,7 +506,7 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -524,8 +524,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -575,7 +575,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -597,8 +597,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -644,7 +644,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -663,7 +663,7 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -681,8 +681,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -751,7 +751,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -767,7 +767,7 @@ describe('graphHelper Tests', () => {
                 id: '20',
                 _sourceId: '20',
                 _uuid: uuid20,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
@@ -786,14 +786,14 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
             await collection.insertOne({
                 id: '200',
                 _sourceId: '200',
                 _uuid: uuid200,
-                resourceType: resourceType
+                resourceType
             });
 
             resourceType = 'Practitioner';
@@ -810,8 +810,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -910,7 +910,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -926,7 +926,7 @@ describe('graphHelper Tests', () => {
                 id: '20',
                 _sourceId: '20',
                 _uuid: uuid20,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
@@ -945,14 +945,14 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
                     _uuid: uuid200,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -970,8 +970,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: true,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1048,7 +1048,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: `Practitioner/${uuid1}`
                 },
@@ -1092,7 +1092,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType
+                resourceType
             });
 
             resourceType = 'PractitionerRole';
@@ -1109,8 +1109,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1210,7 +1210,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -1255,7 +1255,7 @@ describe('graphHelper Tests', () => {
                 id: '20',
                 _sourceId: '20',
                 _uuid: uuid20,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
@@ -1274,14 +1274,14 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
                     _uuid: uuid200,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -1292,7 +1292,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType
+                resourceType
             });
 
             resourceType = 'Practitioner';
@@ -1309,8 +1309,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1466,7 +1466,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -1511,7 +1511,7 @@ describe('graphHelper Tests', () => {
                 id: '20',
                 _sourceId: '20',
                 _uuid: uuid20,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
@@ -1530,14 +1530,14 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
                     _uuid: uuid200,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -1548,7 +1548,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType
+                resourceType
             });
             resourceType = 'Practitioner';
             /**
@@ -1564,8 +1564,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1704,7 +1704,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -1749,7 +1749,7 @@ describe('graphHelper Tests', () => {
                 id: '20',
                 _sourceId: '20',
                 _uuid: uuid20,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
@@ -1768,14 +1768,14 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
                     _uuid: uuid200,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -1786,7 +1786,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType
+                resourceType
             });
             resourceType = 'Practitioner';
             /**
@@ -1794,7 +1794,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = { base_version: '4_0_0', _debug: 1, id: `${uuid1},${uuid2}` };
-            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args: args });
+            const parsedArgs = r4ArgsParser.parseArgs({ resourceType, args });
             parsedArgs.headers = { prefer: 'global_id=true' };
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
@@ -1802,8 +1802,8 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                args: args,
-                parsedArgs: parsedArgs
+                args,
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1991,7 +1991,7 @@ describe('graphHelper Tests', () => {
                 id: '10',
                 _sourceId: '10',
                 _uuid: uuid10,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
@@ -2036,7 +2036,7 @@ describe('graphHelper Tests', () => {
                 id: '20',
                 _sourceId: '20',
                 _uuid: uuid20,
-                resourceType: resourceType,
+                resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
@@ -2055,14 +2055,14 @@ describe('graphHelper Tests', () => {
                     id: '100',
                     _sourceId: '100',
                     _uuid: uuid100,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
                     _uuid: uuid200,
-                    resourceType: resourceType
+                    resourceType
                 }
             );
 
@@ -2073,7 +2073,7 @@ describe('graphHelper Tests', () => {
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _uuid: uuidAetna,
-                resourceType: resourceType
+                resourceType
             });
             resourceType = 'Practitioner';
             /**
@@ -2089,7 +2089,7 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                parsedArgs: parsedArgs
+                parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];

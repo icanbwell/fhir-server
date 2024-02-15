@@ -104,7 +104,7 @@ class CopyToV3Runner {
         this.adminLogger.logInfo(
             `Connecting to v3 cluster with db_name: ${db_name}`
         );
-        return { connection: v3MongoUrl, db_name: db_name, options: mongoConfig.options };
+        return { connection: v3MongoUrl, db_name, options: mongoConfig.options };
     }
 
     /**
@@ -177,10 +177,10 @@ class CopyToV3Runner {
             );
         }
         return {
-totalDocumentUpdatedCount: totalDocumentUpdatedCount,
-totalDocumentCreatedCount: totalDocumentCreatedCount,
-            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount,
-lastProcessedId: lastProcessedId
+totalDocumentUpdatedCount,
+totalDocumentCreatedCount,
+            totalDocumentHavingSameDataCount,
+lastProcessedId
 };
     }
 
@@ -313,12 +313,12 @@ lastProcessedId: lastProcessedId
                         `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
                     );
                     results[collection] = {
-                        totalLiveDocuments: totalLiveDocuments,
+                        totalLiveDocuments,
                         totalLiveMatchedDocuments: liveDocumentLastUpdatedGreaterThanUpdatedAfter,
                         totalDocumentUpdated: totalDocumentUpdatedCount,
                         totalDocumentCreated: totalDocumentCreatedCount,
                         totalDocumentHavingSameData: totalDocumentHavingSameDataCount,
-                        lastProcessedId: lastProcessedId
+                        lastProcessedId
                     };
                 }
                 return results;

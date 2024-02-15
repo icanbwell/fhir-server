@@ -108,7 +108,7 @@ class ProaConsentManager {
         });
 
         const cursor = await consentDataBaseQueryManager.findAsync({
-            query: query,
+            query,
             projection: {}
         });
         const consentResources = await cursor

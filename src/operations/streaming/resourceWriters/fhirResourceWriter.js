@@ -16,7 +16,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {import('http').ServerResponse} response
      */
     constructor ({ signal, contentType, highWaterMark, configManager, response }) {
-        super({ objectMode: true, contentType: contentType, highWaterMark: highWaterMark, response });
+        super({ objectMode: true, contentType, highWaterMark, response });
         /**
          * @type {boolean}
          * @private

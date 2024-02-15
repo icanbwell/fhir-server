@@ -104,7 +104,7 @@ class UpdateCollectionsRunner {
             maxIdleTimeMS: 0,
             serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
         };
-        return { connection: mongoUrl, db_name: db_name, options: options };
+        return { connection: mongoUrl, db_name, options };
     }
 
     /**
@@ -123,7 +123,7 @@ class UpdateCollectionsRunner {
             maxIdleTimeMS: 0,
             serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
         };
-        return { connection: mongoUrl, db_name: db_name, options: options };
+        return { connection: mongoUrl, db_name, options };
     }
 
     /**
@@ -315,16 +315,16 @@ class UpdateCollectionsRunner {
                         `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount}. The source documents that have a missing lastUpdated value: ${sourceMissingLastUpdated} and target documents that have missing lastUpdated value are: ${targetMissingLastUpdated} `
                     );
                     results[collection] = {
-                        totalSourceDocuments: totalSourceDocuments,
-                        totalTargetDocuments: totalTargetDocuments,
+                        totalSourceDocuments,
+                        totalTargetDocuments,
                         totalProcessedDocuments: totalProcessedDoc,
                         sourceMissingLastUpdated: sourceDocumentsMissingLastUpdated,
-                        targetMissingLastUpdated: targetMissingLastUpdated,
-                        targetLastUpdatedGreaterThanSource: targetLastUpdatedGreaterThanSource,
+                        targetMissingLastUpdated,
+                        targetLastUpdatedGreaterThanSource,
                         [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('YYYY-MM-DD')}`]: targetLastUpdatedGreaterThanUpdatedBefore,
-                        updatedCount: updatedCount,
-                        skippedCount: skippedCount,
-                        lastProcessedId: lastProcessedId
+                        updatedCount,
+                        skippedCount,
+                        lastProcessedId
                     };
                 }
                 return results;

@@ -17,7 +17,7 @@ process.on('unhandledRejection', (reason, promise) => {
         error: reason,
 source: 'unhandledRejection',
 args: {
-            promise: promise
+            promise
         }
     });
     Sentry.captureException(reason);

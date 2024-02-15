@@ -41,7 +41,7 @@ describe('ChatGPT Tests', () => {
             const container = getTestContainer();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager()
             });
@@ -64,7 +64,7 @@ describe('ChatGPT Tests', () => {
             const container = getTestContainer();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager()
             });
@@ -89,7 +89,7 @@ describe('ChatGPT Tests', () => {
             const container = getTestContainer();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager()
             });

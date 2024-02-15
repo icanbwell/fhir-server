@@ -234,7 +234,7 @@ class HistoryOperation {
                 throw new NotFoundError('Resource not found');
             }
             if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: resource, user, scope
+                resource, user, scope
             })) {
                 if (resource.resource) {
                     resource.resource = await this.databaseAttachmentManager.transformAttachments(
@@ -269,7 +269,7 @@ class HistoryOperation {
         const entries = resources.map(
             resource => resource.resource ? resource : new BundleEntry(
                 {
-                    resource: resource,
+                    resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
                         { protocol, host, base_version, resource })
                 }
@@ -301,7 +301,7 @@ class HistoryOperation {
                     {
                         query,
                         resourceType,
-                        collectionName: collectionName
+                        collectionName
                     }
                 ),
                 originalOptions: options,

@@ -122,7 +122,7 @@ class SearchByIdOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         /**
          * @type {number}
@@ -227,7 +227,7 @@ class SearchByIdOperation {
 
             if (resource) {
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource: resource, user, scope
+                    resource, user, scope
                 }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +

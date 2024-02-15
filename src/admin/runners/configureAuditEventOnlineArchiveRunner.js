@@ -12,9 +12,9 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         expireAfterDays
     }) {
         super({
-            mongoCollectionManager: mongoCollectionManager,
-            adminLogger: adminLogger,
-            mongoDatabaseManager: mongoDatabaseManager
+            mongoCollectionManager,
+            adminLogger,
+            mongoDatabaseManager
         });
 
         /**
@@ -108,7 +108,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         for (const collectionName of collectionNames) {
             await this.createCollection({
                 config: auditEventConfig,
-                collectionName: collectionName
+                collectionName
             })
                 .then((resp) => {
                     this.adminLogger.logInfo(

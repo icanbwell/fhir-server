@@ -133,7 +133,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),
@@ -173,7 +173,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
                 (c) => new FixReferenceSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),
@@ -244,7 +244,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             container.register('fixMultipleSourceAssigningAuthorityHistoryRunner', (c) => new FixMultipleSourceAssigningAuthorityHistoryRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,

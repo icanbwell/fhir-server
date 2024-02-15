@@ -373,7 +373,7 @@ args: {
                 logInfo('_id still present', {
 args: {
                     source: 'DatabaseBulkInserter.insertOneAsync',
-                    doc: doc
+                    doc
                 }
 });
             }
@@ -514,8 +514,8 @@ args: {
                             operationType: 'replace',
                             operation: {
                                 replaceOne: {
-                                    filter: filter,
-                                    upsert: upsert,
+                                    filter,
+                                    upsert,
                                     replacement: doc.toJSONInternal()
                                 }
                             },
@@ -640,8 +640,8 @@ args: {
                             operationType: 'merge',
                             operation: {
                                 replaceOne: {
-                                    filter: filter,
-                                    upsert: upsert,
+                                    filter,
+                                    upsert,
                                     replacement: doc.toJSONInternal()
                                 }
                             },
@@ -697,7 +697,7 @@ args: {
                     {
                         requestId,
 currentDate,
-                        mapEntry: mapEntry,
+                        mapEntry,
                         base_version,
                         useHistoryCollection: false,
                         method,
@@ -1055,16 +1055,16 @@ args: {
                         message: 'databaseBulkInserter: Error bulkWrite',
                         error: e,
                         args: {
-                            requestId: requestId,
+                            requestId,
                             operations: operationsByCollection,
-                            options: options,
+                            options,
                             collection: collectionName
                         }
                     });
-                    return { resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries };
+                    return { resourceType, mergeResult: null, error: e, mergeResultEntries };
                 }
             }
-            return { resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };
+            return { resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries };
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -1134,7 +1134,7 @@ args: {
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
             created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
-            resourceType: resourceType
+            resourceType
         });
         if (hasBulkWriteErrors) {
             const bulkWriteErrors = bulkWriteResult.getWriteErrors();
@@ -1145,7 +1145,7 @@ args: {
                 severity: 'error',
                 code: 'exception',
                 details: new CodeableConcept({ text: bulkWriteResultError.message }),
-                diagnostics: diagnostics,
+                diagnostics,
                 expression: [
                     resourceType + '/' + bulkInsertUpdateEntry.uuid
                 ]
@@ -1156,8 +1156,8 @@ args: {
                   args: {
                     error: bulkWriteResult.error,
                     source: 'databaseBulkInserter',
-                    requestId: requestId,
-                    resourceType: resourceType,
+                    requestId,
+                    resourceType,
                     operation: bulkInsertUpdateEntry
                   }
                 }
@@ -1171,7 +1171,7 @@ args: {
                 fnTask: async () => await this.postSaveProcessor.afterSaveAsync({
                     requestId,
                     eventType: bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U',
-                    resourceType: resourceType,
+                    resourceType,
                     doc: bulkInsertUpdateEntry.resource
                 })
             });
@@ -1271,16 +1271,16 @@ args: {
             delete resource._id;
         }
         this.addOperationForResourceType({
-            requestId: requestId,
+            requestId,
             resourceType: resource.resourceType,
-            resource: resource,
+            resource,
             operationType: 'merge',
             operation: {
                 updateOne: {
                     filter: {
                         _uuid: resource._uuid
                     },
-                    upsert: upsert,
+                    upsert,
                     update: {
                         $set: { [fieldName]: fieldValue }
                     }

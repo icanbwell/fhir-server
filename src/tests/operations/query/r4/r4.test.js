@@ -164,7 +164,7 @@ describe('r4 search Tests', () => {
             };
             const parsedArgs = r4ArgsParser.parseArgs({ resourceType: 'Task', args });
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Task', parsedArgs: parsedArgs
+                resourceType: 'Task', parsedArgs
             });
             expect(result.query['for._sourceId']).toStrictEqual('Patient/1234');
         });
@@ -973,8 +973,8 @@ describe('r4 search Tests', () => {
             };
             const resourceType = 'Patient';
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: resourceType,
-                parsedArgs: r4ArgsParser.parseArgs({ resourceType: resourceType, args })
+                resourceType,
+                parsedArgs: r4ArgsParser.parseArgs({ resourceType, args })
             });
             expect(result.query).toStrictEqual(
                 {

@@ -19,7 +19,7 @@ class FhirResourceCsvWriter extends Transform {
          * @type {import('@json2csv/node').Json2CSVBaseOptions}
          */
         const opts = {
-            delimiter: delimiter,
+            delimiter,
             transforms: [
                 flatten({ objects: true, arrays: true, separator: '.' })
             ]
@@ -34,7 +34,7 @@ class FhirResourceCsvWriter extends Transform {
          */
         const transformOpts = {
             objectMode: true,
-            highWaterMark: highWaterMark
+            highWaterMark
         };
         super(opts, asyncOpts, transformOpts);
 

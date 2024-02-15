@@ -98,7 +98,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                 db: sourceDb, collectionName: this.collectionName
             }
         );
-        const options = { session: session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS };
+        const options = { session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS };
         let refreshTimestamp = moment(); // take note of time at operation start
         // Filter to process only certain documents depending on the owner code passed.
         const accessFilter = this.accessCode

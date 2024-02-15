@@ -103,7 +103,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(2);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
             // clear out audit table
@@ -132,7 +132,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResponse(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
         });

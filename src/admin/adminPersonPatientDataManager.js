@@ -73,7 +73,7 @@ class AdminPersonPatientDataManager {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
             const args = {
-                base_version: base_version,
+                base_version,
                 id: patientId
             };
             const bundle = await this.everythingOperation.everythingAsync({
@@ -117,14 +117,14 @@ class AdminPersonPatientDataManager {
              */
             const databaseQueryManagerForPerson = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
             /**
              * @type {DatabaseUpdateManager}
              */
             const databaseUpdateManagerForPerson = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
             /**
              * @type {BundleEntry[]}
@@ -172,7 +172,7 @@ databaseUpdateManagerForPerson,
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
             const args = {
-                base_version: base_version,
+                base_version,
                 id: personId
             };
             const bundle = await this.everythingOperation.everythingAsync({

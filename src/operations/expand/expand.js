@@ -128,7 +128,7 @@ class ExpandOperation {
 
         if (resource) {
             if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: resource, user, scope
+                resource, user, scope
             }))) {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +

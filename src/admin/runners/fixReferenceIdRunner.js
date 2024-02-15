@@ -605,7 +605,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     {
                                         name: indexName,
                                         maxTimeMS: 6 * 60 * 60 * 1000,
-                                        session: session
+                                        session
                                     }
                                 );
                             } catch (err) {
@@ -630,7 +630,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             {
                                 name: indexName,
                                 maxTimeMS: 6 * 60 * 60 * 1000,
-                                session: session
+                                session
                             }
                         );
                     }
@@ -786,7 +786,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         for (const propertyObj of Object.values(resourceObj)) {
                             if (propertyObj.type === 'reference') {
                                 for (const field of propertyObj.fields) {
-                                    referenceFieldNames.add({ field: field, target: propertyObj.target });
+                                    referenceFieldNames.add({ field, target: propertyObj.target });
                                 }
                             }
                         }

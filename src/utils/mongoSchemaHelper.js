@@ -28,5 +28,5 @@ const getSchemaOfMongoDocument = (prefix, obj, indent) => {
 };
 
 module.exports = {
-    getSchemaOfMongoDocument: getSchemaOfMongoDocument
+    getSchemaOfMongoDocument
 };

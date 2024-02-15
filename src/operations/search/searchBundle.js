@@ -114,7 +114,7 @@ class SearchBundleOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'search';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();

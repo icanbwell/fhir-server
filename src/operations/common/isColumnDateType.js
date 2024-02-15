@@ -15,5 +15,5 @@ function isColumnDateType (resourceType, columnName) {
 }
 
 module.exports = {
-    isColumnDateType: isColumnDateType
+    isColumnDateType
 };

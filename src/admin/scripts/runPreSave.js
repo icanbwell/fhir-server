@@ -49,7 +49,7 @@ async function main () {
     container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 afterLastUpdatedDate,
                 beforeLastUpdatedDate,

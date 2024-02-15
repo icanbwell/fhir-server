@@ -84,7 +84,7 @@ class MongoExplainPlanHelper {
          * @type {Step}
          */
         const step = this.parseInputStage({ stepNo, step: winningPlan });
-        return { step: step, executionStats: myExecutionStats, query: query };
+        return { step, executionStats: myExecutionStats, query };
     }
 
     /**

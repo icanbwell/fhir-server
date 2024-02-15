@@ -78,7 +78,7 @@ class R4SearchQueryCreator {
                  */
                 const fieldMapper = new FieldMapper(
                     {
-                        useHistoryTable: useHistoryTable
+                        useHistoryTable
                     }
                 );
                 /**
@@ -155,7 +155,7 @@ class R4SearchQueryCreator {
         const totalColumns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
 
         return {
-            query: query,
+            query,
             columns: totalColumns
         };
     }

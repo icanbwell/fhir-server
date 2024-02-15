@@ -261,7 +261,7 @@ ids: [resource['id']]
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
-            logDebug('Inserting', { user, args: { doc: doc } });
+            logDebug('Inserting', { user, args: { doc } });
 
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
@@ -272,7 +272,7 @@ ids: [resource['id']]
                 {
                     requestId,
 currentDate,
-base_version: base_version,
+base_version,
                     method,
                     userRequestId
                 }

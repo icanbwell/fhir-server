@@ -28,7 +28,7 @@ function jwksEndpoint (host, path, certs) {
                         kid: cert.kid
                     };
                 }
-            ).then((keys) => cb(null, [200, { keys: keys }]));
+            ).then((keys) => cb(null, [200, { keys }]));
         });
 }
 

@@ -31,5 +31,5 @@ const main = async function () {
 };
 
 main().catch((reason) => {
-    logError('Top level error', { reason: reason });
+    logError('Top level error', { reason });
 });

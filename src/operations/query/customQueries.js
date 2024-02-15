@@ -1029,6 +1029,6 @@ const customFilterQueries = {
 };
 
 module.exports = {
-    fhirFilterTypes: fhirFilterTypes,
-    customFilterQueries: customFilterQueries
+    fhirFilterTypes,
+    customFilterQueries
 };

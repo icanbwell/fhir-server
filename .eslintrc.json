@@ -13,7 +13,6 @@
       "semi": "off",
       "dot-notation": "off",
       "camelcase": "off",
-      "object-shorthand": "off",
       "prefer-regex-literals": "off",
       "no-unneeded-ternary": "off",
       "multiline-ternary": "off",

@@ -50,14 +50,14 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                 documents.push(
                     new ChatGPTDocument(
                         {
-                            content: content,
+                            content,
                             metadata: new ChatGPTMeta({
                                 _id: `${resource.resourceType}/${resource.id}`,
                                 uuid: resource._uuid,
                                 reference: `${resource.resourceType}/${resource.id}`,
                                 resourceType: resource.resourceType,
-                                parentResourceType: parentResourceType,
-                                parentUuid: parentUuid
+                                parentResourceType,
+                                parentUuid
                             })
                         }
                     )

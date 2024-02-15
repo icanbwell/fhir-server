@@ -34,7 +34,7 @@ module.exports.handleStats = async ({ fnGetContainer, req, res }) => {
         const indexes = await db.collection(collection_name).indexes();
         logInfo(['Fetched index for collection: ', collection_name].join(''), { indexes });
         logInfo(['Found: ', count, ' documents in ', collection_name].join(''), {});
-        return { name: collection_name, count: count, indexes: indexes.map((i) => ({ key: i.key, name: i.name })) };
+        return { name: collection_name, count, indexes: indexes.map((i) => ({ key: i.key, name: i.name })) };
     }
 
     const container = fnGetContainer();

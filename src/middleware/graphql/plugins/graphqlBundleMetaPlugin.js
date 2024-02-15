@@ -56,6 +56,6 @@ const getBundleMetaApolloServerPlugin = () => {
 };
 
 module.exports = {
-    BundleMetaApolloServerPlugin: BundleMetaApolloServerPlugin,
-    getBundleMetaApolloServerPlugin: getBundleMetaApolloServerPlugin
+    BundleMetaApolloServerPlugin,
+    getBundleMetaApolloServerPlugin
 };

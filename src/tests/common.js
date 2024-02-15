@@ -174,7 +174,7 @@ const getToken = (module.exports.getToken = (scope) => {
         sub: 'john',
         username: 'imran',
         client_id: 'my_client_id',
-        scope: scope,
+        scope,
         'custom:clientFhirPersonId': 'clientFhirPerson',
         'custom:clientFhirPatientId': 'clientFhirPatient',
         'custom:bwellFhirPersonId': 'root-person',
@@ -412,7 +412,7 @@ module.exports.wrapResourceInBundle = (resource) => {
         type: 'searchset',
         entry: [
             {
-                resource: resource
+                resource
             }
         ]
     };

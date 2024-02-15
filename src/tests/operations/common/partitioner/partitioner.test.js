@@ -35,7 +35,7 @@ describe('PartitioningManager Tests', () => {
             await mongoDatabaseManager.dropDatabasesAsync();
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -67,8 +67,8 @@ describe('PartitioningManager Tests', () => {
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                configManager,
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -118,7 +118,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -163,7 +163,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -173,7 +173,7 @@ describe('PartitioningManager Tests', () => {
              */
             const resource = { resourceType: 'Account' };
             const partition = await partitioner.getPartitionNameByResourceAsync({
-                resource: resource,
+                resource,
                 base_version: '4_0_0'
             });
             expect(partition).toBe('Account_4_0_0');
@@ -188,7 +188,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -222,7 +222,7 @@ describe('PartitioningManager Tests', () => {
                 recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'))
             };
             const partition = await partitioner.getPartitionNameByResourceAsync({
-                resource: resource,
+                resource,
                 base_version: '4_0_0'
             });
             expect(partition).toBe(mongoCollectionName2);
@@ -239,7 +239,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -262,7 +262,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -288,7 +288,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -326,7 +326,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -384,7 +384,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -441,7 +441,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -498,7 +498,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);

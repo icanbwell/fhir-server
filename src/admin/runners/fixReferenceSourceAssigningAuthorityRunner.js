@@ -421,7 +421,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     message: 'Error processing reference',
                     error: e,
                     args: {
-                        reference: reference
+                        reference
                     },
                     source: 'FixReferenceSourceAssigningAuthorityRunner.updateReferenceAsync'
                 }
@@ -473,7 +473,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             if (this.properties && this.properties.length > 0) {
                 const { patches } = await this.resourceMerger.mergeResourceAsync({
-                    currentResource: currentResource,
+                    currentResource,
                     resourceToMerge: resource,
                     smartMerge: false,
                     limitToPaths: this.properties.map(p => `/${p}`)
@@ -612,7 +612,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             config: mongoConfig,
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
-                            query: query,
+                            query,
                             projection: this.properties ? getProjection(this.properties) : undefined,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),

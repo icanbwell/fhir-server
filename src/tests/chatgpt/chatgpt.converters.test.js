@@ -41,7 +41,7 @@ describe('ChatGPT Tests', () => {
             const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager(),
                 llmFactory: container.llmFactory
@@ -84,7 +84,7 @@ describe('ChatGPT Tests', () => {
             const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager(),
                 llmFactory: container.llmFactory
@@ -124,7 +124,7 @@ describe('ChatGPT Tests', () => {
             const container = getTestContainer();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager(),
                 llmFactory: container.llmFactory
@@ -166,7 +166,7 @@ describe('ChatGPT Tests', () => {
             const container = getTestContainer();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager(),
                 llmFactory: container.llmFactory
@@ -206,7 +206,7 @@ describe('ChatGPT Tests', () => {
             const container = getTestContainer();
             // noinspection JSUnresolvedReference
             const chatGptManager = new ChatGPTManagerDirect({
-                fhirToDocumentConverter: fhirToDocumentConverter,
+                fhirToDocumentConverter,
                 vectorStoreFactory: container.vectorStoreFactory,
                 configManager: new MockConfigManager(),
                 llmFactory: container.llmFactory

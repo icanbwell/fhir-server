@@ -358,7 +358,7 @@ currentDate,
                         originalUrl: url,
                         host,
                         protocol,
-                        resources: resources,
+                        resources,
                         base_version,
                         total_count: operationOutcomes.length,
                         originalQuery: new QueryItem(

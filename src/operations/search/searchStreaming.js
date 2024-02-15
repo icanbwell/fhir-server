@@ -102,7 +102,7 @@ class SearchStreamingOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();

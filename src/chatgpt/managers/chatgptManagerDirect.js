@@ -41,8 +41,8 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const retriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {
-                        resourceType: resourceType,
-                        uuid: uuid
+                        resourceType,
+                        uuid
                     }
                 )
             }
@@ -86,7 +86,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const chatCompletionRequest = {
             model: this.configManager.openAIModel,
             // model: 'gpt-3.5-turbo-16k',
-            messages: messages,
+            messages,
             temperature: 0.0,
             max_tokens: 600 // tokens allowed in completion response
         };

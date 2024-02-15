@@ -53,8 +53,8 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
                                 uuid: '0',
                                 reference: `${resourceType1}`,
                                 resourceType: resourceType1,
-                                parentResourceType: parentResourceType,
-                                parentUuid: parentUuid
+                                parentResourceType,
+                                parentUuid
                             }
                         )
                     }

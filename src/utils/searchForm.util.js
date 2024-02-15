@@ -443,7 +443,7 @@ const getSortIcon = (fieldName, sortField) => {
 const utils = {
     hasPrev: getHasPrev,
     hasNext: getHasNext,
-    formatDate: formatDate,
+    formatDate,
     fieldValue: getFieldValue,
     totalMessage: getTotalMessage,
     pageIndex: getCurrentPageIndex,
@@ -457,6 +457,6 @@ module.exports = {
     lastUpdateStart: getLastUpdate,
     lastUpdateEnd: getLastUpdate,
     limit: searchLimit,
-    searchLimitForIds: searchLimitForIds,
+    searchLimitForIds,
     searchUtils: utils
 };

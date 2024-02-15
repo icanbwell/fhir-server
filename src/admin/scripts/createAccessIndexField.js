@@ -36,7 +36,7 @@ async function main () {
     container.register('createAccessIndexRunner', (c) => new CreateAccessIndexRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 useAuditDatabase: parameters.audit ? true : false,
                 adminLogger: new AdminLogger(),

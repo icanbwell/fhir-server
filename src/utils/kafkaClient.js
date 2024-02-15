@@ -64,7 +64,7 @@ class KafkaClient {
             clientId: this.configManager.kafkaClientId,
             brokers: this.configManager.kafkaBrokers,
             ssl: this.configManager.kafkaUseSsl || null,
-            sasl: sasl
+            sasl
         };
     }
 
@@ -93,12 +93,12 @@ class KafkaClient {
          * @type {import('kafkajs').KafkaConfig}
          */
         const config = {
-            clientId: clientId,
-            brokers: brokers,
+            clientId,
+            brokers,
             // Timeout in ms for authentication requests
             authenticationTimeout: 60000,
-            ssl: ssl,
-            sasl: sasl,
+            ssl,
+            sasl,
             // connectionTimeout in milliseconds(10 seconds), to wait for a successful connection
             connectionTimeout: 10000,
             retry: {
@@ -224,7 +224,7 @@ class KafkaClient {
                         clientId: this.clientId,
                         brokers: this.brokers,
                         ssl: this.ssl,
-                        topic: topic,
+                        topic,
                         messages: kafkaMessages
                     }
                 });
@@ -233,7 +233,7 @@ class KafkaClient {
              * @type {import('kafkajs').RecordMetadata[]}
              */
             const result = await this.producer.send({
-                topic: topic,
+                topic,
                 messages: kafkaMessages
             });
             if (env.LOGLEVEL === 'DEBUG') {
@@ -244,9 +244,9 @@ class KafkaClient {
                         clientId: this.clientId,
                         brokers: this.brokers,
                         ssl: this.ssl,
-                        topic: topic,
+                        topic,
                         messages: kafkaMessages,
-                        result: result
+                        result
                     }
                 });
             }
@@ -307,7 +307,7 @@ class KafkaClient {
             });
         }
         try {
-            await consumer.subscribe({ topics: [topic], fromBeginning: fromBeginning });
+            await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
                 // eslint-disable-next-line no-unused-vars
                 eachMessage: async ({ topic1, partition, message, heartbeat, pause }) => {
@@ -351,7 +351,7 @@ class KafkaClient {
      * @returns {Promise<import('kafkajs').Consumer>}
      */
     async createConsumerAsync ({ groupId }) {
-        return this.client.consumer({ groupId: groupId });
+        return this.client.consumer({ groupId });
     }
 
     /**

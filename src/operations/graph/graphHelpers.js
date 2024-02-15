@@ -299,7 +299,7 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            const args = Object.assign({ base_version: base_version }, { id: relatedReferenceIds.join(',') });
+            const args = Object.assign({ base_version }, { id: relatedReferenceIds.join(',') });
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
@@ -424,7 +424,7 @@ class GraphHelper {
                 {
                     query,
                     resourceType,
-                    collectionName: collectionName,
+                    collectionName,
                     property,
                     explanations
                 }
@@ -462,7 +462,7 @@ class GraphHelper {
         return this.r4ArgsParser.parseArgs(
             {
                 resourceType,
-                args: args
+                args
             }
         );
     }
@@ -673,7 +673,7 @@ class GraphHelper {
             return new QueryItem({
                     query,
                     resourceType: relatedResourceType,
-                    collectionName: collectionName,
+                    collectionName,
                     reverse_filter,
                     explanations
                 }
@@ -1305,7 +1305,7 @@ containedEntries: []
                 new QueryItem({
                         query,
                         resourceType,
-                        collectionName: collectionName
+                        collectionName
                     }
                 )
             );

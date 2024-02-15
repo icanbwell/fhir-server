@@ -49,7 +49,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // check that InternalAuditLog is created
             /**
@@ -94,7 +94,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
@@ -125,7 +125,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
@@ -161,7 +161,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
@@ -188,7 +188,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();

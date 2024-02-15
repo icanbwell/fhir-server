@@ -117,5 +117,5 @@ const getApolloServerLoggingPlugin = (endpoint) => {
 };
 
 module.exports = {
-    getApolloServerLoggingPlugin: getApolloServerLoggingPlugin
+    getApolloServerLoggingPlugin
 };

@@ -90,7 +90,7 @@ class BundleManager {
             return new BundleEntry(
                 {
                     id: resource.id,
-                    resource: resource,
+                    resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
                         { protocol, host, base_version, resource })
                 }
@@ -225,10 +225,10 @@ class BundleManager {
          * @type {Bundle}
          */
         const bundle = new Bundle({
-            type: type,
+            type,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: entries,
-            link: link
+            link
         });
         if (total_count !== null) {
             bundle.total = total_count;
@@ -319,7 +319,7 @@ class BundleManager {
                 });
             }
             bundle['meta'] = {
-                tag: tag
+                tag
             };
             logDebug('', { user, args: bundle });
         }

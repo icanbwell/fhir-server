@@ -59,7 +59,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
         assertIsValid(indexName === indexName.toLowerCase(), 'openSearchVectorStoreIndexName must be lowercase');
         return new FhirOpenSearchVectorStore(embeddings, {
             client,
-            indexName: indexName
+            indexName
         });
     }
 

@@ -190,7 +190,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
             id: patientId,
             timestamp,
             isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Patient Create',
             sourceType
         });
@@ -215,7 +215,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
 id: patientId,
 timestamp,
 isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Patient Change',
             sourceType
         });
@@ -246,7 +246,7 @@ isCreate,
             id,
             timestamp,
             isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Consent Create',
             sourceType
         });
@@ -271,7 +271,7 @@ isCreate,
             id,
             timestamp,
             isCreate,
-            resourceType: resourceType,
+            resourceType,
             eventName: 'Consent Change',
             sourceType
         });
@@ -334,7 +334,7 @@ isCreate,
                         }
                     );
 
-                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({ patientId: patientId });
+                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({ patientId });
                     if (personId) {
                         const proxyPatientId = `person.${personId}`;
                         await this.onPatientChangeAsync({
@@ -406,7 +406,7 @@ isCreate,
                 const createKafkaClientMessageFn = ([id, /** @type {Object} */ messageJson]) => {
                     return {
                         key: id,
-                        fhirVersion: fhirVersion,
+                        fhirVersion,
                         requestId: messageJson?.source?.site,
                         value: JSON.stringify(messageJson)
                     };
@@ -441,7 +441,7 @@ isCreate,
                             event: 'changeEventProducer',
                             message: 'Finished',
                             args: {
-                                numberOfMessagesBefore: numberOfMessagesBefore,
+                                numberOfMessagesBefore,
                                 numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
                                 patientTopic: this.patientChangeTopic,
                                 consentTopic: this.consentChangeTopic

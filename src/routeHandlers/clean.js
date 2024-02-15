@@ -31,7 +31,7 @@ module.exports.handleClean = async ({ fnGetContainer, req, res }) => {
             const collection_names = [];
 
             const specific_collection = req.params['collection'];
-            logInfo('', { specific_collection: specific_collection });
+            logInfo('', { specific_collection });
             if (env.IS_PRODUCTION && !specific_collection) {
                 return res
                     .status(400)

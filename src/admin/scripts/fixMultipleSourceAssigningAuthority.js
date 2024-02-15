@@ -45,7 +45,7 @@ async function main () {
     container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 beforeLastUpdatedDate,
                 useAuditDatabase: parameters.audit ? true : false,

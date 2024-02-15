@@ -175,7 +175,7 @@ error: e,
                 const result = await collection.deleteMany(query, options);
                 deletedCount += result.deletedCount;
             }
-            return { deletedCount: deletedCount, error: null };
+            return { deletedCount, error: null };
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,

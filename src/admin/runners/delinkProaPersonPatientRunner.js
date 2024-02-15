@@ -558,7 +558,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
                 message: `Error removing record ${e.message}`,
                 error: e,
                 args: {
-                    proaPersonIdsToRemove: proaPersonIdsToRemove
+                    proaPersonIdsToRemove
                 },
                 source: 'DelinkProaPersonPatientRunner.removeProaPersons'
             });

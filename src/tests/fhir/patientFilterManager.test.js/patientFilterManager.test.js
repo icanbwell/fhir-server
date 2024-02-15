@@ -28,7 +28,7 @@ describe('PatientFilterManager Tests', () => {
 
       test('should return true for resources without patient data', () => {
         patientFilterManager.resourcesWithoutPatientData.forEach(resourceType => {
-          const result = patientFilterManager.canAccessResourceWithPatientScope({ resourceType: resourceType });
+          const result = patientFilterManager.canAccessResourceWithPatientScope({ resourceType });
           expect(result).toBeTrue();
         });
       });

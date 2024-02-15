@@ -79,7 +79,7 @@ function validateResource ({ resourceBody, resourceName, path, resourceObj = nul
     }
     if (issue && issue.length) {
         return new OperationOutcome({
-            issue: issue
+            issue
         });
     }
 

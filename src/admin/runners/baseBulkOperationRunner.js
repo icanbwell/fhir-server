@@ -371,7 +371,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     /**
                      * @type {import('mongodb').FindOptions}
                      */
-                    const options = { session: session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS };
+                    const options = { session, timeout: false, noCursorTimeout: true, maxTimeMS };
                     if (projection) {
                         options['projection'] = projection;
                     }
@@ -506,8 +506,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             }
                             const bulkResult = await destinationCollection.bulkWrite(operations,
                                 {
-                                    ordered: ordered,
-                                    session: session
+                                    ordered,
+                                    session
                                 }
                             );
                             startFromIdContainer.nModified += bulkResult.nModified;
@@ -545,8 +545,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         try {
                             const bulkResult = await destinationCollection.bulkWrite(operations,
                                 {
-                                    ordered: ordered,
-                                    session: session
+                                    ordered,
+                                    session
                                 }
                             );
                             startFromIdContainer.numberWritten += operations.length;

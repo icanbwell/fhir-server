@@ -13,7 +13,7 @@ class ObjectChunker extends Transform {
      * @param {ConfigManager} configManager
      */
     constructor ({ chunkSize, signal, highWaterMark, configManager }) {
-        super({ objectMode: true, highWaterMark: highWaterMark });
+        super({ objectMode: true, highWaterMark });
         this._buffer = [];
         this._chunkSize = chunkSize;
         /**

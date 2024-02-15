@@ -9065,5 +9065,5 @@ const searchParameterQueries = {
 };
 
 module.exports = {
-    searchParameterQueries: searchParameterQueries
+    searchParameterQueries
 };

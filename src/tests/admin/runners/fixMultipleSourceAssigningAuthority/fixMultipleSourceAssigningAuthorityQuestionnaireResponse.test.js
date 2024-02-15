@@ -88,7 +88,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),

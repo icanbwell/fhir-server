@@ -31,7 +31,7 @@ class MongoReadableStream extends Readable {
             response
         }
     ) {
-        super({ objectMode: true, highWaterMark: highWaterMark });
+        super({ objectMode: true, highWaterMark });
 
         /**
          * @type {DatabasePartitionedCursor}

@@ -12,7 +12,7 @@ module.exports.check_fhir_mismatch = (cleaned, patched) => {
                 args: {
                     resourceType: cleaned.resourceType,
                     id: cleaned.id,
-                    diff: diff
+                    diff
                 }
             }
         );

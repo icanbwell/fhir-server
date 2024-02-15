@@ -34,7 +34,7 @@ class ResourcePreparerTransform extends Transform {
             response
         }
     ) {
-        super({ objectMode: true, highWaterMark: highWaterMark });
+        super({ objectMode: true, highWaterMark });
         /**
          * @type {string|null}
          */
@@ -101,7 +101,7 @@ class ResourcePreparerTransform extends Transform {
                                 chunk1.id
                             }`,
                             {
-                                error: error,
+                                error,
                                 source: 'ResourcePreparer._transform',
                                 args: {
                                     id: chunk1.id,
@@ -119,7 +119,7 @@ class ResourcePreparerTransform extends Transform {
                                 message: error?.message,
                                 stack: error?.stack
                             },
-                            error: error
+                            error
                         });
                         captureException(rethrownError);
                         /**
@@ -153,7 +153,7 @@ class ResourcePreparerTransform extends Transform {
                 error: e,
                 args: {
                     id: chunk.id,
-                    chunk: chunk
+                    chunk
                 }
             });
 

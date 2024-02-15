@@ -60,7 +60,7 @@ async function main () {
     container.register('fixReferenceSourceAssigningAuthorityRunner', (c) => new FixReferenceSourceAssigningAuthorityRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 afterLastUpdatedDate,
                 adminLogger: new AdminLogger(),
@@ -71,11 +71,11 @@ async function main () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 preloadCollections: preLoadCollections,
                 limit: parameters.limit,
-                properties: properties,
+                properties,
                 resourceMerger: c.resourceMerger,
                 useTransaction: parameters.useTransaction ? true : false,
                 skip: parameters.skip,
-                filterToRecordsWithFields: filterToRecordsWithFields,
+                filterToRecordsWithFields,
                 startFromId: parameters.startFromId
             }
         )

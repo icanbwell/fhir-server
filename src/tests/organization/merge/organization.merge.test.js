@@ -45,7 +45,7 @@ describe('Organization Merge Tests', () => {
             const postRequestProcessor = container.postRequestProcessor;
             assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')

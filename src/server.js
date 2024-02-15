@@ -56,7 +56,7 @@ async function createServer (fnGetContainer) {
             await logSystemEventAsync({
                 event: 'serverStartup',
                 message: 'Server is up and running',
-                args: { image: image, version: getImageVersion() }
+                args: { image, version: getImageVersion() }
             });
         });
 

@@ -36,7 +36,7 @@ class MongoJsonPatchHelper {
                         if (update.$push[`${key}`] === undefined) {
                             update.$push[`${key}`] = {
                                 $each: [patch.value],
-                                $position: $position
+                                $position
                             };
                         } else {
                             if (update.$push[`${key}`] === null || update.$push[`${key}`].$position === undefined) {

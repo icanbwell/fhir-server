@@ -80,7 +80,7 @@ describe('AuditEvent when all is set Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -154,7 +154,7 @@ describe('AuditEvent when all is set Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */

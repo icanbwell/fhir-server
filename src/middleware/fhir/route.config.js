@@ -108,6 +108,6 @@ const routeArgs = {
  */
 
 module.exports = {
-    routeArgs: routeArgs,
+    routeArgs,
     routes
 };

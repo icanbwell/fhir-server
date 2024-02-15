@@ -107,7 +107,7 @@ const cookieExtractor = function (req) {
     let token = null;
     if (req && req.cookies) {
         token = req.cookies['jwt'];
-        logDebug('Found cookie jwt', { user: '', args: { token: token } });
+        logDebug('Found cookie jwt', { user: '', args: { token } });
     } else {
         logDebug('No cookies found', { user: '' });
     }
@@ -167,7 +167,7 @@ function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, don
         context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
     }
 
-    return done(null, { id: client_id, isUser, name: username, username: username }, { scope, context });
+    return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
