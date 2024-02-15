@@ -11,23 +11,15 @@ const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 // expected
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientDeletionResources = require('./fixtures/expected/expected_Patient_deletion.json');
+const expectedPatientDeletion1Resources = require('./fixtures/expected/expected_Patient_deletion_1.json');
 const expectedTopLevelPersonResources = require('./fixtures/expected/expected_TopLevelPerson.json');
-
-const fs = require('fs');
-const path = require('path');
-
-// eslint-disable-next-line security/detect-non-literal-fs-filename
-const expectedPatientDeletionResourcesHtml = fs.readFileSync(
-    path.resolve(__dirname, './fixtures/expected/expected_Patient_deletion.html'),
-    'utf8'
-).trim();
 
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersWithCustomToken, getHtmlHeaders
+    getHeadersWithCustomToken
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
@@ -220,9 +212,9 @@ describe('Patient Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .get('/admin/deletePatientDataGraph?id=patient1')
-                .set(getHtmlHeaders('user/*.* admin/*.* access/*.*'));
+                .set(getHeadersWithCustomToken('user/*.* admin/*.* access/*.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp.text).toStrictEqual(expectedPatientDeletionResourcesHtml);
+            expect(resp).toHaveResponse(expectedPatientDeletion1Resources);
 
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')
