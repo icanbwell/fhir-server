@@ -226,7 +226,6 @@
     "jest-failure-reporter": "^1.0.1",
     "jest-matcher-utils": "^29.7.0",
     "jose": "^5.2.2",
-    "jshint": "^2.13.6",
     "jsonwebtoken": "^9.0.2",
     "mongodb-memory-server": "^9.1.6",
     "mongodb-memory-server-core": "^9.1.6",
