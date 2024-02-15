@@ -9,7 +9,7 @@
         {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "db158534-f134-553e-87e9-95147fb7a9d7"
+            "value": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
         }
     ],
     "link": [
@@ -26,12 +26,12 @@
                     {
                         "id": "uuid",
                         "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Person/b6918bfc-ba79-5db7-9efe-647e01538ab8"
+                        "valueString": "Person/941f082a-39a9-5f55-9630-5839a010e1bc"
                     },
                     {
                         "id": "sourceAssigningAuthority",
                         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "client-1"
+                        "valueString": "client"
                     }
                 ],
                 "reference": "Person/2"
@@ -50,12 +50,12 @@
                     {
                         "id": "uuid",
                         "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Patient/db158534-f134-553e-87e9-95147fb7a9d7"
+                        "valueString": "Patient/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
                     },
                     {
                         "id": "sourceAssigningAuthority",
                         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "client-1"
+                        "valueString": "client"
                     }
                 ],
                 "reference": "Patient/1"
@@ -65,15 +65,15 @@
     "meta": {
         "security": [
             {
-                "code": "client-1",
+                "code": "client",
                 "system": "https://www.icanbwell.com/owner"
             },
             {
-                "code": "client-1",
+                "code": "client",
                 "system": "https://www.icanbwell.com/access"
             },
             {
-                "code": "client-1",
+                "code": "client",
                 "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
         ],
