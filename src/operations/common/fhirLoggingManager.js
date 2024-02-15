@@ -168,7 +168,6 @@ class FhirLoggingManager {
             result
         }
     ) {
-
         /**
          * resource can have PHI, so we strip it out for insecure logger
          * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
@@ -328,7 +327,6 @@ class FhirLoggingManager {
             fhirSecureLogger.info(logEntry);
         }
     }
-
 }
 
 module.exports = {

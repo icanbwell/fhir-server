@@ -174,7 +174,6 @@ class CodeSystemDesignation extends Element {
             use,
             value
         });
-
     }
 
     /**

@@ -195,7 +195,6 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             from,
             to
         });
-
     }
 
     /**

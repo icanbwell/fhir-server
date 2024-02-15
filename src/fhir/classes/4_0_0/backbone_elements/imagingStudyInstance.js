@@ -197,7 +197,6 @@ class ImagingStudyInstance extends Element {
             number,
             title
         });
-
     }
 
     /**

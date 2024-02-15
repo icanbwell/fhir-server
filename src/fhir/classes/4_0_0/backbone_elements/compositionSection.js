@@ -358,7 +358,6 @@ class CompositionSection extends Element {
             emptyReason,
             section
         });
-
     }
 
     /**

@@ -155,7 +155,6 @@ class ClaimPayee extends Element {
             type,
             party
         });
-
     }
 
     /**

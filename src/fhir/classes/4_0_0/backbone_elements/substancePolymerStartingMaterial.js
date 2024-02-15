@@ -197,7 +197,6 @@ class SubstancePolymerStartingMaterial extends Element {
             isDefining,
             amount
         });
-
     }
 
     /**

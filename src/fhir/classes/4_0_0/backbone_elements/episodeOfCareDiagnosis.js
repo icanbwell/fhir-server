@@ -178,7 +178,6 @@ class EpisodeOfCareDiagnosis extends Element {
             role,
             rank
         });
-
     }
 
     /**

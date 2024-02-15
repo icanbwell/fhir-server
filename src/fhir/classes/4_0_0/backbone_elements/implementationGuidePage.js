@@ -219,7 +219,6 @@ class ImplementationGuidePage extends Element {
             generation,
             page
         });
-
     }
 
     /**

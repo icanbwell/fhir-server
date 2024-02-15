@@ -310,7 +310,6 @@ class SpecimenDefinitionContainer extends Element {
             additive,
             preparation
         });
-
     }
 
     /**

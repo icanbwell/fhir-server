@@ -155,7 +155,6 @@ class TestScriptMetadata extends Element {
             link,
             capability
         });
-
     }
 
     /**

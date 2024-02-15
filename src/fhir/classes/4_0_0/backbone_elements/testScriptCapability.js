@@ -261,7 +261,6 @@ class TestScriptCapability extends Element {
             link,
             capabilities
         });
-
     }
 
     /**

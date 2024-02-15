@@ -176,7 +176,6 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -263,7 +262,6 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             console.log(`ERROR: ${e}`);
         }
     }
-
 }
 
 module.exports = {

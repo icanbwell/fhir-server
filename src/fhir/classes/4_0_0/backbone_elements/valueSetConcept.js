@@ -179,7 +179,6 @@ class ValueSetConcept extends Element {
             display,
             designation
         });
-
     }
 
     /**

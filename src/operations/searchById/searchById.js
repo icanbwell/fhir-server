@@ -153,7 +153,6 @@ class SearchByIdOperation {
         });
 
         try {
-
             // Common search params
             const {id, base_version} = parsedArgs;
 

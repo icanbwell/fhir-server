@@ -150,7 +150,6 @@ class DeviceDefinitionSpecialization extends Element {
             systemType,
             version
         });
-
     }
 
     /**

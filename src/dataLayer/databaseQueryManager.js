@@ -173,7 +173,6 @@ class DatabaseQueryManager {
                  */
                 const result = await collection.deleteMany(query, options);
                 deletedCount += result.deletedCount;
-
             }
             return {deletedCount: deletedCount, error: null};
         } catch (e) {
@@ -427,7 +426,6 @@ class DatabaseQueryManager {
                 args: {query, options}
             });
         }
-
     }
 
     /**
@@ -483,7 +481,6 @@ class DatabaseQueryManager {
                 args: {query, options}
             });
         }
-
     }
 }
 

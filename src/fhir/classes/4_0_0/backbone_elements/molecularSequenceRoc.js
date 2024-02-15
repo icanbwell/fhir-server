@@ -258,7 +258,6 @@ class MolecularSequenceRoc extends Element {
             sensitivity,
             fMeasure
         });
-
     }
 
     /**

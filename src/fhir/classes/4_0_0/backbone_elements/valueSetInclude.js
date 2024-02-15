@@ -226,7 +226,6 @@ class ValueSetInclude extends Element {
             filter,
             valueSet
         });
-
     }
 
     /**

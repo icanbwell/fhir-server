@@ -80,7 +80,6 @@ class PersonToPatientIdsExpander {
             /** @type {{[key: string]: string[]}} */
             const plainMap = {};
             for (const [personId, patientIdsSet] of personToPatientMap) {
-
                 unvisitedPersonIds.delete(personId);
                 plainMap[`${personId}`] = Array.from(patientIdsSet);
 
@@ -161,7 +160,6 @@ class PersonToPatientIdsExpander {
     async getPatientIdsFromPersonAsync ({
         personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false
     }) {
-
         /**
          * Final result to return
          * Stores all linked patient to current person

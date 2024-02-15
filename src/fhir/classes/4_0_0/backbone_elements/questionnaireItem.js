@@ -485,7 +485,6 @@ class QuestionnaireItem extends Element {
             initial,
             item
         });
-
     }
 
     /**

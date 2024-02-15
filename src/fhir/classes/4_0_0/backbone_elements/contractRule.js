@@ -154,7 +154,6 @@ class ContractRule extends Element {
             contentAttachment,
             contentReference
         });
-
     }
 
     /**

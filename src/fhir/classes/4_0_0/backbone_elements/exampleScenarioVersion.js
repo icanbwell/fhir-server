@@ -149,7 +149,6 @@ class ExampleScenarioVersion extends Element {
             versionId,
             description
         });
-
     }
 
     /**

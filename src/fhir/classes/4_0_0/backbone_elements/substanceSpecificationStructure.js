@@ -291,7 +291,6 @@ class SubstanceSpecificationStructure extends Element {
             source,
             representation
         });
-
     }
 
     /**

@@ -241,7 +241,6 @@ class ExplanationOfBenefitFinancial extends Element {
             usedUnsignedInt,
             usedMoney
         });
-
     }
 
     /**

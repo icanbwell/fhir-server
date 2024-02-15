@@ -231,7 +231,6 @@ class Reference extends Element {
             _uuid,
             _sourceId
         });
-
     }
 
     /**

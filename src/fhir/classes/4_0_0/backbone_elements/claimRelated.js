@@ -179,7 +179,6 @@ class ClaimRelated extends Element {
             relationship,
             reference
         });
-
     }
 
     /**

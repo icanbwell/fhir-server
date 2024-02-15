@@ -198,7 +198,6 @@ class ExampleScenarioStep extends Element {
             operation,
             alternative
         });
-
     }
 
     /**

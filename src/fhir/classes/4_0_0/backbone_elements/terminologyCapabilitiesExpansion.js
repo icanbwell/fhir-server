@@ -216,7 +216,6 @@ class TerminologyCapabilitiesExpansion extends Element {
             parameter,
             textFilter
         });
-
     }
 
     /**

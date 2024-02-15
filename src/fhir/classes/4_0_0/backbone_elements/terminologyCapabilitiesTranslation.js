@@ -130,7 +130,6 @@ class TerminologyCapabilitiesTranslation extends Element {
             modifierExtension,
             needsMap
         });
-
     }
 
     /**

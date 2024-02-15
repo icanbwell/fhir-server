@@ -155,7 +155,6 @@ class DocumentReferenceRelatesTo extends Element {
             code,
             target
         });
-
     }
 
     /**

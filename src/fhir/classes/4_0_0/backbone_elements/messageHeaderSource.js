@@ -220,7 +220,6 @@ class MessageHeaderSource extends Element {
             contact,
             endpoint
         });
-
     }
 
     /**

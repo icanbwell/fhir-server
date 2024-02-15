@@ -180,7 +180,6 @@ class GroupMember extends Element {
             period,
             inactive
         });
-
     }
 
     /**

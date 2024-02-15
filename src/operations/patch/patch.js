@@ -166,7 +166,6 @@ class PatchOperation {
         });
 
         try {
-
             const currentDate = moment.utc().format('YYYY-MM-DD');
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/

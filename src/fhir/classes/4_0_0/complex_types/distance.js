@@ -134,7 +134,6 @@ class Distance extends Element {
             system,
             code
         });
-
     }
 
     /**

@@ -178,7 +178,6 @@ class AuditEventSource extends Element {
             observer,
             type
         });
-
     }
 
     /**

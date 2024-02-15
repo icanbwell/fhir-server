@@ -407,7 +407,6 @@ class ContractTerm extends Element {
             action,
             group
         });
-
     }
 
     /**

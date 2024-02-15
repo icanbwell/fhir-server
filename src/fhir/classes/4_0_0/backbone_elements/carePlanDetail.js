@@ -575,7 +575,6 @@ class CarePlanDetail extends Element {
             quantity,
             description
         });
-
     }
 
     /**

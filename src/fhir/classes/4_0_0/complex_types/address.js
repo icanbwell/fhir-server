@@ -297,7 +297,6 @@ class Address extends Element {
             country,
             period
         });
-
     }
 
     /**

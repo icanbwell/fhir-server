@@ -203,7 +203,6 @@ class OrganizationContact extends Element {
             telecom,
             address
         });
-
     }
 
     /**

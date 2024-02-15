@@ -186,7 +186,6 @@ class ProvenanceEntity extends Element {
             what,
             agent
         });
-
     }
 
     /**

@@ -177,7 +177,6 @@ class MedicinalProductCountryLanguage extends Element {
             jurisdiction,
             language
         });
-
     }
 
     /**

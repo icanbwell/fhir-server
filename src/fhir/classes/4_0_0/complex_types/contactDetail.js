@@ -119,7 +119,6 @@ class ContactDetail extends Element {
             name,
             telecom
         });
-
     }
 
     /**

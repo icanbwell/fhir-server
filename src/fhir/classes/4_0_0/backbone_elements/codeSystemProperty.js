@@ -199,7 +199,6 @@ class CodeSystemProperty extends Element {
             description,
             type
         });
-
     }
 
     /**

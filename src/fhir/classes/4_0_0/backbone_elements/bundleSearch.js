@@ -151,7 +151,6 @@ class BundleSearch extends Element {
             mode,
             score
         });
-
     }
 
     /**

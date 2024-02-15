@@ -445,7 +445,6 @@ class EvidenceVariableCharacteristic extends Element {
             timeFromStart,
             groupMeasure
         });
-
     }
 
     /**

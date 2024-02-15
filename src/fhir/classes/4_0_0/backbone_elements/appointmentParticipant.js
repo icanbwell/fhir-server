@@ -223,7 +223,6 @@ class AppointmentParticipant extends Element {
             status,
             period
         });
-
     }
 
     /**

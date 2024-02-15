@@ -202,7 +202,6 @@ class CoverageEligibilityResponseInsurance extends Element {
             benefitPeriod,
             item
         });
-
     }
 
     /**

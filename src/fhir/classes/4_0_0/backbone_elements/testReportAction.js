@@ -153,7 +153,6 @@ class TestReportAction extends Element {
             operation,
             assert
         });
-
     }
 
     /**

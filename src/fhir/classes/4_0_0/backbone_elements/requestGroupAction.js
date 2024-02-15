@@ -646,7 +646,6 @@ class RequestGroupAction extends Element {
             resource,
             action
         });
-
     }
 
     /**

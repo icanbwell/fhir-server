@@ -308,7 +308,6 @@ class SubstanceSourceMaterialOrganism extends Element {
             hybrid,
             organismGeneral
         });
-
     }
 
     /**

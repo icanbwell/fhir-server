@@ -260,7 +260,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 );
             }
         } catch (e) {
-
             throw new RethrownError(
                 {
                     message: `Error creating indexes for collection ${collectionName}, ${e.message}`,

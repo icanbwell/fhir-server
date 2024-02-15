@@ -152,7 +152,6 @@ class MedicinalProductNamePart extends Element {
             part,
             type
         });
-
     }
 
     /**

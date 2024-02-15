@@ -243,7 +243,6 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
             unitOfMeasure,
             precisionEstimate
         });
-
     }
 
     /**

@@ -316,7 +316,6 @@ class EncounterHospitalization extends Element {
             destination,
             dischargeDisposition
         });
-
     }
 
     /**

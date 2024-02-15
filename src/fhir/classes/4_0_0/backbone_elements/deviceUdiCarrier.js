@@ -254,7 +254,6 @@ class DeviceUdiCarrier extends Element {
             carrierHRF,
             entryType
         });
-
     }
 
     /**

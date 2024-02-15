@@ -130,7 +130,6 @@ class TerminologyCapabilitiesValidateCode extends Element {
             modifierExtension,
             translations
         });
-
     }
 
     /**

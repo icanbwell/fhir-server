@@ -879,7 +879,6 @@ class PlanDefinitionAction extends Element {
             dynamicValue,
             action
         });
-
     }
 
     /**

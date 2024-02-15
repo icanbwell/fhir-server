@@ -153,7 +153,6 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             outerPackaging,
             immediatePackaging
         });
-
     }
 
     /**

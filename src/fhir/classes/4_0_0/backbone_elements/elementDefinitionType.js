@@ -235,7 +235,6 @@ class ElementDefinitionType extends Element {
             aggregation,
             versioning
         });
-
     }
 
     /**

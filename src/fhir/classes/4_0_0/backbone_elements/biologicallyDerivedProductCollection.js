@@ -200,7 +200,6 @@ class BiologicallyDerivedProductCollection extends Element {
             collectedDateTime,
             collectedPeriod
         });
-
     }
 
     /**

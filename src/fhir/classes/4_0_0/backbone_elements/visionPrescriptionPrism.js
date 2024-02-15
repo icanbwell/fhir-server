@@ -150,7 +150,6 @@ class VisionPrescriptionPrism extends Element {
             amount,
             base
         });
-
     }
 
     /**

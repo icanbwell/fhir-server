@@ -36,7 +36,6 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with no linked bwell Person', async () => {
-
         const request = await createTestRequest();
         const response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
@@ -52,7 +51,6 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with directly linked bwell Person', async () => {
-
         const request = await createTestRequest();
         const response = await request
             .post('/4_0_0/Person/81236/$merge?validate=true')
@@ -68,7 +66,6 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with indirectly linked bwell Person', async () => {
-
         const request = await createTestRequest();
         let response = await request
             .post('/4_0_0/Person/81236/$merge?validate=true')
@@ -98,7 +95,6 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with cycle and no linked bwell Person', async () => {
-
         const request = await createTestRequest();
         let response = await request
             .post('/4_0_0/Person/5678/$merge?validate=true')
@@ -121,7 +117,6 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with cycle and linked bwell Person', async () => {
-
         const request = await createTestRequest();
         let response = await request
             .post('/4_0_0/Person/81236/$merge?validate=true')

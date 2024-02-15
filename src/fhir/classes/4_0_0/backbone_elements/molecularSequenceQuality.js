@@ -450,7 +450,6 @@ class MolecularSequenceQuality extends Element {
             fScore,
             roc
         });
-
     }
 
     /**

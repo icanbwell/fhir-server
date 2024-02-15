@@ -202,7 +202,6 @@ class MedicationIngredient extends Element {
             isActive,
             strength
         });
-
     }
 
     /**

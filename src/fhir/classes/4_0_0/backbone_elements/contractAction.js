@@ -630,7 +630,6 @@ class ContractAction extends Element {
             note,
             securityLabelNumber
         });
-
     }
 
     /**

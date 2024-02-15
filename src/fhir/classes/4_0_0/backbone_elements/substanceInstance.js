@@ -176,7 +176,6 @@ class SubstanceInstance extends Element {
             expiry,
             quantity
         });
-
     }
 
     /**

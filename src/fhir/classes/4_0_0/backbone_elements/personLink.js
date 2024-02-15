@@ -152,7 +152,6 @@ class PersonLink extends Element {
             target,
             assurance
         });
-
     }
 
     /**

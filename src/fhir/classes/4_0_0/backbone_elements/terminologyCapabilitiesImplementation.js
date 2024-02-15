@@ -152,7 +152,6 @@ class TerminologyCapabilitiesImplementation extends Element {
             description,
             url
         });
-
     }
 
     /**

@@ -218,7 +218,6 @@ class SpecimenProcessing extends Element {
             timeDateTime,
             timePeriod
         });
-
     }
 
     /**

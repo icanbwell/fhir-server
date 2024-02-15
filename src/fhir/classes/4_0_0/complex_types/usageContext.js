@@ -193,7 +193,6 @@ class UsageContext extends Element {
             valueRange,
             valueReference
         });
-
     }
 
     /**

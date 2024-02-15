@@ -176,7 +176,6 @@ class CapabilityStatementSecurity extends Element {
             service,
             description
         });
-
     }
 
     /**

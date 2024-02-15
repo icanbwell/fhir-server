@@ -132,7 +132,6 @@ class StructureDefinitionSnapshot extends Element {
             modifierExtension,
             element
         });
-
     }
 
     /**

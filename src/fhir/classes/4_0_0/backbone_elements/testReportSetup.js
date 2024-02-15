@@ -130,7 +130,6 @@ class TestReportSetup extends Element {
             modifierExtension,
             action
         });
-
     }
 
     /**

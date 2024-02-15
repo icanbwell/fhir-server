@@ -271,7 +271,6 @@ class VerificationResultPrimarySource extends Element {
             canPushUpdates,
             pushTypeAvailable
         });
-
     }
 
     /**

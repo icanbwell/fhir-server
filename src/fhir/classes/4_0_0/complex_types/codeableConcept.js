@@ -121,7 +121,6 @@ class CodeableConcept extends Element {
             coding,
             text
         });
-
     }
 
     /**

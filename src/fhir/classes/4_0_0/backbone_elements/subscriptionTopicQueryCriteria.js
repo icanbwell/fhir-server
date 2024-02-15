@@ -223,7 +223,6 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForDelete,
             requireBoth
         });
-
     }
 
     /**

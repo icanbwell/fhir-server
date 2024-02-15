@@ -177,7 +177,6 @@ class ContractSigner extends Element {
             party,
             signature
         });
-
     }
 
     /**

@@ -92,7 +92,6 @@ class ReferenceParser {
         const { id, resourceType } = ReferenceParser.parseReference(reference);
         return ReferenceParser.createReference({resourceType, id});
     }
-
 }
 
 module.exports = {

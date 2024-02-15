@@ -93,7 +93,6 @@ class CriteriaNotExistsBehavior extends Element {
             extension,
             value
         });
-
     }
 
     /**

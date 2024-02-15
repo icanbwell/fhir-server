@@ -136,7 +136,6 @@ class Count extends Element {
             system,
             code
         });
-
     }
 
     /**

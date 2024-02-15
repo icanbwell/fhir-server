@@ -178,7 +178,6 @@ class MeasureComponent extends Element {
             description,
             criteria
         });
-
     }
 
     /**

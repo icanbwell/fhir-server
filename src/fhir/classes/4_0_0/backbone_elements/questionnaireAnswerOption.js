@@ -261,7 +261,6 @@ class QuestionnaireAnswerOption extends Element {
             valueReference,
             initialSelected
         });
-
     }
 
     /**

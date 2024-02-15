@@ -185,7 +185,6 @@ class ContactPoint extends Element {
             rank,
             period
         });
-
     }
 
     /**

@@ -151,7 +151,6 @@ class MedicationKnowledgeSubstitution extends Element {
             type,
             allowed
         });
-
     }
 
     /**

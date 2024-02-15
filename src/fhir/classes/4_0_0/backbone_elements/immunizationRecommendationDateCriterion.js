@@ -153,7 +153,6 @@ class ImmunizationRecommendationDateCriterion extends Element {
             code,
             value
         });
-
     }
 
     /**

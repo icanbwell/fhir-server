@@ -241,7 +241,6 @@ class StructureMapGroup extends Element {
             input,
             rule
         });
-
     }
 
     /**

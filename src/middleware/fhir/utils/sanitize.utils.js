@@ -86,7 +86,6 @@ const validateType = function (type, value) {
                 result = value.every(v => typeof v === 'string');
             } else {
                 result = typeof value === 'string';
-
             }
             break;
 

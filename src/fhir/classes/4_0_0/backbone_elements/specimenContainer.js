@@ -270,7 +270,6 @@ class SpecimenContainer extends Element {
             additiveCodeableConcept,
             additiveReference
         });
-
     }
 
     /**

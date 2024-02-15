@@ -131,7 +131,6 @@ class TestScriptTeardown extends Element {
             modifierExtension,
             action
         });
-
     }
 
     /**

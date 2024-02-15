@@ -130,7 +130,6 @@ class TerminologyCapabilitiesClosure extends Element {
             modifierExtension,
             translation
         });
-
     }
 
     /**

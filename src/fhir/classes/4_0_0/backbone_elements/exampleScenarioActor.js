@@ -191,7 +191,6 @@ class ExampleScenarioActor extends Element {
             name,
             description
         });
-
     }
 
     /**

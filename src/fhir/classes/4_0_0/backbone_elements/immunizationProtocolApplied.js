@@ -261,7 +261,6 @@ class ImmunizationProtocolApplied extends Element {
             seriesDosesPositiveInt,
             seriesDosesString
         });
-
     }
 
     /**

@@ -133,7 +133,6 @@ describe('Observation Tests', () => {
                 .set(getHeaders('user/*.read user/*.write access/C.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
-
         });
     });
 });

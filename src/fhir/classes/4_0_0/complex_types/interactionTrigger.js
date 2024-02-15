@@ -93,7 +93,6 @@ class InteractionTrigger extends Element {
             extension,
             value
         });
-
     }
 
     /**

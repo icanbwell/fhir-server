@@ -200,7 +200,6 @@ class ClaimResponseError extends Element {
             subDetailSequence,
             code
         });
-
     }
 
     /**

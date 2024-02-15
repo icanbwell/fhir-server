@@ -195,7 +195,6 @@ class BiologicallyDerivedProductStorage extends Element {
             scale,
             duration
         });
-
     }
 
     /**

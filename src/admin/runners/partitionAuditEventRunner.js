@@ -300,7 +300,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`No documents matched in  ${sourceCollectionName}`);
                     }
                     await this.mongoDatabaseManager.disconnectClientAsync(client);
-
                 } catch (e) {
                     this.adminLogger.logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
                 }

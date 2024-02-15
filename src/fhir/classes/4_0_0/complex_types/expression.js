@@ -183,7 +183,6 @@ class Expression extends Element {
             expression,
             reference
         });
-
     }
 
     /**

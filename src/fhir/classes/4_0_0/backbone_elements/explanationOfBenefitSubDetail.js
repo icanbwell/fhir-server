@@ -413,7 +413,6 @@ class ExplanationOfBenefitSubDetail extends Element {
             noteNumber,
             adjudication
         });
-
     }
 
     /**

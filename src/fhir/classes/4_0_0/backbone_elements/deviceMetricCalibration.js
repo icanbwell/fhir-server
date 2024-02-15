@@ -171,7 +171,6 @@ class DeviceMetricCalibration extends Element {
             state,
             time
         });
-
     }
 
     /**

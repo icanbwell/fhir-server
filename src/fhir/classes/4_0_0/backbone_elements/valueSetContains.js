@@ -295,7 +295,6 @@ class ValueSetContains extends Element {
             designation,
             contains
         });
-
     }
 
     /**

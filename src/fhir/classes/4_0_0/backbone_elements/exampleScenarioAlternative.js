@@ -174,7 +174,6 @@ class ExampleScenarioAlternative extends Element {
             description,
             step
         });
-
     }
 
     /**

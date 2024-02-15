@@ -49,7 +49,6 @@ class ResourceLocator {
          */
         this.mongoDatabaseManager = mongoDatabaseManager;
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
-
     }
 
     /**

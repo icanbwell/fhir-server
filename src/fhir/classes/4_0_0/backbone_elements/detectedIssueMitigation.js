@@ -178,7 +178,6 @@ class DetectedIssueMitigation extends Element {
             date,
             author
         });
-
     }
 
     /**

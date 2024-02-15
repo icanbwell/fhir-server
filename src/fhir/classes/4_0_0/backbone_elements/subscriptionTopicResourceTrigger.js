@@ -228,7 +228,6 @@ class SubscriptionTopicResourceTrigger extends Element {
             queryCriteria,
             fhirPathCriteria
         });
-
     }
 
     /**

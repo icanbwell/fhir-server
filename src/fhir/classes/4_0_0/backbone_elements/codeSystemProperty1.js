@@ -279,7 +279,6 @@ class CodeSystemProperty1 extends Element {
             valueDateTime,
             valueDecimal
         });
-
     }
 
     /**

@@ -167,7 +167,6 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             fraction,
             materialType
         });
-
     }
 
     /**

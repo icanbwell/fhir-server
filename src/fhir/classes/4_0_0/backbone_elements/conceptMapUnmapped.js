@@ -202,7 +202,6 @@ class ConceptMapUnmapped extends Element {
             display,
             url
         });
-
     }
 
     /**

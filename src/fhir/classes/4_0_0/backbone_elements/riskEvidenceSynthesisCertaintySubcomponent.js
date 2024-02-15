@@ -178,7 +178,6 @@ class RiskEvidenceSynthesisCertaintySubcomponent extends Element {
             rating,
             note
         });
-
     }
 
     /**

@@ -153,7 +153,6 @@ class TestScriptDestination extends Element {
             index,
             profile
         });
-
     }
 
     /**

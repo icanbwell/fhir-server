@@ -154,7 +154,6 @@ class MedicinalProductInteractionInteractant extends Element {
             itemReference,
             itemCodeableConcept
         });
-
     }
 
     /**

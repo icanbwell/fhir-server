@@ -154,7 +154,6 @@ class EncounterClassHistory extends Element {
             'class': class_,
             period
         });
-
     }
 
     /**

@@ -195,7 +195,6 @@ class InsurancePlanGeneralCost extends Element {
             cost,
             comment
         });
-
     }
 
     /**

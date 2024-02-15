@@ -48,7 +48,6 @@ function validateReferences (resourceObj, path) {
                 }
             }
         );
-
     } else {
         for (const prop in resourceObj) {
             if (

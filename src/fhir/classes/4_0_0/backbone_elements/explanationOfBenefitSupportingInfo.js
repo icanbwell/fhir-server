@@ -358,7 +358,6 @@ class ExplanationOfBenefitSupportingInfo extends Element {
             valueReference,
             reason
         });
-
     }
 
     /**

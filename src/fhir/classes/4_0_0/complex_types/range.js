@@ -120,7 +120,6 @@ class Range extends Element {
             low,
             high
         });
-
     }
 
     /**

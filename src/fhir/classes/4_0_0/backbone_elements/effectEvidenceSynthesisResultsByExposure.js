@@ -198,7 +198,6 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             variantState,
             riskEvidenceSynthesis
         });
-
     }
 
     /**

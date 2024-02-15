@@ -175,7 +175,6 @@ class VerificationResultValidator extends Element {
             identityCertificate,
             attestationSignature
         });
-
     }
 
     /**

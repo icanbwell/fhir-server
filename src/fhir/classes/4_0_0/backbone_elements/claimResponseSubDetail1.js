@@ -297,7 +297,6 @@ class ClaimResponseSubDetail1 extends Element {
             noteNumber,
             adjudication
         });
-
     }
 
     /**

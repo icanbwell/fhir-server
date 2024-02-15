@@ -153,7 +153,6 @@ class OperationDefinitionReferencedFrom extends Element {
             source,
             sourceId
         });
-
     }
 
     /**

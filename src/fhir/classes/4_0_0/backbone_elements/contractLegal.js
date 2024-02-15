@@ -154,7 +154,6 @@ class ContractLegal extends Element {
             contentAttachment,
             contentReference
         });
-
     }
 
     /**

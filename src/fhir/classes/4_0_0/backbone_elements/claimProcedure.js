@@ -243,7 +243,6 @@ class ClaimProcedure extends Element {
             procedureReference,
             udi
         });
-
     }
 
     /**

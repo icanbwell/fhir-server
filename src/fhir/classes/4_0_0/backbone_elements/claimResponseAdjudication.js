@@ -204,7 +204,6 @@ class ClaimResponseAdjudication extends Element {
             amount,
             value
         });
-
     }
 
     /**

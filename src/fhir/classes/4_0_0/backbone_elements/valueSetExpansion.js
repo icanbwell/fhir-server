@@ -251,7 +251,6 @@ class ValueSetExpansion extends Element {
             parameter,
             contains
         });
-
     }
 
     /**

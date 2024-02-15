@@ -200,7 +200,6 @@ class PractitionerQualification extends Element {
             period,
             issuer
         });
-
     }
 
     /**

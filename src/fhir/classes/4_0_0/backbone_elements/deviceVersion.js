@@ -176,7 +176,6 @@ class DeviceVersion extends Element {
             component,
             value
         });
-
     }
 
     /**

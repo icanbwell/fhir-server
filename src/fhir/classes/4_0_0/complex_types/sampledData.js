@@ -232,7 +232,6 @@ class SampledData extends Element {
             dimensions,
             data
         });
-
     }
 
     /**

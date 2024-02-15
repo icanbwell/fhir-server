@@ -156,7 +156,6 @@ class ResearchStudyObjective extends Element {
             name,
             type
         });
-
     }
 
     /**

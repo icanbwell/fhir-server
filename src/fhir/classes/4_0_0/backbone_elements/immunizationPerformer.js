@@ -155,7 +155,6 @@ class ImmunizationPerformer extends Element {
             'function': function_,
             actor
         });
-
     }
 
     /**

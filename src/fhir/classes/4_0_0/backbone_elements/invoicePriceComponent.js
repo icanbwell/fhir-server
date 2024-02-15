@@ -198,7 +198,6 @@ class InvoicePriceComponent extends Element {
             factor,
             amount
         });
-
     }
 
     /**

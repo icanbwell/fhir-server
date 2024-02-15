@@ -156,7 +156,6 @@ class InvoiceParticipant extends Element {
             role,
             actor
         });
-
     }
 
     /**

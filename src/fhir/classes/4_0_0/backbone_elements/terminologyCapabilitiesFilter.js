@@ -151,7 +151,6 @@ class TerminologyCapabilitiesFilter extends Element {
             code,
             op
         });
-
     }
 
     /**

@@ -195,7 +195,6 @@ class SubstancePolymerRepeat extends Element {
             repeatUnitAmountType,
             repeatUnit
         });
-
     }
 
     /**

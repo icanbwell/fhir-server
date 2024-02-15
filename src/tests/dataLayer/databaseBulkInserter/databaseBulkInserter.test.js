@@ -854,7 +854,6 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
 
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
-
         });
         test('execAsync works on CodeSystem with concurrency', async () => {
             /**
@@ -1312,7 +1311,6 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics = actualCodeSystemHistoryEntry.response.outcome.issue[1].diagnostics;
 
             expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
-
         });
         test('execAsync works on CodeSystem with multiple inserts and replace on same id', async () => {
             /**

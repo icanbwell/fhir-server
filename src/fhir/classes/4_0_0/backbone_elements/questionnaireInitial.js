@@ -369,7 +369,6 @@ class QuestionnaireInitial extends Element {
             valueQuantity,
             valueReference
         });
-
     }
 
     /**

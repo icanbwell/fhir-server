@@ -392,7 +392,6 @@ class QuestionnaireResponseAnswer extends Element {
             valueReference,
             item
         });
-
     }
 
     /**

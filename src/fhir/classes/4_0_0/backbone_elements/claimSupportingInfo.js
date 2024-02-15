@@ -358,7 +358,6 @@ class ClaimSupportingInfo extends Element {
             valueReference,
             reason
         });
-
     }
 
     /**

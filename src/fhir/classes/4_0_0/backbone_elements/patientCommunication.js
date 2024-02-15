@@ -156,7 +156,6 @@ class PatientCommunication extends Element {
             language,
             preferred
         });
-
     }
 
     /**

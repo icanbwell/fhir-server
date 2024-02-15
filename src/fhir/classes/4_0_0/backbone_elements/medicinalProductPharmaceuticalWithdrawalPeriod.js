@@ -175,7 +175,6 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             value,
             supportingInformation
         });
-
     }
 
     /**

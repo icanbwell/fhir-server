@@ -254,7 +254,6 @@ class SubstanceAmount extends Element {
             amountText,
             referenceRange
         });
-
     }
 
     /**

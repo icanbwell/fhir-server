@@ -990,7 +990,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyUuidCache.get(resourceName).size}`);
                                 this.historyUuidCache.delete(resourceName);
                             }
-
                         } catch (e) {
                             this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                             throw new RethrownError(

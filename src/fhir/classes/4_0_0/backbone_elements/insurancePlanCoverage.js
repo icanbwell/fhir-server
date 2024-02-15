@@ -177,7 +177,6 @@ class InsurancePlanCoverage extends Element {
             network,
             benefit
         });
-
     }
 
     /**

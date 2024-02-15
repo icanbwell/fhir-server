@@ -42,7 +42,6 @@ class AccessIndexManager {
         return this.resourceHasAccessIndex({resourceType}) &&
             this.indexProvider.hasIndexForAccessCodes({accessCodes});
     }
-
 }
 
 module.exports = {

@@ -399,7 +399,6 @@ describe('Patient Change Event Tests', () => {
             expect(messageValue3.resourceType).toBe('AuditEvent');
             expect(messageValue3.action).toBe('C');
             expect(messageValue3.agent[0].who.reference).toBe('Consent/1167dbd7-b5de-4843-b3aa-3804b28a7573');
-
         });
     });
 });

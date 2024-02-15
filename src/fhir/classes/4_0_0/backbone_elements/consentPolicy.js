@@ -154,7 +154,6 @@ class ConsentPolicy extends Element {
             authority,
             uri
         });
-
     }
 
     /**

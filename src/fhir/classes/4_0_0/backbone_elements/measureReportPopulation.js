@@ -177,7 +177,6 @@ class MeasureReportPopulation extends Element {
             count,
             subjectResults
         });
-
     }
 
     /**

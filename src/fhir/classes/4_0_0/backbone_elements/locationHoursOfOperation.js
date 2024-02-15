@@ -194,7 +194,6 @@ class LocationHoursOfOperation extends Element {
             openingTime,
             closingTime
         });
-
     }
 
     /**

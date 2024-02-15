@@ -175,7 +175,6 @@ class SubstanceSpecificationOfficial extends Element {
             status,
             date
         });
-
     }
 
     /**

@@ -451,7 +451,6 @@ class ContractValuedItem extends Element {
             linkId,
             securityLabelNumber
         });
-
     }
 
     /**

@@ -174,7 +174,6 @@ class SubstancePolymerStructuralRepresentation extends Element {
             representation,
             attachment
         });
-
     }
 
     /**

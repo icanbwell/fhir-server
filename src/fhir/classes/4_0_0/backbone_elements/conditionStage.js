@@ -179,7 +179,6 @@ class ConditionStage extends Element {
             assessment,
             type
         });
-
     }
 
     /**

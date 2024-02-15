@@ -872,7 +872,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 });
 
                 this.proaPatientDataMap.delete(proaPatientUuid);
-
             }
         });
     }

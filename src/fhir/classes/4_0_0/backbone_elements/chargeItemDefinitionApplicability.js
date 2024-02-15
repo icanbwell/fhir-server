@@ -179,7 +179,6 @@ class ChargeItemDefinitionApplicability extends Element {
             language,
             expression
         });
-
     }
 
     /**

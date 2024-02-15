@@ -261,7 +261,6 @@ class CoverageEligibilityResponseBenefit extends Element {
             usedString,
             usedMoney
         });
-
     }
 
     /**

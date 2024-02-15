@@ -153,7 +153,6 @@ class ActivityDefinitionParticipant extends Element {
             type,
             role
         });
-
     }
 
     /**

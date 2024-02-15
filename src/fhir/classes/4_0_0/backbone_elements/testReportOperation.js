@@ -170,7 +170,6 @@ class TestReportOperation extends Element {
             message,
             detail
         });
-
     }
 
     /**

@@ -194,7 +194,6 @@ class HealthcareServiceAvailableTime extends Element {
             availableStartTime,
             availableEndTime
         });
-
     }
 
     /**

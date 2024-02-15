@@ -239,7 +239,6 @@ class MolecularSequenceRepository extends Element {
             variantsetId,
             readsetId
         });
-
     }
 
     /**

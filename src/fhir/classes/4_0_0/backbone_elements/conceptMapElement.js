@@ -175,7 +175,6 @@ class ConceptMapElement extends Element {
             display,
             target
         });
-
     }
 
     /**

@@ -32,7 +32,6 @@ describe('Stats Tests', () => {
 
     describe('Stats Tests', () => {
         test('stats works', async () => {
-
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
             });

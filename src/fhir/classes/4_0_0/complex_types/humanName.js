@@ -227,7 +227,6 @@ class HumanName extends Element {
             suffix,
             period
         });
-
     }
 
     /**

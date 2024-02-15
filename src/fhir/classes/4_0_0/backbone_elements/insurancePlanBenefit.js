@@ -174,7 +174,6 @@ class InsurancePlanBenefit extends Element {
             requirement,
             limit
         });
-
     }
 
     /**

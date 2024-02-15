@@ -1242,7 +1242,6 @@ class TaskOutput extends Element {
             valueDosage,
             valueMeta
         });
-
     }
 
     /**

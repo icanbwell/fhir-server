@@ -238,7 +238,6 @@ class MarketingStatus extends Element {
             dateRange,
             restoreDate
         });
-
     }
 
     /**

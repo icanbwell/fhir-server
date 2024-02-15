@@ -155,7 +155,6 @@ class ExplanationOfBenefitPayee extends Element {
             type,
             party
         });
-
     }
 
     /**

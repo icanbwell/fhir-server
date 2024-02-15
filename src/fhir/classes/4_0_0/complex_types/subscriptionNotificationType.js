@@ -93,7 +93,6 @@ class SubscriptionNotificationType extends Element {
             extension,
             value
         });
-
     }
 
     /**

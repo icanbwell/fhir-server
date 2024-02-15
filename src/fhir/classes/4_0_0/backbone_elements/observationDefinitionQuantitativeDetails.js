@@ -200,7 +200,6 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             conversionFactor,
             decimalPrecision
         });
-
     }
 
     /**

@@ -80,7 +80,6 @@ class ParsedArgs {
                     }
                 );
             }
-
         }
         return this;
     }

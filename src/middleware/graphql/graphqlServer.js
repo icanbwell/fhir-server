@@ -74,7 +74,6 @@ const graphql = async (fnGetContainer) => {
      * @return {Promise<GraphQLContext>}
      */
     async function getContext ({req, res}) {
-
         /**
          * @type {import('content-type').ContentType}
          */
@@ -119,7 +118,6 @@ const graphql = async (fnGetContainer) => {
             ),
             container: container
         };
-
     }
 
     // create the Apollo graphql middleware

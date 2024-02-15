@@ -292,7 +292,6 @@ class GroupCharacteristic extends Element {
             exclude,
             period
         });
-
     }
 
     /**

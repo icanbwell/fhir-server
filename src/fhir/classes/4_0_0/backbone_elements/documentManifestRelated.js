@@ -156,7 +156,6 @@ class DocumentManifestRelated extends Element {
             identifier,
             ref
         });
-
     }
 
     /**

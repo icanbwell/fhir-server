@@ -13,7 +13,6 @@ const {R4ArgsParser} = require('../operations/query/r4ArgsParser');
 const base_version = VERSIONS['4_0_0'];
 
 class AdminPersonPatientDataManager {
-
     /**
      * constructor
      * @param {FhirOperationsManager} fhirOperationsManager

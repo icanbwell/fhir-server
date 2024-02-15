@@ -174,7 +174,6 @@ class MedicationKnowledgePatientCharacteristics extends Element {
             characteristicQuantity,
             value
         });
-
     }
 
     /**

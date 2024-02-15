@@ -195,7 +195,6 @@ class PractitionerRoleAvailableTime extends Element {
             availableStartTime,
             availableEndTime
         });
-
     }
 
     /**

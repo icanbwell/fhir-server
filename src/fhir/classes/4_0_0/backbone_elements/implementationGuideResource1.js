@@ -196,7 +196,6 @@ class ImplementationGuideResource1 extends Element {
             exampleCanonical,
             relativePath
         });
-
     }
 
     /**

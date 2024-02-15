@@ -356,7 +356,6 @@ class SubstanceSpecificationName extends Element {
             official,
             source
         });
-
     }
 
     /**

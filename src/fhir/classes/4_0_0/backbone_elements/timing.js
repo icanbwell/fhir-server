@@ -185,7 +185,6 @@ class Timing extends Element {
             repeat,
             code
         });
-
     }
 
     /**

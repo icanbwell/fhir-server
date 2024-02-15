@@ -176,7 +176,6 @@ class ElementDefinitionBase extends Element {
             min,
             max
         });
-
     }
 
     /**

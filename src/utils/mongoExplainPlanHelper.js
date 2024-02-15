@@ -44,7 +44,6 @@ const friendlyDescriptionOfStages = {
  * explains plans
  */
 class MongoExplainPlanHelper {
-
     /**
      * explains
      * inspired by: https://medium.com/mongodb-performance-tuning/getting-started-with-mongodb-explain-8a3d0c6c7e68

@@ -178,7 +178,6 @@ class CapabilityStatementImplementation extends Element {
             url,
             custodian
         });
-
     }
 
     /**

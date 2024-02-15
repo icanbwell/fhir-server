@@ -6,7 +6,6 @@ const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
-
     /**
      * @typedef ProxyPatientReferenceEnrichmentProviderParams
      * @property {ConfigManager} configManager

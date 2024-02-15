@@ -212,7 +212,6 @@ class ProductShelfLife extends Element {
             period,
             specialPrecautionsForStorage
         });
-
     }
 
     /**

@@ -141,7 +141,6 @@ class Contributor extends Element {
             name,
             contact
         });
-
     }
 
     /**

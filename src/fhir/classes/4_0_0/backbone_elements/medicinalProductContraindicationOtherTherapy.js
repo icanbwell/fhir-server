@@ -178,7 +178,6 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             medicationCodeableConcept,
             medicationReference
         });
-
     }
 
     /**

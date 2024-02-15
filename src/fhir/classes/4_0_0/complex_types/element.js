@@ -76,7 +76,6 @@ class Element {
             id,
             extension
         });
-
     }
 
     /**

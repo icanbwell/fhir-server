@@ -176,7 +176,6 @@ class CommunicationRequestPayload extends Element {
             contentAttachment,
             contentReference
         });
-
     }
 
     /**

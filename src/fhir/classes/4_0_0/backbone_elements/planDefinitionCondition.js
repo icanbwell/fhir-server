@@ -155,7 +155,6 @@ class PlanDefinitionCondition extends Element {
             kind,
             expression
         });
-
     }
 
     /**

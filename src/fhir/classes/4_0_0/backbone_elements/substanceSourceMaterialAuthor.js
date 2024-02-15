@@ -171,7 +171,6 @@ class SubstanceSourceMaterialAuthor extends Element {
             authorType,
             authorDescription
         });
-
     }
 
     /**

@@ -1243,7 +1243,6 @@ class ElementDefinitionExample extends Element {
             valueDosage,
             valueMeta
         });
-
     }
 
     /**

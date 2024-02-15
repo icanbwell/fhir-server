@@ -173,7 +173,6 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             issuer,
             jurisdiction
         });
-
     }
 
     /**

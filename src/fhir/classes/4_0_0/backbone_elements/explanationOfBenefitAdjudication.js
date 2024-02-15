@@ -205,7 +205,6 @@ class ExplanationOfBenefitAdjudication extends Element {
             amount,
             value
         });
-
     }
 
     /**

@@ -291,7 +291,6 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             term,
             financial
         });
-
     }
 
     /**

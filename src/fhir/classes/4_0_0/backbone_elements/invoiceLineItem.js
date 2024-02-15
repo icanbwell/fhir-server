@@ -203,7 +203,6 @@ class InvoiceLineItem extends Element {
             chargeItemCodeableConcept,
             priceComponent
         });
-
     }
 
     /**

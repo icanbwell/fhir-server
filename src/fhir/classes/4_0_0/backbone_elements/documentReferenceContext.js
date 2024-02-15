@@ -279,7 +279,6 @@ class DocumentReferenceContext extends Element {
             sourcePatientInfo,
             related
         });
-
     }
 
     /**

@@ -175,7 +175,6 @@ class MedicationKnowledgeCost extends Element {
             source,
             cost
         });
-
     }
 
     /**

@@ -200,7 +200,6 @@ class SubscriptionStatusNotificationEvent extends Element {
             focus,
             additionalContext
         });
-
     }
 
     /**

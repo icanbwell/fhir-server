@@ -132,7 +132,6 @@ class CoverageEligibilityResponseError extends Element {
             modifierExtension,
             code
         });
-
     }
 
     /**

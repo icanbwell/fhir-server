@@ -120,7 +120,6 @@ class DataRequirementSort extends Element {
             path,
             direction
         });
-
     }
 
     /**

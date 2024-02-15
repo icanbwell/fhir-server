@@ -263,7 +263,6 @@ class ImplementationGuideResource extends Element {
             exampleCanonical,
             groupingId
         });
-
     }
 
     /**

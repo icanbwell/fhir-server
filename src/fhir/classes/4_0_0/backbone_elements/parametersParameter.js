@@ -1287,7 +1287,6 @@ class ParametersParameter extends Element {
             resource,
             part
         });
-
     }
 
     /**

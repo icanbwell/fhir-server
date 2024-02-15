@@ -216,7 +216,6 @@ class GraphDefinitionCompartment extends Element {
             expression,
             description
         });
-
     }
 
     /**

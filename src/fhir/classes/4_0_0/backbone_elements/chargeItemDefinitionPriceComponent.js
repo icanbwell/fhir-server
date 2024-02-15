@@ -200,7 +200,6 @@ class ChargeItemDefinitionPriceComponent extends Element {
             factor,
             amount
         });
-
     }
 
     /**

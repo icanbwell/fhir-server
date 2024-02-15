@@ -153,7 +153,6 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             code,
             status
         });
-
     }
 
     /**

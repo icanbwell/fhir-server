@@ -175,7 +175,6 @@ class MedicinalProductName extends Element {
             namePart,
             countryLanguage
         });
-
     }
 
     /**

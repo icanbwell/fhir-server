@@ -219,7 +219,6 @@ class MedicinalProductAuthorizationProcedure extends Element {
             dateDateTime,
             application
         });
-
     }
 
     /**

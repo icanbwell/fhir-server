@@ -174,7 +174,6 @@ class ImplementationGuideDependsOn extends Element {
             packageId,
             version
         });
-
     }
 
     /**

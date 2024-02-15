@@ -222,7 +222,6 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             legalStatusOfSupply,
             validityPeriod
         });
-
     }
 
     /**

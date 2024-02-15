@@ -193,7 +193,6 @@ class DataRequirementDateFilter extends Element {
             valuePeriod,
             valueDuration
         });
-
     }
 
     /**

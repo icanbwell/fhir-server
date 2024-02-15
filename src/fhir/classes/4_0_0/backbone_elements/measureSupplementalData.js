@@ -207,7 +207,6 @@ class MeasureSupplementalData extends Element {
             description,
             criteria
         });
-
     }
 
     /**

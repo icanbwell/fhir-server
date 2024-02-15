@@ -222,7 +222,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         resource = await this.preSaveManager.preSaveAsync(resource);
         // add the reference
         return resource;
-
     }
 
     /**

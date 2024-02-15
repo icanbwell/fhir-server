@@ -321,7 +321,6 @@ class ExampleScenarioOperation extends Element {
             request,
             response
         });
-
     }
 
     /**

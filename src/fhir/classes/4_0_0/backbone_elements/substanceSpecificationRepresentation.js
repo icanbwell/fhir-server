@@ -176,7 +176,6 @@ class SubstanceSpecificationRepresentation extends Element {
             representation,
             attachment
         });
-
     }
 
     /**

@@ -318,7 +318,6 @@ class MolecularSequenceReferenceSeq extends Element {
             windowStart,
             windowEnd
         });
-
     }
 
     /**

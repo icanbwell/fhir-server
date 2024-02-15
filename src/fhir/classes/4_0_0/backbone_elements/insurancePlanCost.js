@@ -202,7 +202,6 @@ class InsurancePlanCost extends Element {
             qualifiers,
             value
         });
-
     }
 
     /**

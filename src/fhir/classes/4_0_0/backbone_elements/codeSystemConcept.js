@@ -248,7 +248,6 @@ class CodeSystemConcept extends Element {
             property,
             concept
         });
-
     }
 
     /**

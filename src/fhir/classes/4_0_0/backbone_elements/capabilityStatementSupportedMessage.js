@@ -154,7 +154,6 @@ class CapabilityStatementSupportedMessage extends Element {
             mode,
             definition
         });
-
     }
 
     /**

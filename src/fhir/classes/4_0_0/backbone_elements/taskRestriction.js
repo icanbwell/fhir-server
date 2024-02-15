@@ -175,7 +175,6 @@ class TaskRestriction extends Element {
             period,
             recipient
         });
-
     }
 
     /**

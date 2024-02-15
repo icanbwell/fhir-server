@@ -477,7 +477,6 @@ class TestScriptOperation extends Element {
             targetId,
             url
         });
-
     }
 
     /**

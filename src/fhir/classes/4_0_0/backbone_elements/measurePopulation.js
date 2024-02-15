@@ -175,7 +175,6 @@ class MeasurePopulation extends Element {
             description,
             criteria
         });
-
     }
 
     /**

@@ -264,7 +264,6 @@ class ElementDefinitionConstraint extends Element {
             xpath,
             source
         });
-
     }
 
     /**

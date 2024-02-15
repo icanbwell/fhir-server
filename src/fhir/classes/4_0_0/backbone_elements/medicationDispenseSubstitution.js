@@ -205,7 +205,6 @@ class MedicationDispenseSubstitution extends Element {
             reason,
             responsibleParty
         });
-
     }
 
     /**

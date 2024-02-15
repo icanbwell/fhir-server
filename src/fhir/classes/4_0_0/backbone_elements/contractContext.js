@@ -178,7 +178,6 @@ class ContractContext extends Element {
             code,
             text
         });
-
     }
 
     /**

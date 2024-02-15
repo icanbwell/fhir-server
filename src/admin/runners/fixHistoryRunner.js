@@ -125,7 +125,6 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}

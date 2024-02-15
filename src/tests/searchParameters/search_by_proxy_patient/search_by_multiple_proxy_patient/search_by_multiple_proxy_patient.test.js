@@ -163,7 +163,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedPatientsWithProxyPatient);
-
         });
 
         test('search patient by proxy-patient should return empty result when person is not present', async () => {
@@ -198,7 +197,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(emptyEntries);
-
         });
 
         test('search observation by proxy-patient should work correctly with multiple proxy persons', async () => {
@@ -235,7 +233,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationsWithProxyPatients);
-
         });
 
         test('search observation by proxy-patient should also include resources with directly linked proxy-patient', async () => {
@@ -273,7 +270,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationWithDirectlyLinkedProxyPatient);
-
         });
 
         test('search observation by proxy-patient should return 0 entries if wrong proxy-patient is passed', async () => {
@@ -311,7 +307,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedWithWrongProxyPatient);
-
         });
 
         test('search observation by proxy-patient should work correctly when some proxy-patient-id are non existent', async () => {
@@ -348,7 +343,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientAndSomeWrongProxyPatient);
-
         });
 
         test('should return result with original patient references when _rewritePatientReference is false', async () => {
@@ -420,5 +414,4 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatientWithRewritePatientReferenceFalse);
         });
     });
-
 });

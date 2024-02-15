@@ -446,7 +446,6 @@ class ObservationComponent extends Element {
             interpretation,
             referenceRange
         });
-
     }
 
     /**

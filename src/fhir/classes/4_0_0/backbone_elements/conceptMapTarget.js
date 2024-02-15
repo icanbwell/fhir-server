@@ -249,7 +249,6 @@ class ConceptMapTarget extends Element {
             dependsOn,
             product
         });
-
     }
 
     /**

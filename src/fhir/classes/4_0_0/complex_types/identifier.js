@@ -210,7 +210,6 @@ class Identifier extends Element {
             period,
             assigner
         });
-
     }
 
     /**

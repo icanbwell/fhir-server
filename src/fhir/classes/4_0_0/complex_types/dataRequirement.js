@@ -290,7 +290,6 @@ class DataRequirement extends Element {
             limit,
             sort
         });
-
     }
 
     /**

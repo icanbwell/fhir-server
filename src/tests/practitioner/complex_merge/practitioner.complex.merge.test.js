@@ -195,7 +195,6 @@ describe('Practitioner Complex Merge Tests', () => {
             resp = await request.get('/4_0_0/HealthcareService').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHealthcareServiceResource);
-
         });
     });
 });

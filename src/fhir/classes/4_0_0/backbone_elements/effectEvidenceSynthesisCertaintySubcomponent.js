@@ -178,7 +178,6 @@ class EffectEvidenceSynthesisCertaintySubcomponent extends Element {
             rating,
             note
         });
-
     }
 
     /**

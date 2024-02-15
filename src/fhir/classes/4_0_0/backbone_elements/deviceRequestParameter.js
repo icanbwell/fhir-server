@@ -221,7 +221,6 @@ class DeviceRequestParameter extends Element {
             valueRange,
             valueBoolean
         });
-
     }
 
     /**

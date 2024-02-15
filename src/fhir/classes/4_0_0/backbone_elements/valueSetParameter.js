@@ -280,7 +280,6 @@ class ValueSetParameter extends Element {
             valueCode,
             valueDateTime
         });
-
     }
 
     /**

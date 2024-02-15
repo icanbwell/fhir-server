@@ -218,7 +218,6 @@ class GraphDefinitionTarget extends Element {
             compartment,
             link
         });
-
     }
 
     /**

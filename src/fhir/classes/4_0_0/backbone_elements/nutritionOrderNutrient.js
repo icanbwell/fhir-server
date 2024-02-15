@@ -154,7 +154,6 @@ class NutritionOrderNutrient extends Element {
             modifier,
             amount
         });
-
     }
 
     /**

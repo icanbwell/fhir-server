@@ -172,7 +172,6 @@ class RiskEvidenceSynthesisSampleSize extends Element {
             numberOfStudies,
             numberOfParticipants
         });
-
     }
 
     /**

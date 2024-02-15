@@ -190,7 +190,6 @@ class CompositionEvent extends Element {
             period,
             detail
         });
-
     }
 
     /**

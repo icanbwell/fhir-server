@@ -198,7 +198,6 @@ class ConceptMapDependsOn extends Element {
             value,
             display
         });
-
     }
 
     /**

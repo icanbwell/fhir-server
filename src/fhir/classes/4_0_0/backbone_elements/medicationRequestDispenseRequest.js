@@ -279,7 +279,6 @@ class MedicationRequestDispenseRequest extends Element {
             expectedSupplyDuration,
             performer
         });
-
     }
 
     /**

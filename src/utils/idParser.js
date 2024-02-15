@@ -19,7 +19,6 @@ class IdParser {
 
         return {id: id1, sourceAssigningAuthority};
     }
-
 }
 
 module.exports = {

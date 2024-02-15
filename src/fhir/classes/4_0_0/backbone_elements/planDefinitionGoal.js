@@ -277,7 +277,6 @@ class PlanDefinitionGoal extends Element {
             documentation,
             target
         });
-
     }
 
     /**

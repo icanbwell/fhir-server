@@ -172,7 +172,6 @@ class AuditEventDetail extends Element {
             valueString,
             valueBase64Binary
         });
-
     }
 
     /**

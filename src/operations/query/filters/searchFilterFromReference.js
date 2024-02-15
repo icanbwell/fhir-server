@@ -48,7 +48,6 @@ class SearchFilterFromReference {
     references.forEach((reference) => {
       const { id, resourceType, sourceAssigningAuthority } = reference;
       if (ReferenceParser.isUuidReference(id)) {
-
         const uuidToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType }) : id;
         // add ResourceType/id
         uuidOrItsRefs.push(uuidToPush);

@@ -222,7 +222,6 @@ class ClaimCareTeam extends Element {
             role,
             qualification
         });
-
     }
 
     /**

@@ -152,7 +152,6 @@ class ImplementationGuideGlobal extends Element {
             type,
             profile
         });
-
     }
 
     /**

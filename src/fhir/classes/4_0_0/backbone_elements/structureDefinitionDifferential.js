@@ -132,7 +132,6 @@ class StructureDefinitionDifferential extends Element {
             modifierExtension,
             element
         });
-
     }
 
     /**

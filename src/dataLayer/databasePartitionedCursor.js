@@ -129,7 +129,6 @@ class DatabasePartitionedCursor {
                 id: doc.id
             });
         }
-
     }
 
     /**

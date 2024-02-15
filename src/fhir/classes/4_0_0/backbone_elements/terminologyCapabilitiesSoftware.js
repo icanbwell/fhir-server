@@ -151,7 +151,6 @@ class TerminologyCapabilitiesSoftware extends Element {
             name,
             version
         });
-
     }
 
     /**

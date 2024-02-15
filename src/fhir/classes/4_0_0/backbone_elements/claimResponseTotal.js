@@ -158,7 +158,6 @@ class ClaimResponseTotal extends Element {
             category,
             amount
         });
-
     }
 
     /**

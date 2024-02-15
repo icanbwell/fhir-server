@@ -282,7 +282,6 @@ class TestScriptVariable extends Element {
             path,
             sourceId
         });
-
     }
 
     /**

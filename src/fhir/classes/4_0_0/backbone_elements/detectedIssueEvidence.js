@@ -156,7 +156,6 @@ class DetectedIssueEvidence extends Element {
             code,
             detail
         });
-
     }
 
     /**

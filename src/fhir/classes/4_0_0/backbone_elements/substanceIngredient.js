@@ -176,7 +176,6 @@ class SubstanceIngredient extends Element {
             substanceCodeableConcept,
             substanceReference
         });
-
     }
 
     /**

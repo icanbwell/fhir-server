@@ -200,7 +200,6 @@ class InsurancePlanContact extends Element {
             telecom,
             address
         });
-
     }
 
     /**

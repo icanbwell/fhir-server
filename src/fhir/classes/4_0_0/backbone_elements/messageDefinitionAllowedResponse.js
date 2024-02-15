@@ -153,7 +153,6 @@ class MessageDefinitionAllowedResponse extends Element {
             message,
             situation
         });
-
     }
 
     /**

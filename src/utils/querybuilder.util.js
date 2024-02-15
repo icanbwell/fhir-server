@@ -119,7 +119,6 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
 
     if (typeof target === 'string' && target.includes('|')) {
         [system, value] = target.split('|');
-
     } else {
         value = target;
     }
@@ -198,7 +197,6 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
 
     if (typeof target === 'string' && target.includes('|')) {
         [system, value] = target.split('|');
-
     } else {
         value = target;
     }

@@ -154,7 +154,6 @@ class InsurancePlanSpecificCost extends Element {
             category,
             benefit
         });
-
     }
 
     /**

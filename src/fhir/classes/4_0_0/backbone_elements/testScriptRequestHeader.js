@@ -150,7 +150,6 @@ class TestScriptRequestHeader extends Element {
             field,
             value
         });
-
     }
 
     /**

@@ -11,7 +11,6 @@ class ScopesManager {
     constructor ({
                     configManager
                 }) {
-
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
     }

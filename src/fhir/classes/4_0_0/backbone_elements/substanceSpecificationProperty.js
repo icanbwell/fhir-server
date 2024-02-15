@@ -266,7 +266,6 @@ class SubstanceSpecificationProperty extends Element {
             amountQuantity,
             amountString
         });
-
     }
 
     /**

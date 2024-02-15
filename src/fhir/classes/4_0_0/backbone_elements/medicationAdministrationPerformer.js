@@ -158,7 +158,6 @@ class MedicationAdministrationPerformer extends Element {
             'function': function_,
             actor
         });
-
     }
 
     /**

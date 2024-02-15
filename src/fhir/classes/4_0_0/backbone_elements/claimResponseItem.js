@@ -200,7 +200,6 @@ class ClaimResponseItem extends Element {
             adjudication,
             detail
         });
-
     }
 
     /**

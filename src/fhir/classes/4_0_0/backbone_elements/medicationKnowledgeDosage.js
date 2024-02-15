@@ -153,7 +153,6 @@ class MedicationKnowledgeDosage extends Element {
             type,
             dosage
         });
-
     }
 
     /**

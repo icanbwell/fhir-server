@@ -590,7 +590,6 @@ class ClaimResponseAddItem extends Element {
             adjudication,
             detail
         });
-
     }
 
     /**

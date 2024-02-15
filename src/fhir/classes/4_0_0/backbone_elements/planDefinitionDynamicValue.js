@@ -161,7 +161,6 @@ class PlanDefinitionDynamicValue extends Element {
             path,
             expression
         });
-
     }
 
     /**

@@ -157,7 +157,6 @@ class MeasureReportStratifier extends Element {
             code,
             stratum
         });
-
     }
 
     /**

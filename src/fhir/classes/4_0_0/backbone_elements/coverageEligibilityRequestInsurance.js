@@ -180,7 +180,6 @@ class CoverageEligibilityRequestInsurance extends Element {
             coverage,
             businessArrangement
         });
-
     }
 
     /**

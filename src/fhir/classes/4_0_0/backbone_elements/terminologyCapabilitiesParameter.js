@@ -151,7 +151,6 @@ class TerminologyCapabilitiesParameter extends Element {
             name,
             documentation
         });
-
     }
 
     /**

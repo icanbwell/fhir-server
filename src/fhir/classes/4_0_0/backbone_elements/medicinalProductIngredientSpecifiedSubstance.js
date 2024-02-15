@@ -200,7 +200,6 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             confidentiality,
             strength
         });
-
     }
 
     /**

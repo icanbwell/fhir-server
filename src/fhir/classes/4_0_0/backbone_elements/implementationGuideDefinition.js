@@ -229,7 +229,6 @@ class ImplementationGuideDefinition extends Element {
             parameter,
             template
         });
-
     }
 
     /**

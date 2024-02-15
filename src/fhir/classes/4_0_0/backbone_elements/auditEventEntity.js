@@ -311,7 +311,6 @@ class AuditEventEntity extends Element {
             query,
             detail
         });
-
     }
 
     /**

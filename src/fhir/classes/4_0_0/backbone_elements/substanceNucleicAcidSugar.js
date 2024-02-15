@@ -178,7 +178,6 @@ class SubstanceNucleicAcidSugar extends Element {
             name,
             residueSite
         });
-
     }
 
     /**

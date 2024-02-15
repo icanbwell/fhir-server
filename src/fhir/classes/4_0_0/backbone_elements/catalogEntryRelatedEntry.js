@@ -152,7 +152,6 @@ class CatalogEntryRelatedEntry extends Element {
             relationtype,
             item
         });
-
     }
 
     /**

@@ -320,7 +320,6 @@ class ClaimResponseDetail1 extends Element {
             adjudication,
             subDetail
         });
-
     }
 
     /**

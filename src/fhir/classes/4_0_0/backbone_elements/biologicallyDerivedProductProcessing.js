@@ -220,7 +220,6 @@ class BiologicallyDerivedProductProcessing extends Element {
             timeDateTime,
             timePeriod
         });
-
     }
 
     /**

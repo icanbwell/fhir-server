@@ -283,7 +283,6 @@ class MedicationAdministrationDosage extends Element {
             rateRatio,
             rateQuantity
         });
-
     }
 
     /**

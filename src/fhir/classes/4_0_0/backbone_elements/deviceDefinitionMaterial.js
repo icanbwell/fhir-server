@@ -173,7 +173,6 @@ class DeviceDefinitionMaterial extends Element {
             alternate,
             allergenicIndicator
         });
-
     }
 
     /**

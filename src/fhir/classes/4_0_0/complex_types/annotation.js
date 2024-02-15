@@ -161,7 +161,6 @@ class Annotation extends Element {
             time,
             text
         });
-
     }
 
     /**

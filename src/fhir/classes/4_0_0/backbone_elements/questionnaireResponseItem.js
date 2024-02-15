@@ -220,7 +220,6 @@ class QuestionnaireResponseItem extends Element {
             answer,
             item
         });
-
     }
 
     /**

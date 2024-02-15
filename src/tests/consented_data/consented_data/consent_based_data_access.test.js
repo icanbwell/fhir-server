@@ -289,7 +289,6 @@ describe('Consent Based Data Access Test', () => {
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
-
         });
 
         test('Only one client Consent has provided, it should return only consented data when searching with proxy-patient with master person id', async () => {
@@ -324,7 +323,6 @@ describe('Consent Based Data Access Test', () => {
                 .set(client1Headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClient1Observation, expectedXyzObservationJson]);
-
         });
 
         test('Should not be able to access resource if proxy-patient references is not present', async () => {

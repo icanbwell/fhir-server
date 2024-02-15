@@ -367,7 +367,6 @@ class ClaimSubDetail extends Element {
             net,
             udi
         });
-
     }
 
     /**

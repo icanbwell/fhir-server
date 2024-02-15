@@ -182,7 +182,6 @@ class Duration extends Element {
             system,
             code
         });
-
     }
 
     /**

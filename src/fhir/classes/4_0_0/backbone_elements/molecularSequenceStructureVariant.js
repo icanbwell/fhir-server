@@ -219,7 +219,6 @@ class MolecularSequenceStructureVariant extends Element {
             outer,
             inner
         });
-
     }
 
     /**

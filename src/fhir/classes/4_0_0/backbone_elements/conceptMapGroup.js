@@ -246,7 +246,6 @@ class ConceptMapGroup extends Element {
             element,
             unmapped
         });
-
     }
 
     /**

@@ -178,7 +178,6 @@ describe('Person and Patient real chatgpt Tests', () => {
                 }
                 return resource;
             });
-
         }, 120000);
         test('Patient with heart disease question', async () => {
             if (!process.env.OPENAI_API_KEY) {

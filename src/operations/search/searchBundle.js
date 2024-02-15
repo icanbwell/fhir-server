@@ -371,7 +371,6 @@ class SearchBundleOperation {
                         })
                 });
             return bundle;
-
         } catch (e) {
             /**
              * @type {string}

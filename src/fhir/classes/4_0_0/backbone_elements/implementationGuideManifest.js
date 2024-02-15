@@ -225,7 +225,6 @@ class ImplementationGuideManifest extends Element {
             image,
             other
         });
-
     }
 
     /**

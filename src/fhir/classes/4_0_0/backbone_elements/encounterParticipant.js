@@ -178,7 +178,6 @@ class EncounterParticipant extends Element {
             period,
             individual
         });
-
     }
 
     /**

@@ -214,7 +214,6 @@ class ExampleScenarioProcess extends Element {
             postConditions,
             step
         });
-
     }
 
     /**

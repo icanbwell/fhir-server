@@ -153,7 +153,6 @@ class RequestGroupCondition extends Element {
             kind,
             expression
         });
-
     }
 
     /**

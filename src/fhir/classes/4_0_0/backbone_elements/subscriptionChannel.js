@@ -198,7 +198,6 @@ class SubscriptionChannel extends Element {
             payload,
             header
         });
-
     }
 
     /**

@@ -151,7 +151,6 @@ class MedicationBatch extends Element {
             lotNumber,
             expirationDate
         });
-
     }
 
     /**

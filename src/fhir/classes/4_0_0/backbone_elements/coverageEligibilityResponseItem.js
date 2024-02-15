@@ -428,7 +428,6 @@ class CoverageEligibilityResponseItem extends Element {
             authorizationSupporting,
             authorizationUrl
         });
-
     }
 
     /**

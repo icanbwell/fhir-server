@@ -154,7 +154,6 @@ class ContractFriendly extends Element {
             contentAttachment,
             contentReference
         });
-
     }
 
     /**

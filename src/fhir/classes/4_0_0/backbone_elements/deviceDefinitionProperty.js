@@ -177,7 +177,6 @@ class DeviceDefinitionProperty extends Element {
             valueQuantity,
             valueCode
         });
-
     }
 
     /**

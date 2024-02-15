@@ -270,7 +270,6 @@ class MedicinalProductIngredientStrength extends Element {
             country,
             referenceStrength
         });
-
     }
 
     /**

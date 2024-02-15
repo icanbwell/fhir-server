@@ -209,7 +209,6 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                         if (linkedResource && this.isPersonSame(resource, linkedResource)) {
                             newLinks.push(link);
                         }
-
                     }
                 }
             } catch (e) {
@@ -444,7 +443,6 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
             console.log(`ERROR: ${e}`);
         }
     }
-
 }
 
 module.exports = {

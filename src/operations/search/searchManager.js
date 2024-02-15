@@ -156,7 +156,6 @@ class SearchManager {
          */
         this.searchQueryBuilder = searchQueryBuilder;
         assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
-
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -1230,7 +1229,6 @@ class SearchManager {
                 );
             }
         }
-
     }
 
     /**

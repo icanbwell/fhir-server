@@ -182,7 +182,6 @@ class ClinicalImpressionFinding extends Element {
             itemReference,
             basis
         });
-
     }
 
     /**

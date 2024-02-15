@@ -158,7 +158,6 @@ class ConsentActor extends Element {
             role,
             reference
         });
-
     }
 
     /**

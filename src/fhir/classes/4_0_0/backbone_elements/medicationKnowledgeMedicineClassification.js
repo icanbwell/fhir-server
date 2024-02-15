@@ -155,7 +155,6 @@ class MedicationKnowledgeMedicineClassification extends Element {
             type,
             classification
         });
-
     }
 
     /**

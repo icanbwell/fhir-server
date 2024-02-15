@@ -232,7 +232,6 @@ class CarePlanActivity extends Element {
             reference,
             detail
         });
-
     }
 
     /**

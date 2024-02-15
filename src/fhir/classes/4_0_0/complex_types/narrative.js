@@ -119,7 +119,6 @@ class Narrative extends Element {
             status,
             div
         });
-
     }
 
     /**

@@ -154,7 +154,6 @@ class ContractSubject extends Element {
             reference,
             role
         });
-
     }
 
     /**

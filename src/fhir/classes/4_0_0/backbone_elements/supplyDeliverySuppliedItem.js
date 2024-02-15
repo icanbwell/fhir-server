@@ -176,7 +176,6 @@ class SupplyDeliverySuppliedItem extends Element {
             itemCodeableConcept,
             itemReference
         });
-
     }
 
     /**

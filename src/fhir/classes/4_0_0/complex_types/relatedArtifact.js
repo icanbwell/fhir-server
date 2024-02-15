@@ -229,7 +229,6 @@ class RelatedArtifact extends Element {
             document,
             resource
         });
-
     }
 
     /**

@@ -290,7 +290,6 @@ class VerificationResultAttestation extends Element {
             proxySignature,
             sourceSignature
         });
-
     }
 
     /**

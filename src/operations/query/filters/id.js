@@ -10,7 +10,6 @@ const uuidFieldName = '_uuid';
  * https://www.hl7.org/fhir/search.html#id
  */
 class FilterById extends BaseFilter {
-
     /**
      * Get filter for list of ids
      * @param {String[]} values
@@ -31,7 +30,6 @@ class FilterById extends BaseFilter {
             query = filter[0];
         }
         return query;
-
     }
 
     /**
@@ -103,7 +101,6 @@ class FilterById extends BaseFilter {
         }
         return filters;
     }
-
 }
 
 module.exports = {

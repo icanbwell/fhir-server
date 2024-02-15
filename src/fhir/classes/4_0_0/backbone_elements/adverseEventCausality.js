@@ -200,7 +200,6 @@ class AdverseEventCausality extends Element {
             author,
             method
         });
-
     }
 
     /**

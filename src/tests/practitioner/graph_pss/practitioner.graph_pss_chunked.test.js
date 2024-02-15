@@ -140,7 +140,6 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultipleChunkedResource);
-
         });
     });
 });

@@ -195,7 +195,6 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             from,
             to
         });
-
     }
 
     /**

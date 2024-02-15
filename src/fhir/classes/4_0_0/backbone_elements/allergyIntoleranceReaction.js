@@ -276,7 +276,6 @@ class AllergyIntoleranceReaction extends Element {
             exposureRoute,
             note
         });
-
     }
 
     /**

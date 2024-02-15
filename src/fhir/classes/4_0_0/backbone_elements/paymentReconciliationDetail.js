@@ -337,7 +337,6 @@ class PaymentReconciliationDetail extends Element {
             payee,
             amount
         });
-
     }
 
     /**

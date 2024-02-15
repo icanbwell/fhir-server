@@ -251,7 +251,6 @@ class NutritionOrderOralDiet extends Element {
             fluidConsistencyType,
             instruction
         });
-
     }
 
     /**

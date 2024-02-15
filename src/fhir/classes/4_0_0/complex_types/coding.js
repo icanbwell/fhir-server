@@ -188,7 +188,6 @@ class Coding extends Element {
             display,
             userSelected
         });
-
     }
 
     /**

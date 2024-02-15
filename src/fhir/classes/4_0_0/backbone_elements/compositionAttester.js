@@ -180,7 +180,6 @@ class CompositionAttester extends Element {
             time,
             party
         });
-
     }
 
     /**

@@ -175,7 +175,6 @@ class ValueSetDesignation extends Element {
             use,
             value
         });
-
     }
 
     /**

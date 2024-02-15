@@ -277,7 +277,6 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxTreatmentPeriod,
             targetSpecies
         });
-
     }
 
     /**

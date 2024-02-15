@@ -203,7 +203,6 @@ class CapabilityStatementMessaging extends Element {
             documentation,
             supportedMessage
         });
-
     }
 
     /**

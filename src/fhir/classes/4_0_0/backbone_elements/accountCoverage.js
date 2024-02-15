@@ -157,7 +157,6 @@ class AccountCoverage extends Element {
             coverage,
             priority
         });
-
     }
 
     /**

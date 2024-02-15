@@ -8,7 +8,6 @@ const {ReferenceParser} = require('../../utils/referenceParser');
  * @classdesc sets id to global id if the 'Prefer' header is set
  */
 class GlobalIdEnrichmentProvider extends EnrichmentProvider {
-
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
@@ -66,7 +65,6 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                             }
                         );
                     }
-
                 }
             }
         }

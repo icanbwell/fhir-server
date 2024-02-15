@@ -202,7 +202,6 @@ class ClaimAccident extends Element {
             locationAddress,
             locationReference
         });
-
     }
 
     /**

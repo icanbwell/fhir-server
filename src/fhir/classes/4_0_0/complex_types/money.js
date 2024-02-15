@@ -116,7 +116,6 @@ class Money extends Element {
             value,
             currency
         });
-
     }
 
     /**

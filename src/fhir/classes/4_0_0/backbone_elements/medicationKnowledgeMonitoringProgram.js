@@ -151,7 +151,6 @@ class MedicationKnowledgeMonitoringProgram extends Element {
             type,
             name
         });
-
     }
 
     /**

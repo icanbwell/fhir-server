@@ -244,7 +244,6 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             manufacturer,
             regulator
         });
-
     }
 
     /**

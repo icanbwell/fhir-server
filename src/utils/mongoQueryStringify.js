@@ -6,7 +6,6 @@
 const {assertIsValid} = require('./assertType');
 const {BadRequestError} = require('./httpErrors');
 const mongoQueryStringify = (query) => {
-
     const isArray = (value) => {
         return Array.isArray(value) && typeof value === 'object';
     };
@@ -121,7 +120,6 @@ const mongoQueryStringify = (query) => {
     }
 
     if (isObject(query)) {
-
         let objStr = '';
 
         const objKeys = Object.keys(query);

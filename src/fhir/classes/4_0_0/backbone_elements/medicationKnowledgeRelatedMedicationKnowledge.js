@@ -153,7 +153,6 @@ class MedicationKnowledgeRelatedMedicationKnowledge extends Element {
             type,
             reference
         });
-
     }
 
     /**

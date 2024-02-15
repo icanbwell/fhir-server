@@ -157,7 +157,6 @@ class DiagnosticReportMedia extends Element {
             comment,
             link
         });
-
     }
 
     /**

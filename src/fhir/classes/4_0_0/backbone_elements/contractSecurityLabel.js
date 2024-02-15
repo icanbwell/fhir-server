@@ -202,7 +202,6 @@ class ContractSecurityLabel extends Element {
             category,
             control
         });
-
     }
 
     /**

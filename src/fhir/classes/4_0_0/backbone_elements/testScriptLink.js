@@ -150,7 +150,6 @@ class TestScriptLink extends Element {
             url,
             description
         });
-
     }
 
     /**

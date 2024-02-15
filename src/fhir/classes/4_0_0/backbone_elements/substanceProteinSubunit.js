@@ -306,7 +306,6 @@ class SubstanceProteinSubunit extends Element {
             cTerminalModificationId,
             cTerminalModification
         });
-
     }
 
     /**

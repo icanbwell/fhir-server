@@ -149,7 +149,6 @@ class ExampleScenarioContainedInstance extends Element {
             resourceId,
             versionId
         });
-
     }
 
     /**

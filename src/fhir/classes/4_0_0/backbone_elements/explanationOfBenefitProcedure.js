@@ -243,7 +243,6 @@ class ExplanationOfBenefitProcedure extends Element {
             procedureReference,
             udi
         });
-
     }
 
     /**

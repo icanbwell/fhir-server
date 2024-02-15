@@ -174,7 +174,6 @@ class ConsentVerification extends Element {
             verifiedWith,
             verificationDate
         });
-
     }
 
     /**

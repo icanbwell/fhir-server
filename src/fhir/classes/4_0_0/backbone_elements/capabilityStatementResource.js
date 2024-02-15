@@ -495,7 +495,6 @@ class CapabilityStatementResource extends Element {
             searchParam,
             operation
         });
-
     }
 
     /**

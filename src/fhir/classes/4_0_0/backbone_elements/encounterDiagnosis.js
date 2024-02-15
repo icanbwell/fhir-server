@@ -179,7 +179,6 @@ class EncounterDiagnosis extends Element {
             use,
             rank
         });
-
     }
 
     /**

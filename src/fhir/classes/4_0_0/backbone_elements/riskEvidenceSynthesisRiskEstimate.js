@@ -262,7 +262,6 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             numeratorCount,
             precisionEstimate
         });
-
     }
 
     /**

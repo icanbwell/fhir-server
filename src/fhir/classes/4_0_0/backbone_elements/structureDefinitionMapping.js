@@ -196,7 +196,6 @@ class StructureDefinitionMapping extends Element {
             name,
             comment
         });
-
     }
 
     /**

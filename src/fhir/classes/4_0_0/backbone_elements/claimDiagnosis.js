@@ -247,7 +247,6 @@ class ClaimDiagnosis extends Element {
             onAdmission,
             packageCode
         });
-
     }
 
     /**

@@ -154,7 +154,6 @@ class DeviceDefinitionCapability extends Element {
             type,
             description
         });
-
     }
 
     /**

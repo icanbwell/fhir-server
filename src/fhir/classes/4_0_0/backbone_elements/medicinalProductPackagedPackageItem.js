@@ -383,7 +383,6 @@ class MedicinalProductPackagedPackageItem extends Element {
             shelfLifeStorage,
             manufacturer
         });
-
     }
 
     /**

@@ -201,7 +201,6 @@ class MeasureGroup extends Element {
             population,
             stratifier
         });
-
     }
 
     /**

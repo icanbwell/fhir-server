@@ -194,7 +194,6 @@ class CodeSystemFilter extends Element {
             operator,
             value
         });
-
     }
 
     /**

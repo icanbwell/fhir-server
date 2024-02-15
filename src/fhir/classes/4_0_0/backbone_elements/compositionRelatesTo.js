@@ -183,7 +183,6 @@ class CompositionRelatesTo extends Element {
             targetIdentifier,
             targetReference
         });
-
     }
 
     /**

@@ -158,7 +158,6 @@ class AdverseEventSuspectEntity extends Element {
             instance,
             causality
         });
-
     }
 
     /**

@@ -160,7 +160,6 @@ class ActivityDefinitionDynamicValue extends Element {
             path,
             expression
         });
-
     }
 
     /**

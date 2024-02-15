@@ -390,7 +390,6 @@ class ImagingStudySeries extends Element {
             performer,
             instance
         });
-
     }
 
     /**

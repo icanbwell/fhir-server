@@ -153,7 +153,6 @@ class PractitionerRoleNotAvailable extends Element {
             description,
             during
         });
-
     }
 
     /**

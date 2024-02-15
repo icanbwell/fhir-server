@@ -255,7 +255,6 @@ class TriggerDefinition extends Element {
             data,
             condition
         });
-
     }
 
     /**

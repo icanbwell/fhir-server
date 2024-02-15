@@ -247,7 +247,6 @@ class ExplanationOfBenefitDiagnosis extends Element {
             onAdmission,
             packageCode
         });
-
     }
 
     /**

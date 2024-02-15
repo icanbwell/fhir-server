@@ -4511,7 +4511,6 @@ class ElementDefinition extends Element {
             binding,
             mapping
         });
-
     }
 
     /**

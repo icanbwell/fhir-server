@@ -176,7 +176,6 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                             useTransaction: this.useTransaction,
                             skip: this.skip
                         });
-
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                         throw new RethrownError(

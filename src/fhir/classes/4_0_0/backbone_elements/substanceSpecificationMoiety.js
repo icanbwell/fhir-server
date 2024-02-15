@@ -286,7 +286,6 @@ class SubstanceSpecificationMoiety extends Element {
             amountQuantity,
             amountString
         });
-
     }
 
     /**

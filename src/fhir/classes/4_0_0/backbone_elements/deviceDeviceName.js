@@ -153,7 +153,6 @@ class DeviceDeviceName extends Element {
             name,
             type
         });
-
     }
 
     /**

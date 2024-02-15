@@ -10,7 +10,6 @@ class IndexProvider {
     constructor ({
                     configManager
                 }) {
-
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
     }

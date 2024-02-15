@@ -200,7 +200,6 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             indicationReference,
             patientCharacteristics
         });
-
     }
 
     /**

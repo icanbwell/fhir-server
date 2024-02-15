@@ -239,7 +239,6 @@ class Signature extends Element {
             sigFormat,
             data
         });
-
     }
 
     /**

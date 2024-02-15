@@ -237,7 +237,6 @@ class GraphDefinitionLink extends Element {
             description,
             target
         });
-
     }
 
     /**

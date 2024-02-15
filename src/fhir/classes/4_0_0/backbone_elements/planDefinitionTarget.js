@@ -227,7 +227,6 @@ class PlanDefinitionTarget extends Element {
             detailCodeableConcept,
             due
         });
-
     }
 
     /**

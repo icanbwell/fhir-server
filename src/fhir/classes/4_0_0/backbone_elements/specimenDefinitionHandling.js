@@ -201,7 +201,6 @@ class SpecimenDefinitionHandling extends Element {
             maxDuration,
             instruction
         });
-
     }
 
     /**

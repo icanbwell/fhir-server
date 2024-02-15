@@ -152,7 +152,6 @@ class EncounterStatusHistory extends Element {
             status,
             period
         });
-
     }
 
     /**

@@ -201,7 +201,6 @@ class SubstanceNucleicAcidLinkage extends Element {
             name,
             residueSite
         });
-
     }
 
     /**

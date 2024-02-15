@@ -276,7 +276,6 @@ describe('Missing Index Tests', () => {
                     ]
                 }
             );
-
         });
         test('missingIndex works for AuditEvent', async () => {
             /**

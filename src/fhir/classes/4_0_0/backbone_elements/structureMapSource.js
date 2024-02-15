@@ -1436,7 +1436,6 @@ class StructureMapSource extends Element {
             check,
             logMessage
         });
-
     }
 
     /**

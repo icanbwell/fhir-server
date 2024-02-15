@@ -425,7 +425,6 @@ class ImmunizationRecommendationRecommendation extends Element {
             supportingImmunization,
             supportingPatientInformation
         });
-
     }
 
     /**

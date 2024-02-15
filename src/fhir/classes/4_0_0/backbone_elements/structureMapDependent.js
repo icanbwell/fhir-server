@@ -150,7 +150,6 @@ class StructureMapDependent extends Element {
             name,
             variable
         });
-
     }
 
     /**

@@ -201,7 +201,6 @@ class CoverageCostToBeneficiary extends Element {
             valueMoney,
             exception
         });
-
     }
 
     /**

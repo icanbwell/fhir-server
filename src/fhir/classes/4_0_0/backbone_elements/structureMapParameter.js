@@ -213,7 +213,6 @@ class StructureMapParameter extends Element {
             valueInteger,
             valueDecimal
         });
-
     }
 
     /**

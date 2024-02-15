@@ -177,7 +177,6 @@ class DataRequirementCodeFilter extends Element {
             valueSet,
             code
         });
-
     }
 
     /**

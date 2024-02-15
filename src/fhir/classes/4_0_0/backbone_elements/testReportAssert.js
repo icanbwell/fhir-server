@@ -170,7 +170,6 @@ class TestReportAssert extends Element {
             message,
             detail
         });
-
     }
 
     /**

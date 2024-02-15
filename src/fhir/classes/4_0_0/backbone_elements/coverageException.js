@@ -154,7 +154,6 @@ class CoverageException extends Element {
             type,
             period
         });
-
     }
 
     /**

@@ -290,7 +290,6 @@ class MedicinalProductSpecialDesignation extends Element {
             date,
             species
         });
-
     }
 
     /**

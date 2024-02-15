@@ -110,7 +110,6 @@ class BackboneElement extends Element {
             extension,
             modifierExtension
         });
-
     }
 
     /**

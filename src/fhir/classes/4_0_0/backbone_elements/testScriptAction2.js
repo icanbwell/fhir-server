@@ -131,7 +131,6 @@ class TestScriptAction2 extends Element {
             modifierExtension,
             operation
         });
-
     }
 
     /**

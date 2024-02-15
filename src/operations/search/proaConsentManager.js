@@ -63,7 +63,6 @@ class ProaConsentManager {
      * @returns Consent resource list
      */
     async getConsentResources ({ownerTags, personIds}) {
-
         // get all consents where provision.actor.reference is of proxy-patient with valid code
         const proxyPersonReferences = personIds.map(
             (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`

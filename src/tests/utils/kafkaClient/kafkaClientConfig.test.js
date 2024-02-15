@@ -4,7 +4,6 @@ const {ConfigManager} = require('../../../utils/configManager');
 const {KafkaClient} = require('../../../utils/kafkaClient');
 
 class MockConfigManager extends ConfigManager {
-
     get kafkaEnableEvents () {
         return true;
     }

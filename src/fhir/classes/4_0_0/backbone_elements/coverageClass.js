@@ -175,7 +175,6 @@ class CoverageClass extends Element {
             value,
             name
         });
-
     }
 
     /**

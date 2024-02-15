@@ -16,7 +16,6 @@ class FhirResourceWriterFactory {
             configManager
         }
     ) {
-
         /**
          * @type {ConfigManager}
          */

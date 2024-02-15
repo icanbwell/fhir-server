@@ -195,7 +195,6 @@ class ExplanationOfBenefitProcessNote extends Element {
             text,
             language
         });
-
     }
 
     /**

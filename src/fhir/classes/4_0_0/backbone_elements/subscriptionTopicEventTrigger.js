@@ -182,7 +182,6 @@ class SubscriptionTopicEventTrigger extends Element {
             event,
             resource
         });
-
     }
 
     /**

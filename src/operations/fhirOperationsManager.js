@@ -371,7 +371,6 @@ class FhirOperationsManager {
                         args: combined_args
                     }
                 );
-
             }
         }
         return args;

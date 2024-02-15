@@ -49,7 +49,6 @@ class ResponseChunkParser {
             });
         };
     }
-
 }
 
 module.exports = {

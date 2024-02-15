@@ -181,7 +181,6 @@ class SubscriptionTopicNotificationShape extends Element {
             include,
             revInclude
         });
-
     }
 
     /**

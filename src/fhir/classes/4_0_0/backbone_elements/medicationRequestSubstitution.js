@@ -179,7 +179,6 @@ class MedicationRequestSubstitution extends Element {
             allowedCodeableConcept,
             reason
         });
-
     }
 
     /**

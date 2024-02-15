@@ -43,7 +43,6 @@ class PartitioningManager {
          */
         this.mongoDatabaseManager = mongoDatabaseManager;
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
-
     }
 
     /**
@@ -121,7 +120,6 @@ class PartitioningManager {
 
         const release = await mutex.acquire();
         try {
-
             if (!(this.partitionsCache.has(resourceType))) {
                 this.partitionsCache.set(`${resourceType}`, []);
             }

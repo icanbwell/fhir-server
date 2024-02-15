@@ -19,7 +19,6 @@ class SystemValueParser {
 
         return {system, value};
     }
-
 }
 
 module.exports = {

@@ -177,7 +177,6 @@ class MedicinalProductIndicationOtherTherapy extends Element {
             medicationCodeableConcept,
             medicationReference
         });
-
     }
 
     /**

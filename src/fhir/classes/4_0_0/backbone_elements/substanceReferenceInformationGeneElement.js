@@ -176,7 +176,6 @@ class SubstanceReferenceInformationGeneElement extends Element {
             element,
             source
         });
-
     }
 
     /**

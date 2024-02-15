@@ -704,7 +704,6 @@ class ExplanationOfBenefitItem extends Element {
             adjudication,
             detail
         });
-
     }
 
     /**

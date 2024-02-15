@@ -155,7 +155,6 @@ class MeasureReportComponent extends Element {
             code,
             value
         });
-
     }
 
     /**

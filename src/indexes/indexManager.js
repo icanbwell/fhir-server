@@ -273,7 +273,6 @@ class IndexManager {
             collectionName,
             filterToProblems
         }) {
-
         /**
          * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
          */
@@ -357,7 +356,6 @@ class IndexManager {
                     }
                 );
             }
-
         }
 
         return compareIndexesResult;
@@ -520,7 +518,6 @@ class IndexManager {
             .sort(
                 (a, b) =>
                     a.collectionName.localeCompare(b.collectionName));
-
     }
 
     /**

@@ -292,7 +292,6 @@ class FamilyMemberHistoryCondition extends Element {
             onsetString,
             note
         });
-
     }
 
     /**

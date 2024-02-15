@@ -180,7 +180,6 @@ class TestScriptFixture extends Element {
             autodelete,
             resource
         });
-
     }
 
     /**

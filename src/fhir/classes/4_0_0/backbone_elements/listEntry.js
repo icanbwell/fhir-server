@@ -196,7 +196,6 @@ class ListEntry extends Element {
             date,
             item
         });
-
     }
 
     /**

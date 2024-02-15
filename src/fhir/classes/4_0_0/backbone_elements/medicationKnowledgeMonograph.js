@@ -154,7 +154,6 @@ class MedicationKnowledgeMonograph extends Element {
             type,
             source
         });
-
     }
 
     /**

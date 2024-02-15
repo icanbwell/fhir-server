@@ -200,7 +200,6 @@ class MedicationKnowledgeIngredient extends Element {
             isActive,
             strength
         });
-
     }
 
     /**

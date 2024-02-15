@@ -271,7 +271,6 @@ class ClaimInsurance extends Element {
             preAuthRef,
             claimResponse
         });
-
     }
 
     /**

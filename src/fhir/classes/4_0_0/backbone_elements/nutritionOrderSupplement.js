@@ -224,7 +224,6 @@ class NutritionOrderSupplement extends Element {
             quantity,
             instruction
         });
-
     }
 
     /**

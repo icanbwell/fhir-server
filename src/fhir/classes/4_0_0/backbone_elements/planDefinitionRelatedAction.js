@@ -198,7 +198,6 @@ class PlanDefinitionRelatedAction extends Element {
             offsetDuration,
             offsetRange
         });
-
     }
 
     /**

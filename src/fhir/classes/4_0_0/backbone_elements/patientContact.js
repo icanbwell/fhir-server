@@ -270,7 +270,6 @@ class PatientContact extends Element {
             organization,
             period
         });
-
     }
 
     /**

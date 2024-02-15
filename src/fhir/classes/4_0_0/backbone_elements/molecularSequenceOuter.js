@@ -152,7 +152,6 @@ class MolecularSequenceOuter extends Element {
             start,
             end
         });
-
     }
 
     /**

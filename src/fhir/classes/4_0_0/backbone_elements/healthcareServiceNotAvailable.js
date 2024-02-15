@@ -152,7 +152,6 @@ class HealthcareServiceNotAvailable extends Element {
             description,
             during
         });
-
     }
 
     /**

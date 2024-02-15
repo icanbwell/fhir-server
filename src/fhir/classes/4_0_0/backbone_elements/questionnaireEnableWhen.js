@@ -368,7 +368,6 @@ class QuestionnaireEnableWhen extends Element {
             answerQuantity,
             answerReference
         });
-
     }
 
     /**

@@ -174,7 +174,6 @@ class TerminologyCapabilitiesCodeSystem extends Element {
             version,
             subsumption
         });
-
     }
 
     /**

@@ -223,7 +223,6 @@ class ClaimResponseInsurance extends Element {
             businessArrangement,
             claimResponse
         });
-
     }
 
     /**

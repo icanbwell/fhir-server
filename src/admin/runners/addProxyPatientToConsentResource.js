@@ -511,7 +511,6 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
             // build cache
             consentToPatientRefMap.forEach((patientReference, consentId) => {
-
                 // assign person
                 const immediatePersons = patientToPersonMap.get(patientReference);
 

@@ -153,7 +153,6 @@ class EpisodeOfCareStatusHistory extends Element {
             status,
             period
         });
-
     }
 
     /**

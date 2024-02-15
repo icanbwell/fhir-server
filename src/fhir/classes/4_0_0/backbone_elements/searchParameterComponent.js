@@ -151,7 +151,6 @@ class SearchParameterComponent extends Element {
             definition,
             expression
         });
-
     }
 
     /**

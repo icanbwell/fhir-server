@@ -366,7 +366,6 @@ class AuditEventAgent extends Element {
             network,
             purposeOfUse
         });
-
     }
 
     /**

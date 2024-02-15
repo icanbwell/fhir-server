@@ -206,7 +206,6 @@ class ValueSetCompose extends Element {
             include,
             exclude
         });
-
     }
 
     /**

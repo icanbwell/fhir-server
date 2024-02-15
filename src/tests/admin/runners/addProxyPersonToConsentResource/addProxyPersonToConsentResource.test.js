@@ -201,7 +201,6 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
         resp = await request.get('/4_0_0/Consent').set(getHeaders()).expect(200);
         expect(resp).toHaveResourceCount(2);
         expect(resp).toHaveResponse([expConsentWithActor, expConsentWithProxyPerson]);
-
     });
 
     test('should update the consent resources only when proxy person reference is not present', async () => {

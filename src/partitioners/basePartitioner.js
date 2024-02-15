@@ -31,7 +31,6 @@ class BasePartitioner {
     getSortingFunction () {
         throw new Error(`base class ${this.constructor.name} must implement getSortingFunction`);
     }
-
 }
 
 module.exports = {

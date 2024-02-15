@@ -379,7 +379,6 @@ class ProdCharacteristic extends Element {
             image,
             scoring
         });
-
     }
 
     /**

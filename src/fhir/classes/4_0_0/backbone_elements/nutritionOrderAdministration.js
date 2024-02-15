@@ -202,7 +202,6 @@ class NutritionOrderAdministration extends Element {
             rateQuantity,
             rateRatio
         });
-
     }
 
     /**

@@ -360,7 +360,6 @@ class SubstanceSpecificationRelationship extends Element {
             amountType,
             source
         });
-
     }
 
     /**

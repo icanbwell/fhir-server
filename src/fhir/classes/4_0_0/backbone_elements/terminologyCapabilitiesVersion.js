@@ -238,7 +238,6 @@ class TerminologyCapabilitiesVersion extends Element {
             filter,
             property
         });
-
     }
 
     /**

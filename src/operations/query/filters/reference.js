@@ -7,7 +7,6 @@ const {groupByLambda} = require('../../../utils/list.util');
  * https://www.hl7.org/fhir/search.html#reference
  */
 class FilterByReference extends BaseFilter {
-
     /**
      * Get references
      * @param {string[]} targets

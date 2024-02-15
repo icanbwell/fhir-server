@@ -220,7 +220,6 @@ class BundleResponse extends Element {
             lastModified,
             outcome
         });
-
     }
 
     /**

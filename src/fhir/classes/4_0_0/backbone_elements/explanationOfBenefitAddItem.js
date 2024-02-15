@@ -591,7 +591,6 @@ class ExplanationOfBenefitAddItem extends Element {
             adjudication,
             detail
         });
-
     }
 
     /**

@@ -255,7 +255,6 @@ class BundleEntry extends Element {
             request,
             response
         });
-
     }
 
     /**

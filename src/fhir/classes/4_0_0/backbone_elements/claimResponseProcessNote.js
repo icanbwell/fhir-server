@@ -194,7 +194,6 @@ class ClaimResponseProcessNote extends Element {
             text,
             language
         });
-
     }
 
     /**

@@ -204,7 +204,6 @@ class CareTeamParticipant extends Element {
             onBehalfOf,
             period
         });
-
     }
 
     /**

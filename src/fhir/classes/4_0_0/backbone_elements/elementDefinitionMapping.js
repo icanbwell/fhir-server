@@ -194,7 +194,6 @@ class ElementDefinitionMapping extends Element {
             map,
             comment
         });
-
     }
 
     /**

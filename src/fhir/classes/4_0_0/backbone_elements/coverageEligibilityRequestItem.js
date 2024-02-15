@@ -343,7 +343,6 @@ class CoverageEligibilityRequestItem extends Element {
             diagnosis,
             detail
         });
-
     }
 
     /**

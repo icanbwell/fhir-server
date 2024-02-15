@@ -178,7 +178,6 @@ class ValueSetFilter extends Element {
             op,
             value
         });
-
     }
 
     /**

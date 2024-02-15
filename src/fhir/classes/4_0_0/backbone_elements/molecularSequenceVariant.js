@@ -252,7 +252,6 @@ class MolecularSequenceVariant extends Element {
             cigar,
             variantPointer
         });
-
     }
 
     /**

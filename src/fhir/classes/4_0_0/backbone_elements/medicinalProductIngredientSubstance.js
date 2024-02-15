@@ -154,7 +154,6 @@ class MedicinalProductIngredientSubstance extends Element {
             code,
             strength
         });
-
     }
 
     /**

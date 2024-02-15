@@ -143,7 +143,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 } else {
                     numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
                 }
-
             }
             this.adminLogger.logInfo(
                 `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +

@@ -174,7 +174,6 @@ class TestScriptTest extends Element {
             description,
             action
         });
-
     }
 
     /**

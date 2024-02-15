@@ -173,7 +173,6 @@ class CapabilityStatementSoftware extends Element {
             version,
             releaseDate
         });
-
     }
 
     /**

@@ -154,7 +154,6 @@ class ContractParty extends Element {
             reference,
             role
         });
-
     }
 
     /**

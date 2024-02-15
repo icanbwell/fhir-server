@@ -17,7 +17,6 @@
       "camelcase": "off",
       "object-shorthand": "off",
       "no-tabs": "off",
-      "padded-blocks": "off",
       "operator-linebreak": "off",
       "prefer-regex-literals": "off",
       "no-unneeded-ternary": "off",

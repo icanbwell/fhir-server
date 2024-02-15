@@ -48,13 +48,11 @@ let gridFSBucket = null;
  */
 
 class MongoDatabaseManager {
-
     /**
      * constructor
      * @param {MongoDatabaseManagerProps} params
      */
     constructor ({ configManager }) {
-
         /**
          * @type {ConfigManager}
          */

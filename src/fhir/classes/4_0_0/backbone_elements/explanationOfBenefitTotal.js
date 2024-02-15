@@ -159,7 +159,6 @@ class ExplanationOfBenefitTotal extends Element {
             category,
             amount
         });
-
     }
 
     /**

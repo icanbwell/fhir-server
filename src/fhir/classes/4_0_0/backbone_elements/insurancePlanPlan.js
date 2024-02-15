@@ -246,7 +246,6 @@ class InsurancePlanPlan extends Element {
             generalCost,
             specificCost
         });
-
     }
 
     /**

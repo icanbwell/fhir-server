@@ -192,7 +192,6 @@ class StructureMapStructure extends Element {
             alias,
             documentation
         });
-
     }
 
     /**

@@ -154,7 +154,6 @@ class ConsentData extends Element {
             meaning,
             reference
         });
-
     }
 
     /**

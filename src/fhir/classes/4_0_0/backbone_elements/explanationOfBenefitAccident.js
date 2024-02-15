@@ -202,7 +202,6 @@ class ExplanationOfBenefitAccident extends Element {
             locationAddress,
             locationReference
         });
-
     }
 
     /**

@@ -154,7 +154,6 @@ class InsurancePlanBenefit1 extends Element {
             type,
             cost
         });
-
     }
 
     /**

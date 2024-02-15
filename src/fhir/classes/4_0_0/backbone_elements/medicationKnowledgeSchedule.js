@@ -130,7 +130,6 @@ class MedicationKnowledgeSchedule extends Element {
             modifierExtension,
             schedule
         });
-
     }
 
     /**

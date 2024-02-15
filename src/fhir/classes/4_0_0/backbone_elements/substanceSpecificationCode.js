@@ -220,7 +220,6 @@ class SubstanceSpecificationCode extends Element {
             comment,
             source
         });
-
     }
 
     /**

@@ -337,7 +337,6 @@ class ContractOffer extends Element {
             linkId,
             securityLabelNumber
         });
-
     }
 
     /**

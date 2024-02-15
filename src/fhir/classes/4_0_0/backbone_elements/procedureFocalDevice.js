@@ -155,7 +155,6 @@ class ProcedureFocalDevice extends Element {
             action,
             manipulated
         });
-
     }
 
     /**

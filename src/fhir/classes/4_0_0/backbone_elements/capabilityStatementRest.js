@@ -298,7 +298,6 @@ class CapabilityStatementRest extends Element {
             operation,
             compartment
         });
-
     }
 
     /**

@@ -249,7 +249,6 @@ class ContractContentDefinition extends Element {
             publicationStatus,
             copyright
         });
-
     }
 
     /**

@@ -154,7 +154,6 @@ class CapabilityStatementInteraction1 extends Element {
             code,
             documentation
         });
-
     }
 
     /**

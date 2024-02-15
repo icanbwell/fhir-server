@@ -492,7 +492,6 @@ class TimingRepeat extends Element {
             when,
             offset
         });
-
     }
 
     /**

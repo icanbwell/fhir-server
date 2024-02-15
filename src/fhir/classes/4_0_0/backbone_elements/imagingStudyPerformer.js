@@ -157,7 +157,6 @@ class ImagingStudyPerformer extends Element {
             'function': function_,
             actor
         });
-
     }
 
     /**

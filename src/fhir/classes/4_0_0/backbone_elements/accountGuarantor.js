@@ -177,7 +177,6 @@ class AccountGuarantor extends Element {
             onHold,
             period
         });
-
     }
 
     /**

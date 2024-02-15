@@ -196,7 +196,6 @@ class MessageDefinitionFocus extends Element {
             min,
             max
         });
-
     }
 
     /**

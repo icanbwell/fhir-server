@@ -244,7 +244,6 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
                 delete r.issue[0]['diagnostics'];
             });
-
         });
         test('mergeWith_id fails with wrong access scope (create)', async () => {
             const request = await createTestRequest();

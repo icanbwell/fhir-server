@@ -298,7 +298,6 @@ class SubstanceNucleicAcidSubunit extends Element {
             linkage,
             sugar
         });
-
     }
 
     /**

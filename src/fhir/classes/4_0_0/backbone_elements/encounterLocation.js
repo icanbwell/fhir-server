@@ -201,7 +201,6 @@ class EncounterLocation extends Element {
             physicalType,
             period
         });
-
     }
 
     /**

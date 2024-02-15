@@ -179,7 +179,6 @@ class ExplanationOfBenefitRelated extends Element {
             relationship,
             reference
         });
-
     }
 
     /**

@@ -323,7 +323,6 @@ class NutritionOrderEnteralFormula extends Element {
             maxVolumeToDeliver,
             administrationInstruction
         });
-
     }
 
     /**

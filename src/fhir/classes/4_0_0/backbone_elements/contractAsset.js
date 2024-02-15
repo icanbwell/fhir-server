@@ -450,7 +450,6 @@ class ContractAsset extends Element {
             securityLabelNumber,
             valuedItem
         });
-
     }
 
     /**

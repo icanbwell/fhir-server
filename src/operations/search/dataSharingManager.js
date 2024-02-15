@@ -457,7 +457,6 @@ class DataSharingManager {
      * @returns {Promise<{[key: string]: string[]}>}
      */
     async getPatientToImmediatePersonMapAsync ({patientReferences, securityTags}) {
-
         /**
          * @type {Map<string, string[]>}
          */
@@ -480,7 +479,6 @@ class DataSharingManager {
                 // remove Person/ prefix
                 patientReferenceToPersonUuid[`${patientId}`] = immediatePersons.map(s => s.replace(PERSON_REFERENCE_PREFIX, ''));
             }
-
         }
 
         return patientReferenceToPersonUuid;

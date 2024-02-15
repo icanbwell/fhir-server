@@ -117,7 +117,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -180,7 +179,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -268,7 +266,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -339,7 +336,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -408,7 +404,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -478,7 +473,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -634,7 +628,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -732,7 +725,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -892,7 +884,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -1041,7 +1032,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -1184,7 +1174,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -1442,7 +1431,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
-
             /**
              * @type {SimpleContainer}
              */

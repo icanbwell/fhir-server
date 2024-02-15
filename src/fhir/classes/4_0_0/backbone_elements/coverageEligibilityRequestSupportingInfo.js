@@ -178,7 +178,6 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             information,
             appliesToAll
         });
-
     }
 
     /**

@@ -291,7 +291,6 @@ class RiskAssessmentPrediction extends Element {
             whenRange,
             rationale
         });
-
     }
 
     /**

@@ -241,7 +241,6 @@ class BundleRequest extends Element {
             ifMatch,
             ifNoneExist
         });
-
     }
 
     /**

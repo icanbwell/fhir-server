@@ -153,7 +153,6 @@ class ImplementationGuideGrouping extends Element {
             name,
             description
         });
-
     }
 
     /**

@@ -411,7 +411,6 @@ class VisionPrescriptionLensSpecification extends Element {
             brand,
             note
         });
-
     }
 
     /**

@@ -119,7 +119,6 @@ class Period extends Element {
             start,
             end
         });
-
     }
 
     /**

@@ -1243,7 +1243,6 @@ class TaskInput extends Element {
             valueDosage,
             valueMeta
         });
-
     }
 
     /**

@@ -153,7 +153,6 @@ class SpecimenDefinitionAdditive extends Element {
             additiveCodeableConcept,
             additiveReference
         });
-
     }
 
     /**

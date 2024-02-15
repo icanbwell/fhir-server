@@ -180,7 +180,6 @@ class SubstanceSpecificationMolecularWeight extends Element {
             type,
             amount
         });
-
     }
 
     /**

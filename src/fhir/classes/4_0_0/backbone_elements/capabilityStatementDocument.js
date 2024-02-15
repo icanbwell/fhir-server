@@ -177,7 +177,6 @@ class CapabilityStatementDocument extends Element {
             documentation,
             profile
         });
-
     }
 
     /**

@@ -263,7 +263,6 @@ class Attachment extends Element {
             creation,
             _file_id
         });
-
     }
 
     /**

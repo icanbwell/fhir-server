@@ -161,7 +161,6 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             applicability,
             priceComponent
         });
-
     }
 
     /**

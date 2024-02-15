@@ -154,7 +154,6 @@ class PlanDefinitionParticipant extends Element {
             type,
             role
         });
-
     }
 
     /**

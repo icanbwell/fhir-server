@@ -291,7 +291,6 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gestationalAge,
             condition
         });
-
     }
 
     /**

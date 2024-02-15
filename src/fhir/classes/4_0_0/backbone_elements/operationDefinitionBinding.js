@@ -153,7 +153,6 @@ class OperationDefinitionBinding extends Element {
             strength,
             valueSet
         });
-
     }
 
     /**

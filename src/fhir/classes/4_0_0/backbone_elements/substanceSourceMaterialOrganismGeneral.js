@@ -212,7 +212,6 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             'class': class_,
             order
         });
-
     }
 
     /**

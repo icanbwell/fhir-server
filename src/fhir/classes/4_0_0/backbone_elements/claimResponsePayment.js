@@ -245,7 +245,6 @@ class ClaimResponsePayment extends Element {
             amount,
             identifier
         });
-
     }
 
     /**

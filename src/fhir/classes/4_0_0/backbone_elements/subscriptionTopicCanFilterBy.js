@@ -223,7 +223,6 @@ class SubscriptionTopicCanFilterBy extends Element {
             filterDefinition,
             modifier
         });
-
     }
 
     /**

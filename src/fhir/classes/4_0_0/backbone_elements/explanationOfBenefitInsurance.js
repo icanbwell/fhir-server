@@ -179,7 +179,6 @@ class ExplanationOfBenefitInsurance extends Element {
             coverage,
             preAuthRef
         });
-
     }
 
     /**

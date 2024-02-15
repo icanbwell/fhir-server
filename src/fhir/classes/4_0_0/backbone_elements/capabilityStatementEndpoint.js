@@ -156,7 +156,6 @@ class CapabilityStatementEndpoint extends Element {
             protocol,
             address
         });
-
     }
 
     /**

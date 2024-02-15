@@ -153,7 +153,6 @@ class MedicationKnowledgeMaxDispense extends Element {
             quantity,
             period
         });
-
     }
 
     /**

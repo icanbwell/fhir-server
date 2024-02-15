@@ -247,7 +247,6 @@ class OperationOutcomeIssue extends Element {
             location,
             expression
         });
-
     }
 
     /**

@@ -241,7 +241,6 @@ class StructureMapRule extends Element {
             dependent,
             documentation
         });
-
     }
 
     /**

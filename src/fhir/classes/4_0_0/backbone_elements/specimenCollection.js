@@ -315,7 +315,6 @@ class SpecimenCollection extends Element {
             fastingStatusCodeableConcept,
             fastingStatusDuration
         });
-
     }
 
     /**

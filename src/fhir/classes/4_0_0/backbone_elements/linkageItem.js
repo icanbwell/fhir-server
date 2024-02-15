@@ -153,7 +153,6 @@ class LinkageItem extends Element {
             type,
             resource
         });
-
     }
 
     /**

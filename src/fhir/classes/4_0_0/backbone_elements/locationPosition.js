@@ -175,7 +175,6 @@ class LocationPosition extends Element {
             latitude,
             altitude
         });
-
     }
 
     /**

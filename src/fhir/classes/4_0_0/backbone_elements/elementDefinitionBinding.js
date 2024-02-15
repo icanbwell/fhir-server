@@ -176,7 +176,6 @@ class ElementDefinitionBinding extends Element {
             description,
             valueSet
         });
-
     }
 
     /**

@@ -173,7 +173,6 @@ class ImmunizationReaction extends Element {
             detail,
             reported
         });
-
     }
 
     /**

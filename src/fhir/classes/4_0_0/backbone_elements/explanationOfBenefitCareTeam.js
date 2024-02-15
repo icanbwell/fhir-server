@@ -222,7 +222,6 @@ class ExplanationOfBenefitCareTeam extends Element {
             role,
             qualification
         });
-
     }
 
     /**

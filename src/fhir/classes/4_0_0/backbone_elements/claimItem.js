@@ -659,7 +659,6 @@ class ClaimItem extends Element {
             encounter,
             detail
         });
-
     }
 
     /**

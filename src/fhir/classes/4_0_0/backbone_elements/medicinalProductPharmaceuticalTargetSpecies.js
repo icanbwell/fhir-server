@@ -154,7 +154,6 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
             code,
             withdrawalPeriod
         });
-
     }
 
     /**

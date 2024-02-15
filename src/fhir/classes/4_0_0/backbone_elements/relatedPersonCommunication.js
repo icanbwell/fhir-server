@@ -157,7 +157,6 @@ class RelatedPersonCommunication extends Element {
             language,
             preferred
         });
-
     }
 
     /**

@@ -177,7 +177,6 @@ class MessageHeaderResponse extends Element {
             code,
             details
         });
-
     }
 
     /**

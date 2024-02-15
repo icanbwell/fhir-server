@@ -193,7 +193,6 @@ class ImmunizationEducation extends Element {
             publicationDate,
             presentationDate
         });
-
     }
 
     /**

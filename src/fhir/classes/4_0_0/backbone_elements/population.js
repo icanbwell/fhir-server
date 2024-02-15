@@ -225,7 +225,6 @@ class Population extends Element {
             race,
             physiologicalCondition
         });
-
     }
 
     /**

@@ -153,7 +153,6 @@ class SubstancePolymerMonomerSet extends Element {
             ratioType,
             startingMaterial
         });
-
     }
 
     /**

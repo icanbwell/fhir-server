@@ -153,7 +153,6 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
             degree,
             amount
         });
-
     }
 
     /**

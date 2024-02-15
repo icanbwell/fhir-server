@@ -154,7 +154,6 @@ class ImplementationGuideParameter extends Element {
             code,
             value
         });
-
     }
 
     /**

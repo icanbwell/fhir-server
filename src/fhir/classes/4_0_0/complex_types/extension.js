@@ -1206,7 +1206,6 @@ class Extension extends Element {
             valueDosage,
             valueMeta
         });
-
     }
 
     /**

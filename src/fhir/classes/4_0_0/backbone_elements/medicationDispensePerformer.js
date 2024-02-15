@@ -159,7 +159,6 @@ class MedicationDispensePerformer extends Element {
             'function': function_,
             actor
         });
-
     }
 
     /**

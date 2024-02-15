@@ -173,7 +173,6 @@ class TestReportTest extends Element {
             description,
             action
         });
-
     }
 
     /**

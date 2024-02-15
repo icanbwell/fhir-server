@@ -172,7 +172,6 @@ class CompartmentDefinitionResource extends Element {
             param,
             documentation
         });
-
     }
 
     /**

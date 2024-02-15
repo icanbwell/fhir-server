@@ -9,7 +9,6 @@ class BaseFhirToDocumentConverter {
     // eslint-disable-next-line no-unused-vars
     async convertBundleToDocumentsAsync ({parentResourceType, parentUuid, bundle}) {
         throw new Error('Not Implemented by subclass');
-
     }
 }
 

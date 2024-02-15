@@ -234,7 +234,6 @@ class SubstanceSourceMaterialHybrid extends Element {
             paternalOrganismName,
             hybridType
         });
-
     }
 
     /**

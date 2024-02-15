@@ -585,7 +585,6 @@ class TestScriptAssert extends Element {
             value,
             warningOnly
         });
-
     }
 
     /**

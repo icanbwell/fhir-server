@@ -356,7 +356,6 @@ class OperationDefinitionParameter extends Element {
             referencedFrom,
             part
         });
-
     }
 
     /**

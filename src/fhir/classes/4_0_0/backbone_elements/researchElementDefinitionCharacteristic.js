@@ -576,7 +576,6 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveTimeFromStart,
             participantEffectiveGroupMeasure
         });
-
     }
 
     /**

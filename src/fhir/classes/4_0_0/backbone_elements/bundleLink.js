@@ -152,7 +152,6 @@ class BundleLink extends Element {
             relation,
             url
         });
-
     }
 
     /**

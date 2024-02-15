@@ -192,7 +192,6 @@ class StructureMapInput extends Element {
             mode,
             documentation
         });
-
     }
 
     /**

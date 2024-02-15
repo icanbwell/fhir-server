@@ -203,7 +203,6 @@ class MeasureStratifier extends Element {
             criteria,
             component
         });
-
     }
 
     /**

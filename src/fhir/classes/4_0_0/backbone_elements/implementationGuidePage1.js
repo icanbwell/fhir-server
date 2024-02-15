@@ -173,7 +173,6 @@ class ImplementationGuidePage1 extends Element {
             title,
             anchor
         });
-
     }
 
     /**

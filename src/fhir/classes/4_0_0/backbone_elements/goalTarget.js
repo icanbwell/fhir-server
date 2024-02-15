@@ -332,7 +332,6 @@ class GoalTarget extends Element {
             dueDate,
             dueDuration
         });
-
     }
 
     /**

@@ -219,7 +219,6 @@ class NamingSystemUniqueId extends Element {
             comment,
             period
         });
-
     }
 
     /**

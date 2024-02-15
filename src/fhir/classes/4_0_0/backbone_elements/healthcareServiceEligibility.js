@@ -151,7 +151,6 @@ class HealthcareServiceEligibility extends Element {
             code,
             comment
         });
-
     }
 
     /**

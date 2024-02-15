@@ -427,7 +427,6 @@ class Dosage extends Element {
             maxDosePerAdministration,
             maxDosePerLifetime
         });
-
     }
 
     /**

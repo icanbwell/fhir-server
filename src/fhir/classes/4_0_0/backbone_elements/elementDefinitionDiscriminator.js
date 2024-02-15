@@ -154,7 +154,6 @@ class ElementDefinitionDiscriminator extends Element {
             type,
             path
         });
-
     }
 
     /**

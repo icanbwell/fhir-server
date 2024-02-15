@@ -157,7 +157,6 @@ class CoverageEligibilityRequestDiagnosis extends Element {
             diagnosisCodeableConcept,
             diagnosisReference
         });
-
     }
 
     /**

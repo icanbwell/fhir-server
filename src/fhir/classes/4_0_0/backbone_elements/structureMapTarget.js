@@ -278,7 +278,6 @@ class StructureMapTarget extends Element {
             transform,
             parameter
         });
-
     }
 
     /**

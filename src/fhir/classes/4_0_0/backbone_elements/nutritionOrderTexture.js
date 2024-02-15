@@ -156,7 +156,6 @@ class NutritionOrderTexture extends Element {
             modifier,
             foodType
         });
-
     }
 
     /**

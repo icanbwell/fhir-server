@@ -168,7 +168,6 @@ class SubstanceSourceMaterialPartDescription extends Element {
             part,
             partLocation
         });
-
     }
 
     /**

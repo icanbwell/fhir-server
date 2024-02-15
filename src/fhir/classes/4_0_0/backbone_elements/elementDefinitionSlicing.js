@@ -205,7 +205,6 @@ class ElementDefinitionSlicing extends Element {
             ordered,
             rules
         });
-
     }
 
     /**

@@ -238,7 +238,6 @@ class ExampleScenarioInstance extends Element {
             version,
             containedInstance
         });
-
     }
 
     /**

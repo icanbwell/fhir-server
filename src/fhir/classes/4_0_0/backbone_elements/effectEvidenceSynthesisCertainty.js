@@ -178,7 +178,6 @@ class EffectEvidenceSynthesisCertainty extends Element {
             note,
             certaintySubcomponent
         });
-
     }
 
     /**

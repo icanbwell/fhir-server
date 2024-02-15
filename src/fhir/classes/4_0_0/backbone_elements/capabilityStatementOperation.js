@@ -184,7 +184,6 @@ class CapabilityStatementOperation extends Element {
             definition,
             documentation
         });
-
     }
 
     /**

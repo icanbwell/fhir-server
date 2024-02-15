@@ -170,7 +170,6 @@ class TestReportParticipant extends Element {
             uri,
             display
         });
-
     }
 
     /**

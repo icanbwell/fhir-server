@@ -155,7 +155,6 @@ class TestScriptAction1 extends Element {
             operation,
             assert
         });
-
     }
 
     /**

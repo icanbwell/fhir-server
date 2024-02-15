@@ -200,7 +200,6 @@ class CapabilityStatementSearchParam extends Element {
             type,
             documentation
         });
-
     }
 
     /**

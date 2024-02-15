@@ -159,7 +159,6 @@ class DocumentReferenceContent extends Element {
             attachment,
             format
         });
-
     }
 
     /**

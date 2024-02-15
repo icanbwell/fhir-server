@@ -219,7 +219,6 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueQuantity,
             valueBase64Binary
         });
-
     }
 
     /**

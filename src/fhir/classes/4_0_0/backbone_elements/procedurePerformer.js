@@ -179,7 +179,6 @@ class ProcedurePerformer extends Element {
             actor,
             onBehalfOf
         });
-
     }
 
     /**

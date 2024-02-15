@@ -288,7 +288,6 @@ class SpecimenDefinitionTypeTested extends Element {
             rejectionCriterion,
             handling
         });
-
     }
 
     /**

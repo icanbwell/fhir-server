@@ -246,7 +246,6 @@ class ExplanationOfBenefitPayment extends Element {
             amount,
             identifier
         });
-
     }
 
     /**

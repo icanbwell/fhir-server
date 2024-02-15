@@ -259,7 +259,6 @@ class ObservationReferenceRange extends Element {
             age,
             text
         });
-
     }
 
     /**

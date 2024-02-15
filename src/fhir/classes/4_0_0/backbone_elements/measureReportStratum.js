@@ -205,7 +205,6 @@ class MeasureReportStratum extends Element {
             population,
             measureScore
         });
-
     }
 
     /**

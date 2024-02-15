@@ -131,7 +131,6 @@ class TestScriptSetup extends Element {
             modifierExtension,
             action
         });
-
     }
 
     /**

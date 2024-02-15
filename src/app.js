@@ -324,7 +324,6 @@ function createApp ({fnGetContainer, trackMetrics}) {
                 createFhirApp(fnGetContainer, app);
                 // getRoutes(app);
             });
-
     } else {
         createFhirApp(fnGetContainer, app);
     }

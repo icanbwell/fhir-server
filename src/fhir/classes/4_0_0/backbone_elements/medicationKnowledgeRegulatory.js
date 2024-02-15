@@ -201,7 +201,6 @@ class MedicationKnowledgeRegulatory extends Element {
             schedule,
             maxDispense
         });
-
     }
 
     /**

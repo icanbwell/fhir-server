@@ -306,7 +306,6 @@ totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount:
                         if (result.lastProcessedId) {
                             lastProcessedId = result.lastProcessedId;
                         }
-
                     }
                     this.adminLogger.logInfo(
                         `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `

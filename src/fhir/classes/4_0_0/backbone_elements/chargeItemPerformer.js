@@ -158,7 +158,6 @@ class ChargeItemPerformer extends Element {
             'function': function_,
             actor
         });
-
     }
 
     /**

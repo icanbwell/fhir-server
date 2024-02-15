@@ -172,7 +172,6 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             numberOfStudies,
             numberOfParticipants
         });
-
     }
 
     /**

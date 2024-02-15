@@ -366,7 +366,6 @@ class ConsentProvision extends Element {
             data,
             provision
         });
-
     }
 
     /**

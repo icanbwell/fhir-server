@@ -220,7 +220,6 @@ class SubstancePolymerRepeatUnit extends Element {
             degreeOfPolymerisation,
             structuralRepresentation
         });
-
     }
 
     /**

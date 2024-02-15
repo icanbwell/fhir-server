@@ -157,7 +157,6 @@ class MedicationRequestInitialFill extends Element {
             quantity,
             duration
         });
-
     }
 
     /**

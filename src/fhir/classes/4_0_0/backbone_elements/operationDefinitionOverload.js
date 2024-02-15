@@ -150,7 +150,6 @@ class OperationDefinitionOverload extends Element {
             parameterName,
             comment
         });
-
     }
 
     /**

@@ -130,7 +130,6 @@ class TestReportTeardown extends Element {
             modifierExtension,
             action
         });
-
     }
 
     /**

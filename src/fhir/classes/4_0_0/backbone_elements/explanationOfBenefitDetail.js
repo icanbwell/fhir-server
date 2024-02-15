@@ -436,7 +436,6 @@ class ExplanationOfBenefitDetail extends Element {
             adjudication,
             subDetail
         });
-
     }
 
     /**

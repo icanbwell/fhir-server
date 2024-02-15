@@ -201,7 +201,6 @@ class MessageHeaderDestination extends Element {
             endpoint,
             receiver
         });
-
     }
 
     /**

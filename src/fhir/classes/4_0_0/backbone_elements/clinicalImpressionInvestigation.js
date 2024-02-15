@@ -162,7 +162,6 @@ class ClinicalImpressionInvestigation extends Element {
             code,
             item
         });
-
     }
 
     /**

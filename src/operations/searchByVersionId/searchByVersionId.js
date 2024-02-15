@@ -111,7 +111,6 @@ class SearchByVersionIdOperation {
         } = requestInfo;
 
         try {
-
             const {base_version, id, version_id} = parsedArgs;
             // check if user has permissions to access this resource
             await this.scopesValidator.verifyHasValidScopesAsync(

@@ -154,7 +154,6 @@ class MedicationKnowledgePackaging extends Element {
             type,
             quantity
         });
-
     }
 
     /**

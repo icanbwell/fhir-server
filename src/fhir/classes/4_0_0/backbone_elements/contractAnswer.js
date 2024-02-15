@@ -368,7 +368,6 @@ class ContractAnswer extends Element {
             valueQuantity,
             valueReference
         });
-
     }
 
     /**

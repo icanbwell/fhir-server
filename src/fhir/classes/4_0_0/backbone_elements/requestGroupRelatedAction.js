@@ -196,7 +196,6 @@ class RequestGroupRelatedAction extends Element {
             offsetDuration,
             offsetRange
         });
-
     }
 
     /**

@@ -121,7 +121,6 @@ class Ratio extends Element {
             numerator,
             denominator
         });
-
     }
 
     /**

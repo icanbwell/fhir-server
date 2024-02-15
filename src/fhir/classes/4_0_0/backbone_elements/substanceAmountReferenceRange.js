@@ -160,7 +160,6 @@ class SubstanceAmountReferenceRange extends Element {
             lowLimit,
             highLimit
         });
-
     }
 
     /**

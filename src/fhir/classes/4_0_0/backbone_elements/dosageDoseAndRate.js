@@ -247,7 +247,6 @@ class DosageDoseAndRate extends Element {
             rateRange,
             rateQuantity
         });
-
     }
 
     /**

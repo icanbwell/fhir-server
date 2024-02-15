@@ -205,7 +205,6 @@ class MeasureReportGroup extends Element {
             measureScore,
             stratifier
         });
-
     }
 
     /**

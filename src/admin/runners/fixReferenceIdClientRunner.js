@@ -203,7 +203,6 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
                                     resolve();
                                 });
                             });
-
                         } catch (err) {
                             reject(err);
                         }

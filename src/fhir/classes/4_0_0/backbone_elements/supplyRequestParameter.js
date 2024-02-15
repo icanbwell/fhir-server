@@ -221,7 +221,6 @@ class SupplyRequestParameter extends Element {
             valueRange,
             valueBoolean
         });
-
     }
 
     /**

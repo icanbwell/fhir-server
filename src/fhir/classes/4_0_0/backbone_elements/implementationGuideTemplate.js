@@ -173,7 +173,6 @@ class ImplementationGuideTemplate extends Element {
             source,
             scope
         });
-
     }
 
     /**

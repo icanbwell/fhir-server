@@ -208,7 +208,6 @@ class ProvenanceAgent extends Element {
             who,
             onBehalfOf
         });
-
     }
 
     /**

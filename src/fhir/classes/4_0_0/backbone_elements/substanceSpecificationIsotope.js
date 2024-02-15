@@ -224,7 +224,6 @@ class SubstanceSpecificationIsotope extends Element {
             halfLife,
             molecularWeight
         });
-
     }
 
     /**

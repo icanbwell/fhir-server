@@ -179,7 +179,6 @@ class ResearchStudyArm extends Element {
             type,
             description
         });
-
     }
 
     /**

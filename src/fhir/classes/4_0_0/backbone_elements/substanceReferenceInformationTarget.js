@@ -335,7 +335,6 @@ class SubstanceReferenceInformationTarget extends Element {
             amountType,
             source
         });
-
     }
 
     /**

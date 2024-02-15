@@ -228,7 +228,6 @@ class ParameterDefinition extends Element {
             type,
             profile
         });
-
     }
 
     /**

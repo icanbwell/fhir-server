@@ -199,7 +199,6 @@ class SubstanceReferenceInformationClassification extends Element {
             subtype,
             source
         });
-
     }
 
     /**

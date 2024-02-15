@@ -154,7 +154,6 @@ class ConditionEvidence extends Element {
             code,
             detail
         });
-
     }
 
     /**

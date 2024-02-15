@@ -177,7 +177,6 @@ class MedicationKnowledgeKinetics extends Element {
             lethalDose50,
             halfLifePeriod
         });
-
     }
 
     /**

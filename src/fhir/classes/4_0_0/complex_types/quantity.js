@@ -184,7 +184,6 @@ class Quantity extends Element {
             system,
             code
         });
-
     }
 
     /**
