@@ -530,13 +530,13 @@ class QuestionnaireItem extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.enableWhen) {await async.each(this.enableWhen, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.answerOption) {await async.each(this.answerOption, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.initial) {await async.each(this.initial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.item) {await async.each(this.item, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.enableWhen) { await async.each(this.enableWhen, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.answerOption) { await async.each(this.answerOption, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.initial) { await async.each(this.initial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.item) { await async.each(this.item, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

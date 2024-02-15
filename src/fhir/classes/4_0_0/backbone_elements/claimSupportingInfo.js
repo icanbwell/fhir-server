@@ -398,15 +398,15 @@ class ClaimSupportingInfo extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingPeriod) {await this.timingPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueAttachment) {await this.valueAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueReference) {await this.valueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reason) {await this.reason.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.category) { await this.category.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timingPeriod) { await this.timingPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.valueAttachment) { await this.valueAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.valueReference) { await this.valueReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.reason) { await this.reason.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

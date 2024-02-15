@@ -150,9 +150,9 @@ class Range extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.low) {await this.low.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.high) {await this.high.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.low) { await this.low.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.high) { await this.high.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

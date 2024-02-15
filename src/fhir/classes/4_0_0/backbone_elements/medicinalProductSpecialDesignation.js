@@ -327,15 +327,15 @@ class MedicinalProductSpecialDesignation extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.intendedUse) {await this.intendedUse.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.indicationCodeableConcept) {await this.indicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.indicationReference) {await this.indicationReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.species) {await this.species.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.intendedUse) { await this.intendedUse.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.indicationCodeableConcept) { await this.indicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.indicationReference) { await this.indicationReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.status) { await this.status.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.species) { await this.species.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

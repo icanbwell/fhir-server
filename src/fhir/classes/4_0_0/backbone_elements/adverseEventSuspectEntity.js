@@ -189,10 +189,10 @@ class AdverseEventSuspectEntity extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.instance) {await this.instance.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.causality) {await async.each(this.causality, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.instance) { await this.instance.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.causality) { await async.each(this.causality, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

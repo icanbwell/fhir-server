@@ -93,8 +93,8 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      */
     findPersonIdFromMap(patientToPersonMap, resource) {
         if (patientToPersonMap) {
-            if (patientToPersonMap[`${resource.id}`]) {return patientToPersonMap[`${resource.id}`];}
-            if (patientToPersonMap[`${resource._uuid}`]) {return patientToPersonMap[`${resource._uuid}`];}
+            if (patientToPersonMap[`${resource.id}`]) { return patientToPersonMap[`${resource.id}`]; }
+            if (patientToPersonMap[`${resource._uuid}`]) { return patientToPersonMap[`${resource._uuid}`]; }
         }
         return undefined;
     }

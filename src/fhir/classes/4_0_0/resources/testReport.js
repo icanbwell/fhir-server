@@ -721,17 +721,17 @@ class TestReport extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.testScript) {await this.testScript.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.participant) {await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.setup) {await this.setup.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.test) {await async.each(this.test, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.teardown) {await this.teardown.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.testScript) { await this.testScript.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.participant) { await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.setup) { await this.setup.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.test) { await async.each(this.test, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.teardown) { await this.teardown.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

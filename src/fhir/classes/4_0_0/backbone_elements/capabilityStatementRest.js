@@ -335,13 +335,13 @@ class CapabilityStatementRest extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.security) {await this.security.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.resource) {await async.each(this.resource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.interaction) {await async.each(this.interaction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.searchParam) {await async.each(this.searchParam, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.operation) {await async.each(this.operation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.security) { await this.security.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.resource) { await async.each(this.resource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.interaction) { await async.each(this.interaction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.searchParam) { await async.each(this.searchParam, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.operation) { await async.each(this.operation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

@@ -595,18 +595,18 @@ class MedicinalProductContraindication extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.disease) {await this.disease.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.diseaseStatus) {await this.diseaseStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.comorbidity) {await async.each(this.comorbidity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.therapeuticIndication) {await async.each(this.therapeuticIndication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.otherTherapy) {await async.each(this.otherTherapy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.population) {await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.subject) { await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.disease) { await this.disease.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.diseaseStatus) { await this.diseaseStatus.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.comorbidity) { await async.each(this.comorbidity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.therapeuticIndication) { await async.each(this.therapeuticIndication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.otherTherapy) { await async.each(this.otherTherapy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.population) { await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

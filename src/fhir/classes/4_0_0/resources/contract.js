@@ -1381,37 +1381,37 @@ class Contract extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.legalState) {await this.legalState.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.instantiatesCanonical) {await this.instantiatesCanonical.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contentDerivative) {await this.contentDerivative.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.applies) {await this.applies.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.expirationType) {await this.expirationType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.authority) {await async.each(this.authority, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.domain) {await async.each(this.domain, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.site) {await async.each(this.site, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.author) {await this.author.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.scope) {await this.scope.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.topicCodeableConcept) {await this.topicCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.topicReference) {await this.topicReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subType) {await async.each(this.subType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contentDefinition) {await this.contentDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.term) {await async.each(this.term, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingInfo) {await async.each(this.supportingInfo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.relevantHistory) {await async.each(this.relevantHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.signer) {await async.each(this.signer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.friendly) {await async.each(this.friendly, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.legal) {await async.each(this.legal, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.rule) {await async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.legallyBindingAttachment) {await this.legallyBindingAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.legallyBindingReference) {await this.legallyBindingReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.legalState) { await this.legalState.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.instantiatesCanonical) { await this.instantiatesCanonical.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contentDerivative) { await this.contentDerivative.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.applies) { await this.applies.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.expirationType) { await this.expirationType.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.subject) { await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.authority) { await async.each(this.authority, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.domain) { await async.each(this.domain, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.site) { await async.each(this.site, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.author) { await this.author.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.scope) { await this.scope.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.topicCodeableConcept) { await this.topicCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.topicReference) { await this.topicReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.subType) { await async.each(this.subType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.contentDefinition) { await this.contentDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.term) { await async.each(this.term, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.supportingInfo) { await async.each(this.supportingInfo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.relevantHistory) { await async.each(this.relevantHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.signer) { await async.each(this.signer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.friendly) { await async.each(this.friendly, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.legal) { await async.each(this.legal, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.rule) { await async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.legallyBindingAttachment) { await this.legallyBindingAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.legallyBindingReference) { await this.legallyBindingReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

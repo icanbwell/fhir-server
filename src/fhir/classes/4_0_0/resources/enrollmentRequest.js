@@ -589,16 +589,16 @@ class EnrollmentRequest extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.insurer) {await this.insurer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.provider) {await this.provider.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.candidate) {await this.candidate.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.coverage) {await this.coverage.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.insurer) { await this.insurer.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.provider) { await this.provider.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.candidate) { await this.candidate.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.coverage) { await this.coverage.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

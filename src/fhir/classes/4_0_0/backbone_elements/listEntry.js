@@ -229,10 +229,10 @@ class ListEntry extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.flag) {await this.flag.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.item) {await this.item.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.flag) { await this.flag.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.item) { await this.item.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

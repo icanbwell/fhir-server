@@ -782,22 +782,22 @@ class InsurancePlan extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.ownedBy) {await this.ownedBy.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.administeredBy) {await this.administeredBy.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.coverageArea) {await async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.endpoint) {await async.each(this.endpoint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.network) {await async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.coverage) {await async.each(this.coverage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.plan) {await async.each(this.plan, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.period) { await this.period.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.ownedBy) { await this.ownedBy.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.administeredBy) { await this.administeredBy.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.coverageArea) { await async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.endpoint) { await async.each(this.endpoint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.network) { await async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.coverage) { await async.each(this.coverage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.plan) { await async.each(this.plan, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

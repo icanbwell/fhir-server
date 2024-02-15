@@ -236,10 +236,10 @@ class CapabilityStatementMessaging extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.endpoint) {await async.each(this.endpoint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportedMessage) {await async.each(this.supportedMessage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.endpoint) { await async.each(this.endpoint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.supportedMessage) { await async.each(this.supportedMessage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

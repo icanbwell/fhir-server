@@ -750,20 +750,20 @@ class CatalogEntry extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.referencedItem) {await this.referencedItem.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additionalIdentifier) {await async.each(this.additionalIdentifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.classification) {await async.each(this.classification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.validityPeriod) {await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additionalCharacteristic) {await async.each(this.additionalCharacteristic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.additionalClassification) {await async.each(this.additionalClassification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.relatedEntry) {await async.each(this.relatedEntry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.referencedItem) { await this.referencedItem.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.additionalIdentifier) { await async.each(this.additionalIdentifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.classification) { await async.each(this.classification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.validityPeriod) { await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.additionalCharacteristic) { await async.each(this.additionalCharacteristic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.additionalClassification) { await async.each(this.additionalClassification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.relatedEntry) { await async.each(this.relatedEntry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

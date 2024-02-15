@@ -19,7 +19,6 @@
       "object-shorthand": "off",
       "no-tabs": "off",
       "no-multiple-empty-lines": "off",
-      "block-spacing": "off",
       "padded-blocks": "off",
       "operator-linebreak": "off",
       "prefer-regex-literals": "off",

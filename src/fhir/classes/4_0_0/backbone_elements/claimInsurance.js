@@ -307,11 +307,11 @@ class ClaimInsurance extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.coverage) {await this.coverage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.claimResponse) {await this.claimResponse.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.coverage) { await this.coverage.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.claimResponse) { await this.claimResponse.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

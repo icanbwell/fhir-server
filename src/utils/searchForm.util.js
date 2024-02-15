@@ -345,7 +345,7 @@ const givenNameValue = (nameObj) => {
  * @return {string}
  */
 const getNameValue = (name) => {
-    if (!name) {return '';}
+    if (!name) { return ''; }
     if (typeof name === 'object') {
         if (Array.isArray(name)) {
             return name.map(n => n.family).join(', ');

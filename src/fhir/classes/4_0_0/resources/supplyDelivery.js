@@ -753,22 +753,22 @@ class SupplyDelivery extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.basedOn) {await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.partOf) {await async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.suppliedItem) {await this.suppliedItem.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.occurrencePeriod) {await this.occurrencePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.occurrenceTiming) {await this.occurrenceTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.supplier) {await this.supplier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.destination) {await this.destination.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.receiver) {await async.each(this.receiver, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.basedOn) { await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.partOf) { await async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.patient) { await this.patient.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.suppliedItem) { await this.suppliedItem.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.occurrencePeriod) { await this.occurrencePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.occurrenceTiming) { await this.occurrenceTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.supplier) { await this.supplier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.destination) { await this.destination.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.receiver) { await async.each(this.receiver, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

@@ -234,12 +234,12 @@ class MedicationKnowledgeRegulatory extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.regulatoryAuthority) {await this.regulatoryAuthority.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.substitution) {await async.each(this.substitution, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.schedule) {await async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.maxDispense) {await this.maxDispense.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.regulatoryAuthority) { await this.regulatoryAuthority.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.substitution) { await async.each(this.substitution, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.schedule) { await async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.maxDispense) { await this.maxDispense.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

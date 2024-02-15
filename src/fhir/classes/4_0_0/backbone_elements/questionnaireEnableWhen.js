@@ -409,11 +409,11 @@ class QuestionnaireEnableWhen extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.answerCoding) {await this.answerCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.answerQuantity) {await this.answerQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.answerReference) {await this.answerReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.answerCoding) { await this.answerCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.answerQuantity) { await this.answerQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.answerReference) { await this.answerReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

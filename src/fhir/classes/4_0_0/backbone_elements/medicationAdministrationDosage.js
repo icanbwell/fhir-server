@@ -319,14 +319,14 @@ class MedicationAdministrationDosage extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.site) {await this.site.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.route) {await this.route.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.method) {await this.method.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.dose) {await this.dose.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateRatio) {await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateQuantity) {await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.site) { await this.site.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.route) { await this.route.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.method) { await this.method.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.dose) { await this.dose.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateRatio) { await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateQuantity) { await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

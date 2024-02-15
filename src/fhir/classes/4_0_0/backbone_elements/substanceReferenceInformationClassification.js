@@ -232,12 +232,12 @@ class SubstanceReferenceInformationClassification extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.domain) {await this.domain.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.classification) {await this.classification.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subtype) {await async.each(this.subtype, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.domain) { await this.domain.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.classification) { await this.classification.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.subtype) { await async.each(this.subtype, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

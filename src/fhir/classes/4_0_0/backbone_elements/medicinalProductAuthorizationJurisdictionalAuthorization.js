@@ -256,13 +256,13 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.country) {await this.country.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.legalStatusOfSupply) {await this.legalStatusOfSupply.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.validityPeriod) {await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.country) { await this.country.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.legalStatusOfSupply) { await this.legalStatusOfSupply.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.validityPeriod) { await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

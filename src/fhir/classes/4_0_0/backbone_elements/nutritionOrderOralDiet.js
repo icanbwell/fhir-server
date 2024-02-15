@@ -286,13 +286,13 @@ class NutritionOrderOralDiet extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.schedule) {await async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.nutrient) {await async.each(this.nutrient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.texture) {await async.each(this.texture, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.fluidConsistencyType) {await async.each(this.fluidConsistencyType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.schedule) { await async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.nutrient) { await async.each(this.nutrient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.texture) { await async.each(this.texture, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.fluidConsistencyType) { await async.each(this.fluidConsistencyType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

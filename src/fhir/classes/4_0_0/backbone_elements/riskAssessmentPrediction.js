@@ -328,13 +328,13 @@ class RiskAssessmentPrediction extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcome) {await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.probabilityRange) {await this.probabilityRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.qualitativeRisk) {await this.qualitativeRisk.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.whenPeriod) {await this.whenPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.whenRange) {await this.whenRange.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.outcome) { await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.probabilityRange) { await this.probabilityRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.qualitativeRisk) { await this.qualitativeRisk.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.whenPeriod) { await this.whenPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.whenRange) { await this.whenRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

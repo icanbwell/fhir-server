@@ -306,14 +306,14 @@ class SpecimenContainer extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.capacity) {await this.capacity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.specimenQuantity) {await this.specimenQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additiveCodeableConcept) {await this.additiveCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additiveReference) {await this.additiveReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.capacity) { await this.capacity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.specimenQuantity) { await this.specimenQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.additiveCodeableConcept) { await this.additiveCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.additiveReference) { await this.additiveReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

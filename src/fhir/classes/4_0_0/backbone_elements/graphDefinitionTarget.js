@@ -252,10 +252,10 @@ class GraphDefinitionTarget extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.compartment) {await async.each(this.compartment, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.link) {await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.compartment) { await async.each(this.compartment, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

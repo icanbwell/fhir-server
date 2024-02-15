@@ -360,8 +360,8 @@ class Binary extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.securityContext) {await this.securityContext.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.securityContext) { await this.securityContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

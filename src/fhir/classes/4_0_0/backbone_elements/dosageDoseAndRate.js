@@ -282,14 +282,14 @@ class DosageDoseAndRate extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.doseRange) {await this.doseRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.doseQuantity) {await this.doseQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateRatio) {await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateRange) {await this.rateRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateQuantity) {await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.doseRange) { await this.doseRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.doseQuantity) { await this.doseQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateRatio) { await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateRange) { await this.rateRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateQuantity) { await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

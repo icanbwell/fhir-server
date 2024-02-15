@@ -253,11 +253,11 @@ class MolecularSequenceStructureVariant extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.variantType) {await this.variantType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.outer) {await this.outer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.inner) {await this.inner.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.variantType) { await this.variantType.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.outer) { await this.outer.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.inner) { await this.inner.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

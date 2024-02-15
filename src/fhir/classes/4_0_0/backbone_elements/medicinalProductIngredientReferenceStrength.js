@@ -254,12 +254,12 @@ class MedicinalProductIngredientReferenceStrength extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.substance) {await this.substance.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.strength) {await this.strength.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.strengthLowLimit) {await this.strengthLowLimit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.country) {await async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.substance) { await this.substance.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.strength) { await this.strength.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.strengthLowLimit) { await this.strengthLowLimit.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.country) { await async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

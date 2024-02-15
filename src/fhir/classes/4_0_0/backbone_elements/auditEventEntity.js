@@ -349,14 +349,14 @@ class AuditEventEntity extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.what) {await this.what.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.role) {await this.role.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.lifecycle) {await this.lifecycle.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.securityLabel) {await async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.detail) {await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.what) { await this.what.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.role) { await this.role.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.lifecycle) { await this.lifecycle.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.securityLabel) { await async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.detail) { await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

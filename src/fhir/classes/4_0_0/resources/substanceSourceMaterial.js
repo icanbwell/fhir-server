@@ -784,21 +784,21 @@ class SubstanceSourceMaterial extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.sourceMaterialClass) {await this.sourceMaterialClass.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.sourceMaterialType) {await this.sourceMaterialType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.sourceMaterialState) {await this.sourceMaterialState.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.organismId) {await this.organismId.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.parentSubstanceId) {await async.each(this.parentSubstanceId, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.countryOfOrigin) {await async.each(this.countryOfOrigin, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.developmentStage) {await this.developmentStage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fractionDescription) {await async.each(this.fractionDescription, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.organism) {await this.organism.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.partDescription) {await async.each(this.partDescription, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.sourceMaterialClass) { await this.sourceMaterialClass.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.sourceMaterialType) { await this.sourceMaterialType.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.sourceMaterialState) { await this.sourceMaterialState.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.organismId) { await this.organismId.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.parentSubstanceId) { await async.each(this.parentSubstanceId, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.countryOfOrigin) { await async.each(this.countryOfOrigin, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.developmentStage) { await this.developmentStage.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fractionDescription) { await async.each(this.fractionDescription, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.organism) { await this.organism.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.partDescription) { await async.each(this.partDescription, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

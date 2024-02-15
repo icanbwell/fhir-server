@@ -1097,25 +1097,25 @@ class FamilyMemberHistory extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dataAbsentReason) {await this.dataAbsentReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.relationship) {await this.relationship.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.sex) {await this.sex.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.bornPeriod) {await this.bornPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.ageAge) {await this.ageAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.ageRange) {await this.ageRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.deceasedAge) {await this.deceasedAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.deceasedRange) {await this.deceasedRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) {await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) {await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.condition) {await async.each(this.condition, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.dataAbsentReason) { await this.dataAbsentReason.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patient) { await this.patient.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.relationship) { await this.relationship.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.sex) { await this.sex.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.bornPeriod) { await this.bornPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.ageAge) { await this.ageAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.ageRange) { await this.ageRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.deceasedAge) { await this.deceasedAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.deceasedRange) { await this.deceasedRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.reasonCode) { await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.reasonReference) { await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.condition) { await async.each(this.condition, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

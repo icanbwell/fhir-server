@@ -208,11 +208,11 @@ class SubstanceReferenceInformationGene extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.geneSequenceOrigin) {await this.geneSequenceOrigin.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.gene) {await this.gene.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.geneSequenceOrigin) { await this.geneSequenceOrigin.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.gene) { await this.gene.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

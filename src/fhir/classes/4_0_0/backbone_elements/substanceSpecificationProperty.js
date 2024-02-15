@@ -302,13 +302,13 @@ class SubstanceSpecificationProperty extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definingSubstanceReference) {await this.definingSubstanceReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definingSubstanceCodeableConcept) {await this.definingSubstanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountQuantity) {await this.amountQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.category) { await this.category.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.definingSubstanceReference) { await this.definingSubstanceReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.definingSubstanceCodeableConcept) { await this.definingSubstanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.amountQuantity) { await this.amountQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

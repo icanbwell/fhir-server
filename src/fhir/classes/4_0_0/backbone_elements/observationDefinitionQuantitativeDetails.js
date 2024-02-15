@@ -233,10 +233,10 @@ class ObservationDefinitionQuantitativeDetails extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.customaryUnit) {await this.customaryUnit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.unit) {await this.unit.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.customaryUnit) { await this.customaryUnit.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.unit) { await this.unit.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

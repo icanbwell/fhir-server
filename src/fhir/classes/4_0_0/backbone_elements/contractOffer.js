@@ -376,15 +376,15 @@ class ContractOffer extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.party) {await async.each(this.party, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.topic) {await this.topic.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.decision) {await this.decision.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.decisionMode) {await async.each(this.decisionMode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.answer) {await async.each(this.answer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.party) { await async.each(this.party, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.topic) { await this.topic.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.decision) { await this.decision.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.decisionMode) { await async.each(this.decisionMode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.answer) { await async.each(this.answer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

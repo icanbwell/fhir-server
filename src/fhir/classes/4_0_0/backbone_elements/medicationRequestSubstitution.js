@@ -211,10 +211,10 @@ class MedicationRequestSubstitution extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.allowedCodeableConcept) {await this.allowedCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reason) {await this.reason.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.allowedCodeableConcept) { await this.allowedCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.reason) { await this.reason.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

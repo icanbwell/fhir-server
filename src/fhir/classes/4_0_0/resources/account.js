@@ -702,19 +702,19 @@ class Account extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.servicePeriod) {await this.servicePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.coverage) {await async.each(this.coverage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.owner) {await this.owner.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.guarantor) {await async.each(this.guarantor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.partOf) {await this.partOf.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.subject) { await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.servicePeriod) { await this.servicePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.coverage) { await async.each(this.coverage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.owner) { await this.owner.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.guarantor) { await async.each(this.guarantor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.partOf) { await this.partOf.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

@@ -193,8 +193,8 @@ class Annotation extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.authorReference) {await this.authorReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.authorReference) { await this.authorReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

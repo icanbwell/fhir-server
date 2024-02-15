@@ -284,10 +284,10 @@ class ConceptMapTarget extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dependsOn) {await async.each(this.dependsOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.product) {await async.each(this.product, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.dependsOn) { await async.each(this.dependsOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.product) { await async.each(this.product, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

@@ -1077,31 +1077,31 @@ class Condition extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.clinicalStatus) {await this.clinicalStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.verificationStatus) {await this.verificationStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.severity) {await this.severity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.bodySite) {await async.each(this.bodySite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetAge) {await this.onsetAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetPeriod) {await this.onsetPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetRange) {await this.onsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.abatementAge) {await this.abatementAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.abatementPeriod) {await this.abatementPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.abatementRange) {await this.abatementRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.recorder) {await this.recorder.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.asserter) {await this.asserter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.stage) {await async.each(this.stage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.evidence) {await async.each(this.evidence, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.clinicalStatus) { await this.clinicalStatus.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.verificationStatus) { await this.verificationStatus.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.severity) { await this.severity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.bodySite) { await async.each(this.bodySite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.subject) { await this.subject.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.onsetAge) { await this.onsetAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.onsetPeriod) { await this.onsetPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.onsetRange) { await this.onsetRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.abatementAge) { await this.abatementAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.abatementPeriod) { await this.abatementPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.abatementRange) { await this.abatementRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.recorder) { await this.recorder.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.asserter) { await this.asserter.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.stage) { await async.each(this.stage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.evidence) { await async.each(this.evidence, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

@@ -151,9 +151,9 @@ class Ratio extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.numerator) {await this.numerator.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.denominator) {await this.denominator.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.numerator) { await this.numerator.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.denominator) { await this.denominator.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

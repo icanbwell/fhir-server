@@ -595,18 +595,18 @@ class MedicinalProductManufactured extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.manufacturedDoseForm) {await this.manufacturedDoseForm.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.unitOfPresentation) {await this.unitOfPresentation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) {await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.ingredient) {await async.each(this.ingredient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.physicalCharacteristics) {await this.physicalCharacteristics.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.otherCharacteristics) {await async.each(this.otherCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.manufacturedDoseForm) { await this.manufacturedDoseForm.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.unitOfPresentation) { await this.unitOfPresentation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.manufacturer) { await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.ingredient) { await async.each(this.ingredient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.physicalCharacteristics) { await this.physicalCharacteristics.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.otherCharacteristics) { await async.each(this.otherCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

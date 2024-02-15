@@ -335,13 +335,13 @@ class SubstanceNucleicAcidSubunit extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.sequenceAttachment) {await this.sequenceAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fivePrime) {await this.fivePrime.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.threePrime) {await this.threePrime.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.linkage) {await async.each(this.linkage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.sugar) {await async.each(this.sugar, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.sequenceAttachment) { await this.sequenceAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fivePrime) { await this.fivePrime.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.threePrime) { await this.threePrime.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.linkage) { await async.each(this.linkage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.sugar) { await async.each(this.sugar, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

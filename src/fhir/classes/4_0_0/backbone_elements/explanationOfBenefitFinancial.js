@@ -276,11 +276,11 @@ class ExplanationOfBenefitFinancial extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.allowedMoney) {await this.allowedMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.usedMoney) {await this.usedMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.allowedMoney) { await this.allowedMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.usedMoney) { await this.usedMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

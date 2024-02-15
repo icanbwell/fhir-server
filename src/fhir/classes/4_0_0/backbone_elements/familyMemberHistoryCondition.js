@@ -329,14 +329,14 @@ class FamilyMemberHistoryCondition extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.outcome) {await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetAge) {await this.onsetAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetRange) {await this.onsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetPeriod) {await this.onsetPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.outcome) { await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.onsetAge) { await this.onsetAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.onsetRange) { await this.onsetRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.onsetPeriod) { await this.onsetPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

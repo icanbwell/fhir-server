@@ -229,10 +229,10 @@ class RequestGroupRelatedAction extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.offsetDuration) {await this.offsetDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.offsetRange) {await this.offsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.offsetDuration) { await this.offsetDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.offsetRange) { await this.offsetRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

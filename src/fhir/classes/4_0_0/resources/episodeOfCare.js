@@ -735,22 +735,22 @@ class EpisodeOfCare extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.statusHistory) {await async.each(this.statusHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.diagnosis) {await async.each(this.diagnosis, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.managingOrganization) {await this.managingOrganization.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.referralRequest) {await async.each(this.referralRequest, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.careManager) {await this.careManager.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.team) {await async.each(this.team, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.account) {await async.each(this.account, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.statusHistory) { await async.each(this.statusHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.diagnosis) { await async.each(this.diagnosis, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.patient) { await this.patient.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.managingOrganization) { await this.managingOrganization.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.period) { await this.period.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.referralRequest) { await async.each(this.referralRequest, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.careManager) { await this.careManager.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.team) { await async.each(this.team, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.account) { await async.each(this.account, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

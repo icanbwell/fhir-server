@@ -757,22 +757,22 @@ class Specimen extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.accessionIdentifier) {await this.accessionIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.parent) {await async.each(this.parent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.request) {await async.each(this.request, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.collection) {await this.collection.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.processing) {await async.each(this.processing, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.container) {await async.each(this.container, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.condition) {await async.each(this.condition, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.accessionIdentifier) { await this.accessionIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.subject) { await this.subject.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.parent) { await async.each(this.parent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.request) { await async.each(this.request, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.collection) { await this.collection.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.processing) { await async.each(this.processing, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.container) { await async.each(this.container, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.condition) { await async.each(this.condition, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

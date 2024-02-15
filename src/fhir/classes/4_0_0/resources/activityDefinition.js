@@ -1861,41 +1861,41 @@ class ActivityDefinition extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subjectCodeableConcept) {await this.subjectCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subjectReference) {await this.subjectReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.useContext) {await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.effectivePeriod) {await this.effectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.topic) {await async.each(this.topic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.author) {await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.editor) {await async.each(this.editor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reviewer) {await async.each(this.reviewer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.endorser) {await async.each(this.endorser, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.relatedArtifact) {await async.each(this.relatedArtifact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingTiming) {await this.timingTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingAge) {await this.timingAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingPeriod) {await this.timingPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingRange) {await this.timingRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingDuration) {await this.timingDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.location) {await this.location.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.participant) {await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.productReference) {await this.productReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.productCodeableConcept) {await this.productCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.dosage) {await async.each(this.dosage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.bodySite) {await async.each(this.bodySite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.specimenRequirement) {await async.each(this.specimenRequirement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.observationRequirement) {await async.each(this.observationRequirement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.observationResultRequirement) {await async.each(this.observationResultRequirement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dynamicValue) {await async.each(this.dynamicValue, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.subjectCodeableConcept) { await this.subjectCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.subjectReference) { await this.subjectReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.effectivePeriod) { await this.effectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.topic) { await async.each(this.topic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.author) { await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.editor) { await async.each(this.editor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.reviewer) { await async.each(this.reviewer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.endorser) { await async.each(this.endorser, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.relatedArtifact) { await async.each(this.relatedArtifact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timingTiming) { await this.timingTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timingAge) { await this.timingAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timingPeriod) { await this.timingPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timingRange) { await this.timingRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timingDuration) { await this.timingDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.location) { await this.location.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.participant) { await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.productReference) { await this.productReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.productCodeableConcept) { await this.productCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.dosage) { await async.each(this.dosage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.bodySite) { await async.each(this.bodySite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.specimenRequirement) { await async.each(this.specimenRequirement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.observationRequirement) { await async.each(this.observationRequirement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.observationResultRequirement) { await async.each(this.observationResultRequirement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.dynamicValue) { await async.each(this.dynamicValue, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

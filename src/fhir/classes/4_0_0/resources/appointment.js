@@ -1020,24 +1020,24 @@ class Appointment extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.cancelationReason) {await this.cancelationReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.serviceCategory) {await async.each(this.serviceCategory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.serviceType) {await async.each(this.serviceType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.specialty) {await async.each(this.specialty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.appointmentType) {await this.appointmentType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) {await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) {await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingInformation) {await async.each(this.supportingInformation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.slot) {await async.each(this.slot, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.basedOn) {await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.participant) {await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.requestedPeriod) {await async.each(this.requestedPeriod, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.cancelationReason) { await this.cancelationReason.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.serviceCategory) { await async.each(this.serviceCategory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.serviceType) { await async.each(this.serviceType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.specialty) { await async.each(this.specialty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.appointmentType) { await this.appointmentType.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.reasonCode) { await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.reasonReference) { await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.supportingInformation) { await async.each(this.supportingInformation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.slot) { await async.each(this.slot, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.basedOn) { await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.participant) { await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.requestedPeriod) { await async.each(this.requestedPeriod, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

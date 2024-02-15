@@ -272,12 +272,12 @@ class MarketingStatus extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.country) {await this.country.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.jurisdiction) {await this.jurisdiction.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.dateRange) {await this.dateRange.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.country) { await this.country.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.jurisdiction) { await this.jurisdiction.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.status) { await this.status.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.dateRange) { await this.dateRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

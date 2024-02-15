@@ -489,18 +489,18 @@ class EvidenceVariableCharacteristic extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.definitionReference) {await this.definitionReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definitionCodeableConcept) {await this.definitionCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definitionExpression) {await this.definitionExpression.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definitionDataRequirement) {await this.definitionDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definitionTriggerDefinition) {await this.definitionTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.usageContext) {await async.each(this.usageContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.participantEffectivePeriod) {await this.participantEffectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.participantEffectiveDuration) {await this.participantEffectiveDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.participantEffectiveTiming) {await this.participantEffectiveTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timeFromStart) {await this.timeFromStart.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.definitionReference) { await this.definitionReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.definitionCodeableConcept) { await this.definitionCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.definitionExpression) { await this.definitionExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.definitionDataRequirement) { await this.definitionDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.definitionTriggerDefinition) { await this.definitionTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.usageContext) { await async.each(this.usageContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.participantEffectivePeriod) { await this.participantEffectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.participantEffectiveDuration) { await this.participantEffectiveDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.participantEffectiveTiming) { await this.participantEffectiveTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.timeFromStart) { await this.timeFromStart.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

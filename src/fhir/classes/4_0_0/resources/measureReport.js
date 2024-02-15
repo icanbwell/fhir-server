@@ -705,18 +705,18 @@ class MeasureReport extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reporter) {await this.reporter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.improvementNotation) {await this.improvementNotation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.group) {await async.each(this.group, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.evaluatedResource) {await async.each(this.evaluatedResource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.subject) { await this.subject.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.reporter) { await this.reporter.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.period) { await this.period.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.improvementNotation) { await this.improvementNotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.group) { await async.each(this.group, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.evaluatedResource) { await async.each(this.evaluatedResource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

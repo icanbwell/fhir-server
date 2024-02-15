@@ -209,11 +209,11 @@ class MedicationKnowledgeKinetics extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.areaUnderCurve) {await async.each(this.areaUnderCurve, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.lethalDose50) {await async.each(this.lethalDose50, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.halfLifePeriod) {await this.halfLifePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.areaUnderCurve) { await async.each(this.areaUnderCurve, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.lethalDose50) { await async.each(this.lethalDose50, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.halfLifePeriod) { await this.halfLifePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

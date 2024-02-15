@@ -1525,39 +1525,39 @@ class StructureMapSource extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.defaultValueAddress) {await this.defaultValueAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueAge) {await this.defaultValueAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueAnnotation) {await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueAttachment) {await this.defaultValueAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueCodeableConcept) {await this.defaultValueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueCoding) {await this.defaultValueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueContactPoint) {await this.defaultValueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueCount) {await this.defaultValueCount.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDistance) {await this.defaultValueDistance.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDuration) {await this.defaultValueDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueHumanName) {await this.defaultValueHumanName.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueIdentifier) {await this.defaultValueIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueMoney) {await this.defaultValueMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValuePeriod) {await this.defaultValuePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueQuantity) {await this.defaultValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueRange) {await this.defaultValueRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueRatio) {await this.defaultValueRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueReference) {await this.defaultValueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueSampledData) {await this.defaultValueSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueSignature) {await this.defaultValueSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueTiming) {await this.defaultValueTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueContactDetail) {await this.defaultValueContactDetail.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueContributor) {await this.defaultValueContributor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDataRequirement) {await this.defaultValueDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueExpression) {await this.defaultValueExpression.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueParameterDefinition) {await this.defaultValueParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueRelatedArtifact) {await this.defaultValueRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueTriggerDefinition) {await this.defaultValueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueUsageContext) {await this.defaultValueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDosage) {await this.defaultValueDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueMeta) {await this.defaultValueMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.defaultValueAddress) { await this.defaultValueAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueAge) { await this.defaultValueAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueAnnotation) { await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueAttachment) { await this.defaultValueAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueCodeableConcept) { await this.defaultValueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueCoding) { await this.defaultValueCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueContactPoint) { await this.defaultValueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueCount) { await this.defaultValueCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDistance) { await this.defaultValueDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDuration) { await this.defaultValueDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueHumanName) { await this.defaultValueHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueIdentifier) { await this.defaultValueIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueMoney) { await this.defaultValueMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValuePeriod) { await this.defaultValuePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueQuantity) { await this.defaultValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueRange) { await this.defaultValueRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueRatio) { await this.defaultValueRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueReference) { await this.defaultValueReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueSampledData) { await this.defaultValueSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueSignature) { await this.defaultValueSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueTiming) { await this.defaultValueTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueContactDetail) { await this.defaultValueContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueContributor) { await this.defaultValueContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDataRequirement) { await this.defaultValueDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueExpression) { await this.defaultValueExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueParameterDefinition) { await this.defaultValueParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueRelatedArtifact) { await this.defaultValueRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueTriggerDefinition) { await this.defaultValueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueUsageContext) { await this.defaultValueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDosage) { await this.defaultValueDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueMeta) { await this.defaultValueMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

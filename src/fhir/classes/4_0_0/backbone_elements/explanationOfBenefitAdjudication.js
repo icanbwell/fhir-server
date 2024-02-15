@@ -238,11 +238,11 @@ class ExplanationOfBenefitAdjudication extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reason) {await this.reason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amount) {await this.amount.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.category) { await this.category.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.reason) { await this.reason.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.amount) { await this.amount.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

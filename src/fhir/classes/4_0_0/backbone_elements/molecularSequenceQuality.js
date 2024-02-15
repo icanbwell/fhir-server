@@ -494,12 +494,12 @@ class MolecularSequenceQuality extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.standardSequence) {await this.standardSequence.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.score) {await this.score.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.method) {await this.method.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.roc) {await this.roc.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.standardSequence) { await this.standardSequence.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.score) { await this.score.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.method) { await this.method.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.roc) { await this.roc.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

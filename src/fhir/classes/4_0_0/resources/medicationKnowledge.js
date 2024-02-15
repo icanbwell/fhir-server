@@ -1009,30 +1009,30 @@ class MedicationKnowledge extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) {await this.manufacturer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.doseForm) {await this.doseForm.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amount) {await this.amount.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.relatedMedicationKnowledge) {await async.each(this.relatedMedicationKnowledge, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.associatedMedication) {await async.each(this.associatedMedication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.productType) {await async.each(this.productType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.monograph) {await async.each(this.monograph, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.ingredient) {await async.each(this.ingredient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.intendedRoute) {await async.each(this.intendedRoute, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.cost) {await async.each(this.cost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.monitoringProgram) {await async.each(this.monitoringProgram, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.administrationGuidelines) {await async.each(this.administrationGuidelines, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.medicineClassification) {await async.each(this.medicineClassification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.packaging) {await this.packaging.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.drugCharacteristic) {await async.each(this.drugCharacteristic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contraindication) {await async.each(this.contraindication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.regulatory) {await async.each(this.regulatory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.kinetics) {await async.each(this.kinetics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.manufacturer) { await this.manufacturer.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.doseForm) { await this.doseForm.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.amount) { await this.amount.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.relatedMedicationKnowledge) { await async.each(this.relatedMedicationKnowledge, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.associatedMedication) { await async.each(this.associatedMedication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.productType) { await async.each(this.productType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.monograph) { await async.each(this.monograph, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.ingredient) { await async.each(this.ingredient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.intendedRoute) { await async.each(this.intendedRoute, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.cost) { await async.each(this.cost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.monitoringProgram) { await async.each(this.monitoringProgram, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.administrationGuidelines) { await async.each(this.administrationGuidelines, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.medicineClassification) { await async.each(this.medicineClassification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.packaging) { await this.packaging.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.drugCharacteristic) { await async.each(this.drugCharacteristic, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.contraindication) { await async.each(this.contraindication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.regulatory) { await async.each(this.regulatory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.kinetics) { await async.each(this.kinetics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

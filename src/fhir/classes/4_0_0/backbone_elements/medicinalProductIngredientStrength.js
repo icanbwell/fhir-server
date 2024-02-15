@@ -306,14 +306,14 @@ class MedicinalProductIngredientStrength extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.presentation) {await this.presentation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.presentationLowLimit) {await this.presentationLowLimit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.concentration) {await this.concentration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.concentrationLowLimit) {await this.concentrationLowLimit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.country) {await async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.referenceStrength) {await async.each(this.referenceStrength, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.presentation) { await this.presentation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.presentationLowLimit) { await this.presentationLowLimit.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.concentration) { await this.concentration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.concentrationLowLimit) { await this.concentrationLowLimit.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.country) { await async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.referenceStrength) { await async.each(this.referenceStrength, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

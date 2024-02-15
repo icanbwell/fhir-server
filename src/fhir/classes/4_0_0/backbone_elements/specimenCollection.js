@@ -353,16 +353,16 @@ class SpecimenCollection extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.collector) {await this.collector.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.collectedPeriod) {await this.collectedPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.duration) {await this.duration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.method) {await this.method.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.bodySite) {await this.bodySite.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fastingStatusCodeableConcept) {await this.fastingStatusCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fastingStatusDuration) {await this.fastingStatusDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.collector) { await this.collector.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.collectedPeriod) { await this.collectedPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.duration) { await this.duration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.method) { await this.method.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.bodySite) { await this.bodySite.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fastingStatusCodeableConcept) { await this.fastingStatusCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fastingStatusDuration) { await this.fastingStatusDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

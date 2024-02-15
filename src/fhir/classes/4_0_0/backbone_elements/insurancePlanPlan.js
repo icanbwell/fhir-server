@@ -281,14 +281,14 @@ class InsurancePlanPlan extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.coverageArea) {await async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.network) {await async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.generalCost) {await async.each(this.generalCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.specificCost) {await async.each(this.specificCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.coverageArea) { await async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.network) { await async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.generalCost) { await async.each(this.generalCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.specificCost) { await async.each(this.specificCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

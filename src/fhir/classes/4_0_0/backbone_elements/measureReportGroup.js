@@ -238,12 +238,12 @@ class MeasureReportGroup extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.population) {await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.measureScore) {await this.measureScore.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.stratifier) {await async.each(this.stratifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.code) { await this.code.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.population) { await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.measureScore) { await this.measureScore.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.stratifier) { await async.each(this.stratifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

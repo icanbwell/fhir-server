@@ -565,16 +565,16 @@ class MedicinalProductIngredient extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.role) {await this.role.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) {await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.specifiedSubstance) {await async.each(this.specifiedSubstance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.substance) {await this.substance.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.role) { await this.role.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.manufacturer) { await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.specifiedSubstance) { await async.each(this.specifiedSubstance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.substance) { await this.substance.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

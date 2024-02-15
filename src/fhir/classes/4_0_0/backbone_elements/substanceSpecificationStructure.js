@@ -328,14 +328,14 @@ class SubstanceSpecificationStructure extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.stereochemistry) {await this.stereochemistry.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.opticalActivity) {await this.opticalActivity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.isotope) {await async.each(this.isotope, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.molecularWeight) {await this.molecularWeight.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.representation) {await async.each(this.representation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.stereochemistry) { await this.stereochemistry.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.opticalActivity) { await this.opticalActivity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.isotope) { await async.each(this.isotope, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.molecularWeight) { await this.molecularWeight.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.representation) { await async.each(this.representation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

@@ -235,12 +235,12 @@ class NutritionOrderAdministration extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.schedule) {await this.schedule.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateQuantity) {await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rateRatio) {await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.schedule) { await this.schedule.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateQuantity) { await this.rateQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.rateRatio) { await this.rateRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

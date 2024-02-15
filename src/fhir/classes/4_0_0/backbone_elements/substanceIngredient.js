@@ -208,11 +208,11 @@ class SubstanceIngredient extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.substanceCodeableConcept) {await this.substanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.substanceReference) {await this.substanceReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.substanceCodeableConcept) { await this.substanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.substanceReference) { await this.substanceReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

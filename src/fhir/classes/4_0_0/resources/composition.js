@@ -823,22 +823,22 @@ class Composition extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.author) {await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.attester) {await async.each(this.attester, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.custodian) {await this.custodian.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.relatesTo) {await async.each(this.relatesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.event) {await async.each(this.event, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.section) {await async.each(this.section, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await this.type.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.subject) { await this.subject.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.author) { await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.attester) { await async.each(this.attester, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.custodian) { await this.custodian.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.relatesTo) { await async.each(this.relatesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.event) { await async.each(this.event, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.section) { await async.each(this.section, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

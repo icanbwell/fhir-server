@@ -646,19 +646,19 @@ class MedicinalProductPackaged extends Resource {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.legalStatusOfSupply) {await this.legalStatusOfSupply.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.marketingStatus) {await async.each(this.marketingStatus, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.marketingAuthorization) {await this.marketingAuthorization.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) {await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.batchIdentifier) {await async.each(this.batchIdentifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.packageItem) {await async.each(this.packageItem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.meta) { await this.meta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.text) { await this.text.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.subject) { await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.legalStatusOfSupply) { await this.legalStatusOfSupply.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.marketingStatus) { await async.each(this.marketingStatus, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.marketingAuthorization) { await this.marketingAuthorization.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.manufacturer) { await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.batchIdentifier) { await async.each(this.batchIdentifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.packageItem) { await async.each(this.packageItem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

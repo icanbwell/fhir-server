@@ -454,12 +454,12 @@ class VisionPrescriptionLensSpecification extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.product) {await this.product.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.prism) {await async.each(this.prism, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.duration) {await this.duration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.product) { await this.product.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.prism) { await async.each(this.prism, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.duration) { await this.duration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

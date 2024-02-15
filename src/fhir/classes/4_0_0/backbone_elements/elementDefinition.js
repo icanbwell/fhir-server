@@ -4737,111 +4737,111 @@ class ElementDefinition extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.slicing) {await this.slicing.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.base) {await this.base.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.defaultValueAddress) {await this.defaultValueAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueAge) {await this.defaultValueAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueAnnotation) {await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueAttachment) {await this.defaultValueAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueCodeableConcept) {await this.defaultValueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueCoding) {await this.defaultValueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueContactPoint) {await this.defaultValueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueCount) {await this.defaultValueCount.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDistance) {await this.defaultValueDistance.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDuration) {await this.defaultValueDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueHumanName) {await this.defaultValueHumanName.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueIdentifier) {await this.defaultValueIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueMoney) {await this.defaultValueMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValuePeriod) {await this.defaultValuePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueQuantity) {await this.defaultValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueRange) {await this.defaultValueRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueRatio) {await this.defaultValueRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueReference) {await this.defaultValueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueSampledData) {await this.defaultValueSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueSignature) {await this.defaultValueSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueTiming) {await this.defaultValueTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueContactDetail) {await this.defaultValueContactDetail.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueContributor) {await this.defaultValueContributor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDataRequirement) {await this.defaultValueDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueExpression) {await this.defaultValueExpression.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueParameterDefinition) {await this.defaultValueParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueRelatedArtifact) {await this.defaultValueRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueTriggerDefinition) {await this.defaultValueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueUsageContext) {await this.defaultValueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueDosage) {await this.defaultValueDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.defaultValueMeta) {await this.defaultValueMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedAddress) {await this.fixedAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedAge) {await this.fixedAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedAnnotation) {await this.fixedAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedAttachment) {await this.fixedAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedCodeableConcept) {await this.fixedCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedCoding) {await this.fixedCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedContactPoint) {await this.fixedContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedCount) {await this.fixedCount.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedDistance) {await this.fixedDistance.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedDuration) {await this.fixedDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedHumanName) {await this.fixedHumanName.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedIdentifier) {await this.fixedIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedMoney) {await this.fixedMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedPeriod) {await this.fixedPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedQuantity) {await this.fixedQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedRange) {await this.fixedRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedRatio) {await this.fixedRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedReference) {await this.fixedReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedSampledData) {await this.fixedSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedSignature) {await this.fixedSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedTiming) {await this.fixedTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedContactDetail) {await this.fixedContactDetail.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedContributor) {await this.fixedContributor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedDataRequirement) {await this.fixedDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedExpression) {await this.fixedExpression.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedParameterDefinition) {await this.fixedParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedRelatedArtifact) {await this.fixedRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedTriggerDefinition) {await this.fixedTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedUsageContext) {await this.fixedUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedDosage) {await this.fixedDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.fixedMeta) {await this.fixedMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternAddress) {await this.patternAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternAge) {await this.patternAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternAnnotation) {await this.patternAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternAttachment) {await this.patternAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternCodeableConcept) {await this.patternCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternCoding) {await this.patternCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternContactPoint) {await this.patternContactPoint.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternCount) {await this.patternCount.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternDistance) {await this.patternDistance.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternDuration) {await this.patternDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternHumanName) {await this.patternHumanName.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternIdentifier) {await this.patternIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternMoney) {await this.patternMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternPeriod) {await this.patternPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternQuantity) {await this.patternQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternRange) {await this.patternRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternRatio) {await this.patternRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternReference) {await this.patternReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternSampledData) {await this.patternSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternSignature) {await this.patternSignature.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternTiming) {await this.patternTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternContactDetail) {await this.patternContactDetail.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternContributor) {await this.patternContributor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternDataRequirement) {await this.patternDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternExpression) {await this.patternExpression.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternParameterDefinition) {await this.patternParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternRelatedArtifact) {await this.patternRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternTriggerDefinition) {await this.patternTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternUsageContext) {await this.patternUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternDosage) {await this.patternDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patternMeta) {await this.patternMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.example) {await async.each(this.example, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.minValueQuantity) {await this.minValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.maxValueQuantity) {await this.maxValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.constraint) {await async.each(this.constraint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.binding) {await this.binding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.mapping) {await async.each(this.mapping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.slicing) { await this.slicing.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.base) { await this.base.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.defaultValueAddress) { await this.defaultValueAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueAge) { await this.defaultValueAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueAnnotation) { await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueAttachment) { await this.defaultValueAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueCodeableConcept) { await this.defaultValueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueCoding) { await this.defaultValueCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueContactPoint) { await this.defaultValueContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueCount) { await this.defaultValueCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDistance) { await this.defaultValueDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDuration) { await this.defaultValueDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueHumanName) { await this.defaultValueHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueIdentifier) { await this.defaultValueIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueMoney) { await this.defaultValueMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValuePeriod) { await this.defaultValuePeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueQuantity) { await this.defaultValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueRange) { await this.defaultValueRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueRatio) { await this.defaultValueRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueReference) { await this.defaultValueReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueSampledData) { await this.defaultValueSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueSignature) { await this.defaultValueSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueTiming) { await this.defaultValueTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueContactDetail) { await this.defaultValueContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueContributor) { await this.defaultValueContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDataRequirement) { await this.defaultValueDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueExpression) { await this.defaultValueExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueParameterDefinition) { await this.defaultValueParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueRelatedArtifact) { await this.defaultValueRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueTriggerDefinition) { await this.defaultValueTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueUsageContext) { await this.defaultValueUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueDosage) { await this.defaultValueDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.defaultValueMeta) { await this.defaultValueMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedAddress) { await this.fixedAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedAge) { await this.fixedAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedAnnotation) { await this.fixedAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedAttachment) { await this.fixedAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedCodeableConcept) { await this.fixedCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedCoding) { await this.fixedCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedContactPoint) { await this.fixedContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedCount) { await this.fixedCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedDistance) { await this.fixedDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedDuration) { await this.fixedDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedHumanName) { await this.fixedHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedIdentifier) { await this.fixedIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedMoney) { await this.fixedMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedPeriod) { await this.fixedPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedQuantity) { await this.fixedQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedRange) { await this.fixedRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedRatio) { await this.fixedRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedReference) { await this.fixedReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedSampledData) { await this.fixedSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedSignature) { await this.fixedSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedTiming) { await this.fixedTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedContactDetail) { await this.fixedContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedContributor) { await this.fixedContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedDataRequirement) { await this.fixedDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedExpression) { await this.fixedExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedParameterDefinition) { await this.fixedParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedRelatedArtifact) { await this.fixedRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedTriggerDefinition) { await this.fixedTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedUsageContext) { await this.fixedUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedDosage) { await this.fixedDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.fixedMeta) { await this.fixedMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternAddress) { await this.patternAddress.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternAge) { await this.patternAge.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternAnnotation) { await this.patternAnnotation.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternAttachment) { await this.patternAttachment.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternCodeableConcept) { await this.patternCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternCoding) { await this.patternCoding.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternContactPoint) { await this.patternContactPoint.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternCount) { await this.patternCount.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternDistance) { await this.patternDistance.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternDuration) { await this.patternDuration.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternHumanName) { await this.patternHumanName.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternIdentifier) { await this.patternIdentifier.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternMoney) { await this.patternMoney.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternPeriod) { await this.patternPeriod.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternQuantity) { await this.patternQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternRange) { await this.patternRange.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternRatio) { await this.patternRatio.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternReference) { await this.patternReference.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternSampledData) { await this.patternSampledData.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternSignature) { await this.patternSignature.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternTiming) { await this.patternTiming.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternContactDetail) { await this.patternContactDetail.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternContributor) { await this.patternContributor.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternDataRequirement) { await this.patternDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternExpression) { await this.patternExpression.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternParameterDefinition) { await this.patternParameterDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternRelatedArtifact) { await this.patternRelatedArtifact.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternTriggerDefinition) { await this.patternTriggerDefinition.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternUsageContext) { await this.patternUsageContext.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternDosage) { await this.patternDosage.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.patternMeta) { await this.patternMeta.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.example) { await async.each(this.example, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.minValueQuantity) { await this.minValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.maxValueQuantity) { await this.maxValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.constraint) { await async.each(this.constraint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.binding) { await this.binding.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.mapping) { await async.each(this.mapping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

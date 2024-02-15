@@ -151,8 +151,8 @@ class CodeableConcept extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.coding) {await async.each(this.coding, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.coding) { await async.each(this.coding, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

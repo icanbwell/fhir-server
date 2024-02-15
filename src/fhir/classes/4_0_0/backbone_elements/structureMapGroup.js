@@ -276,10 +276,10 @@ class StructureMapGroup extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.input) {await async.each(this.input, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.rule) {await async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.input) { await async.each(this.input, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.rule) { await async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**

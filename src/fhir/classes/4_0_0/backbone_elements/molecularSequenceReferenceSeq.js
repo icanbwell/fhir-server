@@ -356,11 +356,11 @@ class MolecularSequenceReferenceSeq extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.chromosome) {await this.chromosome.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.referenceSeqId) {await this.referenceSeqId.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.referenceSeqPointer) {await this.referenceSeqPointer.updateReferencesAsync({fnUpdateReferenceAsync});}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.chromosome) { await this.chromosome.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.referenceSeqId) { await this.referenceSeqId.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.referenceSeqPointer) { await this.referenceSeqPointer.updateReferencesAsync({fnUpdateReferenceAsync}); }
     }
 
     /**

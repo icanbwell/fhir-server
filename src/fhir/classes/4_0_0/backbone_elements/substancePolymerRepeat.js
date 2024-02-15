@@ -228,10 +228,10 @@ class SubstancePolymerRepeat extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.repeatUnitAmountType) {await this.repeatUnitAmountType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.repeatUnit) {await async.each(this.repeatUnit, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
+            if (this.repeatUnitAmountType) { await this.repeatUnitAmountType.updateReferencesAsync({fnUpdateReferenceAsync}); }
+            if (this.repeatUnit) { await async.each(this.repeatUnit, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync})); }
     }
 
     /**
