@@ -767,7 +767,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                 this.proaPatientDataMap.delete(proaPatientUuid);
                 return;
             }
-            const prefix = proaPersonUuids.length > 1 ? 'Proa Patient linked to multiple Proa Persons & ' : '';
 
             if (masterPersonUuids.filter(u => u).length === 0) {
                 this.writeErrorCases({
@@ -775,7 +774,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     masterPersonsData,
                     clientPersonsData,
                     proaPersonsData,
-                    message: `${prefix}Proa Person not linked to master person`,
+                    message: 'Proa Person not linked to master person',
                 });
                 this.proaPatientDataMap.delete(proaPatientUuid);
                 return;
@@ -786,7 +785,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             // check if every masterPerson is related to atleast one client person
             for (const masterPersonUuid of masterPersonUuids) {
                 if (!masterPersonUuid) {
-                    message += `${prefix}Proa Person not linked to master person, `;
+                    message += 'Proa Person not linked to master person, ';
                 } else if (
                     !this.masterPersonToClientPersonMap.has(masterPersonUuid) ||
                     this.masterPersonToClientPersonMap.get(masterPersonUuid).length === 0
@@ -795,22 +794,22 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                         !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
                         this.masterPersonToMasterPatientMap.get(masterPersonUuid).length === 0
                     ) {
-                        message += `${prefix}Master Person Not Linked to Client Person and Master Patient, `;
+                        message += 'Master Person Not Linked to Client Person and Master Patient, ';
                     } else {
-                        message += `${prefix}Master Person Not Linked to Client Person, `;
+                        message += 'Master Person Not Linked to Client Person, ';
                     }
                     deleteProaPatient = true;
                 } else if (
                     !this.masterPersonToMasterPatientMap.has(masterPersonUuid) ||
                     this.masterPersonToMasterPatientMap.get(masterPersonUuid).length === 0
                 ) {
-                    message += `${prefix}Master Person Not Linked to Master Patient, `;
+                    message += 'Master Person Not Linked to Master Patient, ';
                     deleteProaPatient = true;
                 } else if (this.masterPersonToMasterPatientMap.get(masterPersonUuid).length > 1) {
-                    message += `${prefix}Master Person Linked to multiple Master Patients, `;
+                    message += 'Master Person Linked to multiple Master Patients, ';
                     deleteProaPatient = true;
                 } else {
-                    message += `${prefix}Valid Master Patient, `;
+                    message += 'Valid Master Patient, ';
                 }
             }
 
@@ -831,17 +830,17 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
 
             for (const clientPersonUuid of clientPersonUuids) {
                 if (!clientPersonUuid) {
-                    message += `${prefix}Master Person not Linked to Client Person, `;
+                    message += 'Master Person not Linked to Client Person, ';
                 } else if (
                     !this.clientPersonToClientPatientMap.has(clientPersonUuid) ||
                     this.clientPersonToClientPatientMap.get(clientPersonUuid).length === 0
                 ) {
-                    message += `${prefix}Client Person not Linked to Client Patient, `;
+                    message += 'Client Person not Linked to Client Patient, ';
                     deleteProaPatient = true;
                 } else if (this.clientPersonToClientPatientMap.get(clientPersonUuid).length > 1) {
-                    message += `${prefix}Client Person Linked to Multiple Client Patients, `;
+                    message += 'Client Person Linked to Multiple Client Patients, ';
                 } else {
-                    message += `${prefix}Valid Client Patient, `;
+                    message += 'Valid Client Patient, ';
                 }
             }
 
@@ -862,9 +861,9 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             if (masterPersonUuids.filter(u => !u).length > 0) {
                 proaPersonUuids.forEach(proaPersonUuid => {
                     if (this.proaPersonToMasterPersonMap.has(proaPersonUuid)) {
-                        message += `${prefix}Proa Person with Valid Master Person, `;
+                        message += 'Proa Person with Valid Master Person, ';
                     } else {
-                        message += `${prefix}Proa Person not linked to master person, `;
+                        message += 'Proa Person not linked to master person, ';
                     }
                 });
 
@@ -906,7 +905,6 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
             const proaPatientData = this.proaPatientDataMap.get(proaPatientUuid);
             if (this.proaPatientToProaPersonMap.has(proaPatientUuid)) {
                 const proaPersonUuids = this.proaPatientToProaPersonMap.get(proaPatientUuid);
-                const prefix = proaPersonUuids.length > 1 ? 'Proa Patient linked to multiple Proa Persons & ' : '';
                 const masterPersonUuids = [];
                 const clientPersonUuids = [];
                 let message = '';
@@ -944,12 +942,12 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                             this.proaPatientToClientPersonMap.get(proaPatientUuid).includes(uuid)
                         ) {
                             if (this.proaPatientToProaPersonMap.get(proaPatientUuid).includes(proaPersonUuid)) {
-                                message += `${prefix}Client Person & Proa Person Both Linked, `;
+                                message += 'Client Person & Proa Person Both Linked, ';
                             } else {
-                                message += `${prefix}Client Person Already Linked, `;
+                                message += 'Client Person Already Linked, ';
                             }
                         } else {
-                            message += `${prefix}Client Person Not Linked, `;
+                            message += 'Client Person Not Linked, ';
                         }
                     }
                 }
