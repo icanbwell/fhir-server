@@ -66,7 +66,7 @@ describe('Next link Tests', () => {
 
             let nextLink = resp.body.link.find(link => link.relation === 'next').url;
             nextLink = nextLink.replace('http://localhost:3000', '');
-            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&id%3Aabove=54fb81fc-9ca4-5f38-bcc6-e41e2af329ba');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&id%3Aabove=941f082a-39a9-5f55-9630-5839a010e1bc');
 
             // response should have person1 as the only resource and nextLink should be present
             resp = await request
@@ -83,7 +83,7 @@ describe('Next link Tests', () => {
             expect(resp.body.link.length).toEqual(2);
             nextLink = resp.body.link.find(link => link.relation === 'next').url;
             nextLink = nextLink.replace('http://localhost:3000', '');
-            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&id%3Aabove=bc832f5e-ad84-5432-88d6-7f76e74848c7');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&id%3Aabove=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15');
 
             // response should not have any resource and nextLink should not be present
             resp = await request
@@ -139,7 +139,7 @@ describe('Next link Tests', () => {
 
             let nextLink = resp.body.link.find(link => link.relation === 'next').url;
             nextLink = nextLink.replace('http://localhost:3000', '');
-            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&_elements=id&id%3Aabove=54fb81fc-9ca4-5f38-bcc6-e41e2af329ba');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&_elements=id&id%3Aabove=941f082a-39a9-5f55-9630-5839a010e1bc');
 
             // response should have person1 as the only resource and nextLink should be present
             resp = await request
@@ -155,7 +155,7 @@ describe('Next link Tests', () => {
             expect(resp.body.link.length).toEqual(2);
             nextLink = resp.body.link.find(link => link.relation === 'next').url;
             nextLink = nextLink.replace('http://localhost:3000', '');
-            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&_elements=id&id%3Aabove=bc832f5e-ad84-5432-88d6-7f76e74848c7');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&_elements=id&id%3Aabove=c87b8e53-b3db-53a0-aa92-05f4a3fb9d15');
 
             // response should not have any resource and nextLink should not be present
             resp = await request

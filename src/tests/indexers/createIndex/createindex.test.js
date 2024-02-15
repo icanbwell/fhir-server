@@ -180,22 +180,22 @@ describe('Create Index Tests', () => {
                 {
                     'v': 2,
                     'key': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'recorded': 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_medstar'
+                    'name': 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
                     'key': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_medstar'
+                    'name': 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
@@ -321,22 +321,22 @@ describe('Create Index Tests', () => {
                 {
                     'v': 2,
                     'key': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'recorded': 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_medstar'
+                    'name': 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
                     'key': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_medstar'
+                    'name': 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
@@ -449,22 +449,22 @@ describe('Create Index Tests', () => {
                 {
                     'v': 2,
                     'key': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'recorded': 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_medstar'
+                    'name': 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
                     'key': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_medstar'
+                    'name': 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(

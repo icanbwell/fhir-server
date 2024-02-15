@@ -119,7 +119,7 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(
                     getGraphQLHeaders(
-                        'user/Patient.read user/Patient.write user/Practitioner.read access/medstar.*'
+                        'user/Patient.read user/Patient.write user/Practitioner.read access/client.*'
                     )
                 )
                 .expect(200);
@@ -210,7 +210,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders('user/Patient.read user/Practitioner.read access/medstar.*'))
+                .set(getGraphQLHeaders('user/Patient.read user/Practitioner.read access/client.*'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction

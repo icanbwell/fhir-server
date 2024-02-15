@@ -35,7 +35,7 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(400);
-            practitioner1Resource.meta.source = 'medstar';
+            practitioner1Resource.meta.source = 'client';
             // ARRANGE
             // add the resources to FHIR server
             resp = await request
@@ -64,7 +64,7 @@ describe('Practitioner Tests', () => {
                 resp.body.entry[0].resource.qualification[1].issuer.extension.find(e => e.id === 'uuid')
                     .valueString
             ).toStrictEqual(
-                'Organization/' + generateUUIDv5('Stanford_Medical_School|medstar')
+                'Organization/' + generateUUIDv5('Stanford_Medical_School|client')
             );
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly

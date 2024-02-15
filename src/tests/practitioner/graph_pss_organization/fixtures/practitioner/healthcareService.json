@@ -1,18 +1,18 @@
 {
     "resourceType": "HealthcareService",
-    "id": "Medstar-Alias-MPF-MPCR",
+    "id": "Client-Alias-MPF-MPCR",
     "meta": {
         "versionId": "32",
         "lastUpdated": "2022-02-07T15:59:18.000Z",
-        "source": "http://medstarhealth.org/practice",
+        "source": "http://clienthealth.org/practice",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             }
         ]
     },
@@ -72,13 +72,13 @@
     "identifier": [
         {
             "use": "usual",
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "MPF-MPCR"
         }
     ],
     "active": false,
     "providedBy": {
-        "reference": "Organization/Medstar-Alias-MPF-MPCR"
+        "reference": "Organization/Client-Alias-MPF-MPCR"
     },
     "type": [
         {
@@ -104,7 +104,7 @@
     ],
     "location": [
         {
-            "reference": "Location/Medstar-Alias-MPF-MPCR"
+            "reference": "Location/Client-Alias-MPF-MPCR"
         }
     ]
 }

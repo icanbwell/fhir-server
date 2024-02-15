@@ -1,6 +1,6 @@
 {
-  "resourceType": "Person",
-  "id": "northwell-person",
+  "resourceType": "Patient",
+  "id": "patient-1",
   "meta": {
     "versionId": "1",
     "source": "https://www.icanbwell.com/enterprise-person-service",
@@ -11,23 +11,16 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "northwell"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "northwell"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "northwell"
+        "code": "client"
       }
     ]
-  },
-  "link": [
-    {
-      "target": {
-        "reference": "Patient/patient-1"
-      }
-    }
-  ]
+  }
 }

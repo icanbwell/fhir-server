@@ -6,15 +6,15 @@
     "meta": {
         "security": [
             {
-                "code": "medstar",
+                "code": "client",
                 "system": "https://www.icanbwell.com/access"
             },
             {
-                "code": "medstar",
+                "code": "client",
                 "system": "https://www.icanbwell.com/owner"
             }
         ],
-        "source": "http://medstarhealth.org/provider",
+        "source": "http://clienthealth.org/provider",
         "versionId": "1"
     },
     "name": [

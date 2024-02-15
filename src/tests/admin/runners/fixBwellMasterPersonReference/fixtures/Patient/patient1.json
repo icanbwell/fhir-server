@@ -2,11 +2,11 @@
     "resourceType": "Patient",
     "id": "1",
     "meta": {
-        "source": "https://medstar.com/1",
+        "source": "https://client.com/1",
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "thedacare"
+                "code": "client"
             }
         ]
     },

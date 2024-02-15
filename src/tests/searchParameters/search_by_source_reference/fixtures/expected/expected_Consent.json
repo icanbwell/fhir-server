@@ -29,19 +29,19 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "medstar",
+          "source": "client",
           "versionId": "1"
         },
         "patient": {
@@ -54,12 +54,12 @@
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/42b7a6b4-5d0f-52b1-9bf0-1aa448d8285a"
+              "valueString": "Patient/bd711f84-7319-5974-ae2d-dcae6d1389f1"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
           "reference": "Patient/000Dummy2"
@@ -91,7 +91,7 @@
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
           "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"

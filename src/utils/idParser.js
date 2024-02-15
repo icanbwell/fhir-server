@@ -1,7 +1,7 @@
 class IdParser {
     /**
      * Parses id string
-     * The id can be '123|medstar' or '123'
+     * The id can be '123|client' or '123'
      * @param {string} id
      * @return {{ id: string, sourceAssigningAuthority: string|undefined}}
      */

@@ -1,16 +1,16 @@
 {
   "resourceType": "Organization",
-  "id": "MedStar-Medical-Group",
+  "id": "Client-Medical-Group",
   "meta": {
     "source": "https://www.foo.com",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -26,5 +26,5 @@
       "text": "Healthcare Organization"
     }
   ],
-  "name": "MedStar Medical Group"
+  "name": "Client Medical Group"
 }

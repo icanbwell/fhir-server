@@ -1,5 +1,5 @@
 {
-    "id": "thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod",
+    "id": "client123-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod",
     "resourceType": "Observation",
     "code": {
         "text": "Actin (Smooth Muscle) Antibody"
@@ -12,15 +12,15 @@
             {
                 "id": "owner",
                 "system": "https://www.icanbwell.com/owner",
-                "code": "thedacare"
+                "code": "client123"
             },
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "thedacare"
+                "code": "client123"
             },
             {
                 "system": "https://www.icanbwell.com/connectionType",
-                "code": "thedacare"
+                "code": "client123"
             }
         ]
     },

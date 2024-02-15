@@ -57,17 +57,17 @@
       {
         "id": "uuid",
         "url": "https://www.icanbwell.com/uuid",
-        "valueString": "Practitioner/3ddcc290-875d-5536-8b48-a0a4860d8356"
+        "valueString": "Practitioner/13d297ad-f74e-531c-ae3f-541376143ffe"
       },
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "lnf"
+        "valueString": "client1"
       }
     ],
-    "reference": "Practitioner/abc|lnf",
-    "_sourceAssigningAuthority": "lnf",
-    "_uuid": "Practitioner/3ddcc290-875d-5536-8b48-a0a4860d8356",
+    "reference": "Practitioner/abc|client1",
+    "_sourceAssigningAuthority": "client1",
+    "_uuid": "Practitioner/13d297ad-f74e-531c-ae3f-541376143ffe",
     "_sourceId": "Practitioner/abc"
   },
   "specialty": [

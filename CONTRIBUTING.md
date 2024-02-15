@@ -236,11 +236,11 @@ You can specify "all" if you want to apply this to all.  See [src/admin/scripts/
 
 Now the FHIR server will automatically rewrite the query for https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth from:
 ```javascript
-db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
+db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
 ```
 to:
 ```javascript
-db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'_access.medstar':1}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
+db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'_access.client':1}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
 ```
 
 Since this will now use the _access field, it will be "covered" by our index so Mongo can return the ids completely from the index without needing to go to the actual data.

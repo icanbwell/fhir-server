@@ -343,7 +343,7 @@ describe('Patient Tests', () => {
             expect(patient4.meta.lastUpdated).not.toStrictEqual(expectedPatient4DatabaseAfterRun.meta.lastUpdated);
             expectedPatient4DatabaseAfterRun.meta.lastUpdated = patient4.meta.lastUpdated;
             expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
-            const expectedUuid = generateUUIDv5(`${expectedPatient4DatabaseAfterRun.id}|medstar`);
+            const expectedUuid = generateUUIDv5(`${expectedPatient4DatabaseAfterRun.id}|client`);
             expect(patient4._uuid).toStrictEqual(expectedUuid);
         });
         test('runPreSave works with patient 5 with all fields', async () => {
@@ -405,7 +405,7 @@ describe('Patient Tests', () => {
             expect(patient5).toStrictEqual(expectedPatient5DatabaseAfterRun);
             // no update should be done
             expect(patient5.meta.lastUpdated).toStrictEqual(expectedPatient5DatabaseAfterRun.meta.lastUpdated);
-            const expectedUuid = generateUUIDv5(`${expectedPatient5DatabaseAfterRun.id}|medstar`);
+            const expectedUuid = generateUUIDv5(`${expectedPatient5DatabaseAfterRun.id}|client`);
             expect(patient5._uuid).toStrictEqual(expectedUuid);
         });
         test('runPreSave is skipped for patient 6 newer than threshold', async () => {

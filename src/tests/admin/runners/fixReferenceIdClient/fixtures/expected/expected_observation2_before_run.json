@@ -3,36 +3,36 @@
         "text": "Actin (Smooth Muscle) Antibody"
     },
     "effectiveDateTime": "2015-01-01T17:48:00.000Z",
-    "id": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody-1",
+    "id": "client123-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod",
     "identifier": [
         {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody-1"
+            "value": "client123-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod"
         },
         {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "56448d75-d587-554f-9a52-a36e228f3398"
+            "value": "cb3ee8dc-3cae-51e0-b7af-56b460dfa80d"
         }
     ],
     "meta": {
         "security": [
             {
-                "code": "thedacare",
+                "code": "client123",
                 "id": "owner",
                 "system": "https://www.icanbwell.com/owner"
             },
             {
-                "code": "thedacare",
+                "code": "client123",
                 "system": "https://www.icanbwell.com/access"
             },
             {
-                "code": "thedacare",
+                "code": "client123",
                 "system": "https://www.icanbwell.com/connectionType"
             },
             {
-                "code": "thedacare",
+                "code": "client123",
                 "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
         ],
@@ -61,27 +61,5 @@
     "valueQuantity": {
         "unit": "Units",
         "value": 12
-    },
-    "hasMember": [
-        {
-            "extension": [
-                {
-                    "id": "sourceId",
-                    "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2"
-                },
-                {
-                    "id": "uuid",
-                    "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Observation/67456812-0565-5174-b766-36d3708ab906"
-                },
-                {
-                    "id": "sourceAssigningAuthority",
-                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "thedacare"
-                }
-            ],
-            "reference": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2"
-        }
-    ]
+    }
 }

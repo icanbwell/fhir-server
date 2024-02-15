@@ -1,30 +1,30 @@
 {
-  "_id": "Centene-3289",
+  "_id": "Client-3289",
   "resourceType": "ExplanationOfBenefit",
-  "id": "Centene-3289",
+  "id": "Client-3289",
   "meta": {
     "versionId": "1",
     "lastUpdated": "2023-01-19T21:57:39.000Z",
-    "source": "https://sandbox.api.centene.com/fhir/patientaccess",
+    "source": "https://sandbox.api.client.com/fhir/patientaccess",
     "profile": [
       "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit-Inpatient-Institutional"
     ],
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "centene"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "centene"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/vendor",
-        "code": "centene"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "centene"
+        "code": "client"
       }
     ]
   },
@@ -40,13 +40,13 @@
         ],
         "text": "Claim Number"
       },
-      "system": "https://sandbox.api.centene.com/fhir/patientaccess",
+      "system": "https://sandbox.api.client.com/fhir/patientaccess",
       "value": "3289"
     },
     {
       "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
-      "value": "Centene-3289"
+      "value": "Client-3289"
     },
     {
       "id": "uuid",
@@ -73,7 +73,7 @@
   },
   "use": "claim",
   "patient": {
-    "reference": "Patient/Centene-3286"
+    "reference": "Patient/Client-3286"
   },
   "billablePeriod": {
     "start": "2021-04-17T01:00:00.000Z",
@@ -764,9 +764,9 @@
     }
   ],
   "_access": {
-    "centene": 1
+    "client": 1
   },
-  "_sourceAssigningAuthority": "centene",
+  "_sourceAssigningAuthority": "client",
   "_uuid": "e1d85740-3060-509e-b9fd-006449e88271",
-  "_sourceId": "Centene-3289"
+  "_sourceId": "Client-3289"
 }

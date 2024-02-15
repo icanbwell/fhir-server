@@ -38,14 +38,14 @@ function getGraphHelper() {
 
 describe('graphHelper Tests', () => {
     const base_version = '4_0_0';
-    const uuid1 = generateUUIDv5('1|medstar');
-    const uuid2 = generateUUIDv5('2|medstar');
-    const uuid20 = generateUUIDv5('20|medstar');
-    const uuid10 = generateUUIDv5('10|medstar');
-    const uuid100 = generateUUIDv5('100|medstar');
-    const uuid200 = generateUUIDv5('200|medstar');
-    const uuid2000 = generateUUIDv5('2000|medstar');
-    const uuidAetna = generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar');
+    const uuid1 = generateUUIDv5('1|client');
+    const uuid2 = generateUUIDv5('2|client');
+    const uuid20 = generateUUIDv5('20|client');
+    const uuid10 = generateUUIDv5('10|client');
+    const uuid100 = generateUUIDv5('100|client');
+    const uuid200 = generateUUIDv5('200|client');
+    const uuid2000 = generateUUIDv5('2000|client');
+    const uuidAetna = generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|client');
 
     beforeEach(async () => {
         await commonBeforeEach();
@@ -221,7 +221,7 @@ describe('graphHelper Tests', () => {
             });
 
             const cursor = await collection.find({
-                'practitioner._uuid': 'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'
+                'practitioner._uuid': 'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'
             });
             const doc = await cursor.next();
             delete doc._id;
@@ -1080,7 +1080,7 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://medstarhealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP',
                             },
                             {
                                 url: 'availability_score',
@@ -1143,7 +1143,7 @@ describe('graphHelper Tests', () => {
                                     extension: [
                                         {
                                             url: 'for_system',
-                                            valueUri: 'http://medstarhealth.org/IDHP',
+                                            valueUri: 'http://clienthealth.org/IDHP',
                                         },
                                         {
                                             url: 'availability_score',
@@ -1246,7 +1246,7 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://medstarhealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP',
                             },
                             {
                                 url: 'availability_score',
@@ -1371,7 +1371,7 @@ describe('graphHelper Tests', () => {
                                     extension: [
                                         {
                                             url: 'for_system',
-                                            valueUri: 'http://medstarhealth.org/IDHP',
+                                            valueUri: 'http://clienthealth.org/IDHP',
                                         },
                                         {
                                             url: 'availability_score',
@@ -1502,7 +1502,7 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://medstarhealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP',
                             },
                             {
                                 url: 'availability_score',
@@ -1600,7 +1600,7 @@ describe('graphHelper Tests', () => {
                                             extension: [
                                                 {
                                                     url: 'for_system',
-                                                    valueUri: 'http://medstarhealth.org/IDHP',
+                                                    valueUri: 'http://clienthealth.org/IDHP',
                                                 },
                                                 {
                                                     url: 'availability_score',
@@ -1739,7 +1739,7 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://medstarhealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP',
                             },
                             {
                                 url: 'availability_score',
@@ -1851,7 +1851,7 @@ describe('graphHelper Tests', () => {
                                             extension: [
                                                 {
                                                     url: 'for_system',
-                                                    valueUri: 'http://medstarhealth.org/IDHP',
+                                                    valueUri: 'http://clienthealth.org/IDHP',
                                                 },
                                                 {
                                                     url: 'availability_score',
@@ -1935,7 +1935,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.PractitionerRole_4_0_0.find({\'practitioner._uuid\':{\'$in\':[\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\',\'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9\']}}, {}) | db.Organization_4_0_0.find({\'_uuid\':{\'$in\':[\'5a1d6b34-dbdc-5974-9816-53a13b80c839\',\'2cab0141-cb78-5ca1-8673-8c7bcdcf524d\']}}, {}) | db.InsurancePlan_4_0_0.find({\'_uuid\':\'24c117ef-4601-52ea-8812-ac66793956b5\'}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'practitioner._uuid':{'$in':['Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15','Practitioner/941f082a-39a9-5f55-9630-5839a010e1bc']}}, {}) | db.Organization_4_0_0.find({'_uuid':{'$in':['a10b7ea7-4439-5613-be67-ff64a5e45c1c','199445e8-35aa-576b-84ae-839040a283ab']}}, {}) | db.InsurancePlan_4_0_0.find({'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'}, {})",
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -2025,7 +2025,7 @@ describe('graphHelper Tests', () => {
                         extension: [
                             {
                                 url: 'for_system',
-                                valueUri: 'http://medstarhealth.org/IDHP',
+                                valueUri: 'http://clienthealth.org/IDHP',
                             },
                             {
                                 url: 'availability_score',
@@ -2130,7 +2130,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.PractitionerRole_4_0_0.find({\'practitioner._uuid\':\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\'}, {}) | db.Organization_4_0_0.find({\'_uuid\':\'5a1d6b34-dbdc-5974-9816-53a13b80c839\'}, {}) | db.InsurancePlan_4_0_0.find({\'_uuid\':\'24c117ef-4601-52ea-8812-ac66793956b5\'}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'practitioner._uuid':'Practitioner/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15'}, {}) | db.Organization_4_0_0.find({'_uuid':'a10b7ea7-4439-5613-be67-ff64a5e45c1c'}, {}) | db.InsurancePlan_4_0_0.find({'_uuid':'92eb2ca3-db97-51a4-b2f8-ae979d89952e'}, {})",
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
@@ -2177,7 +2177,7 @@ describe('graphHelper Tests', () => {
                                             'extension': [
                                                 {
                                                     'url': 'for_system',
-                                                    'valueUri': 'http://medstarhealth.org/IDHP'
+                                                    'valueUri': 'http://clienthealth.org/IDHP'
                                                 },
                                                 {
                                                     'url': 'availability_score',

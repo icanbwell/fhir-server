@@ -10,11 +10,11 @@
       "security": [
         {
           "system": "https://www.icanbwell.com/owner",
-          "code": "thedacare"
+          "code": "client"
         },
         {
           "system": "https://www.icanbwell.com/access",
-          "code": "thedacare"
+          "code": "client"
         },
         {
           "system": "https://www.icanbwell.com/access",
@@ -218,7 +218,7 @@
     ],
     "gender": "male",
     "_access": {
-      "thedacare": 1,
+      "client": 1,
       "healthpartners": 1,
       "nppes": 1
     },

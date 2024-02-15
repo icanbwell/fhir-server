@@ -244,24 +244,24 @@ describe('Synchronize Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'keys': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'recorded': 1
                     },
                     'options': {
-                        'name': 'helix_auditEvent_recorded_access_medstar'
+                        'name': 'helix_auditEvent_recorded_access_client'
                     }
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'keys': {
-                        '_access.medstar': 1,
+                        '_access.client': 1,
                         'id': 1,
                         'meta.lastUpdated': 1
                     },
                     'options': {
-                        'name': 'helix_auditEvent_security_access_medstar'
+                        'name': 'helix_auditEvent_security_access_client'
                     }
                 }
             );

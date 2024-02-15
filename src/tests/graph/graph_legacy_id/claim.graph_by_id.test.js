@@ -80,7 +80,7 @@ describe('Claim Graph By Id Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource_230916613369);
 
-            const uuid = generateUUIDv5('WPS-Claim-230916613369|medstar');
+            const uuid = generateUUIDv5('WPS-Claim-230916613369|client');
             resp = await request
                 .post(`/4_0_0/ExplanationOfBenefit/${uuid}/$graph?contained=true`)
                 .set(getHeaders())

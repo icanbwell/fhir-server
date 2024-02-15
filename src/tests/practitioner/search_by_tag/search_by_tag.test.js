@@ -57,7 +57,7 @@ describe('search_by_tag', () => {
             expect(resp).toHaveResourceCount(3);
 
             resp = await request
-                .get('/4_0_0/Practitioner?_tag=http://www.foo.com/bar|medstar')
+                .get('/4_0_0/Practitioner?_tag=http://www.foo.com/bar|client')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);

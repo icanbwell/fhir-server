@@ -3,16 +3,16 @@
   "id": "MAX-MALX",
   "meta": {
     "versionId": "1",
-    "source": "medstar",
+    "source": "client",
     "lastUpdated": "2021-01-21T03:54:38+00:00",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -22,13 +22,13 @@
       "type": {
         "coding": [
           {
-            "system": "MedstarHealth.org",
-            "code": "Medstar Provider-Scheduling ID",
-            "display": "Medstar Provider-Scheduling ID"
+            "system": "ClientHealth.org",
+            "code": "Client Provider-Scheduling ID",
+            "display": "Client Provider-Scheduling ID"
           }
         ]
       },
-      "system": "MedstarHealth.org",
+      "system": "ClientHealth.org",
       "value": "MAX-MALX"
     }
   ],
@@ -49,7 +49,7 @@
     {
       "coding": [
         {
-          "system": "MedstarHealth.org",
+          "system": "ClientHealth.org",
           "code": "Family Medicine",
           "display": "Family Medicine"
         }
@@ -59,7 +59,7 @@
     {
       "coding": [
         {
-          "system": "MedstarHealth.org",
+          "system": "ClientHealth.org",
           "code": "Family Medicine",
           "display": "Family Medicine"
         }

@@ -13,10 +13,10 @@ const {
 // fixtures
 const bwellPerson1 = require('./fixtures/person/bwellPerson1.json');
 const bwellPerson2 = require('./fixtures/person/bwellPerson2.json');
-const medstartPerson = require('./fixtures/person/person1.json');
-const walgreensPerson = require('./fixtures/person/person2.json');
-const medstartPatient = require('./fixtures/patient/patient1.json');
-const walgreensPatient = require('./fixtures/patient/patient2.json');
+const clientPerson = require('./fixtures/person/person1.json');
+const client1Person = require('./fixtures/person/person2.json');
+const clientPatient = require('./fixtures/patient/patient1.json');
+const client1Patient = require('./fixtures/patient/patient2.json');
 const consent1 = require('./fixtures/consent/consent1.json');
 const consent2 = require('./fixtures/consent/consent2.json');
 const consentWithActor = require('./fixtures/consent/consent_with_actor.json');
@@ -56,10 +56,10 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             .send([
                 bwellPerson1,
                 bwellPerson2,
-                walgreensPerson,
-                medstartPerson,
-                walgreensPatient,
-                medstartPatient,
+                client1Person,
+                clientPerson,
+                client1Patient,
+                clientPatient,
                 consent1,
                 consent2,
             ])
@@ -108,10 +108,10 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             .send([
                 bwellPerson1,
                 bwellPerson2,
-                walgreensPerson,
-                medstartPerson,
-                walgreensPatient,
-                medstartPatient,
+                client1Person,
+                clientPerson,
+                client1Patient,
+                clientPatient,
                 consentWithActor,
             ])
             .set(getHeaders())
@@ -159,10 +159,10 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             .send([
                 bwellPerson1,
                 bwellPerson2,
-                walgreensPerson,
-                medstartPerson,
-                walgreensPatient,
-                medstartPatient,
+                client1Person,
+                clientPerson,
+                client1Patient,
+                clientPatient,
                 consentWithActor,
                 consentWithProxyPerson,
             ])
@@ -212,10 +212,10 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             .send([
                 bwellPerson1,
                 bwellPerson2,
-                walgreensPerson,
-                medstartPerson,
-                walgreensPatient,
-                medstartPatient,
+                client1Person,
+                clientPerson,
+                client1Patient,
+                clientPatient,
                 consentWithClientPersonAsActor,
             ])
             .set(getHeaders())
@@ -263,10 +263,10 @@ describe('Add Proxy Person link to Consent Resources Test', () => {
             .send([
                 bwellPerson1,
                 bwellPerson2,
-                walgreensPerson,
-                medstartPerson,
-                walgreensPatient,
-                medstartPatient,
+                client1Person,
+                clientPerson,
+                client1Patient,
+                clientPatient,
                 consentWithActor,
                 consent2WithBwellPerson,
                 consentWithWrongClientPerson,

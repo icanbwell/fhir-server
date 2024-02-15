@@ -1,25 +1,25 @@
 {
     "resourceType": "Location",
-    "id": "Medstar-Alias-MPF-MPCR",
+    "id": "Client-Alias-MPF-MPCR",
     "meta": {
         "versionId": "47",
         "lastUpdated": "2022-02-07T12:12:27.000Z",
-        "source": "http://medstarhealth.org/provider_appointment_type",
+        "source": "http://clienthealth.org/provider_appointment_type",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             }
         ]
     },
     "extension": [
         {
-            "url": "http://medstarhealth.org/parking",
-            "valueString": "Free Parking Available! Free parking is available behind the building in our dedicated parking deck, located on Harvey Street.   To access the parking deck  From the North  toward the Inner Harbor  1. Turn left onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck From the South  toward I-95 South  1. Turn right onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck  Once you have parked in the parking deck, enter the building through the door marked  MedStar Health.  That door leads directly into MedStar Health Urgent Care at Federal Hill."
+            "url": "http://clienthealth.org/parking",
+            "valueString": "Free Parking Available! Free parking is available behind the building in our dedicated parking deck, located on Harvey Street.   To access the parking deck  From the North  toward the Inner Harbor  1. Turn left onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck From the South  toward I-95 South  1. Turn right onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck  Once you have parked in the parking deck, enter the building through the door marked  Client Health.  That door leads directly into Client Health Urgent Care at Federal Hill."
         }
     ],
     "identifier": [
@@ -27,13 +27,13 @@
             "type": {
                 "coding": [
                     {
-                        "system": "http://medstarhealth.org",
+                        "system": "http://clienthealth.org",
                         "code": "alias"
                     }
                 ],
                 "text": "Facility ID"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "MPF-MPCR"
         },
         {
@@ -46,7 +46,7 @@
                 ],
                 "text": "Facility Identifier"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "MPF"
         },
         {
@@ -59,7 +59,7 @@
                 ],
                 "text": "Organization Identifier"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "5098"
         },
         {
@@ -72,7 +72,7 @@
                 ],
                 "text": "Scheduling Department Name"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "PROMPTCARE"
         },
         {
@@ -85,7 +85,7 @@
                 ],
                 "text": "Scheduling Department Mnem"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "MPCR"
         },
         {
@@ -98,19 +98,19 @@
                 ],
                 "text": "Scheduling Department Number"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "6000"
         }
     ],
     "status": "active",
     "name": "PromptCare Federal Hill",
-    "description": "We're Proud To Offer These Services  - Illness care  flu, allergies, bronchitis, infections, pneumonia, strep throat, pink eye, sinus infection treatment, cold symptom treatment, UTI treatment  urinary tract infection , yeast infection treatment, and more  - Injury care  stitches, concussion evaluations, sprains, lacerations, broken bones, minor burn treatment and more  - Sports physicals - STD testing - Pre-surgery physicals - Flu shots  seasonal availability, check with insurance provider for coverage . If 65 years of age or older, please contact your primary care physician for the higher dose vaccine. - X-ray and basic on-site laboratory  strep, mono, influenza, urine testing, pregnancy  - On-site multispecialty care center - Learn more about MedStar Health at Federal Hill",
+    "description": "We're Proud To Offer These Services  - Illness care  flu, allergies, bronchitis, infections, pneumonia, strep throat, pink eye, sinus infection treatment, cold symptom treatment, UTI treatment  urinary tract infection , yeast infection treatment, and more  - Injury care  stitches, concussion evaluations, sprains, lacerations, broken bones, minor burn treatment and more  - Sports physicals - STD testing - Pre-surgery physicals - Flu shots  seasonal availability, check with insurance provider for coverage . If 65 years of age or older, please contact your primary care physician for the higher dose vaccine. - X-ray and basic on-site laboratory  strep, mono, influenza, urine testing, pregnancy  - On-site multispecialty care center - Learn more about Client Health at Federal Hill",
     "mode": "instance",
     "type": [
         {
             "coding": [
                 {
-                    "system": "http://medstarhealth.org",
+                    "system": "http://clienthealth.org",
                     "code": "Urgent Care",
                     "display": "Urgent Care"
                 }
@@ -153,7 +153,7 @@
         "latitude": 39.272858
     },
     "managingOrganization": {
-        "reference": "Organization/Medstar-Alias-MPF-MPCR"
+        "reference": "Organization/Client-Alias-MPF-MPCR"
     },
     "hoursOfOperation": [
         {

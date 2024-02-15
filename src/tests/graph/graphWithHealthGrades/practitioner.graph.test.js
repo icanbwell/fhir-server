@@ -5,11 +5,11 @@ const organizationResource = require('./fixtures/claim/organization.json');
 
 // graph
 const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
-const graphDefinitionMedstarResource = require('./fixtures/graph/my_graph_medstar.json');
+const graphDefinitionClientResource = require('./fixtures/graph/my_graph_client.json');
 
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
-const expectedMedstarResource = require('./fixtures/expected/expectedMedstar.json');
+const expectedClientResource = require('./fixtures/expected/expectedClient.json');
 
 const {
     commonBeforeEach,
@@ -37,7 +37,7 @@ class MockIndexProvider extends IndexProvider {
      * @return {boolean}
      */
     hasIndexForAccessCodes({accessCodes}) {
-        return accessCodes.every(a => a === 'medstar');
+        return accessCodes.every(a => a === 'client');
     }
 }
 
@@ -108,9 +108,9 @@ describe('Claim Graph Contained Tests', () => {
                     '/4_0_0/Practitioner/$graph?id=1376656959&contained=true&_debug=1'
                 )
                 .set(getHeaders())
-                .send(graphDefinitionMedstarResource);
+                .send(graphDefinitionClientResource);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMedstarResource);
+            expect(resp).toHaveResponse(expectedClientResource);
         });
     });
 });

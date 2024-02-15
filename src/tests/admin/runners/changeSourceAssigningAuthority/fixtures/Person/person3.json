@@ -6,18 +6,18 @@
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "rise"
+                "code": "client-1"
             },
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "rise"
+                "code": "client-1"
             }
         ]
     },
     "link": [
         {
             "target": {
-                "reference": "Person/2|rise",
+                "reference": "Person/2|client-1",
                 "display": "Eve Everywoman"
             },
             "assurance": "level3"

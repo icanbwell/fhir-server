@@ -3,7 +3,7 @@
   "id": "other-patient-condition",
   "meta": {
     "versionId": "1",
-    "source": "medstar",
+    "source": "client",
     "lastUpdated": "2021-09-24T02:33:06+00:00",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"

@@ -8,15 +8,15 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "unitypoint"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "unitypoint"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "unitypoint"
+        "code": "client"
       }
     ]
   },
@@ -90,12 +90,12 @@
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "unitypoint"
+            "valueString": "client"
           }
         ],
         "reference": "Patient/7f8156e042044fb9982d695b67fa38cc",
         "type": "Patient",
-        "_sourceAssigningAuthority": "unitypoint",
+        "_sourceAssigningAuthority": "client",
         "_uuid": "Patient/4478d592-2229-5142-b58d-d66cbc1f1d23",
         "_sourceId": "Patient/7f8156e042044fb9982d695b67fa38cc"
       },
@@ -103,9 +103,9 @@
     }
   ],
   "_access": {
-    "unitypoint": 1
+    "client": 1
   },
-  "_sourceAssigningAuthority": "unitypoint",
+  "_sourceAssigningAuthority": "client",
   "_uuid": "0eab7145-1afd-504f-996c-d92b18368ed8",
   "_sourceId": "af921f41390947fca1b5e3b478ae50a3"
 }

@@ -15,7 +15,7 @@
     }
   ],
   "meta": {
-    "source": "http://medstarhealth.org/patient",
+    "source": "http://clienthealth.org/patient",
     "versionId": "1"
   },
   "name": [

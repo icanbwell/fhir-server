@@ -84,7 +84,7 @@
           },
           "status": "in-progress",
           "location": {
-            "display": "MEDSTAR HARBOR HOSPITAL"
+            "display": "CLIENT HARBOR HOSPITAL"
           }
         },
         "outcomeReference": [
@@ -108,7 +108,7 @@
           },
           "status": "in-progress",
           "location": {
-            "display": "MEDSTAR HARBOR HOSPITAL"
+            "display": "CLIENT HARBOR HOSPITAL"
           }
         }
       }
@@ -197,7 +197,7 @@
           },
           "status": "completed",
           "location": {
-            "display": "MEDSTAR HARBOR HOSPITAL"
+            "display": "CLIENT HARBOR HOSPITAL"
           }
         },
         "outcomeReference": [
@@ -221,7 +221,7 @@
           },
           "status": "completed",
           "location": {
-            "display": "MEDSTAR HARBOR HOSPITAL"
+            "display": "CLIENT HARBOR HOSPITAL"
           }
         }
       }
@@ -309,7 +309,7 @@
           },
           "status": "completed",
           "location": {
-            "display": "MEDSTAR HARBOR HOSPITAL"
+            "display": "CLIENT HARBOR HOSPITAL"
           }
         },
         "outcomeReference": [
@@ -333,7 +333,7 @@
           },
           "status": "completed",
           "location": {
-            "display": "MEDSTAR HARBOR HOSPITAL"
+            "display": "CLIENT HARBOR HOSPITAL"
           }
         }
       }

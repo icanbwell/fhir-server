@@ -1,18 +1,18 @@
 {
     "resourceType": "Schedule",
-    "id": "Medstar-Alias-MPF-MPCR",
+    "id": "Client-Alias-MPF-MPCR",
     "meta": {
         "versionId": "3061",
         "lastUpdated": "2022-02-07T18:26:58.000Z",
-        "source": "http://medstarhealth.org/practice",
+        "source": "http://clienthealth.org/practice",
         "security": [
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
             {
                 "system": "https://www.icanbwell.com/access",
@@ -31,7 +31,7 @@
                 {
                     "id": "forsystem",
                     "url": "forSystem",
-                    "valueUri": "http://medstarhealth.org/IDHP"
+                    "valueUri": "http://clienthealth.org/IDHP"
                 },
                 {
                     "id": "searchable",
@@ -79,7 +79,7 @@
                 ],
                 "text": "Solv queue id for Federal Hill - Medical Assistant Only Visit: A477w0"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "A477w0"
         },
         {
@@ -93,7 +93,7 @@
                 ],
                 "text": "Solv queue id for Federal Hill - Physical: ABb1JA"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "ABb1JA"
         },
         {
@@ -107,7 +107,7 @@
                 ],
                 "text": "Solv queue id for Federal Hill - Urgent Care: 0e11Y0"
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "0e11Y0"
         }
     ],
@@ -116,42 +116,42 @@
         {
             "coding": [
                 {
-                    "system": "http://medstarhealth.org/appointment_types",
+                    "system": "http://clienthealth.org/appointment_types",
                     "display": "Federal Hill - Medical Assistant Only Visit"
                 }
             ],
-            "text": "Medstar Appointment Type: Federal Hill - Medical Assistant Only Visit"
+            "text": "Client Appointment Type: Federal Hill - Medical Assistant Only Visit"
         },
         {
             "coding": [
                 {
-                    "system": "http://medstarhealth.org/appointment_types",
+                    "system": "http://clienthealth.org/appointment_types",
                     "display": "Federal Hill - Physical"
                 }
             ],
-            "text": "Medstar Appointment Type: Federal Hill - Physical"
+            "text": "Client Appointment Type: Federal Hill - Physical"
         },
         {
             "coding": [
                 {
-                    "system": "http://medstarhealth.org/appointment_types",
+                    "system": "http://clienthealth.org/appointment_types",
                     "display": "Federal Hill - Urgent Care"
                 }
             ],
-            "text": "Medstar Appointment Type: Federal Hill - Urgent Care"
+            "text": "Client Appointment Type: Federal Hill - Urgent Care"
         },
         {
             "coding": [
                 {
-                    "system": "http://medstarhealth.org/protocol"
+                    "system": "http://clienthealth.org/protocol"
                 }
             ],
-            "text": "Medstar Protocol Departments"
+            "text": "Client Protocol Departments"
         }
     ],
     "actor": [
         {
-            "reference": "HealthcareService/Medstar-Alias-MPF-MPCR"
+            "reference": "HealthcareService/Client-Alias-MPF-MPCR"
         }
     ]
 }

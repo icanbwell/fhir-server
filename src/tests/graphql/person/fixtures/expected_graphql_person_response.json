@@ -18,7 +18,7 @@
     "id": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324",
     "identifier": [
       {
-        "system": "http://www.walgreens.com/profileid",
+        "system": "http://www.client.com/profileid",
         "type": {
           "coding": [
             {
@@ -127,7 +127,7 @@
     "id": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b",
     "identifier": [
       {
-        "system": "http://www.walgreens.com/profileid",
+        "system": "http://www.client.com/profileid",
         "type": {
           "coding": [
             {
@@ -167,17 +167,17 @@
       "profile": null,
       "security": [
         {
-          "code": "walgreens",
+          "code": "client",
           "id": null,
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "walgreens",
+          "code": "client",
           "id": null,
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "walgreens",
+          "code": "client",
           "id": null,
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }

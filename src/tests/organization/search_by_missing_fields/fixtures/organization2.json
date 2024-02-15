@@ -4,15 +4,15 @@
   "meta": {
     "versionId": "1",
     "lastUpdated": "2021-07-19T23:46:02+00:00",
-    "source": "http://medstarhealth.org/provider",
+    "source": "http://clienthealth.org/provider",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },

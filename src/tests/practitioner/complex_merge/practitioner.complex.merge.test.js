@@ -158,7 +158,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
+                .post('/4_0_0/Organization/ClientMedicalGroup/$merge')
                 .send(practiceParentOrganizationResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -184,6 +184,7 @@ describe('Practitioner Complex Merge Tests', () => {
             expect(resp).toHaveResponse(expectedLocationResource);
 
             resp = await request.get('/4_0_0/Organization').set(getHeaders());
+            console.log('------------', JSON.stringify(resp.body));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedOrganizationResource);
 

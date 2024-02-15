@@ -1,7 +1,7 @@
 {
   "entry": [
     {
-      "id": "Medstar-Alias-MPF-MPCR",
+      "id": "Client-Alias-MPF-MPCR",
       "resource": {
         "active": true,
         "address": [
@@ -15,8 +15,8 @@
           }
         ],
         "alias": [
-          "MedStar Urgent Care at Federal Hill",
-          "MedStar Urgent Care in Federal Hill"
+          "Client Urgent Care at Federal Hill",
+          "Client Urgent Care in Federal Hill"
         ],
         "contact": [
           {
@@ -24,7 +24,7 @@
               "coding": [
                 {
                   "code": "Central Scheduling",
-                  "system": "http://medstarhealth.org"
+                  "system": "http://clienthealth.org"
                 }
               ]
             }
@@ -86,22 +86,22 @@
                 "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/newpatients"
               }
             ],
-            "id": "Medstar-Alias-MPF-MPCR",
+            "id": "Client-Alias-MPF-MPCR",
             "identifier": [
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "use": "usual",
                 "value": "MPF-MPCR"
               },
               {
                 "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
-                "value": "Medstar-Alias-MPF-MPCR"
+                "value": "Client-Alias-MPF-MPCR"
               },
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                "value": "f7759031-76b3-52bb-9ac7-9e883c2d5512"
               }
             ],
             "location": [
@@ -110,38 +110,38 @@
                   {
                     "id": "sourceId",
                     "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Location/Medstar-Alias-MPF-MPCR"
+                    "valueString": "Location/Client-Alias-MPF-MPCR"
                   },
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Location/12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                    "valueString": "Location/f7759031-76b3-52bb-9ac7-9e883c2d5512"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "client"
                   }
                 ],
-                "reference": "Location/#Medstar-Alias-MPF-MPCR"
+                "reference": "Location/#Client-Alias-MPF-MPCR"
               }
             ],
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
-              "source": "http://medstarhealth.org/practice",
+              "source": "http://clienthealth.org/practice",
               "versionId": "1"
             },
             "providedBy": {
@@ -149,20 +149,20 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Organization/Medstar-Alias-MPF-MPCR"
+                  "valueString": "Organization/Client-Alias-MPF-MPCR"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Organization/12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                  "valueString": "Organization/f7759031-76b3-52bb-9ac7-9e883c2d5512"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
-              "reference": "Organization/#Medstar-Alias-MPF-MPCR"
+              "reference": "Organization/#Client-Alias-MPF-MPCR"
             },
             "resourceType": "HealthcareService",
             "specialty": [
@@ -197,11 +197,11 @@
               "postalCode": "21230-5546",
               "state": "MD"
             },
-            "description": "We're Proud To Offer These Services  - Illness care  flu, allergies, bronchitis, infections, pneumonia, strep throat, pink eye, sinus infection treatment, cold symptom treatment, UTI treatment  urinary tract infection , yeast infection treatment, and more  - Injury care  stitches, concussion evaluations, sprains, lacerations, broken bones, minor burn treatment and more  - Sports physicals - STD testing - Pre-surgery physicals - Flu shots  seasonal availability, check with insurance provider for coverage . If 65 years of age or older, please contact your primary care physician for the higher dose vaccine. - X-ray and basic on-site laboratory  strep, mono, influenza, urine testing, pregnancy  - On-site multispecialty care center - Learn more about MedStar Health at Federal Hill",
+            "description": "We're Proud To Offer These Services  - Illness care  flu, allergies, bronchitis, infections, pneumonia, strep throat, pink eye, sinus infection treatment, cold symptom treatment, UTI treatment  urinary tract infection , yeast infection treatment, and more  - Injury care  stitches, concussion evaluations, sprains, lacerations, broken bones, minor burn treatment and more  - Sports physicals - STD testing - Pre-surgery physicals - Flu shots  seasonal availability, check with insurance provider for coverage . If 65 years of age or older, please contact your primary care physician for the higher dose vaccine. - X-ray and basic on-site laboratory  strep, mono, influenza, urine testing, pregnancy  - On-site multispecialty care center - Learn more about Client Health at Federal Hill",
             "extension": [
               {
-                "url": "http://medstarhealth.org/parking",
-                "valueString": "Free Parking Available! Free parking is available behind the building in our dedicated parking deck, located on Harvey Street.   To access the parking deck  From the North  toward the Inner Harbor  1. Turn left onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck From the South  toward I-95 South  1. Turn right onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck  Once you have parked in the parking deck, enter the building through the door marked  MedStar Health.  That door leads directly into MedStar Health Urgent Care at Federal Hill."
+                "url": "http://clienthealth.org/parking",
+                "valueString": "Free Parking Available! Free parking is available behind the building in our dedicated parking deck, located on Harvey Street.   To access the parking deck  From the North  toward the Inner Harbor  1. Turn left onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck From the South  toward I-95 South  1. Turn right onto Boyle Street 2. Turn left onto Harvey Street 3. Turn left to enter the parking deck  Once you have parked in the parking deck, enter the building through the door marked  Client Health.  That door leads directly into Client Health Urgent Care at Federal Hill."
               }
             ],
             "hoursOfOperation": [
@@ -262,15 +262,15 @@
                 "openingTime": "08:00:00"
               }
             ],
-            "id": "Medstar-Alias-MPF-MPCR",
+            "id": "Client-Alias-MPF-MPCR",
             "identifier": [
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
                       "code": "alias",
-                      "system": "http://medstarhealth.org"
+                      "system": "http://clienthealth.org"
                     }
                   ],
                   "text": "Facility ID"
@@ -278,7 +278,7 @@
                 "value": "MPF-MPCR"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -291,7 +291,7 @@
                 "value": "MPF"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -304,7 +304,7 @@
                 "value": "5098"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -317,7 +317,7 @@
                 "value": "PROMPTCARE"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -330,7 +330,7 @@
                 "value": "MPCR"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -345,12 +345,12 @@
               {
                 "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
-                "value": "Medstar-Alias-MPF-MPCR"
+                "value": "Client-Alias-MPF-MPCR"
               },
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                "value": "f7759031-76b3-52bb-9ac7-9e883c2d5512"
               }
             ],
             "managingOrganization": {
@@ -358,37 +358,37 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Organization/Medstar-Alias-MPF-MPCR"
+                  "valueString": "Organization/Client-Alias-MPF-MPCR"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "Organization/12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                  "valueString": "Organization/f7759031-76b3-52bb-9ac7-9e883c2d5512"
                 },
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
-              "reference": "Organization/#Medstar-Alias-MPF-MPCR"
+              "reference": "Organization/#Client-Alias-MPF-MPCR"
             },
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
-              "source": "http://medstarhealth.org/provider_appointment_type",
+              "source": "http://clienthealth.org/provider_appointment_type",
               "versionId": "1"
             },
             "mode": "instance",
@@ -429,7 +429,7 @@
                   {
                     "code": "Urgent Care",
                     "display": "Urgent Care",
-                    "system": "http://medstarhealth.org"
+                    "system": "http://clienthealth.org"
                   }
                 ],
                 "text": "practice speciality"
@@ -444,20 +444,20 @@
                   {
                     "id": "sourceId",
                     "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "HealthcareService/Medstar-Alias-MPF-MPCR"
+                    "valueString": "HealthcareService/Client-Alias-MPF-MPCR"
                   },
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                    "valueString": "HealthcareService/f7759031-76b3-52bb-9ac7-9e883c2d5512"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "client"
                   }
                 ],
-                "reference": "HealthcareService/#Medstar-Alias-MPF-MPCR"
+                "reference": "HealthcareService/#Client-Alias-MPF-MPCR"
               }
             ],
             "extension": [
@@ -466,7 +466,7 @@
                   {
                     "id": "forsystem",
                     "url": "forSystem",
-                    "valueUri": "http://medstarhealth.org/IDHP"
+                    "valueUri": "http://clienthealth.org/IDHP"
                   },
                   {
                     "id": "searchable",
@@ -503,10 +503,10 @@
                 "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
               }
             ],
-            "id": "Medstar-Alias-MPF-MPCR",
+            "id": "Client-Alias-MPF-MPCR",
             "identifier": [
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -520,7 +520,7 @@
                 "value": "A477w0"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -534,7 +534,7 @@
                 "value": "ABb1JA"
               },
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "type": {
                   "coding": [
                     {
@@ -550,22 +550,22 @@
               {
                 "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
-                "value": "Medstar-Alias-MPF-MPCR"
+                "value": "Client-Alias-MPF-MPCR"
               },
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                "value": "f7759031-76b3-52bb-9ac7-9e883c2d5512"
               }
             ],
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
@@ -577,11 +577,11 @@
                   "system": "https://www.icanbwell.com/vendor"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
-              "source": "http://medstarhealth.org/practice",
+              "source": "http://clienthealth.org/practice",
               "versionId": "1"
             },
             "resourceType": "Schedule",
@@ -590,36 +590,36 @@
                 "coding": [
                   {
                     "display": "Federal Hill - Medical Assistant Only Visit",
-                    "system": "http://medstarhealth.org/appointment_types"
+                    "system": "http://clienthealth.org/appointment_types"
                   }
                 ],
-                "text": "Medstar Appointment Type: Federal Hill - Medical Assistant Only Visit"
+                "text": "Client Appointment Type: Federal Hill - Medical Assistant Only Visit"
               },
               {
                 "coding": [
                   {
                     "display": "Federal Hill - Physical",
-                    "system": "http://medstarhealth.org/appointment_types"
+                    "system": "http://clienthealth.org/appointment_types"
                   }
                 ],
-                "text": "Medstar Appointment Type: Federal Hill - Physical"
+                "text": "Client Appointment Type: Federal Hill - Physical"
               },
               {
                 "coding": [
                   {
                     "display": "Federal Hill - Urgent Care",
-                    "system": "http://medstarhealth.org/appointment_types"
+                    "system": "http://clienthealth.org/appointment_types"
                   }
                 ],
-                "text": "Medstar Appointment Type: Federal Hill - Urgent Care"
+                "text": "Client Appointment Type: Federal Hill - Urgent Care"
               },
               {
                 "coding": [
                   {
-                    "system": "http://medstarhealth.org/protocol"
+                    "system": "http://clienthealth.org/protocol"
                   }
                 ],
-                "text": "Medstar Protocol Departments"
+                "text": "Client Protocol Departments"
               }
             ]
           }
@@ -639,63 +639,63 @@
             "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/position"
           }
         ],
-        "id": "Medstar-Alias-MPF-MPCR",
+        "id": "Client-Alias-MPF-MPCR",
         "identifier": [
           {
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "use": "usual",
             "value": "MPF-MPCR"
           },
           {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "Medstar-Alias-MPF-MPCR"
+            "value": "Client-Alias-MPF-MPCR"
           },
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+            "value": "f7759031-76b3-52bb-9ac7-9e883c2d5512"
           }
         ],
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "http://medstarhealth.org/practice",
+          "source": "http://clienthealth.org/practice",
           "versionId": "1"
         },
-        "name": "MedStar Health Urgent Care in Federal Hill",
+        "name": "Client Health Urgent Care in Federal Hill",
         "partOf": {
-          "display": "MedStar Health Urgent Care at Federal Hill",
+          "display": "Client Health Urgent Care at Federal Hill",
           "extension": [
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Organization/Medstar--1169180118"
+              "valueString": "Organization/Client--1169180118"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Organization/69b986d5-7529-5aa3-aa11-5c9a4c5f14b1"
+              "valueString": "Organization/b2145b10-c47b-5723-ba83-c54323a83cbd"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
-          "reference": "Organization/Medstar--1169180118"
+          "reference": "Organization/Client--1169180118"
         },
         "resourceType": "Organization",
         "telecom": [

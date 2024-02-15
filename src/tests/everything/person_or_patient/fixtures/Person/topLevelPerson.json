@@ -19,7 +19,7 @@
   },
   "identifier": [
     {
-      "system": "http://www.walgreens.com/profileid",
+      "system": "http://www.client.com/profileid",
       "value": "1000000-a-02"
     }
   ],
@@ -68,7 +68,7 @@
     {
       "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
       "target": {
-        "reference": "Person/person1|medstar"
+        "reference": "Person/person1|client"
       },
       "assurance": "level4"
     }

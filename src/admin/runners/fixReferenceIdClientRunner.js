@@ -9,15 +9,16 @@ const { RethrownError } = require('../../utils/rethrownError');
 /**
  * @classdesc Finds humanApi resources whose id needs to be changed and changes the id along with its references
  */
-class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
+class FixReferenceIdClientRunner extends FixReferenceIdRunner {
     /**
      * @param {number} s3QueryBatchSize
      * @param {string} AWS_BUCKET
      * @param {string} AWS_FOLDER
      * @param {string} AWS_REGION
+     * @param {string} client
      * @param {Object} args
      */
-    constructor({ s3QueryBatchSize, AWS_BUCKET, AWS_FOLDER, AWS_REGION, ...args }) {
+    constructor({ s3QueryBatchSize, AWS_BUCKET, AWS_FOLDER, AWS_REGION, client, ...args }) {
         super(args);
 
         /**
@@ -39,6 +40,11 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
          * @type {string}
          */
         this.AWS_REGION = AWS_REGION;
+
+        /**
+         * @type {string}
+         */
+        this.client = client;
 
         // to map current id to new id as we have no way to get the id without data from s3 bucket
         /**
@@ -252,7 +258,7 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
                 {
                     message: 'Error caching references',
                     error: err,
-                    source: 'FixReferenceIdThedacareRunner.preloadReferencesAsync'
+                    source: 'FixReferenceIdClientRunner.preloadReferencesAsync'
                 }
             );
         }
@@ -274,8 +280,8 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
          */
         const expectedOriginalId = doc.id;
 
-        // we are sure the sourceAssigningAuthority here will be thedacare
-        const sourceAssigningAuthority = 'thedacare';
+        // we are sure the sourceAssigningAuthority here will be client
+        const sourceAssigningAuthority = this.client;
         // current id present in the resource
         /**
          * @type {[string]}
@@ -325,7 +331,7 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
          */
         const filterQuery = [
             { [`${queryPrefix}_sourceId`]: { $type: 2, $regex: /^.{63,}$/ } },
-            { [`${queryPrefix}_sourceAssigningAuthority`]: { $regex: '^thedacare$', $options: 'i' } }
+            { [`${queryPrefix}_sourceAssigningAuthority`]: { $regex: `^${this.client}$`, $options: 'i' } }
         ];
 
         // merge query and filterQuery
@@ -383,11 +389,11 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
      */
     getCurrentIds({ originalId }) {
         // we only need to check for originalId sliced to 63 characters as
-        // sourceAssigningAuthority is not present in thedacare ids
+        // sourceAssigningAuthority is not present in client ids
         return [originalId.slice(0, 63)];
     }
 }
 
 module.exports = {
-    FixReferenceIdThedacareRunner
+    FixReferenceIdClientRunner
 };

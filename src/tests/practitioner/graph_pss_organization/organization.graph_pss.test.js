@@ -64,7 +64,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
-                .post('/4_0_0/Organization/$graph?contained=true&id=Medstar-Alias-MPF-MPCR')
+                .post('/4_0_0/Organization/$graph?contained=true&id=Client-Alias-MPF-MPCR')
                 .send(graphDefinitionResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -72,7 +72,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
 
             resp = await request
                 .post(
-                    '/4_0_0/Organization/$graph?contained=true&id=Medstar-Alias-MPF-MPCR&_hash_references=true'
+                    '/4_0_0/Organization/$graph?contained=true&id=Client-Alias-MPF-MPCR&_hash_references=true'
                 )
                 .send(graphDefinitionResource)
                 .set(getHeaders());

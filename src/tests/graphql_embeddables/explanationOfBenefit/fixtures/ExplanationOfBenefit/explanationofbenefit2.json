@@ -28,7 +28,7 @@
         ],
         "text": "Claim Number"
       },
-      "system": "https://altruahealthshare.org",
+      "system": "https://clienthealthshare.org",
       "value": "111111-1"
     },
     {
@@ -320,7 +320,7 @@
     {
       "focal": true,
       "coverage": {
-        "reference": "Coverage/Altrua-10005760-1"
+        "reference": "Coverage/Client-10005760-1"
       }
     }
   ],

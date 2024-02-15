@@ -36,7 +36,7 @@ class MockIndexProvider extends IndexProvider {
      * @return {boolean}
      */
     hasIndexForAccessCodes({accessCodes}) {
-        return accessCodes.every(a => a === 'medstar');
+        return accessCodes.every(a => a === 'client1');
     }
 }
 
@@ -119,15 +119,15 @@ describe('AuditEvent when all is set Tests', () => {
             const allAuditEntries = await internalAuditEventCollection.find({}).toArray();
             expect(allAuditEntries.length).toBe(2);
 
-            const medstarAuditEntries = await internalAuditEventCollection.find({id: 'MixP-0001r5i3yr8g2cuj'}).toArray();
-            expect(medstarAuditEntries.length).toBe(1);
-            expect(medstarAuditEntries[0]._access.medstar).toBe(1);
+            const client1AuditEntries = await internalAuditEventCollection.find({id: 'MixP-0001r5i3yr8g2cuj'}).toArray();
+            expect(client1AuditEntries.length).toBe(1);
+            expect(client1AuditEntries[0]._access.client1).toBe(1);
 
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?date=lt2021-09-22&date=ge2021-09-19&_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar')
+                .get('/4_0_0/AuditEvent/?date=lt2021-09-22&date=ge2021-09-19&_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
@@ -186,11 +186,11 @@ describe('AuditEvent when all is set Tests', () => {
              * @type {import('mongodb').DefaultSchema[]}
              */
             const patientEntries = await patientCollection.find({}).toArray();
-            expect(patientEntries[0]._access.medstar).toBe(1);
+            expect(patientEntries[0]._access.client1).toBe(1);
 
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/Patient/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar')
+                .get('/4_0_0/Patient/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResourcesAccessIndex);

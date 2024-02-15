@@ -16,7 +16,7 @@
           }
         ],
         "alias": [
-          "MedStar Medical Group Derm at Honeygo"
+          "Client Medical Group Derm at Honeygo"
         ],
         "contact": [
           {
@@ -24,7 +24,7 @@
               "coding": [
                 {
                   "code": "Central Scheduling",
-                  "system": "MedstarHealth.org"
+                  "system": "ClientHealth.org"
                 }
               ]
             },
@@ -65,7 +65,7 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
@@ -80,9 +80,9 @@
           "source": "https://www.foo.com",
           "versionId": "1"
         },
-        "name": "MedStar Medical Group Dermatology at Honeygo",
+        "name": "Client Medical Group Dermatology at Honeygo",
         "partOf": {
-          "display": "MedStar Medical Group",
+          "display": "Client Medical Group",
           "type": "Organization"
         },
         "resourceType": "Organization",
