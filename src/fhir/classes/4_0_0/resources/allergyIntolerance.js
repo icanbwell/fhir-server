@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AllergyIntolerance
     Risk of harmful or undesirable, physiological response which is unique to an
@@ -679,7 +678,6 @@ class AllergyIntolerance extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -732,7 +730,6 @@ class AllergyIntolerance extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -906,7 +903,6 @@ class AllergyIntolerance extends Resource {
         return new AllergyIntolerance(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1010,7 +1006,6 @@ class AllergyIntolerance extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             reaction: this.reaction && this.reaction.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

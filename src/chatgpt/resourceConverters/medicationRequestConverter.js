@@ -1,6 +1,5 @@
 const {BaseConverter} = require('./baseConverter');
 
-
 class MedicationRequestConverter extends BaseConverter {
     convert ({resource}) {
         const {

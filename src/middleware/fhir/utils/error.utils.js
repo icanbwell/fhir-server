@@ -10,7 +10,6 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const Narrative = require('../../../fhir/classes/4_0_0/complex_types/narrative'); // Helper to determine which operation outcome to retrieve
 
-
 const getErrorConstructor = baseVersion => {
     if (!baseVersion || !Object.prototype.hasOwnProperty.call(VERSIONS, baseVersion)) {
         return resolveSchema(VERSIONS['3_0_1'], 'OperationOutcome');
@@ -19,7 +18,6 @@ const getErrorConstructor = baseVersion => {
     }
 };
 /* eslint-disable no-useless-escape */
-
 
 const div_content = (severity, diagnostics) => '<div xmlns="http://www.w3.org/1999/xhtml"><h1>Operation Outcome</h1><table border="0">' + `<table border=\"0\"><tr><td style=\"font-weight: bold;\">${severity}</td>` + `<td><pre>${diagnostics}</pre></td></tr></table></div>`;
 /* eslint-enable no-useless-escape */
@@ -39,7 +37,6 @@ const invalidParameter = (message, base_version) => {
         })]
     });
 }; // Unauthorized request of some resource
-
 
 const unauthorized = (message, base_version) => {
     const ErrorConstructor = getErrorConstructor(base_version);
@@ -196,7 +193,6 @@ const isServerError = (err, base_version) => err instanceof getErrorConstructor(
  * @static
  * @summary Error Configurations
  */
-
 
 module.exports = {
     invalidParameter,

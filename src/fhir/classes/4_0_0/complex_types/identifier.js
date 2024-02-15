@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Identifier
     An identifier - identifies some entity uniquely and unambiguously. Typically
@@ -200,9 +199,6 @@ class Identifier extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -216,8 +212,6 @@ class Identifier extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -266,8 +260,6 @@ class Identifier extends Element {
             period: this.period && this.period.toJSONInternal(),
             assigner: this.assigner && this.assigner.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

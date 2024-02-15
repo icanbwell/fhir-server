@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Encounter.Location
     An interaction between a patient and healthcare provider(s) for the purpose of
@@ -192,9 +191,6 @@ class EncounterLocation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -207,8 +203,6 @@ class EncounterLocation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -256,8 +250,6 @@ class EncounterLocation extends Element {
             physicalType: this.physicalType && this.physicalType.toJSONInternal(),
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

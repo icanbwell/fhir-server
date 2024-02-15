@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AdverseEvent.SuspectEntity
     Actual or  potential/avoided event causing unintended physical injury
@@ -151,9 +150,6 @@ class AdverseEventSuspectEntity extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -164,8 +160,6 @@ class AdverseEventSuspectEntity extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -208,8 +202,6 @@ class AdverseEventSuspectEntity extends Element {
             instance: this.instance && this.instance.toJSONInternal(),
             causality: this.causality && this.causality.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

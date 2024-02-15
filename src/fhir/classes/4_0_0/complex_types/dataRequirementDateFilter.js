@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DataRequirement.DateFilter
     Describes a required data item for evaluation in terms of the type of data,
@@ -184,9 +183,6 @@ class DataRequirementDateFilter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -199,8 +195,6 @@ class DataRequirementDateFilter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -246,8 +240,6 @@ class DataRequirementDateFilter extends Element {
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
             valueDuration: this.valueDuration && this.valueDuration.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

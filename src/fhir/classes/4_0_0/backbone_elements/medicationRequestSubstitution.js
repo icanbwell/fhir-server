@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationRequest.Substitution
     An order or request for both supply of the medication and the instructions for
@@ -171,9 +170,6 @@ class MedicationRequestSubstitution extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -185,8 +181,6 @@ class MedicationRequestSubstitution extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class MedicationRequestSubstitution extends Element {
             allowedCodeableConcept: this.allowedCodeableConcept && this.allowedCodeableConcept.toJSONInternal(),
             reason: this.reason && this.reason.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

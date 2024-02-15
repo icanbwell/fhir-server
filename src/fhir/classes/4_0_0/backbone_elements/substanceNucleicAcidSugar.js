@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceNucleicAcid.Sugar
     Nucleic acids are defined by three distinct elements: the base, sugar and
@@ -170,9 +169,6 @@ class SubstanceNucleicAcidSugar extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -184,8 +180,6 @@ class SubstanceNucleicAcidSugar extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -229,8 +223,6 @@ class SubstanceNucleicAcidSugar extends Element {
             name: this.name,
             residueSite: this.residueSite
         };
-
-
 
         return removeNull(json);
     }

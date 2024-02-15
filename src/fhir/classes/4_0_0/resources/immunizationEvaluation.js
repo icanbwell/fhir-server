@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImmunizationEvaluation
     Describes a comparison of an immunization event against published
@@ -549,7 +548,6 @@ class ImmunizationEvaluation extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -602,7 +600,6 @@ class ImmunizationEvaluation extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -756,7 +753,6 @@ class ImmunizationEvaluation extends Resource {
         return new ImmunizationEvaluation(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -844,7 +840,6 @@ class ImmunizationEvaluation extends Resource {
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString
         };
-
 
         if (this._access) {
             json._access = this._access;

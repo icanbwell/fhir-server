@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Location.Position
     Details and position information for a physical place where services are
@@ -167,9 +166,6 @@ class LocationPosition extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -181,8 +177,6 @@ class LocationPosition extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -225,8 +219,6 @@ class LocationPosition extends Element {
             latitude: this.latitude,
             altitude: this.altitude
         };
-
-
 
         return removeNull(json);
     }

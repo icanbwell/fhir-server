@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImmunizationRecommendation.Recommendation
     A patient's point-in-time set of recommendations (i.e. forecasting) according
@@ -406,9 +405,6 @@ class ImmunizationRecommendationRecommendation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -431,8 +427,6 @@ class ImmunizationRecommendationRecommendation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -505,8 +499,6 @@ class ImmunizationRecommendationRecommendation extends Element {
             supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSONInternal()),
             supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 BodyStructure
     Record details about an anatomical structure.  This resource may be used when
@@ -405,7 +404,6 @@ class BodyStructure extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -458,7 +456,6 @@ class BodyStructure extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -584,7 +581,6 @@ class BodyStructure extends Resource {
         return new BodyStructure(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -657,7 +653,6 @@ class BodyStructure extends Resource {
             image: this.image && this.image.map(v => v.toJSONInternal()),
             patient: this.patient && this.patient.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

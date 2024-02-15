@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceAmount.ReferenceRange
     Chemical substances are a single substance type whose primary defining element
@@ -153,9 +152,6 @@ class SubstanceAmountReferenceRange extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -166,8 +162,6 @@ class SubstanceAmountReferenceRange extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -210,8 +204,6 @@ class SubstanceAmountReferenceRange extends Element {
             lowLimit: this.lowLimit && this.lowLimit.toJSONInternal(),
             highLimit: this.highLimit && this.highLimit.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

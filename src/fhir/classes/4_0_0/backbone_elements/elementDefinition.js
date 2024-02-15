@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ElementDefinition
     Captures constraints on each element within the resource, profile, or
@@ -4309,9 +4308,6 @@ class ElementDefinition extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -4517,8 +4513,6 @@ class ElementDefinition extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -5052,8 +5046,6 @@ class ElementDefinition extends Element {
             binding: this.binding && this.binding.toJSONInternal(),
             mapping: this.mapping && this.mapping.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

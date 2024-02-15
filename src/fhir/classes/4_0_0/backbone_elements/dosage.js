@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Dosage
     Indicates how the medication is/was taken or should be taken by the patient.
@@ -408,9 +407,6 @@ class Dosage extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -433,8 +429,6 @@ class Dosage extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -509,8 +503,6 @@ class Dosage extends Element {
             maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSONInternal(),
             maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

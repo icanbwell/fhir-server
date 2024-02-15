@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Device.Property
     A type of a manufactured item that is used in the provision of healthcare
@@ -170,9 +169,6 @@ class DeviceProperty extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -184,8 +180,6 @@ class DeviceProperty extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class DeviceProperty extends Element {
             valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSONInternal()),
             valueCode: this.valueCode && this.valueCode.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

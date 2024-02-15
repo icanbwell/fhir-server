@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPharmaceutical.RouteOfAdministration
     A pharmaceutical product described in terms of its composition and dose form.
@@ -265,9 +264,6 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -283,8 +279,6 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -342,8 +336,6 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSONInternal(),
             targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Address
     An address expressed using postal conventions (as opposed to GPS or other
@@ -283,9 +282,6 @@ class Address extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -303,8 +299,6 @@ class Address extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -359,8 +353,6 @@ class Address extends Element {
             country: this.country,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

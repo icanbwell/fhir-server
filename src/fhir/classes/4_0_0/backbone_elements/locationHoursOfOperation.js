@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Location.HoursOfOperation
     Details and position information for a physical place where services are
@@ -185,9 +184,6 @@ class LocationHoursOfOperation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -200,8 +196,6 @@ class LocationHoursOfOperation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -246,8 +240,6 @@ class LocationHoursOfOperation extends Element {
             openingTime: this.openingTime,
             closingTime: this.closingTime
         };
-
-
 
         return removeNull(json);
     }

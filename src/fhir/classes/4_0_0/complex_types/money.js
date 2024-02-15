@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Money
     An amount of economic utility in some recognized currency.
@@ -110,9 +109,6 @@ class Money extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -122,8 +118,6 @@ class Money extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -161,8 +155,6 @@ class Money extends Element {
             value: this.value,
             currency: this.currency
         };
-
-
 
         return removeNull(json);
     }

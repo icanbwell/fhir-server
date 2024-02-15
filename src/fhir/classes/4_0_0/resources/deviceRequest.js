@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceRequest
     Represents a request for a patient to employ a medical device. The device may
@@ -821,7 +820,6 @@ class DeviceRequest extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -874,7 +872,6 @@ class DeviceRequest extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1076,7 +1073,6 @@ class DeviceRequest extends Resource {
         return new DeviceRequest(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1201,7 +1197,6 @@ class DeviceRequest extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

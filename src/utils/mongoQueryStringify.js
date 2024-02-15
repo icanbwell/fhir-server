@@ -101,7 +101,6 @@ const mongoQueryStringify = (query) => {
         return undefined;
     }
 
-
     if (restOfDataTypes(query)) {
         const passQuotes = isString(query) ? '\'' : '';
         return `${passQuotes}${query}${passQuotes}`;
@@ -182,7 +181,6 @@ const mongoQueryAndOptionsStringify = (
         return mongoQueryAndOptionsStringifySingleQuery(query, Array.isArray(options) ? options[0] : options);
     }
 };
-
 
 module.exports = {
     mongoQueryStringify,

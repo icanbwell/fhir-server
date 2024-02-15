@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ResearchStudy.Arm
     A process where a researcher or organization plans and then executes a series
@@ -171,9 +170,6 @@ class ResearchStudyArm extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -185,8 +181,6 @@ class ResearchStudyArm extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -230,8 +224,6 @@ class ResearchStudyArm extends Element {
             type: this.type && this.type.toJSONInternal(),
             description: this.description
         };
-
-
 
         return removeNull(json);
     }

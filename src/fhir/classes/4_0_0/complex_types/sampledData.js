@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SampledData
     A series of measurements taken by a device, with upper and lower limits. There
@@ -221,9 +220,6 @@ class SampledData extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -238,8 +234,6 @@ class SampledData extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -288,8 +282,6 @@ class SampledData extends Element {
             dimensions: this.dimensions,
             data: this.data
         };
-
-
 
         return removeNull(json);
     }

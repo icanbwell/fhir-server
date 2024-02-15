@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Group.Member
     Represents a defined collection of entities that may be discussed or acted
@@ -172,9 +171,6 @@ class GroupMember extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -186,8 +182,6 @@ class GroupMember extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -232,8 +226,6 @@ class GroupMember extends Element {
             period: this.period && this.period.toJSONInternal(),
             inactive: this.inactive
         };
-
-
 
         return removeNull(json);
     }

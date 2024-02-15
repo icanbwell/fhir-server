@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Invoice
     Invoice containing collected ChargeItems from an Account with calculated
@@ -583,7 +582,6 @@ class Invoice extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -636,7 +634,6 @@ class Invoice extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -794,7 +791,6 @@ class Invoice extends Resource {
         return new Invoice(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -889,7 +885,6 @@ class Invoice extends Resource {
             paymentTerms: this.paymentTerms,
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

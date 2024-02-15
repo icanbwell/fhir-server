@@ -395,7 +395,6 @@ class ConfigManager {
         return env.OPENSEARCH_VECTORSTORE_PASSWORD;
     }
 
-
     /**
      * url to open search vector store
      * @returns {string|undefined}

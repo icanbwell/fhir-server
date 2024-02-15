@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RelatedPerson.Communication
     Information about a person that is involved in the care for a patient, but who
@@ -150,9 +149,6 @@ class RelatedPersonCommunication extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -163,8 +159,6 @@ class RelatedPersonCommunication extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -206,8 +200,6 @@ class RelatedPersonCommunication extends Element {
             language: this.language && this.language.toJSONInternal(),
             preferred: this.preferred
         };
-
-
 
         return removeNull(json);
     }

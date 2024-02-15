@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceReferenceInformation.Target
     Todo.
@@ -320,9 +319,6 @@ class SubstanceReferenceInformationTarget extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -341,8 +337,6 @@ class SubstanceReferenceInformationTarget extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -408,8 +402,6 @@ class SubstanceReferenceInformationTarget extends Element {
             amountType: this.amountType && this.amountType.toJSONInternal(),
             source: this.source && this.source.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MolecularSequence.Repository
     Raw data describing a biological sequence.
@@ -228,9 +227,6 @@ class MolecularSequenceRepository extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -245,8 +241,6 @@ class MolecularSequenceRepository extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -295,8 +289,6 @@ class MolecularSequenceRepository extends Element {
             variantsetId: this.variantsetId,
             readsetId: this.readsetId
         };
-
-
 
         return removeNull(json);
     }

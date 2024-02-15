@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem.Concept
     The CodeSystem resource is used to declare the existence of and describe a
@@ -237,9 +236,6 @@ class CodeSystemConcept extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -254,8 +250,6 @@ class CodeSystemConcept extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -307,8 +301,6 @@ class CodeSystemConcept extends Element {
             property: this.property && this.property.map(v => v.toJSONInternal()),
             concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

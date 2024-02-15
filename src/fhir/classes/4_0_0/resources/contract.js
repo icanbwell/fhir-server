@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Contract
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
@@ -1032,7 +1031,6 @@ class Contract extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1085,7 +1083,6 @@ class Contract extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1319,7 +1316,6 @@ class Contract extends Resource {
         return new Contract(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1466,7 +1462,6 @@ class Contract extends Resource {
             legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSONInternal(),
             legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

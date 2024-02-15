@@ -6,7 +6,6 @@ const {
  * @description Common express routes used for all resources
  */
 
-
 const routes = [
     {
         type: 'patch',

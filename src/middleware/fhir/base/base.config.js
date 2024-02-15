@@ -1,6 +1,5 @@
 const controller = require('./base.controller.js');
 
-
 const routes = [
     {
         type: 'put',

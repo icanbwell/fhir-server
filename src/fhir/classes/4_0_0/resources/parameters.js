@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Parameters
     This resource is a non-persisted resource used to pass information into and
@@ -142,7 +141,6 @@ class Parameters extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -195,7 +193,6 @@ class Parameters extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -277,7 +274,6 @@ class Parameters extends Resource {
         return new Parameters(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -319,7 +315,6 @@ class Parameters extends Resource {
             language: this.language,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

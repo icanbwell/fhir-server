@@ -2,7 +2,6 @@
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient1HistoryResource = require('./fixtures/Patient/patient1_history.json');
 
-
 // expected
 const expectedPatient1InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_1_in_database_before_run.json');
 const expectedPatient1HistoryInDatabaseBeforeRun = require('./fixtures/expected/expected_patient1_history_in_database_before_run.json');

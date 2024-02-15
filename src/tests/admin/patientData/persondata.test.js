@@ -7,12 +7,10 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const personResource = require('./fixtures/Person/person.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 
-
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 const expectedPersonDeletionResources = require('./fixtures/expected/expected_Person_deletion.json');
 const expectedTopLevelPersonResources = require('./fixtures/expected/expected_TopLevelPerson.json');
-
 
 const {
     commonBeforeEach,

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExampleScenario.Actor
     Example of workflow instance.
@@ -182,9 +181,6 @@ class ExampleScenarioActor extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -197,8 +193,6 @@ class ExampleScenarioActor extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -243,8 +237,6 @@ class ExampleScenarioActor extends Element {
             name: this.name,
             description: this.description
         };
-
-
 
         return removeNull(json);
     }

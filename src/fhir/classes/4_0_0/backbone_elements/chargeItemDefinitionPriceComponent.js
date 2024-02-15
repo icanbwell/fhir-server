@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ChargeItemDefinition.PriceComponent
     The ChargeItemDefinition resource provides the properties that apply to the
@@ -191,9 +190,6 @@ class ChargeItemDefinitionPriceComponent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -206,8 +202,6 @@ class ChargeItemDefinitionPriceComponent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -254,8 +248,6 @@ class ChargeItemDefinitionPriceComponent extends Element {
             factor: this.factor,
             amount: this.amount && this.amount.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

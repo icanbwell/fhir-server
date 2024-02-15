@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductContraindication.OtherTherapy
     The clinical particulars - indications, contraindications etc. of a medicinal
@@ -170,9 +169,6 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -184,8 +180,6 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
             medicationReference: this.medicationReference && this.medicationReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

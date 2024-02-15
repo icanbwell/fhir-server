@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Distance
     A length - a value with a unit that is a physical distance.
@@ -127,9 +126,6 @@ class Distance extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             value,
@@ -140,8 +136,6 @@ class Distance extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -180,8 +174,6 @@ class Distance extends Element {
             system: this.system,
             code: this.code
         };
-
-
 
         return removeNull(json);
     }

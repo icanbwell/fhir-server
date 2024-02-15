@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExplanationOfBenefit
     This resource provides: the claim details; adjudication details from the
@@ -1191,7 +1190,6 @@ class ExplanationOfBenefit extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1244,7 +1242,6 @@ class ExplanationOfBenefit extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1510,7 +1507,6 @@ class ExplanationOfBenefit extends Resource {
         return new ExplanationOfBenefit(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1683,7 +1679,6 @@ class ExplanationOfBenefit extends Resource {
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSONInternal(),
             benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

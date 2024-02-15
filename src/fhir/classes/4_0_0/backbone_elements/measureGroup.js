@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Measure.Group
     The Measure resource provides the definition of a quality measure.
@@ -192,9 +191,6 @@ class MeasureGroup extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -207,8 +203,6 @@ class MeasureGroup extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -256,8 +250,6 @@ class MeasureGroup extends Element {
             population: this.population && this.population.map(v => v.toJSONInternal()),
             stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

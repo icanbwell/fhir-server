@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 InsurancePlan.SpecificCost
     Details of a Health Insurance product/plan provided by an organization.
@@ -147,9 +146,6 @@ class InsurancePlanSpecificCost extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class InsurancePlanSpecificCost extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -204,8 +198,6 @@ class InsurancePlanSpecificCost extends Element {
             category: this.category && this.category.toJSONInternal(),
             benefit: this.benefit && this.benefit.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Evidence
     The Evidence resource describes the conditional state (population and any
@@ -865,7 +864,6 @@ class Evidence extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -918,7 +916,6 @@ class Evidence extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1124,7 +1121,6 @@ class Evidence extends Resource {
         return new Evidence(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1246,7 +1242,6 @@ class Evidence extends Resource {
             exposureVariant: this.exposureVariant && this.exposureVariant.map(v => v.toJSONInternal()),
             outcome: this.outcome && this.outcome.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

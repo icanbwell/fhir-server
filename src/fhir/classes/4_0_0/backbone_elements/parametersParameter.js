@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Parameters.Parameter
     This resource is a non-persisted resource used to pass information into and
@@ -1229,9 +1228,6 @@ class ParametersParameter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -1293,8 +1289,6 @@ class ParametersParameter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -1470,8 +1464,6 @@ class ParametersParameter extends Element {
             resource: this.resource && this.resource.toJSONInternal(),
             part: this.part && this.part.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

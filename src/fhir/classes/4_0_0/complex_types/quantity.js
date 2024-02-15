@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Quantity
     A measured amount (or an amount that can potentially be measured). Note that
@@ -175,9 +174,6 @@ class Quantity extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -190,8 +186,6 @@ class Quantity extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -235,8 +229,6 @@ class Quantity extends Element {
             system: this.system,
             code: this.code
         };
-
-
 
         return removeNull(json);
     }

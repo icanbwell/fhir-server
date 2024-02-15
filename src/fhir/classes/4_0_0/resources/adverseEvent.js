@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AdverseEvent
     Actual or  potential/avoided event causing unintended physical injury
@@ -679,7 +678,6 @@ class AdverseEvent extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -732,7 +730,6 @@ class AdverseEvent extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -906,7 +903,6 @@ class AdverseEvent extends Resource {
         return new AdverseEvent(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1013,7 +1009,6 @@ class AdverseEvent extends Resource {
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSONInternal()),
             study: this.study && this.study.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

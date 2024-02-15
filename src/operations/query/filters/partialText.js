@@ -35,7 +35,6 @@ class FilterByPartialText extends BaseFilter {
     }
 }
 
-
 module.exports = {
     FilterByPartialText
 };

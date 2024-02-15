@@ -147,7 +147,6 @@ class FilterByReference extends BaseFilter {
     }
 }
 
-
 module.exports = {
     FilterByReference
 };

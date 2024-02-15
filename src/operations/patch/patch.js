@@ -318,7 +318,6 @@ class PatchOperation {
                     action: currentOperationName
                 });
 
-
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => {

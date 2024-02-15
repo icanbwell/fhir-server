@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExampleScenario
     Example of workflow instance.
@@ -616,7 +615,6 @@ class ExampleScenario extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -669,7 +667,6 @@ class ExampleScenario extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -831,7 +828,6 @@ class ExampleScenario extends Resource {
         return new ExampleScenario(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -923,7 +919,6 @@ class ExampleScenario extends Resource {
             process: this.process && this.process.map(v => v.toJSONInternal()),
             workflow: this.workflow
         };
-
 
         if (this._access) {
             json._access = this._access;

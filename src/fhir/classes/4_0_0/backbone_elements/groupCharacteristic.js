@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Group.Characteristic
     Represents a defined collection of entities that may be discussed or acted
@@ -279,9 +278,6 @@ class GroupCharacteristic extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -298,8 +294,6 @@ class GroupCharacteristic extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -358,8 +352,6 @@ class GroupCharacteristic extends Element {
             exclude: this.exclude,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

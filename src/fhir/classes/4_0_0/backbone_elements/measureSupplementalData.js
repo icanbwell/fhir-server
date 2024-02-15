@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Measure.SupplementalData
     The Measure resource provides the definition of a quality measure.
@@ -198,9 +197,6 @@ class MeasureSupplementalData extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -213,8 +209,6 @@ class MeasureSupplementalData extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -262,8 +256,6 @@ class MeasureSupplementalData extends Element {
             description: this.description,
             criteria: this.criteria && this.criteria.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript.Operation
     A structured set of tests against a FHIR server or client implementation to
@@ -455,9 +454,6 @@ class TestScriptOperation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -483,8 +479,6 @@ class TestScriptOperation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -557,8 +551,6 @@ class TestScriptOperation extends Element {
             targetId: this.targetId,
             url: this.url
         };
-
-
 
         return removeNull(json);
     }

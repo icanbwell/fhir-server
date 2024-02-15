@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Organization
     A formally or informally recognized grouping of people or organizations formed
@@ -449,7 +448,6 @@ class Organization extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -502,7 +500,6 @@ class Organization extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -636,7 +633,6 @@ class Organization extends Resource {
         return new Organization(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -714,7 +710,6 @@ class Organization extends Resource {
             contact: this.contact && this.contact.map(v => v.toJSONInternal()),
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

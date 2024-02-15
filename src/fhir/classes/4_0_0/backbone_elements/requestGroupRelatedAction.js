@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RequestGroup.RelatedAction
     A group of related requests that can be used to capture intended activities
@@ -187,9 +186,6 @@ class RequestGroupRelatedAction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -202,8 +198,6 @@ class RequestGroupRelatedAction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -250,8 +244,6 @@ class RequestGroupRelatedAction extends Element {
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSONInternal(),
             offsetRange: this.offsetRange && this.offsetRange.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -230,7 +230,6 @@ describe('patient Tests', () => {
             });
         });
 
-
         test('Graphql security filtering', async () => {
             // noinspection JSUnusedLocalSymbols
             const payload = desiree_payload;

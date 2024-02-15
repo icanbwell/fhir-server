@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Bundle.Link
     A container for a collection of resources.
@@ -145,9 +144,6 @@ class BundleLink extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -158,8 +154,6 @@ class BundleLink extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -200,8 +194,6 @@ class BundleLink extends Element {
             relation: this.relation,
             url: this.url
         };
-
-
 
         return removeNull(json);
     }

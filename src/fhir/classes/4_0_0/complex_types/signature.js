@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Signature
     A signature along with supporting context. The signature may be a digital
@@ -228,9 +227,6 @@ class Signature extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -245,8 +241,6 @@ class Signature extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -297,8 +291,6 @@ class Signature extends Element {
             sigFormat: this.sigFormat,
             data: this.data
         };
-
-
 
         return removeNull(json);
     }

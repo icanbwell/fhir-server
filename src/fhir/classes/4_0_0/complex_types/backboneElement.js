@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 BackboneElement
     Base definition for all elements that are defined inside a resource - but not
@@ -105,9 +104,6 @@ class BackboneElement extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -116,8 +112,6 @@ class BackboneElement extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -154,8 +148,6 @@ class BackboneElement extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

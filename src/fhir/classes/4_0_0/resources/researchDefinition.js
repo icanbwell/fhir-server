@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ResearchDefinition
     The ResearchDefinition resource describes the conditional state (population
@@ -1020,7 +1019,6 @@ class ResearchDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1073,7 +1071,6 @@ class ResearchDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1307,7 +1304,6 @@ class ResearchDefinition extends Resource {
         return new ResearchDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1445,7 +1441,6 @@ class ResearchDefinition extends Resource {
             exposureAlternative: this.exposureAlternative && this.exposureAlternative.toJSONInternal(),
             outcome: this.outcome && this.outcome.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

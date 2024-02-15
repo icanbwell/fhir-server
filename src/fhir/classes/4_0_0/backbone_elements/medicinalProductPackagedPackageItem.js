@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPackaged.PackageItem
     A medicinal product in a container or package.
@@ -366,9 +365,6 @@ class MedicinalProductPackagedPackageItem extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -389,8 +385,6 @@ class MedicinalProductPackagedPackageItem extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -463,8 +457,6 @@ class MedicinalProductPackagedPackageItem extends Element {
             shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSONInternal()),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

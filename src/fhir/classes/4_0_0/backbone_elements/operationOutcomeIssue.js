@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationOutcome.Issue
     A collection of error, warning, or information messages that result from a
@@ -236,9 +235,6 @@ class OperationOutcomeIssue extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -253,8 +249,6 @@ class OperationOutcomeIssue extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -304,8 +298,6 @@ class OperationOutcomeIssue extends Element {
             location: this.location,
             expression: this.expression
         };
-
-
 
         return removeNull(json);
     }

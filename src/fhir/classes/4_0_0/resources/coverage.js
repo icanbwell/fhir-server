@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Coverage
     Financial instrument which may be used to reimburse or pay for health care
@@ -606,7 +605,6 @@ class Coverage extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -659,7 +657,6 @@ class Coverage extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -821,7 +818,6 @@ class Coverage extends Resource {
         return new Coverage(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -917,7 +913,6 @@ class Coverage extends Resource {
             subrogation: this.subrogation,
             contract: this.contract && this.contract.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -43,7 +43,6 @@ class FhirTypesManager {
     }
 }
 
-
 module.exports = {
     FhirTypesManager
 };

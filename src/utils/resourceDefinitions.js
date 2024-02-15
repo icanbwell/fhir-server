@@ -218,4 +218,3 @@ const resourceDefinitions = [
 module.exports = {
     resourceDefinitions
 };
-

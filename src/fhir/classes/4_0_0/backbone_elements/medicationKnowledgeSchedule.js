@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationKnowledge.Schedule
     Information about a medication that is used to support knowledge.
@@ -124,9 +123,6 @@ class MedicationKnowledgeSchedule extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -136,8 +132,6 @@ class MedicationKnowledgeSchedule extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -177,8 +171,6 @@ class MedicationKnowledgeSchedule extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             schedule: this.schedule && this.schedule.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

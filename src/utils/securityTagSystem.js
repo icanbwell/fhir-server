@@ -6,7 +6,6 @@ const SecurityTagSystem = {
     connectionType: 'https://www.icanbwell.com/connectionType'
 };
 
-
 module.exports = {
     SecurityTagSystem
 };

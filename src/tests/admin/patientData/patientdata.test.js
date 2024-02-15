@@ -7,7 +7,6 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const personResource = require('./fixtures/Person/person.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 
-
 // expected
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientDeletionResources = require('./fixtures/expected/expected_Patient_deletion.json');
@@ -22,7 +21,6 @@ const {
     getHeadersWithCustomToken
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
-
 
 describe('Patient Tests', () => {
     beforeEach(async () => {

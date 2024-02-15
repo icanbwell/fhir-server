@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ObservationDefinition
     Set of definitional characteristics for a kind of observation or measurement
@@ -519,7 +518,6 @@ class ObservationDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -572,7 +570,6 @@ class ObservationDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -718,7 +715,6 @@ class ObservationDefinition extends Resource {
         return new ObservationDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -805,7 +801,6 @@ class ObservationDefinition extends Resource {
             abnormalCodedValueSet: this.abnormalCodedValueSet && this.abnormalCodedValueSet.toJSONInternal(),
             criticalCodedValueSet: this.criticalCodedValueSet && this.criticalCodedValueSet.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

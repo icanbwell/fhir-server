@@ -7,7 +7,6 @@
 const {assertIsValid} = require('../../utils/assertType');
 const {removeNull} = require('../../utils/nullRemover');
 
-
 class QueryParameterValue {
     /**
      * constructor
@@ -103,4 +102,3 @@ class QueryParameterValue {
 module.exports = {
     QueryParameterValue
 };
-

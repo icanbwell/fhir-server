@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EvidenceVariable
     The EvidenceVariable resource describes a "PICO" element that knowledge
@@ -842,7 +841,6 @@ class EvidenceVariable extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -895,7 +893,6 @@ class EvidenceVariable extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1097,7 +1094,6 @@ class EvidenceVariable extends Resource {
         return new EvidenceVariable(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1215,7 +1211,6 @@ class EvidenceVariable extends Resource {
             type: this.type,
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

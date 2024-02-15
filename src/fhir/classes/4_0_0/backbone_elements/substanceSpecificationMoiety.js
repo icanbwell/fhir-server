@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Moiety
     The detailed description of a substance, typically at a level beyond what is
@@ -273,9 +272,6 @@ class SubstanceSpecificationMoiety extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -292,8 +288,6 @@ class SubstanceSpecificationMoiety extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -351,8 +345,6 @@ class SubstanceSpecificationMoiety extends Element {
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
             amountString: this.amountString
         };
-
-
 
         return removeNull(json);
     }

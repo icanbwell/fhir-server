@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProduct.ManufacturingBusinessOperation
     Detailed definition of a medicinal product, typically for uses other than
@@ -233,9 +232,6 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -250,8 +246,6 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -305,8 +299,6 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
             regulator: this.regulator && this.regulator.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

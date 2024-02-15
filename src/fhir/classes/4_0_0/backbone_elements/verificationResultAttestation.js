@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 VerificationResult.Attestation
     Describes validation requirements, source(s), status and dates for one or more
@@ -277,9 +276,6 @@ class VerificationResultAttestation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -296,8 +292,6 @@ class VerificationResultAttestation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -355,8 +349,6 @@ class VerificationResultAttestation extends Element {
             proxySignature: this.proxySignature && this.proxySignature.toJSONInternal(),
             sourceSignature: this.sourceSignature && this.sourceSignature.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationDispense.Substitution
     Indicates that a medication product is to be or has been dispensed for a named
@@ -196,9 +195,6 @@ class MedicationDispenseSubstitution extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -211,8 +207,6 @@ class MedicationDispenseSubstitution extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -260,8 +254,6 @@ class MedicationDispenseSubstitution extends Element {
             reason: this.reason && this.reason.map(v => v.toJSONInternal()),
             responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

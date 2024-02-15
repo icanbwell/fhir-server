@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 HealthcareService.Eligibility
     The details of a healthcare service available at a location.
@@ -144,9 +143,6 @@ class HealthcareServiceEligibility extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -157,8 +153,6 @@ class HealthcareServiceEligibility extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -200,8 +194,6 @@ class HealthcareServiceEligibility extends Element {
             code: this.code && this.code.toJSONInternal(),
             comment: this.comment
         };
-
-
 
         return removeNull(json);
     }

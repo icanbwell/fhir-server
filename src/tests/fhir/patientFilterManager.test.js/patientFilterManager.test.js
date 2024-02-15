@@ -1,7 +1,6 @@
 const {describe, test, expect} = require('@jest/globals');
 const {PatientFilterManager} = require('../../../fhir/patientFilterManager');
 
-
 describe('PatientFilterManager Tests', () => {
   const patientFilterManager = new PatientFilterManager();
 

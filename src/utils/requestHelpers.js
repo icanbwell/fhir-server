@@ -49,7 +49,6 @@ const shouldStreamResponse = (req) => {
     );
 };
 
-
 module.exports = {
     shouldReturnHtml,
     shouldStreamResponse

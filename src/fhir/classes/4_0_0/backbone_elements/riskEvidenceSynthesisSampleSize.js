@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskEvidenceSynthesis.SampleSize
     The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
@@ -164,9 +163,6 @@ class RiskEvidenceSynthesisSampleSize extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -178,8 +174,6 @@ class RiskEvidenceSynthesisSampleSize extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -222,8 +216,6 @@ class RiskEvidenceSynthesisSampleSize extends Element {
             numberOfStudies: this.numberOfStudies,
             numberOfParticipants: this.numberOfParticipants
         };
-
-
 
         return removeNull(json);
     }

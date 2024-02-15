@@ -9,7 +9,6 @@ const patientReferencePrefix = 'Patient/';
 const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
 
-
 class PatientProxyQueryRewriter extends QueryRewriter {
     /**
      * @typedef {object} PatientProxyQueryRewriterProps
@@ -83,7 +82,6 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                     }
                 );
 
-
                  /** @type {{[k: string]: string}} */
                 const patientToPersonMap = {};
 
@@ -98,7 +96,6 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         });
                     }
                 });
-
 
                 parsedArg.queryParameterValue = new QueryParameterValue({
                     value: [...patientProxyIds, ...queryParametersWithoutProxyPatientIds],

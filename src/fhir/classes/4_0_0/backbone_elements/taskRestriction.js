@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Task.Restriction
     A task to be performed.
@@ -167,9 +166,6 @@ class TaskRestriction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -181,8 +177,6 @@ class TaskRestriction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -227,8 +221,6 @@ class TaskRestriction extends Element {
             period: this.period && this.period.toJSONInternal(),
             recipient: this.recipient && this.recipient.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

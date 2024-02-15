@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Encounter
     An interaction between a patient and healthcare provider(s) for the purpose of
@@ -761,7 +760,6 @@ class Encounter extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -814,7 +812,6 @@ class Encounter extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1000,7 +997,6 @@ class Encounter extends Resource {
         return new Encounter(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1119,7 +1115,6 @@ class Encounter extends Resource {
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSONInternal(),
             partOf: this.partOf && this.partOf.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

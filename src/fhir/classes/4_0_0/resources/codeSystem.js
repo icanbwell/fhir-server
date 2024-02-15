@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem
     The CodeSystem resource is used to declare the existence of and describe a
@@ -807,7 +806,6 @@ class CodeSystem extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -860,7 +858,6 @@ class CodeSystem extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1058,7 +1055,6 @@ class CodeSystem extends Resource {
         return new CodeSystem(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1168,7 +1164,6 @@ class CodeSystem extends Resource {
             property: this.property && this.property.map(v => v.toJSONInternal()),
             concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

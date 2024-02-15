@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DiagnosticReport.Media
     The findings and interpretation of diagnostic  tests performed on patients,
@@ -150,9 +149,6 @@ class DiagnosticReportMedia extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -163,8 +159,6 @@ class DiagnosticReportMedia extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -206,8 +200,6 @@ class DiagnosticReportMedia extends Element {
             comment: this.comment,
             link: this.link && this.link.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -91,7 +91,6 @@ const processRequest = requestType => {
                 results[`${i}`].status = responses[`${i}`].status;
             }
 
-
             const resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
             resolve(resultsBundle);
         });

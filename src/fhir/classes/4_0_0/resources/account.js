@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Account
     A financial tool for tracking value accrued for a particular purpose.  In the
@@ -473,7 +472,6 @@ class Account extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -526,7 +524,6 @@ class Account extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -664,7 +661,6 @@ class Account extends Resource {
         return new Account(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -745,7 +741,6 @@ class Account extends Resource {
             guarantor: this.guarantor && this.guarantor.map(v => v.toJSONInternal()),
             partOf: this.partOf && this.partOf.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

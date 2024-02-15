@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ValueSet.Compose
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -197,9 +196,6 @@ class ValueSetCompose extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -212,8 +208,6 @@ class ValueSetCompose extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -260,8 +254,6 @@ class ValueSetCompose extends Element {
             include: this.include && this.include.map(v => v.toJSONInternal()),
             exclude: this.exclude && this.exclude.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProduct.CountryLanguage
     Detailed definition of a medicinal product, typically for uses other than
@@ -169,9 +168,6 @@ class MedicinalProductCountryLanguage extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -183,8 +179,6 @@ class MedicinalProductCountryLanguage extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -230,8 +224,6 @@ class MedicinalProductCountryLanguage extends Element {
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSONInternal(),
             language: this.language && this.language.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

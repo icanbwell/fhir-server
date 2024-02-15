@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImagingStudy
     Representation of the content produced in a DICOM imaging study. A study
@@ -682,7 +681,6 @@ class ImagingStudy extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -735,7 +733,6 @@ class ImagingStudy extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -909,7 +906,6 @@ class ImagingStudy extends Resource {
         return new ImagingStudy(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1015,7 +1011,6 @@ class ImagingStudy extends Resource {
             description: this.description,
             series: this.series && this.series.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

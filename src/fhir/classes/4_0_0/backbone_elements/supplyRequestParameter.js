@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SupplyRequest.Parameter
     A record of a request for a medication, substance or device used in the
@@ -211,9 +210,6 @@ class SupplyRequestParameter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -227,8 +223,6 @@ class SupplyRequestParameter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -279,8 +273,6 @@ class SupplyRequestParameter extends Element {
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
             valueBoolean: this.valueBoolean
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ElementDefinition.Type
     Captures constraints on each element within the resource, profile, or
@@ -225,9 +224,6 @@ class ElementDefinitionType extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -241,8 +237,6 @@ class ElementDefinitionType extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -289,8 +283,6 @@ class ElementDefinitionType extends Element {
             aggregation: this.aggregation,
             versioning: this.versioning
         };
-
-
 
         return removeNull(json);
     }

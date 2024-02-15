@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExplanationOfBenefit.Detail1
     This resource provides: the claim details; adjudication details from the
@@ -307,9 +306,6 @@ class ExplanationOfBenefitDetail1 extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -327,8 +323,6 @@ class ExplanationOfBenefitDetail1 extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -390,8 +384,6 @@ class ExplanationOfBenefitDetail1 extends Element {
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
             subDetail: this.subDetail && this.subDetail.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

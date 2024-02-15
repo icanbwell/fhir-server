@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPharmaceutical.Characteristics
     A pharmaceutical product described in terms of its composition and dose form.
@@ -146,9 +145,6 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class MedicinalProductPharmaceuticalCharacteristics extends Element {
             code: this.code && this.code.toJSONInternal(),
             status: this.status && this.status.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

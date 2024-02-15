@@ -5,7 +5,6 @@
 const ResourceContainer = require('../simple_types/resourceContainer');
 const async = require('async');
 
-
 /**
 Resource
     This is the base resource type for everything.
@@ -117,7 +116,6 @@ class Resource extends ResourceContainer {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -170,7 +168,6 @@ class Resource extends ResourceContainer {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -248,7 +245,6 @@ class Resource extends ResourceContainer {
         return new Resource(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -287,7 +283,6 @@ class Resource extends ResourceContainer {
             implicitRules: this.implicitRules,
             language: this.language
         };
-
 
         if (this._access) {
             json._access = this._access;

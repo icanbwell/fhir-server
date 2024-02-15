@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ChargeItem
     The resource ChargeItem describes the provision of healthcare provider
@@ -861,7 +860,6 @@ class ChargeItem extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -914,7 +912,6 @@ class ChargeItem extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1124,7 +1121,6 @@ class ChargeItem extends Resource {
         return new ChargeItem(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1255,7 +1251,6 @@ class ChargeItem extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

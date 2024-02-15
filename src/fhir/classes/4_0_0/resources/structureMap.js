@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 StructureMap
     A Map of relationships between 2 structures that can be used to transform
@@ -635,7 +634,6 @@ class StructureMap extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -688,7 +686,6 @@ class StructureMap extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -854,7 +851,6 @@ class StructureMap extends Resource {
         return new StructureMap(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -947,7 +943,6 @@ class StructureMap extends Resource {
             import: this.import,
             group: this.group && this.group.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

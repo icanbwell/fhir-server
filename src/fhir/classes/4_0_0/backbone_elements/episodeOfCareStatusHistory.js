@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EpisodeOfCare.StatusHistory
     An association between a patient and an organization / healthcare provider(s)
@@ -146,9 +145,6 @@ class EpisodeOfCareStatusHistory extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class EpisodeOfCareStatusHistory extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -202,8 +196,6 @@ class EpisodeOfCareStatusHistory extends Element {
             status: this.status,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

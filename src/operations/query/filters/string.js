@@ -1,7 +1,6 @@
 const {nameQueryBuilder, addressQueryBuilder} = require('../../../utils/querybuilder.util');
 const {BaseFilter} = require('./baseFilter');
 
-
 /**
  * Filters by string
  * https://www.hl7.org/fhir/search.html#string

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPharmaceutical.WithdrawalPeriod
     A pharmaceutical product described in terms of its composition and dose form.
@@ -167,9 +166,6 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -181,8 +177,6 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -227,8 +221,6 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
             value: this.value && this.value.toJSONInternal(),
             supportingInformation: this.supportingInformation
         };
-
-
 
         return removeNull(json);
     }

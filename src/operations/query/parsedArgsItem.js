@@ -220,7 +220,6 @@ class ParsedArgsItem {
     }
 }
 
-
 module.exports = {
     ParsedArgsItem
 };

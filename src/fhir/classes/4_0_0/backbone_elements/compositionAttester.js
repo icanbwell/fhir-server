@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Composition.Attester
     A set of healthcare-related information that is assembled together into a
@@ -172,9 +171,6 @@ class CompositionAttester extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -186,8 +182,6 @@ class CompositionAttester extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class CompositionAttester extends Element {
             time: this.time,
             party: this.party && this.party.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

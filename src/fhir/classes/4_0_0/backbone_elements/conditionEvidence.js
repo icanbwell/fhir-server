@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Condition.Evidence
     A clinical condition, problem, diagnosis, or other event, situation, issue, or
@@ -147,9 +146,6 @@ class ConditionEvidence extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class ConditionEvidence extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -204,8 +198,6 @@ class ConditionEvidence extends Element {
             code: this.code && this.code.map(v => v.toJSONInternal()),
             detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

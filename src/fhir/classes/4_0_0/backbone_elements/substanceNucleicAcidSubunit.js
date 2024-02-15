@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceNucleicAcid.Subunit
     Nucleic acids are defined by three distinct elements: the base, sugar and
@@ -285,9 +284,6 @@ class SubstanceNucleicAcidSubunit extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -304,8 +300,6 @@ class SubstanceNucleicAcidSubunit extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -363,8 +357,6 @@ class SubstanceNucleicAcidSubunit extends Element {
             linkage: this.linkage && this.linkage.map(v => v.toJSONInternal()),
             sugar: this.sugar && this.sugar.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -24,7 +24,6 @@ const resolveSchema = (version = '4_0_0', schema = '') => {
  * @param {String} version
  */
 
-
 const isValidVersion = version => {
     return Object.keys(VERSIONS).includes(version);
 };

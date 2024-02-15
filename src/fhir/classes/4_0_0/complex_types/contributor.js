@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Contributor
     A contributor to the content of a knowledge asset, including authors, editors,
@@ -134,9 +133,6 @@ class Contributor extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -147,8 +143,6 @@ class Contributor extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -189,8 +183,6 @@ class Contributor extends Element {
             name: this.name,
             contact: this.contact && this.contact.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

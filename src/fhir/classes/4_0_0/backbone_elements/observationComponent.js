@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Observation.Component
     Measurements and simple assertions made about a patient, device or other
@@ -426,9 +425,6 @@ class ObservationComponent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -452,8 +448,6 @@ class ObservationComponent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -530,8 +524,6 @@ class ObservationComponent extends Element {
             interpretation: this.interpretation && this.interpretation.map(v => v.toJSONInternal()),
             referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

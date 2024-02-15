@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestReport
     A summary of information based on the results of executing a TestScript.
@@ -487,7 +486,6 @@ class TestReport extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -540,7 +538,6 @@ class TestReport extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -682,7 +679,6 @@ class TestReport extends Resource {
         return new TestReport(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -763,7 +759,6 @@ class TestReport extends Resource {
             test: this.test && this.test.map(v => v.toJSONInternal()),
             teardown: this.teardown && this.teardown.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

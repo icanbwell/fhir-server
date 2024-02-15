@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ContactPoint
     Details for all kinds of technology mediated contact points for a person or
@@ -176,9 +175,6 @@ class ContactPoint extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -191,8 +187,6 @@ class ContactPoint extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -237,8 +231,6 @@ class ContactPoint extends Element {
             rank: this.rank,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

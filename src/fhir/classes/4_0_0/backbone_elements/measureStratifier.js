@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Measure.Stratifier
     The Measure resource provides the definition of a quality measure.
@@ -194,9 +193,6 @@ class MeasureStratifier extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -209,8 +205,6 @@ class MeasureStratifier extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -258,8 +252,6 @@ class MeasureStratifier extends Element {
             criteria: this.criteria && this.criteria.toJSONInternal(),
             component: this.component && this.component.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

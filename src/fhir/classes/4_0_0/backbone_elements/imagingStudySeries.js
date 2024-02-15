@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImagingStudy.Series
     Representation of the content produced in a DICOM imaging study. A study
@@ -373,9 +372,6 @@ class ImagingStudySeries extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -396,8 +392,6 @@ class ImagingStudySeries extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -465,8 +459,6 @@ class ImagingStudySeries extends Element {
             performer: this.performer && this.performer.map(v => v.toJSONInternal()),
             instance: this.instance && this.instance.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

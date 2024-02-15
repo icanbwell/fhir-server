@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MeasureReport.Stratum
     The MeasureReport resource contains the results of the calculation of a
@@ -196,9 +195,6 @@ class MeasureReportStratum extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -211,8 +207,6 @@ class MeasureReportStratum extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -261,8 +255,6 @@ class MeasureReportStratum extends Element {
             population: this.population && this.population.map(v => v.toJSONInternal()),
             measureScore: this.measureScore && this.measureScore.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

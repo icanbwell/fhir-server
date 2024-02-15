@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AuditEvent.Entity
     A record of an event made for purposes of maintaining a security log. Typical
@@ -297,9 +296,6 @@ class AuditEventEntity extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -317,8 +313,6 @@ class AuditEventEntity extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -379,8 +373,6 @@ class AuditEventEntity extends Element {
             query: this.query,
             detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -4,7 +4,6 @@
 const {RethrownError} = require('./rethrownError');
 const {getCircularReplacer} = require('./getCircularReplacer');
 
-
 class AssertionError extends Error {
     /**
      * Constructor

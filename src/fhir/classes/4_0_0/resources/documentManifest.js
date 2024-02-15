@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DocumentManifest
     A collection of documents compiled for a purpose together with metadata that
@@ -499,7 +498,6 @@ class DocumentManifest extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -552,7 +550,6 @@ class DocumentManifest extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -694,7 +691,6 @@ class DocumentManifest extends Resource {
         return new DocumentManifest(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -777,7 +773,6 @@ class DocumentManifest extends Resource {
             content: this.content && this.content.map(v => v.toJSONInternal()),
             related: this.related && this.related.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

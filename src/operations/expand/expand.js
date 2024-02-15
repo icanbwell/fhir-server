@@ -174,4 +174,3 @@ class ExpandOperation {
 module.exports = {
     ExpandOperation
 };
-

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SupplyDelivery
     Record of delivery of what is supplied.
@@ -514,7 +513,6 @@ class SupplyDelivery extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -567,7 +565,6 @@ class SupplyDelivery extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -713,7 +710,6 @@ class SupplyDelivery extends Resource {
         return new SupplyDelivery(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -801,7 +797,6 @@ class SupplyDelivery extends Resource {
             destination: this.destination && this.destination.toJSONInternal(),
             receiver: this.receiver && this.receiver.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

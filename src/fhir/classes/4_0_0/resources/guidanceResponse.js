@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 GuidanceResponse
     A guidance response is the formal response to a guidance request, including
@@ -619,7 +618,6 @@ class GuidanceResponse extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -672,7 +670,6 @@ class GuidanceResponse extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -834,7 +831,6 @@ class GuidanceResponse extends Resource {
         return new GuidanceResponse(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -932,7 +928,6 @@ class GuidanceResponse extends Resource {
             result: this.result && this.result.toJSONInternal(),
             dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

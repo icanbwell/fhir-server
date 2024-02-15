@@ -65,7 +65,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
 
-
         /** @type {Map<string, { id: string; items: Array} */
         this.questionaireValues = new Map();
 

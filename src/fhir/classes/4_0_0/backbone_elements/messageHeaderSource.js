@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MessageHeader.Source
     The header for a message exchange that is either requesting or responding to
@@ -210,9 +209,6 @@ class MessageHeaderSource extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -226,8 +222,6 @@ class MessageHeaderSource extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -275,8 +269,6 @@ class MessageHeaderSource extends Element {
             contact: this.contact && this.contact.toJSONInternal(),
             endpoint: this.endpoint
         };
-
-
 
         return removeNull(json);
     }

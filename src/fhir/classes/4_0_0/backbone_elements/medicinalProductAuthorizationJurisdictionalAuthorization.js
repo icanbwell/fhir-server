@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductAuthorization.JurisdictionalAuthorization
     The regulatory authorization of a medicinal product.
@@ -212,9 +211,6 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -228,8 +224,6 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -281,8 +275,6 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSONInternal(),
             validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

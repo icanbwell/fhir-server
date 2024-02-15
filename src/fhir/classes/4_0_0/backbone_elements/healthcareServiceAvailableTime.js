@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 HealthcareService.AvailableTime
     The details of a healthcare service available at a location.
@@ -185,9 +184,6 @@ class HealthcareServiceAvailableTime extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -200,8 +196,6 @@ class HealthcareServiceAvailableTime extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -246,8 +240,6 @@ class HealthcareServiceAvailableTime extends Element {
             availableStartTime: this.availableStartTime,
             availableEndTime: this.availableEndTime
         };
-
-
 
         return removeNull(json);
     }

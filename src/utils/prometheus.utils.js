@@ -106,7 +106,6 @@ const partitionedCollectionsCount = new Histogram({
 
 module.exports.partitionedCollectionsCount = partitionedCollectionsCount;
 
-
 // Create a histogram metric
 const httpRequestDurationMicroseconds = new Histogram({
     name: 'http_request_duration_seconds',
@@ -173,4 +172,3 @@ module.exports.injectMetricsRoute = function (app) {
         res.end(await Register.metrics());
     });
 };
-

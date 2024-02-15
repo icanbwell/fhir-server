@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DocumentReference.Content
     A reference to a document of any kind for any purpose. Provides metadata about
@@ -152,9 +151,6 @@ class DocumentReferenceContent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -165,8 +161,6 @@ class DocumentReferenceContent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -209,8 +203,6 @@ class DocumentReferenceContent extends Element {
             attachment: this.attachment && this.attachment.toJSONInternal(),
             format: this.format && this.format.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

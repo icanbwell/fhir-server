@@ -217,7 +217,6 @@ class MyFHIRServer {
             passport.use('jwt', strategy);
         } // return self for chaining
 
-
         return this;
     }
 

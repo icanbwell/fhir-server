@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Medication.Ingredient
     This resource is primarily used for the identification and definition of a
@@ -193,9 +192,6 @@ class MedicationIngredient extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -208,8 +204,6 @@ class MedicationIngredient extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -257,8 +251,6 @@ class MedicationIngredient extends Element {
             isActive: this.isActive,
             strength: this.strength && this.strength.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Population
     A populatioof people with some set of grouping criteria.
@@ -215,9 +214,6 @@ class Population extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -231,8 +227,6 @@ class Population extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -284,8 +278,6 @@ class Population extends Element {
             race: this.race && this.race.toJSONInternal(),
             physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

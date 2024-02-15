@@ -1102,7 +1102,6 @@ class SearchManager {
             response: res
         });
 
-
         try {
             // now setup and run the pipeline
             await pipeline(
@@ -1212,7 +1211,6 @@ class SearchManager {
         }
     }
 
-
     /**
      * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
      * @param {ParsedArgs} parsedArgs
@@ -1279,7 +1277,6 @@ class SearchManager {
         return [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent];
     }
 }
-
 
 module.exports = {
     SearchManager

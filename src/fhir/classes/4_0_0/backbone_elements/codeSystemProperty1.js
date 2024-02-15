@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem.Property1
     The CodeSystem resource is used to declare the existence of and describe a
@@ -266,9 +265,6 @@ class CodeSystemProperty1 extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -285,8 +281,6 @@ class CodeSystemProperty1 extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -340,8 +334,6 @@ class CodeSystemProperty1 extends Element {
             valueDateTime: this.valueDateTime,
             valueDecimal: this.valueDecimal
         };
-
-
 
         return removeNull(json);
     }

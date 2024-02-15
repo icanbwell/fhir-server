@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductManufactured
     The manufactured item as contained in the packaged medicinal product.
@@ -386,7 +385,6 @@ class MedicinalProductManufactured extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -439,7 +437,6 @@ class MedicinalProductManufactured extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -561,7 +558,6 @@ class MedicinalProductManufactured extends Resource {
         return new MedicinalProductManufactured(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -633,7 +629,6 @@ class MedicinalProductManufactured extends Resource {
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSONInternal(),
             otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

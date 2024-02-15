@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DomainResource
     A resource that includes narrative, extensions, and contained resources.
@@ -228,7 +227,6 @@ class DomainResource extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -281,7 +279,6 @@ class DomainResource extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -375,7 +372,6 @@ class DomainResource extends Resource {
         return new DomainResource(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -426,7 +422,6 @@ class DomainResource extends Resource {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

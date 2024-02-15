@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ObservationDefinition.QualifiedInterval
     Set of definitional characteristics for a kind of observation or measurement
@@ -278,9 +277,6 @@ class ObservationDefinitionQualifiedInterval extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -297,8 +293,6 @@ class ObservationDefinitionQualifiedInterval extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -356,8 +350,6 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gestationalAge: this.gestationalAge && this.gestationalAge.toJSONInternal(),
             condition: this.condition
         };
-
-
 
         return removeNull(json);
     }

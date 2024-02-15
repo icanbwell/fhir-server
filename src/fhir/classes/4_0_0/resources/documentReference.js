@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DocumentReference
     A reference to a document of any kind for any purpose. Provides metadata about
@@ -594,7 +593,6 @@ class DocumentReference extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -647,7 +645,6 @@ class DocumentReference extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -805,7 +802,6 @@ class DocumentReference extends Resource {
         return new DocumentReference(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -900,7 +896,6 @@ class DocumentReference extends Resource {
             content: this.content && this.content.map(v => v.toJSONInternal()),
             context: this.context && this.context.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

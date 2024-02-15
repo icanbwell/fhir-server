@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SupplyRequest
     A record of a request for a medication, substance or device used in the
@@ -623,7 +622,6 @@ class SupplyRequest extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -676,7 +674,6 @@ class SupplyRequest extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -842,7 +839,6 @@ class SupplyRequest extends Resource {
         return new SupplyRequest(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -943,7 +939,6 @@ class SupplyRequest extends Resource {
             deliverFrom: this.deliverFrom && this.deliverFrom.toJSONInternal(),
             deliverTo: this.deliverTo && this.deliverTo.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

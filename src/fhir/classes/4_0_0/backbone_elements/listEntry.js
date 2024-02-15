@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 List.Entry
     A list is a curated collection of resources.
@@ -187,9 +186,6 @@ class ListEntry extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -202,8 +198,6 @@ class ListEntry extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -250,8 +244,6 @@ class ListEntry extends Element {
             date: this.date,
             item: this.item && this.item.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

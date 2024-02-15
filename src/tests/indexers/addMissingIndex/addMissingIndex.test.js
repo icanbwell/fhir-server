@@ -8,7 +8,6 @@ const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals')
 const {customIndexes} = require('./mockCustomIndexes');
 const {IndexProvider} = require('../../../indexes/indexProvider');
 
-
 class MockIndexProvider extends IndexProvider {
     getIndexes () {
         // noinspection JSValidateTypes

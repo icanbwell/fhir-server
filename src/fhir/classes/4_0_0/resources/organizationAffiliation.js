@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OrganizationAffiliation
     Defines an affiliation/assotiation/relationship between 2 distinct
@@ -497,7 +496,6 @@ class OrganizationAffiliation extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -550,7 +548,6 @@ class OrganizationAffiliation extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -692,7 +689,6 @@ class OrganizationAffiliation extends Resource {
         return new OrganizationAffiliation(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -778,7 +774,6 @@ class OrganizationAffiliation extends Resource {
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

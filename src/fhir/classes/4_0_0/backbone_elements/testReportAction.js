@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestReport.Action
     A summary of information based on the results of executing a TestScript.
@@ -146,9 +145,6 @@ class TestReportAction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class TestReportAction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class TestReportAction extends Element {
             operation: this.operation && this.operation.toJSONInternal(),
             assert: this.assert && this.assert.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

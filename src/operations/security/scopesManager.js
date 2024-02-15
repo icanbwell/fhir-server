@@ -240,4 +240,3 @@ class ScopesManager {
 module.exports = {
     ScopesManager
 };
-

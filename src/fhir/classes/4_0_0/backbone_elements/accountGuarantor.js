@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Account.Guarantor
     A financial tool for tracking value accrued for a particular purpose.  In the
@@ -169,9 +168,6 @@ class AccountGuarantor extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -183,8 +179,6 @@ class AccountGuarantor extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -229,8 +223,6 @@ class AccountGuarantor extends Element {
             onHold: this.onHold,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

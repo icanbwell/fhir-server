@@ -11,7 +11,6 @@ const friendlyDescriptionOfStages = {
     'SHARDING_FILTER': 'for filtering out orphan documents from shards'
 };
 
-
 /**
  * @typedef Step
  * @property {number} stepNo

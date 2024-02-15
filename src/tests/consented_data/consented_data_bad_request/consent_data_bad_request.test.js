@@ -21,7 +21,6 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
-
 const headers = getHeaders('user/*.read access/client.*');
 
 describe('Consent Based Data Access Test', () => {

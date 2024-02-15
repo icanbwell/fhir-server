@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EffectEvidenceSynthesis.PrecisionEstimate
     The EffectEvidenceSynthesis resource describes the difference in an outcome
@@ -186,9 +185,6 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -201,8 +197,6 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -248,8 +242,6 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             from: this.from,
             to: this.to
         };
-
-
 
         return removeNull(json);
     }

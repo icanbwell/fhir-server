@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Meta
     The metadata about a resource. This is content in the resource that is
@@ -205,9 +204,6 @@ class Meta extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -221,8 +217,6 @@ class Meta extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -270,8 +264,6 @@ class Meta extends Element {
             security: this.security && this.security.map(v => v.toJSONInternal()),
             tag: this.tag && this.tag.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

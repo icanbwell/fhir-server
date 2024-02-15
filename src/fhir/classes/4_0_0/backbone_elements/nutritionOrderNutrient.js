@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NutritionOrder.Nutrient
     A request to supply a diet, formula feeding (enteral) or oral nutritional
@@ -147,9 +146,6 @@ class NutritionOrderNutrient extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class NutritionOrderNutrient extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -204,8 +198,6 @@ class NutritionOrderNutrient extends Element {
             modifier: this.modifier && this.modifier.toJSONInternal(),
             amount: this.amount && this.amount.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

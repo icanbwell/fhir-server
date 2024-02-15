@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AllergyIntolerance.Reaction
     Risk of harmful or undesirable, physiological response which is unique to an
@@ -264,9 +263,6 @@ class AllergyIntoleranceReaction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -282,8 +278,6 @@ class AllergyIntoleranceReaction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -338,8 +332,6 @@ class AllergyIntoleranceReaction extends Element {
             exposureRoute: this.exposureRoute && this.exposureRoute.toJSONInternal(),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

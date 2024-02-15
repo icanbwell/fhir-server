@@ -251,7 +251,6 @@ class UpdateOperation {
             }
         }
 
-
         try {
             /**
              * @type {boolean}
@@ -500,4 +499,3 @@ class UpdateOperation {
 module.exports = {
     UpdateOperation
 };
-

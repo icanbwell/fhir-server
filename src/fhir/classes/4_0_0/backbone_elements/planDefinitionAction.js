@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PlanDefinition.Action
     This resource allows for the definition of various types of plans as a
@@ -840,9 +839,6 @@ class PlanDefinitionAction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -885,8 +881,6 @@ class PlanDefinitionAction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -1010,8 +1004,6 @@ class PlanDefinitionAction extends Element {
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

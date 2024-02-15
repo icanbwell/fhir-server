@@ -293,7 +293,6 @@ class MyJwtStrategy extends JwtStrategy {
     }
 }
 
-
 /**
  * Bearer Strategy
  *

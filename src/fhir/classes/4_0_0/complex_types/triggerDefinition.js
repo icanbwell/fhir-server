@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TriggerDefinition
     A description of a triggering event. Triggering events can be named events,
@@ -243,9 +242,6 @@ class TriggerDefinition extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -261,8 +257,6 @@ class TriggerDefinition extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -316,8 +310,6 @@ class TriggerDefinition extends Element {
             data: this.data && this.data.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

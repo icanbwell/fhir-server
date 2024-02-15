@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PractitionerRole
     A specific set of Roles/Locations/specialties/services that a practitioner may
@@ -542,7 +541,6 @@ class PractitionerRole extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -595,7 +593,6 @@ class PractitionerRole extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -745,7 +742,6 @@ class PractitionerRole extends Resource {
         return new PractitionerRole(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -836,7 +832,6 @@ class PractitionerRole extends Resource {
             availabilityExceptions: this.availabilityExceptions,
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

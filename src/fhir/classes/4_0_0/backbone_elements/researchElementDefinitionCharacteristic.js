@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ResearchElementDefinition.Characteristic
     The ResearchElementDefinition resource describes a "PICO" element that
@@ -550,9 +549,6 @@ class ResearchElementDefinitionCharacteristic extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -582,8 +578,6 @@ class ResearchElementDefinitionCharacteristic extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -675,8 +669,6 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSONInternal(),
             participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure
         };
-
-
 
         return removeNull(json);
     }

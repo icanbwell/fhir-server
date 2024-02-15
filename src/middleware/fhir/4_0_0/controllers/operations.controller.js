@@ -168,4 +168,3 @@ class CustomOperationsController {
 module.exports = {
     CustomOperationsController
 };
-

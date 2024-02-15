@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstancePolymer.StructuralRepresentation
     Todo.
@@ -166,9 +165,6 @@ class SubstancePolymerStructuralRepresentation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -180,8 +176,6 @@ class SubstancePolymerStructuralRepresentation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -226,8 +220,6 @@ class SubstancePolymerStructuralRepresentation extends Element {
             representation: this.representation,
             attachment: this.attachment && this.attachment.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

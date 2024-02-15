@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskEvidenceSynthesis
     The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
@@ -933,7 +932,6 @@ class RiskEvidenceSynthesis extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -986,7 +984,6 @@ class RiskEvidenceSynthesis extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1204,7 +1201,6 @@ class RiskEvidenceSynthesis extends Resource {
         return new RiskEvidenceSynthesis(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1337,7 +1333,6 @@ class RiskEvidenceSynthesis extends Resource {
             riskEstimate: this.riskEstimate && this.riskEstimate.toJSONInternal(),
             certainty: this.certainty && this.certainty.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

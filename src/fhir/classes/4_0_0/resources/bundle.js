@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Bundle
     A container for a collection of resources.
@@ -272,7 +271,6 @@ class Bundle extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -325,7 +323,6 @@ class Bundle extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -431,7 +428,6 @@ class Bundle extends Resource {
         return new Bundle(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -488,7 +484,6 @@ class Bundle extends Resource {
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
             signature: this.signature && this.signature.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

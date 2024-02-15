@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Dosage.DoseAndRate
     Indicates how the medication is/was taken or should be taken by the patient.
@@ -236,9 +235,6 @@ class DosageDoseAndRate extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -253,8 +249,6 @@ class DosageDoseAndRate extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -309,8 +303,6 @@ class DosageDoseAndRate extends Element {
             rateRange: this.rateRange && this.rateRange.toJSONInternal(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

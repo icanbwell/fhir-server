@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Device
     A type of a manufactured item that is used in the provision of healthcare
@@ -799,7 +798,6 @@ class Device extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -852,7 +850,6 @@ class Device extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1050,7 +1047,6 @@ class Device extends Resource {
         return new Device(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1169,7 +1165,6 @@ class Device extends Resource {
             safety: this.safety && this.safety.map(v => v.toJSONInternal()),
             parent: this.parent && this.parent.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

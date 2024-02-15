@@ -49,7 +49,6 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // Next create a vector store to store the embedding vectors from the above documents
         // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
 
-
         // Now create an OpenAI model.
         /**
          * @type {import('langchain/chat_models').BaseChatModel}

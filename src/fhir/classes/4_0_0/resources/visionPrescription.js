@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 VisionPrescription
     An authorization for the provision of glasses and/or contact lenses to a
@@ -403,7 +402,6 @@ class VisionPrescription extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -456,7 +454,6 @@ class VisionPrescription extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -582,7 +579,6 @@ class VisionPrescription extends Resource {
         return new VisionPrescription(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -654,7 +650,6 @@ class VisionPrescription extends Resource {
             prescriber: this.prescriber && this.prescriber.toJSONInternal(),
             lensSpecification: this.lensSpecification && this.lensSpecification.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

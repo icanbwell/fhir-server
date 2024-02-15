@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DetectedIssue
     Indicates an actual or potential clinical issue with or between one or more
@@ -515,7 +514,6 @@ class DetectedIssue extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -568,7 +566,6 @@ class DetectedIssue extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -714,7 +711,6 @@ class DetectedIssue extends Resource {
         return new DetectedIssue(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -799,7 +795,6 @@ class DetectedIssue extends Resource {
             reference: this.reference,
             mitigation: this.mitigation && this.mitigation.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

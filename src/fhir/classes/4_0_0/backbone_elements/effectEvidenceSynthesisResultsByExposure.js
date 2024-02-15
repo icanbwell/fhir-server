@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EffectEvidenceSynthesis.ResultsByExposure
     The EffectEvidenceSynthesis resource describes the difference in an outcome
@@ -189,9 +188,6 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -204,8 +200,6 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -252,8 +246,6 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             variantState: this.variantState && this.variantState.toJSONInternal(),
             riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

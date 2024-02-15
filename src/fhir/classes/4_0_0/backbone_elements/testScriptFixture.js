@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript.Fixture
     A structured set of tests against a FHIR server or client implementation to
@@ -172,9 +171,6 @@ class TestScriptFixture extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -186,8 +182,6 @@ class TestScriptFixture extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class TestScriptFixture extends Element {
             autodelete: this.autodelete,
             resource: this.resource && this.resource.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

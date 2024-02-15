@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 BiologicallyDerivedProduct.Storage
     A material substance originating from a biological entity intended to be
@@ -186,9 +185,6 @@ class BiologicallyDerivedProductStorage extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -201,8 +197,6 @@ class BiologicallyDerivedProductStorage extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -248,8 +242,6 @@ class BiologicallyDerivedProductStorage extends Element {
             scale: this.scale,
             duration: this.duration && this.duration.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -274,7 +274,6 @@ class ResourceLocator {
     }
 }
 
-
 module.exports = {
     ResourceLocator
 };

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceReferenceInformation.GeneElement
     Todo.
@@ -168,9 +167,6 @@ class SubstanceReferenceInformationGeneElement extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -182,8 +178,6 @@ class SubstanceReferenceInformationGeneElement extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -229,8 +223,6 @@ class SubstanceReferenceInformationGeneElement extends Element {
             element: this.element && this.element.toJSONInternal(),
             source: this.source && this.source.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

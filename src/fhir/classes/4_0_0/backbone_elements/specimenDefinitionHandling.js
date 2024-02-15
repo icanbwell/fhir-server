@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SpecimenDefinition.Handling
     A kind of specimen with associated set of requirements.
@@ -192,9 +191,6 @@ class SpecimenDefinitionHandling extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -207,8 +203,6 @@ class SpecimenDefinitionHandling extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -256,8 +250,6 @@ class SpecimenDefinitionHandling extends Element {
             maxDuration: this.maxDuration && this.maxDuration.toJSONInternal(),
             instruction: this.instruction
         };
-
-
 
         return removeNull(json);
     }

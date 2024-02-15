@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic.EventTrigger
     Describes a stream of resource state changes or events and annotated with
@@ -174,9 +173,6 @@ class SubscriptionTopicEventTrigger extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -188,8 +184,6 @@ class SubscriptionTopicEventTrigger extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -233,8 +227,6 @@ class SubscriptionTopicEventTrigger extends Element {
             event: this.event && this.event.toJSONInternal(),
             resource: this.resource
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Procedure.FocalDevice
     An action that is or was performed on or for a patient. This can be a physical
@@ -148,9 +147,6 @@ class ProcedureFocalDevice extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -161,8 +157,6 @@ class ProcedureFocalDevice extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -205,8 +199,6 @@ class ProcedureFocalDevice extends Element {
             action: this.action && this.action.toJSONInternal(),
             manipulated: this.manipulated && this.manipulated.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

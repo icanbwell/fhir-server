@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationRequest.DispenseRequest
     An order or request for both supply of the medication and the instructions for
@@ -267,9 +266,6 @@ class MedicationRequestDispenseRequest extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -285,8 +281,6 @@ class MedicationRequestDispenseRequest extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -343,8 +337,6 @@ class MedicationRequestDispenseRequest extends Element {
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSONInternal(),
             performer: this.performer && this.performer.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

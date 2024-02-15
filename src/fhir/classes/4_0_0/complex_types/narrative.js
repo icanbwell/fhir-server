@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Narrative
     A human-readable summary of the resource conveying the essential clinical and
@@ -113,9 +112,6 @@ class Narrative extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -125,8 +121,6 @@ class Narrative extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -164,8 +158,6 @@ class Narrative extends Element {
             status: this.status,
             div: this.div
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstancePolymer.MonomerSet
     Todo.
@@ -146,9 +145,6 @@ class SubstancePolymerMonomerSet extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class SubstancePolymerMonomerSet extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class SubstancePolymerMonomerSet extends Element {
             ratioType: this.ratioType && this.ratioType.toJSONInternal(),
             startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

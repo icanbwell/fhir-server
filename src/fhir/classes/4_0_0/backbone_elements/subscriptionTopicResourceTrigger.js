@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic.ResourceTrigger
     Describes a stream of resource state changes or events and annotated with
@@ -218,9 +217,6 @@ class SubscriptionTopicResourceTrigger extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -234,8 +230,6 @@ class SubscriptionTopicResourceTrigger extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -284,8 +278,6 @@ class SubscriptionTopicResourceTrigger extends Element {
             queryCriteria: this.queryCriteria && this.queryCriteria.toJSONInternal(),
             fhirPathCriteria: this.fhirPathCriteria
         };
-
-
 
         return removeNull(json);
     }

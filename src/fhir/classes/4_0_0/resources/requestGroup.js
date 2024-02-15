@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RequestGroup
     A group of related requests that can be used to capture intended activities
@@ -623,7 +622,6 @@ class RequestGroup extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -676,7 +674,6 @@ class RequestGroup extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -842,7 +839,6 @@ class RequestGroup extends Resource {
         return new RequestGroup(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -941,7 +937,6 @@ class RequestGroup extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

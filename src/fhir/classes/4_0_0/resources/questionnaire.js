@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Questionnaire
     A structured set of questions intended to guide the collection of answers from
@@ -722,7 +721,6 @@ class Questionnaire extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -775,7 +773,6 @@ class Questionnaire extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -957,7 +954,6 @@ class Questionnaire extends Resource {
         return new Questionnaire(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1059,7 +1055,6 @@ class Questionnaire extends Resource {
             code: this.code && this.code.map(v => v.toJSONInternal()),
             item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

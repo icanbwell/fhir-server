@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ChargeItemDefinition.PropertyGroup
     The ChargeItemDefinition resource provides the properties that apply to the
@@ -154,9 +153,6 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -167,8 +163,6 @@ class ChargeItemDefinitionPropertyGroup extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -211,8 +205,6 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             applicability: this.applicability && this.applicability.map(v => v.toJSONInternal()),
             priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

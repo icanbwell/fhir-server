@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MeasureReport
     The MeasureReport resource contains the results of the calculation of a
@@ -476,7 +475,6 @@ class MeasureReport extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -529,7 +527,6 @@ class MeasureReport extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -667,7 +664,6 @@ class MeasureReport extends Resource {
         return new MeasureReport(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -747,7 +743,6 @@ class MeasureReport extends Resource {
             group: this.group && this.group.map(v => v.toJSONInternal()),
             evaluatedResource: this.evaluatedResource && this.evaluatedResource.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

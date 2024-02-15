@@ -206,7 +206,6 @@ describe('AuditEvent Tests', () => {
             expect(client1AuditEntries.length).toBe(1);
             expect(client1AuditEntries[0]._access.client1).toBe(1);
 
-
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request

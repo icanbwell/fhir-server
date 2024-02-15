@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceDefinition
     The characteristics, operational status and capabilities of a medical-related
@@ -738,7 +737,6 @@ class DeviceDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -791,7 +789,6 @@ class DeviceDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -977,7 +974,6 @@ class DeviceDefinition extends Resource {
         return new DeviceDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1092,7 +1088,6 @@ class DeviceDefinition extends Resource {
             parentDevice: this.parentDevice && this.parentDevice.toJSONInternal(),
             material: this.material && this.material.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

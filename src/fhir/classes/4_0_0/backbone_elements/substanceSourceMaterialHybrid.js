@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial.Hybrid
     Source material shall capture information on the taxonomic and anatomical
@@ -224,9 +223,6 @@ class SubstanceSourceMaterialHybrid extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -240,8 +236,6 @@ class SubstanceSourceMaterialHybrid extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -289,8 +283,6 @@ class SubstanceSourceMaterialHybrid extends Element {
             paternalOrganismName: this.paternalOrganismName,
             hybridType: this.hybridType && this.hybridType.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskEvidenceSynthesis.RiskEstimate
     The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
@@ -250,9 +249,6 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -268,8 +264,6 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -323,8 +317,6 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             numeratorCount: this.numeratorCount,
             precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

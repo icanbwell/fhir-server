@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic.CanFilterBy
     Describes a stream of resource state changes or events and annotated with
@@ -213,9 +212,6 @@ class SubscriptionTopicCanFilterBy extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -229,8 +225,6 @@ class SubscriptionTopicCanFilterBy extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -277,8 +271,6 @@ class SubscriptionTopicCanFilterBy extends Element {
             filterDefinition: this.filterDefinition,
             modifier: this.modifier
         };
-
-
 
         return removeNull(json);
     }

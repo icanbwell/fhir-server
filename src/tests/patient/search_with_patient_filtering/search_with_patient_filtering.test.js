@@ -37,7 +37,6 @@ const {
 const {describe, beforeAll, afterAll, test, expect} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
 
-
 describe('patient Tests', () => {
     beforeAll(async () => {
         await commonBeforeEach();

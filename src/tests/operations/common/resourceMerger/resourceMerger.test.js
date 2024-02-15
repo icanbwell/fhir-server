@@ -9,7 +9,6 @@ const person1Resource = require('./fixtures/Person/person1.json');
 const personMergeResource = require('./fixtures/Person/person2.json');
 // const expectedPersonResource = require('./fixtures/expected/expected_person.json');
 
-
 const {ResourceMerger} = require('../../../../operations/common/resourceMerger');
 const Person = require('../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
@@ -49,7 +48,6 @@ describe('ResourceMerger Tests', () => {
             // now try merge with our options
             mergedObject = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
             expect(mergedObject.gender).toStrictEqual('male');
-
 
             /**
              * @type {{updatedResource: (Resource|null), patches: (MergePatchEntry[]|null)}}

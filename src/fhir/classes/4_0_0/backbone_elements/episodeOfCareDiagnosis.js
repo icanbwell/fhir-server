@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EpisodeOfCare.Diagnosis
     An association between a patient and an organization / healthcare provider(s)
@@ -170,9 +169,6 @@ class EpisodeOfCareDiagnosis extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -184,8 +180,6 @@ class EpisodeOfCareDiagnosis extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -230,8 +224,6 @@ class EpisodeOfCareDiagnosis extends Element {
             role: this.role && this.role.toJSONInternal(),
             rank: this.rank
         };
-
-
 
         return removeNull(json);
     }

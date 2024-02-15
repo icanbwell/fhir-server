@@ -133,7 +133,6 @@ const createContainer = function () {
 
     container.register('patientFilterManager', () => new PatientFilterManager());
 
-
     container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new HiddenMetaTagEnrichmentProvider(),

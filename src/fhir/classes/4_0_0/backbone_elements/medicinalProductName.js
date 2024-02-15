@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProduct.Name
     Detailed definition of a medicinal product, typically for uses other than
@@ -167,9 +166,6 @@ class MedicinalProductName extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -181,8 +177,6 @@ class MedicinalProductName extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -227,8 +221,6 @@ class MedicinalProductName extends Element {
             namePart: this.namePart && this.namePart.map(v => v.toJSONInternal()),
             countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

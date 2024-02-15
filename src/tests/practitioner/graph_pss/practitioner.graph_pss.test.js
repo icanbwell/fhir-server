@@ -131,7 +131,6 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultipleResource);
 
-
         });
     });
 });

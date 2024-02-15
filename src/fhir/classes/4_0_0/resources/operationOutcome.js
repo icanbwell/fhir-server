@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationOutcome
     A collection of error, warning, or information messages that result from a
@@ -252,7 +251,6 @@ class OperationOutcome extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -305,7 +303,6 @@ class OperationOutcome extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -403,7 +400,6 @@ class OperationOutcome extends Resource {
         return new OperationOutcome(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -457,7 +453,6 @@ class OperationOutcome extends Resource {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             issue: this.issue && this.issue.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

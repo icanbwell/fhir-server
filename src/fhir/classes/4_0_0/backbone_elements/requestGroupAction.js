@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RequestGroup.Action
     A group of related requests that can be used to capture intended activities
@@ -617,9 +616,6 @@ class RequestGroupAction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -652,8 +648,6 @@ class RequestGroupAction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -751,8 +745,6 @@ class RequestGroupAction extends Element {
             resource: this.resource && this.resource.toJSONInternal(),
             action: this.action && this.action.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

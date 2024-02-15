@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Flag
     Prospective warnings of potential issues when providing care to the patient.
@@ -409,7 +408,6 @@ class Flag extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -462,7 +460,6 @@ class Flag extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -588,7 +585,6 @@ class Flag extends Resource {
         return new Flag(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -662,7 +658,6 @@ class Flag extends Resource {
             encounter: this.encounter && this.encounter.toJSONInternal(),
             author: this.author && this.author.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

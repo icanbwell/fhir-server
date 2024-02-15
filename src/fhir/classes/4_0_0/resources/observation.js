@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Observation
     Measurements and simple assertions made about a patient, device or other
@@ -1057,7 +1056,6 @@ class Observation extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1110,7 +1108,6 @@ class Observation extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1352,7 +1349,6 @@ class Observation extends Resource {
         return new Observation(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1505,7 +1501,6 @@ class Observation extends Resource {
             derivedFrom: this.derivedFrom && this.derivedFrom.map(v => v.toJSONInternal()),
             component: this.component && this.component.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

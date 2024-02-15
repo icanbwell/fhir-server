@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceProtein.Subunit
     A SubstanceProtein is defined as a single unit of a linear amino acid
@@ -293,9 +292,6 @@ class SubstanceProteinSubunit extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -312,8 +308,6 @@ class SubstanceProteinSubunit extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -369,8 +363,6 @@ class SubstanceProteinSubunit extends Element {
             cTerminalModificationId: this.cTerminalModificationId && this.cTerminalModificationId.toJSONInternal(),
             cTerminalModification: this.cTerminalModification
         };
-
-
 
         return removeNull(json);
     }

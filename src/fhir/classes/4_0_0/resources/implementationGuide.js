@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide
     A set of rules of how a particular interoperability or standards problem is
@@ -687,7 +686,6 @@ class ImplementationGuide extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -740,7 +738,6 @@ class ImplementationGuide extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -914,7 +911,6 @@ class ImplementationGuide extends Resource {
         return new ImplementationGuide(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1012,7 +1008,6 @@ class ImplementationGuide extends Resource {
             definition: this.definition && this.definition.toJSONInternal(),
             manifest: this.manifest && this.manifest.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

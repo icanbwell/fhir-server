@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AppointmentResponse
     A reply to an appointment request for a patient and/or practitioner(s), such
@@ -407,7 +406,6 @@ class AppointmentResponse extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -460,7 +458,6 @@ class AppointmentResponse extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -586,7 +583,6 @@ class AppointmentResponse extends Resource {
         return new AppointmentResponse(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -657,7 +653,6 @@ class AppointmentResponse extends Resource {
             participantStatus: this.participantStatus,
             comment: this.comment
         };
-
 
         if (this._access) {
             json._access = this._access;

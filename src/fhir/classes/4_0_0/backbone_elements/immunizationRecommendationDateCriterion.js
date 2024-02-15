@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImmunizationRecommendation.DateCriterion
     A patient's point-in-time set of recommendations (i.e. forecasting) according
@@ -146,9 +145,6 @@ class ImmunizationRecommendationDateCriterion extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class ImmunizationRecommendationDateCriterion extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -202,8 +196,6 @@ class ImmunizationRecommendationDateCriterion extends Element {
             code: this.code && this.code.toJSONInternal(),
             value: this.value
         };
-
-
 
         return removeNull(json);
     }

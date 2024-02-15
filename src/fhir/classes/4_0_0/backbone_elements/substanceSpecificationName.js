@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Name
     The detailed description of a substance, typically at a level beyond what is
@@ -340,9 +339,6 @@ class SubstanceSpecificationName extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -362,8 +358,6 @@ class SubstanceSpecificationName extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -431,8 +425,6 @@ class SubstanceSpecificationName extends Element {
             official: this.official && this.official.map(v => v.toJSONInternal()),
             source: this.source && this.source.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CommunicationRequest
     A request to convey information; e.g. the CDS system proposes that an alert be
@@ -742,7 +741,6 @@ class CommunicationRequest extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -795,7 +793,6 @@ class CommunicationRequest extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -981,7 +978,6 @@ class CommunicationRequest extends Resource {
         return new CommunicationRequest(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1096,7 +1092,6 @@ class CommunicationRequest extends Resource {
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

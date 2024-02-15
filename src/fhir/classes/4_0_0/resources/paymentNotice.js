@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PaymentNotice
     This resource provides the status of the payment for goods and services
@@ -489,7 +488,6 @@ class PaymentNotice extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -542,7 +540,6 @@ class PaymentNotice extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -684,7 +681,6 @@ class PaymentNotice extends Resource {
         return new PaymentNotice(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -768,7 +764,6 @@ class PaymentNotice extends Resource {
             amount: this.amount && this.amount.toJSONInternal(),
             paymentStatus: this.paymentStatus && this.paymentStatus.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

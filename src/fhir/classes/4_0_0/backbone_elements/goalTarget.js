@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Goal.Target
     Describes the intended objective(s) for a patient, group or organization care,
@@ -317,9 +316,6 @@ class GoalTarget extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -338,8 +334,6 @@ class GoalTarget extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -402,8 +396,6 @@ class GoalTarget extends Element {
             dueDate: this.dueDate,
             dueDuration: this.dueDuration && this.dueDuration.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

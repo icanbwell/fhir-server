@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CatalogEntry.RelatedEntry
     Catalog entries are wrappers that contextualize items included in a catalog.
@@ -145,9 +144,6 @@ class CatalogEntryRelatedEntry extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -158,8 +154,6 @@ class CatalogEntryRelatedEntry extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -201,8 +195,6 @@ class CatalogEntryRelatedEntry extends Element {
             relationtype: this.relationtype,
             item: this.item && this.item.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

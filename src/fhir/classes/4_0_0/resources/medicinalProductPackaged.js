@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPackaged
     A medicinal product in a container or package.
@@ -427,7 +426,6 @@ class MedicinalProductPackaged extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -480,7 +478,6 @@ class MedicinalProductPackaged extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -610,7 +607,6 @@ class MedicinalProductPackaged extends Resource {
         return new MedicinalProductPackaged(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -687,7 +683,6 @@ class MedicinalProductPackaged extends Resource {
             batchIdentifier: this.batchIdentifier && this.batchIdentifier.map(v => v.toJSONInternal()),
             packageItem: this.packageItem && this.packageItem.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

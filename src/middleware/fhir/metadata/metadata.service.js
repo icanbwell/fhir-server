@@ -48,7 +48,6 @@ const generateCapabilityStatement = ({
         return reject(errors.internal('Unable to generate metadata for this FHIR specification.'));
     } // Let's start building our confromance/capability statement
 
-
     const serverStatement = {
         mode: 'server'
     }; // Add security information if available
@@ -56,7 +55,6 @@ const generateCapabilityStatement = ({
     if (security) {
         serverStatement.security = securityStatement(security);
     } // Add operations to resource if they exist.
-
 
     const operations = keys.reduce((ops, profile_name) => {
         const opsInProfile = profiles[`${profile_name}`].operation;
@@ -80,7 +78,6 @@ const generateCapabilityStatement = ({
         serverStatement.operation = operations;
     } // Make the resource and give it the version so it can only include valid search params
 
-
     let customMakeResource = null;
     serverStatement.resource = active_profiles.map(profile => {
         if (profile.metadata) {
@@ -101,7 +98,6 @@ const generateCapabilityStatement = ({
  * @name exports
  * @summary Metadata service
  */
-
 
 module.exports = {
     generateCapabilityStatement

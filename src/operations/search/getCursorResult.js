@@ -78,5 +78,3 @@ class GetCursorResult {
 module.exports = {
     GetCursorResult
 };
-
-

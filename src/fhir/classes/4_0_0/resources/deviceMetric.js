@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceMetric
     Describes a measurement, calculation or setting capability of a medical
@@ -468,7 +467,6 @@ class DeviceMetric extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -521,7 +519,6 @@ class DeviceMetric extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -655,7 +652,6 @@ class DeviceMetric extends Resource {
         return new DeviceMetric(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -733,7 +729,6 @@ class DeviceMetric extends Resource {
             measurementPeriod: this.measurementPeriod && this.measurementPeriod.toJSONInternal(),
             calibration: this.calibration && this.calibration.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

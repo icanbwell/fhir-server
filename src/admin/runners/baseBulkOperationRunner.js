@@ -520,7 +520,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 await session.commitTransaction();
                             }
 
-
                             const message =
                                 `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                                 `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +

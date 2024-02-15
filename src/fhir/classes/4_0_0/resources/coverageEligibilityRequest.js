@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CoverageEligibilityRequest
     The CoverageEligibilityRequest provides patient and insurance coverage
@@ -564,7 +563,6 @@ class CoverageEligibilityRequest extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -617,7 +615,6 @@ class CoverageEligibilityRequest extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -771,7 +768,6 @@ class CoverageEligibilityRequest extends Resource {
         return new CoverageEligibilityRequest(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -863,7 +859,6 @@ class CoverageEligibilityRequest extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

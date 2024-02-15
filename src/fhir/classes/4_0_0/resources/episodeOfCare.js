@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EpisodeOfCare
     An association between a patient and an organization / healthcare provider(s)
@@ -501,7 +500,6 @@ class EpisodeOfCare extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -554,7 +552,6 @@ class EpisodeOfCare extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -696,7 +693,6 @@ class EpisodeOfCare extends Resource {
         return new EpisodeOfCare(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -782,7 +778,6 @@ class EpisodeOfCare extends Resource {
             team: this.team && this.team.map(v => v.toJSONInternal()),
             account: this.account && this.account.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

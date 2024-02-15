@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceDefinition.UdiDeviceIdentifier
     The characteristics, operational status and capabilities of a medical-related
@@ -165,9 +164,6 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -179,8 +175,6 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -223,8 +217,6 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             issuer: this.issuer,
             jurisdiction: this.jurisdiction
         };
-
-
 
         return removeNull(json);
     }

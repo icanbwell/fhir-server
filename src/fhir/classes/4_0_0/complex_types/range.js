@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Range
     A set of ordered Quantities defined by a low and high limit.
@@ -114,9 +113,6 @@ class Range extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -126,8 +122,6 @@ class Range extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -167,8 +161,6 @@ class Range extends Element {
             low: this.low && this.low.toJSONInternal(),
             high: this.high && this.high.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

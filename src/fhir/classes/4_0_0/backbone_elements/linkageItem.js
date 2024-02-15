@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Linkage.Item
     Identifies two or more records (resource instances) that refer to the same
@@ -146,9 +145,6 @@ class LinkageItem extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class LinkageItem extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -202,8 +196,6 @@ class LinkageItem extends Element {
             type: this.type,
             resource: this.resource && this.resource.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

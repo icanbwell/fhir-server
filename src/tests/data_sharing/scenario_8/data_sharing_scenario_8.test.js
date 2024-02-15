@@ -34,7 +34,6 @@ const {
 const {describe, beforeEach, afterEach, test, jest, expect} = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
 
-
 const headers = getHeaders('user/*.read access/client.*');
 const client1Headers = getHeaders('user/*.read access/client-1.*');
 const client_1Headers = getHeaders('user/*.read access/client_1.*');

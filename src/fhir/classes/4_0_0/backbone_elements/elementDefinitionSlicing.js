@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ElementDefinition.Slicing
     Captures constraints on each element within the resource, profile, or
@@ -196,9 +195,6 @@ class ElementDefinitionSlicing extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -211,8 +207,6 @@ class ElementDefinitionSlicing extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -258,8 +252,6 @@ class ElementDefinitionSlicing extends Element {
             ordered: this.ordered,
             rules: this.rules
         };
-
-
 
         return removeNull(json);
     }

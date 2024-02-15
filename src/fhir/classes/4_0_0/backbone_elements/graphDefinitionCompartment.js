@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 GraphDefinition.Compartment
     A formal computable definition of a graph of resources - that is, a coherent
@@ -206,9 +205,6 @@ class GraphDefinitionCompartment extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -222,8 +218,6 @@ class GraphDefinitionCompartment extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -270,8 +264,6 @@ class GraphDefinitionCompartment extends Element {
             expression: this.expression,
             description: this.description
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ClinicalImpression.Investigation
     A record of a clinical assessment performed to determine what problem(s) may
@@ -155,9 +154,6 @@ class ClinicalImpressionInvestigation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -168,8 +164,6 @@ class ClinicalImpressionInvestigation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -212,8 +206,6 @@ class ClinicalImpressionInvestigation extends Element {
             code: this.code && this.code.toJSONInternal(),
             item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

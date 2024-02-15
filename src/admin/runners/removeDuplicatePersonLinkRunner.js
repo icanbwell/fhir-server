@@ -82,7 +82,6 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         this.collectionName = 'Person_4_0_0';
     }
 
-
     /**
      * @description Updates the link of resources by removing
      * @param {Resource} resource

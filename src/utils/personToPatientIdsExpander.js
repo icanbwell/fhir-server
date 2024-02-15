@@ -10,7 +10,6 @@ const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
 const maximumRecursionDepth = 4;
 
-
 class PersonToPatientIdsExpander {
     /**
      * constructor

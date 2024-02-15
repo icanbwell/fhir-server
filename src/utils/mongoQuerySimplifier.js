@@ -63,7 +63,6 @@ class MongoQuerySimplifier {
             }
         }
 
-
         if (filter.$or && filter.$or.length === 1) {
             filter = filter.$or[0];
         }

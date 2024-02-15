@@ -13,7 +13,6 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
-
 describe('Practitioner Last Updated Time', () => {
     beforeEach(async () => {
         await commonBeforeEach();

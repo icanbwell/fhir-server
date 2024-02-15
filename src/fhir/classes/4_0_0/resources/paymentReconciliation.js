@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PaymentReconciliation
     This resource provides the details including amount of a payment and allocates
@@ -552,7 +551,6 @@ class PaymentReconciliation extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -605,7 +603,6 @@ class PaymentReconciliation extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -759,7 +756,6 @@ class PaymentReconciliation extends Resource {
         return new PaymentReconciliation(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -850,7 +846,6 @@ class PaymentReconciliation extends Resource {
             formCode: this.formCode && this.formCode.toJSONInternal(),
             processNote: this.processNote && this.processNote.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

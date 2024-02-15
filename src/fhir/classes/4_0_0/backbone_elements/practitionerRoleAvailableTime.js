@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PractitionerRole.AvailableTime
     A specific set of Roles/Locations/specialties/services that a practitioner may
@@ -186,9 +185,6 @@ class PractitionerRoleAvailableTime extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -201,8 +197,6 @@ class PractitionerRoleAvailableTime extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -247,8 +241,6 @@ class PractitionerRoleAvailableTime extends Element {
             availableStartTime: this.availableStartTime,
             availableEndTime: this.availableEndTime
         };
-
-
 
         return removeNull(json);
     }

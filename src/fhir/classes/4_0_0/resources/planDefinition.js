@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PlanDefinition
     This resource allows for the definition of various types of plans as a
@@ -956,7 +955,6 @@ class PlanDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1009,7 +1007,6 @@ class PlanDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1231,7 +1228,6 @@ class PlanDefinition extends Resource {
         return new PlanDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1362,7 +1358,6 @@ class PlanDefinition extends Resource {
             goal: this.goal && this.goal.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

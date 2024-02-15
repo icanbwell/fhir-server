@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Bundle.Search
     A container for a collection of resources.
@@ -144,9 +143,6 @@ class BundleSearch extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -157,8 +153,6 @@ class BundleSearch extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -199,8 +193,6 @@ class BundleSearch extends Element {
             mode: this.mode,
             score: this.score
         };
-
-
 
         return removeNull(json);
     }

@@ -32,7 +32,6 @@ const {READ, WRITE} = require('../constants').OPERATIONS;
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
-
 class FhirOperationsManager {
     /**
      * constructor

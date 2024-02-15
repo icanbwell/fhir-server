@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionStatus
     The SubscriptionStatus resource describes the state of a Subscription during
@@ -383,7 +382,6 @@ class SubscriptionStatus extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -436,7 +434,6 @@ class SubscriptionStatus extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -558,7 +555,6 @@ class SubscriptionStatus extends Resource {
         return new SubscriptionStatus(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -627,7 +623,6 @@ class SubscriptionStatus extends Resource {
             topic: this.topic,
             error: this.error && this.error.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

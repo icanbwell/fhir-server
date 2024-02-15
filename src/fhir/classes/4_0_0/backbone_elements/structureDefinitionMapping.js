@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 StructureDefinition.Mapping
     A definition of a FHIR structure. This resource is used to describe the
@@ -187,9 +186,6 @@ class StructureDefinitionMapping extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -202,8 +198,6 @@ class StructureDefinitionMapping extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -248,8 +242,6 @@ class StructureDefinitionMapping extends Element {
             name: this.name,
             comment: this.comment
         };
-
-
 
         return removeNull(json);
     }

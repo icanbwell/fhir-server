@@ -2,7 +2,6 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {IndexManager} = require('../../indexes/indexManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 
-
 /**
  * @classdesc Adds and removes indexes
  */

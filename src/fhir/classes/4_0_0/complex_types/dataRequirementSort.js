@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DataRequirement.Sort
     Describes a required data item for evaluation in terms of the type of data,
@@ -114,9 +113,6 @@ class DataRequirementSort extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -126,8 +122,6 @@ class DataRequirementSort extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -165,8 +159,6 @@ class DataRequirementSort extends Element {
             path: this.path,
             direction: this.direction
         };
-
-
 
         return removeNull(json);
     }

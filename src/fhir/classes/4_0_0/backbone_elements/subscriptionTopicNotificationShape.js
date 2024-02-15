@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic.NotificationShape
     Describes a stream of resource state changes or events and annotated with
@@ -173,9 +172,6 @@ class SubscriptionTopicNotificationShape extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -187,8 +183,6 @@ class SubscriptionTopicNotificationShape extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class SubscriptionTopicNotificationShape extends Element {
             include: this.include,
             revInclude: this.revInclude
         };
-
-
 
         return removeNull(json);
     }

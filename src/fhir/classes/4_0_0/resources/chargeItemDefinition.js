@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ChargeItemDefinition
     The ChargeItemDefinition resource provides the properties that apply to the
@@ -753,7 +752,6 @@ class ChargeItemDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -806,7 +804,6 @@ class ChargeItemDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -992,7 +989,6 @@ class ChargeItemDefinition extends Resource {
         return new ChargeItemDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1098,7 +1094,6 @@ class ChargeItemDefinition extends Resource {
             applicability: this.applicability && this.applicability.map(v => v.toJSONInternal()),
             propertyGroup: this.propertyGroup && this.propertyGroup.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

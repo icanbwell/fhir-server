@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationDefinition.Binding
     A formal computable definition of an operation (on the RESTful interface) or a
@@ -146,9 +145,6 @@ class OperationDefinitionBinding extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class OperationDefinitionBinding extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -201,8 +195,6 @@ class OperationDefinitionBinding extends Element {
             strength: this.strength,
             valueSet: this.valueSet
         };
-
-
 
         return removeNull(json);
     }

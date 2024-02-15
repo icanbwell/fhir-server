@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductIndication.OtherTherapy
     Indication for the Medicinal Product.
@@ -169,9 +168,6 @@ class MedicinalProductIndicationOtherTherapy extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -183,8 +179,6 @@ class MedicinalProductIndicationOtherTherapy extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -230,8 +224,6 @@ class MedicinalProductIndicationOtherTherapy extends Element {
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
             medicationReference: this.medicationReference && this.medicationReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Medication
     This resource is primarily used for the identification and definition of a
@@ -413,7 +412,6 @@ class Medication extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -466,7 +464,6 @@ class Medication extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -592,7 +589,6 @@ class Medication extends Resource {
         return new Medication(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -666,7 +662,6 @@ class Medication extends Resource {
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
             batch: this.batch && this.batch.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

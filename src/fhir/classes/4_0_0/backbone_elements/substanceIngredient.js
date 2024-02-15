@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Substance.Ingredient
     A homogeneous material with a definite composition.
@@ -168,9 +167,6 @@ class SubstanceIngredient extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -182,8 +178,6 @@ class SubstanceIngredient extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -229,8 +223,6 @@ class SubstanceIngredient extends Element {
             substanceCodeableConcept: this.substanceCodeableConcept && this.substanceCodeableConcept.toJSONInternal(),
             substanceReference: this.substanceReference && this.substanceReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

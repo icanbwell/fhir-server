@@ -35,7 +35,6 @@ class BaseFilter {
         this.resourceType = filterParameters.resourceType;
         assertIsValid(filterParameters.resourceType, 'filterParameters.resourceType is null');
 
-
         /**
          * @type {boolean|undefined}
          */

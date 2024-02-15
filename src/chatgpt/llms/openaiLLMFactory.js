@@ -47,4 +47,3 @@ class OpenAILLMFactory extends LLMFactory {
 module.exports = {
     OpenAILLMFactory
 };
-

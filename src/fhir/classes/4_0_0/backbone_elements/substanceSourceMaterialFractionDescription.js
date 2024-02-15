@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial.FractionDescription
     Source material shall capture information on the taxonomic and anatomical
@@ -160,9 +159,6 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -173,8 +169,6 @@ class SubstanceSourceMaterialFractionDescription extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -216,8 +210,6 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             fraction: this.fraction,
             materialType: this.materialType && this.materialType.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

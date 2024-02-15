@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CarePlan
     Describes the intention of how one or more practitioners intend to deliver
@@ -742,7 +741,6 @@ class CarePlan extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -795,7 +793,6 @@ class CarePlan extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -981,7 +978,6 @@ class CarePlan extends Resource {
         return new CarePlan(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1094,7 +1090,6 @@ class CarePlan extends Resource {
             activity: this.activity && this.activity.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

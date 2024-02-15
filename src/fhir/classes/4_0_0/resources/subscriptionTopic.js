@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic
     Describes a stream of resource state changes or events and annotated with
@@ -724,7 +723,6 @@ class SubscriptionTopic extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -777,7 +775,6 @@ class SubscriptionTopic extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -959,7 +956,6 @@ class SubscriptionTopic extends Resource {
         return new SubscriptionTopic(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1063,7 +1059,6 @@ class SubscriptionTopic extends Resource {
             canFilterBy: this.canFilterBy && this.canFilterBy.map(v => v.toJSONInternal()),
             notificationShape: this.notificationShape && this.notificationShape.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -50,4 +50,3 @@ class SearchOperation {
 module.exports = {
     SearchOperation
 };
-

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial
     Source material shall capture information on the taxonomic and anatomical
@@ -545,7 +544,6 @@ class SubstanceSourceMaterial extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -598,7 +596,6 @@ class SubstanceSourceMaterial extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -744,7 +741,6 @@ class SubstanceSourceMaterial extends Resource {
         return new SubstanceSourceMaterial(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -831,7 +827,6 @@ class SubstanceSourceMaterial extends Resource {
             organism: this.organism && this.organism.toJSONInternal(),
             partDescription: this.partDescription && this.partDescription.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

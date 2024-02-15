@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NutritionOrder.Texture
     A request to supply a diet, formula feeding (enteral) or oral nutritional
@@ -149,9 +148,6 @@ class NutritionOrderTexture extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -162,8 +158,6 @@ class NutritionOrderTexture extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -206,8 +200,6 @@ class NutritionOrderTexture extends Element {
             modifier: this.modifier && this.modifier.toJSONInternal(),
             foodType: this.foodType && this.foodType.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NamingSystem
     A curated namespace that issues unique symbols within that namespace for the
@@ -520,7 +519,6 @@ class NamingSystem extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -573,7 +571,6 @@ class NamingSystem extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -719,7 +716,6 @@ class NamingSystem extends Resource {
         return new NamingSystem(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -801,7 +797,6 @@ class NamingSystem extends Resource {
             usage: this.usage,
             uniqueId: this.uniqueId && this.uniqueId.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Contract.Asset
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
@@ -430,9 +429,6 @@ class ContractAsset extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -456,8 +452,6 @@ class ContractAsset extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -535,8 +529,6 @@ class ContractAsset extends Element {
             securityLabelNumber: this.securityLabelNumber,
             valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

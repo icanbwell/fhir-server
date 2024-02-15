@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductInteraction
     The interactions of the medicinal product with other medicinal products, or
@@ -384,7 +383,6 @@ class MedicinalProductInteraction extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -437,7 +435,6 @@ class MedicinalProductInteraction extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -559,7 +556,6 @@ class MedicinalProductInteraction extends Resource {
         return new MedicinalProductInteraction(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -630,7 +626,6 @@ class MedicinalProductInteraction extends Resource {
             incidence: this.incidence && this.incidence.toJSONInternal(),
             management: this.management && this.management.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

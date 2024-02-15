@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AuditEvent
     A record of an event made for purposes of maintaining a security log. Typical
@@ -468,7 +467,6 @@ class AuditEvent extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -521,7 +519,6 @@ class AuditEvent extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -659,7 +656,6 @@ class AuditEvent extends Resource {
         return new AuditEvent(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -739,7 +735,6 @@ class AuditEvent extends Resource {
             source: this.source && this.source.toJSONInternal(),
             entity: this.entity && this.entity.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

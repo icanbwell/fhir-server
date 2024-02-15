@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MarketingStatus
     The marketing status describes the date when a medicinal product is actually
@@ -228,9 +227,6 @@ class MarketingStatus extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -244,8 +240,6 @@ class MarketingStatus extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -296,8 +290,6 @@ class MarketingStatus extends Element {
             dateRange: this.dateRange && this.dateRange.toJSONInternal(),
             restoreDate: this.restoreDate
         };
-
-
 
         return removeNull(json);
     }

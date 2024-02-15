@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Composition.Event
     A set of healthcare-related information that is assembled together into a
@@ -182,9 +181,6 @@ class CompositionEvent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -196,8 +192,6 @@ class CompositionEvent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -243,8 +237,6 @@ class CompositionEvent extends Element {
             period: this.period && this.period.toJSONInternal(),
             detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

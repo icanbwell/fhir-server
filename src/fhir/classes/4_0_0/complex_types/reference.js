@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Reference
     A reference from one resource to another.
@@ -180,8 +179,6 @@ class Reference extends Element {
             }
         });
 
-
-
         /**
          * @description _sourceAssigningAuthority
          * @property {string|undefined}
@@ -237,8 +234,6 @@ class Reference extends Element {
 
     }
 
-
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -279,7 +274,6 @@ class Reference extends Element {
             identifier: this.identifier && this.identifier.toJSONInternal(),
             display: this.display
         };
-
 
         if (this._sourceAssigningAuthority) {
             json._sourceAssigningAuthority = this._sourceAssigningAuthority;

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Group
     Represents a defined collection of entities that may be discussed or acted
@@ -447,7 +446,6 @@ class Group extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -500,7 +498,6 @@ class Group extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -634,7 +631,6 @@ class Group extends Resource {
         return new Group(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -710,7 +706,6 @@ class Group extends Resource {
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
             member: this.member && this.member.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

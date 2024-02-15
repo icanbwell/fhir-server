@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Condition
     A clinical condition, problem, diagnosis, or other event, situation, issue, or
@@ -778,7 +777,6 @@ class Condition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -831,7 +829,6 @@ class Condition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1025,7 +1022,6 @@ class Condition extends Resource {
         return new Condition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1146,7 +1142,6 @@ class Condition extends Resource {
             evidence: this.evidence && this.evidence.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

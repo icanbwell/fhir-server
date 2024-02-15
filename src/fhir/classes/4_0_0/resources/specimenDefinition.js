@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SpecimenDefinition
     A kind of specimen with associated set of requirements.
@@ -359,7 +358,6 @@ class SpecimenDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -412,7 +410,6 @@ class SpecimenDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -530,7 +527,6 @@ class SpecimenDefinition extends Resource {
         return new SpecimenDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -598,7 +594,6 @@ class SpecimenDefinition extends Resource {
             collection: this.collection && this.collection.map(v => v.toJSONInternal()),
             typeTested: this.typeTested && this.typeTested.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Linkage
     Identifies two or more records (resource instances) that refer to the same
@@ -299,7 +298,6 @@ class Linkage extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -352,7 +350,6 @@ class Linkage extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -458,7 +455,6 @@ class Linkage extends Resource {
         return new Linkage(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -517,7 +513,6 @@ class Linkage extends Resource {
             author: this.author && this.author.toJSONInternal(),
             item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

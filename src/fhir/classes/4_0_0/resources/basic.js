@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Basic
     Basic is used for handling concepts not yet defined in FHIR, narrative-only
@@ -342,7 +341,6 @@ class Basic extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -395,7 +393,6 @@ class Basic extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -509,7 +506,6 @@ class Basic extends Resource {
         return new Basic(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -574,7 +570,6 @@ class Basic extends Resource {
             created: this.created,
             author: this.author && this.author.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

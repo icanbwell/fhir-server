@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 HumanName
     A human's name with the ability to identify parts and usage.
@@ -216,9 +215,6 @@ class HumanName extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -233,8 +229,6 @@ class HumanName extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -283,8 +277,6 @@ class HumanName extends Element {
             suffix: this.suffix,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

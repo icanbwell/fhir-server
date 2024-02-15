@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TerminologyCapabilities.Version
     A TerminologyCapabilities resource documents a set of capabilities (behaviors)
@@ -227,9 +226,6 @@ class TerminologyCapabilitiesVersion extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -244,8 +240,6 @@ class TerminologyCapabilitiesVersion extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -295,8 +289,6 @@ class TerminologyCapabilitiesVersion extends Element {
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
             property: this.property
         };
-
-
 
         return removeNull(json);
     }

@@ -42,7 +42,6 @@ describe('Observation Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
-
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {

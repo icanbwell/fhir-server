@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DataRequirement.CodeFilter
     Describes a required data item for evaluation in terms of the type of data,
@@ -169,9 +168,6 @@ class DataRequirementCodeFilter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -183,8 +179,6 @@ class DataRequirementCodeFilter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -227,8 +221,6 @@ class DataRequirementCodeFilter extends Element {
             valueSet: this.valueSet,
             code: this.code && this.code.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

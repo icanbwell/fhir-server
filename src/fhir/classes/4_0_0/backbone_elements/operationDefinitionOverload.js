@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationDefinition.Overload
     A formal computable definition of an operation (on the RESTful interface) or a
@@ -143,9 +142,6 @@ class OperationDefinitionOverload extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -156,8 +152,6 @@ class OperationDefinitionOverload extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -198,8 +192,6 @@ class OperationDefinitionOverload extends Element {
             parameterName: this.parameterName,
             comment: this.comment
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SpecimenDefinition.Additive
     A kind of specimen with associated set of requirements.
@@ -146,9 +145,6 @@ class SpecimenDefinitionAdditive extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class SpecimenDefinitionAdditive extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class SpecimenDefinitionAdditive extends Element {
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
             additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

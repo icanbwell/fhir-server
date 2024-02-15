@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DocumentManifest.Related
     A collection of documents compiled for a purpose together with metadata that
@@ -149,9 +148,6 @@ class DocumentManifestRelated extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -162,8 +158,6 @@ class DocumentManifestRelated extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -206,8 +200,6 @@ class DocumentManifestRelated extends Element {
             identifier: this.identifier && this.identifier.toJSONInternal(),
             ref: this.ref && this.ref.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

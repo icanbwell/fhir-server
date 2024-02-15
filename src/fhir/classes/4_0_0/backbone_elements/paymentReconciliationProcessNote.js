@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PaymentReconciliation.ProcessNote
     This resource provides the details including amount of a payment and allocates
@@ -143,9 +142,6 @@ class PaymentReconciliationProcessNote extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -156,8 +152,6 @@ class PaymentReconciliationProcessNote extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -198,8 +192,6 @@ class PaymentReconciliationProcessNote extends Element {
             type: this.type,
             text: this.text
         };
-
-
 
         return removeNull(json);
     }

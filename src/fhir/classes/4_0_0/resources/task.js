@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Task
     A task to be performed.
@@ -915,7 +914,6 @@ class Task extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -968,7 +966,6 @@ class Task extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1186,7 +1183,6 @@ class Task extends Resource {
         return new Task(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1322,7 +1318,6 @@ class Task extends Resource {
             input: this.input && this.input.map(v => v.toJSONInternal()),
             output: this.output && this.output.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

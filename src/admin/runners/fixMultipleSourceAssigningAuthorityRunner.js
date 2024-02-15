@@ -182,7 +182,6 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
 
-
                 const query = this.beforeLastUpdatedDate ? {
                     'meta.lastUpdated': {
                         $lt: this.beforeLastUpdatedDate

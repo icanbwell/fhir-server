@@ -27,7 +27,6 @@ describe('PatientReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-
             const headers = getHeaders();
             headers['Content-Type'] = 'application/json';
             resp = await request

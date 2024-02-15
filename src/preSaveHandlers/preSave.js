@@ -32,7 +32,6 @@ class PreSaveManager {
     }
 }
 
-
 module.exports = {
     PreSaveManager
 };

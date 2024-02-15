@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskAssessment.Prediction
     An assessment of the likely outcome(s) for a patient or other subject as well
@@ -278,9 +277,6 @@ class RiskAssessmentPrediction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -297,8 +293,6 @@ class RiskAssessmentPrediction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -356,8 +350,6 @@ class RiskAssessmentPrediction extends Element {
             whenRange: this.whenRange && this.whenRange.toJSONInternal(),
             rationale: this.rationale
         };
-
-
 
         return removeNull(json);
     }

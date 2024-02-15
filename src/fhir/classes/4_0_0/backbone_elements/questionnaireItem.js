@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Questionnaire.Item
     A structured set of questions intended to guide the collection of answers from
@@ -464,9 +463,6 @@ class QuestionnaireItem extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -491,8 +487,6 @@ class QuestionnaireItem extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -566,8 +560,6 @@ class QuestionnaireItem extends Element {
             initial: this.initial && this.initial.map(v => v.toJSONInternal()),
             item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

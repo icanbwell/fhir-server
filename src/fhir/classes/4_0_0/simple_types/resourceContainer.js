@@ -62,4 +62,3 @@ class ResourceContainer {
 }
 
 module.exports = ResourceContainer;
-

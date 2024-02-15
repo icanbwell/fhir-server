@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DetectedIssue.Evidence
     Indicates an actual or potential clinical issue with or between one or more
@@ -149,9 +148,6 @@ class DetectedIssueEvidence extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -162,8 +158,6 @@ class DetectedIssueEvidence extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -206,8 +200,6 @@ class DetectedIssueEvidence extends Element {
             code: this.code && this.code.map(v => v.toJSONInternal()),
             detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

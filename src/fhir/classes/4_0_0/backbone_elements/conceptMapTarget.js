@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ConceptMap.Target
     A statement of relationships from one set of concepts to one or more other
@@ -238,9 +237,6 @@ class ConceptMapTarget extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -255,8 +251,6 @@ class ConceptMapTarget extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -307,8 +301,6 @@ class ConceptMapTarget extends Element {
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
             product: this.product && this.product.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

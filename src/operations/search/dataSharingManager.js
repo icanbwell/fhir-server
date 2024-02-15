@@ -486,7 +486,6 @@ class DataSharingManager {
         return patientReferenceToPersonUuid;
     }
 
-
     /**
      * Function to filter patients based on allowed connection types.
      * @typedef {Object} FilterPatientsByConnectionType

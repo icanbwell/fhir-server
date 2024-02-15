@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Consent
     A record of a healthcare consumer’s  choices, which permits or denies
@@ -545,7 +544,6 @@ class Consent extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -598,7 +596,6 @@ class Consent extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -748,7 +745,6 @@ class Consent extends Resource {
         return new Consent(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -839,7 +835,6 @@ class Consent extends Resource {
             verification: this.verification && this.verification.map(v => v.toJSONInternal()),
             provision: this.provision && this.provision.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

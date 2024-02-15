@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationDispense.Performer
     Indicates that a medication product is to be or has been dispensed for a named
@@ -152,9 +151,6 @@ class MedicationDispensePerformer extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -165,8 +161,6 @@ class MedicationDispensePerformer extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -209,8 +203,6 @@ class MedicationDispensePerformer extends Element {
             function: this.function && this.function.toJSONInternal(),
             actor: this.actor && this.actor.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

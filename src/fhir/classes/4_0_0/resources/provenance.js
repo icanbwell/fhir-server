@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Provenance
     Provenance of a resource is a record that describes entities and processes
@@ -481,7 +480,6 @@ class Provenance extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -534,7 +532,6 @@ class Provenance extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -672,7 +669,6 @@ class Provenance extends Resource {
         return new Provenance(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -753,7 +749,6 @@ class Provenance extends Resource {
             entity: this.entity && this.entity.map(v => v.toJSONInternal()),
             signature: this.signature && this.signature.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationAdministration.Dosage
     Describes the event of a patient consuming or otherwise being administered a
@@ -271,9 +270,6 @@ class MedicationAdministrationDosage extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -289,8 +285,6 @@ class MedicationAdministrationDosage extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -347,8 +341,6 @@ class MedicationAdministrationDosage extends Element {
             rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

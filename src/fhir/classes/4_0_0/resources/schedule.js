@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Schedule
     A container for slots of time that may be available for booking appointments.
@@ -410,7 +409,6 @@ class Schedule extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -463,7 +461,6 @@ class Schedule extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -589,7 +586,6 @@ class Schedule extends Resource {
         return new Schedule(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -662,7 +658,6 @@ class Schedule extends Resource {
             planningHorizon: this.planningHorizon && this.planningHorizon.toJSONInternal(),
             comment: this.comment
         };
-
 
         if (this._access) {
             json._access = this._access;

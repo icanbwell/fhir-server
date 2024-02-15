@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductContraindication
     The clinical particulars - indications, contraindications etc. of a medicinal
@@ -386,7 +385,6 @@ class MedicinalProductContraindication extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -439,7 +437,6 @@ class MedicinalProductContraindication extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -561,7 +558,6 @@ class MedicinalProductContraindication extends Resource {
         return new MedicinalProductContraindication(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -633,7 +629,6 @@ class MedicinalProductContraindication extends Resource {
             otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal()),
             population: this.population && this.population.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

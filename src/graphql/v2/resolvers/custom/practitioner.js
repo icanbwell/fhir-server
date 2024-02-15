@@ -1,4 +1,3 @@
-
 module.exports = {
     Practitioner: {
         // eslint-disable-next-line no-unused-vars

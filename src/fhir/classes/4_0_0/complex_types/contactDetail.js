@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ContactDetail
     Specifies contact information for a person or organization.
@@ -113,9 +112,6 @@ class ContactDetail extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -125,8 +121,6 @@ class ContactDetail extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -165,8 +159,6 @@ class ContactDetail extends Element {
             name: this.name,
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

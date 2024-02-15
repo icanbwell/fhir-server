@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NutritionOrder
     A request to supply a diet, formula feeding (enteral) or oral nutritional
@@ -618,7 +617,6 @@ class NutritionOrder extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -671,7 +669,6 @@ class NutritionOrder extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -833,7 +830,6 @@ class NutritionOrder extends Resource {
         return new NutritionOrder(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -929,7 +925,6 @@ class NutritionOrder extends Resource {
             enteralFormula: this.enteralFormula && this.enteralFormula.toJSONInternal(),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

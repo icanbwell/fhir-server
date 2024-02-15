@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ValueSet.Parameter
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -267,9 +266,6 @@ class ValueSetParameter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -286,8 +282,6 @@ class ValueSetParameter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -340,8 +334,6 @@ class ValueSetParameter extends Element {
             valueCode: this.valueCode,
             valueDateTime: this.valueDateTime
         };
-
-
 
         return removeNull(json);
     }

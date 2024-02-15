@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationDefinition
     A formal computable definition of an operation (on the RESTful interface) or a
@@ -800,7 +799,6 @@ class OperationDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -853,7 +851,6 @@ class OperationDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1051,7 +1048,6 @@ class OperationDefinition extends Resource {
         return new OperationDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1159,7 +1155,6 @@ class OperationDefinition extends Resource {
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
             overload: this.overload && this.overload.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

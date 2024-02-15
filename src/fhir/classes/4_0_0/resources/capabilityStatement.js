@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CapabilityStatement
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR
@@ -818,7 +817,6 @@ class CapabilityStatement extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -871,7 +869,6 @@ class CapabilityStatement extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1069,7 +1066,6 @@ class CapabilityStatement extends Resource {
         return new CapabilityStatement(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1180,7 +1176,6 @@ class CapabilityStatement extends Resource {
             messaging: this.messaging && this.messaging.map(v => v.toJSONInternal()),
             document: this.document && this.document.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

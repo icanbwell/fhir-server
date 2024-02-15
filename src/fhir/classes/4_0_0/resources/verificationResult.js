@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 VerificationResult
     Describes validation requirements, source(s), status and dates for one or more
@@ -532,7 +531,6 @@ class VerificationResult extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -585,7 +583,6 @@ class VerificationResult extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -735,7 +732,6 @@ class VerificationResult extends Resource {
         return new VerificationResult(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -823,7 +819,6 @@ class VerificationResult extends Resource {
             attestation: this.attestation && this.attestation.toJSONInternal(),
             validator: this.validator && this.validator.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

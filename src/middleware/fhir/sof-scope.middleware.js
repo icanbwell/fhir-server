@@ -16,7 +16,6 @@ const errors = require('./utils/error.utils');
  * @return {String} action needed to access a route
  */
 
-
 function deriveActionFromInteraction (interaction) {
     switch (interaction) {
         case INTERACTIONS.SEARCH:
@@ -47,7 +46,6 @@ function deriveActionFromInteraction (interaction) {
  * @return {Array<String>} scopes assigned to a particular user
  */
 
-
 function parseScopes (user = {}, scopeKey = 'scope') {
     const scopes = user[`${scopeKey}`];
 
@@ -63,7 +61,6 @@ function parseScopes (user = {}, scopeKey = 'scope') {
  * @summary SOF Scope Middleware function
  */
 
-
 module.exports = function sofScopeCheckMiddleware (options = {}) {
     const {
         route = {},
@@ -77,11 +74,9 @@ module.exports = function sofScopeCheckMiddleware (options = {}) {
     // disable this middleware. If you are using some other system for scopes,
     // feel free to remove this and add your own checks
 
-
     if (auth.type !== 'smart' || auth.strategy === undefined) {
         return noOpMiddleware;
     } // At this point, we have determined we want Smart on FHIR authentication
-
 
     return function sofScopeMiddleware (req, res, next) {
         // name is lowercased, we want upper, foo -> Foo

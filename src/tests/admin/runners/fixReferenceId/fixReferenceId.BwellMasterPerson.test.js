@@ -1,4 +1,3 @@
-
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');

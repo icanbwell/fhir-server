@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Appointment.Participant
     A booking of a healthcare event among patient(s), practitioner(s), related
@@ -213,9 +212,6 @@ class AppointmentParticipant extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -229,8 +225,6 @@ class AppointmentParticipant extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -280,8 +274,6 @@ class AppointmentParticipant extends Element {
             status: this.status,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

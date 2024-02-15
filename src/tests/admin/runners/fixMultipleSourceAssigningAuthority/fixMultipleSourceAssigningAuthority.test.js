@@ -5,7 +5,6 @@ const practitionerrole1Resource = require('./fixtures/Practitioner/practitionerr
 const practitionerrole2Resource = require('./fixtures/Practitioner/practitionerrole2.json');
 const Practitioner1HistoryResource = require('./fixtures/Practitioner/practitioner1_history.json');
 
-
 // expected
 const expectedPractitioner1InDatabaseBeforeRun = require('./fixtures/expected/expected_practitioner_1_in_database_before_run.json');
 const expectedPractitioner2InDatabaseBeforeRun = require('./fixtures/expected/expected_practitioner_2_in_database_before_run.json');
@@ -164,7 +163,6 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             delete practitioner2._id;
             expectedPractitioner2DatabaseAfterRun.meta.lastUpdated = practitioner2.meta.lastUpdated;
             expect(practitioner2).toStrictEqual(expectedPractitioner2DatabaseAfterRun);
-
 
             // run admin runner
 

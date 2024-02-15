@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductAuthorization
     The regulatory authorization of a medicinal product.
@@ -580,7 +579,6 @@ class MedicinalProductAuthorization extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -633,7 +631,6 @@ class MedicinalProductAuthorization extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -791,7 +788,6 @@ class MedicinalProductAuthorization extends Resource {
         return new MedicinalProductAuthorization(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -886,7 +882,6 @@ class MedicinalProductAuthorization extends Resource {
             regulator: this.regulator && this.regulator.toJSONInternal(),
             procedure: this.procedure && this.procedure.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

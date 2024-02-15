@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 HealthcareService
     The details of a healthcare service available at a location.
@@ -765,7 +764,6 @@ class HealthcareService extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -818,7 +816,6 @@ class HealthcareService extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1008,7 +1005,6 @@ class HealthcareService extends Resource {
         return new HealthcareService(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1125,7 +1121,6 @@ class HealthcareService extends Resource {
             availabilityExceptions: this.availabilityExceptions,
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

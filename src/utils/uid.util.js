@@ -8,7 +8,6 @@ const {v5: uuidv5, validate: uuidValidate} = require('uuid');
 const {UUID} = require('mongodb').BSON;
 const OID_NAMESPACE = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
 
-
 /**
  * Make a hash of the object for use as a UUID.
  * TODO Improve this. Stuck this in just because it's more of a uniqueness guarantee than the above 'getUID' function.

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ClinicalImpression
     A record of a clinical assessment performed to determine what problem(s) may
@@ -700,7 +699,6 @@ class ClinicalImpression extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -753,7 +751,6 @@ class ClinicalImpression extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -931,7 +928,6 @@ class ClinicalImpression extends Resource {
         return new ClinicalImpression(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1039,7 +1035,6 @@ class ClinicalImpression extends Resource {
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

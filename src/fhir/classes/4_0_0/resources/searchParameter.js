@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SearchParameter
     A search parameter that defines a named search item that can be used to
@@ -799,7 +798,6 @@ class SearchParameter extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -852,7 +850,6 @@ class SearchParameter extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1050,7 +1047,6 @@ class SearchParameter extends Resource {
         return new SearchParameter(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1157,7 +1153,6 @@ class SearchParameter extends Resource {
             chain: this.chain,
             component: this.component && this.component.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

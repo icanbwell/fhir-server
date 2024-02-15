@@ -24,4 +24,3 @@ module.exports.buildStu3SearchQuery = (args) => {
 
     return query;
 };
-

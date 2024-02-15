@@ -30,7 +30,6 @@ describe('ActivityDefinitionReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-
             resp = await request
                 .post('/4_0_0/ActivityDefinition/1/$merge?validate=true')
                 .send(activityDefinition1Resource)
@@ -39,11 +38,9 @@ describe('ActivityDefinitionReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-
             resp = await request.get('/4_0_0/ActivityDefinition').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
-
 
             resp = await request.get('/4_0_0/ActivityDefinition/798521c5-844a-4ced-a011-030249b6a12b').set(getHeaders());
             // noinspection JSUnresolvedFunction

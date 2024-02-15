@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionStatus.NotificationEvent
     The SubscriptionStatus resource describes the state of a Subscription during
@@ -191,9 +190,6 @@ class SubscriptionStatusNotificationEvent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -206,8 +202,6 @@ class SubscriptionStatusNotificationEvent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -254,8 +248,6 @@ class SubscriptionStatusNotificationEvent extends Element {
             focus: this.focus && this.focus.toJSONInternal(),
             additionalContext: this.additionalContext && this.additionalContext.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

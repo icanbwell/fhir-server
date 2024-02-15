@@ -17,7 +17,6 @@ const {SearchManager} = require('../search/searchManager');
 const deepcopy = require('deepcopy');
 const {READ} = require('../../constants').OPERATIONS;
 
-
 class ValidateOperation {
     /**
      * constructor

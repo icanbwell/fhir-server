@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Procedure
     An action that is or was performed on or for a patient. This can be a physical
@@ -947,7 +946,6 @@ class Procedure extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1000,7 +998,6 @@ class Procedure extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1222,7 +1219,6 @@ class Procedure extends Resource {
         return new Procedure(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1364,7 +1360,6 @@ class Procedure extends Resource {
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSONInternal()),
             usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

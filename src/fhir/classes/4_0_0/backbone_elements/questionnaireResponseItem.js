@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 QuestionnaireResponse.Item
     A structured set of questions and their answers. The questions are ordered and
@@ -210,9 +209,6 @@ class QuestionnaireResponseItem extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -226,8 +222,6 @@ class QuestionnaireResponseItem extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -276,8 +270,6 @@ class QuestionnaireResponseItem extends Element {
             answer: this.answer && this.answer.map(v => v.toJSONInternal()),
             item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

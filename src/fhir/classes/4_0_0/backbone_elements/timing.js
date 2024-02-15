@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Timing
     Specifies an event that may occur multiple times. Timing schedules are used to
@@ -177,9 +176,6 @@ class Timing extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -191,8 +187,6 @@ class Timing extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -237,8 +231,6 @@ class Timing extends Element {
             repeat: this.repeat && this.repeat.toJSONInternal(),
             code: this.code && this.code.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

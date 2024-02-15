@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductIngredient.Strength
     An ingredient of a manufactured item or pharmaceutical product.
@@ -258,9 +257,6 @@ class MedicinalProductIngredientStrength extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -276,8 +272,6 @@ class MedicinalProductIngredientStrength extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -334,8 +328,6 @@ class MedicinalProductIngredientStrength extends Element {
             country: this.country && this.country.map(v => v.toJSONInternal()),
             referenceStrength: this.referenceStrength && this.referenceStrength.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

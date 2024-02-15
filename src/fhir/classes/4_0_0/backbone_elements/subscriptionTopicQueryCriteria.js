@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic.QueryCriteria
     Describes a stream of resource state changes or events and annotated with
@@ -213,9 +212,6 @@ class SubscriptionTopicQueryCriteria extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -229,8 +225,6 @@ class SubscriptionTopicQueryCriteria extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -279,8 +273,6 @@ class SubscriptionTopicQueryCriteria extends Element {
             resultForDelete: this.resultForDelete && this.resultForDelete.toJSONInternal(),
             requireBoth: this.requireBoth
         };
-
-
 
         return removeNull(json);
     }

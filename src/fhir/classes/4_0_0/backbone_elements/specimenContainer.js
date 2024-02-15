@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Specimen.Container
     A sample to be used for analysis.
@@ -258,9 +257,6 @@ class SpecimenContainer extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -276,8 +272,6 @@ class SpecimenContainer extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -334,8 +328,6 @@ class SpecimenContainer extends Element {
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
             additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

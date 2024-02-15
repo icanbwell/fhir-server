@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Account.Coverage
     A financial tool for tracking value accrued for a particular purpose.  In the
@@ -150,9 +149,6 @@ class AccountCoverage extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -163,8 +159,6 @@ class AccountCoverage extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -206,8 +200,6 @@ class AccountCoverage extends Element {
             coverage: this.coverage && this.coverage.toJSONInternal(),
             priority: this.priority
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RelatedArtifact
     Related artifacts such as additional documentation, justification, or
@@ -218,9 +217,6 @@ class RelatedArtifact extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -235,8 +231,6 @@ class RelatedArtifact extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -285,8 +279,6 @@ class RelatedArtifact extends Element {
             document: this.document && this.document.toJSONInternal(),
             resource: this.resource
         };
-
-
 
         return removeNull(json);
     }

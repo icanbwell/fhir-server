@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Location
     Details and position information for a physical place where services are
@@ -605,7 +604,6 @@ class Location extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -658,7 +656,6 @@ class Location extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -820,7 +817,6 @@ class Location extends Resource {
         return new Location(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -916,7 +912,6 @@ class Location extends Resource {
             availabilityExceptions: this.availabilityExceptions,
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

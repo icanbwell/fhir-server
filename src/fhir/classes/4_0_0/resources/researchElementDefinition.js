@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ResearchElementDefinition
     The ResearchElementDefinition resource describes a "PICO" element that
@@ -990,7 +989,6 @@ class ResearchElementDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1043,7 +1041,6 @@ class ResearchElementDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1273,7 +1270,6 @@ class ResearchElementDefinition extends Resource {
         return new ResearchElementDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1406,7 +1402,6 @@ class ResearchElementDefinition extends Resource {
             variableType: this.variableType,
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

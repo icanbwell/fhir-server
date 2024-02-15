@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Subscription
     The subscription resource is used to define a push-based subscription from a
@@ -382,7 +381,6 @@ class Subscription extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -435,7 +433,6 @@ class Subscription extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -557,7 +554,6 @@ class Subscription extends Resource {
         return new Subscription(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -624,7 +620,6 @@ class Subscription extends Resource {
             error: this.error,
             channel: this.channel && this.channel.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

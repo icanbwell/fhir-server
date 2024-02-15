@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SupplyDelivery.SuppliedItem
     Record of delivery of what is supplied.
@@ -168,9 +167,6 @@ class SupplyDeliverySuppliedItem extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -182,8 +178,6 @@ class SupplyDeliverySuppliedItem extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -229,8 +223,6 @@ class SupplyDeliverySuppliedItem extends Element {
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
             itemReference: this.itemReference && this.itemReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

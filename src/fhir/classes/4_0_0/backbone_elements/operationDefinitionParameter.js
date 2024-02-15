@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationDefinition.Parameter
     A formal computable definition of an operation (on the RESTful interface) or a
@@ -340,9 +339,6 @@ class OperationDefinitionParameter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -362,8 +358,6 @@ class OperationDefinitionParameter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -425,8 +419,6 @@ class OperationDefinitionParameter extends Element {
             referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSONInternal()),
             part: this.part && this.part.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Encounter.Hospitalization
     An interaction between a patient and healthcare provider(s) for the purpose of
@@ -302,9 +301,6 @@ class EncounterHospitalization extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -322,8 +318,6 @@ class EncounterHospitalization extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -387,8 +381,6 @@ class EncounterHospitalization extends Element {
             destination: this.destination && this.destination.toJSONInternal(),
             dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

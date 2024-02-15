@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Media
     A photo, video, or audio recording acquired or used in healthcare. The actual
@@ -734,7 +733,6 @@ class Media extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -787,7 +785,6 @@ class Media extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -973,7 +970,6 @@ class Media extends Resource {
         return new Media(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1085,7 +1081,6 @@ class Media extends Resource {
             content: this.content && this.content.toJSONInternal(),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

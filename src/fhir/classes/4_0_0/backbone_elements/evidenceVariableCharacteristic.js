@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EvidenceVariable.Characteristic
     The EvidenceVariable resource describes a "PICO" element that knowledge
@@ -425,9 +424,6 @@ class EvidenceVariableCharacteristic extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -451,8 +447,6 @@ class EvidenceVariableCharacteristic extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -529,8 +523,6 @@ class EvidenceVariableCharacteristic extends Element {
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSONInternal(),
             groupMeasure: this.groupMeasure
         };
-
-
 
         return removeNull(json);
     }

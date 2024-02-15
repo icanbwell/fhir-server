@@ -183,7 +183,6 @@ class R4SearchQueryCreator {
          */
         let andSegments = [];
 
-
         // get the set of columns required for the query
         if (queryParameter === '_id') {
             // handle id differently since it is a token, but we want to do exact match
@@ -231,4 +230,3 @@ class R4SearchQueryCreator {
 module.exports = {
     R4SearchQueryCreator
 };
-

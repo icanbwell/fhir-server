@@ -184,7 +184,6 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
-
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?id=1|C&_debug=1')
@@ -229,7 +228,6 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
-
 
             // First call by id to find the uuid and then call by uuid
             resp = await request

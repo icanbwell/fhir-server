@@ -25,7 +25,6 @@ const conformanceSearchParamsFilter = base_version => route_arg => {
 
 /* eslint-disable no-unused-vars */
 
-
 const conformanceSearchParamsMap = version => route_arg => {
     // The router adds extra arguments and those need to be discarded
     // these are the only fields we currently care about
@@ -36,7 +35,6 @@ const conformanceSearchParamsMap = version => route_arg => {
         documentation: route_arg.documentation || route_arg.description
     };
 };
-
 
 const getSearchParams = (profileKey, version) => {
     const params = getSearchParameters(profileKey, version).filter(conformanceSearchParamsFilter(version));

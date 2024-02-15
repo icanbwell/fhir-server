@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AuditEvent.Agent
     A record of an event made for purposes of maintaining a security log. Typical
@@ -350,9 +349,6 @@ class AuditEventAgent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -372,8 +368,6 @@ class AuditEventAgent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -439,8 +433,6 @@ class AuditEventAgent extends Element {
             network: this.network && this.network.toJSONInternal(),
             purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

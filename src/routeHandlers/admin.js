@@ -440,4 +440,3 @@ async function handleAdmin (
 module.exports = {
     handleAdmin
 };
-

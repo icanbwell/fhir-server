@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationDefinition.ReferencedFrom
     A formal computable definition of an operation (on the RESTful interface) or a
@@ -146,9 +145,6 @@ class OperationDefinitionReferencedFrom extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class OperationDefinitionReferencedFrom extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -201,8 +195,6 @@ class OperationDefinitionReferencedFrom extends Element {
             source: this.source,
             sourceId: this.sourceId
         };
-
-
 
         return removeNull(json);
     }

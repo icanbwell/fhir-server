@@ -30,8 +30,6 @@ describe('Stats Tests', () => {
         await commonAfterEach();
     });
 
-
-
     describe('Stats Tests', () => {
         test('stats works', async () => {
 

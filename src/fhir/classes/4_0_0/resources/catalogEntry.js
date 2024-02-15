@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CatalogEntry
     Catalog entries are wrappers that contextualize items included in a catalog.
@@ -511,7 +510,6 @@ class CatalogEntry extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -564,7 +562,6 @@ class CatalogEntry extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -710,7 +707,6 @@ class CatalogEntry extends Resource {
         return new CatalogEntry(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -796,7 +792,6 @@ class CatalogEntry extends Resource {
             additionalClassification: this.additionalClassification && this.additionalClassification.map(v => v.toJSONInternal()),
             relatedEntry: this.relatedEntry && this.relatedEntry.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 StructureDefinition
     A definition of a FHIR structure. This resource is used to describe the
@@ -839,7 +838,6 @@ class StructureDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -892,7 +890,6 @@ class StructureDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1094,7 +1091,6 @@ class StructureDefinition extends Resource {
         return new StructureDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1208,7 +1204,6 @@ class StructureDefinition extends Resource {
             snapshot: this.snapshot && this.snapshot.toJSONInternal(),
             differential: this.differential && this.differential.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

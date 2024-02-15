@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 StructureMap.Input
     A Map of relationships between 2 structures that can be used to transform
@@ -183,9 +182,6 @@ class StructureMapInput extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -198,8 +194,6 @@ class StructureMapInput extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -244,8 +238,6 @@ class StructureMapInput extends Element {
             mode: this.mode,
             documentation: this.documentation
         };
-
-
 
         return removeNull(json);
     }

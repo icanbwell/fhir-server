@@ -23,7 +23,6 @@ const patientQueryWithExplain = fs.readFileSync(
     'utf8'
 );
 
-
 const patientNonExistentQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_non_existent.graphql'),
     'utf8'

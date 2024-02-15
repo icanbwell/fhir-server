@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MolecularSequence.ReferenceSeq
     Raw data describing a biological sequence.
@@ -304,9 +303,6 @@ class MolecularSequenceReferenceSeq extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -324,8 +320,6 @@ class MolecularSequenceReferenceSeq extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -383,8 +377,6 @@ class MolecularSequenceReferenceSeq extends Element {
             windowStart: this.windowStart,
             windowEnd: this.windowEnd
         };
-
-
 
         return removeNull(json);
     }

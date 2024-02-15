@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Communication.Payload
     An occurrence of information being transmitted; e.g. an alert that was sent to
@@ -168,9 +167,6 @@ class CommunicationPayload extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -182,8 +178,6 @@ class CommunicationPayload extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -228,8 +222,6 @@ class CommunicationPayload extends Element {
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
             contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

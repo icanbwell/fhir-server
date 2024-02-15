@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationAdministration.Performer
     Describes the event of a patient consuming or otherwise being administered a
@@ -151,9 +150,6 @@ class MedicationAdministrationPerformer extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -164,8 +160,6 @@ class MedicationAdministrationPerformer extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -208,8 +202,6 @@ class MedicationAdministrationPerformer extends Element {
             function: this.function && this.function.toJSONInternal(),
             actor: this.actor && this.actor.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

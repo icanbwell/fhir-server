@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Contract.Signer
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
@@ -169,9 +168,6 @@ class ContractSigner extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -183,8 +179,6 @@ class ContractSigner extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -230,8 +224,6 @@ class ContractSigner extends Element {
             party: this.party && this.party.toJSONInternal(),
             signature: this.signature && this.signature.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

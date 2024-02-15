@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript.Metadata
     A structured set of tests against a FHIR server or client implementation to
@@ -148,9 +147,6 @@ class TestScriptMetadata extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -161,8 +157,6 @@ class TestScriptMetadata extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -205,8 +199,6 @@ class TestScriptMetadata extends Element {
             link: this.link && this.link.map(v => v.toJSONInternal()),
             capability: this.capability && this.capability.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

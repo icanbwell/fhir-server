@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Expression
     A expression that is evaluated in a specified context and returns a value. The
@@ -174,9 +173,6 @@ class Expression extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -189,8 +185,6 @@ class Expression extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -234,8 +228,6 @@ class Expression extends Element {
             expression: this.expression,
             reference: this.reference
         };
-
-
 
         return removeNull(json);
     }

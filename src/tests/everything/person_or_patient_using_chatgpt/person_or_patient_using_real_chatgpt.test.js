@@ -76,7 +76,6 @@ describe('Person and Patient real chatgpt Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person2Resource)
@@ -97,7 +96,6 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
-
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
@@ -159,7 +157,6 @@ describe('Person and Patient real chatgpt Tests', () => {
                 }
                 return resource;
             });
-
 
             // ACT & ASSERT
             // First get patient everything
@@ -234,7 +231,6 @@ describe('Person and Patient real chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
-
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')

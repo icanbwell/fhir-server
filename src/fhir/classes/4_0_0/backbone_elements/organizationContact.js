@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Organization.Contact
     A formally or informally recognized grouping of people or organizations formed
@@ -194,9 +193,6 @@ class OrganizationContact extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -209,8 +205,6 @@ class OrganizationContact extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -259,8 +253,6 @@ class OrganizationContact extends Element {
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
             address: this.address && this.address.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

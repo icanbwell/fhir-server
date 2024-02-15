@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ProductShelfLife
     The shelf-life and storage information for a medicinal product item or
@@ -203,9 +202,6 @@ class ProductShelfLife extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -218,8 +214,6 @@ class ProductShelfLife extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -268,8 +262,6 @@ class ProductShelfLife extends Element {
             period: this.period && this.period.toJSONInternal(),
             specialPrecautionsForStorage: this.specialPrecautionsForStorage && this.specialPrecautionsForStorage.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

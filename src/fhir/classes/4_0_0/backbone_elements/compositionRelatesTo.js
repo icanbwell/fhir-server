@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Composition.RelatesTo
     A set of healthcare-related information that is assembled together into a
@@ -175,9 +174,6 @@ class CompositionRelatesTo extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -189,8 +185,6 @@ class CompositionRelatesTo extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -235,8 +229,6 @@ class CompositionRelatesTo extends Element {
             targetIdentifier: this.targetIdentifier && this.targetIdentifier.toJSONInternal(),
             targetReference: this.targetReference && this.targetReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

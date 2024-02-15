@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Attachment
     For referring to data content defined in other formats.
@@ -236,7 +235,6 @@ class Attachment extends Element {
             }
         });
 
-
         /**
          * @description _file_id
          * @property {string|undefined}
@@ -250,7 +248,6 @@ class Attachment extends Element {
                 this.__data._file_id = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -268,8 +265,6 @@ class Attachment extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -320,7 +315,6 @@ class Attachment extends Element {
             title: this.title,
             creation: this.creation
         };
-
 
         if (this._file_id) {
             json._file_id = this._file_id;

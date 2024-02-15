@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Patient.Link
     Demographics and other administrative information about an individual or
@@ -145,9 +144,6 @@ class PatientLink extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -158,8 +154,6 @@ class PatientLink extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -201,8 +195,6 @@ class PatientLink extends Element {
             other: this.other && this.other.toJSONInternal(),
             type: this.type
         };
-
-
 
         return removeNull(json);
     }

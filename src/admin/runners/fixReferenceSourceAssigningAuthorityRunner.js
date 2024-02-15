@@ -16,7 +16,6 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
 
-
 /**
  * converts list of properties to a projection
  * @param {string[]} properties

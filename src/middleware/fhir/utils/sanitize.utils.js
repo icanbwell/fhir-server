@@ -9,7 +9,6 @@ const xss = require('xss');
 const parseValue = function (type, value) {
     let result;
 
-
     switch (type) {
         case 'number':
             // noinspection JSUnresolvedFunction
@@ -170,7 +169,6 @@ const sanitizeMiddleware = function (config, required) {
             } // Try to cast the type to the correct type, do this first so that if something
             // returns as NaN we can bail on it
 
-
             try {
                 if (value) {
                     cleanArgs[`${field}`] = Array.isArray(value) ? value.map(v => parseValue(conf.type, v)) : parseValue(conf.type, value);
@@ -179,12 +177,10 @@ const sanitizeMiddleware = function (config, required) {
                 return next(errors.invalidParameter(conf.name + ' is invalid', req.params.base_version));
             } // If we have the arg and the type is wrong, throw invalid arg
 
-
             if (cleanArgs[`${field}`] !== undefined && !validateType(conf.type, cleanArgs[`${field}`])) {
                 return next(errors.invalidParameter('Invalid parameter: ' + conf.name, req.params.base_version));
             }
         } // Save the cleaned arguments on the request for later use, we must only use these later on
-
 
         req.sanitized_args = cleanArgs;
         next();

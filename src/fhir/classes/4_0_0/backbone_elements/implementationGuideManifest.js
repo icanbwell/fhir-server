@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide.Manifest
     A set of rules of how a particular interoperability or standards problem is
@@ -215,9 +214,6 @@ class ImplementationGuideManifest extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -231,8 +227,6 @@ class ImplementationGuideManifest extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -281,8 +275,6 @@ class ImplementationGuideManifest extends Element {
             image: this.image,
             other: this.other
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Invoice.PriceComponent
     Invoice containing collected ChargeItems from an Account with calculated
@@ -189,9 +188,6 @@ class InvoicePriceComponent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -204,8 +200,6 @@ class InvoicePriceComponent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -252,8 +246,6 @@ class InvoicePriceComponent extends Element {
             factor: this.factor,
             amount: this.amount && this.amount.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

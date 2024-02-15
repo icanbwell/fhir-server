@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 List
     A list is a curated collection of resources.
@@ -513,7 +512,6 @@ class List extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -566,7 +564,6 @@ class List extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -712,7 +709,6 @@ class List extends Resource {
         return new List(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -798,7 +794,6 @@ class List extends Resource {
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
             emptyReason: this.emptyReason && this.emptyReason.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

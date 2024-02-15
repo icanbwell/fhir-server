@@ -7,7 +7,6 @@ const expectedPractitionerResourceBundle = require('./fixtures/expected/expected
 const expectedPractitionerNoUserScopesBundle = require('./fixtures/expected/expected_practitioner_no_user_scopes.json');
 const expectedPractitionerMultiElementResourceBundle = require('./fixtures/expected/expected_practitioner_multi_element_bundle.json');
 
-
 const {
     commonBeforeEach,
     commonAfterEach,

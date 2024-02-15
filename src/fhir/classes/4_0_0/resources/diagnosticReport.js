@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DiagnosticReport
     The findings and interpretation of diagnostic  tests performed on patients,
@@ -659,7 +658,6 @@ class DiagnosticReport extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -712,7 +710,6 @@ class DiagnosticReport extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -882,7 +879,6 @@ class DiagnosticReport extends Resource {
         return new DiagnosticReport(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -986,7 +982,6 @@ class DiagnosticReport extends Resource {
             conclusionCode: this.conclusionCode && this.conclusionCode.map(v => v.toJSONInternal()),
             presentedForm: this.presentedForm && this.presentedForm.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

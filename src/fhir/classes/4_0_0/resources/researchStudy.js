@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ResearchStudy
     A process where a researcher or organization plans and then executes a series
@@ -775,7 +774,6 @@ class ResearchStudy extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -828,7 +826,6 @@ class ResearchStudy extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1018,7 +1015,6 @@ class ResearchStudy extends Resource {
         return new ResearchStudy(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1138,7 +1134,6 @@ class ResearchStudy extends Resource {
             arm: this.arm && this.arm.map(v => v.toJSONInternal()),
             objective: this.objective && this.objective.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

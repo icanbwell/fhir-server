@@ -7,7 +7,6 @@ const {
  * @description Construct a resource with base_version/uscore path
  */
 
-
 const getConformanceResource = () => {
     return resolveSchema('1_0_2', 'conformance');
 };
@@ -36,7 +35,6 @@ module.exports.makeStatement = function (resources) {
  * @name exports
  * @summary Capability statement shell
  */
-
 
 module.exports.securityStatement = securityUrls => ({
     cors: true,

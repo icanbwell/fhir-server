@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationKnowledge
     Information about a medication that is used to support knowledge.
@@ -725,7 +724,6 @@ class MedicationKnowledge extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -778,7 +776,6 @@ class MedicationKnowledge extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -960,7 +957,6 @@ class MedicationKnowledge extends Resource {
         return new MedicationKnowledge(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1074,7 +1070,6 @@ class MedicationKnowledge extends Resource {
             regulatory: this.regulatory && this.regulatory.map(v => v.toJSONInternal()),
             kinetics: this.kinetics && this.kinetics.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

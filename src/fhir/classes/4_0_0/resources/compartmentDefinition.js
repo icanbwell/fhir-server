@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CompartmentDefinition
     A compartment definition that defines how resources are accessed on a server.
@@ -542,7 +541,6 @@ class CompartmentDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -595,7 +593,6 @@ class CompartmentDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -745,7 +742,6 @@ class CompartmentDefinition extends Resource {
         return new CompartmentDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -827,7 +823,6 @@ class CompartmentDefinition extends Resource {
             search: this.search,
             resource: this.resource && this.resource.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

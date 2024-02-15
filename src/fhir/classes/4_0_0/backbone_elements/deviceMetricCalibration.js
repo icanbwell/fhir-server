@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceMetric.Calibration
     Describes a measurement, calculation or setting capability of a medical
@@ -163,9 +162,6 @@ class DeviceMetricCalibration extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -177,8 +173,6 @@ class DeviceMetricCalibration extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -221,8 +215,6 @@ class DeviceMetricCalibration extends Element {
             state: this.state,
             time: this.time
         };
-
-
 
         return removeNull(json);
     }

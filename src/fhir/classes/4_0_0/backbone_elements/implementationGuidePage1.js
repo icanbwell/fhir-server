@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide.Page1
     A set of rules of how a particular interoperability or standards problem is
@@ -165,9 +164,6 @@ class ImplementationGuidePage1 extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -179,8 +175,6 @@ class ImplementationGuidePage1 extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -223,8 +217,6 @@ class ImplementationGuidePage1 extends Element {
             title: this.title,
             anchor: this.anchor
         };
-
-
 
         return removeNull(json);
     }

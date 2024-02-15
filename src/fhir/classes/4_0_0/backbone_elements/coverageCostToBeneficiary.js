@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Coverage.CostToBeneficiary
     Financial instrument which may be used to reimburse or pay for health care
@@ -192,9 +191,6 @@ class CoverageCostToBeneficiary extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -207,8 +203,6 @@ class CoverageCostToBeneficiary extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -257,8 +251,6 @@ class CoverageCostToBeneficiary extends Element {
             valueMoney: this.valueMoney && this.valueMoney.toJSONInternal(),
             exception: this.exception && this.exception.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

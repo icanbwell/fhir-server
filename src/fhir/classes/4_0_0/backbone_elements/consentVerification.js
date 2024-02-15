@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Consent.Verification
     A record of a healthcare consumer’s  choices, which permits or denies
@@ -166,9 +165,6 @@ class ConsentVerification extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -180,8 +176,6 @@ class ConsentVerification extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -225,8 +219,6 @@ class ConsentVerification extends Element {
             verifiedWith: this.verifiedWith && this.verifiedWith.toJSONInternal(),
             verificationDate: this.verificationDate
         };
-
-
 
         return removeNull(json);
     }

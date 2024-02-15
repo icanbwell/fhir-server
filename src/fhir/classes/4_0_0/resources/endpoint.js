@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Endpoint
     The technical details of an endpoint that can be used for electronic services,
@@ -472,7 +471,6 @@ class Endpoint extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -525,7 +523,6 @@ class Endpoint extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -663,7 +660,6 @@ class Endpoint extends Resource {
         return new Endpoint(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -742,7 +738,6 @@ class Endpoint extends Resource {
             address: this.address,
             header: this.header
         };
-
 
         if (this._access) {
             json._access = this._access;

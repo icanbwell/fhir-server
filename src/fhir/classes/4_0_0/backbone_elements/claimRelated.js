@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Claim.Related
     A provider issued list of professional services and products which have been
@@ -171,9 +170,6 @@ class ClaimRelated extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -185,8 +181,6 @@ class ClaimRelated extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -232,8 +226,6 @@ class ClaimRelated extends Element {
             relationship: this.relationship && this.relationship.toJSONInternal(),
             reference: this.reference && this.reference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.MolecularWeight
     The detailed description of a substance, typically at a level beyond what is
@@ -172,9 +171,6 @@ class SubstanceSpecificationMolecularWeight extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -186,8 +182,6 @@ class SubstanceSpecificationMolecularWeight extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -233,8 +227,6 @@ class SubstanceSpecificationMolecularWeight extends Element {
             type: this.type && this.type.toJSONInternal(),
             amount: this.amount && this.amount.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

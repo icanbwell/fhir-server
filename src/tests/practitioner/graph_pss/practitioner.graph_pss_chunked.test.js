@@ -31,7 +31,6 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-
 describe('Practitioner Graph PSS Contained Chunked Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -141,7 +140,6 @@ describe('Practitioner Graph PSS Contained Chunked Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultipleChunkedResource);
-
 
         });
     });

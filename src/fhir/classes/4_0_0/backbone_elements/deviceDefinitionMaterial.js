@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceDefinition.Material
     The characteristics, operational status and capabilities of a medical-related
@@ -165,9 +164,6 @@ class DeviceDefinitionMaterial extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -179,8 +175,6 @@ class DeviceDefinitionMaterial extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -224,8 +218,6 @@ class DeviceDefinitionMaterial extends Element {
             alternate: this.alternate,
             allergenicIndicator: this.allergenicIndicator
         };
-
-
 
         return removeNull(json);
     }

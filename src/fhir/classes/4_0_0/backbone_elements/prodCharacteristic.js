@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ProdCharacteristic
     The marketing status describes the date when a medicinal product is actually
@@ -363,9 +362,6 @@ class ProdCharacteristic extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -385,8 +381,6 @@ class ProdCharacteristic extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -453,8 +447,6 @@ class ProdCharacteristic extends Element {
             image: this.image && this.image.map(v => v.toJSONInternal()),
             scoring: this.scoring && this.scoring.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

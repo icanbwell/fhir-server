@@ -133,7 +133,6 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
 
-
                 const query = this.skipIfResourcePresent ? {resource: null} : {};
                 try {
                     await this.runForQueryBatchesAsync(

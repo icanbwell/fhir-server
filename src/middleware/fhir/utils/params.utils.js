@@ -27,7 +27,6 @@ const getSearchParameters = (profile, version, customArgsModule) => {
             key: lowercaseProfileName
         })).searchParam; // We need to key these by name so we can remove duplicates on assign
 
-
         allArguments = paramsAsArray.reduce((all, arg) => {
             all[arg.name] = arg;
             return all;
@@ -36,14 +35,12 @@ const getSearchParameters = (profile, version, customArgsModule) => {
         allArguments = getParameters(version, lowercaseProfileName);
     } // Load our common arguments that apply to all resources
 
-
     allArguments = Object.assign(allArguments, getParameters(version, 'resource')); // Everyone has a DomainResource and Resource parameter we want to include
     // except DSTU2(1_0_2), so do not attempt to assign that in DSTU2
 
     if (version !== '1_0_2') {
         allArguments = Object.assign(allArguments, getParameters(version, 'domainresource'));
     } // Convert these into an array
-
 
     return Object.getOwnPropertyNames(allArguments).map(name => {
         return Object.assign({

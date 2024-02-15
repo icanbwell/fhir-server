@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Claim.SupportingInfo
     A provider issued list of professional services and products which have been
@@ -342,9 +341,6 @@ class ClaimSupportingInfo extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -364,8 +360,6 @@ class ClaimSupportingInfo extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -431,8 +425,6 @@ class ClaimSupportingInfo extends Element {
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
             reason: this.reason && this.reason.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

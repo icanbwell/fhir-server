@@ -197,7 +197,6 @@ describe('Observation Tests', () => {
                 .get(`/4_0_0/Observation/?id=${uuid}&_debug=1`)
                 .set(headers);
 
-
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByUuidResources);
         });

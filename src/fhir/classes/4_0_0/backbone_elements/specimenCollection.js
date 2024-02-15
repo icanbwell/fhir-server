@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Specimen.Collection
     A sample to be used for analysis.
@@ -301,9 +300,6 @@ class SpecimenCollection extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -321,8 +317,6 @@ class SpecimenCollection extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -385,8 +379,6 @@ class SpecimenCollection extends Element {
             fastingStatusCodeableConcept: this.fastingStatusCodeableConcept && this.fastingStatusCodeableConcept.toJSONInternal(),
             fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

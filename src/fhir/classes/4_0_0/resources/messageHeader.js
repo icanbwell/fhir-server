@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MessageHeader
     The header for a message exchange that is either requesting or responding to
@@ -502,7 +501,6 @@ class MessageHeader extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -555,7 +553,6 @@ class MessageHeader extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -697,7 +694,6 @@ class MessageHeader extends Resource {
         return new MessageHeader(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -782,7 +778,6 @@ class MessageHeader extends Resource {
             focus: this.focus && this.focus.map(v => v.toJSONInternal()),
             definition: this.definition
         };
-
 
         if (this._access) {
             json._access = this._access;

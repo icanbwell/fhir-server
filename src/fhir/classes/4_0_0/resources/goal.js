@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Goal
     Describes the intended objective(s) for a patient, group or organization care,
@@ -607,7 +606,6 @@ class Goal extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -660,7 +658,6 @@ class Goal extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -822,7 +819,6 @@ class Goal extends Resource {
         return new Goal(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -920,7 +916,6 @@ class Goal extends Resource {
             outcomeCode: this.outcomeCode && this.outcomeCode.map(v => v.toJSONInternal()),
             outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

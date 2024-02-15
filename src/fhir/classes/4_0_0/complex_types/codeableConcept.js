@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeableConcept
     A concept that may be defined by a formal reference to a terminology or
@@ -115,9 +114,6 @@ class CodeableConcept extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -127,8 +123,6 @@ class CodeableConcept extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -167,8 +161,6 @@ class CodeableConcept extends Element {
             coding: this.coding && this.coding.map(v => v.toJSONInternal()),
             text: this.text
         };
-
-
 
         return removeNull(json);
     }

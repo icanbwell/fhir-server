@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductInteraction.Interactant
     The interactions of the medicinal product with other medicinal products, or
@@ -147,9 +146,6 @@ class MedicinalProductInteractionInteractant extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class MedicinalProductInteractionInteractant extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -204,8 +198,6 @@ class MedicinalProductInteractionInteractant extends Element {
             itemReference: this.itemReference && this.itemReference.toJSONInternal(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

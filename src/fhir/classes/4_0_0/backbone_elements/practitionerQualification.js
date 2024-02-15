@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Practitioner.Qualification
     A person who is directly or indirectly involved in the provisioning of
@@ -191,9 +190,6 @@ class PractitionerQualification extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -206,8 +202,6 @@ class PractitionerQualification extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -256,8 +250,6 @@ class PractitionerQualification extends Element {
             period: this.period && this.period.toJSONInternal(),
             issuer: this.issuer && this.issuer.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

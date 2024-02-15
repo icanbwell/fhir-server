@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstancePolymer.Repeat
     Todo.
@@ -186,9 +185,6 @@ class SubstancePolymerRepeat extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -201,8 +197,6 @@ class SubstancePolymerRepeat extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -249,8 +243,6 @@ class SubstancePolymerRepeat extends Element {
             repeatUnitAmountType: this.repeatUnitAmountType && this.repeatUnitAmountType.toJSONInternal(),
             repeatUnit: this.repeatUnit && this.repeatUnit.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

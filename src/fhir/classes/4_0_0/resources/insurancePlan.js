@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 InsurancePlan
     Details of a Health Insurance product/plan provided by an organization.
@@ -538,7 +537,6 @@ class InsurancePlan extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -591,7 +589,6 @@ class InsurancePlan extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -741,7 +738,6 @@ class InsurancePlan extends Resource {
         return new InsurancePlan(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -831,7 +827,6 @@ class InsurancePlan extends Resource {
             coverage: this.coverage && this.coverage.map(v => v.toJSONInternal()),
             plan: this.plan && this.plan.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

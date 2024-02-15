@@ -35,7 +35,6 @@ class BadRequestError extends ServerError {
     }
 }
 
-
 class NotFoundError extends ServerError {
     constructor (message, options = {}) {
         super(message, {

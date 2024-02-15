@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MessageDefinition.AllowedResponse
     Defines the characteristics of a message that can be shared between systems,
@@ -146,9 +145,6 @@ class MessageDefinitionAllowedResponse extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class MessageDefinitionAllowedResponse extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -201,8 +195,6 @@ class MessageDefinitionAllowedResponse extends Element {
             message: this.message,
             situation: this.situation
         };
-
-
 
         return removeNull(json);
     }

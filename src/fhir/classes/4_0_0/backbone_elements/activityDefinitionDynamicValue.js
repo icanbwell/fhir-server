@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ActivityDefinition.DynamicValue
     This resource allows for the definition of some activity to be performed,
@@ -153,9 +152,6 @@ class ActivityDefinitionDynamicValue extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -166,8 +162,6 @@ class ActivityDefinitionDynamicValue extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -209,8 +203,6 @@ class ActivityDefinitionDynamicValue extends Element {
             path: this.path,
             expression: this.expression && this.expression.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

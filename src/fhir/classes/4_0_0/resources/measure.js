@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Measure
     The Measure resource provides the definition of a quality measure.
@@ -1168,7 +1167,6 @@ class Measure extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1221,7 +1219,6 @@ class Measure extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1483,7 +1480,6 @@ class Measure extends Resource {
         return new Measure(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1637,7 +1633,6 @@ class Measure extends Resource {
             group: this.group && this.group.map(v => v.toJSONInternal()),
             supplementalData: this.supplementalData && this.supplementalData.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

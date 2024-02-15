@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ActivityDefinition
     This resource allows for the definition of some activity to be performed,
@@ -1422,7 +1421,6 @@ class ActivityDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1475,7 +1473,6 @@ class ActivityDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1781,7 +1778,6 @@ class ActivityDefinition extends Resource {
         return new ActivityDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1968,7 +1964,6 @@ class ActivityDefinition extends Resource {
             transform: this.transform,
             dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

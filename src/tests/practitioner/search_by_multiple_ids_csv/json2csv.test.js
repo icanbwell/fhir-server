@@ -12,7 +12,6 @@ const {fhirContentTypes} = require('../../../utils/contentTypes');
 const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
 const {ConfigManager} = require('../../../utils/configManager');
 
-
 describe('JSON 2 CSV', () => {
     test('json2csv tests', async () => {
         const inputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner.json');
@@ -26,7 +25,6 @@ describe('JSON 2 CSV', () => {
             ]
         };
         const parser = new Transform(opts);
-
 
         // You can also listen for events on the conversion and see how the header or the lines are coming out.
         parser

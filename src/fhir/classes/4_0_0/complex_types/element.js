@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Element
     Base definition for all elements in a resource.
@@ -72,9 +71,6 @@ class Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -82,8 +78,6 @@ class Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -117,8 +111,6 @@ class Element {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

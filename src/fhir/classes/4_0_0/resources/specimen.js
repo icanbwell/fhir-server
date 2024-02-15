@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Specimen
     A sample to be used for analysis.
@@ -518,7 +517,6 @@ class Specimen extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -571,7 +569,6 @@ class Specimen extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -717,7 +714,6 @@ class Specimen extends Resource {
         return new Specimen(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -805,7 +801,6 @@ class Specimen extends Resource {
             condition: this.condition && this.condition.map(v => v.toJSONInternal()),
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

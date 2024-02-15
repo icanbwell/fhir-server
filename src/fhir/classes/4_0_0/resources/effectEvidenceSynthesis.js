@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EffectEvidenceSynthesis
     The EffectEvidenceSynthesis resource describes the difference in an outcome
@@ -979,7 +978,6 @@ class EffectEvidenceSynthesis extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -1032,7 +1030,6 @@ class EffectEvidenceSynthesis extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1258,7 +1255,6 @@ class EffectEvidenceSynthesis extends Resource {
         return new EffectEvidenceSynthesis(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1397,7 +1393,6 @@ class EffectEvidenceSynthesis extends Resource {
             effectEstimate: this.effectEstimate && this.effectEstimate.map(v => v.toJSONInternal()),
             certainty: this.certainty && this.certainty.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

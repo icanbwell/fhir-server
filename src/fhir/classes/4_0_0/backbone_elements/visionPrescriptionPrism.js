@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 VisionPrescription.Prism
     An authorization for the provision of glasses and/or contact lenses to a
@@ -143,9 +142,6 @@ class VisionPrescriptionPrism extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -156,8 +152,6 @@ class VisionPrescriptionPrism extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -198,8 +192,6 @@ class VisionPrescriptionPrism extends Element {
             amount: this.amount,
             base: this.base
         };
-
-
 
         return removeNull(json);
     }

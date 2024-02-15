@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationDispense
     Indicates that a medication product is to be or has been dispensed for a named
@@ -818,7 +817,6 @@ class MedicationDispense extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -871,7 +869,6 @@ class MedicationDispense extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1069,7 +1066,6 @@ class MedicationDispense extends Resource {
         return new MedicationDispense(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1195,7 +1191,6 @@ class MedicationDispense extends Resource {
             detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSONInternal()),
             eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

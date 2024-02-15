@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionNotificationType
     If the element is present, it must have either a @value, an @id, or extensions
@@ -88,9 +87,6 @@ class SubscriptionNotificationType extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -99,8 +95,6 @@ class SubscriptionNotificationType extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -136,8 +130,6 @@ class SubscriptionNotificationType extends Element {
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             value: this.value
         };
-
-
 
         return removeNull(json);
     }

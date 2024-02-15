@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Consent.Data
     A record of a healthcare consumer’s  choices, which permits or denies
@@ -147,9 +146,6 @@ class ConsentData extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class ConsentData extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class ConsentData extends Element {
             meaning: this.meaning,
             reference: this.reference && this.reference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ParameterDefinition
     The parameters to the module. This collection specifies both the input and
@@ -217,9 +216,6 @@ class ParameterDefinition extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -234,8 +230,6 @@ class ParameterDefinition extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -283,8 +277,6 @@ class ParameterDefinition extends Element {
             type: this.type,
             profile: this.profile
         };
-
-
 
         return removeNull(json);
     }

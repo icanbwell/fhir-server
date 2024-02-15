@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 VerificationResult.Validator
     Describes validation requirements, source(s), status and dates for one or more
@@ -167,9 +166,6 @@ class VerificationResultValidator extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -181,8 +177,6 @@ class VerificationResultValidator extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -227,8 +221,6 @@ class VerificationResultValidator extends Element {
             identityCertificate: this.identityCertificate,
             attestationSignature: this.attestationSignature && this.attestationSignature.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

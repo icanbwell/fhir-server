@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MessageDefinition.Focus
     Defines the characteristics of a message that can be shared between systems,
@@ -187,9 +186,6 @@ class MessageDefinitionFocus extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -202,8 +198,6 @@ class MessageDefinitionFocus extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -248,8 +242,6 @@ class MessageDefinitionFocus extends Element {
             min: this.min,
             max: this.max
         };
-
-
 
         return removeNull(json);
     }

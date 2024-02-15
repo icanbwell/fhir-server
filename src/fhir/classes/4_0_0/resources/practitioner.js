@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Practitioner
     A person who is directly or indirectly involved in the provisioning of
@@ -452,7 +451,6 @@ class Practitioner extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -505,7 +503,6 @@ class Practitioner extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -639,7 +636,6 @@ class Practitioner extends Resource {
         return new Practitioner(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -717,7 +713,6 @@ class Practitioner extends Resource {
             qualification: this.qualification && this.qualification.map(v => v.toJSONInternal()),
             communication: this.communication && this.communication.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

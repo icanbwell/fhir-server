@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CarePlan.Activity
     Describes the intention of how one or more practitioners intend to deliver
@@ -222,9 +221,6 @@ class CarePlanActivity extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -238,8 +234,6 @@ class CarePlanActivity extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -291,8 +285,6 @@ class CarePlanActivity extends Element {
             reference: this.reference && this.reference.toJSONInternal(),
             detail: this.detail && this.detail.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

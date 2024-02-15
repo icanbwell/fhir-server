@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Specimen.Processing
     A sample to be used for analysis.
@@ -208,9 +207,6 @@ class SpecimenProcessing extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -224,8 +220,6 @@ class SpecimenProcessing extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -275,8 +269,6 @@ class SpecimenProcessing extends Element {
             timeDateTime: this.timeDateTime,
             timePeriod: this.timePeriod && this.timePeriod.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

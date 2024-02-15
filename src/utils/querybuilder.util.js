@@ -2,7 +2,6 @@
  * This file implements helpers for building mongo queries
  */
 
-
 const moment = require('moment-timezone');
 const {escapeRegExp} = require('./regexEscaper');
 const {UrlParser} = require('./urlParser');
@@ -350,7 +349,6 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
     return queryBuilder;
 };
 
-
 /**
  * @name referenceQueryBuilder
  * @param {string} target_type
@@ -564,7 +562,6 @@ const getDateFromNum = function (days) {
     const rDay = day2 - Math.floor((m1 * 306 + 5) / 10) + 1;
     return year.toString() + '-' + ('0' + month).slice(-2) + '-' + ('0' + rDay).slice(-2);
 };
-
 
 /**
  * Builds a date query
@@ -797,7 +794,6 @@ const dateQueryBuilder = function ({date, type, path}) {
         }
     }
 };
-
 
 /**
  * Searches for date using the Date type
@@ -1084,7 +1080,6 @@ const compositeQueryBuilder = function ({target, field1, field2, resourceType}) 
     }
 };
 
-
 /**
  * @name partialTextQueryBuilder
  * @param {string} field
@@ -1106,7 +1101,6 @@ const partialTextQueryBuilder = function ({field, partialText, ignoreCase}) {
 
     return queryBuilder;
 };
-
 
 /**
  * @todo build out all prefix functionality for number and quantity and add date queries

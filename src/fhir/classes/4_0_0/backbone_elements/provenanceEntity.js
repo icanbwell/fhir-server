@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Provenance.Entity
     Provenance of a resource is a record that describes entities and processes
@@ -178,9 +177,6 @@ class ProvenanceEntity extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -192,8 +188,6 @@ class ProvenanceEntity extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -238,8 +232,6 @@ class ProvenanceEntity extends Element {
             what: this.what && this.what.toJSONInternal(),
             agent: this.agent && this.agent.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Coverage.Class
     Financial instrument which may be used to reimburse or pay for health care
@@ -167,9 +166,6 @@ class CoverageClass extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -181,8 +177,6 @@ class CoverageClass extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -226,8 +220,6 @@ class CoverageClass extends Element {
             value: this.value,
             name: this.name
         };
-
-
 
         return removeNull(json);
     }

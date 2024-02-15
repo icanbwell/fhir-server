@@ -416,7 +416,6 @@ module.exports.wrapResourceInBundle = (resource) => {
     };
 };
 
-
 /**
  * @param resp
  * @return {string|undefined}

@@ -13,7 +13,6 @@ const searchLimitForIds = 1000;
  * @property {boolean|undefined} [useExactMatch]
  */
 
-
 function getSearchParams (req) {
     const bodyEntries = Object.entries(req.body);
     // eslint-disable-next-line no-unused-vars

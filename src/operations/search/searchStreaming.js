@@ -17,7 +17,6 @@ const {QueryItem} = require('../graph/queryItem');
 const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
 const {READ} = require('../../constants').OPERATIONS;
 
-
 class SearchStreamingOperation {
     /**
      * constructor

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Duration
     A length of time.
@@ -173,9 +172,6 @@ class Duration extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -188,8 +184,6 @@ class Duration extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -233,8 +227,6 @@ class Duration extends Element {
             system: this.system,
             code: this.code
         };
-
-
 
         return removeNull(json);
     }

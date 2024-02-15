@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Composition
     A set of healthcare-related information that is assembled together into a
@@ -574,7 +573,6 @@ class Composition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -627,7 +625,6 @@ class Composition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -781,7 +778,6 @@ class Composition extends Resource {
         return new Composition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -873,7 +869,6 @@ class Composition extends Resource {
             event: this.event && this.event.map(v => v.toJSONInternal()),
             section: this.section && this.section.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -10,7 +10,6 @@ const {
  * @summary Conformance statement
  */
 
-
 module.exports = {
     resource: (baseVersion, key) => {
         const searchParams = getSearchParams(key, baseVersion);

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem.Filter
     The CodeSystem resource is used to declare the existence of and describe a
@@ -185,9 +184,6 @@ class CodeSystemFilter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -200,8 +196,6 @@ class CodeSystemFilter extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -246,8 +240,6 @@ class CodeSystemFilter extends Element {
             operator: this.operator,
             value: this.value
         };
-
-
 
         return removeNull(json);
     }

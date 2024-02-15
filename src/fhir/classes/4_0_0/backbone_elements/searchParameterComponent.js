@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SearchParameter.Component
     A search parameter that defines a named search item that can be used to
@@ -144,9 +143,6 @@ class SearchParameterComponent extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -157,8 +153,6 @@ class SearchParameterComponent extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -199,8 +193,6 @@ class SearchParameterComponent extends Element {
             definition: this.definition,
             expression: this.expression
         };
-
-
 
         return removeNull(json);
     }

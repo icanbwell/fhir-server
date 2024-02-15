@@ -37,7 +37,6 @@ const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
 
-
 /**
  * This class helps with creating graph responses
  */
@@ -1525,7 +1524,6 @@ class GraphHelper {
         }
     }
 
-
     /**
      * process GraphDefinition and returns a bundle with all the related resources
      * @param {FhirRequestInfo} requestInfo
@@ -1561,7 +1559,6 @@ class GraphHelper {
              */
             const graphDefinition = FhirResourceCreator.create(graphDefinitionJson, GraphDefinition);
             assertTypeEquals(graphDefinition, GraphDefinition);
-
 
             // see if the count of ids is greater than batch size
             /**

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MolecularSequence
     Raw data describing a biological sequence.
@@ -587,7 +586,6 @@ class MolecularSequence extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -640,7 +638,6 @@ class MolecularSequence extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -798,7 +795,6 @@ class MolecularSequence extends Resource {
         return new MolecularSequence(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -893,7 +889,6 @@ class MolecularSequence extends Resource {
             pointer: this.pointer && this.pointer.map(v => v.toJSONInternal()),
             structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

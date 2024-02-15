@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Consent.Policy
     A record of a healthcare consumer’s  choices, which permits or denies
@@ -147,9 +146,6 @@ class ConsentPolicy extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class ConsentPolicy extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -202,8 +196,6 @@ class ConsentPolicy extends Element {
             authority: this.authority,
             uri: this.uri
         };
-
-
 
         return removeNull(json);
     }

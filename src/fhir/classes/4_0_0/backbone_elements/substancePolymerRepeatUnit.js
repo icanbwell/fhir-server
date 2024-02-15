@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstancePolymer.RepeatUnit
     Todo.
@@ -210,9 +209,6 @@ class SubstancePolymerRepeatUnit extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -226,8 +222,6 @@ class SubstancePolymerRepeatUnit extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -278,8 +272,6 @@ class SubstancePolymerRepeatUnit extends Element {
             degreeOfPolymerisation: this.degreeOfPolymerisation && this.degreeOfPolymerisation.map(v => v.toJSONInternal()),
             structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

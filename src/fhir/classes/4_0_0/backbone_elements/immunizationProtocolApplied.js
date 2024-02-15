@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Immunization.ProtocolApplied
     Describes the event of a patient being administered a vaccine or a record of
@@ -249,9 +248,6 @@ class ImmunizationProtocolApplied extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -267,8 +263,6 @@ class ImmunizationProtocolApplied extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -321,8 +315,6 @@ class ImmunizationProtocolApplied extends Element {
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString
         };
-
-
 
         return removeNull(json);
     }

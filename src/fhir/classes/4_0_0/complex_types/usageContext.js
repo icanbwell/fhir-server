@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 UsageContext
     Specifies clinical/business/etc. metadata that can be used to retrieve, index
@@ -184,9 +183,6 @@ class UsageContext extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -199,8 +195,6 @@ class UsageContext extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -249,8 +243,6 @@ class UsageContext extends Element {
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstancePolymer
     Todo.
@@ -359,7 +358,6 @@ class SubstancePolymer extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -412,7 +410,6 @@ class SubstancePolymer extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -530,7 +527,6 @@ class SubstancePolymer extends Resource {
         return new SubstancePolymer(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -598,7 +594,6 @@ class SubstancePolymer extends Resource {
             monomerSet: this.monomerSet && this.monomerSet.map(v => v.toJSONInternal()),
             repeat: this.repeat && this.repeat.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

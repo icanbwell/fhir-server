@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PlanDefinition.Participant
     This resource allows for the definition of various types of plans as a
@@ -147,9 +146,6 @@ class PlanDefinitionParticipant extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class PlanDefinitionParticipant extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class PlanDefinitionParticipant extends Element {
             type: this.type,
             role: this.role && this.role.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

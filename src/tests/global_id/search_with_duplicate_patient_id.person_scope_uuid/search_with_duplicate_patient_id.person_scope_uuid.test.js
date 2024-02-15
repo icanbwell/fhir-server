@@ -87,7 +87,6 @@ describe('Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-
             // create client data
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
@@ -137,7 +136,6 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
-
 
             const mps_person_payload = {
                 'cognito:username': 'patient-123@example.com',

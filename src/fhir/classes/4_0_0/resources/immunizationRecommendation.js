@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImmunizationRecommendation
     A patient's point-in-time set of recommendations (i.e. forecasting) according
@@ -338,7 +337,6 @@ class ImmunizationRecommendation extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -391,7 +389,6 @@ class ImmunizationRecommendation extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -505,7 +502,6 @@ class ImmunizationRecommendation extends Resource {
         return new ImmunizationRecommendation(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -570,7 +566,6 @@ class ImmunizationRecommendation extends Resource {
             authority: this.authority && this.authority.toJSONInternal(),
             recommendation: this.recommendation && this.recommendation.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

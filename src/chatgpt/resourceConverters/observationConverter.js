@@ -1,6 +1,5 @@
 const {BaseConverter} = require('./baseConverter');
 
-
 class ObservationConverter extends BaseConverter {
     convert ({resource}) {
         const {

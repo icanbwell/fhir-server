@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Isotope
     The detailed description of a substance, typically at a level beyond what is
@@ -214,9 +213,6 @@ class SubstanceSpecificationIsotope extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -230,8 +226,6 @@ class SubstanceSpecificationIsotope extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -283,8 +277,6 @@ class SubstanceSpecificationIsotope extends Element {
             halfLife: this.halfLife && this.halfLife.toJSONInternal(),
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

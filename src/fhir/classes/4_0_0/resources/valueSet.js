@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ValueSet
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -640,7 +639,6 @@ class ValueSet extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -693,7 +691,6 @@ class ValueSet extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -859,7 +856,6 @@ class ValueSet extends Resource {
         return new ValueSet(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -952,7 +948,6 @@ class ValueSet extends Resource {
             compose: this.compose && this.compose.toJSONInternal(),
             expansion: this.expansion && this.expansion.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

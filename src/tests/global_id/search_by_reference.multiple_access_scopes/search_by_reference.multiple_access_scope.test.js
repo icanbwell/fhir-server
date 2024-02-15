@@ -13,7 +13,6 @@ const expectedObservationIdOnlyBySourceAssigningAuthorityResources = require('./
 const expectedObservationByUuidResources = require('./fixtures/expected/expected_observation_by_uuid.json');
 const expectedObservationIdOnlyByUuidResources = require('./fixtures/expected/expected_observation_by_uuid_id_only.json');
 
-
 const {
     commonBeforeEach,
     commonAfterEach,

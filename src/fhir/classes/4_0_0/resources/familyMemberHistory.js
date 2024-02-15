@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 FamilyMemberHistory
     Significant health conditions for a person related to the patient relevant in
@@ -793,7 +792,6 @@ class FamilyMemberHistory extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -846,7 +844,6 @@ class FamilyMemberHistory extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1044,7 +1041,6 @@ class FamilyMemberHistory extends Resource {
         return new FamilyMemberHistory(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1161,7 +1157,6 @@ class FamilyMemberHistory extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             condition: this.condition && this.condition.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

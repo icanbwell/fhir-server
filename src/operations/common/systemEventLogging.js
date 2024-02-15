@@ -80,7 +80,6 @@ const logTraceSystemEventAsync = async ({event, message, args}) => {
     }
 };
 
-
 /**
  * Logs a system event
  * @param {string} event
@@ -138,7 +137,6 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         fhirInSecureLogger.info(logEntry);
     }
 };
-
 
 module.exports = {
     logTraceSystemEventAsync,

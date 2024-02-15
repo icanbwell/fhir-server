@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPackaged.BatchIdentifier
     A medicinal product in a container or package.
@@ -146,9 +145,6 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -159,8 +155,6 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -203,8 +197,6 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             outerPackaging: this.outerPackaging && this.outerPackaging.toJSONInternal(),
             immediatePackaging: this.immediatePackaging && this.immediatePackaging.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

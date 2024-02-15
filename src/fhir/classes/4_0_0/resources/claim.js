@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Claim
     A provider issued list of professional services and products which have been
@@ -838,7 +837,6 @@ class Claim extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -891,7 +889,6 @@ class Claim extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1093,7 +1090,6 @@ class Claim extends Resource {
         return new Claim(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1222,7 +1218,6 @@ class Claim extends Resource {
             item: this.item && this.item.map(v => v.toJSONInternal()),
             total: this.total && this.total.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

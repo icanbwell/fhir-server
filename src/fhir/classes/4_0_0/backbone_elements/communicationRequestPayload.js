@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CommunicationRequest.Payload
     A request to convey information; e.g. the CDS system proposes that an alert be
@@ -168,9 +167,6 @@ class CommunicationRequestPayload extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -182,8 +178,6 @@ class CommunicationRequestPayload extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -228,8 +222,6 @@ class CommunicationRequestPayload extends Element {
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
             contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

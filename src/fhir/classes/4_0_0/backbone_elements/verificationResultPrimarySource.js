@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 VerificationResult.PrimarySource
     Describes validation requirements, source(s), status and dates for one or more
@@ -259,9 +258,6 @@ class VerificationResultPrimarySource extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -277,8 +273,6 @@ class VerificationResultPrimarySource extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -335,8 +329,6 @@ class VerificationResultPrimarySource extends Element {
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSONInternal(),
             pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

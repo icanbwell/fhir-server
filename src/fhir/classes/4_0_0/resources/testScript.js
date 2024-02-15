@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript
     A structured set of tests against a FHIR server or client implementation to
@@ -771,7 +770,6 @@ class TestScript extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -824,7 +822,6 @@ class TestScript extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1014,7 +1011,6 @@ class TestScript extends Resource {
         return new TestScript(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1126,7 +1122,6 @@ class TestScript extends Resource {
             test: this.test && this.test.map(v => v.toJSONInternal()),
             teardown: this.teardown && this.teardown.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Task.Input
     A task to be performed.
@@ -1187,9 +1186,6 @@ class TaskInput extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -1249,8 +1245,6 @@ class TaskInput extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -1421,8 +1415,6 @@ class TaskInput extends Element {
             valueDosage: this.valueDosage && this.valueDosage.toJSONInternal(),
             valueMeta: this.valueMeta && this.valueMeta.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

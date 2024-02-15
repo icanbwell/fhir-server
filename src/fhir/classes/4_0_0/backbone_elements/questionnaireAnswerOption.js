@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Questionnaire.AnswerOption
     A structured set of questions intended to guide the collection of answers from
@@ -249,9 +248,6 @@ class QuestionnaireAnswerOption extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -267,8 +263,6 @@ class QuestionnaireAnswerOption extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -321,8 +315,6 @@ class QuestionnaireAnswerOption extends Element {
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
             initialSelected: this.initialSelected
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CoverageEligibilityRequest.Insurance
     The CoverageEligibilityRequest provides patient and insurance coverage
@@ -172,9 +171,6 @@ class CoverageEligibilityRequestInsurance extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -186,8 +182,6 @@ class CoverageEligibilityRequestInsurance extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class CoverageEligibilityRequestInsurance extends Element {
             coverage: this.coverage && this.coverage.toJSONInternal(),
             businessArrangement: this.businessArrangement
         };
-
-
 
         return removeNull(json);
     }

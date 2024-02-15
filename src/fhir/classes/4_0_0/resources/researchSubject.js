@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ResearchSubject
     A physical entity which is the primary unit of operational and/or
@@ -402,7 +401,6 @@ class ResearchSubject extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -455,7 +453,6 @@ class ResearchSubject extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -581,7 +578,6 @@ class ResearchSubject extends Resource {
         return new ResearchSubject(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -653,7 +649,6 @@ class ResearchSubject extends Resource {
             actualArm: this.actualArm,
             consent: this.consent && this.consent.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

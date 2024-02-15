@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PlanDefinition.RelatedAction
     This resource allows for the definition of various types of plans as a
@@ -189,9 +188,6 @@ class PlanDefinitionRelatedAction extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -204,8 +200,6 @@ class PlanDefinitionRelatedAction extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -252,8 +246,6 @@ class PlanDefinitionRelatedAction extends Element {
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSONInternal(),
             offsetRange: this.offsetRange && this.offsetRange.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

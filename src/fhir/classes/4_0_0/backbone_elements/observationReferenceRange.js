@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Observation.ReferenceRange
     Measurements and simple assertions made about a patient, device or other
@@ -248,9 +247,6 @@ class ObservationReferenceRange extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -265,8 +261,6 @@ class ObservationReferenceRange extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -320,8 +314,6 @@ class ObservationReferenceRange extends Element {
             age: this.age && this.age.toJSONInternal(),
             text: this.text
         };
-
-
 
         return removeNull(json);
     }

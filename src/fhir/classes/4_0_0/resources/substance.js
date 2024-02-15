@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Substance
     A homogeneous material with a definite composition.
@@ -382,7 +381,6 @@ class Substance extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -435,7 +433,6 @@ class Substance extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -557,7 +554,6 @@ class Substance extends Resource {
         return new Substance(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -627,7 +623,6 @@ class Substance extends Resource {
             instance: this.instance && this.instance.map(v => v.toJSONInternal()),
             ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

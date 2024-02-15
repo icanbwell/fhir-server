@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Binary
     A resource that represents the data of a single raw artifact as digital
@@ -191,7 +190,6 @@ class Binary extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -244,7 +242,6 @@ class Binary extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -334,7 +331,6 @@ class Binary extends Resource {
         return new Binary(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -380,7 +376,6 @@ class Binary extends Resource {
             securityContext: this.securityContext && this.securityContext.toJSONInternal(),
             data: this.data
         };
-
 
         if (this._access) {
             json._access = this._access;

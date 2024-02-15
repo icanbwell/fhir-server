@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem.Designation
     The CodeSystem resource is used to declare the existence of and describe a
@@ -166,9 +165,6 @@ class CodeSystemDesignation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -180,8 +176,6 @@ class CodeSystemDesignation extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -225,8 +219,6 @@ class CodeSystemDesignation extends Element {
             use: this.use && this.use.toJSONInternal(),
             value: this.value
         };
-
-
 
         return removeNull(json);
     }

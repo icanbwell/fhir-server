@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExplanationOfBenefit.CareTeam
     This resource provides: the claim details; adjudication details from the
@@ -212,9 +211,6 @@ class ExplanationOfBenefitCareTeam extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -228,8 +224,6 @@ class ExplanationOfBenefitCareTeam extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -279,8 +273,6 @@ class ExplanationOfBenefitCareTeam extends Element {
             role: this.role && this.role.toJSONInternal(),
             qualification: this.qualification && this.qualification.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

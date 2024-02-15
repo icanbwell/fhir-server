@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceProtein
     A SubstanceProtein is defined as a single unit of a linear amino acid
@@ -336,7 +335,6 @@ class SubstanceProtein extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -389,7 +387,6 @@ class SubstanceProtein extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -499,7 +496,6 @@ class SubstanceProtein extends Resource {
         return new SubstanceProtein(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -560,7 +556,6 @@ class SubstanceProtein extends Resource {
             disulfideLinkage: this.disulfideLinkage,
             subunit: this.subunit && this.subunit.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

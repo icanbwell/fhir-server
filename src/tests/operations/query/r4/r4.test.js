@@ -124,7 +124,6 @@ describe('r4 search Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
 
-
             const args = {
                 'base_version': VERSIONS['4_0_0'],
                 '_security': 'https://www.icanbwell.com/access%7Cclient',

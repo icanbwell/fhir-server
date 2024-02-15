@@ -8,7 +8,6 @@ const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache')
 const httpContext = require('express-http-context');
 const {REQUEST_ID_TYPE} = require('../../../../constants');
 
-
 /**
  * @typedef FhirService
  * @type {object}

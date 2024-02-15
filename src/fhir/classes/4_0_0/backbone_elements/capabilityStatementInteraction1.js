@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CapabilityStatement.Interaction1
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR
@@ -147,9 +146,6 @@ class CapabilityStatementInteraction1 extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class CapabilityStatementInteraction1 extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -202,8 +196,6 @@ class CapabilityStatementInteraction1 extends Element {
             code: this.code,
             documentation: this.documentation
         };
-
-
 
         return removeNull(json);
     }

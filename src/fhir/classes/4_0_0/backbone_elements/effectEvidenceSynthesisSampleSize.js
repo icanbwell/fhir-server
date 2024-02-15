@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EffectEvidenceSynthesis.SampleSize
     The EffectEvidenceSynthesis resource describes the difference in an outcome
@@ -164,9 +163,6 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -178,8 +174,6 @@ class EffectEvidenceSynthesisSampleSize extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -222,8 +216,6 @@ class EffectEvidenceSynthesisSampleSize extends Element {
             numberOfStudies: this.numberOfStudies,
             numberOfParticipants: this.numberOfParticipants
         };
-
-
 
         return removeNull(json);
     }

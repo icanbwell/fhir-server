@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskAssessment
     An assessment of the likely outcome(s) for a patient or other subject as well
@@ -624,7 +623,6 @@ class RiskAssessment extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -677,7 +675,6 @@ class RiskAssessment extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -843,7 +840,6 @@ class RiskAssessment extends Resource {
         return new RiskAssessment(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -945,7 +941,6 @@ class RiskAssessment extends Resource {
             mitigation: this.mitigation,
             note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

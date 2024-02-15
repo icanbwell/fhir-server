@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Period
     A time period defined by a start and end date and optionally time.
@@ -113,9 +112,6 @@ class Period extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -125,8 +121,6 @@ class Period extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -164,8 +158,6 @@ class Period extends Element {
             start: this.start,
             end: this.end
         };
-
-
 
         return removeNull(json);
     }

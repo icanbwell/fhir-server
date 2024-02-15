@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Device.UdiCarrier
     A type of a manufactured item that is used in the provision of healthcare
@@ -243,9 +242,6 @@ class DeviceUdiCarrier extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -260,8 +256,6 @@ class DeviceUdiCarrier extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -310,8 +304,6 @@ class DeviceUdiCarrier extends Element {
             carrierHRF: this.carrierHRF,
             entryType: this.entryType
         };
-
-
 
         return removeNull(json);
     }

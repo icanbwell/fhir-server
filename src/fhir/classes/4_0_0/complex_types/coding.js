@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Coding
     A reference to a code defined by a terminology system.
@@ -179,9 +178,6 @@ class Coding extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -194,8 +190,6 @@ class Coding extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -239,8 +233,6 @@ class Coding extends Element {
             display: this.display,
             userSelected: this.userSelected
         };
-
-
 
         return removeNull(json);
     }

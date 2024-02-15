@@ -196,7 +196,6 @@ class MergeOperation {
             method
         } = requestInfo;
 
-
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -268,7 +267,6 @@ class MergeOperation {
                     method,
                     userRequestId
                 });
-
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);

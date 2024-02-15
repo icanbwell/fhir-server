@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NamingSystem.UniqueId
     A curated namespace that issues unique symbols within that namespace for the
@@ -209,9 +208,6 @@ class NamingSystemUniqueId extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -225,8 +221,6 @@ class NamingSystemUniqueId extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -274,8 +268,6 @@ class NamingSystemUniqueId extends Element {
             comment: this.comment,
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

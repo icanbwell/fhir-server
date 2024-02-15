@@ -1,6 +1,5 @@
 const { BaseScriptRunner } = require('./baseScriptRunner');
 
-
 class DatabaseStats extends BaseScriptRunner {
     /**
      *
@@ -118,7 +117,6 @@ class DatabaseStats extends BaseScriptRunner {
         }
     }
 }
-
 
 module.exports = {
     DatabaseStats

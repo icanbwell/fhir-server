@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 GraphDefinition
     A formal computable definition of a graph of resources - that is, a coherent
@@ -567,7 +566,6 @@ class GraphDefinition extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -620,7 +618,6 @@ class GraphDefinition extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -774,7 +771,6 @@ class GraphDefinition extends Resource {
         return new GraphDefinition(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -859,7 +855,6 @@ class GraphDefinition extends Resource {
             profile: this.profile,
             link: this.link && this.link.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

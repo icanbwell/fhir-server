@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ClaimResponse
     This resource provides the adjudication details from the processing of a Claim
@@ -828,7 +827,6 @@ class ClaimResponse extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -881,7 +879,6 @@ class ClaimResponse extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -1083,7 +1080,6 @@ class ClaimResponse extends Resource {
         return new ClaimResponse(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1209,7 +1205,6 @@ class ClaimResponse extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
             error: this.error && this.error.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

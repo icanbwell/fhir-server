@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProduct
     Detailed definition of a medicinal product, typically for uses other than
@@ -677,7 +676,6 @@ class MedicinalProduct extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -730,7 +728,6 @@ class MedicinalProduct extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -904,7 +901,6 @@ class MedicinalProduct extends Resource {
         return new MedicinalProduct(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -1014,7 +1010,6 @@ class MedicinalProduct extends Resource {
             manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSONInternal()),
             specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

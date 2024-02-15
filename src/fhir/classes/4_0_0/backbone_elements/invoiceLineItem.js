@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Invoice.LineItem
     Invoice containing collected ChargeItems from an Account with calculated
@@ -194,9 +193,6 @@ class InvoiceLineItem extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -209,8 +205,6 @@ class InvoiceLineItem extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -258,8 +252,6 @@ class InvoiceLineItem extends Element {
             chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSONInternal(),
             priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

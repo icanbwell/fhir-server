@@ -125,7 +125,6 @@ class SearchByVersionIdOperation {
                 }
             );
 
-
             /**
              * @type {boolean}
              */
@@ -228,4 +227,3 @@ class SearchByVersionIdOperation {
 module.exports = {
     SearchByVersionIdOperation
 };
-

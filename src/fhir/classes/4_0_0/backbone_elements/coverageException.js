@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Coverage.Exception
     Financial instrument which may be used to reimburse or pay for health care
@@ -147,9 +146,6 @@ class CoverageException extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -160,8 +156,6 @@ class CoverageException extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -204,8 +198,6 @@ class CoverageException extends Element {
             type: this.type && this.type.toJSONInternal(),
             period: this.period && this.period.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskEvidenceSynthesis.Certainty
     The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
@@ -170,9 +169,6 @@ class RiskEvidenceSynthesisCertainty extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -184,8 +180,6 @@ class RiskEvidenceSynthesisCertainty extends Element {
         });
 
     }
-
-
 
     /**
      * Returns JSON representation of entity
@@ -231,8 +225,6 @@ class RiskEvidenceSynthesisCertainty extends Element {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             certaintySubcomponent: this.certaintySubcomponent && this.certaintySubcomponent.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

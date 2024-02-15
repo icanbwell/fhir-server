@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RelatedPerson
     Information about a person that is involved in the care for a patient, but who
@@ -491,7 +490,6 @@ class RelatedPerson extends Resource {
             }
         });
 
-
         /**
          * @description _access
          * @property {Object|undefined}
@@ -544,7 +542,6 @@ class RelatedPerson extends Resource {
                 this.__data._sourceId = valueProvided;
             }
         });
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -686,7 +683,6 @@ class RelatedPerson extends Resource {
         return new RelatedPerson(this.toJSONInternal());
     }
 
-
     /**
      * Returns JSON representation of entity
      * @return {Object}
@@ -770,7 +766,6 @@ class RelatedPerson extends Resource {
             period: this.period && this.period.toJSONInternal(),
             communication: this.communication && this.communication.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;
