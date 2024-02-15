@@ -96,7 +96,7 @@ class FhirResponseWriter {
      * @param {Resource} resource - resource to send to client
      */
     readOne({req, res, resource}) {
-        let fhirVersion = req.params.base_version;
+        const fhirVersion = req.params.base_version;
 
         if (resource && resource.meta) {
             res.set('Last-Modified', resource.meta.lastUpdated);
@@ -125,8 +125,8 @@ class FhirResponseWriter {
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
     create({req, res, resource, options}) {
-        let fhirVersion = req.params.base_version ? req.params.base_version : '';
-        let baseUrl = `${req.protocol}://${req.get('host')}`;
+        const fhirVersion = req.params.base_version ? req.params.base_version : '';
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
 
         // https://hl7.org/fhir/http.html#create
         let location;
@@ -137,7 +137,7 @@ class FhirResponseWriter {
         }
 
         if (resource.meta && resource.meta.versionId) {
-            let pathname = path.posix.join(location, '_history', resource.meta.versionId);
+            const pathname = path.posix.join(location, '_history', resource.meta.versionId);
             res.set('Content-Location', `${baseUrl}/${pathname}`);
             res.set('ETag', `W/"${resource.meta.versionId}"`);
         }
@@ -163,14 +163,14 @@ class FhirResponseWriter {
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
     update({req, res, result, options}) {
-        let fhirVersion = req.params.base_version;
-        let baseUrl = `${req.protocol}://${req.get('host')}`;
-        let location = `${fhirVersion}/${options.type}/${result.id}`;
-        let status = result.created ? 201 : 200;
-        let date = new Date();
+        const fhirVersion = req.params.base_version;
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+        const location = `${fhirVersion}/${options.type}/${result.id}`;
+        const status = result.created ? 201 : 200;
+        const date = new Date();
 
         if (result.resource_version) {
-            let pathname = path.posix.join(location, '_history', result.resource_version);
+            const pathname = path.posix.join(location, '_history', result.resource_version);
             res.set('Content-Location', `${baseUrl}/${pathname}`);
             res.set('ETag', `W/"${result.resource_version}"`);
         }
@@ -214,7 +214,7 @@ class FhirResponseWriter {
      * @param {Object} json - json to send to client
      */
     history({req, res, json}) {
-        let version = req.params.base_version;
+        const version = req.params.base_version;
         res.type(this.getContentType(version));
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
@@ -230,7 +230,7 @@ class FhirResponseWriter {
      */
     setBaseResponseHeaders({req, res}) {
         if (!res.headersSent) {
-            let fhirVersion = req.params.base_version;
+            const fhirVersion = req.params.base_version;
             res.type(this.getContentType(fhirVersion));
         }
 

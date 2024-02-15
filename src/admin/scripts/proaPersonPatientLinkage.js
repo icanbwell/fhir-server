@@ -21,7 +21,7 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
     /**

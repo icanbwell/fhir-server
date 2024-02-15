@@ -41,7 +41,7 @@ describe('ActivityDefinition Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be')
                 .send(activitydefinition2Resource)
                 .set(getHeaders());

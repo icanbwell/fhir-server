@@ -52,7 +52,7 @@ const options = {
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let mongoConfig = {
+const mongoConfig = {
     connection: mongoUrl,
     db_name: String(env.MONGO_DB_NAME),
     options: options,
@@ -183,18 +183,18 @@ accessLogsMongoConfig.options = {
 delete accessLogsMongoConfig.options.compressors;
 
 // Set up whitelist
-let whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
+const whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
 
 // If no whitelist is present, disable cors
 // If it's length is 1, set it to a string, so * works
 // If there are multiple, keep them as an array
-let whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
+const whitelist = whitelist_env && whitelist_env.length === 1 ? whitelist_env[0] : whitelist_env;
 
 /**
  * @name fhirServerConfig
  * @summary fhir-server configurations.
  */
-let fhirServerConfig = {
+const fhirServerConfig = {
     auth: {
         // This servers URI
         resourceServer: env.RESOURCE_SERVER,

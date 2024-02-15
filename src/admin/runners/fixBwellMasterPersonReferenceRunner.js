@@ -57,7 +57,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
         try {
             if (resource?.link) {
                 resource.link = resource.link.map(link => {
-                    let reference = link?.target;
+                    const reference = link?.target;
                     if (!reference || !reference.reference) {
                         return reference;
                     }
@@ -201,7 +201,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
             // for speed, first check if the incoming resource is exactly the same
             let updatedResourceJsonInternal = resource.toJSONInternal();
-            let currentResourceJsonInternal = currentResource.toJSONInternal();
+            const currentResourceJsonInternal = currentResource.toJSONInternal();
 
             if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
                 return operations;
@@ -281,11 +281,11 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      */
     async getUuidsForMainResource({ collectionName, mongoConfig }) {
         this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
-        let result = [];
+        const result = [];
         /**
          * @type {Object}
          */
-        let projection = {
+        const projection = {
             _uuid: 1,
         };
         /**
@@ -432,7 +432,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @returns {Promise<void>}
      */
     async preloadReferencesAsync({ mongoConfig }) {
-        let promises = [];
+        const promises = [];
 
         if (this.preLoadCollections.length > 0 && this.preLoadCollections[0] === 'all') {
             /**

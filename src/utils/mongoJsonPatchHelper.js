@@ -13,7 +13,7 @@ class MongoJsonPatchHelper {
             patches
         }
     ) {
-        let update = {};
+        const update = {};
         patches.map(function (patch) {
             switch (patch.op) {
                 case 'add':

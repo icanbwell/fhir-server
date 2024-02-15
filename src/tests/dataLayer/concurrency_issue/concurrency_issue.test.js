@@ -94,7 +94,7 @@ describe('CodeSystem Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({ requestId: '1234' });
 
             // add the resources to FHIR server
-            let [response1, response2] = await Promise.all(
+            const [response1, response2] = await Promise.all(
                 [
                     request
                         .post('/4_0_0/CodeSystem/1/$merge?validate=true')

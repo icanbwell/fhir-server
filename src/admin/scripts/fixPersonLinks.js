@@ -22,7 +22,7 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
      * @type {Date|undefined}
@@ -30,7 +30,7 @@ async function main() {
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
     console.log(`[${currentDateTime}] ` + 'Running script for Person_4_0_0');
 
-    let preLoadCollections = parameters.preLoadCollections ?
+    const preLoadCollections = parameters.preLoadCollections ?
         parameters.preLoadCollections.split(',').map(x => x.trim()) :
         [];
 

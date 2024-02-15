@@ -82,7 +82,7 @@ describe('InternalAuditLog Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
 

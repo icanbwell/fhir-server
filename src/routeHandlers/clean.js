@@ -28,7 +28,7 @@ module.exports.handleClean = async ({fnGetContainer, req, res}) => {
              * @type {import('mongodb').Db}
              */
             const db = await mongoDatabaseManager.getClientDbAsync();
-            let collection_names = [];
+            const collection_names = [];
 
             const specific_collection = req.params['collection'];
             logInfo('', {'specific_collection': specific_collection});

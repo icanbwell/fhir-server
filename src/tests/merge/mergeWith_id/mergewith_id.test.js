@@ -320,7 +320,7 @@ describe('Person Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // ACT & ASSERT
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person2Resource)
                 .set(getHeaders());

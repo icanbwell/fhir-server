@@ -78,7 +78,7 @@ describe('GraphQL Patient Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
 
@@ -129,7 +129,7 @@ describe('GraphQL Patient Tests', () => {
                 )
                 .expect(200);
 
-            let body = resp.body;
+            const body = resp.body;
             if (body.errors) {
                 logError('', {'errors': body.errors});
                 expect(body.errors).toBeUndefined();

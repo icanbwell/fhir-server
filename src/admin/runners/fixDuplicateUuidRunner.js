@@ -244,7 +244,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
             /**
              * @type {Object}
              */
-            let resourcesWithMaxVersionId = resources.filter(
+            const resourcesWithMaxVersionId = resources.filter(
                 (res) => Number(res.meta.versionId) === versionIdToKeep
             );
 
@@ -316,7 +316,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
 
             const { db, client, session } = await this.createSingeConnectionAsync({ mongoConfig });
             try {
-                for (let collectionName of this.collections) {
+                for (const collectionName of this.collections) {
                     const collection = db.collection(collectionName);
                     /**
                      * @type {string[]}

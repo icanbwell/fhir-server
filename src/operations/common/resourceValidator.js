@@ -253,7 +253,7 @@ class ResourceValidator {
         /**
          * @type {{ location: string, profile: string }[]}
          */
-        let invalidProfileUrls = [];
+        const invalidProfileUrls = [];
         const fetchProfileFromUrl = async ({ profileUrl, index }) => {
             /**
              * @type {{[k: string]: any} | null}
@@ -315,7 +315,7 @@ class ResourceValidator {
         }
 
         // resourceType is present, means profiles are present in resource
-        let defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
+        const defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
 
         // concurrently load the profiles form their url
         await async.eachLimit(

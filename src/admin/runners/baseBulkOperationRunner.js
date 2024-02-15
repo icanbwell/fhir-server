@@ -85,7 +85,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
     ) {
         try {
             let lastCheckedId = '';
-            let {
+            const {
                 sourceClient,
                 destinationClient,
                 session,
@@ -345,7 +345,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
 
                 let loopNumber = 0;
-                let {
+                const {
                     session,
                     sessionId,
                     sourceDb,
@@ -383,7 +383,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         /**
                          * @type  {import('mongodb').Filter<import('mongodb').Document>}
                          */
-                        let queryForChunkIds = {
+                        const queryForChunkIds = {
                             [`${filterToIdProperty}`]: {
                                 $in: uuidListChunk
                             }
@@ -481,7 +481,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             if (!this.historyUuidCache.has(doc.resourceType)) {
                                 this.historyUuidCache.set(doc.resourceType, new Set());
                             }
-                            let historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
+                            const historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
                             historyUuidCacheSet.add(doc._uuid);
                         }
 
@@ -601,19 +601,19 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        let sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
+        const sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
         /**
          * @type {import('mongodb').MongoClient}
          */
-        let destinationClient = await this.mongoDatabaseManager.createClientAsync(config);
+        const destinationClient = await this.mongoDatabaseManager.createClientAsync(config);
         /**
          * @type {import('mongodb').ClientSession}
          */
-        let session = sourceClient.startSession();
+        const session = sourceClient.startSession();
         /**
          * @type {import('mongodb').ServerSessionId}
          */
-        let sessionId = session.serverSession.id;
+        const sessionId = session.serverSession.id;
         this.adminLogger.logInfo('Started session', {'session id': sessionId});
         /**
          * @type {import('mongodb').Db}
@@ -661,7 +661,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').ServerSessionId}
          */
-        let sessionId = session.serverSession.id;
+        const sessionId = session.serverSession.id;
         this.adminLogger.logInfo('Started session', {'session id': sessionId});
         /**
          * @type {import('mongodb').Db}

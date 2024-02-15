@@ -88,10 +88,10 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
             }
         };
 
-        let config = await this.mongoDatabaseManager.getClientConfigAsync();
-        let sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
-        let session = sourceClient.startSession();
-        let sessionId = session.serverSession.id;
+        const config = await this.mongoDatabaseManager.getClientConfigAsync();
+        const sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
+        const session = sourceClient.startSession();
+        const sessionId = session.serverSession.id;
         const sourceDb = sourceClient.db(config.db_name);
         const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {

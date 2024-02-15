@@ -143,7 +143,7 @@ class DatabaseQueryManager {
                     /**
                      * @type {Resource|null}
                      */
-                    let resource = await resourcesCursor.next();
+                    const resource = await resourcesCursor.next();
                     if (resource) {
                         await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
                         /**

@@ -190,7 +190,7 @@ class SearchStreamingOperation {
         /**
          * @type {import('mongodb').FindOneOptions}
          */
-        let options = {};
+        const options = {};
 
         // Query our collection for this observation
         /**
@@ -229,11 +229,11 @@ class SearchStreamingOperation {
             /**
              * @type {QueryItem|QueryItem[]}
              */
-            let originalQuery = __ret.originalQuery;
+            const originalQuery = __ret.originalQuery;
             /**
              * @type {import('mongodb').FindOneOptions[]}
              */
-            let originalOptions = __ret.originalOptions;
+            const originalOptions = __ret.originalOptions;
             /**
              * @type {boolean}
              */
@@ -241,23 +241,23 @@ class SearchStreamingOperation {
             /**
              * @type {Resource[]}
              */
-            let resources = __ret.resources;
+            const resources = __ret.resources;
             /**
              * @type {number | null}
              */
-            let total_count = __ret.total_count;
+            const total_count = __ret.total_count;
             /**
              * @type {string | null}
              */
-            let indexHint = __ret.indexHint;
+            const indexHint = __ret.indexHint;
             /**
              * @type {number}
              */
-            let cursorBatchSize = __ret.cursorBatchSize;
+            const cursorBatchSize = __ret.cursorBatchSize;
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = __ret.cursor;
+            const cursor = __ret.cursor;
 
             /**
              * @type {number}

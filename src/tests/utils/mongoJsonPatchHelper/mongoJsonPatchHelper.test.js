@@ -58,7 +58,7 @@ describe('mongoJsonPatchHelper Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            let db = await mongoDatabaseManager.getClientDbAsync();
+            const db = await mongoDatabaseManager.getClientDbAsync();
             const resourceType = 'Person';
             const base_version = '4_0_0';
             /**
@@ -301,7 +301,7 @@ describe('mongoJsonPatchHelper Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            let db = await mongoDatabaseManager.getClientDbAsync();
+            const db = await mongoDatabaseManager.getClientDbAsync();
             const resourceType = 'Person';
             const base_version = '4_0_0';
             /**

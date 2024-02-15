@@ -125,7 +125,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                    }
     ) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        let auditEvent = new AuditEvent(
+        const auditEvent = new AuditEvent(
             {
                 'id': generateUUID(),
                 'action': isCreate ? 'C' : 'U',
@@ -331,7 +331,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                         }
                     );
 
-                    let personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
+                    const personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
                     if (personId) {
                         const proxyPatientId = `person.${personId}`;
                         await this.onPatientChangeAsync({

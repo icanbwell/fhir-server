@@ -22,7 +22,7 @@ const getSearchParameters = (profile, version, customArgsModule) => {
     // args for this particular route instead of the default arguments included
 
     if (customArgsModule) {
-        let paramsAsArray = require(String(customArgsModule)).makeResource(Object.assign({}, {
+        const paramsAsArray = require(String(customArgsModule)).makeResource(Object.assign({}, {
             base_version: version,
             key: lowercaseProfileName
         })).searchParam; // We need to key these by name so we can remove duplicates on assign

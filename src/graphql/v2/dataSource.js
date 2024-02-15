@@ -506,7 +506,7 @@ class FhirDataSource {
         /**
          * @type {ParsedArgs}
          */
-        let parsedArgs = this.r4ArgsParser.parseArgs(
+        const parsedArgs = this.r4ArgsParser.parseArgs(
             {
                 resourceType, args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
@@ -531,7 +531,7 @@ class FhirDataSource {
         const dataToEnrich = ['display', 'type'];
         const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
         if (dataToEnrich.some(dataKey => !!reference[`${dataKey}`])) {
-            let extension = (resource && resource.extension) || [];
+            const extension = (resource && resource.extension) || [];
             dataToEnrich.forEach(dataKey => {
                 if (reference[`${dataKey}`]) {
                     const extensionData = {...dataExtensionMap[`${dataKey}`]};

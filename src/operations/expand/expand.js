@@ -104,7 +104,7 @@ class ExpandOperation {
         const {id} = parsedArgs;
         const {base_version} = parsedArgs;
 
-        let query = {};
+        const query = {};
         query.id = id;
         /**
          * @type {Resource}

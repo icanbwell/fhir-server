@@ -139,12 +139,12 @@ class BwellPersonFinder {
         }
 
         // get all persons
-        let linkedPersonCursor = await databaseQueryManager.findAsync({
+        const linkedPersonCursor = await databaseQueryManager.findAsync({
             query,
         });
 
         while (await linkedPersonCursor.hasNext()) {
-            let linkedPerson = await linkedPersonCursor.next();
+            const linkedPerson = await linkedPersonCursor.next();
             const personUuidRef = `${PERSON_REFERENCE_PREFIX}${linkedPerson._uuid}`;
             const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, patientReferencesString);
             personRefToLinkedRefsMap.set(personUuidRef, linkedReferences);
@@ -258,11 +258,11 @@ class BwellPersonFinder {
         const isReferenceUuid = isUuid(currentSubject.replace(PERSON_REFERENCE_PREFIX, '').replace(PATIENT_REFERENCE_PREFIX, ''));
         const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId' );
 
-        let linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject }});
+        const linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject }});
 
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {
-            let nextPerson = await linkedPersons.next();
+            const nextPerson = await linkedPersons.next();
             const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
                 foundPersonId = nextPersonId;

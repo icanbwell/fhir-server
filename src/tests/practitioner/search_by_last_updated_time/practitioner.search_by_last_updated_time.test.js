@@ -23,8 +23,8 @@ describe('Practitioner Last Updated Time', () => {
         await commonAfterEach();
     });
 
-    let today_minus_10_minutes = moment.utc().subtract(10, 'minutes').format();
-    let today_plus_30_minutes = moment.utc().add(30, 'minutes').format();
+    const today_minus_10_minutes = moment.utc().subtract(10, 'minutes').format();
+    const today_plus_30_minutes = moment.utc().add(30, 'minutes').format();
 
     describe('Practitioner Search By Last Updated Time Tests', () => {
         test('search by lastUpdated time greater than or equals', async () => {

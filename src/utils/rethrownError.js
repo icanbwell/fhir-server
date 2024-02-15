@@ -76,7 +76,7 @@ class RethrownError extends Error {
         }
         const logExcludeResources = this.getExcludedResources();
         if (args instanceof Object || Array.isArray(args)) {
-            for (let prop in args) {
+            for (const prop in args) {
                 logExcludeResources.forEach(resource => {
                     if (args[String(prop)] && args[String(prop)].resourceType === resource) {
                         delete args[String(prop)];
@@ -97,12 +97,12 @@ class RethrownError extends Error {
         if (oldStackDescriptor.get) {
             return {
                 get: function () {
-                    let stack = oldStackDescriptor.get.call(this);
+                    const stack = oldStackDescriptor.get.call(this);
                     return this.buildCombinedStacks(stack, this.nested);
                 }
             };
         } else {
-            let stack = oldStackDescriptor.value;
+            const stack = oldStackDescriptor.value;
             return {
                 value: this.buildCombinedStacks(stack, nested)
             };

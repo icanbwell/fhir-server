@@ -183,11 +183,11 @@ describe('patient Tests', () => {
     });
 
     describe('patient search_with_patient_filtering Tests', () => {
-        let app_client_payload = {
+        const app_client_payload = {
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'Some App',
         };
-        let desiree_payload = {
+        const desiree_payload = {
             'custom:bwell_fhir_person_id': 'desiree-root-person',
             'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
             'custom:scope': 'patient/*.read user/*.* access/*.*',
@@ -203,7 +203,7 @@ describe('patient Tests', () => {
             //Make sure app clients can access all patients
             test('App clients can access all id-filtered resources', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Patient/?_bundle=1&_debug=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
@@ -213,7 +213,7 @@ describe('patient Tests', () => {
             test('App clients can access all patient-filtered resources', async () => {
                 const request = await createTestRequest();
                 //Make sure app clients can access all patient filtered resources
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
@@ -222,7 +222,7 @@ describe('patient Tests', () => {
 
             test('App clients can access all subject-filtered resources', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Condition/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
@@ -233,11 +233,11 @@ describe('patient Tests', () => {
 
         test('Graphql security filtering', async () => {
             // noinspection JSUnusedLocalSymbols
-            let payload = desiree_payload;
+            const payload = desiree_payload;
 
             const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
             const request = await createTestRequest();
-            let resp = await request
+            const resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
                 .post('/graphql')
@@ -250,7 +250,7 @@ describe('patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
             // clear out the lastUpdated column since that changes
-            let body = resp.body;
+            const body = resp.body;
             logInfo('------- response graphql ------------');
             logInfo('', {'resp': resp.body});
             logInfo('------- end response graphql  ------------');

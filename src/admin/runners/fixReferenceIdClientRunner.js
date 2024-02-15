@@ -62,7 +62,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
             /**
              * @type {Buffer[]}
              */
-            let compressedData = [];
+            const compressedData = [];
 
             incomingMessage.on('data', data => compressedData.push(data));
 

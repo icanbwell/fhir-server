@@ -149,7 +149,7 @@ class MergeManager {
         /**
          * @type {string}
          */
-        let uuid = resourceToMerge._uuid;
+        const uuid = resourceToMerge._uuid;
         assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
@@ -250,7 +250,7 @@ class MergeManager {
         /**
          * @type {string}
          */
-        let uuid = resourceToMerge._uuid;
+        const uuid = resourceToMerge._uuid;
         assertIsValid(uuid, `No uuid for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         if (resourceToMerge.meta && resourceToMerge.meta.lastUpdated && typeof resourceToMerge.meta.lastUpdated !== 'string') {
@@ -576,7 +576,7 @@ class MergeManager {
             /**
              * @type {string} id
              */
-            let id = resourceToMerge.id;
+            const id = resourceToMerge.id;
             if (!id) {
                 /**
                  * @type {OperationOutcome}
@@ -685,7 +685,7 @@ class MergeManager {
             }
 
             if (isTrue(this.configManager.authEnabled)) {
-                let {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
+                const {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
                 if (!success) {
                     const operationOutcome = new OperationOutcome({
                         issue: [

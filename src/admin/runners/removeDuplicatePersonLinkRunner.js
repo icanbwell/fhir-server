@@ -91,7 +91,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
     async removeDuplicateLinks(resource) {
         const linkSet = new Set();
         resource.link = resource.link.reduce((uniqueLinks, link) => {
-            let reference = link?.target?._uuid;
+            const reference = link?.target?._uuid;
             if (!linkSet.has(reference)) {
                 linkSet.add(reference);
                 uniqueLinks.push(link);
@@ -213,7 +213,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         let uuidList = [];
         // Remove duplicates and update in batches.
         while (await result.hasNext()) {
-            let document = await result.next();
+            const document = await result.next();
             uuidList.push(document._id);
             if (uuidList.length === this.batchSize) {
                 await this.processBatch(uuidList);

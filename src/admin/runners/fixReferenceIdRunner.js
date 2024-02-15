@@ -340,7 +340,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     reference._uuid = reference._uuid.replace(uuidReference, newUuidReference);
                 }
                 if (reference.extension) {
-                    for (let element of reference.extension) {
+                    for (const element of reference.extension) {
                         if (element.url === IdentifierSystem.sourceId && element.valueString) {
                             element.valueString = element.valueString.replace(currentReference, newReference);
                         }
@@ -427,7 +427,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             resource._uuid = newUuid;
 
             if (resource.identifier && Array.isArray(resource.identifier)){
-                for (let identifier of resource.identifier) {
+                for (const identifier of resource.identifier) {
                     if (identifier.id === 'sourceId') {
                         identifier.value = expectedOriginalId;
                     }
@@ -590,7 +590,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         try {
             if (this.collectionExistsInDb({ collectionName })) {
                 if (referenceFieldNames) {
-                    for (let reference of referenceFieldNames) {
+                    for (const reference of referenceFieldNames) {
                         const indexName = `fixReference_${reference.field}_1`;
 
                         if (!await collection.indexExists(indexName)) {
@@ -664,7 +664,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         try {
             if (this.collectionExistsInDb({ collectionName })) {
                 if (referenceFieldNames) {
-                    for (let reference of referenceFieldNames) {
+                    for (const reference of referenceFieldNames) {
                         const indexName = `fixReference_${reference.field}_1`;
 
                         if (await collection.indexExists(indexName)) {
@@ -753,7 +753,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    let parametersQuery = this.getQueryFromParameters({queryPrefix: isHistoryCollection ? 'resource.' : ''});
+                    const parametersQuery = this.getQueryFromParameters({queryPrefix: isHistoryCollection ? 'resource.' : ''});
 
                     // get resourceName from collection name
                     /**
@@ -804,10 +804,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         /**
                          * @type {string[]}
                          */
-                        let referenceArray = [];
+                        const referenceArray = [];
                         // check which resources can be referenced by the current resource and
                         // create array of references that can be present in the resource
-                        for (let key of this.caches.keys()) {
+                        for (const key of this.caches.keys()) {
                             if (referenceCollections[String(key)] && referenceCollections[String(key)].includes(resourceName)) {
                                 const references = Array.from(this.caches.get(key), value => value[0]);
                                 if (references.length) {

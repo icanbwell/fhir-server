@@ -35,11 +35,11 @@ async function main() {
     if (!newSourceAssigningAuthority) {
         throw Error('newSourceAssigningAuthority is a required parameter');
     }
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
+    const collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
         ['all'];
 

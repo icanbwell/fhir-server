@@ -133,7 +133,7 @@ class EverythingOperation {
             const {id} = parsedArgs;
             const supportLegacyId = false;
 
-            let query = {};
+            const query = {};
             query.id = id;
             // Grab an instance of our DB and collection
             switch (resourceType) {

@@ -23,7 +23,7 @@ describe('PractitionerReturnIdTests', () => {
     });
 
     // current date
-    let today_text = moment.utc().format('YYYY-MM-DD');
+    const today_text = moment.utc().format('YYYY-MM-DD');
 
     describe('Practitioner Search By Last Updated Tests', () => {
         test('search by lastUpdated equals', async () => {

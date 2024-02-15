@@ -22,11 +22,11 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
+    const collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
         ['all'];
 
@@ -42,7 +42,7 @@ async function main() {
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
 
-    let properties = parameters.properties ?
+    const properties = parameters.properties ?
         parameters.properties.split(',').map(x => x.trim()) :
         undefined;
 

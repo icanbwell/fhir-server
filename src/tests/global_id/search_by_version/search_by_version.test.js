@@ -33,7 +33,7 @@ class MockConfigManager extends ConfigManager {
 }
 
 describe('Observation Tests', () => {
-    let userRequestId = '5e4b85cd-9fc8-4277-aa4e-2f5a283a31f5';
+    const userRequestId = '5e4b85cd-9fc8-4277-aa4e-2f5a283a31f5';
     let requestId;
     beforeEach(async () => {
         await commonBeforeEach();

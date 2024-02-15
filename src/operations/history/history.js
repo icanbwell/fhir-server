@@ -147,7 +147,7 @@ class HistoryOperation {
         });
 
         // Common search params
-        let {base_version} = parsedArgs;
+        const {base_version} = parsedArgs;
 
         /**
          * @type {boolean}

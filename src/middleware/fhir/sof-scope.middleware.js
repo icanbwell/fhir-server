@@ -49,7 +49,7 @@ function deriveActionFromInteraction(interaction) {
 
 
 function parseScopes(user = {}, scopeKey = 'scope') {
-    let scopes = user[`${scopeKey}`];
+    const scopes = user[`${scopeKey}`];
 
     if (Array.isArray(scopes)) {
         return scopes;
@@ -65,7 +65,7 @@ function parseScopes(user = {}, scopeKey = 'scope') {
 
 
 module.exports = function sofScopeCheckMiddleware(options = {}) {
-    let {
+    const {
         route = {},
         name = '',
         auth = {}
@@ -85,11 +85,11 @@ module.exports = function sofScopeCheckMiddleware(options = {}) {
 
     return function sofScopeMiddleware(req, res, next) {
         // name is lowercased, we want upper, foo -> Foo
-        let resource = name.slice(0, 1).toUpperCase() + name.slice(1);
-        let action = deriveActionFromInteraction(route.interaction);
-        let scopes = parseScopes(req && req.user, auth.customScopeKey); // Check if they have permission
+        const resource = name.slice(0, 1).toUpperCase() + name.slice(1);
+        const action = deriveActionFromInteraction(route.interaction);
+        const scopes = parseScopes(req && req.user, auth.customScopeKey); // Check if they have permission
 
-        let {
+        const {
             error
         } = scopeChecker(resource, action, scopes);
 

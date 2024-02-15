@@ -266,7 +266,6 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
  */
 const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
     const queryBuilder = {};
-    let value;
 
     if (target === null || exists_flag === false) {
         queryBuilder[`${field}`] = {$exists: false};
@@ -277,7 +276,7 @@ const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
         return queryBuilder;
     }
 
-    value = target;
+    const value = target;
 
     if (value !== undefined) {
         if (typeof value === 'string' && value.includes(',')) {

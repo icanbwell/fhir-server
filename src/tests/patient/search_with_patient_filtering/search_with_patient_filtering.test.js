@@ -174,7 +174,7 @@ describe('patient Tests', () => {
     });
 
     describe('patient search_with_patient_filtering Tests', () => {
-        let patient_123_payload = {
+        const patient_123_payload = {
             'cognito:username': 'patient-123@example.com',
             'custom:bwell_fhir_id': 'patient-123-a',
             'custom:bwell_fhir_person_id': 'root-person',
@@ -186,7 +186,7 @@ describe('patient Tests', () => {
             'custom:bwellFhirPersonId': 'root-person',
             'custom:bwellFhirPatientId': 'bwellFhirPatient',
        };
-        let only_fhir_person_payload = {
+        const only_fhir_person_payload = {
             'cognito:username': 'patient-123@example.com',
             'custom:bwell_fhir_person_id': 'root-person',
             scope: 'patient/*.read user/*.* access/*.*',
@@ -196,12 +196,12 @@ describe('patient Tests', () => {
             'custom:bwellFhirPersonId': 'root-person',
             'custom:bwellFhirPatientId': 'bwellFhirPatient',
        };
-        let no_ids_user_payload = {
+        const no_ids_user_payload = {
             'cognito:username': 'patient-123@example.com',
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'patient-123@example.com',
         };
-        let other_patient_payload = {
+        const other_patient_payload = {
             'cognito:username': 'other-patient@example.com',
             'custom:bwell_fhir_id': 'other-patient',
             'custom:bwell_fhir_ids': 'other-patient',
@@ -213,7 +213,7 @@ describe('patient Tests', () => {
             'custom:bwellFhirPatientId': 'otherBwellFhirPatient',
         };
         // Legacy payload represents a user that registered before FHIR person support was added
-        let patient_123_legacy_payload = {
+        const patient_123_legacy_payload = {
             'cognito:username': 'patient-123@example.com',
             'custom:bwell_fhir_id': 'patient-123-a',
             scope: 'patient/*.read user/*.* access/*.*',
@@ -223,7 +223,7 @@ describe('patient Tests', () => {
             'custom:bwellFhirPersonId': 'person-123-a',
             'custom:bwellFhirPatientId': 'bwellFhirPatient',
         };
-        let patient_123_legacy_bad_id_payload = {
+        const patient_123_legacy_bad_id_payload = {
             'custom:bwell_fhir_id': '-',
             'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
             'custom:scope': 'patient/*.read user/*.* access/*.*',
@@ -235,11 +235,11 @@ describe('patient Tests', () => {
             'custom:bwellFhirPersonId': '-',
             'custom:bwellFhirPatientId': 'bwellFhirPatient',
         };
-        let app_client_payload = {
+        const app_client_payload = {
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'Some App',
         };
-        let desiree_payload = {
+        const desiree_payload = {
             'custom:bwell_fhir_person_id': 'desiree-root-person',
             'cognito:username': '4c66b9b6-7bdc-4960-87f0-b2c25a348eb6',
             'custom:scope': 'patient/*.read user/*.* access/*.*',
@@ -254,7 +254,7 @@ describe('patient Tests', () => {
         describe('User security filtering', () => {
             test('Legacy users can only access a single patient', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_legacy_payload));
                 // noinspection JSUnresolvedFunction
@@ -277,7 +277,7 @@ describe('patient Tests', () => {
                 // logInfo('', {'resp': resp.body});
                 // logInfo('------- end response  ------------');
 
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -289,7 +289,7 @@ describe('patient Tests', () => {
             test('Only persons linked to the patients are returned', async () => {
                 const request = await createTestRequest();
 
-                let resp = await request
+                const resp = await request
                   .get('/4_0_0/person/?_bundle=1&_debug=1')
                   .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -357,7 +357,7 @@ describe('patient Tests', () => {
             test('A user cannot access another patient by id', async () => {
                 const request = await createTestRequest();
                 // Make sure patient-123 access other-patient
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Patient/other-patient')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -368,7 +368,7 @@ describe('patient Tests', () => {
             test('A user cannot access another person by id', async () => {
                 const request = await createTestRequest();
                 // Make sure patient-123 access other-patient
-                let resp = await request
+                const resp = await request
                   .get('/4_0_0/Person/other-person')
                   .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -379,7 +379,7 @@ describe('patient Tests', () => {
             test('A user cannot access another patient by id (member id)', async () => {
                 const request = await createTestRequest();
                 // Make sure patient-123 access other-patient
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Patient/other-patient')
                     .set(getHeadersWithCustomPayload(only_fhir_person_payload));
                 // noinspection JSUnresolvedFunction
@@ -410,7 +410,7 @@ describe('patient Tests', () => {
             test('A user can access their patient-filtered resources by id', async () => {
                 const request = await createTestRequest();
                 // Make sure patient 123 can access a certain allergy
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -421,7 +421,7 @@ describe('patient Tests', () => {
 
             test('A user cannot access another patient\'s patient-filtered resources by id', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -433,7 +433,7 @@ describe('patient Tests', () => {
 
             test('A user can access their subject-filtered resources by id', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Condition/other-patient-condition')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -444,7 +444,7 @@ describe('patient Tests', () => {
 
             test('A user cannot access another patients\'s subject-filtered resources by id', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
@@ -457,7 +457,7 @@ describe('patient Tests', () => {
             //Make sure app clients can access all patients
             test('App clients cannot access all id-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
@@ -467,7 +467,7 @@ describe('patient Tests', () => {
             test('App clients cannot access all patient-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
                 //Make sure app clients can access all patient filtered resources
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
@@ -476,7 +476,7 @@ describe('patient Tests', () => {
 
             test('App clients cannot access all subject-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Condition/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
@@ -486,11 +486,11 @@ describe('patient Tests', () => {
 
         test('Graphql security filtering', async () => {
             // noinspection JSUnusedLocalSymbols
-            let payload = desiree_payload;
+            const payload = desiree_payload;
 
             const graphqlQueryText = allergyIntoleranceQuery.replace(/\\n/g, '');
             const request = await createTestRequest();
-            let resp = await request
+            const resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
                 .post('/graphql')
@@ -503,7 +503,7 @@ describe('patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
             // clear out the lastUpdated column since that changes
-            let body = resp.body;
+            const body = resp.body;
             logInfo('------- response graphql ------------', {});
             logInfo('', {'resp': resp.body});
             logInfo('------- end response graphql  ------------', {});

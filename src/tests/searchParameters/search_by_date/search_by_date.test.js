@@ -174,7 +174,7 @@ describe('Observation Tests', () => {
         test('search doesn\'t work with wrong date', async () => {
             const request = await createTestRequest();
             // ACT & ASSERT
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0/Observation?_lastUpdated=gt2023-06-21T18%3A55%3A31.000Z%27%5D&_debug=true&_bundle=true')
                 .set(getHeaders());
 

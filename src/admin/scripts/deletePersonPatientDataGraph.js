@@ -26,9 +26,9 @@ async function main() {
      */
     const parameters = CommandLineParser.parseCommandLine();
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
 
-    let properties = parameters.properties ?
+    const properties = parameters.properties ?
         parameters.properties.split(',').map((x) => x.trim()) :
         [];
 

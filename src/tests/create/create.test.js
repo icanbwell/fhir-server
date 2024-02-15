@@ -96,7 +96,7 @@ describe('Practitioner Tests', () => {
         });
         test('create reference validation works', async () => {
             const request = await createTestRequest();
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner2Resource)
                 .set(getHeaders());

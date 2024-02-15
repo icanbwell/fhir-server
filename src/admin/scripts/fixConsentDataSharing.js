@@ -24,7 +24,7 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
 
     /**
      * @type {Date|undefined}
@@ -39,7 +39,7 @@ async function main() {
     /**
      * @type {string[]}
      */
-    let collections = ['Consent_4_0_0'];
+    const collections = ['Consent_4_0_0'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const adminLogger = new AdminLogger();

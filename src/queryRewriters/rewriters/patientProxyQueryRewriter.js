@@ -85,7 +85,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
 
 
                  /**@type {{[k: string]: string}} */
-                let patientToPersonMap = {};
+                const patientToPersonMap = {};
 
                 /**@type {string[]} */
                 const patientProxyIds = [];

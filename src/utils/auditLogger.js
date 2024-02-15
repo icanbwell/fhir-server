@@ -204,7 +204,7 @@ class AuditLogger {
         /**
          * @type {Resource}
          */
-        let doc = this.createAuditEntry(
+        const doc = this.createAuditEntry(
             {
                 base_version, requestInfo, operation, ids, resourceType, cleanedArgs
             }

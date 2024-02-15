@@ -65,7 +65,7 @@ class MongoFilterGenerator {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
-        let filter = {'_uuid': uuid.toString()};
+        const filter = {'_uuid': uuid.toString()};
         return filter;
     }
 }

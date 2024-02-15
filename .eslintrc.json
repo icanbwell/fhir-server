@@ -15,7 +15,6 @@
       "dot-notation": "off",
       "quote-props": "off",
       "camelcase": "off",
-      "prefer-const": "off",
       "space-before-function-paren": "off",
       "object-shorthand": "off",
       "comma-dangle": "off",

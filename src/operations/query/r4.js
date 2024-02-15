@@ -68,7 +68,7 @@ class R4SearchQueryCreator {
          * these are combined to create the query
          * @type {Object[]}
          */
-        let totalAndSegments = [];
+        const totalAndSegments = [];
 
         let includesQuantityType = false;
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {

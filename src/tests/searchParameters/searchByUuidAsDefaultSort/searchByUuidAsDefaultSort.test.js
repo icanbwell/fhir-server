@@ -58,7 +58,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // Fetch two resources at a time.
-            let response = await request
+            const response = await request
                 .get('/4_0_0/Person/?_count=2&_total=accurate&_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

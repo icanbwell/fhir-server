@@ -102,13 +102,13 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            let patientCollection = await setupDatabaseAsync(
+            const patientCollection = await setupDatabaseAsync(
                 mongoDatabaseManager, patient1Resource, expectedPatient1InDatabaseBeforeRun
             );
 
             // run admin runner
 
-            let collections = ['Patient_4_0_0'];
+            const collections = ['Patient_4_0_0'];
             const batchSize = 10000;
 
             delete container['fixMultipleSourceAssigningAuthorityRunner'];

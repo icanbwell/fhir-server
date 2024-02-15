@@ -192,12 +192,12 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                 let idList = [];
                 if (this.filterRecords) {
                     // Get ids of documents that have multiple sourceAssigningAuthority.
-                    let db = await this.mongoDatabaseManager.getClientDbAsync();
-                    let dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
+                    const db = await this.mongoDatabaseManager.getClientDbAsync();
+                    const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
                         db,
                         collectionName,
                     });
-                    let result = await dbCollection.aggregate([
+                    const result = await dbCollection.aggregate([
                         {
                             '$unwind': {
                                 'path': '$meta.security',

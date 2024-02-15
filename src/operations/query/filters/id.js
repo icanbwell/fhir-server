@@ -73,7 +73,7 @@ class FilterById extends BaseFilter {
          * 2 types of values are possible
          * 1. uuid, 2. sourceId
          */
-        let /**@type {string[]}*/uuids = [], /**@type {string[]}*/sourceIds = [];
+        const /**@type {string[]}*/uuids = [], /**@type {string[]}*/sourceIds = [];
 
         values.forEach((value) => {
             const {id} = IdParser.parse(value);

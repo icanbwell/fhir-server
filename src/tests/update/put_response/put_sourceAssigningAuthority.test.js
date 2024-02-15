@@ -113,7 +113,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             const clientHeaders = getHeaders('user/*.read user/*.write access/client.*');
             const bwellHeaders = getHeaders('user/*.read user/*.write access/bwell.*');
@@ -156,7 +156,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid')

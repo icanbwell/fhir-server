@@ -8,12 +8,12 @@ const {
  */
 
 
-let getCapabilityStatementResource = () => {
+const getCapabilityStatementResource = () => {
     return resolveSchema('4_0_0', 'capabilitystatement');
 };
 
 module.exports.makeStatement = function (resources) {
-    let CapabilityStatement = getCapabilityStatementResource();
+    const CapabilityStatement = getCapabilityStatementResource();
     return new CapabilityStatement({
         status: 'active',
         date: moment().tz('America/New_York').format(),

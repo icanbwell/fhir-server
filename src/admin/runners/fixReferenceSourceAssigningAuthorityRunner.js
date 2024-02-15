@@ -663,7 +663,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @return {Promise<void>}
      */
     async preloadCollectionAsync({mongoConfig, collectionName}) {
-        let {
+        const {
             sourceCollection
         } = await this.createConnectionAsync(
             {

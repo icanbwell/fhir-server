@@ -332,7 +332,7 @@ describe('Patient Change Event Tests', () => {
              */
             const messages = mockKafkaClient.getMessages();
             expect(messages.length).toBe(2);
-            for (let message of messages) {
+            for (const message of messages) {
                 const messageValue = JSON.parse(message.value);
                 expect(messageValue.source.type[0].code).toBe('cql-engine');
             }

@@ -10,12 +10,12 @@ let container;
 
 // Does a health check for the app
 module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
-    let status = {};
+    const status = {};
     container = container || fnGetContainer();
 
     // check kafka connection
     try {
-        let results = await Promise.allSettled([
+        const results = await Promise.allSettled([
             handleKafkaHealthCheck(container),
             handleLogHealthCheck(),
             handleHealthCheckQuery(container)

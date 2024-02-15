@@ -15,7 +15,7 @@ describe('Encounter Tests', () => {
             const request = await createTestRequest();
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Encounter back
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0/Encounter/?_security=https://www.icanbwell.com/access%7Cmps-api&_elements=id&_count=10&_getpagesoffset=1')
                 .set(getHtmlHeaders());
             // noinspection JSUnresolvedFunction
@@ -25,7 +25,7 @@ describe('Encounter Tests', () => {
             const request = await createTestRequest();
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Encounter back
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0/Encounter/?_security=https://www.icanbwell.com/access%7Cmps-api&_elements=id&_count=10&_getpagesoffset=1&_debug=1')
                 .set(getHtmlHeaders());
             // noinspection JSUnresolvedFunction

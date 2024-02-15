@@ -42,7 +42,7 @@ module.exports = {
          */
         getCodeSystemCodes: async (parent, args, context, info) => {
             // Add projection filter on the nested array i.e concept field and the graphql queried fields
-            let fields = graphqlFields(info);
+            const fields = graphqlFields(info);
             let projection = {};
             if (fields){
                 projection = graphqlFieldsToMongoProjection(fields?.['entry']?.['resource']);

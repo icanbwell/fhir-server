@@ -200,7 +200,7 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
+            const securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
             /**
              * @type {import('mongodb').Document}
              */
@@ -439,7 +439,7 @@ class SearchManager {
          * resources to return
          * @type {Resource[]}
          */
-        let resources = [];
+        const resources = [];
         /**
          * @type {number}
          */
@@ -799,7 +799,7 @@ class SearchManager {
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
-            let idResults = await cursor
+            const idResults = await cursor
                 .sort({sortOption})
                 .maxTimeMS({milliSecs: maxMongoTimeMS})
                 .toArrayRawAsync();
@@ -956,7 +956,7 @@ class SearchManager {
         }
     ) {
         let _cursor = cursor;
-        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
+        const indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns), indexName);
         if (indexHint) {
             _cursor = _cursor.hint({indexHint});
             logDebug(

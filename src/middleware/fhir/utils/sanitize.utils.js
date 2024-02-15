@@ -6,7 +6,7 @@ const validator = require('validator');
 
 const xss = require('xss');
 
-let parseValue = function (type, value) {
+const parseValue = function (type, value) {
     let result;
 
 
@@ -107,9 +107,9 @@ const validateType = function (type, value) {
     return result;
 };
 
-let parseParams = req => {
-    let params = {};
-    let isSearch = req.url && req.url.endsWith('_search');
+const parseParams = req => {
+    const params = {};
+    const isSearch = req.url && req.url.endsWith('_search');
 
     if (req.query && req.method === 'GET' && Object.keys(req.query).length) {
         Object.assign(params, req.query);
@@ -126,10 +126,10 @@ let parseParams = req => {
     return params;
 };
 
-let findMatchWithName = (name = '', params = {}) => {
-    let keys = Object.getOwnPropertyNames(params);
-    let match = keys.find(key => {
-        let parameter = key.split(':')[0];
+const findMatchWithName = (name = '', params = {}) => {
+    const keys = Object.getOwnPropertyNames(params);
+    const match = keys.find(key => {
+        const parameter = key.split(':')[0];
         return name === parameter;
     });
     return {
@@ -149,18 +149,18 @@ let findMatchWithName = (name = '', params = {}) => {
  * @param {boolean} [required] - Should we throw if this argument is present and invalid, default is false
  */
 // eslint-disable-next-line no-unused-vars
-let sanitizeMiddleware = function (config, required) {
+const sanitizeMiddleware = function (config, required) {
     return function (req, res, next) {
-        let currentArgs = parseParams(req);
-        let cleanArgs = {}; // filter only ones with version or no version
+        const currentArgs = parseParams(req);
+        const cleanArgs = {}; // filter only ones with version or no version
 
-        let version_specific_params = config ? config.filter(param => {
+        const version_specific_params = config ? config.filter(param => {
             return !param.versions || param.versions === req.params.base_version;
         }) : []; // Check each argument in the config
 
         for (let i = 0; i < version_specific_params.length; i++) {
-            let conf = version_specific_params[`${i}`];
-            let {
+            const conf = version_specific_params[`${i}`];
+            const {
                 field,
                 value
             } = findMatchWithName(conf.name, currentArgs); // If the argument is required but not present

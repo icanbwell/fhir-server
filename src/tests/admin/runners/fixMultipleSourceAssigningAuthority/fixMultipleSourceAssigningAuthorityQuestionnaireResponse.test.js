@@ -76,13 +76,13 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            let questionnaireResponseCollection = await setupDatabaseAsync(
+            const questionnaireResponseCollection = await setupDatabaseAsync(
                 mongoDatabaseManager, questionnaireResponse1Resource, expectedquestionnaireResponse1InDatabaseBeforeRun
             );
 
             // run admin runner
 
-            let collections = ['QuestionnaireResponse_4_0_0'];
+            const collections = ['QuestionnaireResponse_4_0_0'];
             const batchSize = 10000;
 
             container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(

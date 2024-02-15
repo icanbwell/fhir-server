@@ -53,7 +53,7 @@ class MergeValidator {
             FhirResourceCreator.create(incomingObjects);
 
         for (const validator of this.validators) {
-            let {
+            const {
                 validatedObjects: validatedObjectsByValidator, preCheckErrors, wasAList
             } = await validator.validate({
                 base_version,

@@ -4,7 +4,7 @@ const {
     routeArgs
 } = require('../route.config.js');
 
-let route = {
+const route = {
     path: '/:base_version/metadata',
     corsOptions: {
         methods: ['GET']

@@ -38,7 +38,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         useNotEquals = true;
                     }
                     // eslint-disable-next-line no-case-declarations
-                    let newQueryParameterValue = [];
+                    const newQueryParameterValue = [];
                     notQueryParameterValue = [];
                     if (queryParameterValue['values']) {
                         for (let token of queryParameterValue['values']) {

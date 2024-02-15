@@ -111,7 +111,7 @@ class RequestWithDigestAuth {
      */
     async _sendRequest({ method, url, headers, auth, query, data }) {
         if (superagent[`${method}`] instanceof Function) {
-            let request = superagent[`${method}`](url);
+            const request = superagent[`${method}`](url);
             if (headers) {
                 request.set(headers);
             }

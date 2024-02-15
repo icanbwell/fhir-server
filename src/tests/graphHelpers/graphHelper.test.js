@@ -58,7 +58,7 @@ describe('graphHelper Tests', () => {
          * @type {MongoDatabaseManager}
          */
         const mongoDatabaseManager = container.mongoDatabaseManager;
-        let db = await mongoDatabaseManager.getClientDbAsync();
+        const db = await mongoDatabaseManager.getClientDbAsync();
         const resourceType = 'Practitioner';
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}

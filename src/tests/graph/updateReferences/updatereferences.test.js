@@ -52,7 +52,7 @@ describe('UpdateReferences Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0/Observation')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

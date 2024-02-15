@@ -82,7 +82,7 @@ class ParsedArgsItem {
             return;
         }
 
-        let modifiedQueryParameterValues = [];
+        const modifiedQueryParameterValues = [];
         this.modifiers.forEach(modifier => {
             if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this.queryParameterValue.value) {
                 const queryParameterValues = this.queryParameterValue.value.split(',');

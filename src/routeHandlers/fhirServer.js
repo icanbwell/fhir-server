@@ -54,7 +54,7 @@ class MyFHIRServer {
         this.configManager = this.container.configManager;
         assertTypeEquals(this.configManager, ConfigManager);
 
-        let {server = {}} = this.config;
+        const {server = {}} = this.config;
         this.env = {
             IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
             USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined,
@@ -189,7 +189,7 @@ class MyFHIRServer {
      */
     configureSession(session) {
         // Session config can come from the core config as well, let's handle both cases
-        let {server = {}} = this.config; // If a session was passed in the config, let's use it
+        const {server = {}} = this.config; // If a session was passed in the config, let's use it
 
         if (session || server.sessionStore) {
             this.app.use(session || server.sessionStore);
@@ -209,7 +209,7 @@ class MyFHIRServer {
 
     configurePassport() {
         if (this.config.auth && this.config.auth.strategy) {
-            let {
+            const {
                 strategy
             } = require(path.resolve(this.config.auth.strategy.service));
 
@@ -228,7 +228,7 @@ class MyFHIRServer {
      */
     setPublicDirectory(publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
-        let {server = {}} = this.config;
+        const {server = {}} = this.config;
 
         if (publicDirectory || server.publicDirectory) {
             this.app.use(express.static(publicDirectory || server.publicDirectory));
@@ -282,7 +282,7 @@ class MyFHIRServer {
                 }
                 try {
                     // Get an operation outcome for this instance
-                    let OperationOutcome = resolveSchema(
+                    const OperationOutcome = resolveSchema(
                         isValidBaseVersion ? base : VERSIONS['4_0_0'],
                         'operationoutcome'
                     );

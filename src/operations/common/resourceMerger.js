@@ -200,7 +200,7 @@ class ResourceMerger {
         /**
          * @type {Meta}
          */
-        let meta = new Meta(currentResource.meta);
+        const meta = new Meta(currentResource.meta);
         meta.versionId = incrementVersion ?
             `${parseInt(currentResource.meta.versionId) + 1}` :
             currentResource.meta.versionId;
@@ -235,7 +235,7 @@ class ResourceMerger {
         /**
          * @type {import('../../fhir/classes/4_0_0/resources/resource')}
          */
-        let patched_incoming_data = patchResult.newDocument;
+        const patched_incoming_data = patchResult.newDocument;
 
         // Create a new resource to store the merged data
         /**
@@ -280,7 +280,7 @@ class ResourceMerger {
             return {updatedResource: null, patches: null};
         }
 
-        let currentResourceWithAttachmentData = currentResource.clone();
+        const currentResourceWithAttachmentData = currentResource.clone();
         if (databaseAttachmentManager) {
             await databaseAttachmentManager.transformAttachments(
                 currentResourceWithAttachmentData, RETRIEVE
@@ -290,7 +290,7 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        let mergedObject = smartMerge ?
+        const mergedObject = smartMerge ?
             mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
             resourceToMerge.toJSON();
 

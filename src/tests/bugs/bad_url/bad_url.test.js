@@ -17,7 +17,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .get('/buglist.cgi')
                 .set(getHtmlHeaders());
 
@@ -28,7 +28,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .get('/DocumentReference?patient=2c1f3c13-2baa-4079-a5c1-e5d8f7cb61b0')
                 .set(getHtmlHeaders());
 
@@ -39,7 +39,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0ActivityDefinition')
                 .set(getHtmlHeaders());
 
@@ -50,7 +50,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .post('/Patient/$graph')
                 .send(graphResource)
                 .set(getHeaders());

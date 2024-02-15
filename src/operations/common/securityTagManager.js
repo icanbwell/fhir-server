@@ -51,7 +51,7 @@ class SecurityTagManager {
         if (env.AUTH_ENABLED === '1') {
             // fail if there are no access codes unless we have a patient limiting scope
             if (accessCodes.length === 0 && !hasPatientScope) {
-                let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+                const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
                 throw new ForbiddenError(errorMessage);
             }
             // see if we have the * access code

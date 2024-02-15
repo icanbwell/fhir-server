@@ -113,13 +113,13 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            let practitionerCollection = await setupDatabaseAsync(
+            const practitionerCollection = await setupDatabaseAsync(
                 mongoDatabaseManager, practitioner1Resource, expectedPractitioner1InDatabaseBeforeRun
             );
             await setupDatabaseAsync(
                 mongoDatabaseManager, practitioner2Resource, expectedPractitioner2InDatabaseBeforeRun
             );
-            let practitionerRoleCollection = await setupDatabaseAsync(
+            const practitionerRoleCollection = await setupDatabaseAsync(
                 mongoDatabaseManager, practitionerrole1Resource, expectedPractitionerRole1InDatabaseBeforeRun
             );
             await setupDatabaseAsync(

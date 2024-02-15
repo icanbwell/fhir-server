@@ -65,7 +65,7 @@ class ProaConsentManager {
     async getConsentResources({ownerTags, personIds}) {
 
         // get all consents where provision.actor.reference is of proxy-patient with valid code
-        let proxyPersonReferences = personIds.map(
+        const proxyPersonReferences = personIds.map(
             (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
         );
 
@@ -158,7 +158,7 @@ class ProaConsentManager {
          * (Proxy) Patient Refs which have provided consent to view data
          * @type {Set<string>}
          */
-        let allowedPatientIds = new Set();
+        const allowedPatientIds = new Set();
         consentResources.forEach((consent) => {
             if (Array.isArray(consent?.provision?.actor)) {
                 const proxyPersonActor = consent.provision.actor.find((a) => {

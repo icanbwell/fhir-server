@@ -23,7 +23,7 @@ describe('GridFS merge tests', () => {
             const base_version = '4_0_0';
             const request = await createTestRequest();
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
                 .send(documentReference1Data)
                 .set(getHeaders())
@@ -61,7 +61,7 @@ describe('GridFS merge tests', () => {
             const base_version = '4_0_0';
             const request = await createTestRequest();
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
                 .send(documentReference2Data)
                 .set(getHeaders())

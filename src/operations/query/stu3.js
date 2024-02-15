@@ -5,14 +5,14 @@
  */
 module.exports.buildStu3SearchQuery = (args) => {
     // Common search params
-    let {id} = args;
+    const {id} = args;
 
     // Search Result params
 
     // Patient search params
-    let active = args['active'];
+    const active = args['active'];
 
-    let query = {};
+    const query = {};
 
     if (id) {
         query.id = id;

@@ -56,12 +56,12 @@ class CustomOperationsController {
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
-            let {
+            const {
                 base_version,
                 id
             } = req.sanitized_args;
-            let resource_body = req.body;
-            let args = {
+            const resource_body = req.body;
+            const args = {
                 id,
                 base_version,
                 resource: resource_body
@@ -103,12 +103,12 @@ class CustomOperationsController {
             /** @type {import('http').IncomingMessage}*/req,
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
-            let {
+            const {
                 base_version,
                 id
             } = req.sanitized_args;
-            let resource_body = req.body;
-            let args = {
+            const resource_body = req.body;
+            const args = {
                 id,
                 base_version,
                 resource: resource_body

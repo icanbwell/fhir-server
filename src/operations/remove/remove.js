@@ -146,7 +146,7 @@ class RemoveOperation {
         if (env.AUTH_ENABLED === '1') {
             // fail if there are no access codes
             if (accessCodes.length === 0) {
-                let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+                const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
                 throw new ForbiddenError(errorMessage);
             }
             // see if we have the * access code
@@ -166,7 +166,7 @@ class RemoveOperation {
         });
 
         try {
-            let {base_version} = parsedArgs;
+            const {base_version} = parsedArgs;
             /**
              * @type {import('mongodb').Document}
              */

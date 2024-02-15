@@ -83,7 +83,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
         /**
          * @type {Object}
          */
-        let projection = { id: 1, _uuid: 1, meta: 1, link: 1 };
+        const projection = { id: 1, _uuid: 1, meta: 1, link: 1 };
         /**
          * @type {require('mongodb').collection}
          */
@@ -112,7 +112,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                 const resource = await cursor.next();
                 if (resource && resource.id) {
                     // check if the current person is a proa person by checking the connectionType
-                    let isProaPerson = resource.meta?.security?.find(
+                    const isProaPerson = resource.meta?.security?.find(
                         (item) => item.system === SecurityTagSystem.connectionType && item.code === this.connectionType
                     );
                     const resourceSourceAssigningAuthority = resource.meta?.security?.find(
@@ -367,7 +367,7 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
                                 this.writeStream.write(
                                     `${proaPatientClientPersonMatchingScore}| Linked| \n`
                                 );
-                                let updatedResource = {
+                                const updatedResource = {
                                     'link': {
                                         'target': {
                                             'extension': [

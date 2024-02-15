@@ -39,7 +39,7 @@ class DatabaseAttachmentManager {
      * @returns {Object}
     */
     getMetadata(resource, operation) {
-        let metadata = {};
+        const metadata = {};
         if (operation === INSERT || operation === DELETE) {
             if (resource._uuid) {
                 metadata['resource_uuid'] = resource._uuid;
@@ -62,7 +62,7 @@ class DatabaseAttachmentManager {
         const pathArray = path.split('/');
         return patchContent.some(patch => {
             path = '';
-            for (let pathEle of pathArray) {
+            for (const pathEle of pathArray) {
                 if (pathEle) {
                     path += `/${pathEle}`;
                     if (path === patch.path) {

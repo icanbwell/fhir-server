@@ -56,7 +56,7 @@ describe('Measure Tests', () => {
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const db = await mongoDatabaseManager.getClientDbAsync();
-            let resourceType = 'Measure';
+            const resourceType = 'Measure';
             const collection = db.collection(`${resourceType}_${VERSIONS['4_0_0']}`);
 
             const measure = await collection.findOne({id: 'AWVCNE2'});

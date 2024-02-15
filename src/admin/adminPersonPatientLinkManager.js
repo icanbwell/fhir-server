@@ -71,7 +71,7 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version: base_version
         });
-        let requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
             requestId,
             method
@@ -158,7 +158,7 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version: base_version
         });
-        let requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
             requestId,
             method
@@ -248,7 +248,7 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version: base_version
         });
-        let requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
             requestId,
             method
@@ -382,7 +382,7 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version: base_version
         });
-        let requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
         const {
             requestId,
             method

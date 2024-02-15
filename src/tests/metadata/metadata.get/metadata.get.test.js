@@ -18,7 +18,7 @@ describe('Meta Tests', () => {
             const request = await createTestRequest();
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Meta back
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0/metadata')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -31,7 +31,7 @@ describe('Meta Tests', () => {
             const request = await createTestRequest();
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Meta back
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0/metadata?raw=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

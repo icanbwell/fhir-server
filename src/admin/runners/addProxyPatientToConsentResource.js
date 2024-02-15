@@ -238,7 +238,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
         // for speed, first check if the incoming resource is exactly the same
         let updatedResourceJsonInternal = resource.toJSONInternal();
-        let currentResourceJsonInternal = currentResource.toJSONInternal();
+        const currentResourceJsonInternal = currentResource.toJSONInternal();
 
         if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
             return operations;
@@ -377,11 +377,11 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      */
     async getUuidsForMainResourceAsync({ collectionName, mongoConfig }) {
         this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
-        let result = [];
+        const result = [];
         /**
          * @type {Object}
          */
-        let projection = {
+        const projection = {
             _uuid: 1,
         };
         /**
@@ -445,7 +445,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      */
     async cacheConsentToPersonUuidRef({ mongoConfig, limit, skip, startFromId }) {
         const collectionName = 'Consent_4_0_0';
-        let projection = {
+        const projection = {
             _id: 1,
             _sourceId: 1,
             _uuid: 1,
@@ -588,7 +588,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * @returns Query
      */
     async getQueryForConsent({ startFromId, isHistoryCollection }) {
-        let query = {};
+        const query = {};
         const prefix = isHistoryCollection ? 'resource.' : '';
         const properties = ['_uuid', 'patient'];
         query.$and = properties.map((v) => this.filterPropExist(`${prefix}${v}`));

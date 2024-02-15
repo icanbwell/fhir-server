@@ -39,7 +39,7 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
@@ -56,11 +56,11 @@ async function main() {
         );
     }
 
-    let properties = parameters.properties ?
+    const properties = parameters.properties ?
         parameters.properties.split(',').map(x => x.trim()) :
         undefined;
 
-    let filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
         parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
         undefined;
 

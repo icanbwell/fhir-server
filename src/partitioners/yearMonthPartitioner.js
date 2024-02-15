@@ -69,7 +69,7 @@ class YearMonthPartitioner extends BasePartitioner {
          * @type {Object[]}
          */
         const clausesForDate = andClauses.filter(c => c[`${field}`] !== undefined);
-        let { greaterThan, lessThan } = this.getUpdateDateRangeForField(clausesForDate, field);
+        const { greaterThan, lessThan } = this.getUpdateDateRangeForField(clausesForDate, field);
 
         // now find partitions for the months in between greaterThan and lessThan
         /**

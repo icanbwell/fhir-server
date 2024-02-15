@@ -307,7 +307,7 @@ class GraphHelper {
                     args
                 }
             );
-            let {
+            const {
                 /** @type {import('mongodb').Document}**/
                 query, // /** @type {Set} **/
                 // columns
@@ -550,7 +550,7 @@ class GraphHelper {
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
-            let {
+            const {
                 /** @type {import('mongodb').Document}**/
                 query, // /** @type {Set} **/
                 // columns
@@ -1028,7 +1028,7 @@ class GraphHelper {
             /**
              * @type {{type: string}[]}
              */
-            let link_targets = link.target;
+            const link_targets = link.target;
             /**
              * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}[]}
              */
@@ -1169,7 +1169,7 @@ class GraphHelper {
                  * @type {string}
                  */
                 for (const link_reference of uniqueReferences) {
-                    let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
+                    const re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
                     parent_entity = JSON.parse(parent_entity.toJSONInternal().replace(re, '#'.concat(link_reference)));
                 }
             }
@@ -1253,7 +1253,7 @@ class GraphHelper {
             // so any POSTed data is not read as parameters
             parsedArgs.remove('resource');
 
-            let {
+            const {
                 /** @type {import('mongodb').Document}**/
                 query
             } = await this.searchManager.constructQueryAsync({
@@ -1338,7 +1338,7 @@ class GraphHelper {
                     startResource = await this.databaseAttachmentManager.transformAttachments(
                         startResource, RETRIEVE
                     );
-                    let current_entity = new BundleEntry({
+                    const current_entity = new BundleEntry({
                         id: startResource.id,
                         resource: startResource
                     });

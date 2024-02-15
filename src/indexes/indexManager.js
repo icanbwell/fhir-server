@@ -67,7 +67,7 @@ class IndexManager {
         /**
          * @type {string}
          */
-        let indexName = indexConfig.options.name;
+        const indexName = indexConfig.options.name;
         /**
          * @type {string}
          */

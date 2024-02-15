@@ -125,7 +125,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
         if (!originalLinks || originalLinks.length === 0) {
             return resource;
         }
-        let newLinks = [];
+        const newLinks = [];
 
         for (const link of originalLinks) {
             const reference = link.target;
@@ -245,7 +245,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
          * @type {Resource}
          */
         const currentResource = FhirResourceCreator.create(doc);
-        let resource = currentResource.clone();
+        const resource = currentResource.clone();
         /**
          * @type {Resource}
          */
@@ -276,7 +276,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
      * @return {Promise<void>}
      */
     async preloadCollectionAsync({ mongoConfig, collectionName }) {
-        let {
+        const {
             sourceCollection,
         } = await this.createConnectionAsync(
             {
@@ -356,7 +356,7 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                 console.log(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
             }
 
-            let collectionName = 'Person_4_0_0';
+            const collectionName = 'Person_4_0_0';
 
             this.startFromIdContainer.startFromId = '';
             /**

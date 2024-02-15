@@ -11,7 +11,7 @@ const { PRACTITIONER_SOURCE_OWNER_MAP } = require('../runners/constants');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 function fixPractitionerResource(resource, fixMultipleOwners) {
-    let security = resource.meta.security || [];
+    const security = resource.meta.security || [];
     if (!security.length){
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
         return resource;
@@ -68,18 +68,18 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
 }
 
 function fixResource(resource) {
-    let security = resource.meta.security || [];
+    const security = resource.meta.security || [];
     if (!security.length){
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
         return resource;
     }
     const sourceAssigningAuthorities = security.filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority);
     const owners = security.filter(s => s.system === SecurityTagSystem.owner);
-    let securityWithoutOriginalAuthority = security.filter(
+    const securityWithoutOriginalAuthority = security.filter(
         s => SecurityTagSystem.sourceAssigningAuthority !== s.system,
     );
 
-    let newSourceAssigningAuthority = sourceAssigningAuthorities.length ? sourceAssigningAuthorities[0] : new Coding({
+    const newSourceAssigningAuthority = sourceAssigningAuthorities.length ? sourceAssigningAuthorities[0] : new Coding({
         system: SecurityTagSystem.sourceAssigningAuthority,
         code: owners[0].code,
     });

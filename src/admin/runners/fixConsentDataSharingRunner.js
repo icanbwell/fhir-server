@@ -172,8 +172,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         resource = await this.addProvisionClassToConsent({ resource, questionaire });
 
         // for speed, first check if the incoming resource is exactly the same
-        let updatedResourceJsonInternal = resource.toJSONInternal();
-        let currentResourceJsonInternal = currentResource.toJSONInternal();
+        const updatedResourceJsonInternal = resource.toJSONInternal();
+        const currentResourceJsonInternal = currentResource.toJSONInternal();
 
         if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
             return operations;
@@ -237,7 +237,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         if (!questionaire) {
             return null;
         }
-        let coding = {};
+        const coding = {};
         const item = questionaire.item;
         item.code.forEach((code) => {
             if (code.id === 'code-category') {
@@ -247,7 +247,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 coding.display = code.display;
             }
         });
-        let codingArray = [];
+        const codingArray = [];
         codingArray.push(coding);
         category.push(codingArray);
         return category;
@@ -299,7 +299,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             return null;
         }
 
-        let qClass = {};
+        const qClass = {};
         const item = questionaire.item;
         item.code.forEach((code) => {
             if (code.id === 'code-display') {
@@ -404,7 +404,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @returns Query
      */
     async getQueryForConsent({ startFromId }) {
-        let query = {};
+        const query = {};
         const properties = ['_uuid', 'patient'];
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
 

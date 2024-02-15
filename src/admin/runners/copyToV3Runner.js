@@ -124,7 +124,7 @@ class CopyToV3Runner {
      * @return {Array}
      */
     getListOfCollections(collectionList) {
-        let collectionNames = [];
+        const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
             if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name) ) {
@@ -206,7 +206,7 @@ class CopyToV3Runner {
             const liveDatabase = liveClient.db(liveClusterConfig.db_name);
 
             // Fetch all the collection names for the live database.
-            let liveCollectionAndViews = await liveDatabase.listCollections().toArray();
+            const liveCollectionAndViews = await liveDatabase.listCollections().toArray();
             let liveCollections = this.getListOfCollections(liveCollectionAndViews);
             liveCollections.sort();
             if (this.startWithCollection) {
@@ -216,9 +216,9 @@ class CopyToV3Runner {
             this.adminLogger.logInfo(`The list of collections are:  ${liveCollections}`);
 
             // Creating batches of collections depending on the concurrency parameter passed.
-            let collectionNameBatches = [];
+            const collectionNameBatches = [];
             // Dpending on concurrentRunners provided we eill batch collections in equivalent groups.
-            let minimumCollectionsToRunTogether = Math.max(
+            const minimumCollectionsToRunTogether = Math.max(
                 1,
                 Math.floor(liveCollections.length / this.concurrentRunners)
             );
@@ -234,7 +234,7 @@ class CopyToV3Runner {
 
             // Process each collection batch in parallel
             const processingBatch = collectionNameBatches.map(async (collectionNameBatch) => {
-                let results = {};
+                const results = {};
                 for (const collection of collectionNameBatch) {
                     this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
                     let totalDocumentUpdatedCount = 0; // Keeps track of the total updated documents

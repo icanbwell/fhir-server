@@ -8,12 +8,12 @@ const {
  */
 
 
-let getConformanceResource = () => {
+const getConformanceResource = () => {
     return resolveSchema('1_0_2', 'conformance');
 };
 
 module.exports.makeStatement = function (resources) {
-    let Conformance = getConformanceResource();
+    const Conformance = getConformanceResource();
     return new Conformance({
         status: 'active',
         date: moment().tz('America/New_York').format(),

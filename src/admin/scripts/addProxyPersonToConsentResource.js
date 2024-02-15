@@ -24,7 +24,7 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
 
     /**
      * @type {Date|undefined}
@@ -39,7 +39,7 @@ async function main() {
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ? parameters.collections.split(',').map((x) => x.trim())
+    const collections = parameters.collections ? parameters.collections.split(',').map((x) => x.trim())
         // fallback to Consent Resource only
         : ['Consent_4_0_0'];
 

@@ -83,7 +83,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
         /**
          * @type {Object}
          */
-        let projection = { id: 1, _uuid: 1, meta: 1 };
+        const projection = { id: 1, _uuid: 1, meta: 1 };
         /**
          * @type {require('mongodb').collection}
          */
@@ -143,7 +143,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
         /**
          * @type {Object}
          */
-        let projection = { id: 1, _uuid: 1, meta: 1, link: 1 };
+        const projection = { id: 1, _uuid: 1, meta: 1, link: 1 };
         /**
          * @type {require('mongodb').collection}
          */
@@ -171,7 +171,7 @@ class DelinkProaPersonPatientRunner extends BaseBulkOperationRunner {
             while (await cursor.hasNext()) {
                 const resource = await cursor.next();
                 if (resource && resource.id) {
-                    let isProaPerson = resource.meta?.security?.find(
+                    const isProaPerson = resource.meta?.security?.find(
                         (item) =>
                             item.system === SecurityTagSystem.connectionType &&
                             item.code === this.connectionType

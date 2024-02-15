@@ -123,7 +123,7 @@ class MongoQuerySimplifier {
                 }
             }
 
-            for (let [key, value] of Object.entries(filter)) {
+            for (const [key, value] of Object.entries(filter)) {
                 if (Array.isArray(value)) {
                     filter[`${key}`] = value.map(v => this.simplifyFilter({filter: v}))
                         .filter(v => !this.isEmpty(v));

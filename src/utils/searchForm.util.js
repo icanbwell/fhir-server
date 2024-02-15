@@ -117,7 +117,7 @@ function getPatientForm(params) {
     /**
      * @type {FieldInfo[]}
      */
-    let patientArray = [];
+    const patientArray = [];
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
     patientArray.push(emailField(params));
@@ -129,7 +129,7 @@ function getPersonForm(params) {
     /**
      * @type {FieldInfo[]}
      */
-    let personArray = [];
+    const personArray = [];
     personArray.push(givenNameField(params));
     personArray.push(familyNameField(params));
     personArray.push(emailField(params));
@@ -270,7 +270,7 @@ const getAdvSearchFormData = (req, resourceName) => {
     /**
      * @type {FieldInfo[]}
      */
-    let advFormData = [];
+    const advFormData = [];
     const resourceFields = advSearchJson.entry.filter((entry) => {
         return entry.resource.base.includes(resourceName) && entry.resource.type === 'string';
     });

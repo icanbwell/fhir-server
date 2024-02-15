@@ -14,7 +14,7 @@ class ValidateMissingVariableValuesPlugin /*extends ApolloServerPlugin*/ {
                 let handlingType = request.http.headers.get('handling');
                 handlingType = handlingType || LENIENT_SEARCH_HANDLING;
                 if (handlingType === STRICT_SEARCH_HANDLING) {
-                    let missingVariables = [];
+                    const missingVariables = [];
                     const queryVariables = request.variables;
                     (document.definitions || []).forEach(definition => {
                         (definition.variableDefinitions || []).forEach(variableDefinition => {

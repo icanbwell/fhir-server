@@ -187,7 +187,7 @@ class R4ArgsParser {
                     notQueryParameterValue.filter(v => v).length > 0
                 )
             ) {
-                let newModifiers = deepcopy(modifiers);
+                const newModifiers = deepcopy(modifiers);
                 newModifiers.push('not');
                 parseArgItems.push(
                     new ParsedArgsItem({

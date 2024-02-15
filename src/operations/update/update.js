@@ -195,8 +195,8 @@ class UpdateOperation {
         /**
          * @type {Object}
          */
-        let resource_incoming_json = body;
-        let {base_version, id} = parsedArgs;
+        const resource_incoming_json = body;
+        const {base_version, id} = parsedArgs;
 
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
@@ -214,7 +214,7 @@ class UpdateOperation {
         /**
          * @type {Resource}
          */
-        let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
+        const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         if (this.configManager.validateSchema || parsedArgs['_validate']) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
@@ -286,11 +286,11 @@ class UpdateOperation {
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
-            let resources = await cursor.toArrayAsync();
+            const resources = await cursor.toArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
@@ -310,7 +310,7 @@ class UpdateOperation {
             /**
              * @type {Resource | null}
              */
-            let data = resources[0];
+            const data = resources[0];
             /**
              * @type {Resource|null}
              */

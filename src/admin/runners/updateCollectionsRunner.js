@@ -132,7 +132,7 @@ class UpdateCollectionsRunner {
      * @return {Array}
      */
     getListOfCollections(collectionList) {
-        let collectionNames = [];
+        const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
             if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
@@ -181,7 +181,7 @@ class UpdateCollectionsRunner {
             const sourceDatabase = sourceClient.db(sourceClusterConfig.db_name);
 
             // Fetch all the collection names for the source database.
-            let sourceCollectionAndViews = await sourceDatabase.listCollections().toArray();
+            const sourceCollectionAndViews = await sourceDatabase.listCollections().toArray();
 
             let sourceCollections = this.getListOfCollections(sourceCollectionAndViews);
             sourceCollections.sort();
@@ -192,9 +192,9 @@ class UpdateCollectionsRunner {
             this.adminLogger.logInfo(`The list of collections are:  ${sourceCollections}`);
 
             // Creating batches of collections depending on the concurrency parameter passed.
-            let collectionNameBatches = [];
+            const collectionNameBatches = [];
             // Dpending on concurrentRunners provided we eill batch collections in equivalent groups.
-            let minimumCollectionsToRunTogether = Math.max(
+            const minimumCollectionsToRunTogether = Math.max(
                 1,
                 Math.floor(sourceCollections.length / this.concurrentRunners)
             );
@@ -210,13 +210,13 @@ class UpdateCollectionsRunner {
 
             // Process each collection batch in parallel
             const processingBatch = collectionNameBatches.map(async (collectionNameBatch) => {
-                let results = {};
+                const results = {};
                 for (const collection of collectionNameBatch) {
                     this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
                     let updatedCount = 0; // Keeps track of the total updated documents
                     let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
-                    let sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
+                    const sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
                     let targetMissingLastUpdated = 0; // Keeps track of target document that doesn't have last updated.
                     let totalProcessedDoc = 0; // Keep tracks of the total processed id.
                     let targetLastUpdatedGreaterThanUpdatedBefore = 0; // Keeps tracks of the documnet that is skipped and target last update is greater than updated before.

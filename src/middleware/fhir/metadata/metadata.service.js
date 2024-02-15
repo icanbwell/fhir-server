@@ -8,7 +8,7 @@ const errors = require('../utils/error.utils.js');
  * Load the correct statement generators for the right version
  */
 
-let getStatementGenerators = base_version => {
+const getStatementGenerators = base_version => {
     if (base_version) {
         return require(`./capability.${base_version}`);
     } else {
@@ -22,14 +22,14 @@ let getStatementGenerators = base_version => {
  * @param {Object} profiles - List of profile services we are using
  * @return {Promise<Object>} - Return the capability statement
  */
-let generateCapabilityStatement = ({
+const generateCapabilityStatement = ({
                                        fhirVersion,
                                        profiles,
                                        security,
                                        statementGenerator = getStatementGenerators
                                    }) => new Promise((resolve, reject) => {
-    let keys = Object.keys(profiles);
-    let active_profiles = keys.map(profile_name => {
+    const keys = Object.keys(profiles);
+    const active_profiles = keys.map(profile_name => {
         return {
             key: profile_name,
             makeResource: conformanceTemplate.resource,
@@ -39,7 +39,7 @@ let generateCapabilityStatement = ({
         };
     }).filter(profile => profile.versions.indexOf(fhirVersion) !== -1); // TODO: REMOVE: Logger deprecatedLogger
 
-    let {
+    const {
         makeStatement,
         securityStatement
     } = statementGenerator(fhirVersion); // If we do not have these functions, we cannot generate a new statement
@@ -58,7 +58,7 @@ let generateCapabilityStatement = ({
     } // Add operations to resource if they exist.
 
 
-    let operations = keys.reduce((ops, profile_name) => {
+    const operations = keys.reduce((ops, profile_name) => {
         const opsInProfile = profiles[`${profile_name}`].operation;
 
         if (opsInProfile && opsInProfile.length) {
@@ -87,7 +87,7 @@ let generateCapabilityStatement = ({
             customMakeResource = require(profile.metadata).makeResource;
         }
 
-        let resource = customMakeResource ? customMakeResource(Object.assign(fhirVersion, {
+        const resource = customMakeResource ? customMakeResource(Object.assign(fhirVersion, {
             key: profile.key
         })) : profile.makeResource(fhirVersion, profile.key); // Determine the interactions we need to list for this profile
 

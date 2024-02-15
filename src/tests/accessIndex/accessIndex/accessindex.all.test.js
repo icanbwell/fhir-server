@@ -112,7 +112,7 @@ describe('AuditEvent when all is set Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
@@ -181,7 +181,7 @@ describe('AuditEvent when all is set Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let patientCollection = fhirDb.collection(mongoCollectionName);
+            const patientCollection = fhirDb.collection(mongoCollectionName);
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */

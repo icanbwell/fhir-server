@@ -107,7 +107,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            let {base_version, id} = parsedArgs;
+            const {base_version, id} = parsedArgs;
 
             if (!id) {
                 throw new BadRequestError(new Error('No id parameter was passed'));

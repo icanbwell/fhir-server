@@ -145,7 +145,7 @@ class CreateOperation {
             }
         );
 
-        let resource_incoming = body;
+        const resource_incoming = body;
 
         if (resource_incoming && Array.isArray(resource_incoming)) {
             throw new BadRequestError(
@@ -155,7 +155,7 @@ class CreateOperation {
             );
         }
 
-        let {base_version} = parsedArgs;
+        const {base_version} = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
@@ -237,7 +237,7 @@ class CreateOperation {
             /**
              * @type {Resource}
              */
-            let doc = resource;
+            const doc = resource;
             Object.assign(doc, {id: resource_incoming.id});
 
             if (resourceType !== 'AuditEvent') {

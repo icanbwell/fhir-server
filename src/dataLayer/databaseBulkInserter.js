@@ -547,7 +547,7 @@ class DatabaseBulkInserter extends EventEmitter {
             patches
         }
     ) {
-        let lastVersionId = previousVersionId;
+        const lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
             doc = await this.preSaveManager.preSaveAsync(doc);

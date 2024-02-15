@@ -27,7 +27,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     adminLogger.logInfo(`[${currentDateTime}] Running proaPatientLinkCsvRunner script`);
 
     // set up all the standard services in the container

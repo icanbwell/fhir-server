@@ -60,13 +60,13 @@ class ScopesValidator {
                     /**
                      * @type {string[]}
                      */
-                    let scopes = this.scopesManager.parseScopes(scope);
-                    let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                    const scopes = this.scopesManager.parseScopes(scope);
+                    const {error, success} = scopeChecker(resourceType, accessRequested, scopes);
 
                     if (success) {
                         return;
                     }
-                    let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    const errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
                     authorizationFailedCounter.inc({action: action, resourceType: resourceType});
                     await this.fhirLoggingManager.logOperationFailureAsync(
@@ -80,7 +80,7 @@ class ScopesValidator {
                         });
                     throw forbiddenError;
                 } else {
-                    let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    const errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError1 = new ForbiddenError(errorMessage);
                     authorizationFailedCounter.inc({action: action, resourceType: resourceType});
                     await this.fhirLoggingManager.logOperationFailureAsync(

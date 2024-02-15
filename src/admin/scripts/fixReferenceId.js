@@ -30,25 +30,25 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
+    const collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
         ['all'];
 
-    let proaCollections = parameters.proaCollections ?
+    const proaCollections = parameters.proaCollections ?
         parameters.proaCollections.split(',').map(x => x.trim()) : [
             ...proaResources.map(collection => `${collection}_4_0_0`),
             ...proaResources.map(collection => `${collection}_4_0_0_History`)
         ];
 
-    let properties = parameters.properties ?
+    const properties = parameters.properties ?
         parameters.properties.split(',').map(x => x.trim()) :
         undefined;
 
-    let filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
         parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
         undefined;
 

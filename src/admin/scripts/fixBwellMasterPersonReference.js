@@ -21,18 +21,18 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
+    const collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
         ['all'];
 
     /**
      * @type {string[]}
      */
-    let preLoadCollections = parameters.preLoadCollections ?
+    const preLoadCollections = parameters.preLoadCollections ?
         parameters.preLoadCollections.split(',').map(x => x.trim()) :
         ['all'];
 

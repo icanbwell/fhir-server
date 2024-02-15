@@ -66,7 +66,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                 .set(getGraphQLHeaders())
                 .expect(200);
 
-            let body = resp.body;
+            const body = resp.body;
             if (body.errors) {
                 logError('', {'errors': body.errors});
                 expect(body.errors).toBeUndefined();

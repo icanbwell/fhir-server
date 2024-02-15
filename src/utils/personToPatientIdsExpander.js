@@ -126,7 +126,7 @@ class PersonToPatientIdsExpander {
             ids.push(person.replace(PERSON_REFERENCE_PREFIX, ''));
         });
 
-        let patientIdsOrMap = await this.getPatientIdsFromPersonAsync(
+        const patientIdsOrMap = await this.getPatientIdsFromPersonAsync(
             {
                 personIds: [...ids],
                 totalProcessedPersonIds: new Set(),
@@ -168,13 +168,13 @@ class PersonToPatientIdsExpander {
          * Stores all linked patient to current person
          * @type {Map<string, Set<string>>}
          */
-        let personToLinkedPatient = new Map();
+        const personToLinkedPatient = new Map();
 
         /**
          * Stores linked person to all base person
          * @type {Map<string, Set<string>>}
          */
-        let linkedPersonToPersons = new Map();
+        const linkedPersonToPersons = new Map();
 
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
@@ -188,7 +188,7 @@ class PersonToPatientIdsExpander {
         let patientIds = [];
         let personIdsToRecurse = [];
         while (await personResourceCursor.hasNext()) {
-            let person = await personResourceCursor.next();
+            const person = await personResourceCursor.next();
             let personId = person._uuid;
 
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
@@ -238,7 +238,7 @@ class PersonToPatientIdsExpander {
         }
 
         if (level === maximumRecursionDepth) {
-            let message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
+            const message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
             logWarn(message, {patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds]});
             if (toMap) {
                 return personToLinkedPatient;

@@ -45,25 +45,25 @@ async function main() {
      */
     const AWS_FOLDER = parameters.AWS_FOLDER || 'fhir/epic/patient/';
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
+    const collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
         ['all'];
 
-    let clientCollections = parameters.clientCollections ?
+    const clientCollections = parameters.clientCollections ?
         parameters.clientCollections.split(',').map(x => x.trim()) : [
             ...clientResources.map(collection => `${collection}_4_0_0`),
             ...clientResources.map(collection => `${collection}_4_0_0_History`)
         ];
 
-    let properties = parameters.properties ?
+    const properties = parameters.properties ?
         parameters.properties.split(',').map(x => x.trim()) :
         undefined;
 
-    let filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
         parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
         undefined;
 

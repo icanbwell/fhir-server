@@ -145,7 +145,7 @@ class HistoryByIdOperation {
             accessRequested: 'read'
         });
 
-        let {base_version, id} = parsedArgs;
+        const {base_version, id} = parsedArgs;
         /**
          * @type {boolean}
          */

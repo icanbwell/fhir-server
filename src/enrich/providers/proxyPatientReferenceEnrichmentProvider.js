@@ -34,7 +34,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         }
 
         // check if any args have a proxy patient
-        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
+        const {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {import('../../operations/query/parsedArgsItem').ParsedArgsItem}

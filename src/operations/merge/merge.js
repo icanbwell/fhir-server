@@ -215,7 +215,7 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            let {/** @type {string} */ base_version} = parsedArgs;
+            const {/** @type {string} */ base_version} = parsedArgs;
 
             /**
              * @type {string[]}
@@ -225,7 +225,7 @@ class MergeOperation {
             /**
              * @type {Object|Object[]|undefined}
              */
-            let incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
+            const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,

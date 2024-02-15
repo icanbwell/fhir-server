@@ -40,13 +40,13 @@ function parseDate(date) {
  *
  * @param {*} dates
  */
-let validateDate = function (dates) {
+const validateDate = function (dates) {
     let parsedDate = {};
     if (dates) {
         // dates could be comma delimited if passed in more than one
         const dateArr = dates.split(',');
         if (dateArr) {
-            for (let date in dateArr) {
+            for (const date in dateArr) {
                 parsedDate = Object.assign(parsedDate, parseDate(dateArr[`${date}`]));
             }
         }

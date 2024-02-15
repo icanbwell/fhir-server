@@ -249,13 +249,13 @@ async function handleAdmin(
                         /**
                          * @type {string[]}
                          */
-                        let scopes = scopesManager.parseScopes(scope);
+                        const scopes = scopesManager.parseScopes(scope);
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        let {success} = scopeChecker(resourceType, accessRequested, scopes);
+                        const {success} = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
-                            let errorMessage = 'user with scopes [' + scopes +
+                            const errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                             const operationOutcome = new OperationOutcome({
                                 issue: [
@@ -318,13 +318,13 @@ async function handleAdmin(
                         /**
                          * @type {string[]}
                          */
-                        let scopes = scopesManager.parseScopes(scope);
+                        const scopes = scopesManager.parseScopes(scope);
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        let {success} = scopeChecker(resourceType, accessRequested, scopes);
+                        const {success} = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
-                            let errorMessage = 'user with scopes [' + scopes +
+                            const errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                             const operationOutcome = new OperationOutcome({
                                 issue: [

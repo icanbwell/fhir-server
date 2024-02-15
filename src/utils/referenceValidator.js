@@ -32,7 +32,7 @@ function validateReferences(resourceObj, path) {
     if (!resourceObj) {
         return [];
     }
-    let errors = [];
+    const errors = [];
     if (resourceObj.constructor.name === 'Reference') {
         const err = checkReferenceValue(resourceObj, path);
         if (err) {
@@ -50,7 +50,7 @@ function validateReferences(resourceObj, path) {
         );
 
     } else {
-        for (let prop in resourceObj) {
+        for (const prop in resourceObj) {
             if (
                 Object.prototype.hasOwnProperty.call(resourceObj, prop) &&
                 resourceObj[`${prop}`] && typeof resourceObj[`${prop}`] === 'object'

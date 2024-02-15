@@ -389,7 +389,7 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        let combined_args = get_all_args(req, args);
+        const combined_args = get_all_args(req, args);
         /**
          * @type {ParsedArgs}
          */
@@ -639,7 +639,7 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        let combined_args = get_all_args(req, args);
+        const combined_args = get_all_args(req, args);
 
         /**
          * @type {ParsedArgs}
@@ -668,7 +668,7 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        let combined_args = get_all_args(req, args);
+        const combined_args = get_all_args(req, args);
 
         /**
          * @type {ParsedArgs}
@@ -698,7 +698,7 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        let combined_args = get_all_args(req, args);
+        const combined_args = get_all_args(req, args);
 
         /**
          * @type {ParsedArgs}
@@ -727,7 +727,7 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        let combined_args = get_all_args(req, args);
+        const combined_args = get_all_args(req, args);
 
         /**
          * @type {ParsedArgs}
@@ -755,7 +755,7 @@ class FhirOperationsManager {
          * combined args
          * @type {Object}
          */
-        let combined_args = get_all_args(req, args);
+        const combined_args = get_all_args(req, args);
 
         /**
          * @type {ParsedArgs}

@@ -36,7 +36,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validResource)
                 .set(getHeaders())
                 .expect(201);
-            let body = resp.body;
+            const body = resp.body;
             logInfo('------- response 1 ------------');
             logInfo('', {body});
             logInfo('------- end response 1 ------------');

@@ -80,7 +80,7 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
         /**
          * @type {Object}
          */
-        let projection = { id: 1, _uuid: 1, meta: 1 };
+        const projection = { id: 1, _uuid: 1, meta: 1 };
         /**
          * @type {require('mongodb').collection}
          */
@@ -146,8 +146,8 @@ class ProaPersonPatientLinkageRunner extends BaseBulkOperationRunner {
             /**
              * @type {Resource}
              */
-            let resource = FhirResourceCreator.create(doc);
-            let isProaPerson = resource.meta?.security?.find(
+            const resource = FhirResourceCreator.create(doc);
+            const isProaPerson = resource.meta?.security?.find(
                 (item) =>
                     item.system === SecurityTagSystem.connectionType &&
                     item.code === this.connectionType

@@ -133,7 +133,7 @@ class KafkaClient {
      * @return {Promise<void>}
      */
     async sendMessagesAsync(topic, messages) {
-        let maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
+        const maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
 
         // by default shouldn't retry

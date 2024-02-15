@@ -42,7 +42,7 @@ class ScopesManager {
             /**
              * @type {string[]}
              */
-            let scopes = this.parseScopes(scope);
+            const scopes = this.parseScopes(scope);
             /**
              * @type {string[]}
              */
@@ -135,7 +135,7 @@ class ScopesManager {
          */
         const accessCodes = this.getAccessCodesFromScopes('read', user, scope);
         if (!accessCodes || accessCodes.length === 0) {
-            let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
             throw new ForbiddenError(errorMessage);
         }
         return this.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource);

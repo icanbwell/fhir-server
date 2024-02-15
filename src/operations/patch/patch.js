@@ -170,7 +170,7 @@ class PatchOperation {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
-            let {base_version, id} = parsedArgs;
+            const {base_version, id} = parsedArgs;
             // Get current record
             // Query our collection for this observation
             /**
@@ -207,11 +207,11 @@ class PatchOperation {
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
-            let resources = await cursor.toArrayAsync();
+            const resources = await cursor.toArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
@@ -240,7 +240,7 @@ class PatchOperation {
             );
 
             // Validate the patch
-            let errors = validate(patchContent, foundResource);
+            const errors = validate(patchContent, foundResource);
             if (errors) {
                 const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
                 throw new BadRequestError(error);
@@ -249,7 +249,7 @@ class PatchOperation {
             /**
              * @type {Object}
              */
-            let resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
+            const resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
             const appliedPatchContent = compare(foundResource.toJSONInternal(), resource_incoming);
             /**
              * @type {Resource}
@@ -258,7 +258,7 @@ class PatchOperation {
 
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
-                let meta = foundResource.meta;
+                const meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));

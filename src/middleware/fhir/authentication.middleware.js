@@ -16,7 +16,7 @@ module.exports = function authenticationMiddleware(config) {
 
 
   if (config.auth && config.auth.strategy) {
-    let {
+    const {
       name,
       useSession = false
     } = config.auth.strategy;
