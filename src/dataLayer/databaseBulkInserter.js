@@ -268,10 +268,12 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             if (doc._id) {
-                logInfo('_id still present', {args: {
+                logInfo('_id still present', {
+args: {
                     source: 'DatabaseBulkInserter.getOperationForResourceAsync',
                     doc
-                }});
+                }
+});
             }
 
             return new BulkInsertUpdateEntry({
@@ -368,10 +370,12 @@ class DatabaseBulkInserter extends EventEmitter {
                 });
             }
             if (doc._id) {
-                logInfo('_id still present', {args: {
+                logInfo('_id still present', {
+args: {
                     source: 'DatabaseBulkInserter.insertOneAsync',
                     doc: doc
-                }});
+                }
+});
             }
         } catch (e) {
             throw new RethrownError({
@@ -859,12 +863,14 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
 
                 if (!useHistoryCollection && resource._id) {
-                    logInfo('_id still present', {args: {
+                    logInfo('_id still present', {
+args: {
                         source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
                         doc: resource,
                         collection: collectionName,
                         operation
-                    }});
+                    }
+});
                 }
                 operationsByCollectionNames.get(collectionName).push(operation);
             }

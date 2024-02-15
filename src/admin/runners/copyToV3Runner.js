@@ -176,8 +176,10 @@ class CopyToV3Runner {
                 `Error while updating collection: ${collection} document _id start: ${operations[0]['updateOne']['filter']['_id']}, end: ${operations[operations.length - 1]['updateOne']['filter']['_id']}. Error Message: ${error}`
             );
         }
-        return {totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount: totalDocumentCreatedCount,
-            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount, lastProcessedId: lastProcessedId};
+        return {
+totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount: totalDocumentCreatedCount,
+            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount, lastProcessedId: lastProcessedId
+};
     }
 
     /**
@@ -256,7 +258,7 @@ class CopyToV3Runner {
                         { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } } :
                         { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
                     // // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
-                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments ]} : queryToFetchDocuments;
+                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments]} : queryToFetchDocuments;
 
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();

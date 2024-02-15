@@ -197,11 +197,13 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     count: { $sum: 1 }
                 }
             },
-            { $match: {
+            {
+ $match: {
                 count: { $gt: 1 },
                 ...personUuidQuery,
                 ...uuidGreaterThanQuery
-            } },
+            }
+},
             { $project: { uuid: '$_id._uuid', _id: 0 } },
             {
                 $group: {

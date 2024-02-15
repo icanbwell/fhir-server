@@ -400,7 +400,7 @@ class ChangeEventProducer extends BasePostSaveHandler {
                 const consentMessageMap = this.getConsentMessageMap();
                 const numberOfMessagesBefore = patientMessageMap.size + consentMessageMap.size;
 
-                const createKafkaClientMessageFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
+                const createKafkaClientMessageFn = ([id, /** @type {Object} */ messageJson]) => {
                     return {
                         key: id,
                         fhirVersion: fhirVersion,

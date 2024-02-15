@@ -92,12 +92,14 @@ class ProaConsentManager {
                 },
                 {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
                 {'provision.type': 'permit'},
-                {'meta.security': {
+                {
+'meta.security': {
                     '$elemMatch': {
                         'system': 'https://www.icanbwell.com/owner',
                         'code': {$in: ownerTags}
                     }
-                }}
+                }
+}
             ]
         };
 
