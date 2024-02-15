@@ -151,7 +151,10 @@ class CopyToV3Runner {
      * @returns {Object}
      */
     async v3BulkWrite(collection, v3DatabaseCollection, operations) {
-        let totalDocumentUpdatedCount = 0, totalDocumentCreatedCount = 0, totalDocumentHavingSameDataCount = 0, lastProcessedId = null;
+        let totalDocumentUpdatedCount = 0;
+        let totalDocumentCreatedCount = 0;
+        let totalDocumentHavingSameDataCount = 0;
+        let lastProcessedId = null;
         this.adminLogger.logInfo(`Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${collection}.`);
 
         try {

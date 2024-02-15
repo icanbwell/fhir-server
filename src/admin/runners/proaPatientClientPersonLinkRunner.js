@@ -197,10 +197,10 @@ class ProaPatientClientPersonLinkRunner extends ProaPersonPatientLinkageRunner {
         });
         try {
             const operations = [];
-            const linkedMasterPatients = [],
-                linkedClientPersons = [],
-                linkedProaPersons = [],
-                linkedMasterPersons = [];
+            const linkedMasterPatients = [];
+            const linkedClientPersons = [];
+            const linkedProaPersons = [];
+            const linkedMasterPersons = [];
             /**
              * @type {Set<string>}
              */

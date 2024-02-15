@@ -17,8 +17,8 @@ class MongoJsonPatchHelper {
         patches.map(function (patch) {
             switch (patch.op) {
                 case 'add':
-                    var path = toDot(patch.path),
-                        parts = path.split('.');
+                    var path = toDot(patch.path);
+                    var parts = path.split('.');
 
                     var positionPart = parts.length > 1 && parts[parts.length - 1];
                     var addToEnd = positionPart === '-';

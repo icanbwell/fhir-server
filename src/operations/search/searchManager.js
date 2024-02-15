@@ -1244,7 +1244,8 @@ class SearchManager {
         const allowedOperations = ['gt', 'ge', 'lt', 'le'];
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;
-        let isLessThanConditionPresent = false, isGreaterThanConditionPresent = false;
+        let isLessThanConditionPresent = false;
+        let isGreaterThanConditionPresent = false;
         for (const /* @type {string} */ dateParam of queryParams) {
             // Match the date passed in param if it matches the regex pattern.
             const regexMatch = dateParam.match(regex);

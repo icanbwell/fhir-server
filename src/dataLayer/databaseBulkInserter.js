@@ -1127,10 +1127,10 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType: resourceType,
         });
         if (hasBulkWriteErrors) {
-            const bulkWriteErrors = bulkWriteResult.getWriteErrors(),
-                bulkWriteErrorsMsg = bulkWriteErrors.map(error => error.toJSON()),
-                diagnostics = JSON.stringify(bulkWriteErrorsMsg, getCircularReplacer()),
-                bulkWriteResultError = new Error(diagnostics);
+            const bulkWriteErrors = bulkWriteResult.getWriteErrors();
+            const bulkWriteErrorsMsg = bulkWriteErrors.map(error => error.toJSON());
+            const diagnostics = JSON.stringify(bulkWriteErrorsMsg, getCircularReplacer());
+            const bulkWriteResultError = new Error(diagnostics);
             mergeResultEntry.issue = new OperationOutcomeIssue({
                 severity: 'error',
                 code: 'exception',
