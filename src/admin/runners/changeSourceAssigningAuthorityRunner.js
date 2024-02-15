@@ -27,7 +27,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
          * @type {boolean}
          */
         this.newSourceAssigningAuthority = newSourceAssigningAuthority;
-        assertIsValid(typeof oldSourceAssigningAuthority === 'string', 'newSourceAssigningAuthority is not a string');
+        assertIsValid(typeof newSourceAssigningAuthority === 'string', 'newSourceAssigningAuthority is not a string');
     }
 
     /**
@@ -229,7 +229,7 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
             [`${queryPrefix}meta.security`]: {
                 $elemMatch: {
                     'system': SecurityTagSystem.owner,
-                    'code': 'rise'
+                    'code': this.oldSourceAssigningAuthority
                 }
             }
         };

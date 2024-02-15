@@ -10,25 +10,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "24c117ef-4601-52ea-8812-ac66793956b5"
+        "value": "92eb2ca3-db97-51a4-b2f8-ae979d89952e"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "name": "AETNA-Aetna Elect Choice/ EPO (Aetna Health Fund) Innovation Health: Network Only Plus",
@@ -42,12 +42,12 @@
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "Organization/45eaebe0-537e-5bdb-ab35-7564668c39b5"
+          "valueString": "Organization/f234b552-7cde-5616-9e2d-e9b3d0d9aea1"
         },
         {
           "id": "sourceAssigningAuthority",
           "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-          "valueString": "medstar"
+          "valueString": "client"
         }
       ],
       "reference": "Organization/AETNA"
@@ -65,12 +65,12 @@
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "Location/3bad6e83-d648-5f49-a429-80c38a51c38f"
+                "valueString": "Location/bd1993dc-40f3-54a6-ad09-d08e5a823122"
               },
               {
                 "id": "sourceAssigningAuthority",
                 "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "valueString": "medstar"
+                "valueString": "client"
               }
             ],
             "reference": "Location/1886535265"

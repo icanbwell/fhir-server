@@ -56,7 +56,7 @@ describe('Organization Graph Contained Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .post('/4_0_0/Organization/MedStarMedicalGroup/$merge')
+                .post('/4_0_0/Organization/ClientMedicalGroup/$merge')
                 .send(practiceParentOrganizationResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

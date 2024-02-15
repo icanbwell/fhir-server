@@ -2,11 +2,11 @@
   "id": "2354",
   "resource": {
     "_access": {
-      "medstar": 1
+      "client": 1
     },
-    "_sourceAssigningAuthority": "medstar",
+    "_sourceAssigningAuthority": "client",
     "_sourceId": "2354",
-    "_uuid": "bdc7c439-e5d2-5837-8df3-b394f02149da",
+    "_uuid": "f752caa1-8585-5e6f-bb32-a5b949b7e5f6",
     "birthDate": "2017-01-01",
     "gender": "female",
     "id": "2354",
@@ -19,26 +19,26 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "bdc7c439-e5d2-5837-8df3-b394f02149da"
+        "value": "f752caa1-8585-5e6f-bb32-a5b949b7e5f6"
       }
     ],
     "meta": {
       "lastUpdated": "2023-01-19T21:57:39.000Z",
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "http://medstarhealth.org/provider",
+      "source": "http://clienthealth.org/provider",
       "versionId": "1"
     },
     "name": [

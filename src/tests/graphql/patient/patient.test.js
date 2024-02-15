@@ -549,7 +549,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders('user/Practitioner.read access/medstar.*'))
+                .set(getGraphQLHeaders('user/Practitioner.read access/client.*'))
                 .expect(200);
 
             // noinspection JSUnresolvedFunction

@@ -13,7 +13,7 @@
       }
     ],
     "alias": [
-      "MedStar Medical Group Derm at Honeygo"
+      "Client Medical Group Derm at Honeygo"
     ],
     "contact": [
       {
@@ -21,7 +21,7 @@
           "coding": [
             {
               "code": "Central Scheduling",
-              "system": "MedstarHealth.org"
+              "system": "ClientHealth.org"
             }
           ]
         },
@@ -56,30 +56,30 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "6f338d77-6078-5c3d-b440-c9470e416d5d"
+        "value": "5bdedbe2-0f2d-5433-b18a-b1e3ae5dcb8b"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
-    "name": "MedStar Medical Group Dermatology at Honeygo",
+    "name": "Client Medical Group Dermatology at Honeygo",
     "partOf": {
-      "display": "MedStar Medical Group",
+      "display": "Client Medical Group",
       "type": "Organization"
     },
     "resourceType": "Organization",
@@ -139,25 +139,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "45eaebe0-537e-5bdb-ab35-7564668c39b5"
+        "value": "f234b552-7cde-5616-9e2d-e9b3d0d9aea1"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "resourceType": "Organization",
@@ -170,6 +170,53 @@
             "system": "http://terminology.hl7.org/CodeSystem/organization-type"
           }
         ]
+      }
+    ]
+  },
+  {
+    "id": "Client-Medical-Group",
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "Client-Medical-Group"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "a2b7cbac-5ae0-5f97-83e2-554f176534f1"
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "client",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "client",
+      "versionId": "1"
+    },
+    "name": "Client Medical Group",
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "prov",
+            "display": "Healthcare Provider",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
+        ],
+        "text": "Healthcare Organization"
       }
     ]
   },
@@ -196,25 +243,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "63eee0b1-2e54-53f9-8cd7-232375092da5"
+        "value": "0e938185-905e-52cc-8b70-a9249bd43806"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "resourceType": "Organization",
@@ -231,53 +278,6 @@
     ]
   },
   {
-    "id": "MedStar-Medical-Group",
-    "identifier": [
-      {
-        "id": "sourceId",
-        "system": "https://www.icanbwell.com/sourceId",
-        "value": "MedStar-Medical-Group"
-      },
-      {
-        "id": "uuid",
-        "system": "https://www.icanbwell.com/uuid",
-        "value": "95a17a9e-8304-50ca-9886-5041227066f7"
-      }
-    ],
-    "meta": {
-      "security": [
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/access"
-        },
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/owner"
-        },
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-        }
-      ],
-      "source": "medstar",
-      "versionId": "1"
-    },
-    "name": "MedStar Medical Group",
-    "resourceType": "Organization",
-    "type": [
-      {
-        "coding": [
-          {
-            "code": "prov",
-            "display": "Healthcare Provider",
-            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-          }
-        ],
-        "text": "Healthcare Organization"
-      }
-    ]
-  },
-  {
     "id": "Stanford-Medical-School",
     "identifier": [
       {
@@ -288,25 +288,25 @@
       {
         "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
-        "value": "bc1d5906-1abc-5eec-838d-df8f3bcd1109"
+        "value": "d937ec95-bc9c-5504-8d7d-b87f488b48db"
       }
     ],
     "meta": {
       "security": [
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/access"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/owner"
         },
         {
-          "code": "medstar",
+          "code": "client",
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
-      "source": "medstar",
+      "source": "client",
       "versionId": "1"
     },
     "name": "Stanford Medical School",

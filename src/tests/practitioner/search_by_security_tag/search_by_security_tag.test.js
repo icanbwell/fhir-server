@@ -56,7 +56,7 @@ describe('search_by_security_tag', () => {
             expect(resp).toHaveResourceCount(3);
 
             resp = await request
-                .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|medstar')
+                .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|client')
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction

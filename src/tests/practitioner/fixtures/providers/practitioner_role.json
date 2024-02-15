@@ -2,15 +2,15 @@
   "resourceType": "PractitionerRole",
   "id": "4657-3437",
   "meta": {
-    "source": "medstar",
+    "source": "client",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -18,9 +18,9 @@
     "reference": "Practitioner/4657"
   },
   "organization": {
-    "reference": "Organization/MedStar Adult Medicine at MUMH",
+    "reference": "Organization/Client Adult Medicine at MUMH",
     "type": "Organization",
-    "display": "MedStar Adult Medicine at MUMH"
+    "display": "Client Adult Medicine at MUMH"
   },
   "code": [
     {
@@ -38,7 +38,7 @@
     {
       "coding": [
         {
-          "system": "https://www.medstarhealth.org/"
+          "system": "https://www.clienthealth.org/"
         }
       ]
     }

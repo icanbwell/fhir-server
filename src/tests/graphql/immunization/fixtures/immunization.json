@@ -3,23 +3,23 @@
         {
             "resource": {
                 "resourceType": "Immunization",
-                "id": "unitypoint-e.uenWRddtomnQhn6HK1MXzGLF8HAIHYiGjRkMjvOMNE3",
+                "id": "client-e.uenWRddtomnQhn6HK1MXzGLF8HAIHYiGjRkMjvOMNE3",
                 "meta": {
                     "versionId": "1",
                     "lastUpdated": "2022-02-01T19:58:39.000Z",
-                    "source": "https://epicfhir.unitypoint.org/NonProdFHIR/api/FHIR/R4/metadata",
+                    "source": "https://epicfhir.client.org/NonProdFHIR/api/FHIR/R4/metadata",
                     "security": [
                         {
                             "system": "https://www.icanbwell.com/owner",
-                            "code": "unitypointuat"
+                            "code": "clientuat"
                         },
                         {
                             "system": "https://www.icanbwell.com/access",
-                            "code": "unitypointuat"
+                            "code": "clientuat"
                         },
                         {
                             "system": "https://www.icanbwell.com/vendor",
-                            "code": "unitypointuat"
+                            "code": "clientuat"
                         }
                     ]
                 },
@@ -41,11 +41,11 @@
                     "text": "Influenza (FLUAD) aIIV4 PREFILLED SYRINGE"
                 },
                 "patient": {
-                    "reference": "Patient/unitypoint-evW5FfLpFzNjyITIoWZa8JmfDI3ZSubvceVKU5895EoM3",
+                    "reference": "Patient/client-evW5FfLpFzNjyITIoWZa8JmfDI3ZSubvceVKU5895EoM3",
                     "display": "Bwell, Testusersix \"TESTUSER6\""
                 },
                 "encounter": {
-                    "reference": "Encounter/unitypoint-e2N9EYqT3Cjdac8DrGLJdlA3"
+                    "reference": "Encounter/client-e2N9EYqT3Cjdac8DrGLJdlA3"
                 },
                 "occurrenceDateTime": "2021-10-01T00:00:00.000Z",
                 "primarySource": false
@@ -58,19 +58,19 @@
                 "meta": {
                     "versionId": "1",
                     "lastUpdated": "2022-02-01T19:58:39.000Z",
-                    "source": "https://epicfhir.unitypoint.org/NonProdFHIR/api/FHIR/R4/metadata",
+                    "source": "https://epicfhir.client.org/NonProdFHIR/api/FHIR/R4/metadata",
                     "security": [
                         {
                             "system": "https://www.icanbwell.com/owner",
-                            "code": "unitypointuat"
+                            "code": "clientuat"
                         },
                         {
                             "system": "https://www.icanbwell.com/access",
-                            "code": "unitypointuat"
+                            "code": "clientuat"
                         },
                         {
                             "system": "https://www.icanbwell.com/vendor",
-                            "code": "unitypointuat"
+                            "code": "clientuat"
                         }
                     ]
                 },
@@ -92,11 +92,11 @@
                     "text": "Influenza (FLUAD) aIIV4 PREFILLED SYRINGE"
                 },
                 "patient": {
-                    "reference": "Patient/unitypoint-evW5FfLpFzNjyITIoWZa8JmfDI3ZSubvceVKU5895EoM3",
+                    "reference": "Patient/client-evW5FfLpFzNjyITIoWZa8JmfDI3ZSubvceVKU5895EoM3",
                     "display": "Bwell, Testusersix \"TESTUSER6\""
                 },
                 "encounter": {
-                    "reference": "Encounter/unitypoint-e2N9EYqT3Cjdac8DrGLJdlA3"
+                    "reference": "Encounter/client-e2N9EYqT3Cjdac8DrGLJdlA3"
                 },
                 "occurrenceDateTime": "2020-12-01T00:00:00.000Z",
                 "primarySource": false

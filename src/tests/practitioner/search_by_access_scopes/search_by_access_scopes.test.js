@@ -16,7 +16,7 @@ const {
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('search_by_security_tag', () => {
-    const scope = 'user/*.read user/*.write access/medstar.* access/thedacare.*';
+    const scope = 'user/*.read user/*.write access/client.* access/client-1.*';
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -65,7 +65,7 @@ describe('search_by_security_tag', () => {
             expect(resp).toHaveResourceCount(3);
 
             resp = await request
-                .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|medstar')
+                .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|client')
                 .set(getHeaders(scope));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);

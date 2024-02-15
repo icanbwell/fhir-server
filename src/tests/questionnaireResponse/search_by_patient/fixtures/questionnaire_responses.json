@@ -5,15 +5,15 @@
     "meta": {
       "versionId": "1",
       "lastUpdated": "2021-03-14T14:48:26+00:00",
-      "source": "http://medstarhealth.org/questionnaireresponse",
+      "source": "http://clienthealth.org/questionnaireresponse",
       "security": [
         {
           "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
+          "code": "client"
         },
         {
           "system": "https://www.icanbwell.com/owner",
-          "code": "medstar"
+          "code": "client"
         }
       ]
     },
@@ -59,10 +59,10 @@
           }
         ]
       },
-      "system": "http://medstarhealth.org",
+      "system": "http://clienthealth.org",
       "value": "0000377b284c2601368e0d911d38d3c74e79581a"
     },
-    "questionnaire": "https://protocol-service.icanbwell.com/Questionnaire/medstar-squeeze|4.0.0",
+    "questionnaire": "https://protocol-service.icanbwell.com/Questionnaire/client-squeeze|4.0.0",
     "status": "completed",
     "subject": {
       "reference": "Patient/029260322"
@@ -190,7 +190,7 @@
       },
       {
         "linkId": "SQ18",
-        "text": "Was your first vaccine administered by MedStar Health?"
+        "text": "Was your first vaccine administered by Client Health?"
       },
       {
         "linkId": "SQ19",
@@ -198,7 +198,7 @@
       },
       {
         "linkId": "SQ20",
-        "text": "Have you ever been a patient of MedStar Health?",
+        "text": "Have you ever been a patient of Client Health?",
         "answer": [
           {
             "valueBoolean": true
@@ -207,7 +207,7 @@
       },
       {
         "linkId": "SQ21",
-        "text": "MedStar Health Patient ID (optional)"
+        "text": "Client Health Patient ID (optional)"
       },
       {
         "linkId": "SQ22",
@@ -374,11 +374,11 @@
     "meta": {
       "versionId": "1",
       "lastUpdated": "2021-03-14T14:48:26+00:00",
-      "source": "http://medstarhealth.org/questionnaireresponse",
+      "source": "http://clienthealth.org/questionnaireresponse",
       "security": [
         {
           "system": "https://www.icanbwell.com/owner",
-          "code": "medstar"
+          "code": "client"
         }
       ]
     },
@@ -424,10 +424,10 @@
           }
         ]
       },
-      "system": "http://medstarhealth.org",
+      "system": "http://clienthealth.org",
       "value": "0000377b284c2601368e0d911d38d3c74e79581b"
     },
-    "questionnaire": "https://protocol-service.icanbwell.com/Questionnaire/medstar-squeeze|4.0.0",
+    "questionnaire": "https://protocol-service.icanbwell.com/Questionnaire/client-squeeze|4.0.0",
     "status": "completed",
     "authored": "2021-02-25T19:39:40.155Z",
     "item": [
@@ -552,7 +552,7 @@
       },
       {
         "linkId": "SQ18",
-        "text": "Was your first vaccine administered by MedStar Health?"
+        "text": "Was your first vaccine administered by Client Health?"
       },
       {
         "linkId": "SQ19",
@@ -560,7 +560,7 @@
       },
       {
         "linkId": "SQ20",
-        "text": "Have you ever been a patient of MedStar Health?",
+        "text": "Have you ever been a patient of Client Health?",
         "answer": [
           {
             "valueBoolean": true
@@ -569,7 +569,7 @@
       },
       {
         "linkId": "SQ21",
-        "text": "MedStar Health Patient ID (optional)"
+        "text": "Client Health Patient ID (optional)"
       },
       {
         "linkId": "SQ22",

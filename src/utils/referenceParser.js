@@ -4,7 +4,7 @@ const {UrlParser} = require('./urlParser');
 class ReferenceParser {
     /**
      * Parses reference string
-     * The reference can be 'Patient/123|medstar' or 'Patient/123' or '123' or '123|medstar'
+     * The reference can be 'Patient/123|client' or 'Patient/123' or '123' or '123|client'
      * @param {string} reference
      * @return {{ resourceType: string|undefined, id: string, sourceAssigningAuthority: string|undefined}}
      */

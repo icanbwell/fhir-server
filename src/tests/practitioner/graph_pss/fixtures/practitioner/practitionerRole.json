@@ -93,7 +93,7 @@
         ],
         "healthcareService": [
           {
-            "reference": "HealthcareService/1043289440-MCS-MCPS|medstar"
+            "reference": "HealthcareService/1043289440-MCS-MCPS|client"
           }
         ]
       }
@@ -191,7 +191,7 @@
         ],
         "healthcareService": [
           {
-            "reference": "HealthcareService/1043289440-MCS-MVVM|medstar"
+            "reference": "HealthcareService/1043289440-MCS-MVVM|client"
           }
         ]
       }

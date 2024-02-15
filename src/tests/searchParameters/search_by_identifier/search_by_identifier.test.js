@@ -39,7 +39,7 @@ describe('Practitioner Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
-                .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://medstarhealth.org|4657&_debug=1')
+                .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://clienthealth.org|4657&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResources);
@@ -96,7 +96,7 @@ describe('Practitioner Tests', () => {
             // ACT & ASSERT
             // now search by both value and system
             resp = await request
-                .get('/4_0_0/Practitioner/?_bundle=1&identifier:contains=medstarhealth|465&_debug=1')
+                .get('/4_0_0/Practitioner/?_bundle=1&identifier:contains=clienthealth|465&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerBySystemResources);

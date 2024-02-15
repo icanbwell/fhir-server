@@ -5,35 +5,35 @@
   "meta": {
     "versionId": "3",
     "lastUpdated": "2023-02-25T15:29:40.000Z",
-    "source": "https://www.vaeagle.com/rx_claims",
+    "source": "https://www.client.com/rx_claims",
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "lnf"
+        "code": "client1"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "lnf"
+        "code": "client1"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "boon-chapman"
+        "code": "client-1"
       },
       {
         "system": "https://www.icanbwell.com/vendor",
-        "code": "boon-chapman"
+        "code": "client-1"
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "lnf"
+        "code": "client1"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "honest"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "honest"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/vendor",
@@ -45,15 +45,15 @@
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "honest"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "thedacare"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "thedacare"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/access",
@@ -65,7 +65,7 @@
       },
       {
         "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "thedacare"
+        "code": "client"
       }
     ]
   },
@@ -74,9 +74,9 @@
       "id": "npi",
       "extension": [
         {
-          "id": "VAEagle-client",
+          "id": "Health-client",
           "url": "https://www.icanbwell.com/client",
-          "valueCode": "VAEagle"
+          "valueCode": "Client"
         },
         {
           "id": "healthpartners-client",
@@ -115,9 +115,9 @@
       "id": "NPI",
       "extension": [
         {
-          "id": "honest-client",
+          "id": "health-client",
           "url": "https://www.icanbwell.com/client",
-          "valueCode": "honest"
+          "valueCode": "client"
         }
       ],
       "type": {
@@ -136,9 +136,9 @@
       "id": "practitioner-external-id",
       "extension": [
         {
-          "id": "honest-client",
+          "id": "health-client",
           "url": "https://www.icanbwell.com/client",
-          "valueCode": "honest"
+          "valueCode": "client"
         }
       ],
       "use": "usual",
@@ -158,9 +158,9 @@
       "id": "practitioner-internal-primary-key",
       "extension": [
         {
-          "id": "honest-client",
+          "id": "health-client",
           "url": "https://www.icanbwell.com/client",
-          "valueCode": "honest"
+          "valueCode": "client"
         }
       ],
       "use": "usual",
@@ -200,12 +200,12 @@
   "active": true,
   "name": [
     {
-      "id": "honest-name",
+      "id": "client-name",
       "extension": [
         {
-          "id": "honest-client",
+          "id": "health-client",
           "url": "https://www.icanbwell.com/client",
-          "valueCode": "honest"
+          "valueCode": "client"
         }
       ],
       "use": "usual",
@@ -236,18 +236,18 @@
   "gender": "male",
   "qualification": [
     {
-      "id": "honest-qualification-1",
+      "id": "client-qualification-1",
       "extension": [
         {
-          "id": "honest-client",
+          "id": "health-client",
           "url": "https://www.icanbwell.com/client",
-          "valueCode": "honest"
+          "valueCode": "client"
         }
       ],
       "code": {
         "coding": [
           {
-            "id": "honest-coding",
+            "id": "client-coding",
             "system": "http://terminology.hl7.org/ValueSet/v2-2.7-0360",
             "code": "MD"
           }
@@ -256,14 +256,14 @@
     }
   ],
   "_access": {
-    "lnf": 1,
-    "boon-chapman": 1,
-    "honest": 1,
+    "client1": 1,
+    "client-1": 1,
+    "client": 1,
     "convergent": 1,
-    "thedacare": 1,
+    "client": 1,
     "healthpartners": 1
   },
-  "_sourceAssigningAuthority": "lnf",
+  "_sourceAssigningAuthority": "client1",
   "_uuid": "5a14dee5-f6e3-5dd1-ab17-89b18c26223a",
   "_sourceId": "abc"
 }

@@ -169,7 +169,7 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -177,15 +177,15 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/vendor"
             }
           ],
-          "source": "https://data.medstar.com/api/2.0",
+          "source": "https://data.client.com/api/2.0",
           "versionId": "1"
         },
         "outcome": "0",
@@ -385,7 +385,7 @@
         "meta": {
           "security": [
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -393,15 +393,15 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/vendor"
             }
           ],
-          "source": "https://data.medstar.com/api/2.0",
+          "source": "https://data.client.com/api/2.0",
           "versionId": "1"
         },
         "outcome": "0",
@@ -601,7 +601,7 @@
         "meta": {
           "security": [
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -609,15 +609,15 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/vendor"
             }
           ],
-          "source": "https://data.medstar.com/api/2.0",
+          "source": "https://data.client.com/api/2.0",
           "versionId": "1"
         },
         "outcome": "0",
@@ -817,7 +817,7 @@
         "meta": {
           "security": [
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -825,15 +825,15 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "thedacare",
+              "code": "client",
               "system": "https://www.icanbwell.com/vendor"
             }
           ],
-          "source": "https://data.medstar.com/api/2.0",
+          "source": "https://data.client.com/api/2.0",
           "versionId": "1"
         },
         "outcome": "0",

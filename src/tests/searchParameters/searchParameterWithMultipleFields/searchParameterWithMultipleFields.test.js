@@ -58,7 +58,7 @@ describe('AuditEventRecordedTests', () => {
             // now check that we get the right record back
             resp = await request
                 .get(
-                    '/4_0_0/AuditEvent/?date=gt2021-08-10&date=lt2021-11-02&patient=unitypoint-eG6BUUqleqdRRvJuwSIeJ5WkGK-Y.QGOSDSTDbws1FC43&_bundle=1'
+                    '/4_0_0/AuditEvent/?date=gt2021-08-10&date=lt2021-11-02&patient=client-eG6BUUqleqdRRvJuwSIeJ5WkGK-Y.QGOSDSTDbws1FC43&_bundle=1'
                 )
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

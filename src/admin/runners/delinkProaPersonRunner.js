@@ -5,6 +5,8 @@ const { ClientPersonToProaPatientLinkRunner } = require('./clientPersonToProaPat
 const { assertTypeEquals } = require('../../utils/assertType');
 const { RethrownError } = require('../../utils/rethrownError');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
     /**
@@ -12,6 +14,8 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * @property {string} csvFileName
      * @property {number} proaPatientUuidColumn
      * @property {number} proaPersonUuidColumn
+     * @property {number} proaPersonSAAColumn
+     * @property {number} proaPersonLastUpdatedColumn
      * @property {number} masterUuidColumn
      * @property {number} clientUuidColumn
      * @property {number} statusColumn
@@ -25,6 +29,8 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         csvFileName,
         proaPatientUuidColumn,
         proaPersonUuidColumn,
+        proaPersonSAAColumn,
+        proaPersonLastUpdatedColumn,
         masterUuidColumn,
         clientUuidColumn,
         statusColumn,
@@ -54,7 +60,23 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         /**
          * @type {number}
          */
+        this.proaPersonSAAColumn = proaPersonSAAColumn;
+
+        /**
+         * @type {number}
+         */
+        this.proaPersonLastUpdatedColumn = proaPersonLastUpdatedColumn;
+        console.log(proaPersonSAAColumn, proaPersonLastUpdatedColumn, 'Heree');
+
+        /**
+         * @type {number}
+         */
         this.masterUuidColumn = masterUuidColumn;
+
+        /**
+         * @type {Map<string, Set<string>>}
+         */
+        this.proaPersonToClientPersonMap = new Map();
     }
 
     /**
@@ -62,11 +84,63 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * @returns {Promise<void>}
      */
     async processAsync() {
-        this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
-        this.adminLogger.logInfo(`Reading file: ${this.csvFileName}`);
         try {
-            this.adminLogger.logInfo('Starting first iteration to remove links');
-            let file = await open(this.csvFileName);
+            this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
+
+            this.initializeWriteStreams();
+            await this.processDataFromCsv();
+
+            this.adminLogger.logInfo(`Reading file: ${this.csvFileName}`);
+            await this.handleDelink();
+
+            await this.handlePersonDelete();
+            this.adminLogger.logInfo(`Finished Reading file: ${this.csvFileName}`);
+
+            await this.handleStreamClose();
+        } catch (err) {
+            this.adminLogger.logError(`ERROR: ${err.message}`, { stack: err.stack });
+        }
+    }
+
+    /**
+     * Initializes write streams
+     * @returns {Promise<void>}
+     */
+    initializeWriteStreams() {
+        // write stream to write person status
+        this.writeStream = fs.createWriteStream('deleted_persons.csv');
+        this.writeStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated|\n');
+        // error stream to write errors
+        this.errorStream = fs.createWriteStream('delink_errors.csv');
+        this.errorStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated| Status|\n');
+    }
+
+    handleStreamClose() {
+        this.errorStream.close();
+        this.writeStream.close();
+
+        return Promise.all([
+            new Promise((res) => this.errorStream.once('close', res)),
+            new Promise((res) => this.writeStream.once('close', res))
+        ]);
+    }
+
+    /**
+     * Processes data from the csv and creates map of proaPatient, proaPerson, masterPerson, clientPerson, status
+     * @returns {Promise<void>}
+     */
+    async processDataFromCsv() {
+        try {
+            this.adminLogger.logInfo('Processing CSV Data');
+            /**
+             * @type {import('../../dataLayer/databaseQueryManager').DatabaseQueryManager}
+             */
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: 'Person',
+                base_version: '4_0_0',
+            });
+
+            const file = await open(this.csvFileName);
             for await (const line of file.readLines()) {
                 /**
                  * @type {string[]}
@@ -74,25 +148,104 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 const columns = line.split('| ');
 
                 const proaPatientUuid = columns[this.proaPatientUuidColumn];
-                const proaPersonUuid = columns[this.proaPersonUuidColumn];
+                if (proaPatientUuid.includes('Proa')) {
+                    continue;
+                }
+                const proaPersonUuids = columns[this.proaPersonUuidColumn].split(', ');
                 const masterPersonUuids = columns[this.masterUuidColumn].split(', ');
                 const clientUuids = columns[this.clientUuidColumn].split(', ');
-                const statuses = columns[this.statusColumn].split(', ');
 
-                // To check if all the clients are linked to proa patients
-                let isClientLinked = true;
-                for (let i = 0; i < clientUuids.length; i++) {
-                    const clientUuid = clientUuids[`${i}`];
-                    const status = statuses[`${i}`];
+                const cursor = await databaseQueryManager.findAsync({
+                    query: { _uuid: { $in: masterPersonUuids } }, options: { projection: { _uuid: 1, link: 1 } }
+                });
+                while (await cursor.hasNext()) {
+                    const masterPersonData = await cursor.next();
+                    const relatedProaPersons = [];
+                    const relatedClientPerson = [];
 
-                    if (status !== 'Client Person & Proa Person Both Linked') {
-                        this.adminLogger.logInfo(
-                            `Client ${clientUuid} not linked with Proa Patient ${proaPatientUuid}`
-                        );
-                        isClientLinked = false;
-                    }
+                    masterPersonData?.link?.forEach(link => {
+                        const uuidReference =
+                            link?.target?.extension?.find((e) => e.url === IdentifierSystem.uuid)?.valueString || '';
+
+                        const { id: uuid, resourceType } = ReferenceParser.parseReference(uuidReference);
+
+                        if (resourceType === 'Person') {
+                            if (proaPersonUuids.includes(uuid)) {
+                                relatedProaPersons.push(uuid);
+                            } else if (clientUuids.includes(uuid)) {
+                                relatedClientPerson.push(uuid);
+                            }
+                        }
+
+                        relatedClientPerson.forEach(client => {
+                            relatedProaPersons.forEach(proa => {
+                                if (proa === '' || client === '') {
+                                    return;
+                                }
+                                if (!this.proaPersonToClientPersonMap.has(proa)) {
+                                    this.proaPersonToClientPersonMap.set(proa, new Set());
+                                }
+                                this.proaPersonToClientPersonMap.get(proa).add(client);
+                            });
+                        });
+                    });
                 }
-                if (isClientLinked) {
+            }
+            this.adminLogger.logInfo('Finished Processing Data');
+        } catch (err) {
+            this.adminLogger.logError('Error while processing data');
+            throw new RethrownError({
+                message: err.message,
+                error: err,
+                source: 'DelinkProaPersonRunner.processDataFromCsv',
+            });
+        }
+    }
+
+    /**
+     * Handles Delinking of proa person and master person
+     * @returns {Promise<void>}
+     */
+    async handleDelink() {
+        this.adminLogger.logInfo('Starting first iteration to remove links');
+        const file = await open(this.csvFileName);
+
+        for await (const line of file.readLines()) {
+            /**
+             * @type {string[]}
+             */
+            const columns = line.split('| ');
+
+            const proaPatientUuid = columns[this.proaPatientUuidColumn];
+            if (proaPatientUuid.includes('Proa')) {
+                continue;
+            }
+            const proaPersonUuids = columns[this.proaPersonUuidColumn].split(', ');
+            const masterPersonUuids = columns[this.masterUuidColumn].split(', ');
+            const clientUuids = columns[this.clientUuidColumn].split(', ');
+            const statuses = columns[this.statusColumn].split(', ');
+
+            /**
+             * @type {Map<string, string>}
+             */
+            const clientToStatusMap = new Map();
+            clientUuids.forEach((uuid, i) => clientToStatusMap.set(uuid, statuses[`${i}`]));
+
+            for (const proaPersonUuid of proaPersonUuids) {
+                const relatedClientPersons = Array.from(this.proaPersonToClientPersonMap.get(proaPersonUuid) || []);
+
+                let isClientPersonRelated = true;
+                relatedClientPersons.forEach(uuid => {
+                    if (
+                        clientUuids.includes(uuid) &&
+                        clientToStatusMap.get(uuid) !== 'Client Person & Proa Person Both Linked'
+                    ) {
+                        this.adminLogger.logInfo(`Client ${uuid} not related to proa patient ${proaPatientUuid}`);
+                        isClientPersonRelated = false;
+                    }
+                });
+
+                if (isClientPersonRelated && relatedClientPersons.length > 0) {
                     await this.removeProaPersonToMasterPersonLink({
                         proaPersonUuid,
                         masterPersonUuids,
@@ -104,52 +257,46 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                     });
                 }
             }
-            this.adminLogger.logInfo('First iteration finished');
-
-            this.adminLogger.logInfo('Starting second iteration to delete proa persons');
-            // error stream to write errors
-            this.errorStream = fs.createWriteStream('delink_errors.csv');
-            this.errorStream.write('Proa Person Uuid| Status|\n');
-
-            file = await open(this.csvFileName);
-            for await (const line of file.readLines()) {
-                /**
-                 * @type {string[]}
-                 */
-                const columns = line.split('| ');
-
-                const proaPatientUuid = columns[this.proaPatientUuidColumn];
-                const proaPersonUuid = columns[this.proaPersonUuidColumn];
-                const clientUuids = columns[this.clientUuidColumn].split(', ');
-                const statuses = columns[this.statusColumn].split(', ');
-
-                // To check if all the clients are linked to proa patients
-                let isClientLinked = true;
-                for (let i = 0; i < clientUuids.length; i++) {
-                    const clientUuid = clientUuids[`${i}`];
-                    const status = statuses[`${i}`];
-
-                    if (status !== 'Client Person & Proa Person Both Linked') {
-                        this.adminLogger.logInfo(
-                            `Client ${clientUuid} not linked with Proa Patient ${proaPatientUuid}`
-                        );
-                        isClientLinked = false;
-                    }
-                }
-                if (isClientLinked) {
-                    await this.deleteProaPerson({
-                        proaPersonUuid,
-                    });
-                }
-            }
-            this.adminLogger.logInfo('Second iteration finished');
-            this.adminLogger.logInfo(`Finished Reading file: ${this.csvFileName}`);
-
-            this.errorStream.close();
-            return await new Promise((res) => this.errorStream.once('close', res));
-        } catch (err) {
-            this.adminLogger.logError(`ERROR: ${err.message}`, { stack: err.stack });
         }
+        this.adminLogger.logInfo('First iteration finished');
+    }
+
+    /**
+     * Handle deletion of person
+     * @returns {Promise<void>}
+     */
+    async handlePersonDelete() {
+        this.adminLogger.logInfo('Starting second iteration to delete proa persons');
+
+        const file = await open(this.csvFileName);
+        for await (const line of file.readLines()) {
+            /**
+             * @type {string[]}
+             */
+            const columns = line.split('| ');
+
+            const proaPatientUuid = columns[this.proaPatientUuidColumn];
+            if (proaPatientUuid.includes('Proa')) {
+                continue;
+            }
+            const proaPersonUuids = columns[this.proaPersonUuidColumn].split(', ');
+            const proaPersonSAA = columns[this.proaPersonSAAColumn].split(', ');
+            const proaPersonLastUpdated = columns[this.proaPersonLastUpdatedColumn].split(', ');
+
+            for (let i = 0; i < proaPersonUuids.length; i++) {
+                const proaPersonUuid = proaPersonUuids[`${i}`];
+                const sourceAssigningAuthority = proaPersonSAA[`${i}`];
+                const lastUpdated = proaPersonLastUpdated[`${i}`];
+
+                await this.deletePerson({
+                    personUuid: proaPersonUuid,
+                    sourceAssigningAuthority,
+                    lastUpdated,
+                    slug: 'Proa',
+                });
+            }
+        }
+        this.adminLogger.logInfo('Second iteration finished');
     }
 
     /**
@@ -198,12 +345,15 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
 
     /**
      * Deletes proa person if link is not present in the proa person
-     * @typedef {Object} DeleteProaPersonProps
-     * @property {string} proaPersonUuid
+     * @typedef {Object} DeletePersonProps
+     * @property {string} personUuid
+     * @property {string} sourceAssigningAuthority
+     * @property {string} lastUpdated
+     * @property {string} slug
      *
-     * @param {DeleteProaPersonProps}
+     * @param {DeletePersonProps}
      */
-    async deleteProaPerson({ proaPersonUuid }) {
+    async deletePerson({ personUuid, sourceAssigningAuthority, lastUpdated, slug }) {
         try {
             // Get person data to check for links
             /**
@@ -214,31 +364,40 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 base_version: '4_0_0',
             });
             const personData = await databaseQueryManager.findOneAsync({
-                query: { _uuid: proaPersonUuid },
+                query: { _uuid: personUuid },
             });
 
+            if (!personData) {
+                return;
+            }
+
             if (personData.link?.length > 0) {
-                this.errorStream.write(`${proaPersonUuid}| Proa Person with links found|\n`);
+                this.errorStream.write(`${personUuid}| ${sourceAssigningAuthority}| ${lastUpdated}| ${slug} Person with links found|\n`);
             } else {
                 // if no links are present delete the proa person
                 const results = await databaseQueryManager.deleteManyAsync({
-                    query: { _uuid: proaPersonUuid },
+                    query: { _uuid: personUuid },
                     requestId: this.systemRequestId,
                 });
 
                 if (results.deletedCount === 1) {
-                    this.adminLogger.logInfo(`Proa Person deleted ${proaPersonUuid}`);
+                    this.adminLogger.logInfo(`${slug} Person deleted ${personUuid}`);
+                    this.writeStream.write(
+                        `${personUuid}| ${sourceAssigningAuthority}| ${lastUpdated}|\n`
+                    );
                 } else {
-                    this.adminLogger.logInfo(`Error while deleting proa person ${results.error}`);
-                    this.errorStream.write(`${proaPersonUuid}| ${results.error.message}|\n`);
+                    this.adminLogger.logInfo(`Error while deleting ${slug} person ${results?.error}`);
+                    this.errorStream.write(
+                        `${personUuid}| ${sourceAssigningAuthority}| ${lastUpdated}| ${results?.error?.message || 'No Error Message'}|\n`
+                    );
                 }
             }
         } catch (err) {
-            this.adminLogger.logError(`Error while deleting proa person ${proaPersonUuid}`);
+            this.adminLogger.logError(`Error while deleting ${slug} person ${personUuid}`);
             throw new RethrownError({
                 message: err.message,
                 error: err,
-                source: 'DelinkProaPersonRunner.deleteProaPerson',
+                source: 'DelinkProaPersonRunner.deletePerson',
             });
         }
     }

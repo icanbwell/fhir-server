@@ -8,13 +8,13 @@
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 }
               ],
               "versionId": "1"
             },
-            "name": "MedStar Medical Group",
+            "name": "Client Medical Group",
             "resourceType": "Organization",
             "type": [
               {
@@ -68,7 +68,7 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             }
           ],

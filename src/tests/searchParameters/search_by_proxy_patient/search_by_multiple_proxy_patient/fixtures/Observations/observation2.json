@@ -7,15 +7,15 @@
       "security": [
           {
               "system": "https://www.icanbwell.com/owner",
-              "code": "northwell"
+              "code": "client"
           },
           {
               "system": "https://www.icanbwell.com/access",
-              "code": "northwell"
+              "code": "client"
           },
           {
               "system": "https://www.icanbwell.com/vendor",
-              "code": "northwell"
+              "code": "client"
           }
       ]
   },
@@ -37,7 +37,7 @@
       ]
   },
   "subject": {
-      "reference": "Patient/northwell-2|northwell"
+      "reference": "Patient/client-2|client"
   },
   "effectivePeriod": {
       "start": "2021-01-01T00:00:00.000Z",

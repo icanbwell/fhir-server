@@ -21,7 +21,7 @@ describe('mongoQuerySimplifier Tests', () => {
                             {
                                 '$and': [
                                     {
-                                        'meta.security.code': 'https://www.icanbwell.com/access%7Cmedstar'
+                                        'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                                     }
                                 ]
                             }
@@ -53,7 +53,7 @@ describe('mongoQuerySimplifier Tests', () => {
             expect(result).toStrictEqual({
                 '$and': [
                     {
-                        'meta.security.code': 'https://www.icanbwell.com/access%7Cmedstar'
+                        'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                     },
                     {
                         'birthDate': {
@@ -72,7 +72,7 @@ describe('mongoQuerySimplifier Tests', () => {
             const query = {
                 '$and': [
                     {
-                        'meta.security.code': 'https://www.icanbwell.com/access%7Cmedstar'
+                        'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                     },
                     {
                         '$and': [
@@ -96,7 +96,7 @@ describe('mongoQuerySimplifier Tests', () => {
             expect(result).toStrictEqual({
                 '$and': [
                     {
-                        'meta.security.code': 'https://www.icanbwell.com/access%7Cmedstar'
+                        'meta.security.code': 'https://www.icanbwell.com/access%7Cclient'
                     },
                     {
                         'birthDate': {

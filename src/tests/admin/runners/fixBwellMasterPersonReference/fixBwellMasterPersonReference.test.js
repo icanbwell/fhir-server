@@ -414,7 +414,7 @@ describe('Person Tests', () => {
             expect(person1BeforeRun).toEqual(expectedPerson1BeforeRun);
 
             resp = await request
-                .get(`/4_0_0/Patient/${expectedPatient1.id}|thedacare`)
+                .get(`/4_0_0/Patient/${expectedPatient1.id}|client`)
                 .set(getHeaders())
                 .expect(200);
 
@@ -472,7 +472,7 @@ describe('Person Tests', () => {
             expect(person1AfterRun).toEqual(expectedPerson1WithPersonUpdate);
 
             resp = await request
-                .get(`/4_0_0/Patient/${expectedPatient1.id}|thedacare`)
+                .get(`/4_0_0/Patient/${expectedPatient1.id}|client`)
                 .set(getHeaders())
                 .expect(200);
 

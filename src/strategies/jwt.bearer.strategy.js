@@ -278,7 +278,6 @@ class MyJwtStrategy extends JwtStrategy {
         const resourceUrl = req.originalUrl ? Buffer.from(req.originalUrl).toString('base64') : '';
         if (
             !token &&
-            req.accepts('text/html') &&
             req.useragent &&
             req.useragent.isDesktop &&
             isTrue(env.REDIRECT_TO_LOGIN) &&

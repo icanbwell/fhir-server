@@ -26,15 +26,15 @@
                     {
                         "id": "uuid",
                         "url": "https://www.icanbwell.com/uuid",
-                        "valueString": "Patient/4a083f90-1c8a-50ff-8538-32450e1d85ee"
+                        "valueString": "Patient/c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
                     },
                     {
                         "id": "sourceAssigningAuthority",
                         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                        "valueString": "thedacare"
+                        "valueString": "client"
                     }
                 ],
-                "reference": "Patient/1|thedacare"
+                "reference": "Patient/1|client"
             }
         }
     ],

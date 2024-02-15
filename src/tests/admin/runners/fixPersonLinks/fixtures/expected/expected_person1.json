@@ -122,12 +122,12 @@
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "unitypoint"
+            "valueString": "client"
           }
         ],
-        "reference": "Person/e64be3b5bff2489592c248de459a1cf9|unitypoint",
+        "reference": "Person/e64be3b5bff2489592c248de459a1cf9|client",
         "type": "Person",
-        "_sourceAssigningAuthority": "unitypoint",
+        "_sourceAssigningAuthority": "client",
         "_uuid": "Person/095f0748-aacb-55e4-8862-6d9a1c6dbe2c",
         "_sourceId": "Person/e64be3b5bff2489592c248de459a1cf9"
       },
@@ -176,12 +176,12 @@
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "unitypoint"
+            "valueString": "client"
           }
         ],
-        "reference": "Person/c7fb5507169f43f7abcd9e7d8b7fa69a|unitypoint",
+        "reference": "Person/c7fb5507169f43f7abcd9e7d8b7fa69a|client",
         "type": "Person",
-        "_sourceAssigningAuthority": "unitypoint",
+        "_sourceAssigningAuthority": "client",
         "_uuid": "Person/8b8c4dab-f94c-5805-9729-68053a51ee8e",
         "_sourceId": "Person/c7fb5507169f43f7abcd9e7d8b7fa69a"
       },

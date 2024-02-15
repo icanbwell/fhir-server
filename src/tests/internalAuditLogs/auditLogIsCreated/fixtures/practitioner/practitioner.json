@@ -2,16 +2,16 @@
     "resourceType": "Practitioner",
     "meta": {
         "versionId": "1",
-        "source": "medstar",
+        "source": "client",
         "lastUpdated": "2021-01-14T23:42:00+00:00",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
+                "code": "client"
             },
                 {
                     "system": "https://www.icanbwell.com/owner",
-                    "code": "medstar"
+                    "code": "client"
                 }
         ]
     },
@@ -27,7 +27,7 @@
                     }
                 ]
             },
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "value": "4657"
         },
         {

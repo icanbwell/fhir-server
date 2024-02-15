@@ -54,7 +54,7 @@ describe('Practitioner Tests', () => {
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
-                .set(getHeaders('user/Practitioner.read access/medstar.* access/nppes.*'));
+                .set(getHeaders('user/Practitioner.read access/client.* access/nppes.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerWithLimitedAccessScopes);
 

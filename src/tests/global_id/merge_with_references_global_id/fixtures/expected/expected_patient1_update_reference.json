@@ -14,12 +14,12 @@
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "Practitioner/c470982c-2231-52fe-a0a6-863a5de73173"
+                "valueString": "Practitioner/49ab8146-65e0-5906-bdeb-dd756bbe92d0"
               },
               {
                 "id": "sourceAssigningAuthority",
                 "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "valueString": "medstar"
+                "valueString": "client"
               }
             ],
             "id": "1",
@@ -36,7 +36,7 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "18ba3527-77e0-5ae6-a872-181654110d28"
+            "value": "c87b8e53-b3db-53a0-aa92-05f4a3fb9d15"
           }
         ],
         "managingOrganization": {
@@ -49,12 +49,12 @@
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Organization/cca42475-8752-57fb-b14d-b8e7de78a4e0"
+              "valueString": "Organization/366d1514-992a-59a5-9d95-927ec02bdc03"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "medstar"
+              "valueString": "client"
             }
           ],
           "reference": "Organization/33"
@@ -62,19 +62,19 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "http://medstarhealth.org/provider",
+          "source": "http://clienthealth.org/provider",
           "versionId": "2"
         },
         "resourceType": "Patient"

@@ -59,7 +59,7 @@ describe('search_by_source', () => {
 
             resp = await request
                 .get(
-                    '/4_0_0/Practitioner?_count=500&_getpagesoffset=0&_source=https://thedacare.org&_security=https://www.icanbwell.com/access|medstar'
+                    '/4_0_0/Practitioner?_count=500&_getpagesoffset=0&_source=https://client.org&_security=https://www.icanbwell.com/access|client'
                 )
                 .set(getHeaders())
                 .expect(200);
