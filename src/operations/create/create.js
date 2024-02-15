@@ -247,8 +247,12 @@ class CreateOperation {
                     fnTask: async () => {
                         await this.auditLogger.logAuditEntryAsync(
                             {
-                                requestInfo, base_version, resourceType,
-                                operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                                requestInfo,
+base_version,
+resourceType,
+                                operation: currentOperationName,
+args: parsedArgs.getRawArgs(),
+ids: [resource['id']]
                             }
                         );
                     }
@@ -266,7 +270,9 @@ class CreateOperation {
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version,
+                    requestId,
+currentDate,
+base_version: base_version,
                     method,
                     userRequestId
                 }

@@ -361,7 +361,9 @@ class UpdateOperation {
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
-                            requestId, resourceType, doc,
+                            requestId,
+resourceType,
+doc,
                             uuid: doc._uuid,
                             patches
                         }
@@ -389,7 +391,9 @@ class UpdateOperation {
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        requestId, currentDate, base_version: base_version,
+                        requestId,
+currentDate,
+base_version: base_version,
                         method,
                         userRequestId
                     }

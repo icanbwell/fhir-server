@@ -19,7 +19,6 @@
       "prefer-regex-literals": "off",
       "no-unneeded-ternary": "off",
       "multiline-ternary": "off",
-      "object-property-newline": "off",
       "no-mixed-operators": "off"
     }
 }

@@ -211,7 +211,10 @@ class ChangeEventProducer extends BasePostSaveHandler {
 
         const resourceType = 'Patient';
         const messageJson = this._createMessage({
-            requestId, id: patientId, timestamp, isCreate,
+            requestId,
+id: patientId,
+timestamp,
+isCreate,
             resourceType: resourceType,
             eventName: 'Patient Change',
             sourceType

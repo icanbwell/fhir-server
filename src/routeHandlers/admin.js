@@ -370,7 +370,9 @@ async function handleAdmin (
                 case 'indexes': {
                     return await showIndexesAsync(
                         {
-                            req, container, res,
+                            req,
+container,
+res,
                             filterToProblems: false
                         }
                     );
@@ -379,7 +381,9 @@ async function handleAdmin (
                 case 'indexProblems': {
                     return await showIndexesAsync(
                         {
-                            req, container, res,
+                            req,
+container,
+res,
                             filterToProblems: true
                         }
                     );

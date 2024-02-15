@@ -695,7 +695,8 @@ args: {
                 operationsByResourceTypeMap.entries(),
                 async mapEntry => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
-                        requestId, currentDate,
+                        requestId,
+currentDate,
                         mapEntry: mapEntry,
                         base_version,
                         useHistoryCollection: false,
@@ -796,8 +797,12 @@ args: {
 
             return await this.performBulkForResourceTypeAsync(
                 {
-                    requestId, currentDate,
-                    resourceType, base_version, useHistoryCollection, operations,
+                    requestId,
+currentDate,
+                    resourceType,
+base_version,
+useHistoryCollection,
+operations,
                     method,
                     userRequestId
                 });

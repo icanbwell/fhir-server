@@ -751,7 +751,8 @@ const dateQueryBuilder = function ({ date, type, path }) {
                                 $regex: new RegExp(
                                     escapeRegExp(
                                         '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                                ), '$options': 'i'
+                                ),
+'$options': 'i'
                             }
                         },
                         {
@@ -774,7 +775,8 @@ const dateQueryBuilder = function ({ date, type, path }) {
                     $regex: new RegExp(
                         escapeRegExp(
                             '^' + '(?:' + str + ')|(?:' + match[0].replace('+', '\\+') + ')|(?:' + tempFill)
-                    ), '$options': 'i'
+                    ),
+'$options': 'i'
                 };
             } else {
                 for (let i = 2; i < 10; i++) {

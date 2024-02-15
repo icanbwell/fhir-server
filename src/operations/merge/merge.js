@@ -262,7 +262,8 @@ class MergeOperation {
              */
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate,
+                    requestId,
+currentDate,
                     base_version,
                     method,
                     userRequestId

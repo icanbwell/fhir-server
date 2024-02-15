@@ -34,7 +34,8 @@ describe('Patient Tests', () => {
             assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
             const parsedArgs = r4ArgsParser.parseArgs({
-                resourceType: 'Patient', args: {
+                resourceType: 'Patient',
+args: {
                     'base_version': VERSIONS['4_0_0'],
                     'id:above': '1'
                 }
@@ -58,7 +59,8 @@ describe('Patient Tests', () => {
             assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
             const parsedArgs = r4ArgsParser.parseArgs({
-                resourceType: 'Organization', args: {
+                resourceType: 'Organization',
+args: {
                     'base_version': VERSIONS['4_0_0'],
                     'category:missing': 'true'
                 }

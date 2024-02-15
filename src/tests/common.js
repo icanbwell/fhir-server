@@ -123,7 +123,9 @@ module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
     jwksUserInfoEndpoint(
         {
             host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
-            token, patientId, personId
+            token,
+patientId,
+personId
         });
 };
 

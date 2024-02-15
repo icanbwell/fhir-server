@@ -122,7 +122,8 @@ describe('databaseBulkInserter Tests', () => {
 
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
-                resourceType: 'Patient', doc: new Patient(patient)
+                resourceType: 'Patient',
+doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
@@ -227,11 +228,13 @@ describe('databaseBulkInserter Tests', () => {
 
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
-                resourceType: 'Person', doc: new Person(bwellPerson)
+                resourceType: 'Person',
+doc: new Person(bwellPerson)
             });
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
-                resourceType: 'Person', doc: new Person(clientPerson)
+                resourceType: 'Person',
+doc: new Person(clientPerson)
             });
 
             // now execute the bulk inserts
@@ -312,10 +315,14 @@ describe('databaseBulkInserter Tests', () => {
                 .spyOn(Collection.prototype, 'bulkWrite')
                 .mockImplementation(() => {
                     const result = {
-                        nMatched: 1, nUpserted: 1, hasWriteErrors: () => true,
+                        nMatched: 1,
+nUpserted: 1,
+hasWriteErrors: () => true,
                         getWriteErrors: () => [
                             {
-                                code: 1, index: 1, errMsg: 'Error msg test',
+                                code: 1,
+index: 1,
+errMsg: 'Error msg test',
                                 toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}')
                             }
                         ]
@@ -330,7 +337,8 @@ describe('databaseBulkInserter Tests', () => {
 
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,
-                resourceType: 'Patient', doc: new Patient(patient)
+                resourceType: 'Patient',
+doc: new Patient(patient)
             });
             await databaseBulkInserter.insertOneAsync({
                 requestId: requestId,

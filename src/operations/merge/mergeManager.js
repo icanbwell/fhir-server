@@ -427,8 +427,13 @@ class MergeManager {
             const chunkSize = this.configManager.mergeParallelChunkSize;
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
-                    resourceToMerge: x, resourceType,
-                    user, currentDate, requestId, base_version, scope
+                    resourceToMerge: x,
+resourceType,
+                    user,
+currentDate,
+requestId,
+base_version,
+scope
                 });
 
             await Promise.all([

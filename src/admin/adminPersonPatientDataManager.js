@@ -134,14 +134,20 @@ class AdminPersonPatientDataManager {
                 await this.removeLinksToResourceTypeAsync(
                     {
                         requestId,
-                        bundle, resourceType: 'Patient', databaseQueryManagerForPerson, databaseUpdateManagerForPerson,
+                        bundle,
+resourceType: 'Patient',
+databaseQueryManagerForPerson,
+databaseUpdateManagerForPerson,
                         responseStreamer
                     })
             );
             updatedRecords = updatedRecords.concat(
                 await this.removeLinksToResourceTypeAsync({
                     requestId,
-                    bundle, resourceType: 'Person', databaseQueryManagerForPerson, databaseUpdateManagerForPerson,
+                    bundle,
+resourceType: 'Person',
+databaseQueryManagerForPerson,
+databaseUpdateManagerForPerson,
                     responseStreamer
                 })
             );

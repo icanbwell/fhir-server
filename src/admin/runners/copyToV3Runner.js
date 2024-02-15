@@ -177,8 +177,10 @@ class CopyToV3Runner {
             );
         }
         return {
-totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount: totalDocumentCreatedCount,
-            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount, lastProcessedId: lastProcessedId
+totalDocumentUpdatedCount: totalDocumentUpdatedCount,
+totalDocumentCreatedCount: totalDocumentCreatedCount,
+            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount,
+lastProcessedId: lastProcessedId
 };
     }
 

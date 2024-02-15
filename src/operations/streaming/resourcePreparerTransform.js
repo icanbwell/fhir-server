@@ -181,8 +181,12 @@ class ResourcePreparerTransform extends Transform {
     async processChunkAsync (chunk1) {
         return this.resourcePreparer.prepareResourceAsync(
             {
-                user: this.user, scope: this.scope, parsedArgs: this.parsedArgs, element: chunk1,
-                resourceType: this.resourceName, useAccessIndex: this.useAccessIndex
+                user: this.user,
+scope: this.scope,
+parsedArgs: this.parsedArgs,
+element: chunk1,
+                resourceType: this.resourceName,
+useAccessIndex: this.useAccessIndex
             })
             .then(
                 /** @type {Resource[]} */resources => {

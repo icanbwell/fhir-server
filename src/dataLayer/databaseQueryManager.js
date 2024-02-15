@@ -109,7 +109,8 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, options }
             });
         }
@@ -177,7 +178,8 @@ class DatabaseQueryManager {
             return { deletedCount: deletedCount, error: null };
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, requestId, options }
             });
         }
@@ -212,12 +214,15 @@ class DatabaseQueryManager {
                 cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
             }
             return new DatabasePartitionedCursor({
-                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
                 query
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, options }
             });
         }
@@ -265,12 +270,15 @@ class DatabaseQueryManager {
                 cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
             }
             return new DatabasePartitionedCursor({
-                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
                 query
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findUsingAggregationAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in findUsingAggregationAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, options }
             });
         }
@@ -301,7 +309,8 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e,
+                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`,
+error: e,
                 args: { options }
             });
         }
@@ -332,7 +341,8 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, options }
             });
         }
@@ -365,7 +375,9 @@ class DatabaseQueryManager {
                 cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
             }
             return new DatabasePartitionedCursor({
-                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
                 query
             });
         } catch (e) {
@@ -422,7 +434,8 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, options }
             });
         }
@@ -477,7 +490,8 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`,
+error: e,
                 args: { query, options }
             });
         }

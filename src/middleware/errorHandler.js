@@ -14,7 +14,9 @@ process.on('uncaughtException', (err) => {
 
 process.on('unhandledRejection', (reason, promise) => {
     logError('unhandledRejection', {
-        error: reason, source: 'unhandledRejection', args: {
+        error: reason,
+source: 'unhandledRejection',
+args: {
             promise: promise
         }
     });

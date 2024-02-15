@@ -479,7 +479,8 @@ class FhirDataSource {
          */
         let parsedArgs = this.r4ArgsParser.parseArgs(
             {
-                resourceType, args,
+                resourceType,
+args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -508,7 +509,8 @@ class FhirDataSource {
          */
         const parsedArgs = this.r4ArgsParser.parseArgs(
             {
-                resourceType, args,
+                resourceType,
+args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );

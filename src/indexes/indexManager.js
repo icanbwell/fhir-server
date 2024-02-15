@@ -97,7 +97,9 @@ class IndexManager {
                 ': ' + JSON.stringify(e);
             await logSystemErrorAsync(
                 {
-                    event: 'createIndex', message: message1, args: {
+                    event: 'createIndex',
+message: message1,
+args: {
                         index: indexName,
                         columns: columnsText,
                         collection: collectionName
@@ -421,7 +423,9 @@ class IndexManager {
                 ': ' + JSON.stringify(e);
             await logSystemErrorAsync(
                 {
-                    event: 'createIndex', message: message1, args: {
+                    event: 'createIndex',
+message: message1,
+args: {
                         index: indexName,
                         collection: collectionName
                     },

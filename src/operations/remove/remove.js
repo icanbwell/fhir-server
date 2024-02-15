@@ -232,8 +232,12 @@ class RemoveOperation {
                             // log access to audit logs
                             await this.auditLogger.logAuditEntryAsync(
                                 {
-                                    requestInfo, base_version, resourceType,
-                                    operation: 'delete', args: parsedArgs.getRawArgs(), ids: []
+                                    requestInfo,
+base_version,
+resourceType,
+                                    operation: 'delete',
+args: parsedArgs.getRawArgs(),
+ids: []
                                 }
                             );
                         }

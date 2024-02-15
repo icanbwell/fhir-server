@@ -281,7 +281,9 @@ class PatchOperation {
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
                 {
-                    requestId, resourceType, doc: resource,
+                    requestId,
+resourceType,
+doc: resource,
                     uuid: resource._uuid,
                     patches: patchContent.map(
                         p => {
@@ -299,7 +301,9 @@ class PatchOperation {
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version,
+                    requestId,
+currentDate,
+base_version: base_version,
                     method,
                     userRequestId
                 }

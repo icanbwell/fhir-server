@@ -257,7 +257,11 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
             };
         }
         return checkContent({
-            actual: body, expected, utils, options, expand: this.expand,
+            actual: body,
+expected,
+utils,
+options,
+expand: this.expand,
             fnCleanResource
         });
     } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
@@ -280,7 +284,11 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
             cleanMeta(expected);
         }
         return checkContent({
-            actual: propertyValue, expected, utils, options, expand: this.expand,
+            actual: propertyValue,
+expected,
+utils,
+options,
+expand: this.expand,
             fnCleanResource
         });
     } else {
@@ -338,7 +346,11 @@ function toHaveResponse (resp, expectedIn, fnCleanResource) {
         }
     }
     return checkContent({
-        actual: body, expected, utils, options, expand: this.expand,
+        actual: body,
+expected,
+utils,
+options,
+expand: this.expand,
         fnCleanResource
     });
 }
@@ -383,7 +395,11 @@ function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
             };
         }
         return checkContent({
-            actual: body, expected, utils, options, expand: this.expand,
+            actual: body,
+expected,
+utils,
+options,
+expand: this.expand,
             fnCleanResource
         });
     } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
@@ -406,7 +422,11 @@ function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
             cleanMeta(expected);
         }
         return checkContent({
-            actual: propertyValue, expected, utils, options, expand: this.expand,
+            actual: propertyValue,
+expected,
+utils,
+options,
+expand: this.expand,
             fnCleanResource
         });
     } else {
@@ -464,7 +484,11 @@ function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
         }
     }
     return checkContent({
-        actual: body, expected, utils, options, expand: this.expand,
+        actual: body,
+expected,
+utils,
+options,
+expand: this.expand,
         fnCleanResource
     });
 }

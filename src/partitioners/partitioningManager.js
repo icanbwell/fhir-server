@@ -298,7 +298,8 @@ class PartitioningManager {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         const partitions = await this.getPartitionNamesByQueryAsync(
             {
-                resourceType, base_version,
+                resourceType,
+base_version,
                 query
             });
         return partitions.map(partition => `${partition}_History`);

@@ -892,7 +892,8 @@ class GraphHelper {
                          */
                         const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
                             includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
-                            item: c, containedEntries: []
+                            item: c,
+containedEntries: []
                         }));
                         childEntries = childEntries.concat(childEntriesForCurrentEntity);
                         parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);

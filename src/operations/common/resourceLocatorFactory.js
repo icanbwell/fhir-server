@@ -43,7 +43,9 @@ class ResourceLocatorFactory {
         assertIsValid(base_version, 'base_version is missing');
         return new ResourceLocator(
             {
-                mongoCollectionManager: this.mongoCollectionManager, resourceType, base_version,
+                mongoCollectionManager: this.mongoCollectionManager,
+resourceType,
+base_version,
                 partitioningManager: this.partitioningManager,
                 mongoDatabaseManager: this.mongoDatabaseManager
             }

@@ -253,8 +253,12 @@ class SearchByIdOperation {
                             // log access to audit logs
                             await this.auditLogger.logAuditEntryAsync(
                                 {
-                                    requestInfo, base_version, resourceType,
-                                    operation: 'read', args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                                    requestInfo,
+base_version,
+resourceType,
+                                    operation: 'read',
+args: parsedArgs.getRawArgs(),
+ids: [resource['id']]
                                 }
                             );
                         }

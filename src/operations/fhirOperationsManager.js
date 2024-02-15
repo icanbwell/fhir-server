@@ -432,7 +432,8 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                path, resourceType
+                path,
+resourceType
             }
         );
     }

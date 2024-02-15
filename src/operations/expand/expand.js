@@ -157,7 +157,10 @@ class ExpandOperation {
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
-                    requestInfo, args: parsedArgs.getRawArgs(), resourceType, startTime,
+                    requestInfo,
+args: parsedArgs.getRawArgs(),
+resourceType,
+startTime,
                     action: currentOperationName,
                     result: JSON.stringify(resource.toJSON())
                 });

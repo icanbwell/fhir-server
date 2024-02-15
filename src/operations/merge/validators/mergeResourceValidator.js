@@ -94,7 +94,10 @@ class MergeResourceValidator extends BaseValidator {
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
             resourcesToMerge: resourcesIncomingArray,
-            scopes, user, path, currentDate
+            scopes,
+user,
+path,
+currentDate
         });
 
         // process only the resources that are valid

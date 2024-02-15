@@ -127,7 +127,8 @@ describe('ChatGPT Tests', () => {
             console.log(prompt);
             const chain = new LLMChain(
                 {
-                    llm: model, prompt: prompt,
+                    llm: model,
+prompt: prompt,
                     outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                     outputParser: outputFixingParser
                 });

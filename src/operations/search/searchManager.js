@@ -295,7 +295,8 @@ class SearchManager {
                     message: 'Error in constructQueryAsync(): ' + (e.message || ''),
                     error: e,
                     args: {
-                        user, scope,
+                        user,
+scope,
                         isUser,
                         patientIdsFromJwtToken,
                         parsedArgs,
@@ -532,8 +533,10 @@ class SearchManager {
         if (parsedArgs['_total'] && ['accurate', 'estimate'].includes(parsedArgs['_total'])) {
             total_count = await this.handleGetTotalsAsync(
                 {
-                    resourceType, base_version,
-                    query, maxMongoTimeMS
+                    resourceType,
+base_version,
+                    query,
+maxMongoTimeMS
                 });
         }
 
@@ -870,7 +873,12 @@ class SearchManager {
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
                     {
-                        user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
+                        user,
+scope,
+parsedArgs,
+resourceType,
+useAccessIndex,
+signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark: highWaterMark,
                         configManager: this.configManager
@@ -1069,7 +1077,12 @@ class SearchManager {
          */
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
+                user,
+scope,
+parsedArgs,
+resourceType,
+useAccessIndex,
+signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
                 configManager: this.configManager,
@@ -1118,7 +1131,8 @@ class SearchManager {
             );
         } catch (e) {
             logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
-                user, error: new RethrownError(
+                user,
+error: new RethrownError(
                     {
                         message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                         error: e

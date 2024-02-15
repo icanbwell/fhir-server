@@ -64,7 +64,8 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                 );
             } catch (e) {
                 throw new RethrownError({
-                    message: `Error in convertBundleToDocumentsAsync(): ${e.message}`, error: e,
+                    message: `Error in convertBundleToDocumentsAsync(): ${e.message}`,
+error: e,
                     args: { parentResourceType, parentUuid, resource: resource.toJSONInternal() }
                 });
             }
