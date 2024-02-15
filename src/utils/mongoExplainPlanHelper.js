@@ -80,7 +80,7 @@ class MongoExplainPlanHelper {
             totalDocsExamined: executionStats.totalDocsExamined
         } : {};
 
-        var stepNo = 1;
+        const stepNo = 1;
 
         /**
          * @type {Step}

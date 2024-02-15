@@ -1,4 +1,4 @@
-var env = require('var');
+const env = require('var');
 
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');

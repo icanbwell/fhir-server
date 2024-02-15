@@ -48,8 +48,8 @@ class RethrownError extends Error {
             });
         }
         Error.captureStackTrace(this, this.constructor);
-        var oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
-        var stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
+        const oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
+        const stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
         this.stack = typeof stackDescriptor === 'function' ? stackDescriptor.get() : stackDescriptor.value;
         if (this.issue) {
             this.issue.forEach(i => {

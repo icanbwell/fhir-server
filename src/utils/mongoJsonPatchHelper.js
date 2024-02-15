@@ -16,19 +16,19 @@ class MongoJsonPatchHelper {
         const update = {};
         patches.map(function (patch) {
             switch (patch.op) {
-                case 'add':
-                    var path = toDot(patch.path);
-                    var parts = path.split('.');
+                case 'add': {
+                    const path = toDot(patch.path);
+                    const parts = path.split('.');
 
-                    var positionPart = parts.length > 1 && parts[parts.length - 1];
-                    var addToEnd = positionPart === '-';
-                    var key = parts.slice(0, -1).join('.');
+                    let positionPart = parts.length > 1 && parts[parts.length - 1];
+                    let addToEnd = positionPart === '-';
+                    let key = parts.slice(0, -1).join('.');
                     if (Number.isNaN(parseInt(positionPart))) {
                         addToEnd = true;
                         positionPart = '';
                         key = parts.join('.');
                     }
-                    var $position = positionPart && parseInt(positionPart, 10) || null;
+                    const $position = positionPart && parseInt(positionPart, 10) || null;
 
                     update.$push = update.$push || {};
 
@@ -42,7 +42,7 @@ class MongoJsonPatchHelper {
                             if (update.$push[`${key}`] === null || update.$push[`${key}`].$position === undefined) {
                                 throw new Error('Unsupported Operation! can\'t use add op with mixed positions');
                             }
-                            var posDiff = $position - update.$push[`${key}`].$position;
+                            const posDiff = $position - update.$push[`${key}`].$position;
                             if (posDiff > update.$push[`${key}`].$each.length) {
                                 throw new Error('Unsupported Operation! can use add op only with contiguous positions');
                             }
@@ -67,6 +67,7 @@ class MongoJsonPatchHelper {
                         throw new Error('Unsupported Operation! can\'t use add op without position');
                     }
                     break;
+                }
                 case 'remove':
                     update.$unset = update.$unset || {};
                     update.$unset[toDot(patch.path)] = 1;
