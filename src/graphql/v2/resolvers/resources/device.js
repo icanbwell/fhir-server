@@ -65,7 +65,6 @@ module.exports = {
                 context,
                 info,
                 parent.parent);
-        },
+        }
     }
 };
-

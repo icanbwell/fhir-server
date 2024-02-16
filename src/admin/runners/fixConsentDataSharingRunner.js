@@ -26,7 +26,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @property {Date|undefined} beforeLastUpdatedDate
      * @property {Date|undefined} afterLastUpdatedDate} options
      */
-    constructor({
+    constructor ({
         limit,
         startFromId,
         skip,
@@ -40,39 +40,38 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         super(args);
 
         if (collections.length === 1 && collections[0] === 'all') {
-            /**@type {string[]} */
+            /** @type {string[]} */
             this.collections = [...AvailableCollections];
         } else {
-            /**@type {string[]} */
+            /** @type {string[]} */
             this.collections = collections.filter(
                 (c) => AvailableCollections.includes(c)
             );
         }
-        /**@type {number|undefined} */
+        /** @type {number|undefined} */
         this.skip = skip;
-        /**@type {number|undefined} */
+        /** @type {number|undefined} */
         this.limit = limit;
-        /**@type {string|undefined} */
+        /** @type {string|undefined} */
         this.startFromId = startFromId;
-        /**@type {boolean|undefined} */
+        /** @type {boolean|undefined} */
         this.useTransaction = useTransaction;
-        /**@type {Date|undefined} */
+        /** @type {Date|undefined} */
         this.afterLastUpdatedDate = afterLastUpdatedDate;
-        /**@type {Date|undefined} */
+        /** @type {Date|undefined} */
         this.beforeLastUpdatedDate = beforeLastUpdatedDate;
 
-        /**@type {PreSaveManager} */
+        /** @type {PreSaveManager} */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
-
 
         /**@type {Map<string, { id: string; items: Array} */
         this.questionnaireValues = new Map();
 
-        /**@type {Map<string, Resource> */
+        /** @type {Map<string, Resource> */
         this.questionnaireIdToResource = new Map();
 
-        /**@type {Map<string, string>} */
+        /** @type {Map<string, string>} */
         this.questionnaireResponseToQuestionnaireId = new Map();
 
         this.adminLogger.logInfo('Args', { limit, startFromId, skip, collections });
@@ -82,7 +81,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Runs a loop to process records async
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         /**
          * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
          */
@@ -120,7 +119,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     skip: this.skip,
                     filterToIds: undefined,
                     filterToIdProperty: undefined,
-                    useEstimatedCount: true,
+                    useEstimatedCount: true
                 });
             } catch (error) {
                 this.adminLogger.logError(
@@ -130,9 +129,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     message: `Error processing ids of collection ${collection} ${error.message}`,
                     error,
                     args: {
-                        query,
+                        query
                     },
-                    source: 'AddProxyPatientToConsentResourceRunner.processAsync',
+                    source: 'AddProxyPatientToConsentResourceRunner.processAsync'
                 });
             } finally {
                 this.adminLogger.logInfo(
@@ -147,7 +146,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<Operations[]>}
      */
-    async processRecordsAsync(doc) {
+    async processRecordsAsync (doc) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
 
         const operations = [];
@@ -166,14 +165,15 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update category
+
         resource = await this.addCategoryCodingToConsent({resource, questionnaireItem});
 
         // Update provision
         resource = await this.addProvisionClassToConsent({ resource, questionnaireItem });
 
         // for speed, first check if the incoming resource is exactly the same
-        let updatedResourceJsonInternal = resource.toJSONInternal();
-        let currentResourceJsonInternal = currentResource.toJSONInternal();
+        const updatedResourceJsonInternal = resource.toJSONInternal();
+        const currentResourceJsonInternal = currentResource.toJSONInternal();
 
         if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
             return operations;
@@ -184,7 +184,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         const operation = {
-            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal },
+            replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal }
         };
         operations.push(operation);
         return operations;
@@ -194,8 +194,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds coding to resource.category
      * @param {{ resource: Resource, questionaireItem: any}} options
      */
-    async addCategoryCodingToConsent({ resource, questionnaireItem}) {
-        const category = resource.category;
+     async addCategoryCodingToConsent({ resource, questionnaireItem}) {
+      const category = resource.category;
         if (!category) {
             return resource;
         }
@@ -247,7 +247,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 coding.display = code.display;
             }
         });
-        let codingArray = [];
+        const codingArray = [];
         codingArray.push(coding);
         const newCoding = {coding: codingArray};
         category.push(newCoding);
@@ -320,13 +320,13 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
             const cursor = await collection
                 .find({}, {
-                    session,
+                    session
                 })
                 .sort({ _id: 1 });
 
@@ -349,7 +349,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error caching collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'FixConsentDataSharing.cacheQuestionaireValues',
+                source: 'FixConsentDataSharing.cacheQuestionaireValues'
             });
         } finally {
             await session.endSession();
@@ -364,11 +364,11 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Caches questionaire response
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      */
-    async cacheQuestionnaireResponseToQuestionnaireId(mongoConfig) {
+    async cacheQuestionnaireResponseToQuestionnaireId (mongoConfig) {
         const collectionName = 'QuestionnaireResponse_4_0_0';
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
-            collectionName,
+            collectionName
         });
 
         try {
@@ -392,7 +392,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             throw new RethrownError({
                 message: `Error caching collection ${collectionName}, ${e.message}`,
                 error: e,
-                source: 'FixConsentDataSharing.cacheQuestionnaireResponseToQuestionnaireId',
+                source: 'FixConsentDataSharing.cacheQuestionnaireResponseToQuestionnaireId'
             });
         } finally {
             await session.endSession();
@@ -407,15 +407,15 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * }} options
      * @returns Query
      */
-    async getQueryForConsent({ startFromId }) {
-        let query = {};
+    async getQueryForConsent ({ startFromId }) {
+        const query = {};
         const properties = ['_uuid', 'patient'];
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
 
         // only those without provision.class considered
         query.$and.push({
-            ['provision.class']: {
-                $exists: false,
+            'provision.class': {
+                $exists: false
             }
         });
         // must have sourceReference
@@ -427,22 +427,22 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
             query.$and.push({
-                ['meta.lastUpdated']: {
+                'meta.lastUpdated': {
                     $lt: this.beforeLastUpdatedDate,
-                    $gt: this.afterLastUpdatedDate,
-                },
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
-                ['meta.lastUpdated']: {
-                    $lt: this.beforeLastUpdatedDate,
-                },
+                'meta.lastUpdated': {
+                    $lt: this.beforeLastUpdatedDate
+                }
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
-                ['meta.lastUpdated']: {
-                    $gt: this.afterLastUpdatedDate,
-                },
+                'meta.lastUpdated': {
+                    $gt: this.afterLastUpdatedDate
+                }
             });
         }
 
@@ -451,14 +451,14 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 : startFromId;
             query.$and.push({
                 _id: {
-                    $gte: startId,
-                },
+                    $gte: startId
+                }
             });
         }
         return query;
     }
 
-    filterPropExist(propertyName) {
+    filterPropExist (propertyName) {
         return { [propertyName]: { $exists: true } };
     }
 

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Invoice
     Invoice containing collected ChargeItems from an Account with calculated
@@ -43,7 +42,7 @@ class Invoice extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -72,7 +71,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -115,7 +114,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -179,7 +178,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -201,7 +200,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -225,7 +224,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -257,7 +256,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -278,7 +277,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -336,7 +335,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -357,7 +356,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -377,7 +376,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.recipient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -415,7 +414,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoiceParticipant = require('../backbone_elements/invoiceParticipant.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.participant = FhirResourceCreator.createArray(valueProvided, InvoiceParticipant);
             }
         });
@@ -435,7 +434,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.issuer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -455,7 +454,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.account = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -476,7 +475,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoiceLineItem = require('../backbone_elements/invoiceLineItem.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.lineItem = FhirResourceCreator.createArray(valueProvided, InvoiceLineItem);
             }
         });
@@ -499,7 +498,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.totalPriceComponent = FhirResourceCreator.createArray(valueProvided, InvoicePriceComponent);
             }
         });
@@ -519,7 +518,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.totalNet = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -539,7 +538,7 @@ class Invoice extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.totalGross = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -578,11 +577,10 @@ class Invoice extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
-
 
         /**
          * @description _access
@@ -637,7 +635,6 @@ class Invoice extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -667,7 +664,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -686,7 +683,7 @@ class Invoice extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Invoice';
     }
 
@@ -722,7 +719,7 @@ class Invoice extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Invoice}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -751,7 +748,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Invoice({
@@ -782,7 +779,7 @@ class Invoice extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -790,17 +787,16 @@ class Invoice extends Resource {
      * @description creates a copy of this resource
      * @returns {Invoice}
     */
-    clone() {
+    clone () {
         return new Invoice(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -827,7 +823,7 @@ class Invoice extends Resource {
             totalNet: this.totalNet && this.totalNet.toJSON(),
             totalGross: this.totalGross && this.totalGross.toJSON(),
             paymentTerms: this.paymentTerms,
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -836,32 +832,32 @@ class Invoice extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.recipient) {await this.recipient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.participant) {await async.each(this.participant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.issuer) {await this.issuer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.account) {await this.account.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.lineItem) {await async.each(this.lineItem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.totalPriceComponent) {await async.each(this.totalPriceComponent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.totalNet) {await this.totalNet.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.totalGross) {await this.totalGross.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.recipient) { await this.recipient.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.participant) { await async.each(this.participant, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.issuer) { await this.issuer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.account) { await this.account.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.lineItem) { await async.each(this.lineItem, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.totalPriceComponent) { await async.each(this.totalPriceComponent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.totalNet) { await this.totalNet.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.totalGross) { await this.totalGross.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -887,9 +883,8 @@ class Invoice extends Resource {
             totalNet: this.totalNet && this.totalNet.toJSONInternal(),
             totalGross: this.totalGross && this.totalGross.toJSONInternal(),
             paymentTerms: this.paymentTerms,
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

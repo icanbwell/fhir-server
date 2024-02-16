@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide.Page1
     A set of rules of how a particular interoperability or standards problem is
@@ -23,14 +22,14 @@ class ImplementationGuidePage1 extends Element {
      * @param {String|undefined} [title],
      * @param {String[]|undefined} [anchor],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             name,
             title,
-            anchor,
+            anchor
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class ImplementationGuidePage1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class ImplementationGuidePage1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -165,9 +164,6 @@ class ImplementationGuidePage1 extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -175,19 +171,16 @@ class ImplementationGuidePage1 extends Element {
             modifierExtension,
             name,
             title,
-            anchor,
+            anchor
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -195,7 +188,7 @@ class ImplementationGuidePage1 extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             title: this.title,
-            anchor: this.anchor,
+            anchor: this.anchor
         });
     }
 
@@ -204,27 +197,25 @@ class ImplementationGuidePage1 extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             name: this.name,
             title: this.title,
-            anchor: this.anchor,
+            anchor: this.anchor
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Isotope
     The detailed description of a substance, typically at a level beyond what is
@@ -23,7 +22,7 @@ class SubstanceSpecificationIsotope extends Element {
      * @param {Quantity|undefined} [halfLife],
      * @param {SubstanceSpecificationMolecularWeight|undefined} [molecularWeight],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class SubstanceSpecificationIsotope extends Element {
             name,
             substitution,
             halfLife,
-            molecularWeight,
+            molecularWeight
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -128,7 +127,7 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -148,7 +147,7 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.name = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -168,7 +167,7 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.substitution = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -188,7 +187,7 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.halfLife = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -209,13 +208,10 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.molecularWeight = FhirResourceCreator.create(valueProvided, SubstanceSpecificationMolecularWeight);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -226,19 +222,16 @@ class SubstanceSpecificationIsotope extends Element {
             name,
             substitution,
             halfLife,
-            molecularWeight,
+            molecularWeight
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -248,7 +241,7 @@ class SubstanceSpecificationIsotope extends Element {
             name: this.name && this.name.toJSON(),
             substitution: this.substitution && this.substitution.toJSON(),
             halfLife: this.halfLife && this.halfLife.toJSON(),
-            molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
+            molecularWeight: this.molecularWeight && this.molecularWeight.toJSON()
         });
     }
 
@@ -257,22 +250,22 @@ class SubstanceSpecificationIsotope extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.name) {await this.name.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.substitution) {await this.substitution.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.halfLife) {await this.halfLife.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.molecularWeight) {await this.molecularWeight.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.name) { await this.name.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.substitution) { await this.substitution.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.halfLife) { await this.halfLife.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.molecularWeight) { await this.molecularWeight.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -281,10 +274,8 @@ class SubstanceSpecificationIsotope extends Element {
             name: this.name && this.name.toJSONInternal(),
             substitution: this.substitution && this.substitution.toJSONInternal(),
             halfLife: this.halfLife && this.halfLife.toJSONInternal(),
-            molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal(),
+            molecularWeight: this.molecularWeight && this.molecularWeight.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

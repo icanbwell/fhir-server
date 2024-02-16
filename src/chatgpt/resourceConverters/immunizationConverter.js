@@ -1,15 +1,15 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class ImmunizationConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             status,
             vaccineCode,
             patient,
             occurrenceDateTime,
-            performer,
+            performer
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

@@ -16,9 +16,9 @@ module.exports = {
         }
     },
     MedicinalProductIndicationSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MedicinalProductIndication: {
         // noinspection JSUnusedLocalSymbols
@@ -40,7 +40,6 @@ module.exports = {
                 context,
                 info,
                 parent.undesirableEffect);
-        },
+        }
     }
 };
-

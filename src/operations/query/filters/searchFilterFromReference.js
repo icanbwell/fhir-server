@@ -17,7 +17,7 @@ class SearchFilterFromReference {
    * @example
    * ```js
    * const idToRefMap = {
-   *    'patientId1': { id: 'patientId1', resourceType: 'Patient', sourceAssigningAuthority: 'northwell' }
+   *    'patientId1': { id: 'patientId1', resourceType: 'Patient', sourceAssigningAuthority: 'client-1' }
    *    'bb7862e6-b7ac-470e-bde3-e85cee9d1ce6': { id: 'bb7862e6-b7ac-470e-bde3-e85cee9d1ce6', resourceType: 'Patient' }
    * }
    *
@@ -27,7 +27,7 @@ class SearchFilterFromReference {
    * }, {
    *   '$and': [
    *      { '_sourceId': { '$in': ['bb7862e6-b7ac-470e-bde3-e85cee9d1ce6']}, },
-   *      { '_sourceAssigningAuthority': 'northwell' },
+   *      { '_sourceAssigningAuthority': 'client-1' },
    *   ]
    * }]
    * ```
@@ -35,7 +35,7 @@ class SearchFilterFromReference {
    * @param {string|undefined|null} property Related property name to make query on. Query will be based on property._uuid or property._sourceId
    * @returns {{[field: string]: { ['$in']: string[]}}} Array of filter queries generated using property name and idToRefMap
    */
-  static buildFilter(references, property) {
+  static buildFilter (references, property) {
     const prop = property ? `${property}.` : '';
     const includePrefix = !!property;
 
@@ -48,15 +48,14 @@ class SearchFilterFromReference {
     references.forEach((reference) => {
       const { id, resourceType, sourceAssigningAuthority } = reference;
       if (ReferenceParser.isUuidReference(id)) {
-
         const uuidToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType }) : id;
         // add ResourceType/id
         uuidOrItsRefs.push(uuidToPush);
       } else {
         if (sourceAssigningAuthority) {
           // push ResourceType/id|sourceAssigningAuthority
-          const idToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType, sourceAssigningAuthority }) :
-            ReferenceParser.createReference({ id, sourceAssigningAuthority });
+          const idToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType, sourceAssigningAuthority })
+            : ReferenceParser.createReference({ id, sourceAssigningAuthority });
           sourceIdOrItsRefWithSourceAssigningAuthority
             .push(idToPush);
         } else {
@@ -79,15 +78,15 @@ class SearchFilterFromReference {
     // add uuid filter
     filters.push({
       [`${prop}_uuid`]: {
-        '$in': uuidOrItsRefs
+        $in: uuidOrItsRefs
       }
     });
 
     // add sourceId filter
     filters.push({
       [`${prop}_sourceId`]: {
-        '$in': sourceIdOrItsRefs
-      },
+        $in: sourceIdOrItsRefs
+      }
     });
 
     // sourceId + sourceAssigning Authority
@@ -95,14 +94,14 @@ class SearchFilterFromReference {
       .forEach(([sourceAssigningAuthority, idOrItsRefWithSourceAssigningAuthority]) => {
         filters.push(
           {
-            '$and': [
+            $and: [
               {
                 [`${prop}_sourceAssigningAuthority`]: sourceAssigningAuthority
               },
               {
                 [`${prop}_sourceId`]: {
-                  // for Patient/id|walgreens -> Patient/id and for id|walgreens -> id
-                  '$in': idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref)),
+                  // for Patient/id|client -> Patient/id and for id|client -> id
+                  $in: idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref))
                 }
               }
             ]

@@ -16,24 +16,24 @@ module.exports = {
         }
     },
     PaymentNoticeRequestV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     PaymentNoticeResponseV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     PaymentNoticeProvider: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     PaymentNoticePayee: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     PaymentNotice: {
         // noinspection JSUnusedLocalSymbols
@@ -115,7 +115,6 @@ module.exports = {
                 context,
                 info,
                 parent.recipient);
-        },
+        }
     }
 };
-

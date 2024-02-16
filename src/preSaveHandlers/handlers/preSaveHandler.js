@@ -5,7 +5,7 @@ class PreSaveHandler {
      * @returns {Promise<Resource>}
      */
     // eslint-disable-next-line no-unused-vars
-    async preSaveAsync({resource}) {
+    async preSaveAsync ({ resource }) {
         throw Error('Not Implemented');
     }
 }

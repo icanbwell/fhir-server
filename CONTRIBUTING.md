@@ -73,8 +73,6 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 [src/utils](src/utils): Utility functions called from other code
 
-[src/views](src/views): View templates that are shown when someone access a FHIR resource from a web browser user agent. Rendered using the middleware: [src/middleware/htmlRenderer.js](src/middleware/htmlRenderer.js). Currently we use the EJS view engine: https://ejs.co/. See [renderingViews.md](renderingViews.md) for more details.
-
 [src/app.js](src/app.js): Main entrypoint that sets up the app
 
 [src/app.test.js](src/app.test.js): simple test for the app
@@ -118,10 +116,6 @@ Note: Indexes are automatically created when a new resource type is added to the
 ## Index hinting
 
 Some mongo implementations (such as AWS DocumentDB) are not very good at selecting an index to serve a query. Hence we've added an index hinting feature that compares the columns in the query with the existing indexes and adds a hint to mongo to use that index. This feature can be turned on by setting the `SET_INDEX_HINTS` environment variable.
-
-## How to add/update custom rendering views
-
-[renderingViews.md](renderingViews.md)
 
 ## IoC (Inversion of Control)
 
@@ -242,11 +236,11 @@ You can specify "all" if you want to apply this to all.  See [src/admin/scripts/
 
 Now the FHIR server will automatically rewrite the query for https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth from:
 ```javascript
-db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
+db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
 ```
 to:
 ```javascript
-db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'_access.medstar':1}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
+db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'_access.client':1}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
 ```
 
 Since this will now use the _access field, it will be "covered" by our index so Mongo can return the ids completely from the index without needing to go to the actual data.
@@ -295,14 +289,3 @@ Output:
 ```
 {"dd":{"service":"bwell-fhir-server","version":"0.0.1"},"level":"info","logger":"admin","message":"Logger Message","timestamp":"Feb-10-2023 10:10:10+00:00"}
 ```
-
-## Search UI
-Search Form is rendered by [src/views/partials/searchForm.ejs](src/views/partials/searchForm.ejs)
-
-When the user presses the Search button, this script [src/dist/js/search.js](src/dist/js/search.js) bundles up 
-the user entered values and sends to `/_search` endpoint on the server.
-
-The results are shown by [src/views/pages/SearchResult.ejs](src/views/pages/SearchResult.ejs).
-
-Clicking on the search results is handled by [src/dist/js/searchResults.js](src/dist/js/searchResults.js).
-Helper functions are in [src/utils/searchForm.util.js](src/utils/searchForm.util.js).

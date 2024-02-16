@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CommunicationRequest.Payload
     A request to convey information; e.g. the CDS system proposes that an alert be
@@ -22,14 +21,14 @@ class CommunicationRequestPayload extends Element {
      * @param {Attachment|undefined} [contentAttachment],
      * @param {Reference|undefined} [contentReference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             contentString,
             contentAttachment,
-            contentReference,
+            contentReference
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class CommunicationRequestPayload extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class CommunicationRequestPayload extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -143,7 +142,7 @@ class CommunicationRequestPayload extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contentAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -163,13 +162,10 @@ class CommunicationRequestPayload extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contentReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -178,19 +174,16 @@ class CommunicationRequestPayload extends Element {
             modifierExtension,
             contentString,
             contentAttachment,
-            contentReference,
+            contentReference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -198,7 +191,7 @@ class CommunicationRequestPayload extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             contentString: this.contentString,
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSON(),
-            contentReference: this.contentReference && this.contentReference.toJSON(),
+            contentReference: this.contentReference && this.contentReference.toJSON()
         });
     }
 
@@ -207,29 +200,27 @@ class CommunicationRequestPayload extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contentAttachment) {await this.contentAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contentReference) {await this.contentReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contentAttachment) { await this.contentAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contentReference) { await this.contentReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             contentString: this.contentString,
             contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
-            contentReference: this.contentReference && this.contentReference.toJSONInternal(),
+            contentReference: this.contentReference && this.contentReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

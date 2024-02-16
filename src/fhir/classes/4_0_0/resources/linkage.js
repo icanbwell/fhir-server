@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Linkage
     Identifies two or more records (resource instances) that refer to the same
@@ -30,7 +29,7 @@ class Linkage extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -46,7 +45,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -89,7 +88,7 @@ class Linkage extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -153,7 +152,7 @@ class Linkage extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -175,7 +174,7 @@ class Linkage extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -199,7 +198,7 @@ class Linkage extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -231,7 +230,7 @@ class Linkage extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -272,7 +271,7 @@ class Linkage extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.author = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -294,11 +293,10 @@ class Linkage extends Resource {
                     return;
                 }
                 const LinkageItem = require('../backbone_elements/linkageItem.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.item = FhirResourceCreator.createArray(valueProvided, LinkageItem);
             }
         });
-
 
         /**
          * @description _access
@@ -353,7 +351,6 @@ class Linkage extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -370,7 +367,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -389,7 +386,7 @@ class Linkage extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Linkage';
     }
 
@@ -412,7 +409,7 @@ class Linkage extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Linkage}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -428,7 +425,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Linkage({
@@ -446,7 +443,7 @@ class Linkage extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -454,17 +451,16 @@ class Linkage extends Resource {
      * @description creates a copy of this resource
      * @returns {Linkage}
     */
-    clone() {
+    clone () {
         return new Linkage(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -478,7 +474,7 @@ class Linkage extends Resource {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             active: this.active,
             author: this.author && this.author.toJSON(),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -487,22 +483,22 @@ class Linkage extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.author) {await this.author.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.item) {await async.each(this.item, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.author) { await this.author.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.item) { await async.each(this.item, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -515,9 +511,8 @@ class Linkage extends Resource {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             active: this.active,
             author: this.author && this.author.toJSONInternal(),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MessageHeader.Destination
     The header for a message exchange that is either requesting or responding to
@@ -25,7 +24,7 @@ class MessageHeaderDestination extends Element {
      * @param {url} endpoint,
      * @param {Reference|undefined} [receiver],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class MessageHeaderDestination extends Element {
             name,
             target,
             endpoint,
-            receiver,
+            receiver
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class MessageHeaderDestination extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class MessageHeaderDestination extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -148,7 +147,7 @@ class MessageHeaderDestination extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.target = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -187,13 +186,10 @@ class MessageHeaderDestination extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.receiver = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -203,19 +199,16 @@ class MessageHeaderDestination extends Element {
             name,
             target,
             endpoint,
-            receiver,
+            receiver
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -224,7 +217,7 @@ class MessageHeaderDestination extends Element {
             name: this.name,
             target: this.target && this.target.toJSON(),
             endpoint: this.endpoint,
-            receiver: this.receiver && this.receiver.toJSON(),
+            receiver: this.receiver && this.receiver.toJSON()
         });
     }
 
@@ -233,19 +226,19 @@ class MessageHeaderDestination extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.target) {await this.target.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.receiver) {await this.receiver.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.target) { await this.target.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.receiver) { await this.receiver.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -253,10 +246,8 @@ class MessageHeaderDestination extends Element {
             name: this.name,
             target: this.target && this.target.toJSONInternal(),
             endpoint: this.endpoint,
-            receiver: this.receiver && this.receiver.toJSONInternal(),
+            receiver: this.receiver && this.receiver.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

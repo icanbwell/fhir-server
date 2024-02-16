@@ -1,19 +1,18 @@
-const {assertTypeEquals} = require('../utils/assertType');
-const {EverythingOperation} = require('../operations/everything/everything');
-const {FhirOperationsManager} = require('../operations/fhirOperationsManager');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
-const {DatabaseUpdateFactory} = require('../dataLayer/databaseUpdateFactory');
+const { assertTypeEquals } = require('../utils/assertType');
+const { EverythingOperation } = require('../operations/everything/everything');
+const { FhirOperationsManager } = require('../operations/fhirOperationsManager');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { DatabaseUpdateFactory } = require('../dataLayer/databaseUpdateFactory');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {RethrownError} = require('../utils/rethrownError');
-const {R4ArgsParser} = require('../operations/query/r4ArgsParser');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { RethrownError } = require('../utils/rethrownError');
+const { R4ArgsParser } = require('../operations/query/r4ArgsParser');
 
 const base_version = VERSIONS['4_0_0'];
 
 class AdminPersonPatientDataManager {
-
     /**
      * constructor
      * @param {FhirOperationsManager} fhirOperationsManager
@@ -22,7 +21,7 @@ class AdminPersonPatientDataManager {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
-    constructor(
+    constructor (
         {
             fhirOperationsManager,
             everythingOperation,
@@ -69,19 +68,19 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePatientDataGraphAsync({req, res, patientId, responseStreamer, method = 'DELETE'}) {
+    async deletePatientDataGraphAsync ({ req, res, patientId, responseStreamer, method = 'DELETE' }) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
             const args = {
-                'base_version': base_version,
-                'id': patientId
+                base_version,
+                id: patientId
             };
             const bundle = await this.everythingOperation.everythingAsync({
                 requestInfo,
                 res,
                 resourceType: 'Patient',
-                parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Patient', args}),
+                parsedArgs: this.r4ArgsParser.parseArgs({ resourceType: 'Patient', args }),
                 responseStreamer
             });
             if (method === 'DELETE') {
@@ -111,21 +110,21 @@ class AdminPersonPatientDataManager {
      * @param {Bundle} bundle
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksFromOtherPersonsAsync({requestId, responseStreamer, bundle}) {
+    async removeLinksFromOtherPersonsAsync ({ requestId, responseStreamer, bundle }) {
         try {
             /**
              * @type {DatabaseQueryManager}
              */
             const databaseQueryManagerForPerson = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
             /**
              * @type {DatabaseUpdateManager}
              */
             const databaseUpdateManagerForPerson = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'Person',
-                base_version: base_version
+                base_version
             });
             /**
              * @type {BundleEntry[]}
@@ -135,14 +134,20 @@ class AdminPersonPatientDataManager {
                 await this.removeLinksToResourceTypeAsync(
                     {
                         requestId,
-                        bundle, resourceType: 'Patient', databaseQueryManagerForPerson, databaseUpdateManagerForPerson,
+                        bundle,
+resourceType: 'Patient',
+databaseQueryManagerForPerson,
+databaseUpdateManagerForPerson,
                         responseStreamer
                     })
             );
             updatedRecords = updatedRecords.concat(
                 await this.removeLinksToResourceTypeAsync({
                     requestId,
-                    bundle, resourceType: 'Person', databaseQueryManagerForPerson, databaseUpdateManagerForPerson,
+                    bundle,
+resourceType: 'Person',
+databaseQueryManagerForPerson,
+databaseUpdateManagerForPerson,
                     responseStreamer
                 })
             );
@@ -162,22 +167,22 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
-    async deletePersonDataGraphAsync({req, res, personId, responseStreamer, method = 'DELETE' }) {
+    async deletePersonDataGraphAsync ({ req, res, personId, responseStreamer, method = 'DELETE' }) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = method;
             const args = {
-                'base_version': base_version,
-                'id': personId
+                base_version,
+                id: personId
             };
             const bundle = await this.everythingOperation.everythingAsync({
                 requestInfo,
                 res,
                 resourceType: 'Person',
-                parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Person', args}),
+                parsedArgs: this.r4ArgsParser.parseArgs({ resourceType: 'Person', args }),
                 responseStreamer: null
             });
-            bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({bundleEntry}));
+            bundle.entry?.forEach(bundleEntry => responseStreamer?.writeBundleEntryAsync({ bundleEntry }));
             if (method === 'DELETE') {
                 // now also remove any connections to this Patient record
                 await this.removeLinksFromOtherPersonsAsync({
@@ -204,7 +209,7 @@ class AdminPersonPatientDataManager {
      * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksToResourceTypeAsync(
+    async removeLinksToResourceTypeAsync (
         {
             requestId,
             bundle,
@@ -235,7 +240,7 @@ class AdminPersonPatientDataManager {
                  * @type {DatabasePartitionedCursor}
                  */
                 const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
-                    query: {'link.target._uuid': {'$in': deletedResourceIdsWithResourceType}}
+                    query: { 'link.target._uuid': { $in: deletedResourceIdsWithResourceType } }
                 });
                 /**
                  * @type {import('mongodb').DefaultSchema[]}
@@ -258,7 +263,7 @@ class AdminPersonPatientDataManager {
                             id: person.id,
                             resource: new Person(
                                 {
-                                    id: person.id,
+                                    id: person.id
                                 }
                             ),
                             request: new BundleRequest(

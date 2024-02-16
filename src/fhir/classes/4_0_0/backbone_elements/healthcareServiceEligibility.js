@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 HealthcareService.Eligibility
     The details of a healthcare service available at a location.
@@ -19,13 +18,13 @@ class HealthcareServiceEligibility extends Element {
      * @param {CodeableConcept|undefined} [code],
      * @param {markdown|undefined} [comment],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             code,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -69,7 +68,7 @@ class HealthcareServiceEligibility extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class HealthcareServiceEligibility extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -121,7 +120,7 @@ class HealthcareServiceEligibility extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -144,35 +143,29 @@ class HealthcareServiceEligibility extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
             code,
-            comment,
+            comment
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -181,27 +174,25 @@ class HealthcareServiceEligibility extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            comment: this.comment,
+            comment: this.comment
         };
-
-
 
         return removeNull(json);
     }

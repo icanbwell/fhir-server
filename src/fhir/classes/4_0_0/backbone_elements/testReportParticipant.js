@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestReport.Participant
     A summary of information based on the results of executing a TestScript.
@@ -20,14 +19,14 @@ class TestReportParticipant extends Element {
      * @param {uri} uri,
      * @param {String|undefined} [display],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             type,
             uri,
-            display,
+            display
         }
     ) {
         super({});
@@ -71,7 +70,7 @@ class TestReportParticipant extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -103,7 +102,7 @@ class TestReportParticipant extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -162,9 +161,6 @@ class TestReportParticipant extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -172,19 +168,16 @@ class TestReportParticipant extends Element {
             modifierExtension,
             type,
             uri,
-            display,
+            display
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -192,7 +185,7 @@ class TestReportParticipant extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type,
             uri: this.uri,
-            display: this.display,
+            display: this.display
         });
     }
 
@@ -201,27 +194,25 @@ class TestReportParticipant extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type,
             uri: this.uri,
-            display: this.display,
+            display: this.display
         };
-
-
 
         return removeNull(json);
     }

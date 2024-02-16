@@ -4,13 +4,12 @@ const {
     createTestRequest,
     getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {customIndexes} = require('./mockCustomIndexes');
-const {IndexProvider} = require('../../../indexes/indexProvider');
-
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { customIndexes } = require('./mockCustomIndexes');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         // noinspection JSValidateTypes
         return customIndexes;
     }
@@ -63,7 +62,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName, db: fhirDb
@@ -101,7 +100,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              *
@@ -115,7 +114,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
@@ -194,7 +193,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              *
@@ -208,12 +207,12 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             let indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
 
-            //now add meta.lastUpdated_1 index but with different keys
+            // now add meta.lastUpdated_1 index but with different keys
             indexResult = await patientCollection.createIndex(
                 {
                     'meta.source': 1
@@ -272,12 +271,11 @@ describe('Missing Index Tests', () => {
                     options: {
                         name: 'meta.lastUpdated_1'
                     },
-                    'exclude': [
+                    exclude: [
                         'AuditEvent_4_0_0'
-                    ],
+                    ]
                 }
             );
-
         });
         test('missingIndex works for AuditEvent', async () => {
             /**
@@ -304,7 +302,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             /**
              *
              * @type {import('mongodb').CreateIndexesOptions}
@@ -317,7 +315,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
@@ -338,72 +336,72 @@ describe('Missing Index Tests', () => {
             expect(sortedIndexes.length).toBe(6);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_recorded'
+                    options: {
+                        name: 'helix_auditEvent_recorded'
                     }
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'keys': {
-                        '_access.medstar': 1,
-                        'id': 1,
-                        'recorded': 1
+                    keys: {
+                        '_access.client': 1,
+                        id: 1,
+                        recorded: 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_recorded_access_medstar'
+                    options: {
+                        name: 'helix_auditEvent_recorded_access_client'
                     }
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'keys': {
-                        '_access.medstar': 1,
-                        'id': 1,
+                    keys: {
+                        '_access.client': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_security_access_medstar'
+                    options: {
+                        name: 'helix_auditEvent_security_access_client'
                     }
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'options': {
-                        'name': 'helix_audit_event_security'
+                    options: {
+                        name: 'helix_audit_event_security'
                     }
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.source': 1
                     },
-                    'options': {
-                        'name': 'meta.source_1'
+                    options: {
+                        name: 'meta.source_1'
                     }
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'options': {
-                        'name': 'security.system_code_1'
+                    options: {
+                        name: 'security.system_code_1'
                     }
                 }
             );
@@ -435,7 +433,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(patientCollectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: patientCollectionName, db: fhirDb
@@ -445,7 +443,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientHistoryCollection = fhirDb.collection(patientHistoryCollectionName);
-            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientHistoryCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: patientHistoryCollectionName, db: fhirDb
@@ -455,7 +453,7 @@ describe('Missing Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const practitionerCollection = fhirDb.collection(practitionerCollectionName);
-            await practitionerCollection.insertOne({id: '1', resourceType: 'Practitioner'});
+            await practitionerCollection.insertOne({ id: '1', resourceType: 'Practitioner' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: practitionerCollectionName, db: fhirDb

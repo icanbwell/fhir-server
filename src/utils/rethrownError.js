@@ -11,7 +11,7 @@ class RethrownError extends Error {
      * @param {Object|undefined} [args]
      * @param {string|undefined} [source]
      */
-    constructor({message, error, args, source}) {
+    constructor ({ message, error, args, source }) {
         super(!message && error && error.message ? error.message : message);
 
         if (!message && error && error.message) {
@@ -48,8 +48,8 @@ class RethrownError extends Error {
             });
         }
         Error.captureStackTrace(this, this.constructor);
-        var oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
-        var stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
+        const oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
+        const stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
         this.stack = typeof stackDescriptor === 'function' ? stackDescriptor.get() : stackDescriptor.value;
         if (this.issue) {
             this.issue.forEach(i => {
@@ -62,7 +62,7 @@ class RethrownError extends Error {
      * returns list of resource not to be shown in error messages
      * @returns {string[]}
      */
-    getExcludedResources() {
+    getExcludedResources () {
         return env.LOG_EXCLUDE_RESOURCES ? env.LOG_EXCLUDE_RESOURCES.split(',') : [];
     }
 
@@ -70,13 +70,13 @@ class RethrownError extends Error {
      * remove sensitive resources from args passed
      * @param {Object|undefined} [args]
      */
-    removeExcludedResources(args) {
+    removeExcludedResources (args) {
         if (!args) {
             return;
         }
         const logExcludeResources = this.getExcludedResources();
         if (args instanceof Object || Array.isArray(args)) {
-            for (let prop in args) {
+            for (const prop in args) {
                 logExcludeResources.forEach(resource => {
                     if (args[String(prop)] && args[String(prop)].resourceType === resource) {
                         delete args[String(prop)];
@@ -93,16 +93,16 @@ class RethrownError extends Error {
      * @param {Error} nested
      * @return {{value: string}|{get: (function(): string)}}
      */
-    buildStackDescriptor(oldStackDescriptor, nested) {
+    buildStackDescriptor (oldStackDescriptor, nested) {
         if (oldStackDescriptor.get) {
             return {
                 get: function () {
-                    let stack = oldStackDescriptor.get.call(this);
+                    const stack = oldStackDescriptor.get.call(this);
                     return this.buildCombinedStacks(stack, this.nested);
                 }
             };
         } else {
-            let stack = oldStackDescriptor.value;
+            const stack = oldStackDescriptor.value;
             return {
                 value: this.buildCombinedStacks(stack, nested)
             };
@@ -115,7 +115,7 @@ class RethrownError extends Error {
      * @param {Error} nested
      * @return {string}
      */
-    buildCombinedStacks(stack, nested) {
+    buildCombinedStacks (stack, nested) {
         if (nested) {
             stack = nested.stack + '\r\nCauses: ' + stack;
         }
@@ -128,8 +128,8 @@ class RethrownError extends Error {
  * @param {string} message
  * @param {Error} error
  */
-function reThrow({message, error}) {
-    throw new RethrownError({message, error});
+function reThrow ({ message, error }) {
+    throw new RethrownError({ message, error });
 }
 
 module.exports = {

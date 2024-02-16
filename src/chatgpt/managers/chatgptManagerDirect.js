@@ -1,10 +1,10 @@
-const {ChatGPTMessage} = require('../structures/chatgptMessage');
-const {ChatGPTManager} = require('./chatgptManager');
-const {ChatGPTResponse} = require('../structures/chatGPTResponse');
-const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
-const {ChatGPTError} = require('../exceptions/chatgptError');
+const { ChatGPTMessage } = require('../structures/chatgptMessage');
+const { ChatGPTManager } = require('./chatgptManager');
+const { ChatGPTResponse } = require('../structures/chatGPTResponse');
+const { ChatGPTContextLengthExceededError } = require('../exceptions/chatgptContextLengthExceededError');
+const { ChatGPTError } = require('../exceptions/chatgptError');
 const OpenAI = require('openai');
-const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
+const { VectorStoreFilter } = require('../vectorStores/vectorStoreFilter');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
@@ -16,7 +16,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
-    async answerQuestionWithDocumentsAsync(
+    async answerQuestionWithDocumentsAsync (
         {
             startPrompt,
             question,
@@ -27,7 +27,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         }
     ) {
         const configuration = {
-            apiKey: this.configManager.openAIApiKey,
+            apiKey: this.configManager.openAIApiKey
         };
         const openai = new OpenAI(configuration);
 
@@ -41,8 +41,8 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const retriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {
-                        resourceType: resourceType,
-                        uuid: uuid
+                        resourceType,
+                        uuid
                     }
                 )
             }
@@ -68,7 +68,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
                     content: startPrompt
                 }
             ),
-            ...contextMessages,
+            ...contextMessages
         ];
         const messages = [
             ...systemMessages,
@@ -86,11 +86,11 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const chatCompletionRequest = {
             model: this.configManager.openAIModel,
             // model: 'gpt-3.5-turbo-16k',
-            messages: messages,
+            messages,
             temperature: 0.0,
             max_tokens: 600 // tokens allowed in completion response
         };
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
 
         try {
             const chatCompletion = await openai.chat.completions.create(chatCompletionRequest);
@@ -125,9 +125,9 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         }
     }
 
-    async listModelsAsync() {
+    async listModelsAsync () {
         const configuration = {
-            apiKey: this.configManager.openAIApiKey,
+            apiKey: this.configManager.openAIApiKey
         };
         const openai = new OpenAI(configuration);
         const response = await openai.models.list();
@@ -135,7 +135,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const models = response.data.map(
             m => {
                 return {
-                    'name': m.id
+                    name: m.id
                 };
             }
         );

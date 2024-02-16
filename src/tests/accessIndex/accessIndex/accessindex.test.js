@@ -7,26 +7,26 @@ const expectedAuditEventResources = require('./fixtures/expected/expected_AuditE
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const {ConfigManager} = require('../../../utils/configManager');
-const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
-const {IndexProvider} = require('../../../indexes/indexProvider');
+const { ConfigManager } = require('../../../utils/configManager');
+const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
 class MockConfigManager extends ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources() {
+    get partitionResources () {
         return ['Account', 'AuditEvent'];
     }
 
-    get useAccessIndex() {
+    get useAccessIndex () {
         return true;
     }
 
-    get resourcesWithAccessIndex() {
+    get resourcesWithAccessIndex () {
         return ['Account', 'AuditEvent'];
     }
 }
@@ -35,7 +35,7 @@ class MockConfigManagerWithNoPartitionedResources extends ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources() {
+    get partitionResources () {
         return [];
     }
 }
@@ -45,8 +45,8 @@ class MockIndexProvider extends IndexProvider {
      * @param {string[]} accessCodes
      * @return {boolean}
      */
-    hasIndexForAccessCodes({accessCodes}) {
-        return accessCodes.every(a => a === 'medstar');
+    hasIndexForAccessCodes ({ accessCodes }) {
+        return accessCodes.every(a => a === 'client1');
     }
 }
 
@@ -83,13 +83,13 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -108,7 +108,7 @@ describe('AuditEvent Tests', () => {
             const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0',
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
                 });
             /**
              * mongo auditEventDb connection
@@ -119,21 +119,21 @@ describe('AuditEvent Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
             const allAuditEntries = await internalAuditEventCollection.find({}).toArray();
             expect(allAuditEntries.length).toBe(2);
 
-            const medstarAuditEntries = await internalAuditEventCollection.find({id: 'MixP-0001r5i3yr8g2cuj'}).toArray();
-            expect(medstarAuditEntries.length).toBe(1);
-            expect(medstarAuditEntries[0]._access.medstar).toBe(1);
+            const client1AuditEntries = await internalAuditEventCollection.find({ id: 'MixP-0001r5i3yr8g2cuj' }).toArray();
+            expect(client1AuditEntries.length).toBe(1);
+            expect(client1AuditEntries[0]._access.client1).toBe(1);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z')
+                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient1&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
@@ -159,13 +159,13 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -184,7 +184,7 @@ describe('AuditEvent Tests', () => {
             const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: 'AuditEvent_4_0_0',
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
                 });
             /**
              * mongo auditEventDb connection
@@ -195,17 +195,16 @@ describe('AuditEvent Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
             const allAuditEntries = await internalAuditEventCollection.find({}).toArray();
             expect(allAuditEntries.length).toBe(2);
 
-            const medstarAuditEntries = await internalAuditEventCollection.find({id: 'MixP-0001r5i3yr8g2cuj'}).toArray();
-            expect(medstarAuditEntries.length).toBe(1);
-            expect(medstarAuditEntries[0]._access.medstar).toBe(1);
-
+            const client1AuditEntries = await internalAuditEventCollection.find({ id: 'MixP-0001r5i3yr8g2cuj' }).toArray();
+            expect(client1AuditEntries.length).toBe(1);
+            expect(client1AuditEntries[0]._access.client1).toBe(1);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
@@ -232,14 +231,14 @@ describe('AuditEvent Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
             const container = getTestContainer();
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             /**
              * @type {MongoDatabaseManager}
@@ -259,12 +258,12 @@ describe('AuditEvent Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let patientCollection = fhirDb.collection(mongoCollectionName);
+            const patientCollection = fhirDb.collection(mongoCollectionName);
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */
             const patientEntries = await patientCollection.find({}).toArray();
-            expect(patientEntries[0]._access.medstar).toBe(1);
+            expect(patientEntries[0]._access.client1).toBe(1);
         });
     });
 
@@ -286,13 +285,13 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             /**
              * @type {import('../../../utils/auditLogger').AuditLogger}
              */
@@ -302,7 +301,7 @@ describe('AuditEvent Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cthedacare&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
+                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cclient&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventWithoutAccessIndexResources);

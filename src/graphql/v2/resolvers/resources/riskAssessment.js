@@ -16,34 +16,34 @@ module.exports = {
         }
     },
     RiskAssessmentBasedOnV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RiskAssessmentParentV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RiskAssessmentSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RiskAssessmentPerformer: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RiskAssessmentReasonReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RiskAssessmentBasisV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     RiskAssessment: {
         // noinspection JSUnusedLocalSymbols
@@ -155,7 +155,6 @@ module.exports = {
                 context,
                 info,
                 parent.basis);
-        },
+        }
     }
 };
-

@@ -20,6 +20,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { ChangeSourceAssigningAuthorityRunner } = require('../../../../admin/runners/changeSourceAssigningAuthorityRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -92,8 +93,8 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
-                    oldSourceAssigningAuthority: 'rise',
-                    newSourceAssigningAuthority: 'rise_silver'
+                    oldSourceAssigningAuthority: 'client-1',
+                    newSourceAssigningAuthority: 'client'
                 }
             )
             );
@@ -207,8 +208,8 @@ describe('Person Tests', () => {
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
                     resourceMerger: c.resourceMerger,
-                    oldSourceAssigningAuthority: 'rise',
-                    newSourceAssigningAuthority: 'rise_silver'
+                    oldSourceAssigningAuthority: 'client-1',
+                    newSourceAssigningAuthority: 'client'
                 }
             )
             );

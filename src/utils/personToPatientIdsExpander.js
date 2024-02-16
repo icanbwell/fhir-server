@@ -1,6 +1,6 @@
 const { FilterById } = require('../operations/query/filters/id');
-const {assertTypeEquals} = require('./assertType');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals } = require('./assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
 const { PERSON_REFERENCE_PREFIX } = require('../constants');
 
@@ -10,13 +10,12 @@ const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
 const maximumRecursionDepth = 4;
 
-
 class PersonToPatientIdsExpander {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory
         }
@@ -36,10 +35,10 @@ class PersonToPatientIdsExpander {
      * @param {boolean} toMap If return map of person to patient
      * @return {Promise<string|string[]|{[key: string]: string[]}>}
      */
-    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix, toMap}) {
+    async getPatientProxyIdsAsync ({ base_version, ids, includePatientPrefix, toMap }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
 
         // 1. Get person ids from id
@@ -48,7 +47,7 @@ class PersonToPatientIdsExpander {
             ) : [
                 ids.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
             ];
-        /**@type {Set<string>} */
+        /** @type {Set<string>} */
         const unvisitedPersonIds = new Set(personIds);
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
@@ -58,7 +57,7 @@ class PersonToPatientIdsExpander {
                 databaseQueryManager,
                 level: 1,
                 toMap,
-                returnOriginalPersonId: true, // return the passed personId not its uuid
+                returnOriginalPersonId: true // return the passed personId not its uuid
             }
         );
         if (!toMap) {
@@ -78,10 +77,9 @@ class PersonToPatientIdsExpander {
              * @type {Map<string, Set<string>}
              */
             const personToPatientMap = patientIds;
-            /**@type {{[key: string]: string[]}} */
+            /** @type {{[key: string]: string[]}} */
             const plainMap = {};
             for (const [personId, patientIdsSet] of personToPatientMap) {
-
                 unvisitedPersonIds.delete(personId);
                 plainMap[`${personId}`] = Array.from(patientIdsSet);
 
@@ -114,34 +112,33 @@ class PersonToPatientIdsExpander {
      * @param {RelatedPatientParam} param
      * @returns {Promise<string[] | {[key: string]: string[]}}
      */
-    async getAllRelatedPatients({base_version, idsSet, toMap = false}) {
+    async getAllRelatedPatients ({ base_version, idsSet, toMap = false }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: base_version
+            base_version
         });
 
-        /**@type {string[]} */
+        /** @type {string[]} */
         const ids = [];
         idsSet.forEach((person) => {
             ids.push(person.replace(PERSON_REFERENCE_PREFIX, ''));
         });
 
-        let patientIdsOrMap = await this.getPatientIdsFromPersonAsync(
+        const patientIdsOrMap = await this.getPatientIdsFromPersonAsync(
             {
                 personIds: [...ids],
                 totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
                 level: 1,
-                toMap,
+                toMap
             }
         );
 
         if (toMap === true) {
-            /**@type {Map<string, Set<string>} */
+            /** @type {Map<string, Set<string>} */
             const patientIdsMap = patientIdsOrMap;
             const plainMap = {};
             for (const [personId, patientIds] of patientIdsMap) {
-                // eslint-disable-next-line security/detect-object-injection
                 plainMap[personId] = Array.from(patientIds);
             }
 
@@ -160,22 +157,21 @@ class PersonToPatientIdsExpander {
      * @param {boolean} returnOriginalPersonId If true then returns original personId passed. By default returns person _uuid
      * @return {Promise<string[] | Map<string, Set<string>>} Will return an array if toMap is false else return an map. By default toMap is false
      */
-    async getPatientIdsFromPersonAsync({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false,
+    async getPatientIdsFromPersonAsync ({
+        personIds, totalProcessedPersonIds, databaseQueryManager, level, toMap = false, returnOriginalPersonId = false
     }) {
-
         /**
          * Final result to return
          * Stores all linked patient to current person
          * @type {Map<string, Set<string>>}
          */
-        let personToLinkedPatient = new Map();
+        const personToLinkedPatient = new Map();
 
         /**
          * Stores linked person to all base person
          * @type {Map<string, Set<string>>}
          */
-        let linkedPersonToPersons = new Map();
+        const linkedPersonToPersons = new Map();
 
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
@@ -189,7 +185,7 @@ class PersonToPatientIdsExpander {
         let patientIds = [];
         let personIdsToRecurse = [];
         while (await personResourceCursor.hasNext()) {
-            let person = await personResourceCursor.next();
+            const person = await personResourceCursor.next();
             let personId = person._uuid;
 
             // at first call only, returnOriginalPersonId can be true so that we return the id map for passed personIds not their uuids
@@ -239,8 +235,8 @@ class PersonToPatientIdsExpander {
         }
 
         if (level === maximumRecursionDepth) {
-            let message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
-            logWarn(message, {patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds]});
+            const message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
+            logWarn(message, { patientIds, personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds] });
             if (toMap) {
                 return personToLinkedPatient;
             }
@@ -258,7 +254,7 @@ class PersonToPatientIdsExpander {
                     databaseQueryManager,
                     level: level + 1,
                     toMap,
-                    returnOriginalPersonId: false, // always return _uuid map for it
+                    returnOriginalPersonId: false // always return _uuid map for it
                 });
 
                 // add all patients to current person
@@ -287,7 +283,7 @@ class PersonToPatientIdsExpander {
                 totalProcessedPersonIds: new Set([...totalProcessedPersonIds, ...personIds]),
                 databaseQueryManager,
                 level: level + 1,
-                toMap,
+                toMap
             });
             return patientIds.concat(patientIdsFromPersons);
         }

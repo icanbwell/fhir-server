@@ -35,7 +35,6 @@ module.exports = {
                 context,
                 info,
                 parent.authority);
-        },
+        }
     }
 };
-

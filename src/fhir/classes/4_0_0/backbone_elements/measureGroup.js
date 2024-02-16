@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Measure.Group
     The Measure resource provides the definition of a quality measure.
@@ -21,7 +20,7 @@ class MeasureGroup extends Element {
      * @param {MeasurePopulation[]|undefined} [population],
      * @param {MeasureStratifier[]|undefined} [stratifier],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class MeasureGroup extends Element {
             code,
             description,
             population,
-            stratifier,
+            stratifier
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -165,7 +164,7 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const MeasurePopulation = require('../backbone_elements/measurePopulation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.population = FhirResourceCreator.createArray(valueProvided, MeasurePopulation);
             }
         });
@@ -187,13 +186,10 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const MeasureStratifier = require('../backbone_elements/measureStratifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.stratifier = FhirResourceCreator.createArray(valueProvided, MeasureStratifier);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -203,19 +199,16 @@ class MeasureGroup extends Element {
             code,
             description,
             population,
-            stratifier,
+            stratifier
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -224,7 +217,7 @@ class MeasureGroup extends Element {
             code: this.code && this.code.toJSON(),
             description: this.description,
             population: this.population && this.population.map(v => v.toJSON()),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON())
         });
     }
 
@@ -233,20 +226,20 @@ class MeasureGroup extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.population) {await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.stratifier) {await async.each(this.stratifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.population) { await async.each(this.population, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.stratifier) { await async.each(this.stratifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -254,10 +247,8 @@ class MeasureGroup extends Element {
             code: this.code && this.code.toJSONInternal(),
             description: this.description,
             population: this.population && this.population.map(v => v.toJSONInternal()),
-            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

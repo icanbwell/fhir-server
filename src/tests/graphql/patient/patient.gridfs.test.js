@@ -3,17 +3,16 @@ const patientData = require('./fixtures/patient_with_photo.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const query = fs.readFileSync(path.resolve(__dirname, './fixtures/query_patient_with_gridfs.graphql'), 'utf8');
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 const { logError } = require('../../../operations/common/logging');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { createTestContainer } = require('../../createTestContainer');
 
 describe('GraphQL Patient Update Care Team Tests', () => {
@@ -73,18 +72,18 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
 
-            let body = resp.body;
+            const body = resp.body;
             if (body.errors) {
-                logError('', {'errors': body.errors});
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
 
-            let patients = body.data.patient.entry;
+            const patients = body.data.patient.entry;
 
             expect(patients[0].resource.photo.length).toEqual(1);
 

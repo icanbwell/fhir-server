@@ -7,8 +7,7 @@ const errors = require('./utils/error.utils');
  * @return {function} valid express middleware
  */
 
-
-module.exports = function versionValidationMiddleware(profile = {}) {
+module.exports = function versionValidationMiddleware (profile = {}) {
     const {
         versions = [],
         baseUrls = []

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DeviceUseStatement
     A record of a device being used by a patient where the record is the result of
@@ -42,7 +41,7 @@ class DeviceUseStatement extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -70,7 +69,7 @@ class DeviceUseStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -113,7 +112,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -177,7 +176,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -199,7 +198,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -223,7 +222,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -255,7 +254,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -275,7 +274,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -296,7 +295,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.basedOn = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -336,7 +335,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -357,7 +356,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.derivedFrom = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -377,7 +376,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.timingTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
@@ -397,7 +396,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.timingPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -453,7 +452,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -473,7 +472,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.device = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -493,7 +492,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reasonCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -513,7 +512,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reasonReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -534,7 +533,7 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.bodySite = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -557,11 +556,10 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
-
 
         /**
          * @description _access
@@ -616,7 +614,6 @@ class DeviceUseStatement extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -645,7 +642,7 @@ class DeviceUseStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -664,7 +661,7 @@ class DeviceUseStatement extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'DeviceUseStatement';
     }
 
@@ -699,7 +696,7 @@ class DeviceUseStatement extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {DeviceUseStatement}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -727,7 +724,7 @@ class DeviceUseStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new DeviceUseStatement({
@@ -757,7 +754,7 @@ class DeviceUseStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -765,17 +762,16 @@ class DeviceUseStatement extends Resource {
      * @description creates a copy of this resource
      * @returns {DeviceUseStatement}
     */
-    clone() {
+    clone () {
         return new DeviceUseStatement(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -801,7 +797,7 @@ class DeviceUseStatement extends Resource {
             reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
             bodySite: this.bodySite && this.bodySite.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -810,32 +806,32 @@ class DeviceUseStatement extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.basedOn) {await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.derivedFrom) {await async.each(this.derivedFrom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.timingTiming) {await this.timingTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timingPeriod) {await this.timingPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) {await this.source.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.device) {await this.device.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) {await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) {await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.bodySite) {await this.bodySite.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.basedOn) { await async.each(this.basedOn, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.derivedFrom) { await async.each(this.derivedFrom, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.timingTiming) { await this.timingTiming.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.timingPeriod) { await this.timingPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.source) { await this.source.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.device) { await this.device.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reasonCode) { await async.each(this.reasonCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.reasonReference) { await async.each(this.reasonReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.bodySite) { await this.bodySite.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -860,9 +856,8 @@ class DeviceUseStatement extends Resource {
             reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
             reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
             bodySite: this.bodySite && this.bodySite.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -15,13 +15,13 @@ class ProaConsentManager {
      * @param {SearchQueryBuilder} searchQueryBuilder
      * @param {BwellPersonFinder} bwellPersonFinder
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             configManager,
             patientFilterManager,
             searchQueryBuilder,
-            bwellPersonFinder,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -62,60 +62,61 @@ class ProaConsentManager {
      * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources({ownerTags, personIds}) {
-
+    async getConsentResources ({ ownerTags, personIds }) {
         // get all consents where provision.actor.reference is of proxy-patient with valid code
-        let proxyPersonReferences = personIds.map(
+        const proxyPersonReferences = personIds.map(
             (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
         );
 
         const query =
         {
             $and: [
-                {'status': 'active'},
+                { status: 'active' },
                 {
-                    '$and': [
+                    $and: [
                         {
                             'provision.actor.reference._uuid': {
-                                '$in': proxyPersonReferences,
-                            },
+                                $in: proxyPersonReferences
+                            }
                         },
                         {
                             'provision.actor.role.coding': {
-                                '$elemMatch': {
-                                    'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
-                                    'code': PROXY_PERSON_CONSENT_CODING.CODE,
-                                },
+                                $elemMatch: {
+                                    system: PROXY_PERSON_CONSENT_CODING.SYSTEM,
+                                    code: PROXY_PERSON_CONSENT_CODING.CODE
+                                }
                             }
-                        },
+                        }
                     ]
                 },
-                {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
-                {'provision.type': 'permit'},
-                {'meta.security': {
-                    '$elemMatch': {
-                        'system': 'https://www.icanbwell.com/owner',
-                        'code': {$in: ownerTags},
-                    },
-                }}
+                { 'provision.class.code': { $in: this.configManager.getDataSharingConsentCodes } },
+                { 'provision.type': 'permit' },
+                {
+'meta.security': {
+                    $elemMatch: {
+                        system: 'https://www.icanbwell.com/owner',
+                        code: { $in: ownerTags }
+                    }
+                }
+}
             ]
         };
 
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
-            base_version: '4_0_0',
+            base_version: '4_0_0'
         });
 
         const cursor = await consentDataBaseQueryManager.findAsync({
-            query: query,
+            query,
             projection: {}
         });
         const consentResources = await cursor
             // forcing to use this index
             .hint({
-                indexHint: CONSENT_OF_LINKED_PERSON_INDEX,
+                indexHint: CONSENT_OF_LINKED_PERSON_INDEX
             })
-            .sort({'meta.lastUpdated': -1})
+            .sort({ 'meta.lastUpdated': -1 })
             .toArrayRawAsync();
 
         return consentResources;
@@ -128,7 +129,7 @@ class ProaConsentManager {
      * @property {string[]} securityTags security Tags
      * @param {PatientIdsWithConsent} param
      */
-    async getPatientIdsWithConsent({patientIdToImmediatePersonUuid, securityTags,}) {
+    async getPatientIdsWithConsent ({ patientIdToImmediatePersonUuid, securityTags }) {
         /**
         * @type {Set<string>}
         */
@@ -151,14 +152,14 @@ class ProaConsentManager {
         // Get Consent for each person
         const consentResources = await this.getConsentResources({
             ownerTags: securityTags,
-            personIds: [...immediatePersonUuids],
+            personIds: [...immediatePersonUuids]
         });
 
         /**
          * (Proxy) Patient Refs which have provided consent to view data
          * @type {Set<string>}
          */
-        let allowedPatientIds = new Set();
+        const allowedPatientIds = new Set();
         consentResources.forEach((consent) => {
             if (Array.isArray(consent?.provision?.actor)) {
                 const proxyPersonActor = consent.provision.actor.find((a) => {
@@ -166,7 +167,7 @@ class ProaConsentManager {
                 });
 
                 if (proxyPersonActor?.reference?._uuid) {
-                    /**@type {string} */
+                    /** @type {string} */
                     const uuidRef = proxyPersonActor.reference._uuid;
                     const personUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
                     if (immediatePersonToInputPatientId.has(personUuid)) {

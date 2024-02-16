@@ -5,9 +5,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
@@ -27,14 +27,13 @@ describe('PatientReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction

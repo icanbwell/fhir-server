@@ -8,7 +8,7 @@
       "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
       ],
-      "source": "medstar",
+      "source": "client",
       "security": [
       {
           "system": "https://www.icanbwell.com/access",
@@ -75,6 +75,19 @@
         "type": "Person"
     },
     "assurance": "level4"
+  },
+  {
+    "target": {
+        "reference": "Person/a58e50292d79469691d3048e787434cc|bwell",
+        "type": "Person"
+    },
+    "assurance": "level4"
+  },
+  {
+    "target": {
+        "reference": "Person/a58e50292d79469691d3048e787434cc|bwell",
+        "type": "Person"
+    }
   },
   {
     "target": {

@@ -1,8 +1,8 @@
-const {MemoryVectorStore} = require('langchain/vectorstores/memory');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
-const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { MemoryVectorStore } = require('langchain/vectorstores/memory');
+const { OpenAIEmbeddings } = require('@langchain/openai');
+const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -12,7 +12,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }) {
         super();
@@ -28,7 +28,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store
      * @returns {Promise<MemoryVectorStore>}
      */
-    async createVectorStoreInternalAsync() {
+    async createVectorStoreInternalAsync () {
         /**
          * @type {OpenAIEmbeddings}
          */
@@ -40,7 +40,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store from a list of langchain documents
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreAsync() {
+    async createVectorStoreAsync () {
         if (!this.vectorStore) {
             this.vectorStore = await this.createVectorStoreInternalAsync();
         }
@@ -51,7 +51,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * returns whether the vector store is enabled
      * @returns {Promise<boolean>}
      */
-    async isEnabledAsync() {
+    async isEnabledAsync () {
         return this.configManager.enableMemoryVectorStore;
     }
 
@@ -60,7 +60,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter} filter
      * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
      */
-    getFilter(filter) {
+    getFilter (filter) {
         return (document) => (document.metadata.resourceType === filter.resourceType && document.metadata.uuid === filter.uuid) ||
             (document.metadata.parentResourceType === filter.resourceType && document.metadata.parentUuid === filter.uuid);
     }
@@ -70,7 +70,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter|undefined} [filter]
      * @return {import('langchain/schema/retriever').BaseRetriever}
      */
-    asRetriever({filter}) {
+    asRetriever ({ filter }) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
     }
@@ -79,7 +79,7 @@ class MemoryVectorStoreManager extends BaseVectorStoreManager {
      * clears the vector store
      * @returns {Promise<void>}
      */
-    async clearAsync() {
+    async clearAsync () {
         if (this.vectorStore) {
             this.vectorStore = await this.createVectorStoreInternalAsync();
         }

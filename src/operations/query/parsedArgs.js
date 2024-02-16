@@ -1,5 +1,5 @@
-const {assertIsValid} = require('../../utils/assertType');
-const {removeNull} = require('../../utils/nullRemover');
+const { assertIsValid } = require('../../utils/assertType');
+const { removeNull } = require('../../utils/nullRemover');
 
 class ParsedArgs {
     /**
@@ -8,7 +8,7 @@ class ParsedArgs {
      * @param {ParsedArgsItem[]} [parsedArgItems]
      * @param {Object|undefined} [headers]
      */
-    constructor({base_version, parsedArgItems = [], headers}) {
+    constructor ({ base_version, parsedArgItems = [], headers }) {
         assertIsValid(base_version, 'base_version is missing');
         this.base_version = base_version;
         /**
@@ -36,7 +36,7 @@ class ParsedArgs {
      * @param {ParsedArgsItem} parsedArgItem
      * @return {ParsedArgs}
      */
-    add(parsedArgItem) {
+    add (parsedArgItem) {
         /**
          * @type {string}
          */
@@ -80,7 +80,6 @@ class ParsedArgs {
                     }
                 );
             }
-
         }
         return this;
     }
@@ -90,7 +89,7 @@ class ParsedArgs {
      * @param {string} argName
      * @return {ParsedArgsItem|undefined}
      */
-    get(argName) {
+    get (argName) {
         return this.parsedArgItems.find(a => a.queryParameter === argName);
     }
 
@@ -99,7 +98,7 @@ class ParsedArgs {
      * @param {string} argName
      * @return {ParsedArgsItem|undefined}
      */
-    getOriginal(argName) {
+    getOriginal (argName) {
         return this.originalParsedArgItems.find(a => a.queryParameter === argName);
     }
 
@@ -108,7 +107,7 @@ class ParsedArgs {
      * @param {string} argName
      * @return {ParsedArgs}
      */
-    remove(argName) {
+    remove (argName) {
         this.parsedArgItems = this.parsedArgItems.filter(a => a.queryParameter !== argName);
         return this;
     }
@@ -117,7 +116,7 @@ class ParsedArgs {
      * Clone
      * @return {ParsedArgs}
      */
-    clone() {
+    clone () {
         return new ParsedArgs(
             {
                 base_version: this.base_version,
@@ -130,7 +129,7 @@ class ParsedArgs {
     /**
      * @return {Object.<string,string|string[]>}
      */
-    getRawArgs() {
+    getRawArgs () {
         const obj = {};
         for (const [, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
             obj[`${value.queryParameter}`] = value._queryParameterValue.value;
@@ -142,7 +141,7 @@ class ParsedArgs {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             base_version: this.base_version,
             parsedArgItems: this.parsedArgItems.map(p => p.toJSON()),

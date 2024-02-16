@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 InteractionTrigger
     If the element is present, it must have either a @value, an @id, or extensions
@@ -17,11 +16,11 @@ class InteractionTrigger extends Element {
      * @param {Extension[]|undefined} [extension],
      * @param {code|undefined} [value],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
-            value,
+            value
         }
     ) {
         super({});
@@ -65,7 +64,7 @@ class InteractionTrigger extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -88,31 +87,25 @@ class InteractionTrigger extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
-            value,
+            value
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
-            value: this.value,
+            value: this.value
         });
     }
 
@@ -121,23 +114,21 @@ class InteractionTrigger extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
-            value: this.value,
+            value: this.value
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationKnowledge.DrugCharacteristic
     Information about a medication that is used to support knowledge.
@@ -22,7 +21,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
      * @param {Quantity|undefined} [valueQuantity],
      * @param {base64Binary|undefined} [valueBase64Binary],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept,
             valueString,
             valueQuantity,
-            valueBase64Binary,
+            valueBase64Binary
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -128,7 +127,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -148,7 +147,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -186,7 +185,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -209,9 +208,6 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -221,19 +217,16 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept,
             valueString,
             valueQuantity,
-            valueBase64Binary,
+            valueBase64Binary
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -243,7 +236,7 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         });
     }
 
@@ -252,20 +245,20 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueCodeableConcept) {await this.valueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueCodeableConcept) { await this.valueCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -274,10 +267,8 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueBase64Binary: this.valueBase64Binary,
+            valueBase64Binary: this.valueBase64Binary
         };
-
-
 
         return removeNull(json);
     }

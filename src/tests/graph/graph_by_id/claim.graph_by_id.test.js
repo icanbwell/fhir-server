@@ -14,10 +14,10 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {generateUUIDv5} = require('../../../utils/uid.util');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -42,28 +42,28 @@ describe('Claim Graph By Id Contained Tests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/1407857790/$merge')
                 .send(organizationResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$merge')
                 .send(claimResource[0])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$merge')
                 .send(claimResource[1])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$graph?contained=true')
@@ -80,7 +80,7 @@ describe('Claim Graph By Id Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource_230916613369);
 
-            const uuid = generateUUIDv5('WPS-Claim-230916613369|medstar');
+            const uuid = generateUUIDv5('WPS-Claim-230916613369|client');
             resp = await request
                 .post(`/4_0_0/ExplanationOfBenefit/${uuid}/$graph?contained=true`)
                 .set(getHeaders())

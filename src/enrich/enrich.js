@@ -1,9 +1,9 @@
 /**
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
-const {RethrownError} = require('../utils/rethrownError');
-const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {ParsedArgs} = require('../operations/query/parsedArgs');
+const { RethrownError } = require('../utils/rethrownError');
+const { assertTypeEquals, assertIsValid } = require('../utils/assertType');
+const { ParsedArgs } = require('../operations/query/parsedArgs');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
@@ -12,7 +12,7 @@ class EnrichmentManager {
      * constructor
      * @param {EnrichmentProvider[]} enrichmentProviders
      */
-    constructor({enrichmentProviders}) {
+    constructor ({ enrichmentProviders }) {
         /**
          * @type {EnrichmentProvider[]}
          */
@@ -25,7 +25,7 @@ class EnrichmentManager {
      * @param {Resource[]} resources
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, parsedArgs}) {
+    async enrichAsync ({ resources, parsedArgs }) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
@@ -41,7 +41,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichAsync()',
                     error: e,
-                    args: {resources, parsedArgs}
+                    args: { resources, parsedArgs }
                 }
             );
         }
@@ -53,7 +53,7 @@ class EnrichmentManager {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs}) {
+    async enrichBundleEntriesAsync ({ entries, parsedArgs }) {
         try {
             assertIsValid(entries !== null && entries !== undefined, 'entries is null');
             assertIsValid(Array.isArray(entries), 'entries is not an array');
@@ -70,7 +70,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichBundleEntriesAsync()',
                     error: e,
-                    args: {entries, parsedArgs}
+                    args: { entries, parsedArgs }
                 }
             );
         }

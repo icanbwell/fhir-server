@@ -6,9 +6,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
 let oldEnvLogLevel;
 
@@ -23,12 +23,12 @@ describe('CSV Performance tests', () => {
         const initialId = practitionerResource.id;
         const bundle = {
             resourceType: 'Bundle',
-            entry: [],
+            entry: []
         };
         for (let i = 0; i < numberOfResources; i++) {
             practitionerResource.id = initialId + '-' + i;
             bundle.entry.push({
-                resource: deepcopy(practitionerResource),
+                resource: deepcopy(practitionerResource)
             });
         }
         const request = await createTestRequest();
@@ -60,7 +60,7 @@ describe('CSV Performance tests', () => {
             async () => {
                 const request = await createTestRequest();
                 // now check that we get the right record back
-                let resp = await request
+                const resp = await request
                     .get('/4_0_0/Practitioner/?_count=10')
                     .set(getHeaders())
                     .expect(200);
@@ -71,7 +71,7 @@ describe('CSV Performance tests', () => {
                  * @param {import('http').IncomingMessage} req
                  * @param callback
                  */
-                function chunkParser(req, callback) {
+                function chunkParser (req, callback) {
                     req.text = '';
                     let text = '';
                     req.setEncoding('utf8');

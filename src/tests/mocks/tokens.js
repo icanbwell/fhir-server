@@ -8,12 +8,12 @@ const env = require('var');
  * @param {string | Buffer | object} payload
  * @return {string}
  */
-function createToken(key, kid, payload) {
+function createToken (key, kid, payload) {
     return jwt.sign(payload, key, {
         noTimestamp: true,
         algorithm: 'RS256',
         issuer: env.AUTH_ISSUER,
-        header: { alg: 'RS256', kid },
+        header: { alg: 'RS256', kid }
     });
 }
 
@@ -23,16 +23,16 @@ function createToken(key, kid, payload) {
  * @param {{noTimestamp: boolean, algorithm: string, header: { alg: string, kid: string}}} payload
  * @return {string}
  */
-function createSymmetricToken(key, payload) {
+function createSymmetricToken (key, payload) {
     return jwt.sign(payload, key, {
         noTimestamp: true,
         algorithm: 'HS256',
         issuer: env.AUTH_ISSUER,
-        header: { alg: 'HS256' },
+        header: { alg: 'HS256' }
     });
 }
 
 module.exports = {
     createToken,
-    createSymmetricToken,
+    createSymmetricToken
 };

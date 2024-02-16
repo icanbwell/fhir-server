@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CapabilityStatement.Messaging
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR
@@ -24,7 +23,7 @@ class CapabilityStatementMessaging extends Element {
      * @param {markdown|undefined} [documentation],
      * @param {CapabilityStatementSupportedMessage[]|undefined} [supportedMessage],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint,
             reliableCache,
             documentation,
-            supportedMessage,
+            supportedMessage
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -129,7 +128,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.endpoint = FhirResourceCreator.createArray(valueProvided, CapabilityStatementEndpoint);
             }
         });
@@ -189,13 +188,10 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.supportedMessage = FhirResourceCreator.createArray(valueProvided, CapabilityStatementSupportedMessage);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -205,19 +201,16 @@ class CapabilityStatementMessaging extends Element {
             endpoint,
             reliableCache,
             documentation,
-            supportedMessage,
+            supportedMessage
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -226,7 +219,7 @@ class CapabilityStatementMessaging extends Element {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
             reliableCache: this.reliableCache,
             documentation: this.documentation,
-            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON()),
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON())
         });
     }
 
@@ -235,19 +228,19 @@ class CapabilityStatementMessaging extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.endpoint) {await async.each(this.endpoint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportedMessage) {await async.each(this.supportedMessage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.endpoint) { await async.each(this.endpoint, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.supportedMessage) { await async.each(this.supportedMessage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -255,10 +248,8 @@ class CapabilityStatementMessaging extends Element {
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
             reliableCache: this.reliableCache,
             documentation: this.documentation,
-            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSONInternal()),
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

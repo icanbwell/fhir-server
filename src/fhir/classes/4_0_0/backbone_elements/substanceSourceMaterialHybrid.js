@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial.Hybrid
     Source material shall capture information on the taxonomic and anatomical
@@ -35,7 +34,7 @@ class SubstanceSourceMaterialHybrid extends Element {
      * @param {String|undefined} [paternalOrganismName],
      * @param {CodeableConcept|undefined} [hybridType],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -44,7 +43,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName,
             paternalOrganismId,
             paternalOrganismName,
-            hybridType,
+            hybridType
         }
     ) {
         super({});
@@ -88,7 +87,7 @@ class SubstanceSourceMaterialHybrid extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -120,7 +119,7 @@ class SubstanceSourceMaterialHybrid extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -219,13 +218,10 @@ class SubstanceSourceMaterialHybrid extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.hybridType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -236,19 +232,16 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName,
             paternalOrganismId,
             paternalOrganismName,
-            hybridType,
+            hybridType
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -258,7 +251,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName: this.maternalOrganismName,
             paternalOrganismId: this.paternalOrganismId,
             paternalOrganismName: this.paternalOrganismName,
-            hybridType: this.hybridType && this.hybridType.toJSON(),
+            hybridType: this.hybridType && this.hybridType.toJSON()
         });
     }
 
@@ -267,18 +260,18 @@ class SubstanceSourceMaterialHybrid extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.hybridType) {await this.hybridType.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.hybridType) { await this.hybridType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -287,10 +280,8 @@ class SubstanceSourceMaterialHybrid extends Element {
             maternalOrganismName: this.maternalOrganismName,
             paternalOrganismId: this.paternalOrganismId,
             paternalOrganismName: this.paternalOrganismName,
-            hybridType: this.hybridType && this.hybridType.toJSONInternal(),
+            hybridType: this.hybridType && this.hybridType.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

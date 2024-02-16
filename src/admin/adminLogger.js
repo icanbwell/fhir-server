@@ -1,17 +1,17 @@
 const { getLogger } = require('../winstonInit');
 
 class AdminLogger {
-    constructor() {
+    constructor () {
         const parentLogger = getLogger();
         this.logger = parentLogger.child();
         this.logger.defaultMeta = { ...parentLogger.defaultMeta, logger: 'admin' };
     }
 
-    logInfo(message, args) {
+    logInfo (message, args) {
         this.logger.info(message, args);
     }
 
-    logError(message, args) {
+    logError (message, args) {
         this.logger.error(message, args);
     }
 }

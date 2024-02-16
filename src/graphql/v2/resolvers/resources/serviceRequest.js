@@ -16,39 +16,39 @@ module.exports = {
         }
     },
     ServiceRequestBasedOn: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequestSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequestRequester: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequestPerformer: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequestReasonReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequestInsurance: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequestSupportingInfoV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ServiceRequest: {
         // noinspection JSUnusedLocalSymbols
@@ -180,7 +180,6 @@ module.exports = {
                 context,
                 info,
                 parent.relevantHistory);
-        },
+        }
     }
 };
-

@@ -4,7 +4,7 @@ const { MongoCollectionManager } = require('../../utils/mongoCollectionManager')
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
-const {mongoConfig} = require('../../config');
+const { mongoConfig } = require('../../config');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -19,7 +19,7 @@ class CopyToV3Runner {
      * @param {Object|string|undefined} collections
      * @param {AdminLogger} adminLogger
      */
-    constructor({
+    constructor ({
         mongoDatabaseManager,
         mongoCollectionManager,
         updatedAfter,
@@ -29,7 +29,7 @@ class CopyToV3Runner {
         collections,
         startWithCollection,
         skipHistoryCollections,
-        adminLogger,
+        adminLogger
     }) {
         /**
          * @type {moment.Moment}
@@ -90,7 +90,7 @@ class CopyToV3Runner {
      * @description Creates config for the v3 cluster using connection string
      * @returns {Object}
      */
-    getV3ClusterConfig() {
+    getV3ClusterConfig () {
         let v3MongoUrl = process.env.V3_MONGO_URL;
         v3MongoUrl = v3MongoUrl.replace(
             'mongodb+srv://',
@@ -104,14 +104,14 @@ class CopyToV3Runner {
         this.adminLogger.logInfo(
             `Connecting to v3 cluster with db_name: ${db_name}`
         );
-        return { connection: v3MongoUrl, db_name: db_name, options: mongoConfig.options };
+        return { connection: v3MongoUrl, db_name, options: mongoConfig.options };
     }
 
     /**
      * @description Creates config for the Live cluster using connection string
      * @returns {Object}
      */
-    getLiveClusterConfig() {
+    getLiveClusterConfig () {
         this.adminLogger.logInfo(
             `Connecting to live cluster with db_name: ${mongoConfig.db_name}`
         );
@@ -123,11 +123,11 @@ class CopyToV3Runner {
      * @param {Array} collectionList
      * @return {Array}
      */
-    getListOfCollections(collectionList) {
-        let collectionNames = [];
+    getListOfCollections (collectionList) {
+        const collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
-            if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name) ) {
+            if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
                 continue;
             }
             // If the list of collection is mentioned verify the collection name is in the list of collections passed
@@ -150,8 +150,11 @@ class CopyToV3Runner {
      * @param {Array} operations List of docs with operation
      * @returns {Object}
      */
-    async v3BulkWrite(collection, v3DatabaseCollection, operations) {
-        let totalDocumentUpdatedCount = 0, totalDocumentCreatedCount = 0, totalDocumentHavingSameDataCount = 0, lastProcessedId = null;
+    async v3BulkWrite (collection, v3DatabaseCollection, operations) {
+        let totalDocumentUpdatedCount = 0;
+        let totalDocumentCreatedCount = 0;
+        let totalDocumentHavingSameDataCount = 0;
+        let lastProcessedId = null;
         this.adminLogger.logInfo(`Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${collection}.`);
 
         try {
@@ -161,7 +164,7 @@ class CopyToV3Runner {
             totalDocumentCreatedCount += bulkResult.nUpserted;
             totalDocumentHavingSameDataCount += (bulkResult.nMatched - bulkResult.nModified);
 
-            lastProcessedId = operations[operations.length - 1]['updateOne']['filter']['_id'];
+            lastProcessedId = operations[operations.length - 1].updateOne.filter._id;
             const message =
                 `Processed Collection: ${collection}, upto document _id: ${lastProcessedId.toLocaleString('en-US')},` +
                 `DocumentUpdatedCount: ${totalDocumentUpdatedCount.toLocaleString('en-US')}, ` +
@@ -170,17 +173,21 @@ class CopyToV3Runner {
             this.adminLogger.logInfo(message);
         } catch (error) {
             this.adminLogger.logError(
-                `Error while updating collection: ${collection} document _id start: ${operations[0]['updateOne']['filter']['_id']}, end: ${operations[operations.length - 1]['updateOne']['filter']['_id']}. Error Message: ${error}`
+                `Error while updating collection: ${collection} document _id start: ${operations[0].updateOne.filter._id}, end: ${operations[operations.length - 1].updateOne.filter._id}. Error Message: ${error}`
             );
         }
-        return {totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount: totalDocumentCreatedCount,
-            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount, lastProcessedId: lastProcessedId};
+        return {
+totalDocumentUpdatedCount,
+totalDocumentCreatedCount,
+            totalDocumentHavingSameDataCount,
+lastProcessedId
+};
     }
 
     /**
      * Runs a loop to process all the documents.
      */
-    async processAsync() {
+    async processAsync () {
         // If idabove is to be used and but collections is not provided or collections contains multiple values return
         if (this._idAbove && (!this.collections || this.collections.length > 1)) {
             this.adminLogger.logError(
@@ -206,7 +213,7 @@ class CopyToV3Runner {
             const liveDatabase = liveClient.db(liveClusterConfig.db_name);
 
             // Fetch all the collection names for the live database.
-            let liveCollectionAndViews = await liveDatabase.listCollections().toArray();
+            const liveCollectionAndViews = await liveDatabase.listCollections().toArray();
             let liveCollections = this.getListOfCollections(liveCollectionAndViews);
             liveCollections.sort();
             if (this.startWithCollection) {
@@ -216,9 +223,9 @@ class CopyToV3Runner {
             this.adminLogger.logInfo(`The list of collections are:  ${liveCollections}`);
 
             // Creating batches of collections depending on the concurrency parameter passed.
-            let collectionNameBatches = [];
+            const collectionNameBatches = [];
             // Dpending on concurrentRunners provided we eill batch collections in equivalent groups.
-            let minimumCollectionsToRunTogether = Math.max(
+            const minimumCollectionsToRunTogether = Math.max(
                 1,
                 Math.floor(liveCollections.length / this.concurrentRunners)
             );
@@ -234,7 +241,7 @@ class CopyToV3Runner {
 
             // Process each collection batch in parallel
             const processingBatch = collectionNameBatches.map(async (collectionNameBatch) => {
-                let results = {};
+                const results = {};
                 for (const collection of collectionNameBatch) {
                     this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
                     let totalDocumentUpdatedCount = 0; // Keeps track of the total updated documents
@@ -249,11 +256,11 @@ class CopyToV3Runner {
                     const v3DatabaseCollection = v3Database.collection(collection);
 
                     // Query to fetch documents for both history collection and normal collection that have lastUpdated greater than updatedAfter
-                    const queryToFetchDocuments = isHistoryCollection ?
-                        { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } } :
-                        { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
+                    const queryToFetchDocuments = isHistoryCollection
+                        ? { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } }
+                        : { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
                     // // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
-                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments ]} : queryToFetchDocuments;
+                    const query = this._idAbove ? { $and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments] } : queryToFetchDocuments;
 
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
@@ -266,7 +273,7 @@ class CopyToV3Runner {
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
                         batchSize: this.readBatchSize,
-                        sort: { _id: 1 },
+                        sort: { _id: 1 }
                     };
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
@@ -276,7 +283,7 @@ class CopyToV3Runner {
 
                     while (await cursor.hasNext()) {
                         const liveDocument = await cursor.next();
-                        operations.push({updateOne: {filter: {_id: liveDocument._id}, update: {$set: liveDocument}, upsert: true }});
+                        operations.push({ updateOne: { filter: { _id: liveDocument._id }, update: { $set: liveDocument }, upsert: true } });
 
                         if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
                             result = await this.v3BulkWrite(collection, v3DatabaseCollection, operations);
@@ -301,19 +308,17 @@ class CopyToV3Runner {
                         if (result.lastProcessedId) {
                             lastProcessedId = result.lastProcessedId;
                         }
-
                     }
                     this.adminLogger.logInfo(
                         `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
                     );
-                    // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
-                        totalLiveDocuments: totalLiveDocuments,
+                        totalLiveDocuments,
                         totalLiveMatchedDocuments: liveDocumentLastUpdatedGreaterThanUpdatedAfter,
                         totalDocumentUpdated: totalDocumentUpdatedCount,
                         totalDocumentCreated: totalDocumentCreatedCount,
                         totalDocumentHavingSameData: totalDocumentHavingSameDataCount,
-                        lastProcessedId: lastProcessedId
+                        lastProcessedId
                     };
                 }
                 return results;
@@ -335,5 +340,5 @@ class CopyToV3Runner {
 }
 
 module.exports = {
-    CopyToV3Runner,
+    CopyToV3Runner
 };

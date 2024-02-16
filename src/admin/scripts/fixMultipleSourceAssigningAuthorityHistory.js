@@ -8,21 +8,21 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixMultipleSourceAssigningAuthorityHistoryRunner} = require('../runners/fixMultipleSourceAssigningAuthorityHistoryRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixMultipleSourceAssigningAuthorityHistoryRunner } = require('../runners/fixMultipleSourceAssigningAuthorityHistoryRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
@@ -42,7 +42,7 @@ async function main() {
     container.register('fixMultipleSourceAssigningAuthorityHistoryRunner', (c) => new FixMultipleSourceAssigningAuthorityHistoryRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,

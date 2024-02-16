@@ -16,29 +16,29 @@ module.exports = {
         }
     },
     MessageHeaderSender: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MessageHeaderEnterer: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MessageHeaderAuthor: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MessageHeaderResponsible: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MessageHeaderFocusV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     MessageHeader: {
         // noinspection JSUnusedLocalSymbols
@@ -100,7 +100,6 @@ module.exports = {
                 context,
                 info,
                 parent.focus);
-        },
+        }
     }
 };
-

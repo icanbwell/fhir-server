@@ -28,7 +28,7 @@
                                     },
                                     {
                                         "system": "https://www.icanbwell.com/uuid",
-                                        "value": "232a204b-3881-56c8-b240-a4faf159ffed"
+                                        "value": "6df8ebde-886b-5033-b053-57274a1bfb3b"
                                     }
                                 ]
                             }
@@ -42,7 +42,7 @@
                 "tag": [
                     {
                         "system": "https://www.icanbwell.com/query",
-                        "display": "[db.Patient_4_0_0.find({'$nor':[{'_sourceId':'WPS-0559166162'}]}, {}).sort({'id':1}).limit(100)]"
+                        "display": "[db.Patient_4_0_0.find({'$nor':[{'_sourceId':'WPS-0559166162'}]}, {}).sort({'_uuid':1}).limit(100)]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryCollection",
@@ -50,11 +50,11 @@
                     },
                     {
                         "system": "https://www.icanbwell.com/queryOptions",
-                        "display": "[{'limit':100,'sort':{'id':1}}]"
+                        "display": "[{'limit':100,'sort':{'_uuid':1}}]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryFields",
-                        "display": "[['_sourceId','id']]"
+                        "display": "[['_sourceId','_uuid']]"
                     },
                     {
                         "system": "https://www.icanbwell.com/queryTime",

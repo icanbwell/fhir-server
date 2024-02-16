@@ -7,12 +7,10 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const personResource = require('./fixtures/Person/person.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 
-
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 const expectedPersonDeletionResources = require('./fixtures/expected/expected_Person_deletion.json');
 const expectedTopLevelPersonResources = require('./fixtures/expected/expected_TopLevelPerson.json');
-
 
 const {
     commonBeforeEach,
@@ -21,7 +19,7 @@ const {
     createTestRequest,
     getHeadersWithCustomToken
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -42,21 +40,21 @@ describe('Person Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request
@@ -75,35 +73,35 @@ describe('Person Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(topLevelPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request
@@ -122,35 +120,35 @@ describe('Person Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(personResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(topLevelPersonResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request

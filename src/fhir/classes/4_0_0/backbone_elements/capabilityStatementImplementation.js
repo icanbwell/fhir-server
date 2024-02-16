@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CapabilityStatement.Implementation
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR
@@ -23,14 +22,14 @@ class CapabilityStatementImplementation extends Element {
      * @param {url|undefined} [url],
      * @param {Reference|undefined} [custodian],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             description,
             url,
-            custodian,
+            custodian
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class CapabilityStatementImplementation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class CapabilityStatementImplementation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -165,13 +164,10 @@ class CapabilityStatementImplementation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.custodian = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -180,19 +176,16 @@ class CapabilityStatementImplementation extends Element {
             modifierExtension,
             description,
             url,
-            custodian,
+            custodian
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -200,7 +193,7 @@ class CapabilityStatementImplementation extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             url: this.url,
-            custodian: this.custodian && this.custodian.toJSON(),
+            custodian: this.custodian && this.custodian.toJSON()
         });
     }
 
@@ -209,28 +202,26 @@ class CapabilityStatementImplementation extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.custodian) {await this.custodian.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.custodian) { await this.custodian.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             description: this.description,
             url: this.url,
-            custodian: this.custodian && this.custodian.toJSONInternal(),
+            custodian: this.custodian && this.custodian.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

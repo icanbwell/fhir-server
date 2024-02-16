@@ -3,37 +3,36 @@
  */
 const express = require('express');
 const httpContext = require('express-http-context');
-const {fhirServerConfig} = require('./config');
+const { fhirServerConfig } = require('./config');
 const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const {graphql} = require('./middleware/graphql/graphqlServer');
-const {resourceDefinitions} = require('./utils/resourceDefinitions');
+const { graphql } = require('./middleware/graphql/graphqlServer');
 
 const passport = require('passport');
-const {strategy} = require('./strategies/jwt.bearer.strategy');
+const { strategy } = require('./strategies/jwt.bearer.strategy');
 
-const {handleAlert} = require('./routeHandlers/alert');
-const {MyFHIRServer} = require('./routeHandlers/fhirServer');
-const {handleSecurityPolicy, handleSecurityPolicyGraphql} = require('./routeHandlers/contentSecurityPolicy');
-const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
-const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
-const {handleVersion} = require('./routeHandlers/version');
-const {handleLogout} = require('./routeHandlers/logout');
-const {handleClean} = require('./routeHandlers/clean');
-const {handleStats} = require('./routeHandlers/stats');
-const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
-const {isTrue} = require('./utils/isTrue');
+const { handleAlert } = require('./routeHandlers/alert');
+const { MyFHIRServer } = require('./routeHandlers/fhirServer');
+const { handleSecurityPolicy, handleSecurityPolicyGraphql } = require('./routeHandlers/contentSecurityPolicy');
+const { handleHealthCheck } = require('./routeHandlers/healthCheck.js');
+const { handleFullHealthCheck } = require('./routeHandlers/healthFullCheck.js');
+const { handleVersion } = require('./routeHandlers/version');
+const { handleClean } = require('./routeHandlers/clean');
+const { handleStats } = require('./routeHandlers/stats');
+const { handleLogout } = require('./routeHandlers/logout');
+const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
+const { isTrue } = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
-const {handleAdmin} = require('./routeHandlers/admin');
-const {getImageVersion} = require('./utils/getImageVersion');
-const {REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE} = require('./constants');
-const {generateUUID} = require('./utils/uid.util');
-const {logInfo} = require('./operations/common/logging');
+const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
+const { handleAdmin } = require('./routeHandlers/admin');
+const { getImageVersion } = require('./utils/getImageVersion');
+const { REQUEST_ID_TYPE, REQUEST_ID_HEADER, RESPONSE_NONCE } = require('./constants');
+const { generateUUID } = require('./utils/uid.util');
+const { logInfo } = require('./operations/common/logging');
 const { generateNonce } = require('./utils/nonce');
 const { handleServerError } = require('./routeHandlers/handleError');
 const { shouldReturnHtml } = require('./utils/requestHelpers.js');
@@ -44,13 +43,12 @@ const { shouldReturnHtml } = require('./utils/requestHelpers.js');
  * @param {import('express').Express} app1
  * @returns {MyFHIRServer}
  */
-function createFhirApp(fnGetContainer, app1) {
+function createFhirApp (fnGetContainer, app1) {
     return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
         .configureHelmet()
         .configurePassport()
-        .configureHtmlRenderer()
         .setPublicDirectory()
         .setProfileRoutes()
         .setErrorRoutes();
@@ -86,9 +84,8 @@ function createFhirApp(fnGetContainer, app1) {
  * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp({fnGetContainer, trackMetrics}) {
+function createApp ({ fnGetContainer, trackMetrics }) {
     const swaggerUi = require('swagger-ui-express');
-    // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
     /**
@@ -111,7 +108,7 @@ function createApp({fnGetContainer, trackMetrics}) {
     app.use((req, res, next) => {
         const reqPath = req.originalUrl;
         const reqMethod = req.method.toUpperCase();
-        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        logInfo('Incoming Request', { path: reqPath, method: reqMethod });
         const startTime = new Date().getTime();
         res.on('finish', () => {
             const finishTime = new Date().getTime();
@@ -126,7 +123,7 @@ function createApp({fnGetContainer, trackMetrics}) {
                 method: reqMethod,
                 userAgent: req.headers['user-agent'],
                 scope: req.authInfo?.scope,
-                altId,
+                altId
             });
         });
         next();
@@ -138,18 +135,16 @@ function createApp({fnGetContainer, trackMetrics}) {
     // middleware to parse user agent string
     app.use(useragent.express());
 
-    // redirect to new fhir-ui if header content-type is text/html and _keepOldUI is not set
+    // redirect to new fhir-ui if html is requested
     app.use((req, res, next) => {
         if (shouldReturnHtml(req)) {
             const reqPath = req.originalUrl;
-            // check if _keepOldUI flag is passed
-            const keepOldUI = isTrue(req.query['_keepOldUI']);
             // check if this is home page, resource page, or admin page
             const isResourceUrl = reqPath === '/' || reqPath.startsWith('/4_0_0') || reqPath.startsWith('/admin');
             // if keepOldUI flag is not passed and is a resourceUrl then redirect to new UI
-            if (isTrue(env.REDIRECT_TO_NEW_UI) && !keepOldUI && isResourceUrl) {
+            if (isTrue(env.REDIRECT_TO_NEW_UI) && isResourceUrl) {
                 logInfo('Redirecting to new UI', { path: reqPath });
-                res.redirect(`${env.FHIR_SERVER_UI_URL}${reqPath}`);
+                res.redirect(new URL(reqPath, env.FHIR_SERVER_UI_URL).toString());
                 return;
             }
         }
@@ -172,10 +167,6 @@ function createApp({fnGetContainer, trackMetrics}) {
         Prometheus.startCollection();
     }
 
-    // Set EJS as templating engine
-    app.set('views', path.join(__dirname, '/views'));
-    app.set('view engine', 'ejs');
-
     // Used to initialize context for each request
     app.use(httpContext.middleware);
 
@@ -195,9 +186,9 @@ function createApp({fnGetContainer, trackMetrics}) {
             oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
             oauth: {
                 appName: 'Swagger Doc',
-                usePkceWithAuthorizationCodeGrant: true,
-            },
-        },
+                usePkceWithAuthorizationCodeGrant: true
+            }
+        }
     };
 
     /**
@@ -229,8 +220,8 @@ function createApp({fnGetContainer, trackMetrics}) {
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
         const state = req.query.state;
-        const resourceUrl = state ?
-            encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
+        const resourceUrl = state
+            ? encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
             `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
@@ -266,56 +257,19 @@ function createApp({fnGetContainer, trackMetrics}) {
         res.redirect(logoutUrl);
     });
 
-    // render the home page
-    app.get('/', (
-        /** @type {import('express').Request} */ req,
-        /** @type {import('express').Response} */ res
-    ) => {
-        const home_options = {
-            resources: resourceDefinitions,
-            user: req.user,
-            url: req.url,
-            nonce: httpContext.get(RESPONSE_NONCE),
-        };
-        return res.render(__dirname + '/views/pages/home', home_options);
-    });
-
     app.get('/clean/:collection?', (req, res) => handleClean(
-        {fnGetContainer, req, res}
+        { fnGetContainer, req, res }
     ));
 
     if (configManager.enableStatsEndpoint) {
         app.get('/stats', (req, res) => handleStats(
-        {fnGetContainer, req, res}
+        { fnGetContainer, req, res }
         ));
     }
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration, handleServerError);
 
     app.get('/alert', handleAlert);
-
-    app.use('/images', express.static(path.join(__dirname, 'images')));
-
-    app.use('/favicon.ico', express.static(path.join(__dirname, 'images/favicon.ico')));
-
-    app.use('/css', express.static(path.join(__dirname, 'dist/css')));
-    app.use('/js', express.static(path.join(__dirname, 'dist/js')));
-    app.use(
-        '/js',
-        express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/js'))
-    );
-    app.use(
-        '/css',
-        express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/css'))
-    );
-    app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
-    app.use('/css', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/css')));
-    app.use(
-        '/fonts',
-        express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
-    );
-    app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
-
 
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
@@ -325,10 +279,10 @@ function createApp({fnGetContainer, trackMetrics}) {
     }
 
     // eslint-disable-next-line new-cap
-    const adminRouter = express.Router({mergeParams: true});
+    const adminRouter = express.Router({ mergeParams: true });
     if (isTrue(env.AUTH_ENABLED)) {
         adminRouter.use(passport.initialize());
-        adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+        adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
     }
     const adminHandler = (req, res) => handleAdmin(
         fnGetContainer, req, res
@@ -352,7 +306,7 @@ function createApp({fnGetContainer, trackMetrics}) {
                 const router = express.Router();
                 if (isTrue(env.AUTH_ENABLED)) {
                     router.use(passport.initialize());
-                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                 }
                 router.use(cors(fhirServerConfig.server.corsOptions));
                 router.use(express.json());
@@ -376,8 +330,8 @@ function createApp({fnGetContainer, trackMetrics}) {
                                  * @type {RequestSpecificCache}
                                  */
                                 const requestSpecificCache = container1.requestSpecificCache;
-                                await postRequestProcessor.executeAsync({requestId});
-                                await requestSpecificCache.clearAsync({requestId});
+                                await postRequestProcessor.executeAsync({ requestId });
+                                await requestSpecificCache.clearAsync({ requestId });
                             }
                         }
                     });
@@ -393,7 +347,6 @@ function createApp({fnGetContainer, trackMetrics}) {
                 createFhirApp(fnGetContainer, app);
                 // getRoutes(app);
             });
-
     } else {
         createFhirApp(fnGetContainer, app);
     }
@@ -426,4 +379,4 @@ function createApp({fnGetContainer, trackMetrics}) {
 //     app.use('/graphqlv2', express.Router());
 // }
 
-module.exports = {createApp};
+module.exports = { createApp };

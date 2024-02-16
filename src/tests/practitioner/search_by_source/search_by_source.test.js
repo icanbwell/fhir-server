@@ -10,9 +10,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('search_by_source', () => {
     beforeEach(async () => {
@@ -35,7 +35,7 @@ describe('search_by_source', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
@@ -43,7 +43,7 @@ describe('search_by_source', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
@@ -51,7 +51,7 @@ describe('search_by_source', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
@@ -59,7 +59,7 @@ describe('search_by_source', () => {
 
             resp = await request
                 .get(
-                    '/4_0_0/Practitioner?_count=500&_getpagesoffset=0&_source=https://thedacare.org&_security=https://www.icanbwell.com/access|medstar'
+                    '/4_0_0/Practitioner?_count=500&_getpagesoffset=0&_source=https://client.org&_security=https://www.icanbwell.com/access|client'
                 )
                 .set(getHeaders())
                 .expect(200);

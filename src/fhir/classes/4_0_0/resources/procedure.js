@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Procedure
     An action that is or was performed on or for a patient. This can be a physical
@@ -60,7 +59,7 @@ class Procedure extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -105,7 +104,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -148,7 +147,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -212,7 +211,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -234,7 +233,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -258,7 +257,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -290,7 +289,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -312,7 +311,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -371,7 +370,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.basedOn = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -391,7 +390,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.partOf = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -430,7 +429,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.statusReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -451,7 +450,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -472,7 +471,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -492,7 +491,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -513,7 +512,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -551,7 +550,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performedPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -589,7 +588,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performedAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -609,7 +608,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performedRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -629,7 +628,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.recorder = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -649,7 +648,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.asserter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -669,7 +668,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const ProcedurePerformer = require('../backbone_elements/procedurePerformer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performer = FhirResourceCreator.createArray(valueProvided, ProcedurePerformer);
             }
         });
@@ -690,7 +689,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -711,7 +710,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reasonCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -731,7 +730,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reasonReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -752,7 +751,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.bodySite = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -773,7 +772,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outcome = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -793,7 +792,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.report = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -816,7 +815,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.complication = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -837,7 +836,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.complicationDetail = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -859,7 +858,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.followUp = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -879,7 +878,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
@@ -901,7 +900,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const ProcedureFocalDevice = require('../backbone_elements/procedureFocalDevice.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.focalDevice = FhirResourceCreator.createArray(valueProvided, ProcedureFocalDevice);
             }
         });
@@ -922,7 +921,7 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.usedReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -942,11 +941,10 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.usedCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
-
 
         /**
          * @description _access
@@ -1001,7 +999,6 @@ class Procedure extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -1047,7 +1044,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -1066,7 +1063,7 @@ class Procedure extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Procedure';
     }
 
@@ -1118,7 +1115,7 @@ class Procedure extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Procedure}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -1163,7 +1160,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Procedure({
@@ -1210,7 +1207,7 @@ class Procedure extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1218,17 +1215,16 @@ class Procedure extends Resource {
      * @description creates a copy of this resource
      * @returns {Procedure}
     */
-    clone() {
+    clone () {
         return new Procedure(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1271,7 +1267,7 @@ class Procedure extends Resource {
             note: this.note && this.note.map(v => v.toJSON()),
             focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSON()),
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSON()),
-            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON())
         });
     }
 
@@ -1280,47 +1276,47 @@ class Procedure extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.basedOn) {await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.partOf) {await async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.statusReason) {await this.statusReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performedPeriod) {await this.performedPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performedAge) {await this.performedAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performedRange) {await this.performedRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.recorder) {await this.recorder.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.asserter) {await this.asserter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performer) {await async.each(this.performer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.location) {await this.location.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) {await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) {await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.bodySite) {await async.each(this.bodySite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcome) {await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.report) {await async.each(this.report, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.complication) {await async.each(this.complication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.complicationDetail) {await async.each(this.complicationDetail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.followUp) {await async.each(this.followUp, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.focalDevice) {await async.each(this.focalDevice, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.usedReference) {await async.each(this.usedReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.usedCode) {await async.each(this.usedCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.basedOn) { await async.each(this.basedOn, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.partOf) { await async.each(this.partOf, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.statusReason) { await this.statusReason.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.category) { await this.category.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performedPeriod) { await this.performedPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performedAge) { await this.performedAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performedRange) { await this.performedRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.recorder) { await this.recorder.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.asserter) { await this.asserter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performer) { await async.each(this.performer, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.location) { await this.location.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reasonCode) { await async.each(this.reasonCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.reasonReference) { await async.each(this.reasonReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.bodySite) { await async.each(this.bodySite, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.outcome) { await this.outcome.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.report) { await async.each(this.report, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.complication) { await async.each(this.complication, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.complicationDetail) { await async.each(this.complicationDetail, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.followUp) { await async.each(this.followUp, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.focalDevice) { await async.each(this.focalDevice, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.usedReference) { await async.each(this.usedReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.usedCode) { await async.each(this.usedCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -1362,9 +1358,8 @@ class Procedure extends Resource {
             note: this.note && this.note.map(v => v.toJSONInternal()),
             focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSONInternal()),
             usedReference: this.usedReference && this.usedReference.map(v => v.toJSONInternal()),
-            usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

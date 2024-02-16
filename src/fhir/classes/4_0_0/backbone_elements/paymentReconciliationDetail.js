@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PaymentReconciliation.Detail
     This resource provides the details including amount of a payment and allocates
@@ -28,7 +27,7 @@ class PaymentReconciliationDetail extends Element {
      * @param {Reference|undefined} [payee],
      * @param {Money|undefined} [amount],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -42,7 +41,7 @@ class PaymentReconciliationDetail extends Element {
             date,
             responsible,
             payee,
-            amount,
+            amount
         }
     ) {
         super({});
@@ -86,7 +85,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -118,7 +117,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -138,7 +137,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -158,7 +157,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.predecessor = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -178,7 +177,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -198,7 +197,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.request = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -218,7 +217,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.submitter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -238,7 +237,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.response = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -277,7 +276,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.responsible = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -297,7 +296,7 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.payee = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -317,13 +316,10 @@ class PaymentReconciliationDetail extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amount = FhirResourceCreator.create(valueProvided, Money);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -339,19 +335,16 @@ class PaymentReconciliationDetail extends Element {
             date,
             responsible,
             payee,
-            amount,
+            amount
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -366,7 +359,7 @@ class PaymentReconciliationDetail extends Element {
             date: this.date,
             responsible: this.responsible && this.responsible.toJSON(),
             payee: this.payee && this.payee.toJSON(),
-            amount: this.amount && this.amount.toJSON(),
+            amount: this.amount && this.amount.toJSON()
         });
     }
 
@@ -375,26 +368,26 @@ class PaymentReconciliationDetail extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.predecessor) {await this.predecessor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.request) {await this.request.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.submitter) {await this.submitter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.response) {await this.response.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.responsible) {await this.responsible.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.payee) {await this.payee.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amount) {await this.amount.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.predecessor) { await this.predecessor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.request) { await this.request.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.submitter) { await this.submitter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.response) { await this.response.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.responsible) { await this.responsible.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.payee) { await this.payee.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amount) { await this.amount.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -408,10 +401,8 @@ class PaymentReconciliationDetail extends Element {
             date: this.date,
             responsible: this.responsible && this.responsible.toJSONInternal(),
             payee: this.payee && this.payee.toJSONInternal(),
-            amount: this.amount && this.amount.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

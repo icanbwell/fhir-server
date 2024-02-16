@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SpecimenDefinition.Handling
     A kind of specimen with associated set of requirements.
@@ -21,7 +20,7 @@ class SpecimenDefinitionHandling extends Element {
      * @param {Quantity|undefined} [maxDuration],
      * @param {String|undefined} [instruction],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier,
             temperatureRange,
             maxDuration,
-            instruction,
+            instruction
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class SpecimenDefinitionHandling extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class SpecimenDefinitionHandling extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class SpecimenDefinitionHandling extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.temperatureQualifier = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -147,7 +146,7 @@ class SpecimenDefinitionHandling extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.temperatureRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -168,7 +167,7 @@ class SpecimenDefinitionHandling extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -192,9 +191,6 @@ class SpecimenDefinitionHandling extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -203,19 +199,16 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier,
             temperatureRange,
             maxDuration,
-            instruction,
+            instruction
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -224,7 +217,7 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier: this.temperatureQualifier && this.temperatureQualifier.toJSON(),
             temperatureRange: this.temperatureRange && this.temperatureRange.toJSON(),
             maxDuration: this.maxDuration && this.maxDuration.toJSON(),
-            instruction: this.instruction,
+            instruction: this.instruction
         });
     }
 
@@ -233,20 +226,20 @@ class SpecimenDefinitionHandling extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.temperatureQualifier) {await this.temperatureQualifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.temperatureRange) {await this.temperatureRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.maxDuration) {await this.maxDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.temperatureQualifier) { await this.temperatureQualifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.temperatureRange) { await this.temperatureRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.maxDuration) { await this.maxDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -254,10 +247,8 @@ class SpecimenDefinitionHandling extends Element {
             temperatureQualifier: this.temperatureQualifier && this.temperatureQualifier.toJSONInternal(),
             temperatureRange: this.temperatureRange && this.temperatureRange.toJSONInternal(),
             maxDuration: this.maxDuration && this.maxDuration.toJSONInternal(),
-            instruction: this.instruction,
+            instruction: this.instruction
         };
-
-
 
         return removeNull(json);
     }

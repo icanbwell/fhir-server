@@ -1,20 +1,17 @@
-class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
+class BundleMetaApolloServerPlugin /* extends ApolloServerPlugin */ {
     /**
      * This plugin set the meta from each query into the results to provide debugging information
      */
-    constructor() {
-        // ok to not specify
-    }
 
-    // noinspection JSUnusedLocalSymbols
+    // noinspection JSUnusedLoclSymbols
     // eslint-disable-next-line no-unused-vars
-    async requestDidStart(requestContext1) {
+    async requestDidStart (requestContext1) {
         // noinspection JSUnusedGlobalSymbols
         return {
             // didResolveOperation(context) {
             //     op = context.operationName;
             // },
-            willSendResponse(requestContext) {
+            willSendResponse (requestContext) {
                 /**
                  * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
                  */
@@ -59,8 +56,6 @@ const getBundleMetaApolloServerPlugin = () => {
 };
 
 module.exports = {
-    BundleMetaApolloServerPlugin: BundleMetaApolloServerPlugin,
-    getBundleMetaApolloServerPlugin: getBundleMetaApolloServerPlugin
+    BundleMetaApolloServerPlugin,
+    getBundleMetaApolloServerPlugin
 };
-
-

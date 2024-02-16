@@ -4,7 +4,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getHeaders,
+    getHeaders
 } = require('../../common');
 
 const heartRateProfile = require('./fixtures/heart_rate_profile.json');
@@ -14,9 +14,10 @@ const observation = require('./fixtures/observation.json');
 const observationWithMultipleProfiles = require('./fixtures/observation_with_multiple_profiles.json');
 
 const fhirValidationUrl = 'http://foo/fhir';
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
-    get fhirValidationUrl() {
+    get fhirValidationUrl () {
         return fhirValidationUrl;
     }
 }
@@ -44,8 +45,8 @@ describe('Remote Server Validate', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     accept: 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/heartrate', (body) => {
                     return body.id === 'heartrate';
@@ -56,8 +57,8 @@ describe('Remote Server Validate', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     accept: 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .post(
                     '/Observation/$validate?profile=http://hl7.org/fhir/StructureDefinition/heartrate',
@@ -67,12 +68,12 @@ describe('Remote Server Validate', () => {
                     issue: {
                         code: 'informational',
                         details: {
-                            text: 'OK',
+                            text: 'OK'
                         },
                         expression: ['Observation'],
-                        severity: 'information',
+                        severity: 'information'
                     },
-                    resourceType: 'OperationOutcome',
+                    resourceType: 'OperationOutcome'
                 });
             let resp = await request.get('/4_0_0/Observation').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -96,12 +97,12 @@ describe('Remote Server Validate', () => {
                     issue: {
                         code: 'informational',
                         details: {
-                            text: 'OK',
+                            text: 'OK'
                         },
                         expression: ['Observation'],
-                        severity: 'information',
+                        severity: 'information'
                     },
-                    resourceType: 'OperationOutcome',
+                    resourceType: 'OperationOutcome'
                 },
                 (resource) => {
                     delete resource.details; // has lastUpdated
@@ -137,8 +138,8 @@ describe('Remote Server Validate', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     accept: 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put(`/StructureDefinition/${heartRateProfile.id}`, (body) => {
                     return body.id === heartRateProfile.id;
@@ -150,8 +151,8 @@ describe('Remote Server Validate', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     accept: 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put(`/StructureDefinition/${bodyHeightProfile.id}`, (body) => {
                     return body.id === bodyHeightProfile.id;
@@ -163,8 +164,8 @@ describe('Remote Server Validate', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     accept: 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put(`/StructureDefinition/${bodyTempProfile.id}`, (body) => {
                     return body.id === bodyTempProfile.id;
@@ -177,8 +178,8 @@ describe('Remote Server Validate', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     accept: 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .post(
                     '/Observation/$validate?profile=http://hl7.org/fhir/StructureDefinition/heartrate',
@@ -190,12 +191,12 @@ describe('Remote Server Validate', () => {
                     issue: {
                         code: 'informational',
                         details: {
-                            text: 'OK',
+                            text: 'OK'
                         },
                         expression: ['Observation'],
-                        severity: 'information',
+                        severity: 'information'
                     },
-                    resourceType: 'OperationOutcome',
+                    resourceType: 'OperationOutcome'
                 });
 
             // create observation
@@ -221,12 +222,12 @@ describe('Remote Server Validate', () => {
                     issue: {
                         code: 'informational',
                         details: {
-                            text: 'OK',
+                            text: 'OK'
                         },
                         expression: ['Observation'],
-                        severity: 'information',
+                        severity: 'information'
                     },
-                    resourceType: 'OperationOutcome',
+                    resourceType: 'OperationOutcome'
                 },
                 (resource) => {
                     delete resource.details; // has lastUpdated
@@ -255,12 +256,12 @@ describe('Remote Server Validate', () => {
                     issue: {
                         code: 'informational',
                         details: {
-                            text: 'OK',
+                            text: 'OK'
                         },
                         expression: ['Observation'],
-                        severity: 'information',
+                        severity: 'information'
                     },
-                    resourceType: 'OperationOutcome',
+                    resourceType: 'OperationOutcome'
                 },
                 (resource) => {
                     delete resource.details; // has lastUpdated

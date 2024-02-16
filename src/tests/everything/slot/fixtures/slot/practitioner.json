@@ -4,15 +4,15 @@
   "meta": {
     "versionId": "3",
     "lastUpdated": "2021-04-09T09:39:07+00:00",
-    "source": "http://medstarhealth.org/provider_headshots",
+    "source": "http://clienthealth.org/provider_headshots",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
+        "code": "client"
       },
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
+        "code": "client"
       }
     ]
   },
@@ -40,7 +40,7 @@
           }
         ]
       },
-      "system": "http://medstarhealth.org",
+      "system": "http://clienthealth.org",
       "value": "500136"
     },
     {
@@ -72,7 +72,7 @@
   "telecom": [
     {
       "system": "email",
-      "value": "jeffrey.cool@direct.medstar.net",
+      "value": "jeffrey.cool@direct.client.net",
       "use": "work"
     }
   ],
@@ -80,7 +80,7 @@
   "photo": [
     {
       "contentType": "image/jpg",
-      "url": "https://uep.medstarhealth.org/content/uploads/profile_images/Jeffrey-Cool-MPP_jpg.jpg",
+      "url": "https://uep.clienthealth.org/content/uploads/profile_images/Jeffrey-Cool-MPP_jpg.jpg",
       "title": "Practitioner headshot: Jeffrey Cool - 1275501447"
     }
   ],
@@ -109,8 +109,8 @@
         "end": "2099-12-31T00:00:00.000Z"
       },
       "issuer": {
-        "reference": "Organization/MedStar-Union-Memorial-Hospital",
-        "display": "MedStar Union Memorial Hospital"
+        "reference": "Organization/Client-Union-Memorial-Hospital",
+        "display": "Client Union Memorial Hospital"
       }
     }
   ],

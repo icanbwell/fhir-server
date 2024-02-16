@@ -131,7 +131,7 @@
             "id": "1043289440-MCS-MCPS",
             "identifier": [
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "use": "usual",
                 "value": "1043289440-MCS-MCPS"
               },
@@ -143,7 +143,7 @@
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "9f5523bc-0c54-56bb-ae8c-413fe6105fcf"
+                "value": "38a68e29-483a-5b71-82a3-7cbce62c2e38"
               }
             ],
             "location": [
@@ -171,19 +171,19 @@
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
-              "source": "http://medstarhealth.org/provider_appointment_type",
+              "source": "http://clienthealth.org/provider_appointment_type",
               "versionId": "1"
             },
             "name": "PrimaryCare",
@@ -198,7 +198,7 @@
                   {
                     "code": "PrimaryCare",
                     "display": "PrimaryCare",
-                    "system": "http://medstarhealth.org/protocol"
+                    "system": "http://clienthealth.org/protocol"
                   }
                 ]
               }
@@ -208,7 +208,7 @@
             "id": "1043289440-MCS-MVVM",
             "identifier": [
               {
-                "system": "http://medstarhealth.org",
+                "system": "http://clienthealth.org",
                 "use": "usual",
                 "value": "1043289440-MCS-MCPS"
               },
@@ -220,7 +220,7 @@
               {
                 "id": "uuid",
                 "system": "https://www.icanbwell.com/uuid",
-                "value": "4778b0fa-94e2-579f-9506-e9c91633fa98"
+                "value": "78a0be2c-26ae-5a0a-8bd0-c6b972b5d107"
               }
             ],
             "location": [
@@ -248,19 +248,19 @@
             "meta": {
               "security": [
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/access"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/owner"
                 },
                 {
-                  "code": "medstar",
+                  "code": "client",
                   "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
-              "source": "http://medstarhealth.org/provider_appointment_type",
+              "source": "http://clienthealth.org/provider_appointment_type",
               "versionId": "1"
             },
             "name": "PrimaryCare",
@@ -275,7 +275,7 @@
                   {
                     "code": "PrimaryCare",
                     "display": "PrimaryCare",
-                    "system": "http://medstarhealth.org/protocol"
+                    "system": "http://clienthealth.org/protocol"
                   }
                 ]
               }
@@ -1141,15 +1141,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/9f5523bc-0c54-56bb-ae8c-413fe6105fcf"
+                    "valueString": "HealthcareService/38a68e29-483a-5b71-82a3-7cbce62c2e38"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "client"
                   }
                 ],
-                "reference": "HealthcareService/1043289440-MCS-MCPS|medstar"
+                "reference": "HealthcareService/1043289440-MCS-MCPS|client"
               }
             ],
             "id": "1003059437-GP6-GGIM",
@@ -1320,15 +1320,15 @@
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "HealthcareService/4778b0fa-94e2-579f-9506-e9c91633fa98"
+                    "valueString": "HealthcareService/78a0be2c-26ae-5a0a-8bd0-c6b972b5d107"
                   },
                   {
                     "id": "sourceAssigningAuthority",
                     "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                    "valueString": "medstar"
+                    "valueString": "client"
                   }
                 ],
-                "reference": "HealthcareService/1043289440-MCS-MVVM|medstar"
+                "reference": "HealthcareService/1043289440-MCS-MVVM|client"
               }
             ],
             "id": "1003059437-GP6-MVVM",

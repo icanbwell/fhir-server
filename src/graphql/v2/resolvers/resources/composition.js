@@ -16,14 +16,14 @@ module.exports = {
         }
     },
     CompositionSubjectV2: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CompositionAuthor: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Composition: {
         // noinspection JSUnusedLocalSymbols
@@ -75,7 +75,6 @@ module.exports = {
                 context,
                 info,
                 parent.custodian);
-        },
+        }
     }
 };
-

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExplanationOfBenefit.Accident
     This resource provides: the claim details; adjudication details from the
@@ -23,7 +22,7 @@ class ExplanationOfBenefitAccident extends Element {
      * @param {Address|undefined} [locationAddress],
      * @param {Reference|undefined} [locationReference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class ExplanationOfBenefitAccident extends Element {
             date,
             type,
             locationAddress,
-            locationReference,
+            locationReference
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class ExplanationOfBenefitAccident extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class ExplanationOfBenefitAccident extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -148,7 +147,7 @@ class ExplanationOfBenefitAccident extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -168,7 +167,7 @@ class ExplanationOfBenefitAccident extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.locationAddress = FhirResourceCreator.create(valueProvided, Address);
             }
         });
@@ -188,13 +187,10 @@ class ExplanationOfBenefitAccident extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.locationReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -204,19 +200,16 @@ class ExplanationOfBenefitAccident extends Element {
             date,
             type,
             locationAddress,
-            locationReference,
+            locationReference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -225,7 +218,7 @@ class ExplanationOfBenefitAccident extends Element {
             date: this.date,
             type: this.type && this.type.toJSON(),
             locationAddress: this.locationAddress && this.locationAddress.toJSON(),
-            locationReference: this.locationReference && this.locationReference.toJSON(),
+            locationReference: this.locationReference && this.locationReference.toJSON()
         });
     }
 
@@ -234,20 +227,20 @@ class ExplanationOfBenefitAccident extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.locationAddress) {await this.locationAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.locationReference) {await this.locationReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.locationAddress) { await this.locationAddress.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.locationReference) { await this.locationReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -255,10 +248,8 @@ class ExplanationOfBenefitAccident extends Element {
             date: this.date,
             type: this.type && this.type.toJSONInternal(),
             locationAddress: this.locationAddress && this.locationAddress.toJSONInternal(),
-            locationReference: this.locationReference && this.locationReference.toJSONInternal(),
+            locationReference: this.locationReference && this.locationReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

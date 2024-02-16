@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductIngredient.SpecifiedSubstance
     An ingredient of a manufactured item or pharmaceutical product.
@@ -21,7 +20,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
      * @param {CodeableConcept|undefined} [confidentiality],
      * @param {MedicinalProductIngredientStrength[]|undefined} [strength],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code,
             group,
             confidentiality,
-            strength,
+            strength
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -125,7 +124,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -145,7 +144,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.group = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -165,7 +164,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.confidentiality = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -186,13 +185,10 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const MedicinalProductIngredientStrength = require('../backbone_elements/medicinalProductIngredientStrength.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.strength = FhirResourceCreator.createArray(valueProvided, MedicinalProductIngredientStrength);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -202,19 +198,16 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code,
             group,
             confidentiality,
-            strength,
+            strength
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -223,7 +216,7 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code: this.code && this.code.toJSON(),
             group: this.group && this.group.toJSON(),
             confidentiality: this.confidentiality && this.confidentiality.toJSON(),
-            strength: this.strength && this.strength.map(v => v.toJSON()),
+            strength: this.strength && this.strength.map(v => v.toJSON())
         });
     }
 
@@ -232,21 +225,21 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.group) {await this.group.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.confidentiality) {await this.confidentiality.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.strength) {await async.each(this.strength, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.group) { await this.group.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.confidentiality) { await this.confidentiality.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.strength) { await async.each(this.strength, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -254,10 +247,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
             code: this.code && this.code.toJSONInternal(),
             group: this.group && this.group.toJSONInternal(),
             confidentiality: this.confidentiality && this.confidentiality.toJSONInternal(),
-            strength: this.strength && this.strength.map(v => v.toJSONInternal()),
+            strength: this.strength && this.strength.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

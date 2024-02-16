@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CatalogEntry.RelatedEntry
     Catalog entries are wrappers that contextualize items included in a catalog.
@@ -19,13 +18,13 @@ class CatalogEntryRelatedEntry extends Element {
      * @param {code} relationtype,
      * @param {Reference} item,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             relationtype,
-            item,
+            item
         }
     ) {
         super({});
@@ -69,7 +68,7 @@ class CatalogEntryRelatedEntry extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class CatalogEntryRelatedEntry extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -140,13 +139,10 @@ class CatalogEntryRelatedEntry extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.item = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -154,26 +150,23 @@ class CatalogEntryRelatedEntry extends Element {
             extension,
             modifierExtension,
             relationtype,
-            item,
+            item
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             relationtype: this.relationtype,
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.toJSON()
         });
     }
 
@@ -182,27 +175,25 @@ class CatalogEntryRelatedEntry extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.item) {await this.item.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.item) { await this.item.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             relationtype: this.relationtype,
-            item: this.item && this.item.toJSONInternal(),
+            item: this.item && this.item.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

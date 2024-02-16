@@ -8,7 +8,7 @@ class BasePostSaveHandler {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         throw new Error('Not Implemented by subclass');
     }
 
@@ -17,7 +17,7 @@ class BasePostSaveHandler {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async flushAsync() {
+    async flushAsync () {
     }
 }
 

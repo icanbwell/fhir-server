@@ -1,13 +1,13 @@
 /**
  * This class provides a cursor that can span multiple partitioned collections
  */
-const {assertIsValid, assertFail} = require('../utils/assertType');
+const { assertIsValid, assertFail } = require('../utils/assertType');
 const async = require('async');
-const {RethrownError} = require('../utils/rethrownError');
-const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { RethrownError } = require('../utils/rethrownError');
+const { partitionedCollectionsCount } = require('../utils/prometheus.utils');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 
 /**
  * @typedef CursorInfo
@@ -24,7 +24,7 @@ class DatabasePartitionedCursor {
      * @param {CursorInfo[]} cursors
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      */
-    constructor({base_version, resourceType, cursors, query}) {
+    constructor ({ base_version, resourceType, cursors, query }) {
         /**
          * @type {CursorInfo[]}
          * @private
@@ -63,7 +63,7 @@ class DatabasePartitionedCursor {
      * @param {number} milliSecs
      * @return {DatabasePartitionedCursor}
      */
-    maxTimeMS({milliSecs}) {
+    maxTimeMS ({ milliSecs }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.maxTimeMS(milliSecs);
         }
@@ -74,7 +74,7 @@ class DatabasePartitionedCursor {
      * Check if there is any document still available in any of the cursors
      * @return {Promise<boolean>}
      */
-    async hasNext() {
+    async hasNext () {
         while (this._cursors.length > 0) {
             await logTraceSystemEventAsync(
                 {
@@ -111,7 +111,7 @@ class DatabasePartitionedCursor {
      * @param {Object} doc
      * @return {Promise<Resource|BundleEntry>}
      */
-    async mapDocumentToResourceAsync({doc}) {
+    async mapDocumentToResourceAsync ({ doc }) {
         const resourceType = doc.resource ? 'BundleEntry' : doc.resourceType || this.resourceType;
         try {
             if (resourceType === 'BundleEntry') {
@@ -129,14 +129,13 @@ class DatabasePartitionedCursor {
                 id: doc.id
             });
         }
-
     }
 
     /**
      * Get the next available document from the cursors, returns null if no more documents are available
      * @return {Promise<Resource|BundleEntry|null>}
      */
-    async next() {
+    async next () {
         while (this._cursors.length > 0) {
             await logTraceSystemEventAsync(
                 {
@@ -157,7 +156,7 @@ class DatabasePartitionedCursor {
                  */
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
-                    return await this.mapDocumentToResourceAsync({doc: result});
+                    return await this.mapDocumentToResourceAsync({ doc: result });
                 } else {
                     assertFail({
                         source: 'DatabasePartitionedCursor.next',
@@ -188,7 +187,7 @@ class DatabasePartitionedCursor {
      *  as a full FHIR resource
      * @return {Promise<Object|null>}
      */
-    async nextRaw() {
+    async nextRaw () {
         while (this._cursors.length > 0) {
             await logTraceSystemEventAsync(
                 {
@@ -250,7 +249,7 @@ class DatabasePartitionedCursor {
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabasePartitionedCursor}
      */
-    project({projection}) {
+    project ({ projection }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.project(projection);
         }
@@ -262,7 +261,7 @@ class DatabasePartitionedCursor {
      * @param {function({Object}): Object} mapping
      * @return {DatabasePartitionedCursor}
      */
-    map({mapping}) {
+    map ({ mapping }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.map(mapping);
         }
@@ -276,7 +275,7 @@ class DatabasePartitionedCursor {
      * In that case, cursor.rewind() can be used to reset the cursor.
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
-    async toArrayRawAsync() {
+    async toArrayRawAsync () {
         try {
             await logTraceSystemEventAsync(
                 {
@@ -307,7 +306,7 @@ class DatabasePartitionedCursor {
      * In that case, cursor.rewind() can be used to reset the cursor.
      * @return {Promise<Resource[]>}
      */
-    async toArrayAsync() {
+    async toArrayAsync () {
         try {
             await logTraceSystemEventAsync(
                 {
@@ -324,7 +323,7 @@ class DatabasePartitionedCursor {
              * @type {import('mongodb').DefaultSchema[]}
              */
             const docs = await this.toArrayRawAsync();
-            return await async.map(docs, async doc => await this.mapDocumentToResourceAsync({doc}));
+            return await async.map(docs, async doc => await this.mapDocumentToResourceAsync({ doc }));
         } catch (e) {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),
@@ -340,7 +339,7 @@ class DatabasePartitionedCursor {
      * @param {string | [string, number][] | import('mongodb').SortOptionObject<import('mongodb').DefaultSchema>} sortOption
      * @return {DatabasePartitionedCursor}
      */
-    sort({sortOption}) {
+    sort ({ sortOption }) {
         for (const index in this._cursors) {
             // noinspection JSCheckFunctionSignatures
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.sort(sortOption, 1);
@@ -353,7 +352,7 @@ class DatabasePartitionedCursor {
      * @param {number} size
      * @return {DatabasePartitionedCursor}
      */
-    batchSize({size}) {
+    batchSize ({ size }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.batchSize(size);
         }
@@ -365,7 +364,7 @@ class DatabasePartitionedCursor {
      * @param {string|null} indexHint
      * @return {DatabasePartitionedCursor}
      */
-    hint({indexHint}) {
+    hint ({ indexHint }) {
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.hint(indexHint);
         }
@@ -375,7 +374,7 @@ class DatabasePartitionedCursor {
     /**
      * @return {Promise<import('mongodb').Document[]>}
      */
-    async explainAsync() {
+    async explainAsync () {
         try {
             await logTraceSystemEventAsync(
                 {
@@ -404,7 +403,7 @@ class DatabasePartitionedCursor {
         }
     }
 
-    clear() {
+    clear () {
         this._cursors = [];
     }
 
@@ -412,7 +411,7 @@ class DatabasePartitionedCursor {
      * returns the query
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    getQuery() {
+    getQuery () {
         return this.query;
     }
 
@@ -420,7 +419,7 @@ class DatabasePartitionedCursor {
      * @param {number} count
      * @return {DatabasePartitionedCursor}
      */
-    limit(count) {
+    limit (count) {
         this._limit = count;
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.limit(count);
@@ -431,7 +430,7 @@ class DatabasePartitionedCursor {
     /**
      * @returns {number|null}
      */
-    getLimit() {
+    getLimit () {
         return this._limit;
     }
 
@@ -439,7 +438,7 @@ class DatabasePartitionedCursor {
      * Gets first collection
      * @return {string}
      */
-    getFirstCollection() {
+    getFirstCollection () {
         return this._cursors.length > 0 ? this._cursors[0].collection : 'No cursor';
     }
 
@@ -447,7 +446,7 @@ class DatabasePartitionedCursor {
      * Gets first database
      * @return {string}
      */
-    getFirstDatabase() {
+    getFirstDatabase () {
         return this._cursors.length > 0 ? this._cursors[0].db : 'No cursor';
     }
 
@@ -455,7 +454,7 @@ class DatabasePartitionedCursor {
      * Gets all collections to be queried by this class
      * @return {string[]}
      */
-    getAllCollections() {
+    getAllCollections () {
         return this._cursors.map(c => c.collection);
     }
 }

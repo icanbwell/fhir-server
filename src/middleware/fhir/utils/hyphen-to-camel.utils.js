@@ -3,4 +3,3 @@ module.exports = hyphenString => {
         return g[1].toUpperCase();
     });
 };
-

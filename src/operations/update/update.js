@@ -1,29 +1,29 @@
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {ResourceValidator} = require('../common/resourceValidator');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ResourceMerger} = require('../common/resourceMerger');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {ConfigManager} = require('../../utils/configManager');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const { NotValidatedError, ForbiddenError, BadRequestError } = require('../../utils/httpErrors');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { ResourceValidator } = require('../common/resourceValidator');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ResourceMerger } = require('../common/resourceMerger');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 
 /**
  * Update Operation
@@ -46,7 +46,7 @@ class UpdateOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             postSaveProcessor,
@@ -148,14 +148,14 @@ class UpdateOperation {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async updateAsync({requestInfo, parsedArgs, resourceType}) {
+    async updateAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
         const currentOperationName = 'update';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         // Query our collection for this observation
         /**
@@ -169,13 +169,13 @@ class UpdateOperation {
             body, /** @type {string|null} */
             requestId, /** @type {string} */
             method,
-            /**@type {string} */ userRequestId,
+            /** @type {string} */ userRequestId,
             /** @type {string[]} */
             patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -195,8 +195,8 @@ class UpdateOperation {
         /**
          * @type {Object}
          */
-        let resource_incoming_json = body;
-        let {base_version, id} = parsedArgs;
+        const resource_incoming_json = body;
+        const { base_version, id } = parsedArgs;
 
         const { id: rawId } = IdParser.parse(id);
         resource_incoming_json.id = rawId;
@@ -214,9 +214,9 @@ class UpdateOperation {
         /**
          * @type {Resource}
          */
-        let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
+        const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
-        if (this.configManager.validateSchema || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs._validate) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
             resource_incoming_json.id = rawId.slice(0, 64);
             /**
@@ -227,12 +227,12 @@ class UpdateOperation {
                     id: resource_incoming_json.id,
                     resourceType,
                     resourceToValidate: resource_incoming_json,
-                    path: path,
-                    currentDate: currentDate,
+                    path,
+                    currentDate,
                     resourceObj: resource_incoming
                 });
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
                 if (this.configManager.logValidationFailures) {
                     await sendToS3('validation_failures',
                         resourceType,
@@ -251,19 +251,18 @@ class UpdateOperation {
             }
         }
 
-
         try {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
@@ -280,37 +279,37 @@ class UpdateOperation {
 
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
 
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
-            let resources = await cursor.toArrayAsync();
+            const resources = await cursor.toArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security ?
-                        r.meta.security
+                    r => r.meta && r.meta.security
+                        ? r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
-                        : [],
+                        : []
                 ).sort();
                 throw new BadRequestError(new Error(
                     `Multiple resources found with id ${id}.  ` +
                     'Please either specify the owner/sourceAssigningAuthority tag: ' +
                     sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
-                    ' OR use uuid to query.',
+                    ' OR use uuid to query.'
                 ));
             }
             /**
              * @type {Resource | null}
              */
-            let data = resources[0];
+            const data = resources[0];
             /**
              * @type {Resource|null}
              */
@@ -347,11 +346,11 @@ class UpdateOperation {
                         foundResource.resourceType + ' with id ' + id);
                 }
 
-                const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
+                const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
-                    databaseAttachmentManager: this.databaseAttachmentManager,
+                    databaseAttachmentManager: this.databaseAttachmentManager
                 });
                 doc = updatedResource;
                 if (doc) { // if there is a change
@@ -362,7 +361,9 @@ class UpdateOperation {
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
-                            requestId, resourceType, doc,
+                            requestId,
+resourceType,
+doc,
                             uuid: doc._uuid,
                             patches
                         }
@@ -374,14 +375,14 @@ class UpdateOperation {
                 if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                 } else {
-                    resource_incoming.meta['versionId'] = '1';
-                    resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                    resource_incoming.meta.versionId = '1';
+                    resource_incoming.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
                 // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
-                await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
+                await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
             }
 
             if (doc) {
@@ -390,16 +391,18 @@ class UpdateOperation {
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        requestId, currentDate, base_version: base_version,
+                        requestId,
+currentDate,
+base_version,
                         method,
-                        userRequestId,
+                        userRequestId
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
                     throw new BadRequestError(
-                        new Error(mergeResults.length > 0 ?
-                            JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
-                            'No merge result'
+                        new Error(mergeResults.length > 0
+                            ? JSON.stringify(mergeResults[0].issue, getCircularReplacer())
+                            : 'No merge result'
                         )
                     );
                 }
@@ -416,7 +419,7 @@ class UpdateOperation {
                                     resourceType,
                                     operation: currentOperationName,
                                     args: parsedArgs.getRawArgs(),
-                                    ids: [resource_incoming['id']]
+                                    ids: [resource_incoming.id]
                                 }
                             );
                         }
@@ -427,7 +430,7 @@ class UpdateOperation {
                 doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
 
                 const result = {
-                    id: id,
+                    id,
                     created: mergeResults[0].created,
                     resource_version: doc.meta.versionId,
                     resource: doc
@@ -459,7 +462,7 @@ class UpdateOperation {
                     created: false,
                     updated: false,
                     resource_version: foundResource?.meta?.versionId,
-                    resource: foundResource,
+                    resource: foundResource
                 };
 
                 // not modified
@@ -500,4 +503,3 @@ class UpdateOperation {
 module.exports = {
     UpdateOperation
 };
-

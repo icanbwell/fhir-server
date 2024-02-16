@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Questionnaire.Item
     A structured set of questions intended to guide the collection of answers from
@@ -35,7 +34,7 @@ class QuestionnaireItem extends Element {
      * @param {QuestionnaireInitial[]|undefined} [initial],
      * @param {QuestionnaireItem[]|undefined} [item],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -55,7 +54,7 @@ class QuestionnaireItem extends Element {
             answerValueSet,
             answerOption,
             initial,
-            item,
+            item
         }
     ) {
         super({});
@@ -99,7 +98,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -131,7 +130,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -203,7 +202,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -283,7 +282,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 const QuestionnaireEnableWhen = require('../backbone_elements/questionnaireEnableWhen.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.enableWhen = FhirResourceCreator.createArray(valueProvided, QuestionnaireEnableWhen);
             }
         });
@@ -419,7 +418,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 const QuestionnaireAnswerOption = require('../backbone_elements/questionnaireAnswerOption.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.answerOption = FhirResourceCreator.createArray(valueProvided, QuestionnaireAnswerOption);
             }
         });
@@ -440,7 +439,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 const QuestionnaireInitial = require('../backbone_elements/questionnaireInitial.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.initial = FhirResourceCreator.createArray(valueProvided, QuestionnaireInitial);
             }
         });
@@ -459,13 +458,10 @@ class QuestionnaireItem extends Element {
                     this.__data.item = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.item = FhirResourceCreator.createArray(valueProvided, QuestionnaireItem);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -487,19 +483,16 @@ class QuestionnaireItem extends Element {
             answerValueSet,
             answerOption,
             initial,
-            item,
+            item
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -520,7 +513,7 @@ class QuestionnaireItem extends Element {
             answerValueSet: this.answerValueSet,
             answerOption: this.answerOption && this.answerOption.map(v => v.toJSON()),
             initial: this.initial && this.initial.map(v => v.toJSON()),
-            item: this.item && this.item.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON())
         });
     }
 
@@ -529,22 +522,22 @@ class QuestionnaireItem extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.enableWhen) {await async.each(this.enableWhen, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.answerOption) {await async.each(this.answerOption, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.initial) {await async.each(this.initial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.item) {await async.each(this.item, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.enableWhen) { await async.each(this.enableWhen, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.answerOption) { await async.each(this.answerOption, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.initial) { await async.each(this.initial, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.item) { await async.each(this.item, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -564,10 +557,8 @@ class QuestionnaireItem extends Element {
             answerValueSet: this.answerValueSet,
             answerOption: this.answerOption && this.answerOption.map(v => v.toJSONInternal()),
             initial: this.initial && this.initial.map(v => v.toJSONInternal()),
-            item: this.item && this.item.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

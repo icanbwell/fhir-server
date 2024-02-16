@@ -6,18 +6,18 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const {logDebug, logError} = require('../operations/common/logging');
-const {isTrue} = require('../utils/isTrue');
+const { logDebug, logError } = require('../operations/common/logging');
+const { isTrue } = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
-const {Issuer} = require('openid-client');
+const { Issuer } = require('openid-client');
 const { EXTERNAL_REQUEST_RETRY_COUNT, DEFAULT_CACHE_EXPIRY_TIME } = require('../constants');
 const requestTimeout = (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
 
 const requiredJWTFields = [
     // 'custom:clientFhirPersonId',
     // 'custom:clientFhirPatientId',
-    'custom:bwellFhirPersonId',
+    'custom:bwellFhirPersonId'
     // 'custom:bwellFhirPatientId',
 ];
 
@@ -33,7 +33,7 @@ const getExternalJwksByUrlAsync = async (jwksUrl) => {
     const res = await superagent
         .get(jwksUrl)
         .set({
-            Accept: 'application/json',
+            Accept: 'application/json'
         })
         .retry(EXTERNAL_REQUEST_RETRY_COUNT)
         .timeout(requestTimeout);
@@ -89,7 +89,7 @@ const getUserInfoAsync = async (accessToken, iss, clientId) => {
      * @type {import('openid-client').BaseClient}
      */
     const client = new issuer.Client({
-        client_id: clientId,
+        client_id: clientId
     }); // => Client
 
     return await client.userinfo(accessToken);
@@ -106,10 +106,10 @@ const cookieExtractor = function (req) {
      */
     let token = null;
     if (req && req.cookies) {
-        token = req.cookies['jwt'];
-        logDebug('Found cookie jwt', {user: '', args: {token: token}});
+        token = req.cookies.jwt;
+        logDebug('Found cookie jwt', { user: '', args: { token } });
     } else {
-        logDebug('No cookies found', {user: ''});
+        logDebug('No cookies found', { user: '' });
     }
     return token;
 };
@@ -134,21 +134,21 @@ const cookieExtractor = function (req) {
  * @param {string|null} scope
  * @return {Object}
  */
-function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+function parseUserInfoFromPayload ({ username, subject, isUser, jwt_payload, done, client_id, scope }) {
     const context = {};
     if (username) {
-        context['username'] = username;
+        context.username = username;
     }
     if (subject) {
-        context['subject'] = subject;
+        context.subject = subject;
     }
     if (isUser) {
-        context['isUser'] = isUser;
+        context.isUser = isUser;
         // Test that required fields are populated
         let validInput = true;
         requiredJWTFields.forEach((field) => {
             if (!jwt_payload[`${field}`]) {
-                logDebug(`Error: ${field} field is missing`, {user: ''});
+                logDebug(`Error: ${field} field is missing`, { user: '' });
                 validInput = false;
             }
         });
@@ -159,15 +159,15 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
         if (jwt_payload['custom:bwell_fhir_ids']) {
             const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
             if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
-                context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
+                context.patientIdsFromJwtToken = patientIdsFromJwtToken;
             }
         } else if (fhirPatientId) {
-            context['patientIdsFromJwtToken'] = [fhirPatientId];
+            context.patientIdsFromJwtToken = [fhirPatientId];
         }
-        context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+        context.personIdFromJwtToken = jwt_payload['custom:bwellFhirPersonId'];
     }
 
-    return done(null, {id: client_id, isUser, name: username, username: username}, {scope, context});
+    return done(null, { id: client_id, isUser, name: username, username }, { scope, context });
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
@@ -265,11 +265,7 @@ const verify = (request, jwt_payload, done) => {
  *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
-    constructor(options, verifyFn) {
-        super(options, verifyFn);
-    }
-
-    authenticate(req, options) {
+    authenticate (req, options) {
         const self = this;
         const token = self._jwtFromRequest(req);
         // can't just urlencode per https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
@@ -278,7 +274,6 @@ class MyJwtStrategy extends JwtStrategy {
         const resourceUrl = req.originalUrl ? Buffer.from(req.originalUrl).toString('base64') : '';
         if (
             !token &&
-            req.accepts('text/html') &&
             req.useragent &&
             req.useragent.isDesktop &&
             isTrue(env.REDIRECT_TO_LOGIN) &&
@@ -290,14 +285,13 @@ class MyJwtStrategy extends JwtStrategy {
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?` +
                 `response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
                 `&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-            logDebug('Redirecting', {user: '', args: {redirect: redirectUrl}});
+            logDebug('Redirecting', { user: '', args: { redirect: redirectUrl } });
             return self.redirect(redirectUrl);
         }
 
         return super.authenticate(req, options);
     }
 }
-
 
 /**
  * Bearer Strategy
@@ -323,18 +317,18 @@ module.exports.strategy = new MyJwtStrategy(
             },
             handleSigningKeyError: (err, cb) => {
                 if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                    logDebug('No Signing Key found!', {user: ''});
+                    logDebug('No Signing Key found!', { user: '' });
                     return cb(new Error('No Signing Key found!'));
                 }
                 return cb(err);
-            },
+            }
         }),
         /* specify a list of extractors and it will use the first one that returns the token */
         jwtFromRequest: ExtractJwt.fromExtractors([
             ExtractJwt.fromHeader('x-bwell-identity'),
             ExtractJwt.fromAuthHeaderAsBearerToken(),
             cookieExtractor,
-            ExtractJwt.fromUrlQueryParameter('token'),
+            ExtractJwt.fromUrlQueryParameter('token')
         ]),
 
         // Validate the audience and the issuer.

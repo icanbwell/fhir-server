@@ -1,9 +1,9 @@
-const {Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError} = require('kafkajs');
-const {assertIsValid, assertTypeEquals} = require('./assertType');
-const {logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync} = require('../operations/common/systemEventLogging');
+const { Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError } = require('kafkajs');
+const { assertIsValid, assertTypeEquals } = require('./assertType');
+const { logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync } = require('../operations/common/systemEventLogging');
 const env = require('var');
-const {RethrownError} = require('./rethrownError');
-const {ConfigManager} = require('./configManager');
+const { RethrownError } = require('./rethrownError');
+const { ConfigManager } = require('./configManager');
 
 /**
  * @typedef KafkaClientMessage
@@ -22,7 +22,7 @@ class KafkaClient {
     /**
      * @param {ConfigManager} configManager
      */
-    constructor({ configManager }) {
+    constructor ({ configManager }) {
         /**
          * @type {ConfigManager}
          */
@@ -42,7 +42,7 @@ class KafkaClient {
      * returns config for kafka
      * @return {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
      */
-    getConfigAsync() {
+    getConfigAsync () {
         const sasl = this.configManager.kafkaUseSasl ? {
             // https://kafka.js.org/docs/configuration#sasl
             mechanism: this.configManager.kafkaAuthMechanism,
@@ -64,7 +64,7 @@ class KafkaClient {
             clientId: this.configManager.kafkaClientId,
             brokers: this.configManager.kafkaBrokers,
             ssl: this.configManager.kafkaUseSsl || null,
-            sasl: sasl,
+            sasl
         };
     }
 
@@ -78,7 +78,7 @@ class KafkaClient {
      *
      * @param {InitProps}
      */
-    init({ clientId, brokers, ssl, sasl }) {
+    init ({ clientId, brokers, ssl, sasl }) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
@@ -93,12 +93,12 @@ class KafkaClient {
          * @type {import('kafkajs').KafkaConfig}
          */
         const config = {
-            clientId: clientId,
-            brokers: brokers,
+            clientId,
+            brokers,
             // Timeout in ms for authentication requests
             authenticationTimeout: 60000,
-            ssl: ssl,
-            sasl: sasl,
+            ssl,
+            sasl,
             // connectionTimeout in milliseconds(10 seconds), to wait for a successful connection
             connectionTimeout: 10000,
             retry: {
@@ -120,7 +120,7 @@ class KafkaClient {
     /**
      * Disconnects the kafka producer
      */
-    async disconnect() {
+    async disconnect () {
         if (this.producerConnected) {
             await this.producer.disconnect();
         }
@@ -132,8 +132,8 @@ class KafkaClient {
      * @param {KafkaClientMessage[]} messages
      * @return {Promise<void>}
      */
-    async sendMessagesAsync(topic, messages) {
-        let maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
+    async sendMessagesAsync (topic, messages) {
+        const maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
         let iteration = 1;
 
         // by default shouldn't retry
@@ -160,14 +160,14 @@ class KafkaClient {
                             message: 'Retrying sending the message by creating new client',
                             args: {
                                 iteration,
-                                brokers: reorderedBrokers,
+                                brokers: reorderedBrokers
                             }
                         });
                         this.init({
                             clientId: this.clientId,
                             brokers: reorderedBrokers,
                             ssl: this.ssl,
-                            sasl: this.sasl,
+                            sasl: this.sasl
                         });
                         // should retry again
                         shouldRetry = true;
@@ -189,7 +189,7 @@ class KafkaClient {
      * @param {KafkaClientMessage[]} messages
      * @return {Promise<void>}
      */
-    async sendMessagesAsyncHelper(topic, messages) {
+    async sendMessagesAsyncHelper (topic, messages) {
         if (!this.producerConnected) {
             try {
                 await this.producer.connect();
@@ -211,8 +211,8 @@ class KafkaClient {
                     key: m.key,
                     value: m.value,
                     headers: {
-                        'b3': m.requestId,
-                        'version': m.fhirVersion,
+                        b3: m.requestId,
+                        version: m.fhirVersion
                     }
                 };
             });
@@ -224,7 +224,7 @@ class KafkaClient {
                         clientId: this.clientId,
                         brokers: this.brokers,
                         ssl: this.ssl,
-                        topic: topic,
+                        topic,
                         messages: kafkaMessages
                     }
                 });
@@ -233,8 +233,8 @@ class KafkaClient {
              * @type {import('kafkajs').RecordMetadata[]}
              */
             const result = await this.producer.send({
-                topic: topic,
-                messages: kafkaMessages,
+                topic,
+                messages: kafkaMessages
             });
             if (env.LOGLEVEL === 'DEBUG') {
                 await logTraceSystemEventAsync({
@@ -244,9 +244,9 @@ class KafkaClient {
                         clientId: this.clientId,
                         brokers: this.brokers,
                         ssl: this.ssl,
-                        topic: topic,
+                        topic,
                         messages: kafkaMessages,
-                        result: result
+                        result
                     }
                 });
             }
@@ -254,7 +254,7 @@ class KafkaClient {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
                 message: 'Error sending message',
-                args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
+                args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl },
                 error: e
             });
             throw e;
@@ -268,7 +268,7 @@ class KafkaClient {
      * @param label
      * @returns {Promise<void>}
      */
-    waitForConsumerToJoinGroupAsync(consumer, {maxWait = 10000, label = ''} = {}) {
+    waitForConsumerToJoinGroupAsync (consumer, { maxWait = 10000, label = '' } = {}) {
         return new Promise((resolve, reject) => {
             const timeoutId = setTimeout(() => {
                 consumer.disconnect().then(() => {
@@ -296,7 +296,7 @@ class KafkaClient {
      * @param {function(message: {key: string, value: string, headers: {key: string, value: string}[]}): Promise<void>} onMessageAsync
      * @return {Promise<void>}
      */
-    async receiveMessagesAsync({consumer, topic, fromBeginning = false, onMessageAsync}) {
+    async receiveMessagesAsync ({ consumer, topic, fromBeginning = false, onMessageAsync }) {
         try {
             await consumer.connect();
         } catch (e) {
@@ -307,10 +307,10 @@ class KafkaClient {
             });
         }
         try {
-            await consumer.subscribe({topics: [topic], fromBeginning: fromBeginning});
+            await consumer.subscribe({ topics: [topic], fromBeginning });
             await consumer.run({
                 // eslint-disable-next-line no-unused-vars
-                eachMessage: async ({topic1, partition, message, heartbeat, pause}) => {
+                eachMessage: async ({ topic1, partition, message, heartbeat, pause }) => {
                     await onMessageAsync({
                         key: message.key.toString(),
                         value: message.value.toString(),
@@ -320,15 +320,15 @@ class KafkaClient {
                                     value: v ? v.toString() : ''
                                 };
                             }
-                        ),
+                        )
                     });
-                },
+                }
             });
         } catch (e) {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
                 message: 'Error receiving message',
-                args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
+                args: { clientId: this.clientId, brokers: this.brokers, ssl: this.ssl },
                 error: e
             });
             throw e;
@@ -342,7 +342,7 @@ class KafkaClient {
      * @param {import('kafkajs').Consumer} consumer
      * @returns {Promise<void>}
      */
-    async removeConsumerAsync({consumer}) {
+    async removeConsumerAsync ({ consumer }) {
         await consumer.disconnect();
     }
 
@@ -350,8 +350,8 @@ class KafkaClient {
      * @param {string} groupId
      * @returns {Promise<import('kafkajs').Consumer>}
      */
-    async createConsumerAsync({groupId}) {
-        return this.client.consumer({groupId: groupId});
+    async createConsumerAsync ({ groupId }) {
+        return this.client.consumer({ groupId });
     }
 
     /**

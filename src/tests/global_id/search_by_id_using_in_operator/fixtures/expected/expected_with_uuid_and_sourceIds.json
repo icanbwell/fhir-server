@@ -55,7 +55,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['6e03683f-003e-4367-9ef9-f9b16313451b','6e03683f-003e-4367-9ef9-f9b163134512','037373b5-1e2c-5086-b490-6191d0e13bf6','4f57767d-a120-5f87-a616-32fa132d880b']}},{'_sourceId':{'$in':['patient-1','patient-2','patient-3']}}]}, {}).sort({'id':1}).limit(1000)"
+        "display": "db.Patient_4_0_0.find({'$or':[{'_uuid':{'$in':['6e03683f-003e-4367-9ef9-f9b16313451b','6e03683f-003e-4367-9ef9-f9b163134512','037373b5-1e2c-5086-b490-6191d0e13bf6','4f57767d-a120-5f87-a616-32fa132d880b']}},{'_sourceId':{'$in':['patient-1','patient-2','patient-3']}}]}, {}).sort({'_uuid':1}).limit(1000)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -63,11 +63,11 @@
       },
       {
         "system": "https://www.icanbwell.com/queryOptions",
-        "display": "{'limit':1000,'sort':{'id':1}}"
+        "display": "{'limit':1000,'sort':{'_uuid':1}}"
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['_uuid','_sourceId','id']"
+        "display": "['_uuid','_sourceId']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime"

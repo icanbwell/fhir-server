@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SupplyRequest.Parameter
     A record of a request for a medication, substance or device used in the
@@ -23,7 +22,7 @@ class SupplyRequestParameter extends Element {
      * @param {Range|undefined} [valueRange],
      * @param {Boolean|undefined} [valueBoolean],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class SupplyRequestParameter extends Element {
             valueCodeableConcept,
             valueQuantity,
             valueRange,
-            valueBoolean,
+            valueBoolean
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class SupplyRequestParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class SupplyRequestParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -128,7 +127,7 @@ class SupplyRequestParameter extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -148,7 +147,7 @@ class SupplyRequestParameter extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -168,7 +167,7 @@ class SupplyRequestParameter extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -188,7 +187,7 @@ class SupplyRequestParameter extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -211,9 +210,6 @@ class SupplyRequestParameter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -223,19 +219,16 @@ class SupplyRequestParameter extends Element {
             valueCodeableConcept,
             valueQuantity,
             valueRange,
-            valueBoolean,
+            valueBoolean
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -245,7 +238,7 @@ class SupplyRequestParameter extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueRange: this.valueRange && this.valueRange.toJSON(),
-            valueBoolean: this.valueBoolean,
+            valueBoolean: this.valueBoolean
         });
     }
 
@@ -254,21 +247,21 @@ class SupplyRequestParameter extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueCodeableConcept) {await this.valueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueRange) {await this.valueRange.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueCodeableConcept) { await this.valueCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueRange) { await this.valueRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -277,10 +270,8 @@ class SupplyRequestParameter extends Element {
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueRange: this.valueRange && this.valueRange.toJSONInternal(),
-            valueBoolean: this.valueBoolean,
+            valueBoolean: this.valueBoolean
         };
-
-
 
         return removeNull(json);
     }

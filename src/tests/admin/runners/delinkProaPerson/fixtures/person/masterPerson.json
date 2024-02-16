@@ -1,0 +1,25 @@
+{
+    "id": "masterPerson",
+    "resourceType": "Person",
+    "meta": {
+        "source": "Test",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "test"
+            }
+        ]
+    },
+    "link": [
+        {
+            "target": {
+                "reference": "Person/person1|test"
+            }
+        },
+        {
+            "target": {
+                "reference": "Person/client1|client"
+            }
+        }
+    ]
+}

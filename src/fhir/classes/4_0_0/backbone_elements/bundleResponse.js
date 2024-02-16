@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Bundle.Response
     A container for a collection of resources.
@@ -22,7 +21,7 @@ class BundleResponse extends Element {
      * @param {instant|undefined} [lastModified],
      * @param {ResourceContainer|undefined} [outcome],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class BundleResponse extends Element {
             location,
             etag,
             lastModified,
-            outcome,
+            outcome
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class BundleResponse extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class BundleResponse extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -205,13 +204,10 @@ class BundleResponse extends Element {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outcome = FhirResourceCreator.create(valueProvided);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -222,19 +218,16 @@ class BundleResponse extends Element {
             location,
             etag,
             lastModified,
-            outcome,
+            outcome
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -244,7 +237,7 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome && this.outcome.toJSON()
         });
     }
 
@@ -253,18 +246,18 @@ class BundleResponse extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcome) {await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.outcome) { await this.outcome.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -273,10 +266,8 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome && this.outcome.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

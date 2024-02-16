@@ -25,7 +25,7 @@ module.exports = {
         'https://directory.thedacare.org/hgwf-api/v1/records/hg_provider': 'thedacare',
         'https://www.merrittproperties.com/carefirst/rx_claims': 'merritt',
         'https://npiregistry.cms.hhs.gov': 'nppes',
-        'https://www.boonchapman.com/medical_claims': 'lnf',
+        'https://www.boonchapman.com/medical_claims': 'lnf'
     },
     NPPES: 'nppes',
     NPI_SYSTEM: 'http://hl7.org/fhir/sid/us-npi'

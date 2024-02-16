@@ -1,18 +1,18 @@
 /**
  * This class manages inserts and updates to the database
  */
-const {assertTypeEquals} = require('../utils/assertType');
+const { assertTypeEquals } = require('../utils/assertType');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {RethrownError} = require('../utils/rethrownError');
-const {ResourceMerger} = require('../operations/common/resourceMerger');
-const {PreSaveManager} = require('../preSaveHandlers/preSave');
-const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
-const {DatabaseQueryFactory} = require('./databaseQueryFactory');
-const {ConfigManager} = require('../utils/configManager');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
-const {ReadPreference} = require('mongodb');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { RethrownError } = require('../utils/rethrownError');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { logTraceSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { ConfigManager } = require('../utils/configManager');
+const { getCircularReplacer } = require('../utils/getCircularReplacer');
+const { ReadPreference } = require('mongodb');
 
 class DatabaseUpdateManager {
     /**
@@ -25,7 +25,7 @@ class DatabaseUpdateManager {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     resourceLocatorFactory,
                     resourceMerger,
                     preSaveManager,
@@ -84,7 +84,7 @@ class DatabaseUpdateManager {
      * @param {Resource} doc
      * @return {Promise<Resource>}
      */
-    async insertOneAsync({doc}) {
+    async insertOneAsync ({ doc }) {
         try {
             doc = await this.preSaveManager.preSaveAsync(doc);
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
@@ -107,7 +107,7 @@ class DatabaseUpdateManager {
      * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync({doc, smartMerge = true}) {
+    async replaceOneAsync ({ doc, smartMerge = true }) {
         const originalDoc = doc.clone();
         doc = await this.preSaveManager.preSaveAsync(doc);
         /**
@@ -136,7 +136,7 @@ class DatabaseUpdateManager {
              * @type {Resource|null}
              */
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
-                query: {_uuid: doc._uuid}, options: findQueryOptions
+                query: { _uuid: doc._uuid }, options: findQueryOptions
             });
             await logTraceSystemEventAsync(
                 {
@@ -152,20 +152,20 @@ class DatabaseUpdateManager {
                 }
             );
             if (!resourceInDatabase) {
-                return {savedResource: await this.insertOneAsync({doc}), patches: null};
+                return { savedResource: await this.insertOneAsync({ doc }), patches: null };
             }
             /**
              * @type {Resource|null}
              */
-            let {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
+            let { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                 {
                     currentResource: resourceInDatabase,
                     resourceToMerge: doc,
-                    smartMerge: smartMerge
+                    smartMerge
                 }
             );
             if (!updatedResource) {
-                return {savedResource: null, patches: null}; // nothing to do
+                return { savedResource: null, patches: null }; // nothing to do
             }
             doc = updatedResource;
             /**
@@ -176,9 +176,9 @@ class DatabaseUpdateManager {
             while (runsLeft > 0) {
                 const updatedDoc = await this.preSaveManager.preSaveAsync(doc.clone());
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
-                const filter = previousVersionId > 0 ?
-                    {$and: [{_uuid: updatedDoc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
-                    {_uuid: updatedDoc._uuid};
+                const filter = previousVersionId > 0
+                    ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
+                    : { _uuid: updatedDoc._uuid };
                 docVersionsTested.push(updatedDoc);
                 const updateResult = await collection.replaceOne(filter, updatedDoc.toJSONInternal());
                 await logTraceSystemEventAsync(
@@ -204,12 +204,12 @@ class DatabaseUpdateManager {
                      * @type {Resource|null}
                      */
                     resourceInDatabase = await databaseQueryManager.findOneAsync({
-                        query: {_uuid: doc._uuid}, options: findQueryOptions
+                        query: { _uuid: doc._uuid }, options: findQueryOptions
                     });
 
                     if (resourceInDatabase !== null) {
                         // merge with our resource
-                        ({updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
+                        ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                                 {
                                     currentResource: resourceInDatabase,
                                     resourceToMerge: doc
@@ -217,7 +217,7 @@ class DatabaseUpdateManager {
                             )
                         );
                         if (!updatedResource) {
-                            return {savedResource: null, patches: null};
+                            return { savedResource: null, patches: null };
                         } else {
                             doc = updatedResource;
                         }
@@ -251,7 +251,7 @@ class DatabaseUpdateManager {
                             }
                         }
                     );
-                    return {savedResource: doc, patches};
+                    return { savedResource: doc, patches };
                 }
             }
             if (runsLeft <= 0) {
@@ -282,13 +282,14 @@ class DatabaseUpdateManager {
      * @param {string} method
      * @param {Resource} doc
      */
-    async postSaveAsync(
+    async postSaveAsync (
         {
             requestId,
             method,
-            doc,
+            doc
         }
     ) {
+        doc = await this.preSaveManager.preSaveAsync(doc);
         const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
         const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({
@@ -297,7 +298,7 @@ class DatabaseUpdateManager {
             request: new BundleRequest(
                 {
                     id: requestId,
-                    method: method,
+                    method,
                     url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
                 }
             )

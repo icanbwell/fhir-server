@@ -18,16 +18,16 @@ const {
     getHeadersWithCustomPayload,
     mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
-const {IdentifierSystem} = require('../../../utils/identifierSystem');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -40,7 +40,7 @@ const person_payload = {
     'custom:clientFhirPersonId': 'clientFhirPerson',
     'custom:clientFhirPatientId': 'clientFhirPatient',
     'custom:bwellFhirPersonId': 'person1',
-    'custom:bwellFhirPatientId': 'bwellFhirPatient',
+    'custom:bwellFhirPatientId': 'bwellFhirPatient'
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 describe('Observation Tests', () => {
@@ -69,29 +69,29 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // ACT AND ASSERT
             // search by owner security tag should only return 1
@@ -115,29 +115,29 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // search by owner security tag should only return 1
             resp = await request
@@ -160,30 +160,29 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
-
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
@@ -206,30 +205,29 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
-
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // First call by id to find the uuid and then call by uuid
             resp = await request

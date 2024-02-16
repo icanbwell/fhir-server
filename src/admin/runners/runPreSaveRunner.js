@@ -1,9 +1,9 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc runs preSave() on every record
@@ -24,7 +24,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} [startFromCollection]
      * @param {number|undefined} [limit]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -93,7 +93,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
             return operations;
@@ -120,7 +120,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
+        const result = { replaceOne: { filter: { _id: doc._id }, replacement: updatedResource.toJSONInternal() } };
         operations.push(result);
         // console.log(`Operation: ${JSON.stringify(result)}`);
         return operations;
@@ -130,7 +130,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -156,17 +156,16 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = { _sourceAssigningAuthority: { $not: { $type: 'string' } } };
                 if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {
                             $lt: this.beforeLastUpdatedDate,
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     };
                 } else if (this.beforeLastUpdatedDate) {
@@ -178,16 +177,16 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 } else if (this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {
-                            $gt: this.afterLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate
                         }
                     };
                 }
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: this.useAuditDatabase ?
-                                await this.mongoDatabaseManager.getAuditConfigAsync() :
-                                await this.mongoDatabaseManager.getClientConfigAsync(),
+                            config: this.useAuditDatabase
+                                ? await this.mongoDatabaseManager.getAuditConfigAsync()
+                                : await this.mongoDatabaseManager.getClientConfigAsync(),
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript.Action
     A structured set of tests against a FHIR server or client implementation to
@@ -20,13 +19,13 @@ class TestScriptAction extends Element {
      * @param {TestScriptOperation|undefined} [operation],
      * @param {TestScriptAssert|undefined} [assert],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             operation,
-            assert,
+            assert
         }
     ) {
         super({});
@@ -70,7 +69,7 @@ class TestScriptAction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -102,7 +101,7 @@ class TestScriptAction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -122,7 +121,7 @@ class TestScriptAction extends Element {
                     return;
                 }
                 const TestScriptOperation = require('../backbone_elements/testScriptOperation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.operation = FhirResourceCreator.create(valueProvided, TestScriptOperation);
             }
         });
@@ -143,13 +142,10 @@ class TestScriptAction extends Element {
                     return;
                 }
                 const TestScriptAssert = require('../backbone_elements/testScriptAssert.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.assert = FhirResourceCreator.create(valueProvided, TestScriptAssert);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -157,26 +153,23 @@ class TestScriptAction extends Element {
             extension,
             modifierExtension,
             operation,
-            assert,
+            assert
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             operation: this.operation && this.operation.toJSON(),
-            assert: this.assert && this.assert.toJSON(),
+            assert: this.assert && this.assert.toJSON()
         });
     }
 
@@ -185,28 +178,26 @@ class TestScriptAction extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.operation) {await this.operation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.assert) {await this.assert.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.operation) { await this.operation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.assert) { await this.assert.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.toJSONInternal(),
-            assert: this.assert && this.assert.toJSONInternal(),
+            assert: this.assert && this.assert.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

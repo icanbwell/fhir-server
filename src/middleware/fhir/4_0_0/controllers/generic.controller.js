@@ -1,14 +1,12 @@
-const {isTrue} = require('../../../../utils/isTrue');
-const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
-const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
-const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {FhirResponseWriter} = require('../../fhirResponseWriter');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
+const { isTrue } = require('../../../../utils/isTrue');
+const { FhirOperationsManager } = require('../../../../operations/fhirOperationsManager');
+const { PostRequestProcessor } = require('../../../../utils/postRequestProcessor');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { FhirResponseWriter } = require('../../fhirResponseWriter');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { RequestSpecificCache } = require('../../../../utils/requestSpecificCache');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../../../../constants');
-
+const { REQUEST_ID_TYPE } = require('../../../../constants');
 
 /**
  * @typedef FhirService
@@ -38,7 +36,7 @@ class GenericController {
      * @param {ConfigManager} configManager
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor(
+    constructor (
         {
             postRequestProcessor,
             fhirOperationsManager,
@@ -83,11 +81,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise<Any>
      */
-    search(service, resourceType) {
+    search (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {boolean}
@@ -95,7 +93,7 @@ class GenericController {
                 const stream = (this.configManager.streamResponse || isTrue(req.query._streamResponse));
 
                 // if stream option is set, and we are not returning HTML then stream the data to client
-                if (stream && !shouldReturnHtml(req)) {
+                if (stream) {
                     await this.fhirOperationsManager.searchStreaming(
                         req.sanitized_args,
                         {
@@ -111,14 +109,14 @@ class GenericController {
                             res
                         },
                         resourceType);
-                    this.fhirResponseWriter.read({req, res, result: bundle});
+                    this.fhirResponseWriter.read({ req, res, result: bundle });
                 }
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -129,24 +127,24 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    searchById(service, resourceType) {
+    searchById (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const resource = await this.fhirOperationsManager.searchById(req.sanitized_args, {
                         req,
                         res
                     },
                     resourceType);
-                this.fhirResponseWriter.readOne({req, res, resource});
+                this.fhirResponseWriter.readOne({ req, res, resource });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -157,11 +155,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    searchByVersionId(service, resourceType) {
+    searchByVersionId (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const resource = await this.fhirOperationsManager.searchByVersionId(
                     req.sanitized_args,
@@ -171,13 +169,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.readOne({req, res, resource});
+                this.fhirResponseWriter.readOne({ req, res, resource });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -188,11 +186,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    create(service, resourceType) {
+    create (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {Resource}
@@ -204,14 +202,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.create({
-                    req, res, resource, options: {type: resourceType}
+                    req, res, resource, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -222,11 +220,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    merge(service, resourceType) {
+    merge (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const resource = await this.fhirOperationsManager.merge(req.sanitized_args, {
                         req,
@@ -235,14 +233,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.create({
-                    req, res, resource, options: {type: resourceType}
+                    req, res, resource, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -253,11 +251,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    update(service, resourceType) {
+    update (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {{id: string, created: boolean, resource_version: string, resource: Resource}}
@@ -269,14 +267,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.update({
-                    req, res, result, options: {type: resourceType}
+                    req, res, result, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -287,11 +285,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    remove(service, resourceType) {
+    remove (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const json = await this.fhirOperationsManager.remove(req.sanitized_args, {
                         req,
@@ -299,13 +297,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.remove({req, res, json});
+                this.fhirResponseWriter.remove({ req, res, json });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -316,11 +314,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    patch(service, resourceType) {
+    patch (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 /**
                  * @type {{id: string, created: boolean, resource_version: string, resource: Resource}}
@@ -334,14 +332,14 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.update({
-                    req, res, result, options: {type: resourceType}
+                    req, res, result, options: { type: resourceType }
                 });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -352,11 +350,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    history(service, resourceType) {
+    history (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const bundle = await this.fhirOperationsManager.history(req.sanitized_args, {
                         req,
@@ -364,13 +362,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.history({req, res, json: bundle});
+                this.fhirResponseWriter.history({ req, res, json: bundle });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }
@@ -381,11 +379,11 @@ class GenericController {
      * @param {string} resourceType
      * @return Promise
      */
-    historyById(service, resourceType) {
+    historyById (service, resourceType) {
         return async (
-            /** @type {import('http').IncomingMessage}*/req,
-            /** @type {import('http').ServerResponse}*/res,
-            /** @type {function() : void}*/next) => {
+            /** @type {import('http').IncomingMessage} */req,
+            /** @type {import('http').ServerResponse} */res,
+            /** @type {function() : void} */next) => {
             try {
                 const bundle = await this.fhirOperationsManager.historyById(req.sanitized_args, {
                         req,
@@ -393,13 +391,13 @@ class GenericController {
                     },
                     resourceType
                 );
-                this.fhirResponseWriter.history({req, res, json: bundle});
+                this.fhirResponseWriter.history({ req, res, json: bundle });
             } catch (e) {
                 next(e);
             } finally {
                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
-                await this.postRequestProcessor.executeAsync({requestId});
-                await this.requestSpecificCache.clearAsync({requestId});
+                await this.postRequestProcessor.executeAsync({ requestId });
+                await this.requestSpecificCache.clearAsync({ requestId });
             }
         };
     }

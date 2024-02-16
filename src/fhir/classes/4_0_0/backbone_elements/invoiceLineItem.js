@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Invoice.LineItem
     Invoice containing collected ChargeItems from an Account with calculated
@@ -22,7 +21,7 @@ class InvoiceLineItem extends Element {
      * @param {CodeableConcept|undefined} [chargeItemCodeableConcept],
      * @param {InvoicePriceComponent[]|undefined} [priceComponent],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -30,7 +29,7 @@ class InvoiceLineItem extends Element {
             sequence,
             chargeItemReference,
             chargeItemCodeableConcept,
-            priceComponent,
+            priceComponent
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -144,7 +143,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.chargeItemReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -164,7 +163,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.chargeItemCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -189,13 +188,10 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 const InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.priceComponent = FhirResourceCreator.createArray(valueProvided, InvoicePriceComponent);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -205,19 +201,16 @@ class InvoiceLineItem extends Element {
             sequence,
             chargeItemReference,
             chargeItemCodeableConcept,
-            priceComponent,
+            priceComponent
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -226,7 +219,7 @@ class InvoiceLineItem extends Element {
             sequence: this.sequence,
             chargeItemReference: this.chargeItemReference && this.chargeItemReference.toJSON(),
             chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSON(),
-            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON())
         });
     }
 
@@ -235,20 +228,20 @@ class InvoiceLineItem extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.chargeItemReference) {await this.chargeItemReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.chargeItemCodeableConcept) {await this.chargeItemCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.priceComponent) {await async.each(this.priceComponent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.chargeItemReference) { await this.chargeItemReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.chargeItemCodeableConcept) { await this.chargeItemCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.priceComponent) { await async.each(this.priceComponent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -256,10 +249,8 @@ class InvoiceLineItem extends Element {
             sequence: this.sequence,
             chargeItemReference: this.chargeItemReference && this.chargeItemReference.toJSONInternal(),
             chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSONInternal(),
-            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

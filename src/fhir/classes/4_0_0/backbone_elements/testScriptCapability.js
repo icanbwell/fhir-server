@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript.Capability
     A structured set of tests against a FHIR server or client implementation to
@@ -25,7 +24,7 @@ class TestScriptCapability extends Element {
      * @param {uri[]|undefined} [link],
      * @param {canonical} capabilities,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -36,7 +35,7 @@ class TestScriptCapability extends Element {
             origin,
             destination,
             link,
-            capabilities,
+            capabilities
         }
     ) {
         super({});
@@ -80,7 +79,7 @@ class TestScriptCapability extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -112,7 +111,7 @@ class TestScriptCapability extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -249,9 +248,6 @@ class TestScriptCapability extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -263,19 +259,16 @@ class TestScriptCapability extends Element {
             origin,
             destination,
             link,
-            capabilities,
+            capabilities
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -287,7 +280,7 @@ class TestScriptCapability extends Element {
             origin: this.origin,
             destination: this.destination,
             link: this.link,
-            capabilities: this.capabilities,
+            capabilities: this.capabilities
         });
     }
 
@@ -296,17 +289,17 @@ class TestScriptCapability extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -317,10 +310,8 @@ class TestScriptCapability extends Element {
             origin: this.origin,
             destination: this.destination,
             link: this.link,
-            capabilities: this.capabilities,
+            capabilities: this.capabilities
         };
-
-
 
         return removeNull(json);
     }

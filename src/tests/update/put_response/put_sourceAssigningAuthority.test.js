@@ -7,22 +7,23 @@ const activitydefinition5Resource = require('./fixtures/ActivityDefinition/activ
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition1.json');
 const expectedErrorWithoutOwner = require('./fixtures/expected/expected_error_without_owner.json');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
-const expectedActivityDefinitionMedstarResources = require('./fixtures/expected/expected_ActivityDefinitionMedstar.json');
+const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../utils/configManager');
 
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -99,7 +100,7 @@ describe('ActivityDefinition Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
-            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/medstar.*');
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
             let resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition5Resource)
@@ -112,23 +113,23 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
-            const medstarHeaders = getHeaders('user/*.read user/*.write access/medstar.*');
+            const clientHeaders = getHeaders('user/*.read user/*.write access/client.*');
             const bwellHeaders = getHeaders('user/*.read user/*.write access/bwell.*');
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid')
                 .send(activitydefinition5Data)
-                .set(medstarHeaders)
+                .set(clientHeaders)
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
 
             resp = await request
                 .get('/4_0_0/ActivityDefinition/?_bundle=1')
-                .set(medstarHeaders);
+                .set(clientHeaders);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedActivityDefinitionMedstarResources);
+            expect(resp).toHaveResponse(expectedActivityDefinitionClientResources);
 
             resp = await request
                 .get('/4_0_0/ActivityDefinition/?_bundle=1')
@@ -142,7 +143,7 @@ describe('ActivityDefinition Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
-            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/medstar.*');
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
             let resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition5Resource)
@@ -155,7 +156,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid')
@@ -166,7 +167,7 @@ describe('ActivityDefinition Tests', () => {
             expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
 
             resp = await request
-                .put('/4_0_0/ActivityDefinition/sameid|medstar')
+                .put('/4_0_0/ActivityDefinition/sameid|client')
                 .send(activitydefinition5Data)
                 .set(allAccessHeaders);
             // noinspection JSUnresolvedFunction

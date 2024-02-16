@@ -1,26 +1,26 @@
-const {fhirFilterTypes} = require('./customQueries');
-const {FilterByString} = require('./filters/string');
-const {FilterByUri} = require('./filters/uri');
-const {FilterByDateTime} = require('./filters/dateTime');
-const {FilterByToken} = require('./filters/token');
-const {FilterByReference} = require('./filters/reference');
-const {FilterByCanonical} = require('./filters/canonical');
-const {FilterBySecurityTag} = require('./filters/securityTag');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {AccessIndexManager} = require('../common/accessIndexManager');
-const {R4ArgsParser} = require('./r4ArgsParser');
-const {ParsedArgs} = require('./parsedArgs');
-const {FieldMapper} = require('./filters/fieldMapper');
-const {FilterByMissing} = require('./filters/missing');
-const {FilterByContains} = require('./filters/contains');
-const {FilterByAbove, FilterByBelow} = require('./filters/aboveAndBelow');
-const {FilterByPartialText} = require('./filters/partialText');
-const {FilterById} = require('./filters/id');
-const {MongoQuerySimplifier} = require('../../utils/mongoQuerySimplifier');
-const {FilterParameters} = require('./filters/filterParameters');
-const {UrlParser} = require('../../utils/urlParser');
-const {FilterByQuantity} = require('./filters/quantity');
+const { fhirFilterTypes } = require('./customQueries');
+const { FilterByString } = require('./filters/string');
+const { FilterByUri } = require('./filters/uri');
+const { FilterByDateTime } = require('./filters/dateTime');
+const { FilterByToken } = require('./filters/token');
+const { FilterByReference } = require('./filters/reference');
+const { FilterByCanonical } = require('./filters/canonical');
+const { FilterBySecurityTag } = require('./filters/securityTag');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { AccessIndexManager } = require('../common/accessIndexManager');
+const { R4ArgsParser } = require('./r4ArgsParser');
+const { ParsedArgs } = require('./parsedArgs');
+const { FieldMapper } = require('./filters/fieldMapper');
+const { FilterByMissing } = require('./filters/missing');
+const { FilterByContains } = require('./filters/contains');
+const { FilterByAbove, FilterByBelow } = require('./filters/aboveAndBelow');
+const { FilterByPartialText } = require('./filters/partialText');
+const { FilterById } = require('./filters/id');
+const { MongoQuerySimplifier } = require('../../utils/mongoQuerySimplifier');
+const { FilterParameters } = require('./filters/filterParameters');
+const { UrlParser } = require('../../utils/urlParser');
+const { FilterByQuantity } = require('./filters/quantity');
 
 class R4SearchQueryCreator {
     /**
@@ -29,7 +29,7 @@ class R4SearchQueryCreator {
      * @param {AccessIndexManager} accessIndexManager
      * @param {R4ArgsParser} r4ArgsParser
      */
-    constructor({
+    constructor ({
                     configManager,
                     accessIndexManager,
                     r4ArgsParser
@@ -59,7 +59,7 @@ class R4SearchQueryCreator {
      * @param {boolean|undefined} [useHistoryTable]
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery({resourceType, parsedArgs, useHistoryTable}) {
+    buildR4SearchQuery ({ resourceType, parsedArgs, useHistoryTable }) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -68,7 +68,7 @@ class R4SearchQueryCreator {
          * these are combined to create the query
          * @type {Object[]}
          */
-        let totalAndSegments = [];
+        const totalAndSegments = [];
 
         let includesQuantityType = false;
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
@@ -78,7 +78,7 @@ class R4SearchQueryCreator {
                  */
                 const fieldMapper = new FieldMapper(
                     {
-                        useHistoryTable: useHistoryTable
+                        useHistoryTable
                     }
                 );
                 /**
@@ -122,7 +122,7 @@ class R4SearchQueryCreator {
 
                 // apply negation according to not modifier and add to final collection
                 if (parsedArg.modifiers.includes('not')) {
-                    andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
+                    andSegments.forEach(q => totalAndSegments.push({ $nor: [q] }));
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));
                 }
@@ -145,18 +145,18 @@ class R4SearchQueryCreator {
 
         if (!includesQuantityType) {
             // the simplifier mangles quantity-type queries
-            query = MongoQuerySimplifier.simplifyFilter({filter: query});
+            query = MongoQuerySimplifier.simplifyFilter({ filter: query });
         }
         /**
          * list of columns used in the query
          * this is used to pick index hints
          * @type {Set}
          */
-        const totalColumns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
+        const totalColumns = MongoQuerySimplifier.findColumnsInFilter({ filter: query });
 
         return {
-            query: query,
-            columns: totalColumns,
+            query,
+            columns: totalColumns
         };
     }
 
@@ -166,7 +166,7 @@ class R4SearchQueryCreator {
      * @param {FilterParameters} filterParameters
      * @returns {{andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
-    getColumnsAndSegmentsForParameterType(
+    getColumnsAndSegmentsForParameterType (
         {
             parsedArg,
             filterParameters
@@ -182,7 +182,6 @@ class R4SearchQueryCreator {
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
         let andSegments = [];
-
 
         // get the set of columns required for the query
         if (queryParameter === '_id') {
@@ -224,11 +223,10 @@ class R4SearchQueryCreator {
             }
         }
 
-        return {andSegments};
+        return { andSegments };
     }
 }
 
 module.exports = {
     R4SearchQueryCreator
 };
-

@@ -8,12 +8,12 @@ const expectedPatient1Resources = require('./fixtures/expected/expected_patient1
 const expectedPatient1UpdateGenderResources = require('./fixtures/expected/expected_patient1_update_gender.json');
 const expectedPatient1UpdateReferenceResources = require('./fixtures/expected/expected_patient1_update_reference.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 }
@@ -41,7 +41,7 @@ describe('Patient Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
@@ -64,14 +64,14 @@ describe('Patient Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient1UpdateGenderResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({updated: true});
+            expect(resp).toHaveMergeResponse({ updated: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
@@ -94,14 +94,14 @@ describe('Patient Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient1UpdateReferenceResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({updated: true});
+            expect(resp).toHaveMergeResponse({ updated: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
@@ -117,7 +117,7 @@ describe('Patient Tests', () => {
                 .send(patient1UpdateReferenceResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({updated: false});
+            expect(resp).toHaveMergeResponse({ updated: false });
 
             resp = await request
                 .get('/4_0_0/Patient/?_bundle=1&id=1')

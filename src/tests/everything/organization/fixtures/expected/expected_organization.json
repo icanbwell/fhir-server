@@ -15,7 +15,7 @@
           }
         ],
         "alias": [
-          "MedStar Medical Group Derm at Honeygo"
+          "Client Medical Group Derm at Honeygo"
         ],
         "contact": [
           {
@@ -23,7 +23,7 @@
               "coding": [
                 {
                   "code": "Central Scheduling",
-                  "system": "MedstarHealth.org"
+                  "system": "ClientHealth.org"
                 }
               ]
             },
@@ -58,30 +58,30 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "e4be0b0a-f087-571a-8d76-cf763574eec6"
+            "value": "2b931c83-3cde-547f-b85c-9ace1819acd1"
           }
         ],
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.foo.com",
           "versionId": "1"
         },
-        "name": "MedStar Medical Group Dermatology at Honeygo",
+        "name": "Client Medical Group Dermatology at Honeygo",
         "partOf": {
-          "display": "MedStar Medical Group",
+          "display": "Client Medical Group",
           "type": "Organization"
         },
         "resourceType": "Organization",
@@ -121,38 +121,38 @@
     },
     {
       "resource": {
-        "id": "MedStar-Medical-Group",
+        "id": "Client-Medical-Group",
         "identifier": [
           {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "MedStar-Medical-Group"
+            "value": "Client-Medical-Group"
           },
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "95a17a9e-8304-50ca-9886-5041227066f7"
+            "value": "a2b7cbac-5ae0-5f97-83e2-554f176534f1"
           }
         ],
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.foo.com",
           "versionId": "1"
         },
-        "name": "MedStar Medical Group",
+        "name": "Client Medical Group",
         "resourceType": "Organization",
         "type": [
           {

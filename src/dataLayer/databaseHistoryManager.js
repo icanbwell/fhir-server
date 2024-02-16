@@ -1,8 +1,8 @@
-const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
-const {assertTypeEquals} = require('../utils/assertType');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {RethrownError} = require('../utils/rethrownError');
-const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
+const { DatabasePartitionedCursor } = require('./databasePartitionedCursor');
+const { assertTypeEquals } = require('../utils/assertType');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { RethrownError } = require('../utils/rethrownError');
+const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 
 /**
  * This class provides access to _History collections
@@ -14,7 +14,7 @@ class DatabaseHistoryManager {
      * @param {string} resourceType
      * @param {string} base_version
      */
-    constructor(
+    constructor (
         {
             resourceLocatorFactory,
             resourceType,
@@ -53,13 +53,13 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {Promise<Resource|null>}
      */
-    async findOneAsync({query, options = null}) {
+    async findOneAsync ({ query, options = null }) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
             const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync(
-                {query}
+                { query }
             );
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
                 /**
@@ -88,12 +88,12 @@ class DatabaseHistoryManager {
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {DatabasePartitionedCursor}
      */
-    async findAsync({query, options = null}) {
+    async findAsync ({ query, options = null }) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
         const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync(
-            {query}
+            { query }
         );
         /**
          * @type {CursorInfo[]}
@@ -104,10 +104,12 @@ class DatabaseHistoryManager {
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
              */
             const cursor = collection.find(query, options);
-            cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+            cursors.push({ cursor, db: collection.dbName, collection: collection.collectionName });
         }
         return new DatabasePartitionedCursor({
-            base_version: this._base_version, resourceType: this._resourceType, cursors,
+            base_version: this._base_version,
+resourceType: this._resourceType,
+cursors,
             query
         });
     }

@@ -11,17 +11,17 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext,
+    mockHttpContext
 } = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -59,7 +59,7 @@ describe('Patient Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // ACT AND ASSERT
             resp = await request
@@ -89,7 +89,7 @@ describe('Patient Tests', () => {
            * @type {PostRequestProcessor}
            */
           const postRequestProcessor = container.postRequestProcessor;
-          await postRequestProcessor.waitTillDoneAsync({ requestId: requestId });
+          await postRequestProcessor.waitTillDoneAsync({ requestId });
 
           // ACT AND ASSERT
           resp = await request

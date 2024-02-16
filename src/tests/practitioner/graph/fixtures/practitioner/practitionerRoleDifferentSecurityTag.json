@@ -2,15 +2,15 @@
     "resourceType": "PractitionerRole",
     "id": "bad",
     "meta": {
-        "source": "http://medstarhealth.org/provider",
+        "source": "http://clienthealth.org/provider",
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "notmedstar"
+                "code": "notclient"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "medstar"
+                "code": "client"
             }
         ]
     },
@@ -52,7 +52,7 @@
         "reference": "Practitioner/1679033641"
     },
     "organization": {
-        "reference": "Organization/Medstar-Alias-ABC"
+        "reference": "Organization/Client-Alias-ABC"
     },
     "code": [
         {
@@ -69,7 +69,7 @@
     "specialty": [],
     "location": [
         {
-            "reference": "Location/Medstar-Alias-ABC"
+            "reference": "Location/Client-Alias-ABC"
         }
     ]
 }

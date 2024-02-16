@@ -1,6 +1,6 @@
-const {isUuid} = require('../../../utils/uid.util');
-const {BaseFilter} = require('./baseFilter');
-const {IdParser} = require('../../../utils/idParser');
+const { isUuid } = require('../../../utils/uid.util');
+const { BaseFilter } = require('./baseFilter');
+const { IdParser } = require('../../../utils/idParser');
 const { FieldMapper } = require('./fieldMapper');
 
 const uuidFieldName = '_uuid';
@@ -10,35 +10,33 @@ const uuidFieldName = '_uuid';
  * https://www.hl7.org/fhir/search.html#id
  */
 class FilterById extends BaseFilter {
-
     /**
      * Get filter for list of ids
      * @param {String[]} values
      * @returns {{_uuid: {$in}}|{_sourceId: {$in}}|{$or: ({_uuid: {$in}}|{_sourceId: {$in}})[]}}
      */
-    static getListFilter(values){
+    static getListFilter (values) {
         if (!values || values.length === 0) {
-            return { '_uuid': { $in: [] }};
+            return { _uuid: { $in: [] } };
         }
 
-        const idFieldMapper = new FieldMapper({useHistoryTable: false});
+        const idFieldMapper = new FieldMapper({ useHistoryTable: false });
         const filter = FilterById.filterByItems('id', values, idFieldMapper);
         let query;
 
-        if (filter.length > 1){
-            query = {$or: filter};
+        if (filter.length > 1) {
+            query = { $or: filter };
         } else {
             query = filter[0];
         }
         return query;
-
     }
 
     /**
      * Generates filter for parsedArgItem
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
@@ -52,8 +50,8 @@ class FilterById extends BaseFilter {
                                 FilterById.filterByItems(field, this.parsedArg.queryParameterValue.values, this.fieldMapper)
                             };
                         }
-                    ),
-                },
+                    )
+                }
             );
         }
 
@@ -67,16 +65,18 @@ class FilterById extends BaseFilter {
      * @param {import('./fieldMapper').FieldMapper} fieldMapper
      * @returns {Array<Object>}
      */
-    static filterByItems(field, values, fieldMapper) {
+    static filterByItems (field, values, fieldMapper) {
         const filters = [];
         /**
          * 2 types of values are possible
          * 1. uuid, 2. sourceId
          */
-        let /**@type {string[]}*/uuids = [], /**@type {string[]}*/sourceIds = [];
+        const /** @type {string[]} */uuids = [];
+        /** @type {string[]} */
+        const sourceIds = [];
 
         values.forEach((value) => {
-            const {id} = IdParser.parse(value);
+            const { id } = IdParser.parse(value);
             if (isUuid(id)) {
                 uuids.push(id);
             } else {
@@ -87,7 +87,7 @@ class FilterById extends BaseFilter {
         if (uuids.length > 0) {
             filters.push({
                 [fieldMapper.getFieldName(uuidFieldName)]: {
-                    $in: uuids,
+                    $in: uuids
                 }
             });
         }
@@ -95,13 +95,12 @@ class FilterById extends BaseFilter {
         if (sourceIds.length > 0) {
             filters.push({
                 [fieldMapper.getFieldName(field)]: {
-                    $in: sourceIds,
+                    $in: sourceIds
                 }
             });
         }
         return filters;
     }
-
 }
 
 module.exports = {

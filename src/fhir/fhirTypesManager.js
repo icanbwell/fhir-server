@@ -21,7 +21,7 @@ class FhirTypesManager {
      * @param {GetTypeForFieldProps}
      * @return {string|null}
      */
-    getTypeForField({resourceType, field}) {
+    getTypeForField ({ resourceType, field }) {
         const resourceAndField = `${resourceType}.${field}`;
         const dataType = dataElementMap.get(resourceAndField);
         return dataType && dataType.code;
@@ -36,13 +36,12 @@ class FhirTypesManager {
      * @param {GetDataForFieldProps}
      * @returns {{code: string, min: number, max: string}}
      */
-    getDataForField({resourceType, field}) {
+    getDataForField ({ resourceType, field }) {
         const resourceAndField = `${resourceType}.${field}`;
         const dataType = dataElementMap.get(resourceAndField);
         return dataType;
     }
 }
-
 
 module.exports = {
     FhirTypesManager

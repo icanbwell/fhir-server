@@ -8,9 +8,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('AuditEventRecordedTests', () => {
     beforeEach(async () => {
@@ -35,7 +35,7 @@ describe('AuditEventRecordedTests', () => {
                 .send(auditEventResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // now check that we get the right record back
             resp = await request
@@ -45,11 +45,11 @@ describe('AuditEventRecordedTests', () => {
                 .set(getHeaders());
 
             expectedAuditEventResource.meta.tag.forEach((tag) => {
-                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
-                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
+                    tag.display = tag.display.replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
                 }
-                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
-                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code) {
+                    tag.code = 'AuditEvent_4_0_0_2021_09';
                 }
             });
             // noinspection JSUnresolvedFunction
@@ -58,7 +58,7 @@ describe('AuditEventRecordedTests', () => {
             // now check that we get the right record back
             resp = await request
                 .get(
-                    '/4_0_0/AuditEvent/?date=gt2021-08-10&date=lt2021-11-02&patient=unitypoint-eG6BUUqleqdRRvJuwSIeJ5WkGK-Y.QGOSDSTDbws1FC43&_bundle=1'
+                    '/4_0_0/AuditEvent/?date=gt2021-08-10&date=lt2021-11-02&patient=client-eG6BUUqleqdRRvJuwSIeJ5WkGK-Y.QGOSDSTDbws1FC43&_bundle=1'
                 )
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

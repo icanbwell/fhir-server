@@ -17,7 +17,7 @@
     "link": [
         {
             "target": {
-                "reference": "Patient/1|thedacare",
+                "reference": "Patient/1|client",
                 "display": "Eve Everywoman"
             },
             "assurance": "level3"

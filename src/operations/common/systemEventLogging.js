@@ -1,11 +1,11 @@
 const env = require('var');
 const moment = require('moment-timezone');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_TYPE} = require('../../constants');
+const { REQUEST_ID_TYPE } = require('../../constants');
 
 const os = require('os');
-const {generateUUID} = require('../../utils/uid.util');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const { generateUUID } = require('../../utils/uid.util');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 
 /**
@@ -16,7 +16,7 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 const getDetailFromArgs = (args) => Object.entries(args).map(([k, v]) => {
     return {
         type: k,
-        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer()),
+        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
     };
 });
 
@@ -26,7 +26,7 @@ const getDetailFromArgs = (args) => Object.entries(args).map(([k, v]) => {
  * @param {string} message
  * @param {Object} args
  */
-const logSystemEventAsync = async ({event, message, args}) => {
+const logSystemEventAsync = async ({ event, message, args }) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -48,13 +48,13 @@ const logSystemEventAsync = async ({event, message, args}) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: 'Success',
-        message: message,
+        message,
         entity: [
             {
                 name: 'system',
-                detail: detail
+                detail
             }
-        ],
+        ]
     };
     logEntry.request = {
         // represents the id that is passed as header or req.id.
@@ -74,12 +74,11 @@ const logSystemEventAsync = async ({event, message, args}) => {
  * @param {string} message
  * @param {Object} args
  */
-const logTraceSystemEventAsync = async ({event, message, args}) => {
+const logTraceSystemEventAsync = async ({ event, message, args }) => {
     if (env.LOGLEVEL === 'TRACE' || env.LOGLEVEL === 'DEBUG') {
-        await logSystemEventAsync({event, message, args});
+        await logSystemEventAsync({ event, message, args });
     }
 };
-
 
 /**
  * Logs a system event
@@ -88,7 +87,7 @@ const logTraceSystemEventAsync = async ({event, message, args}) => {
  * @param {Object} args
  * @param {Error|null} error
  */
-const logSystemErrorAsync = async ({event, message, args, error}) => {
+const logSystemErrorAsync = async ({ event, message, args, error }) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -114,9 +113,9 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         entity: [
             {
                 name: 'system',
-                detail: detail
+                detail
             }
-        ],
+        ]
     };
     logEntry.request = {
         // represents the id that is passed as header or req.id.
@@ -138,7 +137,6 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         fhirInSecureLogger.info(logEntry);
     }
 };
-
 
 module.exports = {
     logTraceSystemEventAsync,

@@ -1,18 +1,18 @@
 const async = require('async');
-const {validateResource} = require('../../utils/validator.util');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
+const { validateResource } = require('../../utils/validator.util');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const sendToS3 = require('../../utils/aws-s3');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {RemoteFhirValidator} = require('../../utils/remoteFhirValidator');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { RemoteFhirValidator } = require('../../utils/remoteFhirValidator');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { DatabaseUpdateFactory } = require('../../dataLayer/databaseUpdateFactory');
 const StructureDefinition = require('../../fhir/classes/4_0_0/resources/structureDefinition');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const { BadRequestError } = require('../../utils/httpErrors');
@@ -27,7 +27,7 @@ class ResourceValidator {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
-    constructor(
+    constructor (
         {
             configManager,
             remoteFhirValidator,
@@ -72,7 +72,7 @@ class ResourceValidator {
      * @param {string|undefined} profile
      * @returns {OperationOutcome | null}
      */
-    async validateResourceAsync(
+    async validateResourceAsync (
         {
             id,
             resourceType,
@@ -88,8 +88,8 @@ class ResourceValidator {
         /**
          * @type {OperationOutcome | null}
          */
-        const validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable ?
-            await this.validateResourceFromServerAsync(
+        const validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
+            ? await this.validateResourceFromServerAsync(
                 {
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
@@ -106,16 +106,16 @@ class ResourceValidator {
                 }
             );
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({action: 'validate', resourceType: resourceType}, 1);
-            validationOperationOutcome['expression'] = [
+            validationsFailedCounter.inc({ action: 'validate', resourceType }, 1);
+            validationOperationOutcome.expression = [
                 resourceType + '/' + id
             ];
-            if (!(validationOperationOutcome['details']) || !(validationOperationOutcome['details']['text'])) {
-                validationOperationOutcome['details'] = {
+            if (!(validationOperationOutcome.details) || !(validationOperationOutcome.details.text)) {
+                validationOperationOutcome.details = {
                     text: JSON.stringify(resourceToValidateJson, getCircularReplacer())
                 };
             } else {
-                validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
+                validationOperationOutcome.details.text = validationOperationOutcome.details.text +
                     ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
             }
 
@@ -148,7 +148,7 @@ class ResourceValidator {
      * @param {string|undefined} profile
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
-    async validateResourceFromServerAsync(
+    async validateResourceFromServerAsync (
         {
             resourceBody,
             resourceName,
@@ -190,14 +190,14 @@ class ResourceValidator {
         }
         if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
             operationOutcome.issue = new OperationOutcomeIssue({
-                'code': 'informational',
-                'details': {
-                    'text': 'OK'
+                code: 'informational',
+                details: {
+                    text: 'OK'
                 },
-                'expression': [
+                expression: [
                     'Practitioner'
                 ],
-                'severity': 'information'
+                severity: 'information'
             });
         }
         return operationOutcome;
@@ -209,7 +209,7 @@ class ResourceValidator {
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer({ profile, resourceType }) {
+    async upsertProfileInRemoteServer ({ profile, resourceType }) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
@@ -230,8 +230,8 @@ class ResourceValidator {
                         args: {
                             error,
                             message: error.message,
-                            profileId: profileJson.id,
-                        },
+                            profileId: profileJson.id
+                        }
                     }
                 );
 
@@ -239,21 +239,21 @@ class ResourceValidator {
                     error,
                     source: 'ResourceValidator.updateRemoteFhirProfileTask',
                     args: {
-                        profileJson,
-                    },
+                        profileJson
+                    }
                 });
             }
         };
 
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'StructureDefinition',
-            base_version: VERSIONS['4_0_0'],
+            base_version: VERSIONS['4_0_0']
         });
 
         /**
          * @type {{ location: string, profile: string }[]}
          */
-        let invalidProfileUrls = [];
+        const invalidProfileUrls = [];
         const fetchProfileFromUrl = async ({ profileUrl, index }) => {
             /**
              * @type {{[k: string]: any} | null}
@@ -266,12 +266,12 @@ class ResourceValidator {
                         if (!resourceType) {
                             invalidProfileUrls.push({
                                 location: 'profile',
-                                profile: profileUrl,
+                                profile: profileUrl
                             });
                         } else {
                             invalidProfileUrls.push({
                                 location: `${resourceType}.meta.profile[${index}]`,
-                                profile: profileUrl,
+                                profile: profileUrl
                             });
                         }
 
@@ -284,7 +284,7 @@ class ResourceValidator {
             if (profileJson) {
                 const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
                 await databaseUpdateManager.replaceOneAsync({
-                    doc: profileResourceNew,
+                    doc: profileResourceNew
                 });
 
                 profileJsonToUpdate.push({ profileJson: profileResourceNew.toJSON(), profileUrl });
@@ -296,12 +296,12 @@ class ResourceValidator {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'StructureDefinition',
-            base_version: VERSIONS['4_0_0'],
+            base_version: VERSIONS['4_0_0']
         });
 
         // check if profile already exist in database
         const cursor = await databaseQueryManager.findAsync({
-            query: { url: { $in: profiles } },
+            query: { url: { $in: profiles } }
         });
 
         while (await cursor.hasNext()) {
@@ -315,7 +315,7 @@ class ResourceValidator {
         }
 
         // resourceType is present, means profiles are present in resource
-        let defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
+        const defaultErrorMessage = resourceType ? 'Unable to fetch profile details for resource at' : 'Unable to fetch profile details from passed param';
 
         // concurrently load the profiles form their url
         await async.eachLimit(
@@ -341,7 +341,7 @@ class ResourceValidator {
      * @param {{ profileJson: Record<string, any>}} params
      * @returns {StructureDefinition}
      */
-    createProfileResourceFromJson({ profileJson }) {
+    createProfileResourceFromJson ({ profileJson }) {
         const profileResourceNew = new StructureDefinition(profileJson);
         if (!profileResourceNew.meta) {
             profileResourceNew.meta = new Meta({});
@@ -350,15 +350,15 @@ class ResourceValidator {
             profileResourceNew.meta.security.push(
                 new Coding({
                     system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile',
+                    code: profileResourceNew.publisher || 'profile'
                 })
             );
         } else {
             profileResourceNew.meta.security = [
                 new Coding({
                     system: SecurityTagSystem.owner,
-                    code: profileResourceNew.publisher || 'profile',
-                }),
+                    code: profileResourceNew.publisher || 'profile'
+                })
             ];
         }
         if (!profileResourceNew.meta.source) {

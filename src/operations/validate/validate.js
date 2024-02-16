@@ -1,22 +1,21 @@
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {getFirstElementOrNull} = require('../../utils/list.util');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { getFirstElementOrNull } = require('../../utils/list.util');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
-const {ResourceValidator} = require('../common/resourceValidator');
+const { ResourceValidator } = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ConfigManager} = require('../../utils/configManager');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {isTrue} = require('../../utils/isTrue');
-const {SearchManager} = require('../search/searchManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ConfigManager } = require('../../utils/configManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { isTrue } = require('../../utils/isTrue');
+const { SearchManager } = require('../search/searchManager');
 const deepcopy = require('deepcopy');
-const {READ} = require('../../constants').OPERATIONS;
-
+const { READ } = require('../../constants').OPERATIONS;
 
 class ValidateOperation {
     /**
@@ -28,7 +27,7 @@ class ValidateOperation {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             scopesManager,
             fhirLoggingManager,
@@ -80,13 +79,13 @@ class ValidateOperation {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validateAsync({requestInfo, parsedArgs, resourceType}) {
+    async validateAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
 
-        const {id, resource, base_version} = parsedArgs;
+        const { id, resource, base_version } = parsedArgs;
         /**
          * @type {number}
          */
@@ -103,7 +102,7 @@ class ValidateOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            path,
+            path
         } = requestInfo;
 
         /**
@@ -128,14 +127,14 @@ class ValidateOperation {
                 /**
                  * @type {boolean}
                  */
-                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
                 /**
                  * @type {{base_version, columns: Set, query: import('mongodb').Document}}
                  */
                 const {
                     /** @type {import('mongodb').Document}**/
-                    query,
+                    query
                     // /** @type {Set} **/
                     // columns
                 } = await this.searchManager.constructQueryAsync(
@@ -153,12 +152,12 @@ class ValidateOperation {
                 );
 
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
+                    { resourceType, base_version }
                 );
                 /**
                  * @type {DatabasePartitionedCursor}
                  */
-                const cursor = await databaseQueryManager.findAsync({query});
+                const cursor = await databaseQueryManager.findAsync({ query });
                 let operationOutcome = null;
                 while (await cursor.hasNext()) {
                     resource_incoming = (await cursor.next()).toJSON();
@@ -230,7 +229,7 @@ class ValidateOperation {
      * @param startTime
      * @returns {Promise<OperationOutcome>}
      */
-    async validateResourceAsync(
+    async validateResourceAsync (
         {
             resource_incoming,
             resourceType,
@@ -335,14 +334,14 @@ class ValidateOperation {
                 id: resource_incoming.id,
                 resourceType,
                 resourceToValidate: resourceObjectToValidate,
-                path: path,
-                currentDate: currentDate,
+                path,
+                currentDate,
                 resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: specifiedProfile,
+                profile: specifiedProfile
             });
         if (validationOperationOutcome) {
-            validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
+            validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,

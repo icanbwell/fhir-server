@@ -5,7 +5,7 @@
         "id": "1679033641",
         "identifier": [
           {
-            "system": "http://medstarhealth.org",
+            "system": "http://clienthealth.org",
             "type": {
               "coding": [
                 {
@@ -38,7 +38,7 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+            "value": "aa8a8ff8-af25-5878-8cf3-bc74227d44dd"
           }
         ],
         "resourceType": "Practitioner"
@@ -48,7 +48,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({}, {'id':1,'identifier':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'id':1}).limit(1000)",
+        "display": "db.Practitioner_4_0_0.find({}, {'id':1,'identifier':1,'_uuid':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -56,11 +56,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'projection':{'id':1,'identifier':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'id':1}}",
+        "display": "{'projection':{'id':1,'identifier':1,'_uuid':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['id']",
+        "display": "['_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

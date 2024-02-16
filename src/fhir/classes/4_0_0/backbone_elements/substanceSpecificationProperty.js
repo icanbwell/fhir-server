@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Property
     The detailed description of a substance, typically at a level beyond what is
@@ -25,7 +24,7 @@ class SubstanceSpecificationProperty extends Element {
      * @param {Quantity|undefined} [amountQuantity],
      * @param {String|undefined} [amountString],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -36,7 +35,7 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference,
             definingSubstanceCodeableConcept,
             amountQuantity,
-            amountString,
+            amountString
         }
     ) {
         super({});
@@ -80,7 +79,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -112,7 +111,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -132,7 +131,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -152,7 +151,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -191,7 +190,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definingSubstanceReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -211,7 +210,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.definingSubstanceCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -231,7 +230,7 @@ class SubstanceSpecificationProperty extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -254,9 +253,6 @@ class SubstanceSpecificationProperty extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -268,19 +264,16 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference,
             definingSubstanceCodeableConcept,
             amountQuantity,
-            amountString,
+            amountString
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -292,7 +285,7 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference: this.definingSubstanceReference && this.definingSubstanceReference.toJSON(),
             definingSubstanceCodeableConcept: this.definingSubstanceCodeableConcept && this.definingSubstanceCodeableConcept.toJSON(),
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSON(),
-            amountString: this.amountString,
+            amountString: this.amountString
         });
     }
 
@@ -301,22 +294,22 @@ class SubstanceSpecificationProperty extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definingSubstanceReference) {await this.definingSubstanceReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.definingSubstanceCodeableConcept) {await this.definingSubstanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountQuantity) {await this.amountQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.category) { await this.category.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.definingSubstanceReference) { await this.definingSubstanceReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.definingSubstanceCodeableConcept) { await this.definingSubstanceCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountQuantity) { await this.amountQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -327,10 +320,8 @@ class SubstanceSpecificationProperty extends Element {
             definingSubstanceReference: this.definingSubstanceReference && this.definingSubstanceReference.toJSONInternal(),
             definingSubstanceCodeableConcept: this.definingSubstanceCodeableConcept && this.definingSubstanceCodeableConcept.toJSONInternal(),
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
-            amountString: this.amountString,
+            amountString: this.amountString
         };
-
-
 
         return removeNull(json);
     }

@@ -1,9 +1,11 @@
 const { ObjectId } = require('mongodb');
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const documentReferenceData = require('./fixtures/document_reference/document_reference.json');
 const documentReferenceWithoutData = require('./fixtures/document_reference/document_reference_without_data.json');
 const updatedDocumentReferenceData = require('./fixtures/document_reference/updated_document_reference.json');
+
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('GridFS update tests', () => {
     beforeEach(async () => {
@@ -42,7 +44,7 @@ describe('GridFS update tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(originalResource.length).toEqual(1);
             expect(originalResource[0].content.length).toEqual(2);
@@ -68,7 +70,7 @@ describe('GridFS update tests', () => {
             expect(documentReferenceInResp.content[1].attachment.data).toEqual(updatedDocumentReferenceData.content[1].attachment.data);
 
             const documentReferenceInDb = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: documentReferenceInResp.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: documentReferenceInResp.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReferenceInDb.length).toEqual(1);
             expect(documentReferenceInDb[0].content.length).toEqual(2);
@@ -127,7 +129,7 @@ describe('GridFS update tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(originalResource.length).toEqual(1);
             expect(originalResource[0].content.length).toEqual(2);
@@ -153,7 +155,7 @@ describe('GridFS update tests', () => {
             expect(documentReferenceInResp.content[1].attachment.data).toEqual(documentReferenceData.content[1].attachment.data);
 
             const documentReferenceInDb = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: documentReferenceInResp.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: documentReferenceInResp.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReferenceInDb.length).toEqual(1);
             expect(documentReferenceInDb[0].content.length).toEqual(2);
@@ -207,7 +209,7 @@ describe('GridFS update tests', () => {
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
             const originalResource = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(originalResource.length).toEqual(1);
             expect(originalResource[0].content.length).toEqual(2);
@@ -228,7 +230,7 @@ describe('GridFS update tests', () => {
             expect(documentReferenceInResp.content[0].attachment.data).toBeUndefined();
 
             const documentReferenceInDb = await fhirDb.collection(documentReferenceCollection)
-                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+                .find({ id: resp._body.id }, { projection: { content: 1 } }).toArray();
 
             expect(documentReferenceInDb.length).toEqual(1);
             expect(documentReferenceInDb[0].content.length).toEqual(1);

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductIngredient.Substance
     An ingredient of a manufactured item or pharmaceutical product.
@@ -19,13 +18,13 @@ class MedicinalProductIngredientSubstance extends Element {
      * @param {CodeableConcept} code,
      * @param {MedicinalProductIngredientStrength[]|undefined} [strength],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             code,
-            strength,
+            strength
         }
     ) {
         super({});
@@ -69,7 +68,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -121,7 +120,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -142,13 +141,10 @@ class MedicinalProductIngredientSubstance extends Element {
                     return;
                 }
                 const MedicinalProductIngredientStrength = require('../backbone_elements/medicinalProductIngredientStrength.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.strength = FhirResourceCreator.createArray(valueProvided, MedicinalProductIngredientStrength);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -156,26 +152,23 @@ class MedicinalProductIngredientSubstance extends Element {
             extension,
             modifierExtension,
             code,
-            strength,
+            strength
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            strength: this.strength && this.strength.map(v => v.toJSON()),
+            strength: this.strength && this.strength.map(v => v.toJSON())
         });
     }
 
@@ -184,28 +177,26 @@ class MedicinalProductIngredientSubstance extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.strength) {await async.each(this.strength, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.strength) { await async.each(this.strength, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            strength: this.strength && this.strength.map(v => v.toJSONInternal()),
+            strength: this.strength && this.strength.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

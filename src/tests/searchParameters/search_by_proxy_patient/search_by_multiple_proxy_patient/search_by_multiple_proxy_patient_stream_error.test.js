@@ -6,8 +6,8 @@ const patient4 = require('./fixtures/Patient/p4.json');
 
 const bwellPerson1 = require('./fixtures/Person/bwellPerson1.json');
 const bwellPerson2 = require('./fixtures/Person/bwellPerson2.json');
-const northwellPerson1 = require('./fixtures/Person/northwellPerson1.json');
-const northwellPerson2 = require('./fixtures/Person/northwellPerson2.json');
+const clientPerson1 = require('./fixtures/Person/clientPerson1.json');
+const clientPerson2 = require('./fixtures/Person/clientPerson2.json');
 
 const observation1 = require('./fixtures/Observations/observation1.json');
 const observation2 = require('./fixtures/Observations/observation2.json');
@@ -22,22 +22,22 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { IdEnrichmentProvider } = require('../../../../enrich/providers/idEnrichmentProvider');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         return false;
     }
 }
@@ -72,8 +72,8 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
@@ -81,7 +81,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExampleScenario.Step
     Example of workflow instance.
@@ -21,7 +20,7 @@ class ExampleScenarioStep extends Element {
      * @param {ExampleScenarioOperation|undefined} [operation],
      * @param {ExampleScenarioAlternative[]|undefined} [alternative],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class ExampleScenarioStep extends Element {
             process,
             pause,
             operation,
-            alternative,
+            alternative
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -125,7 +124,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.process = FhirResourceCreator.createArray(valueProvided, ExampleScenarioProcess);
             }
         });
@@ -163,7 +162,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioOperation = require('../backbone_elements/exampleScenarioOperation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.operation = FhirResourceCreator.create(valueProvided, ExampleScenarioOperation);
             }
         });
@@ -184,13 +183,10 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.alternative = FhirResourceCreator.createArray(valueProvided, ExampleScenarioAlternative);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -200,19 +196,16 @@ class ExampleScenarioStep extends Element {
             process,
             pause,
             operation,
-            alternative,
+            alternative
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -221,7 +214,7 @@ class ExampleScenarioStep extends Element {
             process: this.process && this.process.map(v => v.toJSON()),
             pause: this.pause,
             operation: this.operation && this.operation.toJSON(),
-            alternative: this.alternative && this.alternative.map(v => v.toJSON()),
+            alternative: this.alternative && this.alternative.map(v => v.toJSON())
         });
     }
 
@@ -230,20 +223,20 @@ class ExampleScenarioStep extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.process) {await async.each(this.process, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.operation) {await this.operation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.alternative) {await async.each(this.alternative, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.process) { await async.each(this.process, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.operation) { await this.operation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.alternative) { await async.each(this.alternative, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -251,10 +244,8 @@ class ExampleScenarioStep extends Element {
             process: this.process && this.process.map(v => v.toJSONInternal()),
             pause: this.pause,
             operation: this.operation && this.operation.toJSONInternal(),
-            alternative: this.alternative && this.alternative.map(v => v.toJSONInternal()),
+            alternative: this.alternative && this.alternative.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

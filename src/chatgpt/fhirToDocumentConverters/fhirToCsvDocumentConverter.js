@@ -1,8 +1,8 @@
-const {groupByLambda} = require('../../utils/list.util');
-const {Parser} = require('@json2csv/plainjs');
-const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
-const {ChatGPTDocument} = require('../structures/chatgptDocument');
-const {ChatGPTMeta} = require('../structures/chatgptMeta');
+const { groupByLambda } = require('../../utils/list.util');
+const { Parser } = require('@json2csv/plainjs');
+const { BaseFhirToDocumentConverter } = require('./baseFhirToDocumentConverter');
+const { ChatGPTDocument } = require('../structures/chatgptDocument');
+const { ChatGPTMeta } = require('../structures/chatgptMeta');
 
 class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
     /**
@@ -13,7 +13,7 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
      * @returns {Promise<ChatGPTDocument[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async convertBundleToDocumentsAsync({parentResourceType, parentUuid, bundle}) {
+    async convertBundleToDocumentsAsync ({ parentResourceType, parentUuid, bundle }) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -53,8 +53,8 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
                                 uuid: '0',
                                 reference: `${resourceType1}`,
                                 resourceType: resourceType1,
-                                parentResourceType: parentResourceType,
-                                parentUuid: parentUuid
+                                parentResourceType,
+                                parentUuid
                             }
                         )
                     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide.Resource
     A set of rules of how a particular interoperability or standards problem is
@@ -27,7 +26,7 @@ class ImplementationGuideResource extends Element {
      * @param {canonical|undefined} [exampleCanonical],
      * @param {id|undefined} [groupingId],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -38,7 +37,7 @@ class ImplementationGuideResource extends Element {
             description,
             exampleBoolean,
             exampleCanonical,
-            groupingId,
+            groupingId
         }
     ) {
         super({});
@@ -82,7 +81,7 @@ class ImplementationGuideResource extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +113,7 @@ class ImplementationGuideResource extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +133,7 @@ class ImplementationGuideResource extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -251,9 +250,6 @@ class ImplementationGuideResource extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -265,19 +261,16 @@ class ImplementationGuideResource extends Element {
             description,
             exampleBoolean,
             exampleCanonical,
-            groupingId,
+            groupingId
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -289,7 +282,7 @@ class ImplementationGuideResource extends Element {
             description: this.description,
             exampleBoolean: this.exampleBoolean,
             exampleCanonical: this.exampleCanonical,
-            groupingId: this.groupingId,
+            groupingId: this.groupingId
         });
     }
 
@@ -298,18 +291,18 @@ class ImplementationGuideResource extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reference) {await this.reference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.reference) { await this.reference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -320,10 +313,8 @@ class ImplementationGuideResource extends Element {
             description: this.description,
             exampleBoolean: this.exampleBoolean,
             exampleCanonical: this.exampleCanonical,
-            groupingId: this.groupingId,
+            groupingId: this.groupingId
         };
-
-
 
         return removeNull(json);
     }

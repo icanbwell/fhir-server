@@ -9,20 +9,20 @@ const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch} = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
-const expectedActivityDefinitionMedstarResources = require('./fixtures/expected/expected_ActivityDefinitionMedstar.json');
+const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -77,15 +77,15 @@ describe('Person Tests', () => {
                 .send(patch1)
                 .set(getHeaders());
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                         },
-                        'diagnostics': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        diagnostics: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                     }
                 ]
             });
@@ -108,17 +108,17 @@ describe('Person Tests', () => {
                 .set(getHeadersJsonPatch());
 
             expect(resp.body).toStrictEqual({
-                'issue': [
+                issue: [
                     {
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        code: 'invalid',
+                        details: {
+                            text: 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
-                        'diagnostics': 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
-                        'severity': 'error',
-                    },
+                        diagnostics: 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        severity: 'error'
+                    }
                 ],
-                'resourceType': 'OperationOutcome',
+                resourceType: 'OperationOutcome'
             });
         });
 
@@ -127,7 +127,7 @@ describe('Person Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
-            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/medstar.*');
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
             let resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition5Resource)
@@ -140,21 +140,21 @@ describe('Person Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            const medstarHeaders = getHeadersJsonPatch('user/*.read user/*.write access/medstar.*');
+            const clientHeaders = getHeadersJsonPatch('user/*.read user/*.write access/client.*');
             const bwellHeaders = getHeadersJsonPatch('user/*.read user/*.write access/bwell.*');
             resp = await request
                 .patch('/4_0_0/ActivityDefinition/sameid')
                 .send(patch3)
-                .set(medstarHeaders)
+                .set(clientHeaders)
                 .expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinition5Resource);
 
             resp = await request
                 .get('/4_0_0/ActivityDefinition/?_bundle=1')
-                .set(medstarHeaders);
+                .set(clientHeaders);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedActivityDefinitionMedstarResources);
+            expect(resp).toHaveResponse(expectedActivityDefinitionClientResources);
 
             resp = await request
                 .get('/4_0_0/ActivityDefinition/?_bundle=1')
@@ -168,8 +168,8 @@ describe('Person Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
-            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/medstar.*');
-            const allAccessPatchHeaders = getHeadersJsonPatch('user/*.read user/*.write access/bwell.* access/medstar.*');
+            const allAccessHeaders = getHeaders('user/*.read user/*.write access/bwell.* access/client.*');
+            const allAccessPatchHeaders = getHeadersJsonPatch('user/*.read user/*.write access/bwell.* access/client.*');
             let resp = await request
                 .post('/4_0_0/ActivityDefinition/$merge')
                 .send(activitydefinition5Resource)
@@ -191,7 +191,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveResponse(expectedErrorWithMultipleDocuments);
 
             resp = await request
-                .patch('/4_0_0/ActivityDefinition/sameid|medstar')
+                .patch('/4_0_0/ActivityDefinition/sameid|client')
                 .send(patch3)
                 .set(allAccessPatchHeaders);
             // noinspection JSUnresolvedFunction

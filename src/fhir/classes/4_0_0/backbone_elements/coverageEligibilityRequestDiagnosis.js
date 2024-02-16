@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CoverageEligibilityRequest.Diagnosis
     The CoverageEligibilityRequest provides patient and insurance coverage
@@ -23,13 +22,13 @@ class CoverageEligibilityRequestDiagnosis extends Element {
      * @param {CodeableConcept|undefined} [diagnosisCodeableConcept],
      * @param {Reference|undefined} [diagnosisReference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             diagnosisCodeableConcept,
-            diagnosisReference,
+            diagnosisReference
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class CoverageEligibilityRequestDiagnosis extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class CoverageEligibilityRequestDiagnosis extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -125,7 +124,7 @@ class CoverageEligibilityRequestDiagnosis extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.diagnosisCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -145,13 +144,10 @@ class CoverageEligibilityRequestDiagnosis extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.diagnosisReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -159,26 +155,23 @@ class CoverageEligibilityRequestDiagnosis extends Element {
             extension,
             modifierExtension,
             diagnosisCodeableConcept,
-            diagnosisReference,
+            diagnosisReference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             diagnosisCodeableConcept: this.diagnosisCodeableConcept && this.diagnosisCodeableConcept.toJSON(),
-            diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSON(),
+            diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSON()
         });
     }
 
@@ -187,28 +180,26 @@ class CoverageEligibilityRequestDiagnosis extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.diagnosisCodeableConcept) {await this.diagnosisCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.diagnosisReference) {await this.diagnosisReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.diagnosisCodeableConcept) { await this.diagnosisCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.diagnosisReference) { await this.diagnosisReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             diagnosisCodeableConcept: this.diagnosisCodeableConcept && this.diagnosisCodeableConcept.toJSONInternal(),
-            diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSONInternal(),
+            diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

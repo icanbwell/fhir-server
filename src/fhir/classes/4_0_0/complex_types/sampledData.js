@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SampledData
     A series of measurements taken by a device, with upper and lower limits. There
@@ -26,7 +25,7 @@ class SampledData extends Element {
      * @param {Int} dimensions,
      * @param {String|undefined} [data],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -36,7 +35,7 @@ class SampledData extends Element {
             lowerLimit,
             upperLimit,
             dimensions,
-            data,
+            data
         }
     ) {
         super({});
@@ -80,7 +79,7 @@ class SampledData extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class SampledData extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.origin = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -221,9 +220,6 @@ class SampledData extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -234,19 +230,16 @@ class SampledData extends Element {
             lowerLimit,
             upperLimit,
             dimensions,
-            data,
+            data
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -257,7 +250,7 @@ class SampledData extends Element {
             lowerLimit: this.lowerLimit,
             upperLimit: this.upperLimit,
             dimensions: this.dimensions,
-            data: this.data,
+            data: this.data
         });
     }
 
@@ -266,17 +259,17 @@ class SampledData extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.origin) {await this.origin.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.origin) { await this.origin.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -286,10 +279,8 @@ class SampledData extends Element {
             lowerLimit: this.lowerLimit,
             upperLimit: this.upperLimit,
             dimensions: this.dimensions,
-            data: this.data,
+            data: this.data
         };
-
-
 
         return removeNull(json);
     }

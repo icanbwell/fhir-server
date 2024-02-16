@@ -5,7 +5,7 @@ class TestConfigManager extends ConfigManager {
      * returns enabled gridFs resources list
      * @returns {string[]}
      */
-    get enabledGridFsResources() {
+    get enabledGridFsResources () {
         return process.env.GRIDFS_RESOURCES ? process.env.GRIDFS_RESOURCES.split(',') : [];
     }
 }

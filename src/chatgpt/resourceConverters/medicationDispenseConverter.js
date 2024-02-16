@@ -1,17 +1,17 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class MedicationDispenseConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             status,
             medicationCodeableConcept,
             subject,
             dosageInstruction,
             whenHandedOver,
             performer,
-            authoredOn,
+            authoredOn
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

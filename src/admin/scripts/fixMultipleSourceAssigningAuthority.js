@@ -8,21 +8,21 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixMultipleSourceAssigningAuthorityRunner} = require('../runners/fixMultipleSourceAssigningAuthorityRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixMultipleSourceAssigningAuthorityRunner } = require('../runners/fixMultipleSourceAssigningAuthorityRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
@@ -45,13 +45,13 @@ async function main() {
     container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 beforeLastUpdatedDate,
-                useAuditDatabase: parameters.audit ? true : false,
-                includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
-                fixMultipleOwners: parameters.fixMultipleOwners ? true : false,
-                filterRecords: parameters.filterRecords ? true : false,
+                useAuditDatabase: !!parameters.audit,
+                includeHistoryCollections: !!parameters.includeHistoryCollections,
+                fixMultipleOwners: !!parameters.fixMultipleOwners,
+                filterRecords: !!parameters.filterRecords,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,

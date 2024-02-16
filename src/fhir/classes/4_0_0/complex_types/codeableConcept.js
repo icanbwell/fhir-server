@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeableConcept
     A concept that may be defined by a formal reference to a terminology or
@@ -21,12 +20,12 @@ class CodeableConcept extends Element {
      * @param {Coding[]|undefined} [coding],
      * @param {String|undefined} [text],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             coding,
-            text,
+            text
         }
     ) {
         super({});
@@ -70,7 +69,7 @@ class CodeableConcept extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -90,7 +89,7 @@ class CodeableConcept extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.coding = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -115,33 +114,27 @@ class CodeableConcept extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             coding,
-            text,
+            text
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             coding: this.coding && this.coding.map(v => v.toJSON()),
-            text: this.text,
+            text: this.text
         });
     }
 
@@ -150,25 +143,23 @@ class CodeableConcept extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.coding) {await async.each(this.coding, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.coding) { await async.each(this.coding, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             coding: this.coding && this.coding.map(v => v.toJSONInternal()),
-            text: this.text,
+            text: this.text
         };
-
-
 
         return removeNull(json);
     }

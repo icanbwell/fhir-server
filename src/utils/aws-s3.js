@@ -2,8 +2,8 @@
  * This file implements helper functions for AWS
  */
 
-const {S3} = require('@aws-sdk/client-s3'),
-    {STS} = require('@aws-sdk/client-sts');
+const { S3 } = require('@aws-sdk/client-s3');
+const { STS } = require('@aws-sdk/client-sts');
 const {
     getLogger
 } = require('../winstonInit');
@@ -19,7 +19,7 @@ const REGION = process.env.AWS_REGION || 'us-east-1';
 const AWS_FOLDER = process.env.AWS_FOLDER;
 
 const s3 = new S3({
-    region: REGION,
+    region: REGION
 });
 
 /**
@@ -33,7 +33,7 @@ const s3 = new S3({
  * @param filename_postfix - Optional postfix for filename
  * @return {Promise<data|err>}
  */
-module.exports = function sendToS3(prefix, resourceType, resource, currentDate, id, filename_postfix) {
+module.exports = function sendToS3 (prefix, resourceType, resource, currentDate, id, filename_postfix) {
     if (!AWS_BUCKET) {
         return Promise.resolve(null);
     }
@@ -47,7 +47,7 @@ module.exports = function sendToS3(prefix, resourceType, resource, currentDate, 
                 Bucket: AWS_BUCKET,
                 Key: key,
                 ContentType: 'application/json',
-                ServerSideEncryption: 'AES256',
+                ServerSideEncryption: 'AES256'
             };
             s3.putObject(params, function (err, data) {
                 if (err) {

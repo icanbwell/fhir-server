@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MolecularSequence
     Raw data describing a biological sequence.
@@ -42,7 +41,7 @@ class MolecularSequence extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -71,7 +70,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -114,7 +113,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -178,7 +177,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -200,7 +199,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -224,7 +223,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -256,7 +255,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -277,7 +276,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -335,7 +334,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -355,7 +354,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specimen = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -375,7 +374,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.device = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -395,7 +394,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.performer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -415,7 +414,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -436,7 +435,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const MolecularSequenceReferenceSeq = require('../backbone_elements/molecularSequenceReferenceSeq.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referenceSeq = FhirResourceCreator.create(valueProvided, MolecularSequenceReferenceSeq);
             }
         });
@@ -460,7 +459,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const MolecularSequenceVariant = require('../backbone_elements/molecularSequenceVariant.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.variant = FhirResourceCreator.createArray(valueProvided, MolecularSequenceVariant);
             }
         });
@@ -502,7 +501,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const MolecularSequenceQuality = require('../backbone_elements/molecularSequenceQuality.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quality = FhirResourceCreator.createArray(valueProvided, MolecularSequenceQuality);
             }
         });
@@ -542,7 +541,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const MolecularSequenceRepository = require('../backbone_elements/molecularSequenceRepository.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.repository = FhirResourceCreator.createArray(valueProvided, MolecularSequenceRepository);
             }
         });
@@ -562,7 +561,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.pointer = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -582,11 +581,10 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 const MolecularSequenceStructureVariant = require('../backbone_elements/molecularSequenceStructureVariant.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.structureVariant = FhirResourceCreator.createArray(valueProvided, MolecularSequenceStructureVariant);
             }
         });
-
 
         /**
          * @description _access
@@ -641,7 +639,6 @@ class MolecularSequence extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -671,7 +668,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -690,7 +687,7 @@ class MolecularSequence extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'MolecularSequence';
     }
 
@@ -726,7 +723,7 @@ class MolecularSequence extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {MolecularSequence}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -755,7 +752,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MolecularSequence({
@@ -786,7 +783,7 @@ class MolecularSequence extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -794,17 +791,16 @@ class MolecularSequence extends Resource {
      * @description creates a copy of this resource
      * @returns {MolecularSequence}
     */
-    clone() {
+    clone () {
         return new MolecularSequence(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -831,7 +827,7 @@ class MolecularSequence extends Resource {
             readCoverage: this.readCoverage,
             repository: this.repository && this.repository.map(v => v.toJSON()),
             pointer: this.pointer && this.pointer.map(v => v.toJSON()),
-            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSON()),
+            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSON())
         });
     }
 
@@ -840,32 +836,32 @@ class MolecularSequence extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.specimen) {await this.specimen.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.device) {await this.device.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performer) {await this.performer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.referenceSeq) {await this.referenceSeq.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.variant) {await async.each(this.variant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.quality) {await async.each(this.quality, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.repository) {await async.each(this.repository, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.pointer) {await async.each(this.pointer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.structureVariant) {await async.each(this.structureVariant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.patient) { await this.patient.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.specimen) { await this.specimen.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.device) { await this.device.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.performer) { await this.performer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.referenceSeq) { await this.referenceSeq.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.variant) { await async.each(this.variant, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.quality) { await async.each(this.quality, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.repository) { await async.each(this.repository, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.pointer) { await async.each(this.pointer, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.structureVariant) { await async.each(this.structureVariant, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -891,9 +887,8 @@ class MolecularSequence extends Resource {
             readCoverage: this.readCoverage,
             repository: this.repository && this.repository.map(v => v.toJSONInternal()),
             pointer: this.pointer && this.pointer.map(v => v.toJSONInternal()),
-            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSONInternal()),
+            structureVariant: this.structureVariant && this.structureVariant.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

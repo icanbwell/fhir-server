@@ -1,13 +1,13 @@
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {DumpPersonsRunner} = require('../runners/dumpPersonsRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { DumpPersonsRunner } = require('../runners/dumpPersonsRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -30,11 +30,11 @@ async function main() {
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager,
-            batchSize: batchSize,
-            accessCode: accessCode,
-            beforeDate: beforeDate,
-            outputFile: outputFile,
-            pageSize: pageSize
+            batchSize,
+            accessCode,
+            beforeDate,
+            outputFile,
+            pageSize
         }));
 
     /**

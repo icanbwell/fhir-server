@@ -4,14 +4,14 @@
 const env = require('var');
 const cron = require('node-cron');
 const moment = require('moment-timezone');
-const {generateUUID} = require('./uid.util');
-const {isTrue} = require('./isTrue');
+const { generateUUID } = require('./uid.util');
+const { isTrue } = require('./isTrue');
 const deepcopy = require('deepcopy');
-const {PostRequestProcessor} = require('./postRequestProcessor');
-const {DatabaseBulkInserter} = require('../dataLayer/databaseBulkInserter');
-const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {SecurityTagSystem} = require('./securityTagSystem');
-const {logError} = require('../operations/common/logging');
+const { PostRequestProcessor } = require('./postRequestProcessor');
+const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { SecurityTagSystem } = require('./securityTagSystem');
+const { logError } = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
@@ -20,9 +20,9 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
 const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
-const {ConfigManager} = require('./configManager');
-const {Mutex} = require('async-mutex');
-const {PreSaveManager} = require('../preSaveHandlers/preSave');
+const { ConfigManager } = require('./configManager');
+const { Mutex } = require('async-mutex');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
 const mutex = new Mutex();
 
 class AuditLogger {
@@ -37,7 +37,7 @@ class AuditLogger {
      *
      * @param {params}
      */
-    constructor({
+    constructor ({
                     postRequestProcessor,
                     databaseBulkInserter,
                     configManager,
@@ -88,18 +88,18 @@ class AuditLogger {
      * @param {string[]} ids
      * @returns {Resource}
      */
-    createAuditEntry(
+    createAuditEntry (
         {
             requestInfo, operation,
             ids, resourceType, cleanedArgs
         }
     ) {
         const operationCodeMapping = {
-            'create': 'C',
-            'read': 'R',
-            'update': 'U',
-            'delete': 'D',
-            'execute': 'E'
+            create: 'C',
+            read: 'R',
+            update: 'U',
+            delete: 'D',
+            execute: 'E'
         };
 
         // Get current record
@@ -112,12 +112,12 @@ class AuditLogger {
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
                 security: [
                     new Coding({
-                        'system': SecurityTagSystem.owner,
-                        'code': 'bwell'
+                        system: SecurityTagSystem.owner,
+                        code: 'bwell'
                     }),
                     new Coding({
-                        'system': SecurityTagSystem.access,
-                        'code': 'bwell'
+                        system: SecurityTagSystem.access,
+                        code: 'bwell'
                     })
                 ]
             }),
@@ -154,8 +154,8 @@ class AuditLogger {
                     what: new Reference({
                         reference: `${resourceType}/${resourceId}`
                     }),
-                    detail: index === 0 ?
-                        Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
+                    detail: index === 0
+                        ? Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
                             return {
                                 type: key,
                                 valueString: value
@@ -178,7 +178,7 @@ class AuditLogger {
      * @param {string[]} ids
      * @return {Promise<void>}
      */
-    async logAuditEntryAsync({
+    async logAuditEntryAsync ({
         requestInfo, base_version, resourceType, operation, args, ids
     }) {
         if (isTrue(env.DISABLE_AUDIT_LOGGING)) {
@@ -192,26 +192,26 @@ class AuditLogger {
 
         const cleanedArgs = deepcopy(args);
         // remove id and _id args since they are duplicated in the items retrieved
-        if (cleanedArgs['id']) {
-            cleanedArgs['id'] = '';
+        if (cleanedArgs.id) {
+            cleanedArgs.id = '';
         }
-        if (cleanedArgs['_id']) {
-            delete cleanedArgs['_id'];
+        if (cleanedArgs._id) {
+            delete cleanedArgs._id;
         }
-        if (cleanedArgs['_source']) {
-            delete cleanedArgs['_source'];
+        if (cleanedArgs._source) {
+            delete cleanedArgs._source;
         }
         /**
          * @type {Resource}
          */
-        let doc = this.createAuditEntry(
+        const doc = this.createAuditEntry(
             {
                 base_version, requestInfo, operation, ids, resourceType, cleanedArgs
             }
         );
 
         await this.preSaveManager.preSaveAsync(doc);
-        this.queue.push({doc, requestInfo});
+        this.queue.push({ doc, requestInfo });
 
         if (this.queue.length >= this.configManager.postRequestBufferSize) {
             await this.flushAsync();
@@ -222,7 +222,7 @@ class AuditLogger {
      * Flush
      * @return {Promise<void>}
      */
-    async flushAsync() {
+    async flushAsync () {
         if (this.queue.length === 0) {
             return;
         }
@@ -244,9 +244,9 @@ class AuditLogger {
             const operationsMap = new Map();
             operationsMap.set(resourceType, []);
 
-            for (const {doc, requestInfo} of currentQueue) {
+            for (const { doc, requestInfo } of currentQueue) {
                 assertTypeEquals(doc, AuditEvent);
-                ({requestId, method, userRequestId} = requestInfo);
+                ({ requestId, method, userRequestId } = requestInfo);
                 operationsMap.get(resourceType).push(
                     this.databaseBulkInserter.getOperationForResourceAsync({
                         requestId,
@@ -282,7 +282,7 @@ class AuditLogger {
                         error: mergeResultErrors,
                         source: 'flushAsync',
                         args: {
-                            request: {id: requestId},
+                            request: { id: requestId },
                             errors: mergeResultErrors
                         }
                     });

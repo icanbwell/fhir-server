@@ -10,9 +10,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('search_by_security_tag', () => {
     beforeEach(async () => {
@@ -35,28 +35,28 @@ describe('search_by_security_tag', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(3);
 
             resp = await request
-                .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|medstar')
+                .get('/4_0_0/Practitioner?_security=https://www.icanbwell.com/access|client')
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction

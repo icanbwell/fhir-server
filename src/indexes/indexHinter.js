@@ -1,5 +1,5 @@
-const {assertTypeEquals} = require('../utils/assertType');
-const {IndexProvider} = require('./indexProvider');
+const { assertTypeEquals } = require('../utils/assertType');
+const { IndexProvider } = require('./indexProvider');
 
 /**
  * This file implements adding index hints to mongo db queries
@@ -9,7 +9,7 @@ class IndexHinter {
      * constructor
      * @param {IndexProvider} indexProvider
      */
-    constructor(
+    constructor (
         {
             indexProvider
         }
@@ -27,7 +27,7 @@ class IndexHinter {
      * @param {Set} bs
      * @return {boolean}
      */
-    eqSet(as, bs) {
+    eqSet (as, bs) {
         if (as.size !== bs.size) {
             return false;
         }
@@ -51,7 +51,7 @@ class IndexHinter {
      * @param {string | undefined} indexName
      * @return {string|null}
      */
-    findIndexForFields(collectionName, fields, indexName) {
+    findIndexForFields (collectionName, fields, indexName) {
         const isIndexName = indexName && indexName !== 'true' && indexName !== '1';
 
         if (!fields || fields.length === 0) {
@@ -63,8 +63,8 @@ class IndexHinter {
         }
         const fieldsSet = new Set(fields);
 
-        const baseCollectionName = collectionName.endsWith('_4_0_0') ?
-            collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
+        const baseCollectionName = collectionName.endsWith('_4_0_0')
+            ? collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         const indexes = this.indexProvider.getIndexes();
         for (const [indexCollectionName,

@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Person_4_0_0.find({'identifier':{'$elemMatch':{'system':'http://www.walgreens.com/profileid','value':'1000000-a-01'}}}, {}).sort({'id':1}).limit(100)]",
+        "display": "[db.Person_4_0_0.find({'identifier':{'$elemMatch':{'system':'http://www.client.com/profileid','value':'1000000-a-01'}}}, {}).sort({'_uuid':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,11 +11,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'limit':100,'sort':{'id':1}}]",
+        "display": "[{'limit':100,'sort':{'_uuid':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[['identifier.system','identifier.value','id']]",
+        "display": "[['identifier.system','identifier.value','_uuid']]",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

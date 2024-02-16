@@ -1,16 +1,16 @@
 {
   "resourceType": "Patient",
-  "id": "northwell-1",
+  "id": "client-1",
   "meta": {
       "source": "http://healthsystem1health.org/provider",
       "security": [
           {
               "system": "https://www.icanbwell.com/access",
-              "code": "northwell"
+              "code": "client"
           },
           {
               "system": "https://www.icanbwell.com/owner",
-              "code": "northwell"
+              "code": "client"
           }
       ]
   },

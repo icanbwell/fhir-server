@@ -16,14 +16,14 @@ module.exports = {
         }
     },
     InvoiceSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     InvoiceRecipient: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Invoice: {
         // noinspection JSUnusedLocalSymbols
@@ -65,7 +65,6 @@ module.exports = {
                 context,
                 info,
                 parent.account);
-        },
+        }
     }
 };
-

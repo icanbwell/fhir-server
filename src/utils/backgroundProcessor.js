@@ -1,7 +1,7 @@
 let backgroundInstance;
 
 class BackgroundProcessor {
-    constructor() {
+    constructor () {
         /**
          * queue
          * @type {(function():void)[]}
@@ -14,7 +14,7 @@ class BackgroundProcessor {
         );
     }
 
-    stop() {
+    stop () {
         if (!this.timer) {
             return;
         }
@@ -25,21 +25,21 @@ class BackgroundProcessor {
     /**
      * @return {BackgroundProcessor}
      */
-    static getInstance() {
+    static getInstance () {
         if (!backgroundInstance) {
             backgroundInstance = new BackgroundProcessor();
         }
         return backgroundInstance;
     }
 
-    add(fnTask) {
+    add (fnTask) {
         this.queue.push(fnTask);
     }
 
     /**
      * Runs the next task in the queue
      */
-    tick() {
+    tick () {
         const task = this.queue.pop();
         if (task) {
             task();

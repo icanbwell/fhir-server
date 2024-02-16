@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstancePolymer.MonomerSet
     Todo.
@@ -19,13 +18,13 @@ class SubstancePolymerMonomerSet extends Element {
      * @param {CodeableConcept|undefined} [ratioType],
      * @param {SubstancePolymerStartingMaterial[]|undefined} [startingMaterial],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             ratioType,
-            startingMaterial,
+            startingMaterial
         }
     ) {
         super({});
@@ -69,7 +68,7 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -121,7 +120,7 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.ratioType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -141,13 +140,10 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 const SubstancePolymerStartingMaterial = require('../backbone_elements/substancePolymerStartingMaterial.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.startingMaterial = FhirResourceCreator.createArray(valueProvided, SubstancePolymerStartingMaterial);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -155,26 +151,23 @@ class SubstancePolymerMonomerSet extends Element {
             extension,
             modifierExtension,
             ratioType,
-            startingMaterial,
+            startingMaterial
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             ratioType: this.ratioType && this.ratioType.toJSON(),
-            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSON()),
+            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSON())
         });
     }
 
@@ -183,28 +176,26 @@ class SubstancePolymerMonomerSet extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.ratioType) {await this.ratioType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.startingMaterial) {await async.each(this.startingMaterial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.ratioType) { await this.ratioType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.startingMaterial) { await async.each(this.startingMaterial, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             ratioType: this.ratioType && this.ratioType.toJSONInternal(),
-            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSONInternal()),
+            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

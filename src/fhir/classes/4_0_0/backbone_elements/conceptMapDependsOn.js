@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ConceptMap.DependsOn
     A statement of relationships from one set of concepts to one or more other
@@ -23,7 +22,7 @@ class ConceptMapDependsOn extends Element {
      * @param {String} value,
      * @param {String|undefined} [display],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class ConceptMapDependsOn extends Element {
             property,
             system,
             value,
-            display,
+            display
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class ConceptMapDependsOn extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class ConceptMapDependsOn extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -189,9 +188,6 @@ class ConceptMapDependsOn extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -200,19 +196,16 @@ class ConceptMapDependsOn extends Element {
             property,
             system,
             value,
-            display,
+            display
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -221,7 +214,7 @@ class ConceptMapDependsOn extends Element {
             property: this.property,
             system: this.system,
             value: this.value,
-            display: this.display,
+            display: this.display
         });
     }
 
@@ -230,17 +223,17 @@ class ConceptMapDependsOn extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -248,10 +241,8 @@ class ConceptMapDependsOn extends Element {
             property: this.property,
             system: this.system,
             value: this.value,
-            display: this.display,
+            display: this.display
         };
-
-
 
         return removeNull(json);
     }

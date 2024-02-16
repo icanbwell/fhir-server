@@ -1,12 +1,12 @@
-const {logWarn} = require('../../operations/common/logging');
+const { logWarn } = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const {REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ }} = require('../../constants');
-const {groupByLambda} = require('../../utils/list.util');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
-const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
-const {ResourceWithId} = require('./resourceWithId');
+const { REFERENCE_EXTENSION_DATA_MAP, OPERATIONS: { READ } } = require('../../constants');
+const { groupByLambda } = require('../../utils/list.util');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { R4ArgsParser } = require('../../operations/query/r4ArgsParser');
+const { QueryRewriterManager } = require('../../queryRewriters/queryRewriterManager');
+const { ResourceWithId } = require('./resourceWithId');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -18,7 +18,7 @@ class FhirDataSource {
      * @param {R4ArgsParser} r4ArgsParser
      * @param {QueryRewriterManager} queryRewriterManager
      */
-    constructor(
+    constructor (
         {
             requestInfo,
             searchBundleOperation,
@@ -63,7 +63,7 @@ class FhirDataSource {
      * @param {Bundle} bundle
      * @return {Resource[]}
      */
-    unBundle(bundle) {
+    unBundle (bundle) {
         if (bundle.meta) {
             this.metaList.push(bundle.meta);
         }
@@ -78,7 +78,7 @@ class FhirDataSource {
      * @param {string[]} keys
      * @return {(Resource|null)[]}
      */
-    async reorderResources(resources, keys) {
+    async reorderResources (resources, keys) {
         // now order them the same way
         /**
          * @type {(Resource|null)[]}
@@ -89,7 +89,7 @@ class FhirDataSource {
                 /** @type {string} */
                 resourceType,
                 /** @type {string} */
-                id,
+                id
             } = ResourceWithId.getResourceTypeAndIdFromReference(key) || {};
             /**
              * resources with this resourceType and id
@@ -110,7 +110,7 @@ class FhirDataSource {
      * @param {Object} args
      * @return {Promise<(Resource|null)[]>}>}
      */
-    async getResourcesInBatch({keys, requestInfo, args}) {
+    async getResourcesInBatch ({ keys, requestInfo, args }) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -133,7 +133,7 @@ class FhirDataSource {
                         /** @type {string} **/
                         resourceType,
                         /** @type {string[]} **/
-                        references,
+                        references
                     ] = groupKeysByResourceTypeKey;
 
                     if (!resourceType) {
@@ -149,7 +149,7 @@ class FhirDataSource {
                         base_version: '4_0_0',
                         id: idsOfReference.join(','),
                         _bundle: '1',
-                        ...args,
+                        ...args
                     };
 
                     const bundle = await this.searchBundleOperation.searchBundleAsync(
@@ -185,7 +185,7 @@ class FhirDataSource {
      */
     // noinspection JSUnusedLocalSymbols
     // eslint-disable-next-line no-unused-vars
-    resolveType(obj, context, info) {
+    resolveType (obj, context, info) {
         if (!Array.isArray(obj)) {
             return obj.resourceType;
         }
@@ -207,16 +207,16 @@ class FhirDataSource {
      * @param {{reference: string}} reference
      * @return {Promise<null|Resource>}
      */
-    async findResourceByReference(parent, args, context, info, reference) {
+    async findResourceByReference (parent, args, context, info, reference) {
         if (!reference) {
             return null;
         }
         if (!reference.reference) {
             let possibleResourceType = reference.type;
             if (!possibleResourceType && info.returnType) {
-                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0){
+                if (info.returnType.constructor.name === 'GraphQLList' && info.returnType.ofType && info.returnType.ofType._types && info.returnType.ofType._types.length > 0) {
                     possibleResourceType = info.returnType.ofType._types[0].name;
-                } else if (info.returnType._types && info.returnType._types.length > 0){
+                } else if (info.returnType._types && info.returnType._types.length > 0) {
                     possibleResourceType = info.returnType._types[0].name;
                 }
             }
@@ -234,7 +234,7 @@ class FhirDataSource {
             /** @type {string} **/
             resourceType,
             /** @type {string} **/
-            id,
+            id
         } = referenceObj;
         try {
             this.createDataLoader(args);
@@ -252,7 +252,7 @@ class FhirDataSource {
                             resourceType,
                             id,
                             parentResourceType: parent.resourceType,
-                            parentId: parent.id,
+                            parentId: parent.id
                         }
                     }
                 );
@@ -272,7 +272,7 @@ class FhirDataSource {
      * @param {{reference: string}[]} references
      * @return {Promise<null|Resource[]>}
      */
-    async findResourcesByReference(parent, args, context, info, references) {
+    async findResourcesByReference (parent, args, context, info, references) {
         if (!references) {
             return null;
         }
@@ -290,7 +290,7 @@ class FhirDataSource {
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
-    async getResources(parent, args, context, info, resourceType) {
+    async getResources (parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
@@ -324,7 +324,7 @@ class FhirDataSource {
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
-    async getResourcesForMutation(parent, args, context, info, resourceType) {
+    async getResourcesForMutation (parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         const args1 = {
             base_version: '4_0_0',
@@ -359,7 +359,7 @@ class FhirDataSource {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>}
      */
-    async getResourcesBundle(parent, args, context, info, resourceType, useAggregationPipeline = false) {
+    async getResourcesBundle (parent, args, context, info, resourceType, useAggregationPipeline = false) {
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -392,7 +392,7 @@ class FhirDataSource {
      * Creates the data loader if it does not exist (lazy init)
      * @param {Object} args
      */
-    createDataLoader(args) {
+    createDataLoader (args) {
         if (!this.dataLoader) {
             this.dataLoader = new DataLoader(
                 async (keys) => await this.getResourcesInBatch(
@@ -400,8 +400,8 @@ class FhirDataSource {
                         keys,
                         requestInfo: this.requestInfo,
                         args: { // these args should appy to every nested property
-                            '_debug': args._debug,
-                            '_explain': args._explain
+                            _debug: args._debug,
+                            _explain: args._explain
                         }
                     }
                 )
@@ -413,7 +413,7 @@ class FhirDataSource {
      * combined the meta tags of all the queries and returns as one
      * @return {null|Meta}
      */
-    getBundleMeta() {
+    getBundleMeta () {
         if (this.metaList.length === 0) {
             return null;
         }
@@ -422,7 +422,7 @@ class FhirDataSource {
          * @type {Meta}
          */
         const combinedMeta = {
-            tag: [],
+            tag: []
         };
         // get list of properties from first meta
         for (const /** @type {Meta} **/ meta of this.metaList) {
@@ -456,7 +456,7 @@ class FhirDataSource {
      * @param {Coding | undefined} targetMetaTag
      * @param {Coding | undefined} sourceMetaTag
      */
-    updateCombinedMetaTag(targetMetaTag, sourceMetaTag) {
+    updateCombinedMetaTag (targetMetaTag, sourceMetaTag) {
         if (sourceMetaTag.display && targetMetaTag.display) {
             targetMetaTag.display = targetMetaTag.display + ',' + sourceMetaTag.display;
         }
@@ -472,14 +472,15 @@ class FhirDataSource {
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType, headers}) {
-        const {base_version} = args;
+    async getParsedArgsAsync ({ args, resourceType, headers }) {
+        const { base_version } = args;
         /**
          * @type {ParsedArgs}
          */
         let parsedArgs = this.r4ArgsParser.parseArgs(
             {
-                resourceType, args,
+                resourceType,
+args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -502,13 +503,14 @@ class FhirDataSource {
      * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-     async getParsedArgsForMutationAsync({args, resourceType, headers}) {
+     async getParsedArgsForMutationAsync ({ args, resourceType, headers }) {
         /**
          * @type {ParsedArgs}
          */
-        let parsedArgs = this.r4ArgsParser.parseArgs(
+        const parsedArgs = this.r4ArgsParser.parseArgs(
             {
-                resourceType, args,
+                resourceType,
+args,
                 useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
             }
         );
@@ -526,17 +528,17 @@ class FhirDataSource {
      * @param resourceType
      * @returns {{extension}|*|{}}
      */
-    enrichResourceWithReferenceData(resolvedResource, reference, resourceType) {
+    enrichResourceWithReferenceData (resolvedResource, reference, resourceType) {
         let resource = resolvedResource;
         const dataToEnrich = ['display', 'type'];
         const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
         if (dataToEnrich.some(dataKey => !!reference[`${dataKey}`])) {
-            let extension = (resource && resource.extension) || [];
+            const extension = (resource && resource.extension) || [];
             dataToEnrich.forEach(dataKey => {
                 if (reference[`${dataKey}`]) {
-                    const extensionData = {...dataExtensionMap[`${dataKey}`]};
-                    extensionData[extensionData['valueKey']] = reference[`${dataKey}`];
-                    delete extensionData['valueKey'];
+                    const extensionData = { ...dataExtensionMap[`${dataKey}`] };
+                    extensionData[extensionData.valueKey] = reference[`${dataKey}`];
+                    delete extensionData.valueKey;
                     extension.push(extensionData);
                 }
             });
@@ -551,5 +553,5 @@ class FhirDataSource {
 }
 
 module.exports = {
-    FhirDataSource,
+    FhirDataSource
 };

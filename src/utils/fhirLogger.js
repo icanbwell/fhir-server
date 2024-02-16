@@ -1,10 +1,10 @@
 const env = require('var');
 const winston = require('winston');
-const {MongoDB} = require('winston-mongodb');
-const {isTrue} = require('./isTrue');
+const { MongoDB } = require('winston-mongodb');
+const { isTrue } = require('./isTrue');
 const Transport = require('winston-transport');
-const {accessLogsMongoConfig} = require('../config');
-const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
+const { accessLogsMongoConfig } = require('../config');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -14,13 +14,13 @@ const mutex = new Mutex();
  * uses: https://www.npmjs.com/package/winston-transport
  */
 class NullTransport extends Transport {
-    constructor(opts) {
+    constructor (opts) {
         super(opts);
 
         this.name = 'NullTransport';
     }
 
-    log(info, callback) {
+    log (info, callback) {
         callback();
         return this;
     }
@@ -38,7 +38,7 @@ class FhirLogger {
     /**
      * Constructor
      */
-    constructor() {
+    constructor () {
         this._secureLogger = null;
         this._inSecureLogger = null;
     }
@@ -47,7 +47,7 @@ class FhirLogger {
      * Gets the secure logger (creates it if it does not exist yet)
      * @return {Promise<Logger>}
      */
-    static async getSecureLoggerAsync() {
+    static async getSecureLoggerAsync () {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
@@ -58,7 +58,7 @@ class FhirLogger {
      * Gets the In Secure logger (creates it if it does not exist yet)
      * @return {Logger}
      */
-    static async getInSecureLoggerAsync() {
+    static async getInSecureLoggerAsync () {
         if (!fhirLoggerInstance) {
             fhirLoggerInstance = new FhirLogger();
         }
@@ -69,12 +69,11 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    async getOrCreateSecureLoggerAsync() {
+    async getOrCreateSecureLoggerAsync () {
         if (!this._secureLogger) {
             const release = await mutex.acquire();
             try {
-                if (!this._secureLogger)
-                {
+                if (!this._secureLogger) {
                     this._secureLogger = await this.createSecureLoggerAsync();
                 }
             } finally {
@@ -89,12 +88,11 @@ class FhirLogger {
      * Gets or creates a secure logger
      * @return {Logger}
      */
-    async getOrCreateInSecureLoggerAsync() {
+    async getOrCreateInSecureLoggerAsync () {
         if (!this._inSecureLogger) {
             const release = await mutex.acquire();
             try {
-                 if (!this._inSecureLogger)
-                 {
+                 if (!this._inSecureLogger) {
                      this._inSecureLogger = await this.createInSecureLoggerAsync();
                  }
             } finally {
@@ -109,11 +107,11 @@ class FhirLogger {
      * Creates a secure logger
      * @return {Logger}
      */
-    async createSecureLoggerAsync() {
+    async createSecureLoggerAsync () {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
-            defaultMeta: {service: env.DD_SERVICE || 'fhir-server'},
+            defaultMeta: { service: env.DD_SERVICE || 'fhir-server' },
             transports: []
         });
 
@@ -137,7 +135,7 @@ class FhirLogger {
             logger.add(mongodbTransport);
 
             mongodbTransport.on('error', (error) => {
-                console.error(JSON.stringify({message: 'Error in mongodbTransport caught', error}));
+                console.error(JSON.stringify({ message: 'Error in mongodbTransport caught', error }));
             });
         } else {
             /**
@@ -157,7 +155,7 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error(JSON.stringify({message: 'Error in fhirLogger caught', error}));
+            console.error(JSON.stringify({ message: 'Error in fhirLogger caught', error }));
         });
 
         return logger;
@@ -167,15 +165,15 @@ class FhirLogger {
      * Creates an insecure logger
      * @return {Logger}
      */
-    async createInSecureLoggerAsync() {
+    async createInSecureLoggerAsync () {
         const logger = winston.createLogger({
             level: 'info',
             format: winston.format.json(),
-            defaultMeta: {service: env.DD_SERVICE || 'fhir-server'},
+            defaultMeta: { service: env.DD_SERVICE || 'fhir-server' },
             transports: [
-                (env.LOGLEVEL === 'DEBUG') ?
-                    new NullTransport() : // the secure logger will write to console in debug mode
-                    new winston.transports.Console({
+                (env.LOGLEVEL === 'DEBUG')
+                    ? new NullTransport() // the secure logger will write to console in debug mode
+                    : new winston.transports.Console({
                         format: winston.format.json()
                     })
             ]
@@ -183,13 +181,13 @@ class FhirLogger {
 
         // Compulsory error handling
         logger.on('error', (error) => {
-            console.error(JSON.stringify({message: 'Error in fhirLogger caught', error}));
+            console.error(JSON.stringify({ message: 'Error in fhirLogger caught', error }));
         });
 
         return logger;
     }
 
-    static addLogging() {
+    static addLogging () {
         winston.add(winston.transports.Logstash);
     }
 }

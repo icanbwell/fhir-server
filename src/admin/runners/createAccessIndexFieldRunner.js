@@ -1,13 +1,13 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {mongoConfig, auditEventMongoConfig} = require('../../config');
-const {SourceIdColumnHandler} = require('../../preSaveHandlers/handlers/sourceIdColumnHandler');
-const {UuidColumnHandler} = require('../../preSaveHandlers/handlers/uuidColumnHandler');
-const {SourceAssigningAuthorityColumnHandler} = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
-const {AccessColumnHandler} = require('../../preSaveHandlers/handlers/accessColumnHandler');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {logError} = require('../../operations/common/logging');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { mongoConfig, auditEventMongoConfig } = require('../../config');
+const { SourceIdColumnHandler } = require('../../preSaveHandlers/handlers/sourceIdColumnHandler');
+const { UuidColumnHandler } = require('../../preSaveHandlers/handlers/uuidColumnHandler');
+const { SourceAssigningAuthorityColumnHandler } = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const { AccessColumnHandler } = require('../../preSaveHandlers/handlers/accessColumnHandler');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { logError } = require('../../operations/common/logging');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc Creats _access field
@@ -23,7 +23,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -64,7 +64,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
             return operations;
@@ -77,10 +77,10 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         let hasUpdate = false;
-        if (accessCodes.length > 0 && !doc['_access']) {
+        if (accessCodes.length > 0 && !doc._access) {
             const accessColumnHandler = new AccessColumnHandler();
-            doc = await accessColumnHandler.preSaveAsync({resource: doc});
-            setCommand['_access'] = doc._access;
+            doc = await accessColumnHandler.preSaveAsync({ resource: doc });
+            setCommand._access = doc._access;
             hasUpdate = true;
         }
         // Step 2: add any missing _sourceAssigningAuthority tags
@@ -94,27 +94,27 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             sourceAssigningAuthorityCodes = doc.meta.security.filter(
                 s => s.system === SecurityTagSystem.owner).map(s => s.code);
         }
-        if (sourceAssigningAuthorityCodes.length > 0 && !doc['_sourceAssigningAuthority']) {
+        if (sourceAssigningAuthorityCodes.length > 0 && !doc._sourceAssigningAuthority) {
             const sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler();
-            doc = await sourceAssigningAuthorityColumnHandler.preSaveAsync({resource: doc});
-            setCommand['_sourceAssigningAuthority'] = doc._sourceAssigningAuthority;
-            setCommand['meta'] = doc.meta;
+            doc = await sourceAssigningAuthorityColumnHandler.preSaveAsync({ resource: doc });
+            setCommand._sourceAssigningAuthority = doc._sourceAssigningAuthority;
+            setCommand.meta = doc.meta;
             hasUpdate = true;
         }
         // Step 3: add _sourceId
-        if (!doc['_sourceId']) {
+        if (!doc._sourceId) {
             const sourceIdColumnHandler = new SourceIdColumnHandler();
-            doc = await sourceIdColumnHandler.preSaveAsync({resource: doc});
-            setCommand['_sourceId'] = doc._sourceId;
-            setCommand['meta'] = doc.meta;
+            doc = await sourceIdColumnHandler.preSaveAsync({ resource: doc });
+            setCommand._sourceId = doc._sourceId;
+            setCommand.meta = doc.meta;
             hasUpdate = true;
         }
         // Step 4: add _uuid
-        if (!doc['_uuid']) {
-            const uuidColumnHandler = new UuidColumnHandler({configManager: this.configManager});
-            doc = await uuidColumnHandler.preSaveAsync({resource: doc});
-            setCommand['_uuid'] = doc._uuid;
-            setCommand['meta'] = doc.meta;
+        if (!doc._uuid) {
+            const uuidColumnHandler = new UuidColumnHandler({ configManager: this.configManager });
+            doc = await uuidColumnHandler.preSaveAsync({ resource: doc });
+            setCommand._uuid = doc._uuid;
+            setCommand.meta = doc.meta;
             hasUpdate = true;
         }
         // if there are any updates to be done
@@ -123,7 +123,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
                 // batch up the calls to update
-            const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
+            const result = { updateOne: { filter: { _id: doc._id }, update: { $set: setCommand } } };
             operations.push(result);
         }
         return operations;
@@ -133,12 +133,12 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
                 this.collections = await this.getAllCollectionNamesAsync(
-                    {useAuditDatabase: this.useAuditDatabase});
+                    { useAuditDatabase: this.useAuditDatabase });
             }
 
             await this.init();
@@ -147,7 +147,6 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -160,13 +159,13 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                  * @type {import('mongodb').Collection<import('mongodb').Document>}
                  */
                 const projection = {
-                    'id': 1,
+                    id: 1,
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    '_access': 1,
-                    '_sourceAssigningAuthority': 1,
-                    '_sourceId': 1,
-                    '_uuid': 1
+                    _access: 1,
+                    _sourceAssigningAuthority: 1,
+                    _sourceId: 1,
+                    _uuid: 1
                 };
                 try {
                     await this.runForQueryBatchesAsync(
@@ -184,7 +183,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                         }
                     );
                 } catch (e) {
-                    logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
+                    logError(`Got error at ${this.startFromIdContainer.startFromId}`, { error: e });
                 }
                 this.adminLogger.logInfo(`Finished loop ${collectionName}`);
             }
@@ -193,7 +192,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             await this.shutdown();
             this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
-            logError('ERROR', {'error': e});
+            logError('ERROR', { error: e });
         }
     }
 }

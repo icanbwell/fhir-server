@@ -14,13 +14,14 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { FixDuplicateUuidRunner } = require('../../../../admin/runners/fixDuplicateUuidRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-async function setupDatabaseAsync(
+async function setupDatabaseAsync (
     mongoDatabaseManager,
     incomingResource,
     expectedResourceInDatabase
@@ -101,7 +102,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -161,7 +162,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -217,7 +218,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -268,7 +269,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 
@@ -345,7 +346,7 @@ describe('Person Tests', () => {
                         databaseQueryFactory: c.databaseQueryFactory,
                         resourceLocatorFactory: c.resourceLocatorFactory,
                         resourceMerger: c.resourceMerger,
-                        useTransaction: true,
+                        useTransaction: true
                     })
             );
 

@@ -12,10 +12,10 @@
  * @property {number} numberOfDocumentsToCopy
  */
 
-const {assertTypeEquals} = require('../../utils/assertType');
-const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
-const {AdminLogger} = require('../adminLogger');
-const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
+const { AdminLogger } = require('../adminLogger');
+const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 
 /**
  * @classdesc base class that implements connecting to the database
@@ -26,7 +26,7 @@ class BaseScriptRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             adminLogger,
@@ -51,7 +51,7 @@ class BaseScriptRunner {
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
-    async init() {
+    async init () {
         /**
          * For reporting progress
          * @type {StartFromIdContainer}
@@ -59,7 +59,7 @@ class BaseScriptRunner {
         this.startFromIdContainer = this.createStartFromIdContainer();
     }
 
-    createStartFromIdContainer() {
+    createStartFromIdContainer () {
         return {
             startFromId: '',
             skippedIdsForHavingAccessField: 0,
@@ -75,7 +75,7 @@ class BaseScriptRunner {
         };
     }
 
-    async shutdown() {
+    async shutdown () {
         // ok to not specify
     }
 
@@ -86,11 +86,11 @@ class BaseScriptRunner {
      * @param {boolean|undefined} [includeHistoryCollections]
      * @returns {Promise<string[]>}
      */
-    async getAllCollectionNamesAsync({useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections}) {
-        const config = useAuditDatabase ?
-            await this.mongoDatabaseManager.getAuditConfigAsync() :
-            useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsConfigAsync() :
-            await this.mongoDatabaseManager.getClientConfigAsync();
+    async getAllCollectionNamesAsync ({ useAuditDatabase, useAccessLogsDatabase, includeHistoryCollections }) {
+        const config = useAuditDatabase
+            ? await this.mongoDatabaseManager.getAuditConfigAsync()
+            : useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsConfigAsync()
+            : await this.mongoDatabaseManager.getClientConfigAsync();
 
         /**
          * @type {import('mongodb').MongoClient}
@@ -103,7 +103,7 @@ class BaseScriptRunner {
         /**
          * @type {string[]}
          */
-        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({ db });
         // exclude history tables since we always search by id on those
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));

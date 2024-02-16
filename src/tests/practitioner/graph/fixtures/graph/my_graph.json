@@ -18,7 +18,7 @@
             "target": [
                 {
                     "type": "PractitionerRole",
-                    "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|medstar",
+                    "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|client",
                     "link": [
                         {
                             "path": "organization",
@@ -65,7 +65,7 @@
                             "target": [
                                 {
                                     "type": "Schedule",
-                                    "params": "actor={ref}&_security=https://www.icanbwell.com/access|medstar"
+                                    "params": "actor={ref}&_security=https://www.icanbwell.com/access|client"
                                 }
                             ]
                         }
@@ -78,7 +78,7 @@
             "target": [
                 {
                     "type": "Group",
-                    "params": "member={ref}&_security=https://www.icanbwell.com/access|medstar"
+                    "params": "member={ref}&_security=https://www.icanbwell.com/access|client"
                 }
             ]
         },
@@ -87,7 +87,7 @@
             "target": [
                 {
                     "type": "MeasureReport",
-                    "params": "subject={ref}&_security=https://www.icanbwell.com/access|medstar"
+                    "params": "subject={ref}&_security=https://www.icanbwell.com/access|client"
                 }
             ]
         }

@@ -1,10 +1,10 @@
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const {ForbiddenError} = require('../../utils/httpErrors');
-const {authorizationFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('./scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ConfigManager} = require('../../utils/configManager');
+const { ForbiddenError } = require('../../utils/httpErrors');
+const { authorizationFailedCounter } = require('../../utils/prometheus.utils');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('./scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ScopesValidator {
     /**
@@ -13,7 +13,7 @@ class ScopesValidator {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ConfigManager} configManager
      */
-    constructor({scopesManager, fhirLoggingManager, configManager}) {
+    constructor ({ scopesManager, fhirLoggingManager, configManager }) {
         /**
          * @type {ScopesManager}
          */
@@ -40,7 +40,7 @@ class ScopesValidator {
      * @param {string} action
      * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
      */
-    async verifyHasValidScopesAsync(
+    async verifyHasValidScopesAsync (
         {
             requestInfo,
             parsedArgs,
@@ -52,7 +52,7 @@ class ScopesValidator {
     ) {
         // eslint-disable-next-line no-useless-catch
         try {
-            const {user, scope} = requestInfo;
+            const { user, scope } = requestInfo;
 
             if (this.configManager.authEnabled) {
                 // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
@@ -60,36 +60,36 @@ class ScopesValidator {
                     /**
                      * @type {string[]}
                      */
-                    let scopes = this.scopesManager.parseScopes(scope);
-                    let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                    const scopes = this.scopesManager.parseScopes(scope);
+                    const { error, success } = scopeChecker(resourceType, accessRequested, scopes);
 
                     if (success) {
                         return;
                     }
-                    let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    const errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
-                    authorizationFailedCounter.inc({action: action, resourceType: resourceType});
+                    authorizationFailedCounter.inc({ action, resourceType });
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,
                             args: parsedArgs.getRawArgs(),
                             resourceType,
-                            startTime: startTime,
-                            action: action,
+                            startTime,
+                            action,
                             error: forbiddenError
                         });
                     throw forbiddenError;
                 } else {
-                    let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    const errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError1 = new ForbiddenError(errorMessage);
-                    authorizationFailedCounter.inc({action: action, resourceType: resourceType});
+                    authorizationFailedCounter.inc({ action, resourceType });
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,
                             args: parsedArgs.getRawArgs(),
                             resourceType,
-                            startTime: startTime,
-                            action: action,
+                            startTime,
+                            action,
                             error: forbiddenError1
                         });
                     throw forbiddenError1;

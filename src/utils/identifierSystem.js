@@ -3,7 +3,6 @@ const IdentifierSystem = {
     uuid: 'https://www.icanbwell.com/uuid'
 };
 
-
 module.exports = {
     IdentifierSystem
 };

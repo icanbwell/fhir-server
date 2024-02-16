@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationKnowledge.AdministrationGuidelines
     Information about a medication that is used to support knowledge.
@@ -21,7 +20,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      * @param {Reference|undefined} [indicationReference],
      * @param {MedicationKnowledgePatientCharacteristics[]|undefined} [patientCharacteristics],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage,
             indicationCodeableConcept,
             indicationReference,
-            patientCharacteristics,
+            patientCharacteristics
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -125,7 +124,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const MedicationKnowledgeDosage = require('../backbone_elements/medicationKnowledgeDosage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dosage = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeDosage);
             }
         });
@@ -145,7 +144,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.indicationCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -165,7 +164,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.indicationReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -186,13 +185,10 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     return;
                 }
                 const MedicationKnowledgePatientCharacteristics = require('../backbone_elements/medicationKnowledgePatientCharacteristics.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patientCharacteristics = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgePatientCharacteristics);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -202,19 +198,16 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage,
             indicationCodeableConcept,
             indicationReference,
-            patientCharacteristics,
+            patientCharacteristics
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -223,7 +216,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage: this.dosage && this.dosage.map(v => v.toJSON()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSON(),
             indicationReference: this.indicationReference && this.indicationReference.toJSON(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON()),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON())
         });
     }
 
@@ -232,21 +225,21 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dosage) {await async.each(this.dosage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.indicationCodeableConcept) {await this.indicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.indicationReference) {await this.indicationReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patientCharacteristics) {await async.each(this.patientCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dosage) { await async.each(this.dosage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.indicationCodeableConcept) { await this.indicationCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.indicationReference) { await this.indicationReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.patientCharacteristics) { await async.each(this.patientCharacteristics, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -254,10 +247,8 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             dosage: this.dosage && this.dosage.map(v => v.toJSONInternal()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSONInternal(),
             indicationReference: this.indicationReference && this.indicationReference.toJSONInternal(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal()),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

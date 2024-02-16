@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 BiologicallyDerivedProduct
     A material substance originating from a biological entity intended to be
@@ -39,7 +38,7 @@ class BiologicallyDerivedProduct extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -63,7 +62,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -106,7 +105,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -170,7 +169,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -192,7 +191,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -216,7 +215,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -248,7 +247,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -271,7 +270,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -310,7 +309,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.productCode = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -348,7 +347,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.request = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -386,7 +385,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.parent = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -406,7 +405,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const BiologicallyDerivedProductCollection = require('../backbone_elements/biologicallyDerivedProductCollection.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.collection = FhirResourceCreator.create(valueProvided, BiologicallyDerivedProductCollection);
             }
         });
@@ -428,7 +427,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const BiologicallyDerivedProductProcessing = require('../backbone_elements/biologicallyDerivedProductProcessing.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.processing = FhirResourceCreator.createArray(valueProvided, BiologicallyDerivedProductProcessing);
             }
         });
@@ -450,7 +449,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const BiologicallyDerivedProductManipulation = require('../backbone_elements/biologicallyDerivedProductManipulation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.manipulation = FhirResourceCreator.create(valueProvided, BiologicallyDerivedProductManipulation);
             }
         });
@@ -470,11 +469,10 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 const BiologicallyDerivedProductStorage = require('../backbone_elements/biologicallyDerivedProductStorage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.storage = FhirResourceCreator.createArray(valueProvided, BiologicallyDerivedProductStorage);
             }
         });
-
 
         /**
          * @description _access
@@ -529,7 +527,6 @@ class BiologicallyDerivedProduct extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -554,7 +551,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -573,7 +570,7 @@ class BiologicallyDerivedProduct extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'BiologicallyDerivedProduct';
     }
 
@@ -604,7 +601,7 @@ class BiologicallyDerivedProduct extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {BiologicallyDerivedProduct}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -628,7 +625,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new BiologicallyDerivedProduct({
@@ -654,7 +651,7 @@ class BiologicallyDerivedProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -662,17 +659,16 @@ class BiologicallyDerivedProduct extends Resource {
      * @description creates a copy of this resource
      * @returns {BiologicallyDerivedProduct}
     */
-    clone() {
+    clone () {
         return new BiologicallyDerivedProduct(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -694,7 +690,7 @@ class BiologicallyDerivedProduct extends Resource {
             collection: this.collection && this.collection.toJSON(),
             processing: this.processing && this.processing.map(v => v.toJSON()),
             manipulation: this.manipulation && this.manipulation.toJSON(),
-            storage: this.storage && this.storage.map(v => v.toJSON()),
+            storage: this.storage && this.storage.map(v => v.toJSON())
         });
     }
 
@@ -703,28 +699,28 @@ class BiologicallyDerivedProduct extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.productCode) {await this.productCode.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.request) {await async.each(this.request, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.parent) {await async.each(this.parent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.collection) {await this.collection.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.processing) {await async.each(this.processing, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.manipulation) {await this.manipulation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.storage) {await async.each(this.storage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.productCode) { await this.productCode.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.request) { await async.each(this.request, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.parent) { await async.each(this.parent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.collection) { await this.collection.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.processing) { await async.each(this.processing, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.manipulation) { await this.manipulation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.storage) { await async.each(this.storage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -745,9 +741,8 @@ class BiologicallyDerivedProduct extends Resource {
             collection: this.collection && this.collection.toJSONInternal(),
             processing: this.processing && this.processing.map(v => v.toJSONInternal()),
             manipulation: this.manipulation && this.manipulation.toJSONInternal(),
-            storage: this.storage && this.storage.map(v => v.toJSONInternal()),
+            storage: this.storage && this.storage.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

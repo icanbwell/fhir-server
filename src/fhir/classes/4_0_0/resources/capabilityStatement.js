@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CapabilityStatement
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR
@@ -55,7 +54,7 @@ class CapabilityStatement extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -94,7 +93,7 @@ class CapabilityStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -137,7 +136,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -201,7 +200,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -223,7 +222,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -247,7 +246,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -279,7 +278,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -464,7 +463,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
@@ -509,7 +508,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
@@ -530,7 +529,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -654,7 +653,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementSoftware = require('../backbone_elements/capabilityStatementSoftware.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.software = FhirResourceCreator.create(valueProvided, CapabilityStatementSoftware);
             }
         });
@@ -676,7 +675,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementImplementation = require('../backbone_elements/capabilityStatementImplementation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.implementation = FhirResourceCreator.create(valueProvided, CapabilityStatementImplementation);
             }
         });
@@ -773,7 +772,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementRest = require('../backbone_elements/capabilityStatementRest.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.rest = FhirResourceCreator.createArray(valueProvided, CapabilityStatementRest);
             }
         });
@@ -793,7 +792,7 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementMessaging = require('../backbone_elements/capabilityStatementMessaging.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.messaging = FhirResourceCreator.createArray(valueProvided, CapabilityStatementMessaging);
             }
         });
@@ -813,11 +812,10 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementDocument = require('../backbone_elements/capabilityStatementDocument.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.document = FhirResourceCreator.createArray(valueProvided, CapabilityStatementDocument);
             }
         });
-
 
         /**
          * @description _access
@@ -872,7 +870,6 @@ class CapabilityStatement extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -912,7 +909,7 @@ class CapabilityStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -931,7 +928,7 @@ class CapabilityStatement extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'CapabilityStatement';
     }
 
@@ -977,7 +974,7 @@ class CapabilityStatement extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {CapabilityStatement}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -1016,7 +1013,7 @@ class CapabilityStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new CapabilityStatement({
@@ -1057,7 +1054,7 @@ class CapabilityStatement extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1065,17 +1062,16 @@ class CapabilityStatement extends Resource {
      * @description creates a copy of this resource
      * @returns {CapabilityStatement}
     */
-    clone() {
+    clone () {
         return new CapabilityStatement(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1112,7 +1108,7 @@ class CapabilityStatement extends Resource {
             implementationGuide: this.implementationGuide,
             rest: this.rest && this.rest.map(v => v.toJSON()),
             messaging: this.messaging && this.messaging.map(v => v.toJSON()),
-            document: this.document && this.document.map(v => v.toJSON()),
+            document: this.document && this.document.map(v => v.toJSON())
         });
     }
 
@@ -1121,28 +1117,28 @@ class CapabilityStatement extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.useContext) {await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.software) {await this.software.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.implementation) {await this.implementation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.rest) {await async.each(this.rest, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.messaging) {await async.each(this.messaging, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.document) {await async.each(this.document, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.useContext) { await async.each(this.useContext, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.software) { await this.software.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.implementation) { await this.implementation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.rest) { await async.each(this.rest, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.messaging) { await async.each(this.messaging, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.document) { await async.each(this.document, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -1178,9 +1174,8 @@ class CapabilityStatement extends Resource {
             implementationGuide: this.implementationGuide,
             rest: this.rest && this.rest.map(v => v.toJSONInternal()),
             messaging: this.messaging && this.messaging.map(v => v.toJSONInternal()),
-            document: this.document && this.document.map(v => v.toJSONInternal()),
+            document: this.document && this.document.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

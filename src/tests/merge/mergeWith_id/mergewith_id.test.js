@@ -12,9 +12,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer, mockHttpContext,
+    createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const deepcopy = require('deepcopy');
 
 describe('Person Tests', () => {
@@ -46,7 +46,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
@@ -73,14 +73,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -93,7 +93,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: false});
+            expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
@@ -120,14 +120,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -154,7 +154,7 @@ describe('Person Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const personCollection = fhirDb.collection(mongoCollectionName);
-            const person = await personCollection.findOne({'id': 'aba5bcf41cf64435839cf0568c121843'});
+            const person = await personCollection.findOne({ id: 'aba5bcf41cf64435839cf0568c121843' });
             const initialPersonUuid = person._uuid;
 
             const person1ResourceWithChange = deepcopy(person1Resource);
@@ -164,10 +164,10 @@ describe('Person Tests', () => {
                 .send(person1ResourceWithChange)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: true});
+            expect(resp).toHaveMergeResponse({ created: false, updated: true });
 
             // check that the uuid has not changed
-            const finalPersonUuid = (await personCollection.findOne({'id': 'aba5bcf41cf64435839cf0568c121843'}))._uuid;
+            const finalPersonUuid = (await personCollection.findOne({ id: 'aba5bcf41cf64435839cf0568c121843' }))._uuid;
             expect(finalPersonUuid).toBe(initialPersonUuid);
         });
         test('mergeWith_id fails with missing permissions (create)', async () => {
@@ -191,7 +191,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveStatusCode(403);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
+                delete r.issue[0].diagnostics;
             });
         });
         test('mergeWith_id fails with missing permissions (update)', async () => {
@@ -216,7 +216,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // ACT & ASSERT
             // add the resources to FHIR server
@@ -225,7 +225,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // search by token system and code and make sure we get the right Person back
             resp = await request
@@ -242,9 +242,8 @@ describe('Person Tests', () => {
             expect(resp).toHaveStatusCode(403);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMissingAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
+                delete r.issue[0].diagnostics;
             });
-
         });
         test('mergeWith_id fails with wrong access scope (create)', async () => {
             const request = await createTestRequest();
@@ -267,7 +266,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
                 if (r.issue) {
-                    delete r.issue[0]['diagnostics'];
+                    delete r.issue[0].diagnostics;
                 }
             });
         });
@@ -288,14 +287,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
@@ -305,7 +304,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveStatusCode(403);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedWrongAccessScope, r => {
-                delete r.issue[0]['diagnostics'];
+                delete r.issue[0].diagnostics;
             });
 
             // ACT & ASSERT
@@ -320,7 +319,7 @@ describe('Person Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // ACT & ASSERT
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person2Resource)
                 .set(getHeaders());
@@ -340,14 +339,14 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')

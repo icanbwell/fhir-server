@@ -1,18 +1,18 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class CoverageConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             status,
             subscriberId,
             subscriberName,
             beneficiary,
             payor,
-            'class': coverageClass,
+            class: coverageClass,
             period,
-            relationship,
+            relationship
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

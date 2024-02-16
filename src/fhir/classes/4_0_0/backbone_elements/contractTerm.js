@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Contract.Term
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
@@ -31,7 +30,7 @@ class ContractTerm extends Element {
      * @param {ContractAction[]|undefined} [action],
      * @param {ContractTerm[]|undefined} [group],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -48,7 +47,7 @@ class ContractTerm extends Element {
             offer,
             asset,
             action,
-            group,
+            group
         }
     ) {
         super({});
@@ -92,7 +91,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -124,7 +123,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -144,7 +143,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -182,7 +181,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.applies = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -202,7 +201,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.topicCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -222,7 +221,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.topicReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -245,7 +244,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -265,7 +264,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -304,7 +303,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.securityLabel = FhirResourceCreator.createArray(valueProvided, ContractSecurityLabel);
             }
         });
@@ -324,7 +323,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const ContractOffer = require('../backbone_elements/contractOffer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.offer = FhirResourceCreator.create(valueProvided, ContractOffer);
             }
         });
@@ -344,7 +343,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const ContractAsset = require('../backbone_elements/contractAsset.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.asset = FhirResourceCreator.createArray(valueProvided, ContractAsset);
             }
         });
@@ -365,7 +364,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 const ContractAction = require('../backbone_elements/contractAction.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.action = FhirResourceCreator.createArray(valueProvided, ContractAction);
             }
         });
@@ -384,13 +383,10 @@ class ContractTerm extends Element {
                     this.__data.group = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.group = FhirResourceCreator.createArray(valueProvided, ContractTerm);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -409,19 +405,16 @@ class ContractTerm extends Element {
             offer,
             asset,
             action,
-            group,
+            group
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -439,7 +432,7 @@ class ContractTerm extends Element {
             offer: this.offer && this.offer.toJSON(),
             asset: this.asset && this.asset.map(v => v.toJSON()),
             action: this.action && this.action.map(v => v.toJSON()),
-            group: this.group && this.group.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON())
         });
     }
 
@@ -448,28 +441,28 @@ class ContractTerm extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.applies) {await this.applies.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.topicCodeableConcept) {await this.topicCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.topicReference) {await this.topicReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subType) {await this.subType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.securityLabel) {await async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.offer) {await this.offer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.asset) {await async.each(this.asset, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.action) {await async.each(this.action, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.group) {await async.each(this.group, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.applies) { await this.applies.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.topicCodeableConcept) { await this.topicCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.topicReference) { await this.topicReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subType) { await this.subType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.securityLabel) { await async.each(this.securityLabel, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.offer) { await this.offer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.asset) { await async.each(this.asset, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.action) { await async.each(this.action, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.group) { await async.each(this.group, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -486,10 +479,8 @@ class ContractTerm extends Element {
             offer: this.offer && this.offer.toJSONInternal(),
             asset: this.asset && this.asset.map(v => v.toJSONInternal()),
             action: this.action && this.action.map(v => v.toJSONInternal()),
-            group: this.group && this.group.map(v => v.toJSONInternal()),
+            group: this.group && this.group.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

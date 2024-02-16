@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 InsurancePlan.Contact
     Details of a Health Insurance product/plan provided by an organization.
@@ -21,7 +20,7 @@ class InsurancePlanContact extends Element {
      * @param {ContactPoint[]|undefined} [telecom],
      * @param {Address|undefined} [address],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class InsurancePlanContact extends Element {
             purpose,
             name,
             telecom,
-            address,
+            address
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class InsurancePlanContact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class InsurancePlanContact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -125,7 +124,7 @@ class InsurancePlanContact extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.purpose = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -145,7 +144,7 @@ class InsurancePlanContact extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.name = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
@@ -166,7 +165,7 @@ class InsurancePlanContact extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
@@ -186,13 +185,10 @@ class InsurancePlanContact extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.address = FhirResourceCreator.create(valueProvided, Address);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -202,19 +198,16 @@ class InsurancePlanContact extends Element {
             purpose,
             name,
             telecom,
-            address,
+            address
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -223,7 +216,7 @@ class InsurancePlanContact extends Element {
             purpose: this.purpose && this.purpose.toJSON(),
             name: this.name && this.name.toJSON(),
             telecom: this.telecom && this.telecom.map(v => v.toJSON()),
-            address: this.address && this.address.toJSON(),
+            address: this.address && this.address.toJSON()
         });
     }
 
@@ -232,21 +225,21 @@ class InsurancePlanContact extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.purpose) {await this.purpose.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.name) {await this.name.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.telecom) {await async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.address) {await this.address.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.purpose) { await this.purpose.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.name) { await this.name.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.telecom) { await async.each(this.telecom, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.address) { await this.address.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -254,10 +247,8 @@ class InsurancePlanContact extends Element {
             purpose: this.purpose && this.purpose.toJSONInternal(),
             name: this.name && this.name.toJSONInternal(),
             telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
-            address: this.address && this.address.toJSONInternal(),
+            address: this.address && this.address.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

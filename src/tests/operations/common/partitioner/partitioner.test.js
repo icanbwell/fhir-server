@@ -1,17 +1,17 @@
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {commonBeforeEach, commonAfterEach} = require('../../../common');
-const {PartitioningManager} = require('../../../../partitioners/partitioningManager');
-const {ConfigManager} = require('../../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach } = require('../../../common');
+const { PartitioningManager } = require('../../../../partitioners/partitioningManager');
+const { ConfigManager } = require('../../../../utils/configManager');
 const moment = require('moment-timezone');
-const {YearMonthPartitioner} = require('../../../../partitioners/yearMonthPartitioner');
-const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
-const {logInfo} = require('../../../../operations/common/logging');
+const { YearMonthPartitioner } = require('../../../../partitioners/yearMonthPartitioner');
+const { TestMongoDatabaseManager } = require('../../../testMongoDatabaseManager');
+const { logInfo } = require('../../../../operations/common/logging');
 
 class MockConfigManager extends ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources() {
+    get partitionResources () {
         return ['Account', 'AuditEvent'];
     }
 }
@@ -35,7 +35,7 @@ describe('PartitioningManager Tests', () => {
             await mongoDatabaseManager.dropDatabasesAsync();
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -49,7 +49,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName = 'Account_4_0_0';
-            await fhirDb.collection(mongoCollectionName).insertOne({foo: 1});
+            await fhirDb.collection(mongoCollectionName).insertOne({ foo: 1 });
             partitioner.clearCache();
             await partitioner.loadPartitionsFromDatabaseAsync();
             expect(partitioner.partitionsCache.size).toBe(2);
@@ -67,8 +67,8 @@ describe('PartitioningManager Tests', () => {
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
-                configManager: configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                configManager,
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -82,7 +82,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'Account_4_0_0';
-            await fhirDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await fhirDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             /**
@@ -118,7 +118,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -131,7 +131,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'AuditEvent_4_0_0';
-            await auditEventDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await auditEventDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             /**
@@ -141,7 +141,7 @@ describe('PartitioningManager Tests', () => {
                 resourceWithBaseVersion: 'AuditEvent_4_0_0',
                 fieldValue: fieldDate.toString()
             });
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
             partitioner.clearCache();
             await partitioner.loadPartitionsFromDatabaseAsync();
             expect(partitioner.partitionsCache.size).toBe(2);
@@ -163,7 +163,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -171,9 +171,9 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {Resource}
              */
-            const resource = {resourceType: 'Account'};
+            const resource = { resourceType: 'Account' };
             const partition = await partitioner.getPartitionNameByResourceAsync({
-                resource: resource,
+                resource,
                 base_version: '4_0_0'
             });
             expect(partition).toBe('Account_4_0_0');
@@ -188,7 +188,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -201,7 +201,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'AuditEvent_4_0_0';
-            await auditEventDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await auditEventDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             /**
@@ -211,7 +211,7 @@ describe('PartitioningManager Tests', () => {
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
 
             // noinspection JSValidateTypes
             /**
@@ -222,7 +222,7 @@ describe('PartitioningManager Tests', () => {
                 recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'))
             };
             const partition = await partitioner.getPartitionNameByResourceAsync({
-                resource: resource,
+                resource,
                 base_version: '4_0_0'
             });
             expect(partition).toBe(mongoCollectionName2);
@@ -239,7 +239,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -262,7 +262,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -273,7 +273,7 @@ describe('PartitioningManager Tests', () => {
                 query: {}
             });
             if (partitions.length > 0) {
-                logInfo('', {partitions});
+                logInfo('', { partitions });
                 throw new Error(JSON.stringify(partitions));
             }
             expect(partitions.length).toBe(0);
@@ -288,7 +288,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -306,7 +306,7 @@ describe('PartitioningManager Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
             // noinspection JSValidateTypes
             const partitions = await partitioner.getPartitionNamesByQueryAsync({
                 resourceType: 'AuditEvent',
@@ -326,7 +326,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -339,7 +339,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'Account_4_0_0';
-            await fhirDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await fhirDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(2022, 7 - 1, 10);
             /**
@@ -354,15 +354,15 @@ describe('PartitioningManager Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
 
             /**
              * @type {import('mongodb').Filter<import('mongodb').Document>}
              */
             const query = {
                 $and: [
-                    {'recorded': {$gt: new Date(2022, 7 - 1, 10)}}, // javascript months are 0-based
-                    {'recorded': {$lt: new Date(2022, 7 - 1, 11)}}
+                    { recorded: { $gt: new Date(2022, 7 - 1, 10) } }, // javascript months are 0-based
+                    { recorded: { $lt: new Date(2022, 7 - 1, 11) } }
                 ]
             };
             // noinspection JSValidateTypes
@@ -384,7 +384,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -397,7 +397,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'Account_4_0_0';
-            await fhirDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await fhirDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(2022, 7 - 1, 10);
             /**
@@ -412,14 +412,14 @@ describe('PartitioningManager Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
 
             /**
              * @type {import('mongodb').Filter<import('mongodb').Document>}
              */
             const query = {
                 $and: [
-                    {'recorded': {$gt: new Date(2022, 7 - 1, 9)}}, // javascript months are 0-based
+                    { recorded: { $gt: new Date(2022, 7 - 1, 9) } } // javascript months are 0-based
                 ]
             };
             // noinspection JSValidateTypes
@@ -441,7 +441,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -454,7 +454,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'Account_4_0_0';
-            await fhirDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await fhirDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(2022, 7 - 1, 10);
             /**
@@ -469,14 +469,14 @@ describe('PartitioningManager Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
 
             /**
              * @type {import('mongodb').Filter<import('mongodb').Document>}
              */
             const query = {
                 $and: [
-                    {'recorded': {$lt: new Date(2022, 7 - 1, 11)}}, // javascript months are 0-based
+                    { recorded: { $lt: new Date(2022, 7 - 1, 11) } } // javascript months are 0-based
                 ]
             };
             // noinspection JSValidateTypes
@@ -498,7 +498,7 @@ describe('PartitioningManager Tests', () => {
 
             const partitioner = new PartitioningManager({
                 configManager,
-                mongoDatabaseManager: mongoDatabaseManager
+                mongoDatabaseManager
             });
             partitioner.clearCache();
             expect(partitioner.partitionsCache.size).toBe(0);
@@ -511,7 +511,7 @@ describe('PartitioningManager Tests', () => {
              * @type {string}
              */
             const mongoCollectionName1 = 'Account_4_0_0';
-            await fhirDb.collection(mongoCollectionName1).insertOne({foo: 1});
+            await fhirDb.collection(mongoCollectionName1).insertOne({ foo: 1 });
             // now add the Audit Event
             const fieldDate = new Date(2022, 7 - 1, 10);
             /**
@@ -526,15 +526,15 @@ describe('PartitioningManager Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({ bar: 1 });
 
             /**
              * @type {import('mongodb').Filter<import('mongodb').Document>}
              */
             const query = {
                 $and: [
-                    {'recorded': {$gt: new Date(2023, 7 - 1, 10)}}, // javascript months are 0-based
-                    {'recorded': {$lt: new Date(2023, 7 - 1, 11)}}
+                    { recorded: { $gt: new Date(2023, 7 - 1, 10) } }, // javascript months are 0-based
+                    { recorded: { $lt: new Date(2023, 7 - 1, 11) } }
                 ]
             };
             // noinspection JSValidateTypes

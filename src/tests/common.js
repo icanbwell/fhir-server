@@ -1,17 +1,18 @@
 const env = require('var');
+const { jest, expect } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
-const {jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint} = require('./mocks/jwks');
-const {publicKey, privateKey} = require('./mocks/keys');
-const {createToken} = require('./mocks/tokens');
+const { jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint } = require('./mocks/jwks');
+const { publicKey, privateKey } = require('./mocks/keys');
+const { createToken } = require('./mocks/tokens');
 const nock = require('nock');
-const {createTestContainer} = require('./createTestContainer');
+const { createTestContainer } = require('./createTestContainer');
 const supertest = require('supertest');
-const {createApp} = require('../app');
-const {createServer} = require('../server');
-const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
+const { createApp } = require('../app');
+const { createServer } = require('../server');
+const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
-const {fhirContentTypes} = require('../utils/contentTypes');
+const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
 
 /**
@@ -50,7 +51,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
-    return createApp({fnGetContainer: () => testContainer, trackMetrics: false});
+    return createApp({ fnGetContainer: () => testContainer, trackMetrics: false });
 };
 
 /**
@@ -83,12 +84,14 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  * @return {Promise<void>}
  */
 module.exports.commonBeforeEach = async () => {
+    // noinspection DynamicallyGeneratedCodeJS
+    // eslint-disable-next-line no-undef
     jest.setTimeout(30000);
-    env['VALIDATE_SCHEMA'] = true;
+    env.VALIDATE_SCHEMA = true;
     process.env.AUTH_ENABLED = '1';
     const urlObject = new URL(env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
-        {pub: publicKey, kid: '123'},
+        { pub: publicKey, kid: '123' }
     ]);
     /**
      * @type {string[]}
@@ -100,8 +103,8 @@ module.exports.commonBeforeEach = async () => {
             jwksEndpoint(urlObject1.protocol + '//' + urlObject1.host, urlObject1.pathname, [
                 {
                     pub: publicKey,
-                    kid: '123',
-                },
+                    kid: '123'
+                }
             ]);
         }
     });
@@ -113,7 +116,7 @@ module.exports.commonBeforeEach = async () => {
  * @param {string} patientId
  * @param {string} personId
  */
-module.exports.setupMockOpenIdServer = ({token, patientId, personId}) => {
+module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
     expect(env.AUTH_ISSUER).toBeDefined();
     expect(env.AUTH_ISSUER.length).toBeGreaterThan(0);
     const discoveryUrlObject = new URL(env.AUTH_ISSUER);
@@ -121,7 +124,9 @@ module.exports.setupMockOpenIdServer = ({token, patientId, personId}) => {
     jwksUserInfoEndpoint(
         {
             host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
-            token, patientId, personId
+            token,
+            patientId,
+            personId
         });
 };
 
@@ -135,7 +140,7 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
         /**
          * @type {RequestSpecificCache}
@@ -170,7 +175,7 @@ const getToken = (module.exports.getToken = (scope) => {
         sub: 'john',
         username: 'imran',
         client_id: 'my_client_id',
-        scope: scope,
+        scope,
         'custom:clientFhirPersonId': 'clientFhirPerson',
         'custom:clientFhirPatientId': 'clientFhirPatient',
         'custom:bwellFhirPersonId': 'root-person',
@@ -188,7 +193,7 @@ const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (sco
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
         customscope: scope,
-        groups: ['access/*.*'],
+        groups: ['access/*.*']
     });
 });
 
@@ -196,7 +201,7 @@ const getTokenWithCustomPayload = (module.exports.getTokenWithCustomPayload = (p
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
-        ...payload,
+        ...payload
     });
 });
 
@@ -210,7 +215,7 @@ module.exports.getHeaders = (scope) => {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
-        Host: 'localhost:3000',
+        Host: 'localhost:3000'
     };
 };
 
@@ -218,7 +223,7 @@ module.exports.getHeadersNdJson = (scope) => {
     return {
         'Content-Type': 'application/fhir+json', // what the data we POST is in
         Accept: 'application/fhir+ndjson', // what we want the response to be in
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -226,7 +231,7 @@ module.exports.getHeadersCsv = (scope) => {
     return {
         'Content-Type': 'application/fhir+json', // what the data we POST is in
         Accept: fhirContentTypes.csv, // what we want the response to be in
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -234,7 +239,7 @@ module.exports.getHeadersFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/fhir+json',
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -242,7 +247,7 @@ module.exports.getHeadersNdJsonFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/fhir+ndjson', // what we want the response to be in
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -250,7 +255,7 @@ module.exports.getHeadersCsvFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: fhirContentTypes.csv, // what we want the response to be in
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -258,7 +263,7 @@ module.exports.getHeadersJsonPatch = (scope) => {
     return {
         'Content-Type': 'application/json-patch+json',
         Accept: 'application/fhir+json', // what we want the response to be in
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -266,7 +271,7 @@ module.exports.getGraphQLHeaders = (scope) => {
     return {
         'Content-Type': 'application/json; charset=utf-8',
         accept: '*/*',
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -296,21 +301,21 @@ module.exports.getCustomGraphQLHeaders = (payload) => {
         accept: '*/*',
         Authorization: `Bearer ${
             payload ? getTokenWithCustomPayload(payload) : getFullAccessToken()
-        }`,
+        }`
     };
 };
 
 module.exports.getUnAuthenticatedGraphQLHeaders = () => {
     return {
         'Content-Type': 'application/json; charset=utf-8',
-        accept: '*/*',
+        accept: '*/*'
     };
 };
 
 module.exports.getUnAuthenticatedHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
-        'Accept': 'application/fhir+json',
+        Accept: 'application/fhir+json'
     };
 };
 
@@ -320,7 +325,7 @@ module.exports.getHeadersWithCustomToken = (scope) => {
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${
             scope ? getTokenWithCustomClaims(scope) : getFullAccessTokenWithCustomClaims()
-        }`,
+        }`
     };
 };
 
@@ -328,7 +333,7 @@ module.exports.getHeadersWithCustomPayload = (payload) => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
-        Authorization: `Bearer ${getTokenWithCustomPayload(payload)}`,
+        Authorization: `Bearer ${getTokenWithCustomPayload(payload)}`
     };
 };
 
@@ -336,7 +341,7 @@ module.exports.getUnAuthenticatedHtmlHeaders = () => {
     return {
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36'
     };
 };
 
@@ -345,7 +350,7 @@ module.exports.getHtmlHeaders = (scope) => {
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'User-Agent':
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36',
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -355,7 +360,7 @@ module.exports.getHtmlHeadersWithForm = (scope) => {
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'User-Agent':
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36',
-        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`
     };
 };
 
@@ -365,7 +370,7 @@ module.exports.getHeadersPreferOperationOutcome = (scope) => {
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
         Host: 'localhost:3000',
-        Prefer: 'return=OperationOutcome',
+        Prefer: 'return=OperationOutcome'
     };
 };
 
@@ -373,7 +378,7 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
-        groups: ['admin/*.*'],
+        groups: ['admin/*.*']
     });
 });
 
@@ -381,7 +386,7 @@ module.exports.getJsonHeadersWithAdminToken = () => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
-        Authorization: `Bearer ${getTokenWithAdminClaims()}`,
+        Authorization: `Bearer ${getTokenWithAdminClaims()}`
     };
 };
 
@@ -408,12 +413,11 @@ module.exports.wrapResourceInBundle = (resource) => {
         type: 'searchset',
         entry: [
             {
-                resource: resource,
-            },
-        ],
+                resource
+            }
+        ]
     };
 };
-
 
 /**
  * @param resp
@@ -429,16 +433,16 @@ module.exports.getRequestId = (resp) => {
  * @returns {string}
  */
 module.exports.mockHttpContext = ({
-    systemGeneratedRequestId,
-    userRequestId
-} = {}) => {
+                                      systemGeneratedRequestId,
+                                      userRequestId
+                                  } = {}) => {
+    // eslint-disable-next-line no-undef
     jest.spyOn(httpContext, 'get');
     const values = {
-        'systemGeneratedRequestId': systemGeneratedRequestId || '12345678',
-        'userRequestId': userRequestId || '1234'
+        systemGeneratedRequestId: systemGeneratedRequestId || '12345678',
+        userRequestId: userRequestId || '1234'
     };
     httpContext.get.mockImplementation((key) => {
-        // eslint-disable-next-line security/detect-object-injection
         return values[key];
     });
     return values.systemGeneratedRequestId;

@@ -87,7 +87,7 @@
       {
         "id": "sourceAssigningAuthority",
         "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "valueString": "walgreens"
+        "valueString": "client"
       }
     ],
     "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"

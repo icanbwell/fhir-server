@@ -1,11 +1,11 @@
 class SystemValueParser {
     /**
      * Parses system/value string
-     * The id can be '123|medstar' or '123'
+     * The id can be '123|client' or '123'
      * @param {string} text
      * @return {{ system: string|undefined, value: string}}
      */
-    static parse(text) {
+    static parse (text) {
         let system;
         let value;
 
@@ -17,9 +17,8 @@ class SystemValueParser {
             value = text;
         }
 
-        return {system, value};
+        return { system, value };
     }
-
 }
 
 module.exports = {

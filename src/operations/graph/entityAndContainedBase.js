@@ -5,7 +5,7 @@ class EntityAndContainedBase {
     /**
      * @param {boolean} includeInOutput
      */
-    constructor({includeInOutput}) {
+    constructor ({ includeInOutput }) {
         /**
          * @type {boolean}
          */

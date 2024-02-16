@@ -1,4 +1,4 @@
-const {resolveSchema} = require('../../middleware/fhir/utils/schema.utils');
+const { resolveSchema } = require('../../middleware/fhir/utils/schema.utils');
 
 /**
  * Gets class for Meta

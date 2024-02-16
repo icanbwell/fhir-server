@@ -6,4 +6,3 @@
  * @property {FhirRequestInfo} fhirRequestInfo
  * @property {FhirDataSource} dataApi
  */
-

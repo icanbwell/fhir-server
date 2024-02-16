@@ -7,9 +7,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -29,7 +29,6 @@ describe('Claim Merge Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
-
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')

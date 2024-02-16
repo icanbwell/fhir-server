@@ -8,7 +8,7 @@ const { AdminLogger } = require('../adminLogger');
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -29,7 +29,7 @@ async function main() {
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
-                adminLogger: adminLogger,
+                adminLogger
             })
     );
 

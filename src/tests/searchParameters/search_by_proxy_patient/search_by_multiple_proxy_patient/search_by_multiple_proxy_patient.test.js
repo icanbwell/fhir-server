@@ -6,8 +6,8 @@ const patient4 = require('./fixtures/Patient/p4.json');
 
 const bwellPerson1 = require('./fixtures/Person/bwellPerson1.json');
 const bwellPerson2 = require('./fixtures/Person/bwellPerson2.json');
-const northwellPerson1 = require('./fixtures/Person/northwellPerson1.json');
-const northwellPerson2 = require('./fixtures/Person/northwellPerson2.json');
+const clientPerson1 = require('./fixtures/Person/clientPerson1.json');
+const clientPerson2 = require('./fixtures/Person/clientPerson2.json');
 
 const observation1 = require('./fixtures/Observations/observation1.json');
 const observation2 = require('./fixtures/Observations/observation2.json');
@@ -30,26 +30,26 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
 const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         return false;
     }
 
-    get rewritePatientReference() {
+    get rewritePatientReference () {
         return true;
     }
 }
@@ -76,12 +76,12 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -110,12 +110,12 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -144,12 +144,12 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -163,7 +163,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedPatientsWithProxyPatient);
-
         });
 
         test('search patient by proxy-patient should return empty result when person is not present', async () => {
@@ -178,12 +177,12 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -198,7 +197,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(emptyEntries);
-
         });
 
         test('search observation by proxy-patient should work correctly with multiple proxy persons', async () => {
@@ -213,8 +211,8 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
@@ -222,7 +220,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -235,7 +233,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationsWithProxyPatients);
-
         });
 
         test('search observation by proxy-patient should also include resources with directly linked proxy-patient', async () => {
@@ -250,8 +247,8 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
@@ -260,7 +257,7 @@ describe('Patient Tests', () => {
                     observation2,
                     observation3,
                     observation4,
-                    observation5,
+                    observation5
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -273,7 +270,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationWithDirectlyLinkedProxyPatient);
-
         });
 
         test('search observation by proxy-patient should return 0 entries if wrong proxy-patient is passed', async () => {
@@ -288,8 +284,8 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
@@ -298,7 +294,7 @@ describe('Patient Tests', () => {
                     observation2,
                     observation3,
                     observation4,
-                    observation5,
+                    observation5
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -311,7 +307,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedWithWrongProxyPatient);
-
         });
 
         test('search observation by proxy-patient should work correctly when some proxy-patient-id are non existent', async () => {
@@ -326,8 +321,8 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
@@ -335,7 +330,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -348,7 +343,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientAndSomeWrongProxyPatient);
-
         });
 
         test('should return result with original patient references when _rewritePatientReference is false', async () => {
@@ -363,8 +357,8 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
@@ -372,7 +366,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -399,12 +393,12 @@ describe('Patient Tests', () => {
                 .send([
                     bwellPerson1,
                     bwellPerson2,
-                    northwellPerson1,
-                    northwellPerson2,
+                    clientPerson1,
+                    clientPerson2,
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -420,5 +414,4 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatientWithRewritePatientReferenceFalse);
         });
     });
-
 });

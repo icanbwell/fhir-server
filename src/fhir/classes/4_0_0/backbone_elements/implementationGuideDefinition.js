@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide.Definition
     A set of rules of how a particular interoperability or standards problem is
@@ -25,7 +24,7 @@ class ImplementationGuideDefinition extends Element {
      * @param {ImplementationGuideParameter[]|undefined} [parameter],
      * @param {ImplementationGuideTemplate[]|undefined} [template],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -34,7 +33,7 @@ class ImplementationGuideDefinition extends Element {
             resource,
             page,
             parameter,
-            template,
+            template
         }
     ) {
         super({});
@@ -78,7 +77,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -110,7 +109,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -130,7 +129,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.grouping = FhirResourceCreator.createArray(valueProvided, ImplementationGuideGrouping);
             }
         });
@@ -153,7 +152,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.resource = FhirResourceCreator.createArray(valueProvided, ImplementationGuideResource);
             }
         });
@@ -174,7 +173,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuidePage = require('../backbone_elements/implementationGuidePage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.page = FhirResourceCreator.create(valueProvided, ImplementationGuidePage);
             }
         });
@@ -194,7 +193,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.parameter = FhirResourceCreator.createArray(valueProvided, ImplementationGuideParameter);
             }
         });
@@ -214,13 +213,10 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.template = FhirResourceCreator.createArray(valueProvided, ImplementationGuideTemplate);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -231,19 +227,16 @@ class ImplementationGuideDefinition extends Element {
             resource,
             page,
             parameter,
-            template,
+            template
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -253,7 +246,7 @@ class ImplementationGuideDefinition extends Element {
             resource: this.resource && this.resource.map(v => v.toJSON()),
             page: this.page && this.page.toJSON(),
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            template: this.template && this.template.map(v => v.toJSON()),
+            template: this.template && this.template.map(v => v.toJSON())
         });
     }
 
@@ -262,22 +255,22 @@ class ImplementationGuideDefinition extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.grouping) {await async.each(this.grouping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.resource) {await async.each(this.resource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.page) {await this.page.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.parameter) {await async.each(this.parameter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.template) {await async.each(this.template, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.grouping) { await async.each(this.grouping, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.resource) { await async.each(this.resource, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.page) { await this.page.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.parameter) { await async.each(this.parameter, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.template) { await async.each(this.template, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -286,10 +279,8 @@ class ImplementationGuideDefinition extends Element {
             resource: this.resource && this.resource.map(v => v.toJSONInternal()),
             page: this.page && this.page.toJSONInternal(),
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            template: this.template && this.template.map(v => v.toJSONInternal()),
+            template: this.template && this.template.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

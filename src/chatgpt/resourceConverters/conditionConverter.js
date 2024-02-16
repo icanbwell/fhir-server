@@ -1,17 +1,17 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class ConditionConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             clinicalStatus,
             verificationStatus,
             category,
             code,
             subject,
             onsetPeriod,
-            recordedDate,
+            recordedDate
         } = resource;
 
         const clinicalStatusText = this.getDisplayText(clinicalStatus && clinicalStatus.coding);

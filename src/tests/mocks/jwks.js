@@ -9,7 +9,7 @@ const async = require('async');
  * @param {[{pub: string, kid: string}]} certs
  * @return {Scope}
  */
-function jwksEndpoint(host, path, certs) {
+function jwksEndpoint (host, path, certs) {
     return nock(host)
         .persist()
         .get(`${path}`)
@@ -25,10 +25,10 @@ function jwksEndpoint(host, path, certs) {
                         n: publicJwk.n,
                         kty: publicJwk.kty,
                         use: 'sig',
-                        kid: cert.kid,
+                        kid: cert.kid
                     };
                 }
-            ).then((keys) => cb(null, [200, {keys: keys}]));
+            ).then((keys) => cb(null, [200, { keys }]));
         });
 }
 
@@ -37,18 +37,18 @@ function jwksEndpoint(host, path, certs) {
  * @param {string} host
  * @return {Scope}
  */
-function jwksDiscoveryEndpoint(host) {
+function jwksDiscoveryEndpoint (host) {
     return nock(host)
         .persist()
         .get('/.well-known/openid-configuration')
         .reply(200, {
-            'id_token_signing_alg_values_supported': ['RS256'],
-            'issuer': host,
-            'jwks_uri': `${host}/.well-known/jwks.json`,
-            'response_types_supported': ['code', 'token'],
-            'scopes_supported': ['openid', 'email', 'phone', 'profile'],
-            'subject_types_supported': ['public'],
-            'userinfo_endpoint': `${host}/userInfo`
+            id_token_signing_alg_values_supported: ['RS256'],
+            issuer: host,
+            jwks_uri: `${host}/.well-known/jwks.json`,
+            response_types_supported: ['code', 'token'],
+            scopes_supported: ['openid', 'email', 'phone', 'profile'],
+            subject_types_supported: ['public'],
+            userinfo_endpoint: `${host}/userInfo`
         });
 }
 
@@ -60,13 +60,13 @@ function jwksDiscoveryEndpoint(host) {
  * @param {string} personId
  * @return {Scope}
  */
-function jwksUserInfoEndpoint({host, token, patientId, personId}) {
+function jwksUserInfoEndpoint ({ host, token, patientId, personId }) {
     return nock(
         host,
         {
             reqheaders: {
-                authorization: `Bearer ${token}`,
-            },
+                authorization: `Bearer ${token}`
+            }
         }
     ).persist()
         .get('/userInfo')
@@ -74,12 +74,12 @@ function jwksUserInfoEndpoint({host, token, patientId, personId}) {
             return {
                 'custom:bwellFhirPatientId': patientId,
                 'custom:bwellFhirPersonId': personId,
-                'sub': 'f559569d-a6c8-4f70-8447-489b42f48b07',
-                'email_verified': 'true',
+                sub: 'f559569d-a6c8-4f70-8447-489b42f48b07',
+                email_verified: 'true',
                 'custom:clientFhirPersonId': personId,
                 'custom:clientFhirPatientId': patientId,
-                'email': 'imran@icanbwell.com',
-                'username': 'bwell-demo-provider'
+                email: 'imran@icanbwell.com',
+                username: 'bwell-demo-provider'
             };
         });
 }

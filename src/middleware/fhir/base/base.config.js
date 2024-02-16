@@ -1,7 +1,6 @@
 const controller = require('./base.controller.js');
 
-
-let routes = [
+const routes = [
     {
         type: 'put',
         path: '/:base_version/',

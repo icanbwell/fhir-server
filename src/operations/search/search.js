@@ -1,13 +1,13 @@
-const {searchBundle} = require('./searchBundle');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { searchBundle } = require('./searchBundle');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 class SearchOperation {
     /**
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({configManager}) {
+    constructor ({ configManager }) {
         /**
          * @type {ConfigManager}
          */
@@ -23,7 +23,7 @@ class SearchOperation {
      * @param {boolean} filter
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
-    async searchAsync(
+    async searchAsync (
         requestInfo, args, resourceType,
         filter = true
     ) {
@@ -38,7 +38,7 @@ class SearchOperation {
             requestInfo, args, resourceType,
             filter);
 
-        if (this.configManager.enableReturnBundle || args['_bundle']) {
+        if (this.configManager.enableReturnBundle || args._bundle) {
             return bundle;
         } else {
             // return resources from bundle
@@ -50,4 +50,3 @@ class SearchOperation {
 module.exports = {
     SearchOperation
 };
-

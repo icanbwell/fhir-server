@@ -5,11 +5,11 @@ const mpsPatient = require('./fixtures/Patient/mps-patient.json');
 const mpsBwellPerson = require('./fixtures/Person/mps-bwell-person.json');
 const mpsClientPerson = require('./fixtures/Person/mps-client.json');
 
-const northWellBwellPatient = require('./fixtures/Patient/northwell-bwell-patient.json');
-const northWellPatient = require('./fixtures/Patient/northwell-patient.json');
+const clientBwellPatient = require('./fixtures/Patient/client-bwell-patient.json');
+const clientPatient = require('./fixtures/Patient/client-patient.json');
 
-const northWellBwellPerson = require('./fixtures/Person/northwell-bwell-person.json');
-const northWellClientPerson = require('./fixtures/Person/northwell-client.json');
+const clientBwellPerson = require('./fixtures/Person/client-bwell-person.json');
+const clientPerson = require('./fixtures/Person/client-person.json');
 const task1 = require('./fixtures/Task/task1.json');
 const task2 = require('./fixtures/Task/task2.json');
 const task3 = require('./fixtures/Task/task3.json');
@@ -24,19 +24,19 @@ const {
     createTestRequest,
     getHeadersWithCustomPayload
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         return false;
     }
 }
@@ -64,80 +64,78 @@ describe('Patient Tests', () => {
                 .send(mpsBwellPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(mpsClientPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(mpsBwellPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(mpsPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-
-            // create northwell data
+            // create client data
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(northWellBwellPerson)
+                .send(clientBwellPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
-                .send(northWellClientPerson)
+                .send(clientPerson)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(northWellBwellPatient)
+                .send(clientBwellPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
-                .send(northWellPatient)
+                .send(clientPatient)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task1)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const mps_person_payload = {
                 'cognito:username': 'patient-123@example.com',
@@ -147,7 +145,7 @@ describe('Patient Tests', () => {
                 'custom:clientFhirPersonId': 'clientFhirPerson',
                 'custom:clientFhirPatientId': 'clientFhirPatient',
                 'custom:bwellFhirPersonId': '41db6857-b989-4617-ac8b-35d853250449',
-                'custom:bwellFhirPatientId': 'bwellFhirPatient',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
             };
             const headers = getHeadersWithCustomPayload(mps_person_payload);
             // ACT & ASSERT

@@ -2,7 +2,7 @@ query {
     patient(
         identifier: {
             value: {
-                system: "http://www.walgreens.com/profileid"
+                system: "http://www.client.com/profileid"
                 value: "healthsystemId1"
             }
         }

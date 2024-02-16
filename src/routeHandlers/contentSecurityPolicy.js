@@ -45,4 +45,3 @@ module.exports.handleSecurityPolicyGraphql = function (req, res, next) {
     }
     next();
 };
-

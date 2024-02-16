@@ -28,7 +28,7 @@
     "link": [
         {
             "target": {
-                "reference": "Person/a5ff74dd-d593-4059-b399-c399188aca23|medstar",
+                "reference": "Person/a5ff74dd-d593-4059-b399-c399188aca23|client",
                 "type": "Person"
             },
             "assurance": "level4"

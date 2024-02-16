@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const {Binary} = require('../../../../fhir/classes/4_0_0/resources/binary');
+const { Binary } = require('../../../../fhir/classes/4_0_0/resources/binary');
 
 module.exports = {
     CodeSystemProperty1: {
@@ -31,7 +31,7 @@ module.exports = {
                     args,
                     context,
                     info,
-                    {reference: codeSystemProperty1.valueString}
+                    { reference: codeSystemProperty1.valueString }
                 );
                 if (binaryResource.data) {
                     return Buffer.from(binaryResource.data, 'base64').toString('utf8');
@@ -41,6 +41,6 @@ module.exports = {
             } else {
                 return codeSystemProperty1.valueString;
             }
-        },
-    },
+        }
+    }
 };

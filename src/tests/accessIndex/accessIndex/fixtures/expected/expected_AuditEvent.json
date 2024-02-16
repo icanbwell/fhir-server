@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'thedcare'}}}]}, {}).sort({'id':1}).limit(2)",
+        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z'),'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'thedcare'}}}]}, {}).sort({'_uuid':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,11 +11,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'skip':0,'limit':2,'sort':{'id':1}}",
+        "display": "{'skip':0,'limit':2,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['recorded','meta.security.system','meta.security.code','id']",
+        "display": "['recorded','meta.security.system','meta.security.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

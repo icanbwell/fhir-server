@@ -3,14 +3,14 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
     SignatureWho: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     SignatureOnBehalfOf: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Signature: {
         // noinspection JSUnusedLocalSymbols
@@ -32,7 +32,6 @@ module.exports = {
                 context,
                 info,
                 parent.onBehalfOf);
-        },
+        }
     }
 };
-

@@ -364,7 +364,7 @@
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "cb910ded-67db-5c75-b62d-1d1a545c3e56"
+            "value": "7b99904f-2f85-51a3-9398-e2eed6854639"
           }
         ],
         "link": [
@@ -385,7 +385,7 @@
                 {
                   "id": "sourceAssigningAuthority",
                   "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                  "valueString": "medstar"
+                  "valueString": "client"
                 }
               ],
               "reference": "Patient/patient1",
@@ -396,19 +396,19 @@
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "medstar",
+              "code": "client",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
-          "source": "medstar",
+          "source": "client",
           "versionId": "1"
         },
         "name": [
@@ -447,7 +447,7 @@
         "id": "person2",
         "identifier": [
           {
-            "system": "http://www.walgreens.com/profileid",
+            "system": "http://www.client.com/profileid",
             "value": "1000000-a-02"
           },
           {
@@ -573,7 +573,7 @@
         "id": "personTopLevel",
         "identifier": [
           {
-            "system": "http://www.walgreens.com/profileid",
+            "system": "http://www.client.com/profileid",
             "value": "1000000-a-02"
           },
           {

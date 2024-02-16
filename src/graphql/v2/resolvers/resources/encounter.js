@@ -16,14 +16,14 @@ module.exports = {
         }
     },
     EncounterSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     EncounterReasonReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Encounter: {
         // noinspection JSUnusedLocalSymbols
@@ -105,7 +105,6 @@ module.exports = {
                 context,
                 info,
                 parent.partOf);
-        },
+        }
     }
 };
-

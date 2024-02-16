@@ -1,28 +1,27 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {generateUUIDv5} = require('../../utils/uid.util');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
+const { VERSIONS } = require('../../middleware/fhir/utils/constants');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { generateUUIDv5 } = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
-const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
-const {ResourceMerger} = require('../../operations/common/resourceMerger');
-const {RethrownError} = require('../../utils/rethrownError');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
+const { ResourceMerger } = require('../../operations/common/resourceMerger');
+const { RethrownError } = require('../../utils/rethrownError');
+const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
-
 
 /**
  * converts list of properties to a projection
  * @param {string[]} properties
  * @return {import('mongodb').Document}
  */
-function getProjection(properties) {
+function getProjection (properties) {
     /**
      * @type {import('mongodb').Document}
      */
@@ -44,7 +43,7 @@ function getProjection(properties) {
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
 // eslint-disable-next-line no-unused-vars
-function getFilter(properties,) {
+function getFilter (properties) {
     if (!properties || properties.length === 0) {
         return {};
     }
@@ -97,7 +96,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string[]|undefined} [filterToRecordsWithFields]
      * @param {string|undefined} [startFromId]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -224,7 +223,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync(reference, databaseQueryFactory) {
+    async updateReferenceAsync (reference, databaseQueryFactory) {
         try {
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
             if (!reference.reference) {
@@ -232,7 +231,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             }
 
             // if the _uuid reference works then we're good
-            const {resourceType, id} = ReferenceParser.parseReference(reference.reference);
+            const { resourceType, id } = ReferenceParser.parseReference(reference.reference);
             if (!resourceType) {
                 return reference;
             }
@@ -241,7 +240,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              */
             let uuid;
             if (reference._uuid) {
-                ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
+                ({ id: uuid } = ReferenceParser.parseReference(reference._uuid));
             }
 
             // find collection for resource
@@ -284,7 +283,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             }
             if (!foundInCache) {
                 // find a match on _sourceId and _sourceAssigningAuthority
-                for (const {_uuid, _sourceId, _sourceAssigningAuthority} of cache.values()) {
+                for (const { _uuid, _sourceId, _sourceAssigningAuthority } of cache.values()) {
                     if (_sourceId === id) { // if source id matches then use that uuid and sourceAssigningAuthority
                         // save this uuid in reference
                         reference.reference = ReferenceParser.createReference(
@@ -422,7 +421,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     message: 'Error processing reference',
                     error: e,
                     args: {
-                        reference: reference
+                        reference
                     },
                     source: 'FixReferenceSourceAssigningAuthorityRunner.updateReferenceAsync'
                 }
@@ -435,7 +434,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             const operations = [];
             /**
@@ -473,13 +472,13 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             // batch up the calls to update
             resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             if (this.properties && this.properties.length > 0) {
-                const {patches} = await this.resourceMerger.mergeResourceAsync({
-                    currentResource: currentResource,
+                const { patches } = await this.resourceMerger.mergeResourceAsync({
+                    currentResource,
                     resourceToMerge: resource,
                     smartMerge: false,
                     limitToPaths: this.properties.map(p => `/${p}`)
                 });
-                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
                 if (Object.keys(updateOperation).length > 0) {
                     operations.push({
                         updateOne: {
@@ -491,7 +490,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     });
                 }
             } else {
-                const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
+                const result = { replaceOne: { filter: { _id: doc._id }, replacement: resource.toJSONInternal() } };
                 operations.push(result);
             }
 
@@ -514,7 +513,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -562,18 +561,17 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
                 let query = this.afterLastUpdatedDate ? {
                     'meta.lastUpdated': {
-                        $gt: this.afterLastUpdatedDate,
+                        $gt: this.afterLastUpdatedDate
                     }
-                } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                    getFilter(this.filterToRecordsWithFields);
+                } : this.properties && this.properties.length > 0
+                    ? getFilter(this.properties.concat(this.filterToRecordsWithFields || []))
+                    : getFilter(this.filterToRecordsWithFields);
 
                 if (this.startFromId) {
                     const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId) : this.startFromId;
@@ -614,7 +612,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             config: mongoConfig,
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
-                            query: query,
+                            query,
                             projection: this.properties ? getProjection(this.properties) : undefined,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
@@ -623,12 +621,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             skipExistingIds: false,
                             limit: this.limit,
                             useTransaction: this.useTransaction,
-                            skip: this.skip,
+                            skip: this.skip
                             // filterToIdProperty: '_uuid',
                             // filterToIds: uuidList
                         }
                     );
-
                 } catch (e) {
                     console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
@@ -662,8 +659,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async preloadCollectionAsync({mongoConfig, collectionName}) {
-        let {
+    async preloadCollectionAsync ({ mongoConfig, collectionName }) {
+        const {
             sourceCollection
         } = await this.createConnectionAsync(
             {
@@ -688,7 +685,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              * @type {import('mongodb').WithId<import('mongodb').Document>}
              */
             const doc = await cursor.next();
-            this.getCacheForResourceType({collectionName})
+            this.getCacheForResourceType({ collectionName })
                 .set(
                     doc._uuid,
                     {
@@ -705,7 +702,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string} collectionName
      * @return {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
      */
-    getCacheForResourceType({collectionName}) {
+    getCacheForResourceType ({ collectionName }) {
         if (!this.caches.has(collectionName)) {
             this.caches.set(collectionName, new Map());
         }

@@ -75,7 +75,6 @@ module.exports = {
                 context,
                 info,
                 parent.sourceMaterial);
-        },
+        }
     }
 };
-

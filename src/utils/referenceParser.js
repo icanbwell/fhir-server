@@ -1,16 +1,16 @@
-const {isUuid} = require('./uid.util');
-const {UrlParser} = require('./urlParser');
+const { isUuid } = require('./uid.util');
+const { UrlParser } = require('./urlParser');
 
 class ReferenceParser {
     /**
      * Parses reference string
-     * The reference can be 'Patient/123|medstar' or 'Patient/123' or '123' or '123|medstar'
+     * The reference can be 'Patient/123|client' or 'Patient/123' or '123' or '123|client'
      * @param {string} reference
      * @return {{ resourceType: string|undefined, id: string, sourceAssigningAuthority: string|undefined}}
      */
-    static parseReference(reference) {
+    static parseReference (reference) {
         if (UrlParser.isUrl(reference)) { // is a url so don't try to parse
-            return {id: reference};
+            return { id: reference };
         }
         const parts = reference.split('/');
         let resourceType;
@@ -32,7 +32,7 @@ class ReferenceParser {
                 sourceAssigningAuthority = idParts[1];
             }
         }
-        return {resourceType, id, sourceAssigningAuthority};
+        return { resourceType, id, sourceAssigningAuthority };
     }
 
     /**
@@ -41,7 +41,7 @@ class ReferenceParser {
      * @param {string} id
      * @param {string|undefined} [sourceAssigningAuthority]
      */
-    static createReference({resourceType, id, sourceAssigningAuthority}) {
+    static createReference ({ resourceType, id, sourceAssigningAuthority }) {
         let reference = '';
         if (resourceType) {
             reference = `${resourceType}/`;
@@ -58,8 +58,8 @@ class ReferenceParser {
      * @param reference
      * @return {boolean}
      */
-    static isUuidReference(reference) {
-        const {id} = ReferenceParser.parseReference(reference);
+    static isUuidReference (reference) {
+        const { id } = ReferenceParser.parseReference(reference);
         return isUuid(id);
     }
 
@@ -68,8 +68,8 @@ class ReferenceParser {
      * @param {string} reference
      * @return {string|undefined}
      */
-    static getResourceType(reference) {
-        const {resourceType} = ReferenceParser.parseReference(reference);
+    static getResourceType (reference) {
+        const { resourceType } = ReferenceParser.parseReference(reference);
         return resourceType;
     }
 
@@ -78,8 +78,8 @@ class ReferenceParser {
      * @param {string} reference
      * @return {string|undefined}
      */
-    static getSourceAssigningAuthority(reference) {
-        const {sourceAssigningAuthority} = ReferenceParser.parseReference(reference);
+    static getSourceAssigningAuthority (reference) {
+        const { sourceAssigningAuthority } = ReferenceParser.parseReference(reference);
         return sourceAssigningAuthority;
     }
 
@@ -88,11 +88,10 @@ class ReferenceParser {
      * @param {string} reference
      * @return {string}
      */
-    static createReferenceWithoutSourceAssigningAuthority(reference) {
+    static createReferenceWithoutSourceAssigningAuthority (reference) {
         const { id, resourceType } = ReferenceParser.parseReference(reference);
-        return ReferenceParser.createReference({resourceType, id});
+        return ReferenceParser.createReference({ resourceType, id });
     }
-
 }
 
 module.exports = {

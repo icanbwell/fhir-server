@@ -7,36 +7,36 @@ dotenv.config({
 // console.log(`Reading config from ${pathToEnv}`);
 // console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
 
-const {OpenAI} = require('langchain/llms/openai');
-const {PromptTemplate} = require('langchain/prompts');
-const {LLMChain, RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
-const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
-const {z} = require('zod');
-const {CharacterTextSplitter} = require('langchain/text_splitter');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
+const { OpenAI } = require('@langchain/openai');
+const { PromptTemplate } = require('@langchain/core/prompts');
+const { LLMChain, RetrievalQAChain, loadQAStuffChain } = require('langchain/chains');
+const { StructuredOutputParser, OutputFixingParser } = require('langchain/output_parsers');
+const { z } = require('zod');
+const { CharacterTextSplitter } = require('langchain/text_splitter');
+const { OpenAIEmbeddings } = require('@langchain/openai');
 // const {HNSWLib} = require('langchain/vectorstores/hnswlib');
 // const {MongoDBAtlasVectorSearch} = require('langchain/vectorstores/mongodb_atlas');
 
 const patientBundleResource = require('./fixtures/patient.json');
 
-const {describe, test} = require('@jest/globals');
+const { describe, test, expect } = require('@jest/globals');
 // const {FaissStore} = require('langchain/vectorstores/faiss');
-const {MemoryVectorStore} = require('langchain/vectorstores/memory');
-const {Document} = require('langchain/document');
-const {ConsoleCallbackHandler} = require('langchain/callbacks');
-const {ChatGPTLangChainManager} = require('../../chatgpt/managers/chatgptLangChainManager');
-const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
-const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
-const {createTestRequest, getTestContainer} = require('../common');
-const {ConfigManager} = require('../../utils/configManager');
+const { MemoryVectorStore } = require('langchain/vectorstores/memory');
+const { Document } = require('langchain/document');
+const { ConsoleCallbackHandler } = require('@langchain/core/callbacks/base');
+const { ChatGPTLangChainManager } = require('../../chatgpt/managers/chatgptLangChainManager');
+const { FhirToSummaryDocumentConverter } = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const { ResourceConverterFactory } = require('../../chatgpt/resourceConverters/resourceConverterFactory');
+const { createTestRequest, getTestContainer } = require('../common');
+const { ConfigManager } = require('../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 class MockConfigManager extends ConfigManager {
-    get writeFhirSummaryToVectorStore() {
+    get writeFhirSummaryToVectorStore () {
         return true;
     }
 
-    get enableMemoryVectorStore() {
+    get enableMemoryVectorStore () {
         return true;
     }
 }
@@ -57,11 +57,11 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'What is a good name for a company that makes {product}?';
             const prompt = new PromptTemplate({
-                template: template,
-                inputVariables: ['product'],
+                template,
+                inputVariables: ['product']
             });
-            const chain = new LLMChain({llm: model, prompt: prompt});
-            const res = await chain.call({product: 'colorful socks'});
+            const chain = new LLMChain({ llm: model, prompt });
+            const res = await chain.call({ product: 'colorful socks' });
             console.log(res);
         });
         test('ChatGPT works with English query', async () => {
@@ -79,11 +79,11 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'You are a software program. You are talking to a FHIR server. The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient? Give me just the url.';
             const prompt = new PromptTemplate({
-                template: template,
-                inputVariables: ['patientId', 'resource'],
+                template,
+                inputVariables: ['patientId', 'resource']
             });
-            const chain = new LLMChain({llm: model, prompt: prompt});
-            const res = await chain.call({patientId: 'imran', resource: 'condition'});
+            const chain = new LLMChain({ llm: model, prompt });
+            const res = await chain.call({ patientId: 'imran', resource: 'condition' });
             console.log(res);
         });
         test('ChatGPT works with English query and structured output', async () => {
@@ -118,7 +118,7 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
             const prompt = new PromptTemplate({
-                template: template,
+                template,
                 inputVariables: ['query'],
                 partialVariables: {
                     format_instructions: outputFixingParser.getFormatInstructions()
@@ -127,11 +127,12 @@ describe('ChatGPT Tests', () => {
             console.log(prompt);
             const chain = new LLMChain(
                 {
-                    llm: model, prompt: prompt,
+                    llm: model,
+prompt,
                     outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                     outputParser: outputFixingParser
                 });
-            const result = await chain.call({query: 'List 5 countries.'});
+            const result = await chain.call({ query: 'List 5 countries.' });
             console.log(JSON.stringify(result.records, null, 2));
         });
         test('ChatGPT works with English FHIR query and structured output', async () => {
@@ -224,11 +225,11 @@ describe('ChatGPT Tests', () => {
             );
             const template = 'Here\'s my data in FHIR schema. Write a clinical summary for a doctor: ```{data}```. ';
             const prompt = new PromptTemplate({
-                template: template,
-                inputVariables: ['data'],
+                template,
+                inputVariables: ['data']
             });
-            const chain = new LLMChain({llm: model, prompt: prompt});
-            const res = await chain.call({data: patientBundleResource.entry[0]});
+            const chain = new LLMChain({ llm: model, prompt });
+            const res = await chain.call({ data: patientBundleResource.entry[0] });
             console.log(res);
         });
         test('Memory vector database test', async () => {
@@ -238,7 +239,7 @@ describe('ChatGPT Tests', () => {
 
             const vectorStore = await MemoryVectorStore.fromTexts(
                 ['Hello world', 'Bye bye', 'hello nice world'],
-                [{id: 2}, {id: 1}, {id: 3}],
+                [{ id: 2 }, { id: 1 }, { id: 3 }],
                 new OpenAIEmbeddings()
             );
 
@@ -252,7 +253,7 @@ describe('ChatGPT Tests', () => {
 
             const splitter = new CharacterTextSplitter({
                 chunkSize: 1536,
-                chunkOverlap: 200,
+                chunkOverlap: 200
             });
 
             const jimDocs = await splitter.createDocuments(
@@ -260,7 +261,7 @@ describe('ChatGPT Tests', () => {
                 [],
                 {
                     chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
-                    appendChunkOverlapHeader: true,
+                    appendChunkOverlapHeader: true
                 }
             );
 
@@ -269,7 +270,7 @@ describe('ChatGPT Tests', () => {
                 [],
                 {
                     chunkHeader: 'DOCUMENT NAME: Pam Interview\n\n---\n\n',
-                    appendChunkOverlapHeader: true,
+                    appendChunkOverlapHeader: true
                 }
             );
 
@@ -290,10 +291,10 @@ describe('ChatGPT Tests', () => {
             const chain = new RetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model),
                 retriever: vectorStore.asRetriever(),
-                returnSourceDocuments: true,
+                returnSourceDocuments: true
             });
             const res = await chain.call({
-                query: "What is Pam's favorite color?",
+                query: "What is Pam's favorite color?"
             });
 
             console.log(JSON.stringify(res, null, 2));
@@ -326,8 +327,8 @@ describe('ChatGPT Tests', () => {
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id,
-                        },
+                            my_document_id: e.id
+                        }
                     }
                 ));
 
@@ -347,11 +348,11 @@ describe('ChatGPT Tests', () => {
 
             const chain = new RetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model),
-                retriever: vectorStore.asRetriever(),
+                retriever: vectorStore.asRetriever()
                 // returnSourceDocuments: true,
             });
             const res = await chain.call({
-                query: 'When was this patient born?',
+                query: 'When was this patient born?'
             });
 
             console.log(JSON.stringify(res, null, 2));
@@ -384,8 +385,8 @@ describe('ChatGPT Tests', () => {
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id,
-                        },
+                            my_document_id: e.id
+                        }
                     }
                 ));
 
@@ -409,7 +410,7 @@ describe('ChatGPT Tests', () => {
                     // These tags will be attached to all calls made with this LLM.
                     tags: ['example', 'callbacks', 'constructor'],
                     // This handler will be used for all calls made with this LLM.
-                    callbacks: [new ConsoleCallbackHandler()],
+                    callbacks: [new ConsoleCallbackHandler()]
                 }
             );
             const outputParser = StructuredOutputParser.fromZodSchema(
@@ -420,7 +421,7 @@ describe('ChatGPT Tests', () => {
                             id: z.string().describe('id'),
                             value: z.string().describe('value'),
                             category: z.string().describe('category'),
-                            code: z.string().describe('code'),
+                            code: z.string().describe('code')
                         })
                     })
                 ).describe('An array of Airtable records, each representing an observation')
@@ -447,8 +448,8 @@ describe('ChatGPT Tests', () => {
             //         outputParser: outputFixingParser
             //     });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
-                retriever: vectorStore.asRetriever(),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt }),
+                retriever: vectorStore.asRetriever()
                 // memory: memory,
                 // returnSourceDocuments: true,
             });
@@ -480,11 +481,11 @@ describe('ChatGPT Tests', () => {
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id,
-                        },
+                            my_document_id: e.id
+                        }
                     }
                 ));
-            const totalTokens = await chatGPTManager.getTokenCountAsync({documents: patientResources});
+            const totalTokens = await chatGPTManager.getTokenCountAsync({ documents: patientResources });
             console.log(totalTokens);
         });
         test('ChatGPT with FHIR record with json documents with response in HTML', async () => {
@@ -502,8 +503,8 @@ describe('ChatGPT Tests', () => {
                     {
                         pageContent: JSON.stringify(e),
                         metadata: {
-                            'my_document_id': e.id,
-                        },
+                            my_document_id: e.id
+                        }
                     }
                 ));
 
@@ -558,8 +559,8 @@ describe('ChatGPT Tests', () => {
                 // outputParser: outputFixingParser
             });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
-                retriever: vectorStore.asRetriever(),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt }),
+                retriever: vectorStore.asRetriever()
                 // memory: memory,
                 // returnSourceDocuments: true,
             });
@@ -598,7 +599,7 @@ describe('ChatGPT Tests', () => {
                 bundle: patientBundleResource,
                 question: 'Create a clinical summary to share with my doctor',
                 resourceType: 'Patient',
-                uuid: '1',
+                uuid: '1'
             });
             console.log(result.responseText);
             // expect(result).toStrictEqual('<h1>Clinical Summary</h1>  <p>Date: 2023-07-10</p>  <p>Patient Name: John Doe</p>  <p>Gender: Male</p>  <p>Date of Birth: 1980-01-01</p>  <p>Address: 123 Main St, Anytown, USA</p>  <p>Contact Number: (555) 123-4567</p>  <h2>Allergies</h2>  <ul>    <li>Penicillin</li>    <li>Latex</li>  </ul>  <h2>Medications</h2>  <ul>    <li>Metoprolol - 50mg, once daily</li>    <li>Levothyroxine - 100mcg, once daily</li>  </ul>  <h2>Conditions</h2>  <ul>    <li>Hypertension</li>    <li>Hypothyroidism</li>  </ul>  <h2>Immunizations</h2>  <ul>    <li>Influenza - 2022-10-15</li>    <li>Tetanus - 2021-07-01</li>  </ul>  <h2>Recent Lab Results</h2>  <ul>    <li>Complete Blood Count - 2023-06-30</li>    <li>Cholesterol Panel - 2023-06-15</li>  </ul>');
@@ -625,10 +626,9 @@ describe('ChatGPT Tests', () => {
                 bundle: patientBundleResource,
                 question: 'When did this patient receive the tetanus vaccine',
                 resourceType: 'Patient',
-                uuid: '1',
+                uuid: '1'
             });
             console.log(result.responseText);
         });
     });
 });
-

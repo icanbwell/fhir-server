@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 StructureDefinition.Mapping
     A definition of a FHIR structure. This resource is used to describe the
@@ -23,7 +22,7 @@ class StructureDefinitionMapping extends Element {
      * @param {String|undefined} [name],
      * @param {String|undefined} [comment],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class StructureDefinitionMapping extends Element {
             identity,
             uri,
             name,
-            comment,
+            comment
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class StructureDefinitionMapping extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class StructureDefinitionMapping extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -187,9 +186,6 @@ class StructureDefinitionMapping extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -198,19 +194,16 @@ class StructureDefinitionMapping extends Element {
             identity,
             uri,
             name,
-            comment,
+            comment
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -219,7 +212,7 @@ class StructureDefinitionMapping extends Element {
             identity: this.identity,
             uri: this.uri,
             name: this.name,
-            comment: this.comment,
+            comment: this.comment
         });
     }
 
@@ -228,17 +221,17 @@ class StructureDefinitionMapping extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -246,10 +239,8 @@ class StructureDefinitionMapping extends Element {
             identity: this.identity,
             uri: this.uri,
             name: this.name,
-            comment: this.comment,
+            comment: this.comment
         };
-
-
 
         return removeNull(json);
     }

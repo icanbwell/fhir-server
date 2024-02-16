@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Measure.SupplementalData
     The Measure resource provides the definition of a quality measure.
@@ -21,7 +20,7 @@ class MeasureSupplementalData extends Element {
      * @param {String|undefined} [description],
      * @param {Expression} criteria,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -29,7 +28,7 @@ class MeasureSupplementalData extends Element {
             code,
             usage,
             description,
-            criteria,
+            criteria
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class MeasureSupplementalData extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class MeasureSupplementalData extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -128,7 +127,7 @@ class MeasureSupplementalData extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -152,7 +151,7 @@ class MeasureSupplementalData extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.usage = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -193,13 +192,10 @@ class MeasureSupplementalData extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.criteria = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -209,19 +205,16 @@ class MeasureSupplementalData extends Element {
             code,
             usage,
             description,
-            criteria,
+            criteria
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -230,7 +223,7 @@ class MeasureSupplementalData extends Element {
             code: this.code && this.code.toJSON(),
             usage: this.usage && this.usage.map(v => v.toJSON()),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSON(),
+            criteria: this.criteria && this.criteria.toJSON()
         });
     }
 
@@ -239,20 +232,20 @@ class MeasureSupplementalData extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.usage) {await async.each(this.usage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.criteria) {await this.criteria.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.usage) { await async.each(this.usage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.criteria) { await this.criteria.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -260,10 +253,8 @@ class MeasureSupplementalData extends Element {
             code: this.code && this.code.toJSONInternal(),
             usage: this.usage && this.usage.map(v => v.toJSONInternal()),
             description: this.description,
-            criteria: this.criteria && this.criteria.toJSONInternal(),
+            criteria: this.criteria && this.criteria.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -1,7 +1,7 @@
 /**
  * This class implements a client to Kafka
  */
-const {KafkaClient} = require('./kafkaClient');
+const { KafkaClient } = require('./kafkaClient');
 
 class DummyKafkaClient extends KafkaClient {
     /**
@@ -15,7 +15,7 @@ class DummyKafkaClient extends KafkaClient {
      * @param {InitProps}
      */
     // eslint-disable-next-line no-unused-vars
-    init({ clientId, brokers, ssl, sasl }) {
+    init ({ clientId, brokers, ssl, sasl }) {
         // ok to not specify
     }
 
@@ -26,7 +26,7 @@ class DummyKafkaClient extends KafkaClient {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async sendMessagesAsync(topic, messages) {
+    async sendMessagesAsync (topic, messages) {
         // ok to not specify
     }
 }

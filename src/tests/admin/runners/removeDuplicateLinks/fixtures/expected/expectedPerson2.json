@@ -8,7 +8,7 @@
 			"profile": [
 			"http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
 			],
-			"source": "medstar",
+			"source": "client",
 			"security": [
 			{
 					"system": "https://www.icanbwell.com/access",

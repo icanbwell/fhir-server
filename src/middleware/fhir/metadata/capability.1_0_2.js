@@ -7,13 +7,12 @@ const {
  * @description Construct a resource with base_version/uscore path
  */
 
-
-let getConformanceResource = () => {
+const getConformanceResource = () => {
     return resolveSchema('1_0_2', 'conformance');
 };
 
 module.exports.makeStatement = function (resources) {
-    let Conformance = getConformanceResource();
+    const Conformance = getConformanceResource();
     return new Conformance({
         status: 'active',
         date: moment().tz('America/New_York').format(),
@@ -36,7 +35,6 @@ module.exports.makeStatement = function (resources) {
  * @name exports
  * @summary Capability statement shell
  */
-
 
 module.exports.securityStatement = securityUrls => ({
     cors: true,

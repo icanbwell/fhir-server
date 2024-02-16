@@ -1,9 +1,9 @@
-const {getResource} = require('../operations/common/getResource');
+const { getResource } = require('../operations/common/getResource');
 const Resource = require('./classes/4_0_0/resources/resource');
-const {assertIsValid} = require('../utils/assertType');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {RethrownError} = require('../utils/rethrownError');
-const {BadRequestError} = require('../utils/httpErrors');
+const { assertIsValid } = require('../utils/assertType');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
+const { RethrownError } = require('../utils/rethrownError');
+const { BadRequestError } = require('../utils/httpErrors');
 
 class FhirResourceCreator {
     /**
@@ -12,7 +12,7 @@ class FhirResourceCreator {
      * @param {*} [ResourceConstructor]
      * @return {Resource}
      */
-    static create(obj, ResourceConstructor) {
+    static create (obj, ResourceConstructor) {
         assertIsValid(obj, 'obj is null');
         try {
             if (obj instanceof Resource) {
@@ -50,7 +50,7 @@ class FhirResourceCreator {
      * @param {string} resourceType
      * @return {Resource}
      */
-    static createByResourceType(obj, resourceType) {
+    static createByResourceType (obj, resourceType) {
         assertIsValid(obj, 'obj is null');
         try {
             if (obj instanceof Resource
@@ -79,7 +79,7 @@ class FhirResourceCreator {
      * @param {*} [ResourceConstructor]
      * @return {Resource[]}
      */
-    static createArray(obj, ResourceConstructor) {
+    static createArray (obj, ResourceConstructor) {
         try {
             if (Array.isArray(obj)) {
                 return obj

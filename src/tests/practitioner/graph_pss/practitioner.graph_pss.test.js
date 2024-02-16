@@ -20,9 +20,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
@@ -46,7 +46,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/InsurancePlan/1/$merge')
@@ -54,7 +54,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Location/1/$merge')
@@ -62,7 +62,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/1003059437/$merge')
@@ -71,7 +71,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
@@ -79,7 +79,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
@@ -87,7 +87,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }]);
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
@@ -95,7 +95,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/HealthcareService/123456/$merge')
@@ -103,7 +103,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true&_debug=1')
@@ -130,8 +130,6 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedMultipleResource);
-
-
         });
     });
 });

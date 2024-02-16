@@ -1,21 +1,21 @@
-const {NotFoundError} = require('../../utils/httpErrors');
+const { NotFoundError } = require('../../utils/httpErrors');
 const env = require('var');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ConfigManager} = require('../../utils/configManager');
-const {SearchManager} = require('../search/searchManager');
-const {isTrue} = require('../../utils/isTrue');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { ConfigManager } = require('../../utils/configManager');
+const { SearchManager } = require('../search/searchManager');
+const { isTrue } = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {ResourceManager} = require('../common/resourceManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {QueryItem} = require('../graph/queryItem');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ResourceManager } = require('../common/resourceManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { QueryItem } = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class HistoryOperation {
     /**
@@ -31,7 +31,7 @@ class HistoryOperation {
      * @param {ResourceManager} resourceManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseHistoryFactory,
             scopesManager,
@@ -108,7 +108,7 @@ class HistoryOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyAsync({requestInfo, parsedArgs, resourceType}) {
+    async historyAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(parsedArgs !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -134,7 +134,7 @@ class HistoryOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -147,19 +147,19 @@ class HistoryOperation {
         });
 
         // Common search params
-        let {base_version} = parsedArgs;
+        const { base_version } = parsedArgs;
 
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
         /**
          * @type {{base_version, columns: Set, query: import('mongodb').Document}}
          */
         const {
             /** @type {import('mongodb').Document}**/
-            query,
+            query
             // /** @type {Set} **/
             // columns
         } = await this.searchManager.constructQueryAsync({
@@ -201,7 +201,7 @@ class HistoryOperation {
                     resourceType, base_version
                 }
             );
-            cursor = await databaseHistoryManager.findAsync({query, options});
+            cursor = await databaseHistoryManager.findAsync({ query, options });
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
@@ -217,8 +217,8 @@ class HistoryOperation {
         /**
          * @type {import('mongodb').Document[]}
          */
-        const explanations = (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
-        if (parsedArgs['_explain']) {
+        const explanations = (parsedArgs._explain || parsedArgs._debug || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
+        if (parsedArgs._explain) {
             // if explain is requested then don't return any results
             cursor.clear();
         }
@@ -234,7 +234,7 @@ class HistoryOperation {
                 throw new NotFoundError('Resource not found');
             }
             if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: resource, user, scope
+                resource, user, scope
             })) {
                 if (resource.resource) {
                     resource.resource = await this.databaseAttachmentManager.transformAttachments(
@@ -269,9 +269,9 @@ class HistoryOperation {
         const entries = resources.map(
             resource => resource.resource ? resource : new BundleEntry(
                 {
-                    resource: resource,
+                    resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
-                        {protocol, host, base_version, resource})
+                        { protocol, host, base_version, resource })
                 }
             )
         );
@@ -301,7 +301,7 @@ class HistoryOperation {
                     {
                         query,
                         resourceType,
-                        collectionName: collectionName
+                        collectionName
                     }
                 ),
                 originalOptions: options,

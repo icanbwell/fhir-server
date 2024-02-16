@@ -28,7 +28,7 @@
     "link": [
         {
             "target": {
-                "reference": "Patient/2354|medstar",
+                "reference": "Patient/2354|client",
                 "type": "Patient"
             },
             "assurance": "level4"

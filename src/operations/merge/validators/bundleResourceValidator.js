@@ -1,13 +1,13 @@
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {ResourceValidator} = require('../../common/resourceValidator');
-const {validationsFailedCounter} = require('../../../utils/prometheus.utils');
-const {BaseValidator} = require('./baseValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { ResourceValidator } = require('../../common/resourceValidator');
+const { validationsFailedCounter } = require('../../../utils/prometheus.utils');
+const { BaseValidator } = require('./baseValidator');
 
 class BundleResourceValidator extends BaseValidator {
     /**
      * @param {ResourceValidator} resourceValidator
      */
-    constructor({resourceValidator}) {
+    constructor ({ resourceValidator }) {
         super();
         /**
          * @type {ResourceValidator}
@@ -24,7 +24,7 @@ class BundleResourceValidator extends BaseValidator {
      * @param {string} resourceType
      * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
      */
-    async validate({incomingResources, path, currentDate, currentOperationName, resourceType}) {
+    async validate ({ incomingResources, path, currentDate, currentOperationName, resourceType }) {
         // if the incoming request is a bundle then unwrap the bundle
         if (!Array.isArray(incomingResources) && incomingResources.resourceType === 'Bundle') {
             /**
@@ -45,14 +45,14 @@ class BundleResourceValidator extends BaseValidator {
                 }
             );
             if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                return {validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true};
+                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
+                return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
             // unwrap the resources
             incomingResources = incomingResources.entry ? incomingResources.entry.map(e => e.resource) : [];
         }
 
-        return {validatedObjects: incomingResources, preCheckErrors: [], wasAList: false};
+        return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };
     }
 }
 

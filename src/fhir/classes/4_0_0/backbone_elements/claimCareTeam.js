@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Claim.CareTeam
     A provider issued list of professional services and products which have been
@@ -24,7 +23,7 @@ class ClaimCareTeam extends Element {
      * @param {CodeableConcept|undefined} [role],
      * @param {CodeableConcept|undefined} [qualification],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class ClaimCareTeam extends Element {
             provider,
             responsible,
             role,
-            qualification,
+            qualification
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class ClaimCareTeam extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class ClaimCareTeam extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -147,7 +146,7 @@ class ClaimCareTeam extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.provider = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -187,7 +186,7 @@ class ClaimCareTeam extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.role = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -207,13 +206,10 @@ class ClaimCareTeam extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.qualification = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -224,19 +220,16 @@ class ClaimCareTeam extends Element {
             provider,
             responsible,
             role,
-            qualification,
+            qualification
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -246,7 +239,7 @@ class ClaimCareTeam extends Element {
             provider: this.provider && this.provider.toJSON(),
             responsible: this.responsible,
             role: this.role && this.role.toJSON(),
-            qualification: this.qualification && this.qualification.toJSON(),
+            qualification: this.qualification && this.qualification.toJSON()
         });
     }
 
@@ -255,20 +248,20 @@ class ClaimCareTeam extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.provider) {await this.provider.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.role) {await this.role.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.qualification) {await this.qualification.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.provider) { await this.provider.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.role) { await this.role.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.qualification) { await this.qualification.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -277,10 +270,8 @@ class ClaimCareTeam extends Element {
             provider: this.provider && this.provider.toJSONInternal(),
             responsible: this.responsible,
             role: this.role && this.role.toJSONInternal(),
-            qualification: this.qualification && this.qualification.toJSONInternal(),
+            qualification: this.qualification && this.qualification.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

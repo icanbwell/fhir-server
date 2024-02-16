@@ -11,9 +11,9 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext,
+    mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     let requestId;
@@ -44,13 +44,13 @@ describe('PractitionerReturnIdTests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
                 .set(getHeaders());
@@ -64,11 +64,11 @@ describe('PractitionerReturnIdTests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: false});
+            expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
             // assertMergeIsSuccessful(resp.body, false);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
                 .set(getHeaders())
@@ -84,9 +84,9 @@ describe('PractitionerReturnIdTests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({updated: true});
+            expect(resp).toHaveMergeResponse({ updated: true });
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
                 .set(getHeaders())

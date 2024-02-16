@@ -1,0 +1,52 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "approvalDate": "2022-09-12",
+        "id": "sameid",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "sameid"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "87dbd0cc-8278-5716-ab44-8cc08ccbe25a"
+          }
+        ],
+        "library": [
+          "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "client",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "bwell",
+          "versionId": "2"
+        },
+        "name": "TEST3",
+        "resourceType": "ActivityDefinition"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

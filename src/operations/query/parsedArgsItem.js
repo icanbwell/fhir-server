@@ -1,9 +1,9 @@
-const {ParsedReferenceItem} = require('./parsedReferenceItem');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {QueryParameterValue} = require('./queryParameterValue');
-const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {removeNull} = require('../../utils/nullRemover');
+const { ParsedReferenceItem } = require('./parsedReferenceItem');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { QueryParameterValue } = require('./queryParameterValue');
+const { SearchParameterDefinition } = require('../../searchParameters/searchParameterTypes');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { removeNull } = require('../../utils/nullRemover');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -18,7 +18,7 @@ class ParsedArgsItem {
      * @param {ParsedReferenceItem[]|undefined} [references]
      * @param {Object} patientToPersonMap
      */
-    constructor(
+    constructor (
         {
             queryParameter,
             queryParameterValue,
@@ -28,7 +28,7 @@ class ParsedArgsItem {
             patientToPersonMap
         }
     ) {
-        /**'
+        /** '
          * @type {string}
          */
         this.queryParameter = queryParameter;
@@ -63,7 +63,7 @@ class ParsedArgsItem {
             enumerable: true,
             configurable: true,
             get: () => this._patientToPersonMap,
-            set(map) {
+            set (map) {
                 this._patientToPersonMap = map;
             }
         });
@@ -77,12 +77,12 @@ class ParsedArgsItem {
     /**
      * Changes queryParameterValue if modifier contains resource types of target references
      */
-    applyModifierToQueryParameterValue() {
+    applyModifierToQueryParameterValue () {
         if (!this.propertyObj || !this.queryParameterValue) {
             return;
         }
 
-        let modifiedQueryParameterValues = [];
+        const modifiedQueryParameterValues = [];
         this.modifiers.forEach(modifier => {
             if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this.queryParameterValue.value) {
                 const queryParameterValues = this.queryParameterValue.value.split(',');
@@ -107,7 +107,7 @@ class ParsedArgsItem {
      * calculates query parameter value
      * @return {QueryParameterValue|null}
      */
-    get queryParameterValue() {
+    get queryParameterValue () {
         return this._queryParameterValue;
     }
 
@@ -115,7 +115,7 @@ class ParsedArgsItem {
      * sets the queryParameterValue
      * @param {QueryParameterValue} value
      */
-    set queryParameterValue(value) {
+    set queryParameterValue (value) {
         assertTypeEquals(value, QueryParameterValue);
         this._queryParameterValue = value;
         this.updateReferences();
@@ -124,7 +124,7 @@ class ParsedArgsItem {
     /**
      * calculate references
      */
-    updateReferences() {
+    updateReferences () {
         this.references = this.parseQueryParameterValueIntoReferences(
             {
                 queryParameterValue: this.queryParameterValue,
@@ -139,7 +139,7 @@ class ParsedArgsItem {
      * @param {SearchParameterDefinition|undefined} propertyObj
      * @return {ParsedReferenceItem[]}
      */
-    parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
+    parseQueryParameterValueIntoReferences ({ queryParameterValue, propertyObj }) {
         assertTypeEquals(queryParameterValue, QueryParameterValue);
         if (!propertyObj) {
             return [];
@@ -164,7 +164,7 @@ class ParsedArgsItem {
         if (queryParameterValues) {
             assertIsValid(Array.isArray(queryParameterValues), `queryParameterValues is not an array but ${typeof queryParameterValues}`);
             for (const /** @type {string} */ val of queryParameterValues) {
-                const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(val);
+                const { resourceType, id, sourceAssigningAuthority } = ReferenceParser.parseReference(val);
                 if (resourceType) {
                     // resource type was specified
                     result.push(
@@ -191,7 +191,7 @@ class ParsedArgsItem {
         return result;
     }
 
-    clone() {
+    clone () {
         return new ParsedArgsItem(
             {
                 queryParameter: this.queryParameter,
@@ -199,7 +199,7 @@ class ParsedArgsItem {
                 propertyObj: this.propertyObj ? this.propertyObj.clone() : undefined,
                 modifiers: this.modifiers,
                 references: this.references ? this.references.map(r => r.clone()) : undefined,
-                patientToPersonMap: this.patientToPersonMap ? {...this.patientToPersonMap} : undefined,
+                patientToPersonMap: this.patientToPersonMap ? { ...this.patientToPersonMap } : undefined
             }
         );
     }
@@ -208,18 +208,17 @@ class ParsedArgsItem {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             queryParameter: this.queryParameter,
             queryParameterValue: this._queryParameterValue.toJSON(),
             propertyObj: this.propertyObj ? this.propertyObj.toJSON() : undefined,
             modifiers: this.modifiers,
             references: this.references ? this.references.map(r => r.toJSON()) : undefined,
-            patientToPersonMap: this.patientToPersonMap,
+            patientToPersonMap: this.patientToPersonMap
         });
     }
 }
-
 
 module.exports = {
     ParsedArgsItem

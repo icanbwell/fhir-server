@@ -1,7 +1,6 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {IndexManager} = require('../../indexes/indexManager');
-const {BaseScriptRunner} = require('./baseScriptRunner');
-
+const { assertTypeEquals } = require('../../utils/assertType');
+const { IndexManager } = require('../../indexes/indexManager');
+const { BaseScriptRunner } = require('./baseScriptRunner');
 
 /**
  * @classdesc Removes bad records from the database
@@ -17,7 +16,7 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      */
-    constructor(
+    constructor (
         {
             indexManager,
             collections,
@@ -59,14 +58,14 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             await this.init();
             /**
              * @type {import('mongodb').Db}
              */
-            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
-                await this.mongoDatabaseManager.getClientDbAsync();
+            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync()
+                : await this.mongoDatabaseManager.getClientDbAsync();
             if (this.collections.length > 0 && this.collections[0] === 'all') {
                 this.collections = await this.getAllCollectionNamesAsync(
                     {
@@ -77,11 +76,11 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
             }
             for (const collectionName of this.collections) {
                 this.adminLogger.logInfo(`Processing ${collectionName}`);
-                let filter = {'id': null};
+                let filter = { id: null };
                 this.adminLogger.logInfo(`Deleting in ${collectionName} by filter: ${JSON.stringify(filter)}`);
                 let result = await db.collection(collectionName).deleteMany(filter);
                 this.adminLogger.logInfo(`Deleted ${result.deletedCount} records by filter: ${JSON.stringify(filter)}`);
-                filter = {'_access.undefined': 1};
+                filter = { '_access.undefined': 1 };
                 this.adminLogger.logInfo(`Deleting in ${collectionName} by filter: ${JSON.stringify(filter)}`);
                 result = await db.collection(collectionName).deleteMany(filter);
                 this.adminLogger.logInfo(`Deleted ${result.deletedCount} records by filter: ${JSON.stringify(filter)}`);

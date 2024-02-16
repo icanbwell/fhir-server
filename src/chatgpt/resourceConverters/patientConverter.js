@@ -1,4 +1,4 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class PatientConverter extends BaseConverter {
     /**
@@ -6,10 +6,10 @@ class PatientConverter extends BaseConverter {
      * @param {Resource} resource
      * @returns {string}
      */
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             language,
             extension,
             identifier,
@@ -21,7 +21,7 @@ class PatientConverter extends BaseConverter {
             address,
             maritalStatus,
             multipleBirthBoolean,
-            communication,
+            communication
         } = resource;
 
         const fullName = name && name.length > 0 && name[0].given && name[0].given.length > 0 ? `${name[0].given[0]} ${name[0].family} ` : 'unknown';
@@ -56,13 +56,13 @@ class PatientConverter extends BaseConverter {
 - Resource: Patient
 - ID: ${id}
 - Name: ${fullName}
-- Last Updated: ${new Date(lastUpdated).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
+- Last Updated: ${new Date(lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
 - Source: ${source}
 - Language: ${language}
 - Race: ${formattedRace}
 - Ethnicity: ${formattedEthnicity}
 - Gender: ${gender}
-- Birth Date: ${new Date(birthDate).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
+- Birth Date: ${new Date(birthDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
 - Birth Place: ${(birthPlace && birthPlace.valueAddress ? birthPlace.valueAddress.city : undefined)}, ${(birthPlace && birthPlace.valueAddress ? birthPlace.valueAddress.state : undefined)}, ${(birthPlace && birthPlace.valueAddress ? birthPlace.valueAddress.country : undefined)}
 - Disability Adjusted Life Years: ${disabilityAdjustedLifeYears}
 - Quality Adjusted Life Years: ${qualityAdjustedLifeYears}

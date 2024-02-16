@@ -5,9 +5,9 @@
       "severity": "error",
       "code": "invalid",
       "details": {
-        "text": "Multiple resources found with id sameid.  Please either specify the owner/sourceAssigningAuthority tag: sameid|bwell or sameid|medstar OR use uuid to query."
+        "text": "Multiple resources found with id sameid.  Please either specify the owner/sourceAssigningAuthority tag: sameid|bwell or sameid|client OR use uuid to query."
       },
-      "diagnostics": "Error: Multiple resources found with id sameid.  Please either specify the owner/sourceAssigningAuthority tag: sameid|bwell or sameid|medstar OR use uuid to query."
+      "diagnostics": "Error: Multiple resources found with id sameid.  Please either specify the owner/sourceAssigningAuthority tag: sameid|bwell or sameid|client OR use uuid to query."
     }
   ]
 }

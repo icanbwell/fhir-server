@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 EffectEvidenceSynthesis.ResultsByExposure
     The EffectEvidenceSynthesis resource describes the difference in an outcome
@@ -23,7 +22,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
      * @param {CodeableConcept|undefined} [variantState],
      * @param {Reference} riskEvidenceSynthesis,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description,
             exposureState,
             variantState,
-            riskEvidenceSynthesis,
+            riskEvidenceSynthesis
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -164,7 +163,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.variantState = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -184,13 +183,10 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.riskEvidenceSynthesis = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -200,19 +196,16 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description,
             exposureState,
             variantState,
-            riskEvidenceSynthesis,
+            riskEvidenceSynthesis
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -221,7 +214,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description: this.description,
             exposureState: this.exposureState,
             variantState: this.variantState && this.variantState.toJSON(),
-            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSON(),
+            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSON()
         });
     }
 
@@ -230,19 +223,19 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.variantState) {await this.variantState.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.riskEvidenceSynthesis) {await this.riskEvidenceSynthesis.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.variantState) { await this.variantState.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.riskEvidenceSynthesis) { await this.riskEvidenceSynthesis.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -250,10 +243,8 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             description: this.description,
             exposureState: this.exposureState,
             variantState: this.variantState && this.variantState.toJSONInternal(),
-            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSONInternal(),
+            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

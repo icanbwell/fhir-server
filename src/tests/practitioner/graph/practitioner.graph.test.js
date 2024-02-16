@@ -15,12 +15,12 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
 
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
-const {findDuplicateResourcesById} = require('../../../utils/list.util');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
+const { findDuplicateResourcesById } = require('../../../utils/list.util');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -45,28 +45,28 @@ describe('Practitioner Graph Contained Tests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
@@ -106,28 +106,28 @@ describe('Practitioner Graph Contained Tests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -135,7 +135,7 @@ describe('Practitioner Graph Contained Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: graphDefinitionResource}],
+                parameter: [{ name: 'resource', resource: graphDefinitionResource }]
             };
 
             resp = await request

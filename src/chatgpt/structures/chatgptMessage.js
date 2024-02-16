@@ -4,7 +4,7 @@ class ChatGPTMessage {
      * @param {import('openai').ChatCompletionRequestMessageRoleEnum} role
      * @param {string} content
      */
-    constructor(
+    constructor (
         {
             role,
             content

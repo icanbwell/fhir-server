@@ -18,15 +18,15 @@ const {
     getTestContainer,
     mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -57,21 +57,21 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             /**
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             // check that two entries were stored in the database
             /**
@@ -85,7 +85,7 @@ describe('Observation Tests', () => {
             /**
              * @type {Object[]}
              */
-            const results = await collection.find({}).sort({id: 1}).toArray();
+            const results = await collection.find({}).sort({ id: 1 }).toArray();
             // const resultsJson = JSON.stringify(results);
 
             expect(results.length).toStrictEqual(2);
@@ -133,7 +133,6 @@ describe('Observation Tests', () => {
                 .set(getHeaders('user/*.read user/*.write access/C.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
-
         });
     });
 });

@@ -6,7 +6,7 @@ class BulkResultEntry {
      * @param {MergeResultEntry[]|null} mergeResultEntries
      * @param {Error|null} error
      */
-    constructor(
+    constructor (
         {
             resourceType,
             mergeResult,

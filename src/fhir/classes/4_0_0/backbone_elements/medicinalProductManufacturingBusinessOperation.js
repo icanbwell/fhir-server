@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProduct.ManufacturingBusinessOperation
     Detailed definition of a medicinal product, typically for uses other than
@@ -24,7 +23,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
      * @param {Reference[]|undefined} [manufacturer],
      * @param {Reference|undefined} [regulator],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -34,7 +33,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate,
             confidentialityIndicator,
             manufacturer,
-            regulator,
+            regulator
         }
     ) {
         super({});
@@ -78,7 +77,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -110,7 +109,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -130,7 +129,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.operationType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -150,7 +149,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.authorisationReferenceNumber = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -188,7 +187,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.confidentialityIndicator = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -208,7 +207,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.manufacturer = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -228,13 +227,10 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.regulator = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -246,19 +242,16 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate,
             confidentialityIndicator,
             manufacturer,
-            regulator,
+            regulator
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -269,7 +262,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate: this.effectiveDate,
             confidentialityIndicator: this.confidentialityIndicator && this.confidentialityIndicator.toJSON(),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
-            regulator: this.regulator && this.regulator.toJSON(),
+            regulator: this.regulator && this.regulator.toJSON()
         });
     }
 
@@ -278,22 +271,22 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.operationType) {await this.operationType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.authorisationReferenceNumber) {await this.authorisationReferenceNumber.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.confidentialityIndicator) {await this.confidentialityIndicator.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) {await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.regulator) {await this.regulator.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.operationType) { await this.operationType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.authorisationReferenceNumber) { await this.authorisationReferenceNumber.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.confidentialityIndicator) { await this.confidentialityIndicator.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.manufacturer) { await async.each(this.manufacturer, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.regulator) { await this.regulator.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -303,10 +296,8 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             effectiveDate: this.effectiveDate,
             confidentialityIndicator: this.confidentialityIndicator && this.confidentialityIndicator.toJSONInternal(),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
-            regulator: this.regulator && this.regulator.toJSONInternal(),
+            regulator: this.regulator && this.regulator.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

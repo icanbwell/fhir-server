@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductPharmaceutical.TargetSpecies
     A pharmaceutical product described in terms of its composition and dose form.
@@ -19,13 +18,13 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
      * @param {CodeableConcept} code,
      * @param {MedicinalProductPharmaceuticalWithdrawalPeriod[]|undefined} [withdrawalPeriod],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             code,
-            withdrawalPeriod,
+            withdrawalPeriod
         }
     ) {
         super({});
@@ -69,7 +68,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -121,7 +120,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -142,13 +141,10 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     return;
                 }
                 const MedicinalProductPharmaceuticalWithdrawalPeriod = require('../backbone_elements/medicinalProductPharmaceuticalWithdrawalPeriod.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.withdrawalPeriod = FhirResourceCreator.createArray(valueProvided, MedicinalProductPharmaceuticalWithdrawalPeriod);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -156,26 +152,23 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
             extension,
             modifierExtension,
             code,
-            withdrawalPeriod,
+            withdrawalPeriod
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON()),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON())
         });
     }
 
@@ -184,28 +177,26 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.withdrawalPeriod) {await async.each(this.withdrawalPeriod, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.withdrawalPeriod) { await async.each(this.withdrawalPeriod, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             code: this.code && this.code.toJSONInternal(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSONInternal()),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -16,9 +16,9 @@ module.exports = {
         }
     },
     CoverageEligibilityResponseRequestor: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CoverageEligibilityResponse: {
         // noinspection JSUnusedLocalSymbols
@@ -60,7 +60,6 @@ module.exports = {
                 context,
                 info,
                 parent.insurer);
-        },
+        }
     }
 };
-

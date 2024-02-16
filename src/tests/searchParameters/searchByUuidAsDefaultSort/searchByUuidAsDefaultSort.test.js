@@ -13,9 +13,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -58,7 +58,7 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             // Fetch two resources at a time.
-            let response = await request
+            const response = await request
                 .get('/4_0_0/Person/?_count=2&_total=accurate&_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

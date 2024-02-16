@@ -1,12 +1,12 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
-const {IndexProvider} = require('../../../indexes/indexProvider');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
+const { IndexProvider } = require('../../../indexes/indexProvider');
 
-const {customIndexes} = require('./mockCustomIndexes');
+const { customIndexes } = require('./mockCustomIndexes');
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         return customIndexes;
     }
 }
@@ -56,7 +56,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -72,48 +72,48 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(5);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.lastUpdated': 1
                     },
-                    'name': 'meta.lastUpdated_1'
+                    name: 'meta.lastUpdated_1'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -142,7 +142,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -157,86 +157,86 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded'
+                    name: 'helix_auditEvent_recorded'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_access.medstar': 1,
-                        'id': 1,
-                        'recorded': 1
+                    v: 2,
+                    key: {
+                        '_access.client': 1,
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_medstar'
+                    name: 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_access.medstar': 1,
-                        'id': 1,
+                    v: 2,
+                    key: {
+                        '_access.client': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_medstar'
+                    name: 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_audit_event_security'
+                    name: 'helix_audit_event_security'
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1',
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[7]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -270,7 +270,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -298,86 +298,86 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded'
+                    name: 'helix_auditEvent_recorded'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_access.medstar': 1,
-                        'id': 1,
-                        'recorded': 1
+                    v: 2,
+                    key: {
+                        '_access.client': 1,
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_medstar'
+                    name: 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_access.medstar': 1,
-                        'id': 1,
+                    v: 2,
+                    key: {
+                        '_access.client': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_medstar'
+                    name: 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_audit_event_security'
+                    name: 'helix_audit_event_security'
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1',
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[7]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -406,7 +406,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -426,86 +426,86 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded'
+                    name: 'helix_auditEvent_recorded'
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_access.medstar': 1,
-                        'id': 1,
-                        'recorded': 1
+                    v: 2,
+                    key: {
+                        '_access.client': 1,
+                        id: 1,
+                        recorded: 1
                     },
-                    'name': 'helix_auditEvent_recorded_access_medstar'
+                    name: 'helix_auditEvent_recorded_access_client'
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_access.medstar': 1,
-                        'id': 1,
+                    v: 2,
+                    key: {
+                        '_access.client': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_auditEvent_security_access_medstar'
+                    name: 'helix_auditEvent_security_access_client'
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'name': 'helix_audit_event_security'
+                    name: 'helix_audit_event_security'
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1',
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.source': 1
                     },
-                    'name': 'meta.source_1'
+                    name: 'meta.source_1'
                 }
             );
             expect(sortedIndexes[7]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
+                    v: 2,
+                    key: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'name': 'security.system_code_1'
+                    name: 'security.system_code_1'
                 }
             );
         });
@@ -536,7 +536,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientHistoryCollection = fhirDb.collection(collectionName);
-            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientHistoryCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -552,20 +552,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1'
+                    name: 'id_1'
                 }
             );
         });
@@ -594,7 +594,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventHistoryCollection = auditEventDb.collection(collectionName);
-            await auditEventHistoryCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventHistoryCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -609,20 +609,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1',
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
@@ -657,7 +657,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventHistoryCollection = auditEventDb.collection(collectionName);
-            await auditEventHistoryCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventHistoryCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -685,20 +685,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1',
+                    name: 'id_1'
                     // 'unique': true
                 }
             );
@@ -728,7 +728,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -748,20 +748,20 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        '_id': 1
+                    v: 2,
+                    key: {
+                        _id: 1
                     },
-                    'name': '_id_'
+                    name: '_id_'
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'v': 2,
-                    'key': {
-                        'id': 1
+                    v: 2,
+                    key: {
+                        id: 1
                     },
-                    'name': 'id_1',
+                    name: 'id_1'
                     // 'unique': true
                 }
             );

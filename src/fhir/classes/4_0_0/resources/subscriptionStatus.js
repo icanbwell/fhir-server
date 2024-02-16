@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionStatus
     The SubscriptionStatus resource describes the state of a Subscription during
@@ -34,7 +33,7 @@ class SubscriptionStatus extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -54,7 +53,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -97,7 +96,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -161,7 +160,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -183,7 +182,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -207,7 +206,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -239,7 +238,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -278,7 +277,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const SubscriptionNotificationType = require('../complex_types/subscriptionNotificationType.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, SubscriptionNotificationType);
             }
         });
@@ -319,7 +318,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const SubscriptionStatusNotificationEvent = require('../backbone_elements/subscriptionStatusNotificationEvent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.notificationEvent = FhirResourceCreator.createArray(valueProvided, SubscriptionStatusNotificationEvent);
             }
         });
@@ -339,7 +338,7 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subscription = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -378,11 +377,10 @@ class SubscriptionStatus extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.error = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
-
 
         /**
          * @description _access
@@ -437,7 +435,6 @@ class SubscriptionStatus extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -458,7 +455,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -477,7 +474,7 @@ class SubscriptionStatus extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'SubscriptionStatus';
     }
 
@@ -504,7 +501,7 @@ class SubscriptionStatus extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {SubscriptionStatus}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -524,7 +521,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new SubscriptionStatus({
@@ -546,7 +543,7 @@ class SubscriptionStatus extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -554,17 +551,16 @@ class SubscriptionStatus extends Resource {
      * @description creates a copy of this resource
      * @returns {SubscriptionStatus}
     */
-    clone() {
+    clone () {
         return new SubscriptionStatus(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -582,7 +578,7 @@ class SubscriptionStatus extends Resource {
             notificationEvent: this.notificationEvent && this.notificationEvent.map(v => v.toJSON()),
             subscription: this.subscription && this.subscription.toJSON(),
             topic: this.topic,
-            error: this.error && this.error.map(v => v.toJSON()),
+            error: this.error && this.error.map(v => v.toJSON())
         });
     }
 
@@ -591,24 +587,24 @@ class SubscriptionStatus extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.notificationEvent) {await async.each(this.notificationEvent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subscription) {await this.subscription.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.error) {await async.each(this.error, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.notificationEvent) { await async.each(this.notificationEvent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.subscription) { await this.subscription.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.error) { await async.each(this.error, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -625,9 +621,8 @@ class SubscriptionStatus extends Resource {
             notificationEvent: this.notificationEvent && this.notificationEvent.map(v => v.toJSONInternal()),
             subscription: this.subscription && this.subscription.toJSONInternal(),
             topic: this.topic,
-            error: this.error && this.error.map(v => v.toJSONInternal()),
+            error: this.error && this.error.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;
