@@ -1,9 +1,9 @@
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
-const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
+const { OpenAIEmbeddings } = require('@langchain/openai');
 const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
 const { MongoClient } = require('mongodb');
-const { MongoDBAtlasVectorSearch } = require('langchain/vectorstores/mongodb_atlas');
+const { MongoDBAtlasVectorSearch } = require('@langchain/community/vectorstores/mongodb_atlas');
 const { RethrownError } = require('../../utils/rethrownError');
 
 /**

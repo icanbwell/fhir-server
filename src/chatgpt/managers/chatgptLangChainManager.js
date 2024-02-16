@@ -5,14 +5,13 @@ const {
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate
-} = require('langchain/prompts');
-const { LLMChain } = require('langchain/chains');
+} = require('@langchain/core/prompts');
 const { ChatGPTError } = require('../exceptions/chatgptError');
 const { ChatGPTContextLengthExceededError } = require('../exceptions/chatgptContextLengthExceededError');
 const { ChatGPTResponse } = require('../structures/chatGPTResponse');
 const { ChatGPTManager } = require('./chatgptManager');
-const { RunnablePassthrough, RunnableSequence } = require('langchain/schema/runnable');
-const { StringOutputParser } = require('langchain/schema/output_parser');
+const { RunnablePassthrough, RunnableSequence } = require('@langchain/core/runnables');
+const { StringOutputParser } = require('@langchain/core/output_parsers');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { VectorStoreFilter } = require('../vectorStores/vectorStoreFilter');
 const { BaseVectorStoreManager } = require('../vectorStores/baseVectorStoreManager');
@@ -256,7 +255,7 @@ Question: {question}
             inputVariables
         });
 
-        const chain = new LLMChain(
+        const chain = new LLMChainExtractor(
             {
                 llm: model,
                 prompt,

@@ -1,5 +1,5 @@
 const { MemoryVectorStore } = require('langchain/vectorstores/memory');
-const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
+const { OpenAIEmbeddings } = require('@langchain/openai');
 const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
 const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');

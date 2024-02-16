@@ -1,4 +1,4 @@
-const { OpenSearchVectorStore } = require('langchain/vectorstores/opensearch');
+const { OpenSearchVectorStore } = require('@langchain/community/vectorstores/opensearch');
 
 /**
  * @classdesc Subclass of OpenSearchVectorStore that uses the document _id as the _id

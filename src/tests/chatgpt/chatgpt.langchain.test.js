@@ -7,13 +7,13 @@ dotenv.config({
 // console.log(`Reading config from ${pathToEnv}`);
 // console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
 
-const { OpenAI } = require('langchain/llms/openai');
-const { PromptTemplate } = require('langchain/prompts');
+const { OpenAI } = require('@langchain/openai');
+const { PromptTemplate } = require('@langchain/core/prompts');
 const { LLMChain, RetrievalQAChain, loadQAStuffChain } = require('langchain/chains');
 const { StructuredOutputParser, OutputFixingParser } = require('langchain/output_parsers');
 const { z } = require('zod');
 const { CharacterTextSplitter } = require('langchain/text_splitter');
-const { OpenAIEmbeddings } = require('langchain/embeddings/openai');
+const { OpenAIEmbeddings } = require('@langchain/openai');
 // const {HNSWLib} = require('langchain/vectorstores/hnswlib');
 // const {MongoDBAtlasVectorSearch} = require('langchain/vectorstores/mongodb_atlas');
 
@@ -23,7 +23,7 @@ const { describe, test, expect } = require('@jest/globals');
 // const {FaissStore} = require('langchain/vectorstores/faiss');
 const { MemoryVectorStore } = require('langchain/vectorstores/memory');
 const { Document } = require('langchain/document');
-const { ConsoleCallbackHandler } = require('langchain/callbacks');
+const { ConsoleCallbackHandler } = require('@langchain/core/callbacks/base');
 const { ChatGPTLangChainManager } = require('../../chatgpt/managers/chatgptLangChainManager');
 const { FhirToSummaryDocumentConverter } = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const { ResourceConverterFactory } = require('../../chatgpt/resourceConverters/resourceConverterFactory');

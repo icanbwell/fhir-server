@@ -1,5 +1,5 @@
-const { ChatOpenAI } = require('langchain/chat_models/openai');
-const { ConsoleCallbackHandler } = require('langchain/callbacks');
+const { ChatOpenAI } = require('@langchain/openai');
+const { ConsoleCallbackHandler } = require('@langchain/core/callbacks/base');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ConfigManager } = require('../../utils/configManager');
 const { LLMFactory } = require('./llmFactory');
