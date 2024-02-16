@@ -8,6 +8,7 @@ const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
+const path = require('path');
 const useragent = require('express-useragent');
 const {graphql} = require('./middleware/graphql/graphqlServer');
 
@@ -22,6 +23,7 @@ const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
 const {handleClean} = require('./routeHandlers/clean');
 const {handleStats} = require('./routeHandlers/stats');
+const {handleLogout} = require('./routeHandlers/logout');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
@@ -214,6 +216,22 @@ function createApp({fnGetContainer, trackMetrics}) {
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
+    app.use(express.static(path.join(__dirname, 'oauth')));
+
+    // handles when the user is redirected by the OpenIDConnect/OAuth provider
+    app.get('/authcallback', (req, res) => {
+        const state = req.query.state;
+        const resourceUrl = state ?
+            encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
+        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        res.redirect(
+            `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
+            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
+            `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
+        );
+    });
+
+
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
@@ -234,6 +252,13 @@ function createApp({fnGetContainer, trackMetrics}) {
     app.get('/ready', (req, res) => handleMemoryCheck(req, res));
 
     app.get('/version', handleVersion);
+    app.get('/logout', handleLogout);
+    app.get('/logout_action', (req, res) => {
+        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
+        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
+        res.redirect(logoutUrl);
+    });
+
 
     app.get('/clean/:collection?', (req, res) => handleClean(
         {fnGetContainer, req, res}
