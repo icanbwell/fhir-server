@@ -92,7 +92,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         // preload the questionnaire response cache
         await this.cacheQuestionnaireResponseToQuestionnaireId(mongoConfig);
         const qrCount = this.questionnaireResponseToQuestionnaireId.size;
-        this.adminLogger.logInfo('******QuestionnaireResponse count********', `${qrCount}`);
+        this.adminLogger.logInfo(`******QuestionnaireResponse count********   ${qrCount}`);
 
         for (const collection of this.collections) {
             const startFromIdContainer = this.createStartFromIdContainer();
@@ -387,10 +387,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
                         this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
+                    } else {
+                        this.adminLogger.logInfo(`NO questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
-                    // } else {
-                    //     this.adminLogger.logInfo(`NO questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
-                    // }
                  }
             }
         } catch (e) {
