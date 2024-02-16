@@ -81,6 +81,7 @@ async function main () {
         clientUuidColumn,
         statusColumn,
         adminLogger,
+        deleteData: !!parameters.deleteData,
         databaseQueryFactory: c.databaseQueryFactory,
         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
             databaseQueryFactory: c.databaseQueryFactory,
@@ -105,6 +106,7 @@ async function main () {
  * node src/admin/scripts/delinkProaPerson.js
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --csvFileName client
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --deleteData
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPatientUuidColumn 0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonUuidColumn 3
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonSAAColumn 4

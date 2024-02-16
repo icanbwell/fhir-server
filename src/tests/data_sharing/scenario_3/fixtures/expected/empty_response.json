@@ -5,7 +5,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'id':1}).limit(1000)"
+                "display": "db.Patient_4_0_0.find({'$or':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'$and':[{'link.other._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921415cc'},{'_uuid':'fde7f82b-b1e4-4a25-9a58-83b6921414cc'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'_uuid':1}).limit(1000)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
@@ -13,11 +13,11 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryOptions",
-                "display": "{'limit':1000,'sort':{'id':1}}"
+                "display": "{'limit':1000,'sort':{'_uuid':1}}"
             },
             {
                 "system": "https://www.icanbwell.com/queryFields",
-                "display": "['link.other._uuid','_uuid','meta.security.system','meta.security.code','id']"
+                "display": "['link.other._uuid','_uuid','meta.security.system','meta.security.code']"
             },
             {
                 "system": "https://www.icanbwell.com/queryTime",

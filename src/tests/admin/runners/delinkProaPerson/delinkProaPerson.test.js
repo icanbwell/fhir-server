@@ -46,6 +46,97 @@ describe('Person Tests', () => {
     });
 
     describe('Proa Persons Tests', () => {
+        test('Proa Person is not deleted', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest();
+
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send([person1, masterPerson])
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse([
+                { created: true },
+                { created: true }
+            ]);
+
+            resp = await request
+                .get(`/4_0_0/Person/${masterPerson.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            const masterPersonBeforeRun = resp.body;
+            delete masterPersonBeforeRun.meta.lastUpdated;
+            expect(masterPersonBeforeRun).toEqual(expectedMasterPersonBeforeRun);
+
+            resp = await request.get(`/4_0_0/Person/${person1.id}`).set(getHeaders()).expect(200);
+
+            const person1BeforeRun = resp.body;
+            delete person1BeforeRun.meta.lastUpdated;
+            expect(person1BeforeRun).toEqual(expectedPerson1BeforeRun);
+
+            const container = getTestContainer();
+
+            container.register(
+                'delinkProaPerson',
+                (c) =>
+                    new DelinkProaPersonRunner({
+                        csvFileName:
+                            '/src/tests/admin/runners/delinkProaPerson/fixtures/csv/test1.csv',
+                        proaPatientUuidColumn: 0,
+                        proaPersonUuidColumn: 1,
+                        proaPersonSAAColumn: 2,
+                        proaPersonLastUpdatedColumn: 3,
+                        masterUuidColumn: 4,
+                        clientUuidColumn: 5,
+                        statusColumn: 6,
+                        deleteData: false,
+                        adminLogger: new AdminLogger(),
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
+                            databaseQueryFactory: c.databaseQueryFactory,
+                            databaseUpdateFactory: c.databaseUpdateFactory,
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
+                    })
+            );
+
+            /**
+             * @type {DelinkProaPersonRunner}
+             */
+            const delinkProaPerson = container.delinkProaPerson;
+            assertTypeEquals(delinkProaPerson, DelinkProaPersonRunner);
+            await delinkProaPerson.processAsync();
+
+            resp = await request
+                .get(`/4_0_0/Person/${masterPerson.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            const masterPersonAfterRun = resp.body;
+            delete masterPersonAfterRun.meta.lastUpdated;
+            expect(masterPersonAfterRun).toEqual(expectedMasterPersonBeforeRun);
+
+            resp = await request
+                .get(`/4_0_0/Person/${person1.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveResponse(expectedPerson1BeforeRun);
+
+            resp = await request
+                .get(`/4_0_0/Person/${person1.id}/_history/2`)
+                .set(getHeaders())
+                .expect(404);
+
+            resp = await request
+                .get(`/4_0_0/Person/${masterPerson.id}/_history/2`)
+                .set(getHeaders())
+                .expect(404);
+        });
+
         test('Proa Person is deleted', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest();
@@ -92,6 +183,7 @@ describe('Person Tests', () => {
                         masterUuidColumn: 4,
                         clientUuidColumn: 5,
                         statusColumn: 6,
+                        deleteData: true,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
@@ -190,6 +282,7 @@ describe('Person Tests', () => {
                         masterUuidColumn: 4,
                         clientUuidColumn: 5,
                         statusColumn: 6,
+                        deleteData: true,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
@@ -296,6 +389,7 @@ describe('Person Tests', () => {
                         masterUuidColumn: 4,
                         clientUuidColumn: 5,
                         statusColumn: 6,
+                        deleteData: true,
                         adminLogger: new AdminLogger(),
                         databaseQueryFactory: c.databaseQueryFactory,
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({

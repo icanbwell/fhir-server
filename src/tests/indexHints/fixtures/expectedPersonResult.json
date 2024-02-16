@@ -140,7 +140,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Person_4_0_0.find({'name.given':'Daniel'}, {}).sort({'id':1}).limit(100)"
+        "display": "db.Person_4_0_0.find({'name.given':'Daniel'}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -148,11 +148,11 @@
       },
       {
         "system": "https://www.icanbwell.com/queryOptions",
-        "display": "{'limit':100,'sort':{'id':1}}"
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['name.given','id']"
+        "display": "['name.given','_uuid']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime",

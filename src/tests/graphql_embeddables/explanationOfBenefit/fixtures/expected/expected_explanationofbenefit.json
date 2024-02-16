@@ -3,77 +3,6 @@
     {
       "resource": {
         "billablePeriod": {
-          "end": "2020-01-09T00:00:00.000Z",
-          "start": "2020-01-06T00:00:00.000Z"
-        },
-        "id": "000426237700",
-        "insurer": null,
-        "item": null,
-        "meta": {
-          "security": [
-            {
-              "code": "A",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "A",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "B",
-              "system": "https://www.icanbwell.com/vendor"
-            },
-            {
-              "code": "A",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "https://www.payer1.com/medicalclaims",
-          "tag": null
-        },
-        "outcome": "complete",
-        "payment": null,
-        "provider": null,
-        "status": "active",
-        "total": [
-          {
-            "amount": {
-              "currency": null,
-              "value": 63.77
-            },
-            "category": {
-              "coding": [
-                {
-                  "code": "benefit",
-                  "display": null,
-                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
-                }
-              ],
-              "text": null
-            }
-          },
-          {
-            "amount": {
-              "currency": null,
-              "value": 0
-            },
-            "category": {
-              "coding": [
-                {
-                  "code": "copay",
-                  "display": null,
-                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
-                }
-              ],
-              "text": null
-            }
-          }
-        ]
-      }
-    },
-    {
-      "resource": {
-        "billablePeriod": {
           "end": "2018-10-17T00:00:00.000Z",
           "start": "2018-10-17T00:00:00.000Z"
         },
@@ -247,6 +176,77 @@
                   "code": "paidbypatient",
                   "display": "Paid to provider",
                   "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+                }
+              ],
+              "text": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "billablePeriod": {
+          "end": "2020-01-09T00:00:00.000Z",
+          "start": "2020-01-06T00:00:00.000Z"
+        },
+        "id": "000426237700",
+        "insurer": null,
+        "item": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.payer1.com/medicalclaims",
+          "tag": null
+        },
+        "outcome": "complete",
+        "payment": null,
+        "provider": null,
+        "status": "active",
+        "total": [
+          {
+            "amount": {
+              "currency": null,
+              "value": 63.77
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "benefit",
+                  "display": null,
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": null,
+              "value": 0
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "copay",
+                  "display": null,
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
                 }
               ],
               "text": null

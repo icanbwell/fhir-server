@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'subject._uuid':{'$in':['Patient/a28ad76e-41dd-5c0d-b52d-a5841690c3bd','Group/a28ad76e-41dd-5c0d-b52d-a5841690c3bd']}}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'subject._uuid':{'$in':['Patient/a28ad76e-41dd-5c0d-b52d-a5841690c3bd','Group/a28ad76e-41dd-5c0d-b52d-a5841690c3bd']}}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -99,11 +99,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':100,'sort':{'id':1}}",
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['subject._uuid','id']",
+        "display": "['subject._uuid','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

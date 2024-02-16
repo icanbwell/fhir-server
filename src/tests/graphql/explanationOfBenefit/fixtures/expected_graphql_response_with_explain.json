@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}, {}).sort({'id':1}).limit(2)]",
+        "display": "[db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}, {}).sort({'id':1,'_uuid':1}).limit(2)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,11 +11,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'sort':{'id':1},'limit':2}]",
+        "display": "[{'sort':{'id':1,'_uuid':1},'limit':2}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[['_sourceId','id']]",
+        "display": "[['_sourceId','id','_uuid']]",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

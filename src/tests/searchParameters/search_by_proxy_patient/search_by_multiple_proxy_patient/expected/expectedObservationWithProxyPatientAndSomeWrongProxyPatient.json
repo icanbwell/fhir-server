@@ -342,7 +342,7 @@
     "tag": [
       {
         "system": "https://www.icanbwell.com/query",
-        "display": "db.Observation_4_0_0.find({'$or':[{'subject._uuid':{'$in':['Patient/312c79e6-6aaf-51ca-bd06-327d52d4936d','Patient/eb6ab41e-b40f-5ede-adf7-c96a40fafbe5','Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2','Patient/7f663ca0-26c7-524a-ae0c-200bf60daf11','Patient/e94bb079-6a9a-5785-9728-54a945018f84','Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8']}},{'subject._sourceId':'Patient/person.notExist3'}]}, {}).sort({'id':1}).limit(100)"
+        "display": "db.Observation_4_0_0.find({'$or':[{'subject._uuid':{'$in':['Patient/312c79e6-6aaf-51ca-bd06-327d52d4936d','Patient/eb6ab41e-b40f-5ede-adf7-c96a40fafbe5','Patient/person.54808e62-6445-4bb6-8f89-b2ed7e6865d2','Patient/7f663ca0-26c7-524a-ae0c-200bf60daf11','Patient/e94bb079-6a9a-5785-9728-54a945018f84','Patient/person.cda43a72-b5e0-476a-a928-4d768e66d6f8']}},{'subject._sourceId':'Patient/person.notExist3'}]}, {}).sort({'_uuid':1}).limit(100)"
       },
       {
         "system": "https://www.icanbwell.com/queryCollection",
@@ -350,11 +350,11 @@
       },
       {
         "system": "https://www.icanbwell.com/queryOptions",
-        "display": "{'limit':100,'sort':{'id':1}}"
+        "display": "{'limit':100,'sort':{'_uuid':1}}"
       },
       {
         "system": "https://www.icanbwell.com/queryFields",
-        "display": "['subject._uuid','subject._sourceId','id']"
+        "display": "['subject._uuid','subject._sourceId','_uuid']"
       },
       {
         "system": "https://www.icanbwell.com/queryTime",

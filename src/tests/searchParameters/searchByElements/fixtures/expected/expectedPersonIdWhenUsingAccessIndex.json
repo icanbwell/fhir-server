@@ -2,28 +2,28 @@
 	"entry": [{
 		"resource": {
 			"resourceType": "Person",
-			"id": "1"
+			"id": "2"
 		}
 	}, {
 		"resource": {
 			"resourceType": "Person",
-			"id": "2"
+			"id": "1"
 		}
 	}],
 	"resourceType": "Bundle",
 	"meta": {
 		"tag": [{
 			"system": "https://www.icanbwell.com/query",
-			"display": "db.Person_4_0_0.find({}, {'id':1,'_id':0}).sort({'id':1}).limit(1000)"
+			"display": "db.Person_4_0_0.find({}, {'id':1,'_uuid':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)"
 		}, {
 			"system": "https://www.icanbwell.com/queryCollection",
 			"code": "Person_4_0_0"
 		}, {
 			"system": "https://www.icanbwell.com/queryOptions",
-			"display": "{'projection':{'id':1,'_id':0},'limit':1000,'sort':{'id':1}}"
+			"display": "{'projection':{'id':1,'_uuid':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}"
 		}, {
 			"system": "https://www.icanbwell.com/queryFields",
-			"display": "['id']"
+			"display": "['_uuid']"
 		}, {
 			"system": "https://www.icanbwell.com/queryTime",
 			"display": "0.126"
