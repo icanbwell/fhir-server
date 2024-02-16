@@ -65,7 +65,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
 
-        /**@type {Map<string, { id: string; items: Array} */
+        /** @type {Map<string, { id: string; items: Array} */
         this.questionnaireValues = new Map();
 
         /** @type {Map<string, Resource> */
@@ -165,8 +165,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update category
-
-        resource = await this.addCategoryCodingToConsent({resource, questionnaireItem});
+        resource = await this.addCategoryCodingToConsent({ resource, questionnaireItem });
 
         // Update provision
         resource = await this.addProvisionClassToConsent({ resource, questionnaireItem });
@@ -194,7 +193,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds coding to resource.category
      * @param {{ resource: Resource, questionaireItem: any}} options
      */
-     async addCategoryCodingToConsent({ resource, questionnaireItem}) {
+     async addCategoryCodingToConsent ({ resource, questionnaireItem}) {
       const category = resource.category;
         if (!category) {
             return resource;
@@ -210,14 +209,14 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     if (coding[0].id === 'bwell-consent-type' &&
                         coding[0].system === 'http://www.icanbwell.com/consent-category' &&
                         coding[0].code && coding[0].display) {
-                        //coding already set correctly
+                        // coding already set correctly
                         return resource;
                     }
                 }
             });
         });
 
-        await this.lookupCategoryCoding({resource, category, questionnaireItem});
+        await this.lookupCategoryCoding({ resource, category, questionnaireItem });
 
         // setting the value
         resource.category = category;
@@ -231,14 +230,14 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Get coding from questionare and add to category
      * @param {{ resource: Resource, category: any, questionaireItem: any}} options
      */
-    async lookupCategoryCoding({resource, category, questionnaireItem}) {
+    async lookupCategoryCoding({ resource, category, questionnaireItem }) {
         if (!resource) {
             return null;
         }
         if (!questionnaireItem) {
             return null;
         }
-        let coding = {};
+        const coding = {};
         questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-category') {
                 coding.id = 'bwell-consent-type';
@@ -249,7 +248,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         });
         const codingArray = [];
         codingArray.push(coding);
-        const newCoding = {coding: codingArray};
+        const newCoding = { coding: codingArray };
         category.push(newCoding);
         return category;
     }
@@ -275,9 +274,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             return resource;
         }
 
-        if (provisionClass.length === 0)
-        {
-            await this.lookupProvisionClass({resource, provisionClass, questionnaireItem});
+        if (provisionClass.length === 0) {
+            await this.lookupProvisionClass({ resource, provisionClass, questionnaireItem });
         }
 
         // setting the value
@@ -292,7 +290,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds Class to resource.provision
      * @param {{ resource: Resource, provisionClass: any, questionnaireItem: any}} options
      */
-    async lookupProvisionClass({resource, provisionClass, questionnaireItem}) {
+    async lookupProvisionClass({ resource, provisionClass, questionnaireItem }) {
         if (!resource) {
             return null;
         }
@@ -300,7 +298,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             return null;
         }
 
-        let qClass = {};
+        const qClass = {};
         questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-display') {
                 qClass.code = code.code;
@@ -414,35 +412,35 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
         // only those without provision.class considered
         query.$and.push({
-            'provision.class': {
+            ['provision.class']: {
                 $exists: false
             }
         });
         // must have sourceReference
         query.$and.push({
             ['sourceReference']: {
-                $exists: true,
+                $exists: true
             }
         });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
             query.$and.push({
-                'meta.lastUpdated': {
+                ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
-                    $gt: this.afterLastUpdatedDate
-                }
+                    $gt: this.afterLastUpdatedDate,
+                },
             });
         } else if (this.beforeLastUpdatedDate) {
             query.$and.push({
-                'meta.lastUpdated': {
-                    $lt: this.beforeLastUpdatedDate
-                }
+                ['meta.lastUpdated']: {
+                    $lt: this.beforeLastUpdatedDate,
+                },
             });
         } else if (this.afterLastUpdatedDate) {
             query.$and.push({
-                'meta.lastUpdated': {
-                    $gt: this.afterLastUpdatedDate
-                }
+                ['meta.lastUpdated']: {
+                    $gt: this.afterLastUpdatedDate,
+                },
             });
         }
 
@@ -467,7 +465,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
-    async lookupQuestionnaire(doc){
+    async lookupQuestionnaire (doc) {
         if (!doc) {
             return null;
         }
@@ -479,7 +477,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         } else {
             const reference = doc.sourceReference.reference;
             // Check if the reference starts with "QuestionnaireResponse"
-            const {id, resourceType} = ReferenceParser.parseReference(reference);
+            const { id, resourceType } = ReferenceParser.parseReference(reference);
             if (resourceType === 'QuestionnaireResponse') {
                 // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
                 const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
