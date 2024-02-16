@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { open } = require('node:fs/promises');
 const { DelinkProaPersonRunner } = require('./delinkProaPersonRunner');
 
@@ -46,6 +47,19 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
     async handleDelink() {
         // No need for delinking here we can directly delete the data if all references
         // are to be deleted else we donot change the data
+    }
+
+    /**
+     * Initializes write streams
+     * @returns {Promise<void>}
+     */
+    initializeWriteStreams() {
+        // write stream to write person status
+        this.writeStream = fs.createWriteStream('deleted_persons.csv');
+        this.writeStream.write('Person Uuid| Person SourceAssigningAuthority| Person LastUpdated|\n');
+        // error stream to write errors
+        this.errorStream = fs.createWriteStream('delink_errors.csv');
+        this.errorStream.write('Person Uuid| Person SourceAssigningAuthority| Person LastUpdated| Status|\n');
     }
 
     /**
