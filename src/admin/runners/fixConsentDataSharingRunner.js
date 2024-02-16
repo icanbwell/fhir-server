@@ -193,7 +193,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds coding to resource.category
      * @param {{ resource: Resource, questionaireItem: any}} options
      */
-     async addCategoryCodingToConsent ({ resource, questionnaireItem}) {
+     async addCategoryCodingToConsent ({ resource, questionnaireItem }) {
       const category = resource.category;
         if (!category) {
             return resource;
@@ -230,7 +230,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Get coding from questionare and add to category
      * @param {{ resource: Resource, category: any, questionaireItem: any}} options
      */
-    async lookupCategoryCoding({ resource, category, questionnaireItem }) {
+    async lookupCategoryCoding ({ resource, category, questionnaireItem }) {
         if (!resource) {
             return null;
         }
@@ -290,7 +290,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds Class to resource.provision
      * @param {{ resource: Resource, provisionClass: any, questionnaireItem: any}} options
      */
-    async lookupProvisionClass({ resource, provisionClass, questionnaireItem }) {
+    async lookupProvisionClass ({ resource, provisionClass, questionnaireItem }) {
         if (!resource) {
             return null;
         }
@@ -313,7 +313,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Caches questionaire of dataSharing type
      * @param mongoConfig: any; params
      */
-    async cacheQuestionnaireValues(mongoConfig) {
+    async cacheQuestionnaireValues (mongoConfig) {
         const collectionName = 'Questionnaire_4_0_0';
 
         const { collection, session, client } = await this.createSingeConnectionAsync({
@@ -411,19 +411,22 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
 
         // only those without provision.class considered
+        // eslint-disable-next-line no-useless-computed-key comma-dangle
         query.$and.push({
             ['provision.class']: {
                 $exists: false
-            }
+            },
         });
         // must have sourceReference
+        // eslint-disable-next-line no-useless-computed-key comma-dangle
         query.$and.push({
             ['sourceReference']: {
                 $exists: true
-            }
+            },
         });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
+            // eslint-disable-next-line no-useless-computed-key comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
@@ -431,12 +434,14 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 },
             });
         } else if (this.beforeLastUpdatedDate) {
+            // eslint-disable-next-line no-useless-computed-key comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
                 },
             });
         } else if (this.afterLastUpdatedDate) {
+            // eslint-disable-next-line no-useless-computed-key comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $gt: this.afterLastUpdatedDate,
