@@ -208,15 +208,17 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             return resource;
         }
 
-        category.coding.forEach((coding) => {
-            if (Array.isArray(coding)) {
-                if (coding[0].id === 'bwell-consent-type' &&
-                    coding[0].system === 'http://www.icanbwell.com/consent-category' &&
-                    coding[0].code && coding[0].display) {
-                    //coding already set correctly
-                    return resource;
+        category.forEach((categoryItem) => {
+            categoryItem.coding.forEach((coding) => {
+                if (Array.isArray(coding)) {
+                    if (coding[0].id === 'bwell-consent-type' &&
+                        coding[0].system === 'http://www.icanbwell.com/consent-category' &&
+                        coding[0].code && coding[0].display) {
+                        //coding already set correctly
+                        return resource;
+                    }
                 }
-            }
+            });
         });
 
         await this.lookupCategoryCoding({resource, category, questionnaireItem});
