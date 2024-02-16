@@ -251,6 +251,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 coding.display = code.display;
             }
         });
+        this.adminLogger.logInfo(`Adding coding ${coding.code} ${coding.display}`);
         let codingArray = [];
         codingArray.push(coding);
         category.push(codingArray);
@@ -389,9 +390,10 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
                         this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
-                    } else {
-                        this.adminLogger.logInfo(`NO questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
+                    // else {
+                    //     this.adminLogger.logInfo(`NO questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
+                    // }
                  }
             }
         } catch (e) {
