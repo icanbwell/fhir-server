@@ -253,8 +253,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         });
         this.adminLogger.logInfo(`Adding coding ${coding.code} ${coding.display}`);
         let codingArray = [];
-        codingArray.push({'coding': coding});
-        category.push(codingArray);
+        codingArray.push(coding);
+        const newCoding = {coding: codingArray};
+        category.push(newCoding);
         return category;
     }
 
