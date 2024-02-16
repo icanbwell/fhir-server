@@ -1,5 +1,5 @@
 const env = require('var');
-const { expect } = require('@jest/globals');
+const { jest, expect } = require('@jest/globals');
 
 // const {getToken} = require('../../token');
 const { jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint } = require('./mocks/jwks');
@@ -125,8 +125,8 @@ module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
         {
             host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
             token,
-patientId,
-personId
+            patientId,
+            personId
         });
 };
 

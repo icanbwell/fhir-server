@@ -83,7 +83,8 @@
       "<rootDir>/src/tests/testSetup.js"
     ],
     "testTimeout": 60000,
-    "workerIdleMemoryLimit": "8MB"
+    "workerIdleMemoryLimit": "8MB",
+    "injectGlobals": false
   },
   "graphql-schema-linter": {
     "rules": [
