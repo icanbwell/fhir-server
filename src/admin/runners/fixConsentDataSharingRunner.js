@@ -257,7 +257,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
      * Adds Class to resource.provision
      * @param {{ resource: Resource, questionaireItem: any}} options
      */
-    async addProvisionClassToConsent({ resource, questionnaireItem }) {
+    async addProvisionClassToConsent ({ resource, questionnaireItem }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
@@ -411,14 +411,16 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         query.$and = properties.map((v) => this.filterPropExist(`${v}`));
 
         // only those without provision.class considered
-        // eslint-disable-next-line no-useless-computed-key comma-dangle
+        // eslint-disable-next-line no-useless-computed-key
+        // eslint-disable-next-line comma-dangle
         query.$and.push({
             ['provision.class']: {
                 $exists: false
             },
         });
         // must have sourceReference
-        // eslint-disable-next-line no-useless-computed-key comma-dangle
+        // eslint-disable-next-line no-useless-computed-key
+        // eslint-disable-next-line comma-dangle
         query.$and.push({
             ['sourceReference']: {
                 $exists: true
@@ -426,7 +428,8 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
-            // eslint-disable-next-line no-useless-computed-key comma-dangle
+            // eslint-disable-next-line no-useless-computed-key
+            // eslint-disable-next-line comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
@@ -434,14 +437,16 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 },
             });
         } else if (this.beforeLastUpdatedDate) {
-            // eslint-disable-next-line no-useless-computed-key comma-dangle
+            // eslint-disable-next-line no-useless-computed-key
+            // eslint-disable-next-line comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
                 },
             });
         } else if (this.afterLastUpdatedDate) {
-            // eslint-disable-next-line no-useless-computed-key comma-dangle
+            // eslint-disable-next-line no-useless-computed-key
+            // eslint-disable-next-line comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $gt: this.afterLastUpdatedDate,
