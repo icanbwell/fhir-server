@@ -91,8 +91,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         await this.cacheQuestionnaireValues(mongoConfig);
         // preload the questionnaire response cache
         await this.cacheQuestionnaireResponseToQuestionnaireId(mongoConfig);
-        const qrCount = this.questionnaireResponseToQuestionnaireId.size;
-        this.adminLogger.logInfo(`******QuestionnaireResponse count********   ${qrCount}`);
 
         for (const collection of this.collections) {
             const startFromIdContainer = this.createStartFromIdContainer();
@@ -168,11 +166,9 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update category
-        this.adminLogger.logInfo('Adding category coding');
         resource = await this.addCategoryCodingToConsent({resource, questionnaireItem});
 
         // Update provision
-        this.adminLogger.logInfo('adding provision class');
         resource = await this.addProvisionClassToConsent({ resource, questionnaireItem });
 
         // for speed, first check if the incoming resource is exactly the same
@@ -251,7 +247,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 coding.display = code.display;
             }
         });
-        this.adminLogger.logInfo(`Adding coding ${coding.code} ${coding.display}`);
         let codingArray = [];
         codingArray.push(coding);
         const newCoding = {coding: codingArray};
@@ -337,12 +332,10 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
 
             while (await cursor.hasNext()) {
                 const questionnaire = await cursor.next();
-                this.adminLogger.logInfo('***Questionaire***', `${questionnaire._uuid}`);
                 this.questionnaireIdToResource.set(questionnaire.id, questionnaire);
                 this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
                 // only cache if questionaire is datasharing type
                 questionnaire.item?.forEach((item) => {
-                    // this.adminLogger.logInfo('Questionaire Item', { item });
                     if (item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent') {
                         this.questionnaireValues.set(questionnaire._uuid, item);
@@ -392,9 +385,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
                         this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
-                    // else {
-                    //     this.adminLogger.logInfo(`NO questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
-                    // }
                  }
             }
         } catch (e) {
@@ -497,11 +487,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     const questionnaireItem = this.questionnaireValues.get(questionnaireId);
                     if (questionnaireItem) {
                         questionnaire = questionnaireItem;
-                    } else {
-                        this.adminLogger.logInfo(`Questionnaire resource not found for ID ${questionnaireId}`);
                     }
-                } else {
-                    this.adminLogger.logInfo(`Questionnaire ID not found for reference ${reference}`);
                 }
             }
         }
