@@ -381,7 +381,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 if (questionnaireResponse.questionnaire) {
                     const qid = questionnaireResponse.questionnaire;
                     const point = qid.lastIndexOf('/');
-                    const uuid = qid.substring(point);
+                    const uuid = qid.substring(point + 1);
                     // only cache if questionaire is already cached
                     if (this.questionnaireValues.has(uuid)) {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
