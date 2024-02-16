@@ -94,7 +94,7 @@
         "tag": [
             {
                 "system": "https://www.icanbwell.com/query",
-                "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'id':1}).limit(100)"
+                "display": "db.Observation_4_0_0.find({'$or':[{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'client'}}}]},{'$and':[{'subject._uuid':'Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/connectionType','code':{'$in':['proa']}}}}]}]}, {}).sort({'_uuid':1}).limit(100)"
             },
             {
                 "system": "https://www.icanbwell.com/queryCollection",
@@ -102,11 +102,11 @@
             },
             {
                 "system": "https://www.icanbwell.com/queryOptions",
-                "display": "{'limit':100,'sort':{'id':1}}"
+                "display": "{'limit':100,'sort':{'_uuid':1}}"
             },
             {
                 "system": "https://www.icanbwell.com/queryFields",
-                "display": "['subject._uuid','meta.security.system','meta.security.code','id']"
+                "display": "['subject._uuid','meta.security.system','meta.security.code','_uuid']"
             },
             {
                 "system": "https://www.icanbwell.com/queryTime",

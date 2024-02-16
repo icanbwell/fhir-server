@@ -395,8 +395,8 @@ describe('patient Tests', () => {
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResourceCount(2);
 
-                expect(resp.body.entry[0].resource.id).toBe('patient-123-a-allergy-intolerance');
-                expect(resp.body.entry[1].resource.id).toBe('patient-123-b-allergy-intolerance');
+                expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
+                expect(resp.body.entry[1].resource.id).toBe('patient-123-a-allergy-intolerance');
 
                 resp = await request
                     .get('/4_0_0/Condition/?_bundle=1&_sort=id')

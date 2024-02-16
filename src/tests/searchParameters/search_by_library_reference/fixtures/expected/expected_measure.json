@@ -62,7 +62,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Measure_4_0_0.find({'$or':[{'relatedArtifact.resource':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'},{'library':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Measure_4_0_0.find({'$or':[{'relatedArtifact.resource':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'},{'library':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'}]}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -70,11 +70,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':100,'sort':{'id':1}}",
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['relatedArtifact.resource','library','id']",
+        "display": "['relatedArtifact.resource','library','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
