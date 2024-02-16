@@ -178,7 +178,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'_sourceId':'12345678901234567890123456789012345678901234567890123456789012345678901234567890'}, {}).sort({'id':1}).limit(1000)",
+        "display": "db.Observation_4_0_0.find({'_sourceId':'12345678901234567890123456789012345678901234567890123456789012345678901234567890'}, {}).sort({'_uuid':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -186,11 +186,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':1000,'sort':{'id':1}}",
+        "display": "{'limit':1000,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['_sourceId','id']",
+        "display": "['_sourceId','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

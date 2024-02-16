@@ -211,6 +211,38 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
 }
 
 /**
+ * Sorts an array of entries based on the value of the 'uuid' identifier or 'id' if 'uuid' is not present.
+ * @param {Object[]} entries Array of entries to be sorted
+ * @returns {void}
+ */
+function sortEntriesByUUID(entries) {
+    entries?.sort((a, b) => {
+        // Consider uuid or id of resource
+        const getUUID = (resource) => {
+            if (Array.isArray(resource.identifier)) {
+                const uuid = resource.identifier.find(identifier => identifier.id === 'uuid');
+                return uuid ? uuid.value : undefined;
+            } else if (resource.id) {
+                return resource.id;
+            }
+            return undefined;
+        };
+
+        const uuidA = getUUID(a.resource);
+        const uuidB = getUUID(b.resource);
+        if (uuidA && uuidB) {
+            return uuidA.localeCompare(uuidB);
+        } else if (uuidA) {
+            return -1;
+        } else if (uuidB) {
+            return 1;
+        }
+        return 0;
+    });
+    return entries;
+}
+
+/**
  * expect response
  * https://jestjs.io/docs/expect#custom-matchers-api
  * @param {import('http').ServerResponse} resp
@@ -238,6 +270,26 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
         body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
         expected = expectedIn;
     }
+    if (Array.isArray(expected)) {
+        expected.sort((a, b) => {
+            const uuidA = a.identifier?.find(identifier => identifier.id === 'uuid')?.value;
+            const uuidB = b.identifier?.find(identifier => identifier.id === 'uuid')?.value;
+
+            // Check if both UUIDs exist before comparing
+            if (uuidA && uuidB) {
+                return uuidA.localeCompare(uuidB);
+            }
+            // If one UUID is missing, prioritize the entry with a UUID
+            else if (uuidA) {
+                return -1;
+            } else if (uuidB) {
+                return 1;
+            }
+            // If both UUIDs are missing, maintain the order
+            return 0;
+        });
+    }
+
     if (Array.isArray(body) && !Array.isArray(expected)) {
         expected = [expected];
     }
@@ -256,6 +308,8 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
                 }),
             };
         }
+        expected.entry = sortEntriesByUUID(expected.entry);
+        body.entry = sortEntriesByUUID(body.entry);
         return checkContent({
             actual: body, expected, utils, options, expand: this.expand,
             fnCleanResource
@@ -574,5 +628,6 @@ module.exports = {
     toHaveMergeResponse,
     toHaveResourceCount,
     cleanMeta,
-    toHaveGraphQLResponse
+    toHaveGraphQLResponse,
+    sortEntriesByUUID,
 };

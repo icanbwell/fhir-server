@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Person_4_0_0.find({'$and':[{'gender':null},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'bwell'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(1000)",
+        "display": "db.Person_4_0_0.find({'$and':[{'gender':null},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'bwell'}}}]}, {'id':1,'_uuid':1,'_id':0,'meta.security.system':1,'meta.security.code':1}).sort({'_uuid':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,11 +11,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'projection':{'id':1,'_id':0},'limit':1000,'sort':{'id':1}}",
+        "display": "{'projection':{'id':1,'_uuid':1,'_id':0,'meta.security.system':1,'meta.security.code':1},'limit':1000,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['gender','meta.security.system','meta.security.code','id']",
+        "display": "['gender','meta.security.system','meta.security.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

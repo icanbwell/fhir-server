@@ -279,7 +279,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'code.coding.code':{'$in':['health-activity','care-need']}}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'code.coding.code':{'$in':['health-activity','care-need']}}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -287,11 +287,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':100,'sort':{'id':1}}",
+        "display": "{'limit':100,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['code.coding.code','id']",
+        "display": "['code.coding.code','_uuid']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

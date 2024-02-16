@@ -304,7 +304,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'$or':[{'_uuid':'aa8a8ff8-af25-5878-8cf3-bc74227d44dd'},{'_sourceId':'2'}]}, {}).sort({'id':1}).limit(1000)",
+        "display": "db.Practitioner_4_0_0.find({'$or':[{'_uuid':'aa8a8ff8-af25-5878-8cf3-bc74227d44dd'},{'_sourceId':'2'}]}, {}).sort({'_uuid':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -312,11 +312,11 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':1000,'sort':{'id':1}}",
+        "display": "{'limit':1000,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['_uuid','_sourceId','id']",
+        "display": "['_uuid','_sourceId']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
