@@ -11,7 +11,7 @@ const { createContainer } = require('../../createContainer');
 const { AdminLogger } = require('../adminLogger');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminPersonPatientLinkManager } = require('../adminPersonPatientLinkManager');
-const { DelinkProaPersonRunner } = require('../runners/delinkProaPersonRunner');
+const { DelinkProaPersonMasterPersonRunner } = require('../runners/delinkProaPersonMasterPersonRunner');
 
 /**
  * main function
@@ -24,7 +24,7 @@ async function main() {
      * Name of the csv file
      * @type {string}
      */
-    const csvFileName = parameters.csvFileName || 'proa_patient_link_data.csv';
+    const csvFileName = parameters.csvFileName || 'proa_patient_link_data_errors.csv';
 
     /**
      * column in which proa patient uuid is present
@@ -52,10 +52,15 @@ async function main() {
      */
     const masterUuidColumn = parameters.masterUuidColumn || 6;
     /**
-     * column in which client person uuid is present
+     * column in which proa person sourceAssigningAuthority is present
      * @type {number}
      */
-    const clientUuidColumn = parameters.clientPersonUuidColumn || 9;
+    const masterPersonSAAColumn = parameters.proaPersonSAAColumn || 7;
+    /**
+     * column in which proa person lastUpdated is present
+     * @type {number}
+     */
+    const masterPersonLastUpdatedColumn = parameters.proaPersonLastUpdatedColumn || 8;
     /**
      * column in which status is present
      * @type {number}
@@ -65,22 +70,23 @@ async function main() {
     const adminLogger = new AdminLogger();
 
     let currentDateTime = new Date();
-    adminLogger.logInfo(`[${currentDateTime}] Running proaPatientLinkCsvRunner script`);
+    adminLogger.logInfo(`[${currentDateTime}] Running delinkProaPersonMasterPersonRunner script`);
 
     // set up all the standard services in the container
     const container = createContainer();
 
     // now add our class
-    container.register('delinkProaPersonRunner', (c) => new DelinkProaPersonRunner({
+    container.register('delinkProaPersonMasterPersonRunner', (c) => new DelinkProaPersonMasterPersonRunner({
         csvFileName,
         proaPatientUuidColumn,
         proaPersonUuidColumn,
         proaPersonSAAColumn,
         proaPersonLastUpdatedColumn,
         masterUuidColumn,
-        clientUuidColumn,
-        statusColumn,
+        masterPersonSAAColumn,
+        masterPersonLastUpdatedColumn,
         adminLogger,
+        statusColumn,
         deleteData: parameters.deleteData ? true : false,
         databaseQueryFactory: c.databaseQueryFactory,
         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
@@ -91,10 +97,10 @@ async function main() {
     }));
 
     /**
-     * @type {DelinkProaPersonRunner}
+     * @type {DelinkProaPersonMasterPersonRunner}
      */
-    const delinkProaPersonRunner = container.delinkProaPersonRunner;
-    await delinkProaPersonRunner.processAsync();
+    const delinkProaPersonMasterPersonRunner = container.delinkProaPersonMasterPersonRunner;
+    await delinkProaPersonMasterPersonRunner.processAsync();
 
     adminLogger.logInfo('Exiting process');
     process.exit(0);
@@ -103,17 +109,14 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/delinkProaPerson.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --csvFileName client
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --deleteData
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPatientUuidColumn 0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonUuidColumn 3
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonSAAColumn 4
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --proaPersonLastUpdatedColumn 5
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --masterUuidColumn 6
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --clientUuidColumn 9
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPerson.js --statusColumn 12
+ * node src/admin/scripts/delinkProaPersonMasterPerson.js
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js --csvFileName client
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js --deleteData
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js --proaPatientUuidColumn 0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js --proaPersonUuidColumn 3
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js --masterUuidColumn 6
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/delinkProaPersonMasterPerson.js --statusColumn 12
  */
 main().catch(reason => {
     console.error(reason);

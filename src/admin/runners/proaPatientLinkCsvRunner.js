@@ -839,6 +839,7 @@ class ProaPatientLinkCsvRunner extends BaseBulkOperationRunner {
                     deleteProaPatient = true;
                 } else if (this.clientPersonToClientPatientMap.get(clientPersonUuid).length > 1) {
                     message += 'Client Person Linked to Multiple Client Patients, ';
+                    deleteProaPatient = true;
                 } else {
                     message += 'Valid Client Patient, ';
                 }
