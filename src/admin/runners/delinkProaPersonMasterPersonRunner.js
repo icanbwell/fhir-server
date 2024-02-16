@@ -68,7 +68,7 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
             }
             const proaPersonUuids = columns[this.proaPersonUuidColumn].split(', ');
             const masterPersonUuids = columns[this.masterUuidColumn].split(', ');
-            let statuses = columns[this.statusColumn].split(', ').map(s => s.replace('|', ''));
+            let statuses = columns[this.statusColumn].split(', ').map(s => s.replace(/\|/g, ''));
 
             if (statuses.length === 1 && statuses[0] === 'Proa Patient linked to multiple Proa Persons') {
                 statuses = proaPersonUuids.map(() => 'Proa Person not linked to master person');
