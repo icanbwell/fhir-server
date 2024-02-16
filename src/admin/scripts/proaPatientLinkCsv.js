@@ -16,18 +16,18 @@ const { ProaPatientLinkCsvRunner } = require('../runners/proaPatientLinkCsvRunne
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     const parameters = CommandLineParser.parseCommandLine();
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
 
-    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities ?
-        parameters.clientSourceAssigningAuthorities.split(',') :
-        ['bwell_demo'];
+    const clientSourceAssigningAuthorities = parameters.clientSourceAssigningAuthorities
+        ? parameters.clientSourceAssigningAuthorities.split(',')
+        : ['bwell_demo'];
 
     const adminLogger = new AdminLogger();
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     adminLogger.logInfo(`[${currentDateTime}] Running proaPatientLinkCsvRunner script`);
 
     // set up all the standard services in the container
@@ -40,7 +40,7 @@ async function main() {
         adminLogger,
         batchSize,
         clientSourceAssigningAuthorities,
-        skipAlreadyLinked: parameters.skipAlreadyLinked ? true : false,
+        skipAlreadyLinked: !!parameters.skipAlreadyLinked
     }));
 
     /**

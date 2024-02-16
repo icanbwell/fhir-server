@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExampleScenario.Instance
     Example of workflow instance.
@@ -23,7 +22,7 @@ class ExampleScenarioInstance extends Element {
      * @param {ExampleScenarioVersion[]|undefined} [version],
      * @param {ExampleScenarioContainedInstance[]|undefined} [containedInstance],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class ExampleScenarioInstance extends Element {
             name,
             description,
             version,
-            containedInstance,
+            containedInstance
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -201,7 +200,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const ExampleScenarioVersion = require('../backbone_elements/exampleScenarioVersion.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.version = FhirResourceCreator.createArray(valueProvided, ExampleScenarioVersion);
             }
         });
@@ -222,13 +221,10 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.containedInstance = FhirResourceCreator.createArray(valueProvided, ExampleScenarioContainedInstance);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -240,19 +236,16 @@ class ExampleScenarioInstance extends Element {
             name,
             description,
             version,
-            containedInstance,
+            containedInstance
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -263,7 +256,7 @@ class ExampleScenarioInstance extends Element {
             name: this.name,
             description: this.description,
             version: this.version && this.version.map(v => v.toJSON()),
-            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSON()),
+            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSON())
         });
     }
 
@@ -272,19 +265,19 @@ class ExampleScenarioInstance extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.version) {await async.each(this.version, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.containedInstance) {await async.each(this.containedInstance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.version) { await async.each(this.version, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.containedInstance) { await async.each(this.containedInstance, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -294,10 +287,8 @@ class ExampleScenarioInstance extends Element {
             name: this.name,
             description: this.description,
             version: this.version && this.version.map(v => v.toJSONInternal()),
-            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSONInternal()),
+            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

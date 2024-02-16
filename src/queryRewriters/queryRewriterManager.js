@@ -1,4 +1,4 @@
-const {RethrownError} = require('../utils/rethrownError');
+const { RethrownError } = require('../utils/rethrownError');
 
 /**
  * @typedef OperationSpecificQueryRewritersType
@@ -15,7 +15,7 @@ class QueryRewriterManager {
      *
      * @param {params}
      */
-    constructor({queryRewriters, operationSpecificQueryRewriters}) {
+    constructor ({ queryRewriters, operationSpecificQueryRewriters }) {
         /**
          * @type {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -38,7 +38,7 @@ class QueryRewriterManager {
      * @param {rewriteQueryAsyncParams}
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
-    async rewriteQueryAsync({base_version, query, columns, resourceType, operation}) {
+    async rewriteQueryAsync ({ base_version, query, columns, resourceType, operation }) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -48,7 +48,7 @@ class QueryRewriterManager {
         ];
         for (const queryRewriter of queryRewriters) {
             try {
-                ({query, columns} = await queryRewriter.rewriteQueryAsync({
+                ({ query, columns } = await queryRewriter.rewriteQueryAsync({
                     base_version,
                     query,
                     columns,
@@ -60,7 +60,7 @@ class QueryRewriterManager {
                 });
             }
         }
-        return {query, columns};
+        return { query, columns };
     }
 
     /**
@@ -75,7 +75,7 @@ class QueryRewriterManager {
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType, operation}) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType, operation }) {
         /**
          * @typedef {import('./rewriters/queryRewriter').QueryRewriter[]}
          */
@@ -84,7 +84,7 @@ class QueryRewriterManager {
             ...(this.operationSpecificQueryRewriters[`${operation}`] || [])
         ];
         for (const queryRewriter of queryRewriters) {
-            parsedArgs = await queryRewriter.rewriteArgsAsync({base_version, parsedArgs, resourceType});
+            parsedArgs = await queryRewriter.rewriteArgsAsync({ base_version, parsedArgs, resourceType });
         }
         return parsedArgs;
     }

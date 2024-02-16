@@ -1,7 +1,7 @@
 'use strict';
 const async = require('async');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
-const {assertTypeEquals} = require('./assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { assertTypeEquals } = require('./assertType');
 
 /**
  * This file implements helpers for expanding value sets
@@ -11,7 +11,7 @@ class ValueSetManager {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor({databaseQueryFactory}) {
+    constructor ({ databaseQueryFactory }) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         /**
          * @type {DatabaseQueryFactory}
@@ -26,11 +26,11 @@ class ValueSetManager {
      * @param {string} valueSetUrl
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getContentsOfValueSetAsync(resourceType, base_version, valueSetUrl) {
+    async getContentsOfValueSetAsync (resourceType, base_version, valueSetUrl) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery(
-            {resourceType, base_version}
+            { resourceType, base_version }
         );
-        const valueSet = await databaseQueryManager.findOneAsync({query: {url: valueSetUrl.toString()}});
+        const valueSet = await databaseQueryManager.findOneAsync({ query: { url: valueSetUrl.toString() } });
         return await this.getValueSetConceptsAsync(resourceType, base_version, valueSet);
     }
 
@@ -42,12 +42,12 @@ class ValueSetManager {
      * @param {string} display
      * @return {{system, code, display, version: string}}
      */
-    createConcept(system, version, code, display) {
+    createConcept (system, version, code, display) {
         return {
-            system: system,
-            version: version,
-            code: code,
-            display: display
+            system,
+            version,
+            code,
+            display
         };
     }
 
@@ -58,7 +58,7 @@ class ValueSetManager {
      * @param {{valueSet:string[],system:string,version:string,concept:Coding[] }} include
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getIncludeAsync(resourceType, base_version, include) {
+    async getIncludeAsync (resourceType, base_version, include) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
@@ -88,7 +88,7 @@ class ValueSetManager {
      * @param {Resource} resource1
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getValueSetConceptsAsync(resourceType, base_version, resource1) {
+    async getValueSetConceptsAsync (resourceType, base_version, resource1) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
@@ -116,18 +116,18 @@ class ValueSetManager {
      * @param {Resource} resource1
      * @return {Resource}
      */
-    async getExpandedValueSetAsync(resourceType, base_version, resource1) {
+    async getExpandedValueSetAsync (resourceType, base_version, resource1) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
-        let concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
-        resource1['expansion'] = {
+        const concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
+        resource1.expansion = {
             contains: concepts,
-            'offset': 0,
-            'total': concepts.length
+            offset: 0,
+            total: concepts.length
         };
         // remove compose
-        delete resource1['compose'];
+        delete resource1.compose;
         return resource1;
     }
 }

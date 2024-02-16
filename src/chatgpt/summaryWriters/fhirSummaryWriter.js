@@ -1,16 +1,16 @@
-const {assertTypeEquals} = require('../../utils/assertType');
-const {BaseFhirToDocumentConverter} = require('../fhirToDocumentConverters/baseFhirToDocumentConverter');
-const {VectorStoreFactory} = require('../vectorStores/vectorStoreFactory');
-const {ConfigManager} = require('../../utils/configManager');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { BaseFhirToDocumentConverter } = require('../fhirToDocumentConverters/baseFhirToDocumentConverter');
+const { VectorStoreFactory } = require('../vectorStores/vectorStoreFactory');
+const { ConfigManager } = require('../../utils/configManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const {BasePostSaveHandler} = require('../../utils/basePostSaveHandler');
-const {PatientFilterManager} = require('../../fhir/patientFilterManager');
-const {ReferenceParser} = require('../../utils/referenceParser');
-const {RethrownError} = require('../../utils/rethrownError');
-const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
-const {NestedPropertyReader} = require('../../utils/nestedPropertyReader');
-const {isUuid, generateUUIDv5} = require('../../utils/uid.util');
+const { BasePostSaveHandler } = require('../../utils/basePostSaveHandler');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { ReferenceParser } = require('../../utils/referenceParser');
+const { RethrownError } = require('../../utils/rethrownError');
+const { logTraceSystemEventAsync } = require('../../operations/common/systemEventLogging');
+const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
+const { isUuid, generateUUIDv5 } = require('../../utils/uid.util');
 
 /**
  * @classdesc Writes summary for a resource to vector store
@@ -23,7 +23,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @param {ConfigManager} configManager
      * @param {PatientFilterManager} patientFilterManager
      */
-    constructor(
+    constructor (
         {
             fhirToDocumentConverter,
             vectorStoreFactory,
@@ -66,7 +66,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync ({ requestId, eventType, resourceType, doc }) {
         try {
             if (!this.configManager.writeFhirSummaryToVectorStore) {
                 return;
@@ -99,7 +99,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                 let parentResourceType;
 
                 // Read the patient id from the doc
-                const patientProperty = this.patientFilterManager.getPatientPropertyForResource({resourceType});
+                const patientProperty = this.patientFilterManager.getPatientPropertyForResource({ resourceType });
                 if (resourceType !== 'Patient' && patientProperty) {
                     const parentReference = NestedPropertyReader.getNestedProperty({
                         obj: doc,
@@ -157,7 +157,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
                     resourceInfo
                 );
 
-                await vectorStoreManager.addDocumentsAsync({documents});
+                await vectorStoreManager.addDocumentsAsync({ documents });
             }
         } catch (e) {
             throw new RethrownError({
@@ -171,7 +171,7 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @returns {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async flushAsync() {
+    async flushAsync () {
     }
 }
 

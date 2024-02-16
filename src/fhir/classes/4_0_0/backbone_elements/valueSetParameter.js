@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ValueSet.Parameter
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -28,7 +27,7 @@ class ValueSetParameter extends Element {
      * @param {code|undefined} [valueCode],
      * @param {dateTime|undefined} [valueDateTime],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -40,7 +39,7 @@ class ValueSetParameter extends Element {
             valueDecimal,
             valueUri,
             valueCode,
-            valueDateTime,
+            valueDateTime
         }
     ) {
         super({});
@@ -84,7 +83,7 @@ class ValueSetParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -116,7 +115,7 @@ class ValueSetParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -267,9 +266,6 @@ class ValueSetParameter extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -282,19 +278,16 @@ class ValueSetParameter extends Element {
             valueDecimal,
             valueUri,
             valueCode,
-            valueDateTime,
+            valueDateTime
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -307,7 +300,7 @@ class ValueSetParameter extends Element {
             valueDecimal: this.valueDecimal,
             valueUri: this.valueUri,
             valueCode: this.valueCode,
-            valueDateTime: this.valueDateTime,
+            valueDateTime: this.valueDateTime
         });
     }
 
@@ -316,17 +309,17 @@ class ValueSetParameter extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -338,10 +331,8 @@ class ValueSetParameter extends Element {
             valueDecimal: this.valueDecimal,
             valueUri: this.valueUri,
             valueCode: this.valueCode,
-            valueDateTime: this.valueDateTime,
+            valueDateTime: this.valueDateTime
         };
-
-
 
         return removeNull(json);
     }

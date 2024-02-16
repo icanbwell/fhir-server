@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Moiety
     The detailed description of a substance, typically at a level beyond what is
@@ -26,7 +25,7 @@ class SubstanceSpecificationMoiety extends Element {
      * @param {Quantity|undefined} [amountQuantity],
      * @param {String|undefined} [amountString],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -38,7 +37,7 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity,
             molecularFormula,
             amountQuantity,
-            amountString,
+            amountString
         }
     ) {
         super({});
@@ -82,7 +81,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +113,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +133,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.role = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -154,7 +153,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -192,7 +191,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.stereochemistry = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -212,7 +211,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.opticalActivity = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -250,7 +249,7 @@ class SubstanceSpecificationMoiety extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -273,9 +272,6 @@ class SubstanceSpecificationMoiety extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -288,19 +284,16 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity,
             molecularFormula,
             amountQuantity,
-            amountString,
+            amountString
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -313,7 +306,7 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity: this.opticalActivity && this.opticalActivity.toJSON(),
             molecularFormula: this.molecularFormula,
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSON(),
-            amountString: this.amountString,
+            amountString: this.amountString
         });
     }
 
@@ -322,22 +315,22 @@ class SubstanceSpecificationMoiety extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.role) {await this.role.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.stereochemistry) {await this.stereochemistry.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.opticalActivity) {await this.opticalActivity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountQuantity) {await this.amountQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.role) { await this.role.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.stereochemistry) { await this.stereochemistry.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.opticalActivity) { await this.opticalActivity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountQuantity) { await this.amountQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -349,10 +342,8 @@ class SubstanceSpecificationMoiety extends Element {
             opticalActivity: this.opticalActivity && this.opticalActivity.toJSONInternal(),
             molecularFormula: this.molecularFormula,
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
-            amountString: this.amountString,
+            amountString: this.amountString
         };
-
-
 
         return removeNull(json);
     }

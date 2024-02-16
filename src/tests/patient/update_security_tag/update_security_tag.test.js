@@ -8,9 +8,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('PractitionerUpdateSecurityTagTests', () => {
     beforeEach(async () => {
@@ -36,7 +36,7 @@ describe('PractitionerUpdateSecurityTagTests', () => {
                 .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true, updated: false});
+            expect(resp).toHaveMergeResponse({ created: true, updated: false });
 
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders());
 

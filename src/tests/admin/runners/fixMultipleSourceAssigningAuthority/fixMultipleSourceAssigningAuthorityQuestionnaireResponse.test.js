@@ -10,24 +10,24 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {FixMultipleSourceAssigningAuthorityRunner} = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { FixMultipleSourceAssigningAuthorityRunner } = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return false;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0`);
@@ -38,7 +38,7 @@ async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expect
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -76,19 +76,19 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            let questionnaireResponseCollection = await setupDatabaseAsync(
+            const questionnaireResponseCollection = await setupDatabaseAsync(
                 mongoDatabaseManager, questionnaireResponse1Resource, expectedquestionnaireResponse1InDatabaseBeforeRun
             );
 
             // run admin runner
 
-            let collections = ['QuestionnaireResponse_4_0_0'];
+            const collections = ['QuestionnaireResponse_4_0_0'];
             const batchSize = 10000;
 
             container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),
@@ -106,7 +106,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             await fixMultipleSourceAssigningAuthorityRunner.processAsync();
 
             // Check questionnaireResponse 1
-            const questionnaireResponse1 = await questionnaireResponseCollection.findOne({id: questionnaireResponse1Resource.id});
+            const questionnaireResponse1 = await questionnaireResponseCollection.findOne({ id: questionnaireResponse1Resource.id });
             expect(questionnaireResponse1).toBeDefined();
             delete questionnaireResponse1._id;
             expect(questionnaireResponse1).toStrictEqual(expectedquestionnaireResponse1DatabaseAfterRun);

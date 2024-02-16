@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SpecimenDefinition.Additive
     A kind of specimen with associated set of requirements.
@@ -19,13 +18,13 @@ class SpecimenDefinitionAdditive extends Element {
      * @param {CodeableConcept|undefined} [additiveCodeableConcept],
      * @param {Reference|undefined} [additiveReference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         }
     ) {
         super({});
@@ -69,7 +68,7 @@ class SpecimenDefinitionAdditive extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -101,7 +100,7 @@ class SpecimenDefinitionAdditive extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -121,7 +120,7 @@ class SpecimenDefinitionAdditive extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additiveCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -141,13 +140,10 @@ class SpecimenDefinitionAdditive extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additiveReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -155,26 +151,23 @@ class SpecimenDefinitionAdditive extends Element {
             extension,
             modifierExtension,
             additiveCodeableConcept,
-            additiveReference,
+            additiveReference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSON(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSON(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSON()
         });
     }
 
@@ -183,28 +176,26 @@ class SpecimenDefinitionAdditive extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.additiveCodeableConcept) {await this.additiveCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additiveReference) {await this.additiveReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.additiveCodeableConcept) { await this.additiveCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.additiveReference) { await this.additiveReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             additiveCodeableConcept: this.additiveCodeableConcept && this.additiveCodeableConcept.toJSONInternal(),
-            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal(),
+            additiveReference: this.additiveReference && this.additiveReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -16,25 +16,25 @@ const { FixBwellMasterPersonReferenceRunner } = require('../runners/fixBwellMast
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
     /**
      * @type {string[]}
      */
-    let preLoadCollections = parameters.preLoadCollections ?
-        parameters.preLoadCollections.split(',').map(x => x.trim()) :
-        ['all'];
+    const preLoadCollections = parameters.preLoadCollections
+        ? parameters.preLoadCollections.split(',').map(x => x.trim())
+        : ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
@@ -71,10 +71,10 @@ async function main() {
             adminLogger,
             startFromCollection: parameters.startFromCollection,
             limit: parameters.limit,
-            useTransaction: parameters.useTransaction ? true : false,
+            useTransaction: !!parameters.useTransaction,
             skip: parameters.skip,
             startFromId: parameters.startFromId,
-            logUnresolvedReferencesToFile: parameters.logUnresolvedReferencesToFile ? true : false
+            logUnresolvedReferencesToFile: !!parameters.logUnresolvedReferencesToFile
         }
     )
     );

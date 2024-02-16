@@ -1,7 +1,7 @@
-const {assertTypeEquals} = require('./assertType');
-const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY} = require('../constants');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
-const {SecurityTagSystem} = require('./securityTagSystem');
+const { assertTypeEquals } = require('./assertType');
+const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY } = require('../constants');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { SecurityTagSystem } = require('./securityTagSystem');
 const { isUuid } = require('./uid.util');
 const { SearchFilterFromReference } = require('../operations/query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
@@ -14,7 +14,7 @@ class BwellPersonFinder {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory
         }
@@ -31,7 +31,7 @@ class BwellPersonFinder {
      * @param {string} patientId
      * @return {Promise<string>}
      */
-    async getBwellPersonIdAsync({ patientId}) {
+    async getBwellPersonIdAsync ({ patientId }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -39,7 +39,7 @@ class BwellPersonFinder {
 
         return await this.searchForBwellPersonAsync({
             currentSubject: `${PATIENT_REFERENCE_PREFIX}${patientId}`,
-            databaseQueryManager: databaseQueryManager,
+            databaseQueryManager,
             visitedSubjects: new Set()
         });
     }
@@ -49,7 +49,7 @@ class BwellPersonFinder {
      * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean, securityTags?: string[] }} options List of patient and proxy-patient References
      * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>} Returns map with key as patientId and value as next level persons-id
      */
-    async getImmediatePersonIdsOfPatientsAsync({ patientReferences, asObject, securityTags }) {
+    async getImmediatePersonIdsOfPatientsAsync ({ patientReferences, asObject, securityTags }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -68,7 +68,7 @@ class BwellPersonFinder {
      * @param {GetImmediatePersonIdsHelperProps}
      * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>} Returns a map of patientRefs -> array of immediate person uuid refs
      */
-    async getImmediatePersonIdHelperAsync({ references, databaseQueryManager, asObject, securityTags }) {
+    async getImmediatePersonIdHelperAsync ({ references, databaseQueryManager, asObject, securityTags }) {
         if (!references || Object.keys(references).length === 0) {
             return new Map();
         }
@@ -91,7 +91,7 @@ class BwellPersonFinder {
                 return true;
             } else {
                 patientReferences.push(ref);
-                patientReferencesString.push(ReferenceParser.createReference({...ref}));
+                patientReferencesString.push(ReferenceParser.createReference({ ...ref }));
                 return false;
             }
         }).map(ref => ref.id.replace(PERSON_PROXY_PREFIX, '')));
@@ -113,9 +113,9 @@ class BwellPersonFinder {
         const personRefToPersonRefObj = new Map();
 
         let query = {
-            '$or': [
+            $or: [
                 ...searchFilters,
-                personIdFilter,
+                personIdFilter
             ]
         };
 
@@ -126,9 +126,9 @@ class BwellPersonFinder {
                     query,
                     {
                         'meta.security': {
-                            '$elemMatch': {
-                                'system': SecurityTagSystem.owner,
-                                'code': {
+                            $elemMatch: {
+                                system: SecurityTagSystem.owner,
+                                code: {
                                     $in: securityTags
                                 }
                             }
@@ -139,12 +139,12 @@ class BwellPersonFinder {
         }
 
         // get all persons
-        let linkedPersonCursor = await databaseQueryManager.findAsync({
-            query,
+        const linkedPersonCursor = await databaseQueryManager.findAsync({
+            query
         });
 
         while (await linkedPersonCursor.hasNext()) {
-            let linkedPerson = await linkedPersonCursor.next();
+            const linkedPerson = await linkedPersonCursor.next();
             const personUuidRef = `${PERSON_REFERENCE_PREFIX}${linkedPerson._uuid}`;
             const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, patientReferencesString);
             personRefToLinkedRefsMap.set(personUuidRef, linkedReferences);
@@ -153,7 +153,7 @@ class BwellPersonFinder {
                 personRefToPersonRefObj.set(personUuidRef, {
                     id: linkedPerson._uuid,
                     resourceType: linkedPerson.resourceType,
-                    sourceAssigningAuthority: linkedPerson._sourceAssigningAuthority,
+                    sourceAssigningAuthority: linkedPerson._sourceAssigningAuthority
                 });
             }
 
@@ -170,7 +170,7 @@ class BwellPersonFinder {
 
             if (proxyPatientRef && asObject) {
                 patientRefToImmediatePersonRefMap.set(proxyPatientRef, [personRefToPersonRefObj.get(personUuidRef)]);
-            } else if (proxyPatientRef){
+            } else if (proxyPatientRef) {
                 patientRefToImmediatePersonRefMap.set(proxyPatientRef, [personUuidRef]);
             }
         }
@@ -201,8 +201,8 @@ class BwellPersonFinder {
      * @param {string[]} referencesToSearchFrom references to search from If can be uuid reference or sourceId reference
      * @return {string[]} references linked to given person
      */
-    getAllLinkedReferencesFromPerson(person, referencesToSearchFrom) {
-        /**@type {string[]} */
+    getAllLinkedReferencesFromPerson (person, referencesToSearchFrom) {
+        /** @type {string[]} */
         const linkedIds = [];
 
         /**
@@ -247,7 +247,7 @@ class BwellPersonFinder {
      * @param {Set} visitedSubjects subjects that have already been visited (to avoid infinite loops)
      * @return {Promise<string>}
      */
-    async searchForBwellPersonAsync({currentSubject, databaseQueryManager, visitedSubjects}) {
+    async searchForBwellPersonAsync ({ currentSubject, databaseQueryManager, visitedSubjects }) {
         if (visitedSubjects.has(currentSubject)) {
             return null;
         }
@@ -256,23 +256,22 @@ class BwellPersonFinder {
 
         let foundPersonId = null;
         const isReferenceUuid = isUuid(currentSubject.replace(PERSON_REFERENCE_PREFIX, '').replace(PATIENT_REFERENCE_PREFIX, ''));
-        const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId' );
+        const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId');
 
-        let linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject }});
+        const linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject } });
 
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {
-            let nextPerson = await linkedPersons.next();
+            const nextPerson = await linkedPersons.next();
             const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
                 foundPersonId = nextPersonId;
-            }
-            else {
+            } else {
                 // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
                     currentSubject: `Person/${nextPersonId}`,
-                    databaseQueryManager: databaseQueryManager,
-                    visitedSubjects: visitedSubjects
+                    databaseQueryManager,
+                    visitedSubjects
                 });
             }
         }
@@ -285,7 +284,7 @@ class BwellPersonFinder {
      * @param {Resource} person
      * @returns {boolean}
      */
-    isBwellPerson(person){
+    isBwellPerson (person) {
         return person.meta.security &&
             person.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&
             person.meta.security.find(s => s.system === SecurityTagSystem.owner && s.code === BwellMasterPersonCode);

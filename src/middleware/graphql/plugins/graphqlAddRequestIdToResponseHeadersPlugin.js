@@ -1,15 +1,11 @@
-class AddRequestIdToResponseHeadersPlugin /*extends ApolloServerPlugin*/ {
+class AddRequestIdToResponseHeadersPlugin /* extends ApolloServerPlugin */ {
     /**
      * This plugin set the meta from each query into the results to provide debugging information
      */
-    constructor() {
-        // ok to not specify
-    }
-
     // eslint-disable-next-line no-unused-vars
-    async requestDidStart(requestContext1) {
+    async requestDidStart (requestContext1) {
         return {
-            willSendResponse(requestContext) {
+            willSendResponse (requestContext) {
                 /**
                  * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
                  */
@@ -36,5 +32,3 @@ module.exports = {
     AddRequestIdToResponseHeadersPlugin,
     getAddRequestIdToResponseHeadersPlugin
 };
-
-

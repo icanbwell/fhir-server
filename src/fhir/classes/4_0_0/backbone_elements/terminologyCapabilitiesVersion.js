@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TerminologyCapabilities.Version
     A TerminologyCapabilities resource documents a set of capabilities (behaviors)
@@ -25,7 +24,7 @@ class TerminologyCapabilitiesVersion extends Element {
      * @param {TerminologyCapabilitiesFilter[]|undefined} [filter],
      * @param {code[]|undefined} [property],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -35,7 +34,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional,
             language,
             filter,
-            property,
+            property
         }
     ) {
         super({});
@@ -79,7 +78,7 @@ class TerminologyCapabilitiesVersion extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -111,7 +110,7 @@ class TerminologyCapabilitiesVersion extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -204,7 +203,7 @@ class TerminologyCapabilitiesVersion extends Element {
                     return;
                 }
                 const TerminologyCapabilitiesFilter = require('../backbone_elements/terminologyCapabilitiesFilter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.filter = FhirResourceCreator.createArray(valueProvided, TerminologyCapabilitiesFilter);
             }
         });
@@ -227,9 +226,6 @@ class TerminologyCapabilitiesVersion extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -240,19 +236,16 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional,
             language,
             filter,
-            property,
+            property
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -263,7 +256,7 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional: this.compositional,
             language: this.language,
             filter: this.filter && this.filter.map(v => v.toJSON()),
-            property: this.property,
+            property: this.property
         });
     }
 
@@ -272,18 +265,18 @@ class TerminologyCapabilitiesVersion extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.filter) {await async.each(this.filter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.filter) { await async.each(this.filter, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -293,10 +286,8 @@ class TerminologyCapabilitiesVersion extends Element {
             compositional: this.compositional,
             language: this.language,
             filter: this.filter && this.filter.map(v => v.toJSONInternal()),
-            property: this.property,
+            property: this.property
         };
-
-
 
         return removeNull(json);
     }

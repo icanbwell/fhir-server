@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial.PartDescription
     Source material shall capture information on the taxonomic and anatomical
@@ -32,13 +31,13 @@ class SubstanceSourceMaterialPartDescription extends Element {
      * @param {CodeableConcept|undefined} [part],
      * @param {CodeableConcept|undefined} [partLocation],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             part,
-            partLocation,
+            partLocation
         }
     ) {
         super({});
@@ -82,7 +81,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +113,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +133,7 @@ class SubstanceSourceMaterialPartDescription extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.part = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -156,13 +155,10 @@ class SubstanceSourceMaterialPartDescription extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.partLocation = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -170,26 +166,23 @@ class SubstanceSourceMaterialPartDescription extends Element {
             extension,
             modifierExtension,
             part,
-            partLocation,
+            partLocation
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             part: this.part && this.part.toJSON(),
-            partLocation: this.partLocation && this.partLocation.toJSON(),
+            partLocation: this.partLocation && this.partLocation.toJSON()
         });
     }
 
@@ -198,28 +191,26 @@ class SubstanceSourceMaterialPartDescription extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.part) {await this.part.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.partLocation) {await this.partLocation.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.part) { await this.part.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.partLocation) { await this.partLocation.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             part: this.part && this.part.toJSONInternal(),
-            partLocation: this.partLocation && this.partLocation.toJSONInternal(),
+            partLocation: this.partLocation && this.partLocation.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

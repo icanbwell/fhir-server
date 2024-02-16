@@ -1,10 +1,10 @@
-const {DatabaseUpdateManager} = require('./databaseUpdateManager');
-const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {assertTypeEquals} = require('../utils/assertType');
-const {ResourceMerger} = require('../operations/common/resourceMerger');
-const {PreSaveManager} = require('../preSaveHandlers/preSave');
-const {DatabaseQueryFactory} = require('./databaseQueryFactory');
-const {ConfigManager} = require('../utils/configManager');
+const { DatabaseUpdateManager } = require('./databaseUpdateManager');
+const { ResourceLocatorFactory } = require('../operations/common/resourceLocatorFactory');
+const { assertTypeEquals } = require('../utils/assertType');
+const { ResourceMerger } = require('../operations/common/resourceMerger');
+const { PreSaveManager } = require('../preSaveHandlers/preSave');
+const { DatabaseQueryFactory } = require('./databaseQueryFactory');
+const { ConfigManager } = require('../utils/configManager');
 
 class DatabaseUpdateFactory {
     /**
@@ -15,7 +15,7 @@ class DatabaseUpdateFactory {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             resourceLocatorFactory,
             resourceMerger,
@@ -61,7 +61,7 @@ class DatabaseUpdateFactory {
      * @param {string} base_version
      * @return {DatabaseUpdateManager}
      */
-    createDatabaseUpdateManager({resourceType, base_version}) {
+    createDatabaseUpdateManager ({ resourceType, base_version }) {
         return new DatabaseUpdateManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,

@@ -1,7 +1,7 @@
-const {RemoveOperation} = require('../../../../operations/remove/remove');
-const {MergeOperation} = require('../../../../operations/merge/merge');
-const {assertTypeEquals, assertIsValid} = require('../../../../utils/assertType');
-const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
+const { RemoveOperation } = require('../../../../operations/remove/remove');
+const { MergeOperation } = require('../../../../operations/merge/merge');
+const { assertTypeEquals, assertIsValid } = require('../../../../utils/assertType');
+const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -9,11 +9,10 @@ const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
  @param {string} id the id to remove from the list
  @returns {array} the collection of ids after processing
  */
-function removeAllGeneralPractitioner(arr, id) {
+function removeAllGeneralPractitioner (arr, id) {
     let i = 0;
     if (arr && id) {
         while (i < arr.length) {
-            // eslint-disable-next-line security/detect-object-injection
             if (arr[i].reference.indexOf(id, id.length - arr[i].reference.length) !== -1) {
                 arr.splice(i, 1);
             } else {
@@ -61,7 +60,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -81,7 +80,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -101,7 +100,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -121,7 +120,7 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
@@ -140,13 +139,13 @@ module.exports = {
                 parent,
                 {
                     ...args,
-                    patient: parent.id,
+                    patient: parent.id
                 },
                 context,
                 info,
                 'CareTeam'
             );
-        },
+        }
     },
     Mutation: {
         updateGeneralPractitioner:
@@ -169,7 +168,7 @@ module.exports = {
                     parent,
                     {
                         ...args,
-                        id: args.patientId,
+                        id: args.patientId
                     },
                     context,
                     info,
@@ -203,12 +202,12 @@ module.exports = {
                     const args1 = {
                         ...args,
                         base_version: '4_0_0',
-                        id: args.patientId,
+                        id: args.patientId
                     };
                     await removeOperation.removeAsync(
                         {
-                            requestInfo: requestInfo,
-                            parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
+                            requestInfo,
+                            parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args: args1 }),
                             resourceType: 'Patient'
                         }
                     );
@@ -217,7 +216,7 @@ module.exports = {
                         parent,
                         {
                             ...args,
-                            id: args.practitionerId,
+                            id: args.practitionerId
                         },
                         context,
                         info,
@@ -227,7 +226,7 @@ module.exports = {
                         throw new Error(`Practitioner not found ${args.practitionerId}`);
                     }
                     patientToChange.generalPractitioner = [
-                        {reference: `Practitioner/${practitioners[0].id}`},
+                        { reference: `Practitioner/${practitioners[0].id}` }
                     ];
                 }
                 requestInfo.body = [patientToChange];
@@ -237,7 +236,7 @@ module.exports = {
                  */
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
-                const args1 = {...args, base_version: '4_0_0'};
+                const args1 = { ...args, base_version: '4_0_0' };
                 /**
                  * @type {R4ArgsParser}
                  */
@@ -246,7 +245,7 @@ module.exports = {
                 const result = await mergeOperation.mergeAsync(
                     {
                         requestInfo,
-                        parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
+                        parsedArgs: r4ArgsParser.parseArgs({ resourceType: 'Patient', args: args1 }),
                         resourceType: 'Patient'
                     }
                 );
@@ -254,6 +253,6 @@ module.exports = {
                     throw new Error(`Unable to update patient ${args.patientId}`);
                 }
                 return patientToChange;
-            },
-    },
+            }
+    }
 };

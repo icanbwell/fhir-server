@@ -4,16 +4,16 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {RemoveDuplicatePersonLinkRunner} = require('../runners/removeDuplicatePersonLinkRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { RemoveDuplicatePersonLinkRunner } = require('../runners/removeDuplicatePersonLinkRunner');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -36,12 +36,12 @@ async function main() {
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager,
             preSaveManager: c.preSaveManager,
-            personUuids: personUuids,
+            personUuids,
             limit: parameters.limit,
             skip: parameters.skip,
-            batchSize: batchSize,
-            ownerCode: ownerCode,
-            uuidGreaterThan: uuidGreaterThan
+            batchSize,
+            ownerCode,
+            uuidGreaterThan
         }));
 
     /**

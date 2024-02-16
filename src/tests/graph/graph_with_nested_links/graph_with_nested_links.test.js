@@ -12,9 +12,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Graphs with nested links Tests', () => {
     beforeEach(async () => {
@@ -33,7 +33,7 @@ describe('Graphs with nested links Tests', () => {
             .post('/4_0_0/Practitioner/1/$merge?validate=true')
             .send([practitioner1, practitionerRole1, practitioner2, practitionerRole2, commonOrg, endpoint])
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
         resp = await request
             .post('/4_0_0/Practitioner/$graph?contained=true&id=1003369042')
             .set(getHeaders())
@@ -51,7 +51,7 @@ describe('Graphs with nested links Tests', () => {
             .post('/4_0_0/Practitioner/1/$merge?validate=true')
             .send([practitioner1, practitionerRole1, practitioner2, practitionerRole2, commonOrg, endpoint])
             .set(getHeaders());
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
         resp = await request
             .post('/4_0_0/Practitioner/$graph?contained=true&id=1003369042,1013973049')
             .set(getHeaders())

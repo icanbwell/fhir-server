@@ -30,7 +30,7 @@ module.exports = {
             } else {
                 return codeSystem.concept;
             }
-        },
+        }
     },
     Query: {
         /**
@@ -42,31 +42,31 @@ module.exports = {
          */
         getCodeSystemCodes: async (parent, args, context, info) => {
             // Add projection filter on the nested array i.e concept field and the graphql queried fields
-            let fields = graphqlFields(info);
+            const fields = graphqlFields(info);
             let projection = {};
-            if (fields){
-                projection = graphqlFieldsToMongoProjection(fields?.['entry']?.['resource']);
+            if (fields) {
+                projection = graphqlFieldsToMongoProjection(fields?.entry?.resource);
             }
-            if (args['code']){
-                projection['concept'] = {
+            if (args.code) {
+                projection.concept = {
                     $filter: {
                         input: '$concept',
                         as: 'ct',
-                        cond: { $in: ['$$ct.code', args['code']] },
-                    },
+                        cond: { $in: ['$$ct.code', args.code] }
+                    }
                 };
-                delete args['code'];
+                delete args.code;
             }
             return await context.dataApi.getResourcesBundle(
                 parent,
                 {
-                    projection, ...args,
+                    projection, ...args
                 },
                 context,
                 info,
                 'CodeSystem',
                 true
             );
-        },
-    },
+        }
+    }
 };

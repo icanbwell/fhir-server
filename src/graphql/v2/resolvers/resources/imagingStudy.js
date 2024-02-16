@@ -16,29 +16,29 @@ module.exports = {
         }
     },
     ImagingStudySubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ImagingStudyBasedOn: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ImagingStudyReferrer: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ImagingStudyInterpreter: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ImagingStudyReasonReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ImagingStudy: {
         // noinspection JSUnusedLocalSymbols
@@ -130,7 +130,6 @@ module.exports = {
                 context,
                 info,
                 parent.reasonReference);
-        },
+        }
     }
 };
-

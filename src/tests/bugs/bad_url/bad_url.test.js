@@ -1,5 +1,5 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders, getHeaders} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders, getHeaders } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const graphResource = require('./fixtures/graph.json');
 
 describe('Bad url Tests', () => {
@@ -17,7 +17,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .get('/buglist.cgi')
                 .set(getHtmlHeaders());
 
@@ -28,7 +28,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .get('/DocumentReference?patient=2c1f3c13-2baa-4079-a5c1-e5d8f7cb61b0')
                 .set(getHtmlHeaders());
 
@@ -39,7 +39,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .get('/4_0_0ActivityDefinition')
                 .set(getHtmlHeaders());
 
@@ -50,7 +50,7 @@ describe('Bad url Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .post('/Patient/$graph')
                 .send(graphResource)
                 .set(getHeaders());
@@ -58,13 +58,13 @@ describe('Bad url Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'not-found',
-                        'details': {
-                            'text': 'Invalid url: /Patient/$graph'
+                        severity: 'error',
+                        code: 'not-found',
+                        details: {
+                            text: 'Invalid url: /Patient/$graph'
                         }
                     }
                 ]

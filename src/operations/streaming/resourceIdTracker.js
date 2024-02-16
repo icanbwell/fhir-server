@@ -1,7 +1,7 @@
-const {Transform} = require('stream');
-const {logInfo} = require('../common/logging');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
+const { Transform } = require('stream');
+const { logInfo } = require('../common/logging');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
 
 class ResourceIdTracker extends Transform {
     /**
@@ -11,8 +11,8 @@ class ResourceIdTracker extends Transform {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor({tracker, signal, highWaterMark, configManager}) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+    constructor ({ tracker, signal, highWaterMark, configManager }) {
+        super({ objectMode: true, highWaterMark });
         /**
          * @type {{id: string[]}}
          * @private
@@ -41,7 +41,7 @@ class ResourceIdTracker extends Transform {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -51,7 +51,7 @@ class ResourceIdTracker extends Transform {
                 if (this.configManager.logStreamSteps) {
                     logInfo(`ResourceIdTracker: _transform ${chunk.id}`, {});
                 }
-                this._tracker.id.push(chunk['id']);
+                this._tracker.id.push(chunk.id);
                 this.push(chunk, encoding);
             }
             callback();

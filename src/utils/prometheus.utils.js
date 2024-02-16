@@ -15,7 +15,7 @@ const responseTime = require('response-time');
 const numOfRequests = new Counter({
     name: 'numOfRequests',
     help: 'Number of requests made',
-    labelNames: ['method'],
+    labelNames: ['method']
 });
 
 module.exports.numOfRequests = numOfRequests;
@@ -27,7 +27,7 @@ module.exports.numOfRequests = numOfRequests;
 const pathsTaken = new Counter({
     name: 'pathsTaken',
     help: 'Paths taken in the app',
-    labelNames: ['path'],
+    labelNames: ['path']
 });
 
 module.exports.pathsTaken = pathsTaken;
@@ -62,7 +62,7 @@ module.exports.authorizationFailedCounter = authorizationFailedCounter;
 const responses = new Summary({
     name: 'responses',
     help: 'Response time in millis',
-    labelNames: ['method', 'path', 'status'],
+    labelNames: ['method', 'path', 'status']
 });
 
 module.exports.responses = responses;
@@ -106,7 +106,6 @@ const partitionedCollectionsCount = new Histogram({
 
 module.exports.partitionedCollectionsCount = partitionedCollectionsCount;
 
-
 // Create a histogram metric
 const httpRequestDurationMicroseconds = new Histogram({
     name: 'http_request_duration_seconds',
@@ -132,8 +131,8 @@ module.exports.startCollection = function () {
  */
 module.exports.requestCounters = function (req, res, next) {
     if (req.path !== '/metrics') {
-        numOfRequests.inc({method: req.method});
-        pathsTaken.inc({path: req.path});
+        numOfRequests.inc({ method: req.method });
+        pathsTaken.inc({ path: req.path });
     }
     next();
 };
@@ -173,4 +172,3 @@ module.exports.injectMetricsRoute = function (app) {
         res.end(await Register.metrics());
     });
 };
-

@@ -71,6 +71,5 @@ module.exports = {
     parameterdefinition,
     subscriptionnotificationtype,
     interactiontrigger,
-    criterianotexistsbehavior,
+    criterianotexistsbehavior
 };
-

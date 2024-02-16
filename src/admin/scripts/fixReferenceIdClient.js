@@ -1,10 +1,10 @@
 // load config from .env.  Should be first thing so env vars are available to rest of the code
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {AdminLogger} = require('../adminLogger');
-const {FixReferenceIdClientRunner} = require('../runners/fixReferenceIdClientRunner');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { AdminLogger } = require('../adminLogger');
+const { FixReferenceIdClientRunner } = require('../runners/fixReferenceIdClientRunner');
 
 const clientResources = [
     'AllergyIntolerance', 'CarePlan', 'Condition', 'Patient', 'DiagnosticReport',
@@ -16,7 +16,7 @@ const clientResources = [
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -45,27 +45,27 @@ async function main() {
      */
     const AWS_FOLDER = parameters.AWS_FOLDER || 'fhir/epic/patient/';
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ?
-        parameters.collections.split(',').map(x => x.trim()) :
-        ['all'];
+    const collections = parameters.collections
+        ? parameters.collections.split(',').map(x => x.trim())
+        : ['all'];
 
-    let clientCollections = parameters.clientCollections ?
-        parameters.clientCollections.split(',').map(x => x.trim()) : [
+    const clientCollections = parameters.clientCollections
+        ? parameters.clientCollections.split(',').map(x => x.trim()) : [
             ...clientResources.map(collection => `${collection}_4_0_0`),
             ...clientResources.map(collection => `${collection}_4_0_0_History`)
         ];
 
-    let properties = parameters.properties ?
-        parameters.properties.split(',').map(x => x.trim()) :
-        undefined;
+    const properties = parameters.properties
+        ? parameters.properties.split(',').map(x => x.trim())
+        : undefined;
 
-    let filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
-        parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
-        undefined;
+    const filterToRecordsWithFields = parameters.filterToRecordsWithFields
+        ? parameters.filterToRecordsWithFields.split(',').map(x => x.trim())
+        : undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const s3QueryBatchSize = parameters.s3QueryBatchSize || 3000;
@@ -110,11 +110,11 @@ async function main() {
                 AWS_FOLDER,
                 AWS_REGION,
                 resourceMerger: c.resourceMerger,
-                useTransaction: parameters.useTransaction ? true : false,
+                useTransaction: !!parameters.useTransaction,
                 skip: parameters.skip,
                 filterToRecordsWithFields,
                 startFromId: parameters.startFromId,
-                client,
+                client
             }
         )
     );

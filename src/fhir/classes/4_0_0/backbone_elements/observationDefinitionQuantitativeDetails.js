@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ObservationDefinition.QuantitativeDetails
     Set of definitional characteristics for a kind of observation or measurement
@@ -22,7 +21,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
      * @param {decimal|undefined} [conversionFactor],
      * @param {Int|undefined} [decimalPrecision],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -30,7 +29,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit,
             unit,
             conversionFactor,
-            decimalPrecision,
+            decimalPrecision
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.customaryUnit = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -148,7 +147,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.unit = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -191,9 +190,6 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -202,19 +198,16 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit,
             unit,
             conversionFactor,
-            decimalPrecision,
+            decimalPrecision
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -223,7 +216,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit: this.customaryUnit && this.customaryUnit.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             conversionFactor: this.conversionFactor,
-            decimalPrecision: this.decimalPrecision,
+            decimalPrecision: this.decimalPrecision
         });
     }
 
@@ -232,19 +225,19 @@ class ObservationDefinitionQuantitativeDetails extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.customaryUnit) {await this.customaryUnit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.unit) {await this.unit.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.customaryUnit) { await this.customaryUnit.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.unit) { await this.unit.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -252,10 +245,8 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             customaryUnit: this.customaryUnit && this.customaryUnit.toJSONInternal(),
             unit: this.unit && this.unit.toJSONInternal(),
             conversionFactor: this.conversionFactor,
-            decimalPrecision: this.decimalPrecision,
+            decimalPrecision: this.decimalPrecision
         };
-
-
 
         return removeNull(json);
     }

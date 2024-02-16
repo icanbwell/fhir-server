@@ -14,12 +14,12 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    mockHttpContext,
+    mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
-const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
+const { YearMonthPartitioner } = require('../../../partitioners/yearMonthPartitioner');
 
 describe('InternalAuditLog Tests', () => {
     let requestId;
@@ -49,7 +49,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // check that InternalAuditLog is created
             /**
@@ -76,13 +76,13 @@ describe('InternalAuditLog Tests', () => {
             const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
-                    resourceWithBaseVersion: `${collection_name}_${base_version}`,
+                    resourceWithBaseVersion: `${collection_name}_${base_version}`
                 });
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
 
@@ -92,27 +92,27 @@ describe('InternalAuditLog Tests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents1.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents1);
 
@@ -122,29 +122,29 @@ describe('InternalAuditLog Tests', () => {
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents2.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
@@ -159,27 +159,27 @@ describe('InternalAuditLog Tests', () => {
                 .send(practitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: false, updated: false});
+            expect(resp).toHaveMergeResponse({ created: false, updated: false });
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents2.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
@@ -188,26 +188,26 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);
             logs.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expectedAuditEvents3.forEach((log) => {
-                delete log['meta']['lastUpdated'];
-                delete log['_id'];
-                delete log['id'];
-                delete log['_uuid'];
-                delete log['_sourceId'];
-                delete log['recorded'];
+                delete log.meta.lastUpdated;
+                delete log._id;
+                delete log.id;
+                delete log._uuid;
+                delete log._sourceId;
+                delete log.recorded;
             });
             expect(logs).toStrictEqual(expectedAuditEvents3);
 

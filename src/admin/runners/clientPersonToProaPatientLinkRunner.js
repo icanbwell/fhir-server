@@ -18,14 +18,14 @@ class ClientPersonToProaPatientLinkRunner {
      *
      * @param {ConstructorProps}
      */
-    constructor({
+    constructor ({
         csvFileName,
         proaPatientUuidColumn,
         proaPatientSourceAssigningAuthorityColumn,
         clientUuidColumn,
         statusColumn,
         adminPersonPatientLinkManager,
-        adminLogger,
+        adminLogger
     }) {
         /**
          * @type {AdminLogger}
@@ -72,17 +72,17 @@ class ClientPersonToProaPatientLinkRunner {
         this.req = {
             header: () => 'system',
             headers: {
-                accept: '*/*',
+                accept: '*/*'
             },
             user: { name: 'system' },
             authInfo: {
-                scope: 'user/*.read user/*.write',
+                scope: 'user/*.read user/*.write'
             },
             method: 'POST',
             path: '/admin',
             originalUrl: '/admin',
             requestId: this.systemRequestId,
-            userRequestId: this.systemRequestId,
+            userRequestId: this.systemRequestId
         };
     }
 
@@ -90,7 +90,7 @@ class ClientPersonToProaPatientLinkRunner {
      * Main process
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
         this.adminLogger.logInfo(`Reading file: ${this.csvFileName}`);
         try {
@@ -120,7 +120,7 @@ class ClientPersonToProaPatientLinkRunner {
                                 {
                                     req: this.req,
                                     externalPersonId: clientUuid,
-                                    patientId: `${proaPatientUuid}|${proaPatientSourceAssigningAuthority}`,
+                                    patientId: `${proaPatientUuid}|${proaPatientSourceAssigningAuthority}`
                                 }
                             );
 

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PlanDefinition.Goal
     This resource allows for the definition of various types of plans as a
@@ -27,7 +26,7 @@ class PlanDefinitionGoal extends Element {
      * @param {RelatedArtifact[]|undefined} [documentation],
      * @param {PlanDefinitionTarget[]|undefined} [target],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -38,7 +37,7 @@ class PlanDefinitionGoal extends Element {
             start,
             addresses,
             documentation,
-            target,
+            target
         }
     ) {
         super({});
@@ -82,7 +81,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +113,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -134,7 +133,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -156,7 +155,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.description = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -177,7 +176,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.priority = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -197,7 +196,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.start = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -218,7 +217,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.addresses = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -240,7 +239,7 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.documentation = FhirResourceCreator.createArray(valueProvided, RelatedArtifact);
             }
         });
@@ -260,13 +259,10 @@ class PlanDefinitionGoal extends Element {
                     return;
                 }
                 const PlanDefinitionTarget = require('../backbone_elements/planDefinitionTarget.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.target = FhirResourceCreator.createArray(valueProvided, PlanDefinitionTarget);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -279,19 +275,16 @@ class PlanDefinitionGoal extends Element {
             start,
             addresses,
             documentation,
-            target,
+            target
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -303,7 +296,7 @@ class PlanDefinitionGoal extends Element {
             start: this.start && this.start.toJSON(),
             addresses: this.addresses && this.addresses.map(v => v.toJSON()),
             documentation: this.documentation && this.documentation.map(v => v.toJSON()),
-            target: this.target && this.target.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON())
         });
     }
 
@@ -312,24 +305,24 @@ class PlanDefinitionGoal extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.description) {await this.description.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.priority) {await this.priority.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.start) {await this.start.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.addresses) {await async.each(this.addresses, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.documentation) {await async.each(this.documentation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.target) {await async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.category) { await this.category.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.description) { await this.description.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.priority) { await this.priority.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.start) { await this.start.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.addresses) { await async.each(this.addresses, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.documentation) { await async.each(this.documentation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.target) { await async.each(this.target, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -340,10 +333,8 @@ class PlanDefinitionGoal extends Element {
             start: this.start && this.start.toJSONInternal(),
             addresses: this.addresses && this.addresses.map(v => v.toJSONInternal()),
             documentation: this.documentation && this.documentation.map(v => v.toJSONInternal()),
-            target: this.target && this.target.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

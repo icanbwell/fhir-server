@@ -1,9 +1,9 @@
-const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig} = require('../config');
-const {isTrue} = require('./isTrue');
+const { mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig } = require('../config');
+const { isTrue } = require('./isTrue');
 const env = require('var');
-const {logInfo, logError} = require('../operations/common/logging');
-const {logSystemEventAsync} = require('../operations/common/systemEventLogging');
-const {MongoClient, GridFSBucket} = require('mongodb');
+const { logInfo, logError } = require('../operations/common/logging');
+const { logSystemEventAsync } = require('../operations/common/systemEventLogging');
+const { MongoClient, GridFSBucket } = require('mongodb');
 const { ConfigManager } = require('./configManager');
 const { assertTypeEquals } = require('./assertType');
 
@@ -48,13 +48,11 @@ let gridFSBucket = null;
  */
 
 class MongoDatabaseManager {
-
     /**
      * constructor
      * @param {MongoDatabaseManagerProps} params
      */
-    constructor({ configManager }) {
-
+    constructor ({ configManager }) {
         /**
          * @type {ConfigManager}
          */
@@ -66,7 +64,7 @@ class MongoDatabaseManager {
      * Gets client db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getClientDbAsync() {
+    async getClientDbAsync () {
         if (!clientDb) {
             await this.connectAsync();
         }
@@ -77,7 +75,7 @@ class MongoDatabaseManager {
      * Gets audit db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getAuditDbAsync() {
+    async getAuditDbAsync () {
         if (!auditClientDb) {
             await this.connectAsync();
         }
@@ -88,7 +86,7 @@ class MongoDatabaseManager {
      * Gets audit event read only db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getAuditReadOnlyDbAsync() {
+    async getAuditReadOnlyDbAsync () {
         if (!auditReadOnlyClientDb) {
             await this.connectAsync();
         }
@@ -99,7 +97,7 @@ class MongoDatabaseManager {
      * Gets access logs db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getAccessLogsDbAsync() {
+    async getAccessLogsDbAsync () {
         if (!accessLogsDb) {
             await this.connectAsync();
         }
@@ -112,7 +110,7 @@ class MongoDatabaseManager {
      * @param {Object} extraInfo
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseForResourceAsync({resourceType, extraInfo = {}}) {
+    async getDatabaseForResourceAsync ({ resourceType, extraInfo = {} }) {
         const searchOperationNames = ['search', 'searchStreaming', 'searchById'];
         if (resourceType === 'AuditEvent') {
             if (searchOperationNames.includes(extraInfo.currentOperationName)) {
@@ -127,26 +125,26 @@ class MongoDatabaseManager {
      * Gets GridFs Bucket
      * @returns {Promise<import('mongodb').GridFSBucket>}
      */
-    async getGridFsBucket() {
+    async getGridFsBucket () {
         if (!gridFSBucket) {
             gridFSBucket = new GridFSBucket(await this.getClientDbAsync());
         }
         return gridFSBucket;
     }
 
-    async getClientConfigAsync() {
+    async getClientConfigAsync () {
         return mongoConfig;
     }
 
-    async getAuditConfigAsync() {
+    async getAuditConfigAsync () {
         return auditEventMongoConfig;
     }
 
-    async getAuditReadOnlyConfigAsync() {
+    async getAuditReadOnlyConfigAsync () {
         return auditEventReadOnlyMongoConfig;
     }
 
-    async getAccessLogsConfigAsync() {
+    async getAccessLogsConfigAsync () {
         return accessLogsMongoConfig;
     }
 
@@ -155,14 +153,14 @@ class MongoDatabaseManager {
      * @param {Object} clientConfig
      * @returns {Promise<import('mongodb').MongoClient>}
      */
-    async createClientAsync(clientConfig) {
+    async createClientAsync (clientConfig) {
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             clientConfig.options.monitorCommands = true;
             await logSystemEventAsync(
                 {
                     event: 'dbConnect',
                     message: `Connecting to ${clientConfig.connection}`,
-                    args: {db: clientConfig.db_name}
+                    args: { db: clientConfig.db_name }
                 }
             );
         }
@@ -175,33 +173,33 @@ class MongoDatabaseManager {
         try {
             await client.connect();
         } catch (e) {
-            logError(`Failed to connect to ${clientConfig.connection}`, {'error': e});
+            logError(`Failed to connect to ${clientConfig.connection}`, { error: e });
             throw e;
         }
         try {
-            await client.db('admin').command({ping: 1});
+            await client.db('admin').command({ ping: 1 });
         } catch (e) {
-            logError(`Failed to execute ping on ${clientConfig.connection}`, {'error': e});
+            logError(`Failed to execute ping on ${clientConfig.connection}`, { error: e });
             throw e;
         }
         await logSystemEventAsync(
             {
                 event: 'dbConnect',
                 message: 'Successfully connected to database',
-                args: {db: clientConfig.db_name}
+                args: { db: clientConfig.db_name }
             }
         );
 
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
             client.on('commandStarted', event => {
-                logInfo('AWS Received commandStarted', {'event': event});
+                logInfo('AWS Received commandStarted', { event });
             });
             client.on('commandSucceeded', event => {
-                logInfo('AWS Received commandSucceeded', {'event': event});
+                logInfo('AWS Received commandSucceeded', { event });
             });
             client.on('commandFailed', event => {
-                logInfo('AWS Received commandFailed', {'event': event});
+                logInfo('AWS Received commandFailed', { event });
             });
         }
         return client;
@@ -210,7 +208,7 @@ class MongoDatabaseManager {
     /**
      * @return {Promise<void>}
      */
-    async connectAsync() {
+    async connectAsync () {
         if (clientConnection) {
             return;
         }
@@ -241,7 +239,7 @@ class MongoDatabaseManager {
     /**
      * @return {Promise<void>}
      */
-    async dropDatabasesAsync() {
+    async dropDatabasesAsync () {
         // not implemented for production but can be implemented by sub-classes for tests
     }
 
@@ -250,7 +248,7 @@ class MongoDatabaseManager {
      * @param {import('mongodb').MongoClient} client
      * @returns {Promise<void>}
      */
-    async disconnectClientAsync(client) {
+    async disconnectClientAsync (client) {
         if (client) {
             await client.close(true);
         }
@@ -260,7 +258,7 @@ class MongoDatabaseManager {
      * disconnects all global connections
      * @returns {Promise<void>}
      */
-    async disconnectAsync() {
+    async disconnectAsync () {
         if (clientConnection) {
             await this.disconnectClientAsync(clientConnection);
         }

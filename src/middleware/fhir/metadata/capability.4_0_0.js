@@ -7,13 +7,12 @@ const {
  * @description Construct a resource with base_version/uscore path
  */
 
-
-let getCapabilityStatementResource = () => {
+const getCapabilityStatementResource = () => {
     return resolveSchema('4_0_0', 'capabilitystatement');
 };
 
 module.exports.makeStatement = function (resources) {
-    let CapabilityStatement = getCapabilityStatementResource();
+    const CapabilityStatement = getCapabilityStatementResource();
     return new CapabilityStatement({
         status: 'active',
         date: moment().tz('America/New_York').format(),
@@ -37,7 +36,6 @@ module.exports.makeStatement = function (resources) {
  * @summary Capability statement shell
  */
 
-
 module.exports.securityStatement = securityUrls => ({
     cors: true,
     service: [{
@@ -52,4 +50,3 @@ module.exports.securityStatement = securityUrls => ({
         extension: securityUrls
     }]
 });
-

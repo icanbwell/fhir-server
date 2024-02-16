@@ -1,22 +1,21 @@
-const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
-const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
+const { LLMChainExtractor } = require('langchain/retrievers/document_compressors/chain_extract');
+const { ContextualCompressionRetriever } = require('langchain/retrievers/contextual_compression');
 const {
     PromptTemplate,
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate
-} = require('langchain/prompts');
-const {LLMChain} = require('langchain/chains');
-const {ChatGPTError} = require('../exceptions/chatgptError');
-const {ChatGPTContextLengthExceededError} = require('../exceptions/chatgptContextLengthExceededError');
-const {ChatGPTResponse} = require('../structures/chatGPTResponse');
-const {ChatGPTManager} = require('./chatgptManager');
-const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
-const {StringOutputParser} = require('langchain/schema/output_parser');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {VectorStoreFilter} = require('../vectorStores/vectorStoreFilter');
-const {BaseVectorStoreManager} = require('../vectorStores/baseVectorStoreManager');
-const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
+} = require('@langchain/core/prompts');
+const { ChatGPTError } = require('../exceptions/chatgptError');
+const { ChatGPTContextLengthExceededError } = require('../exceptions/chatgptContextLengthExceededError');
+const { ChatGPTResponse } = require('../structures/chatGPTResponse');
+const { ChatGPTManager } = require('./chatgptManager');
+const { RunnablePassthrough, RunnableSequence } = require('@langchain/core/runnables');
+const { StringOutputParser } = require('@langchain/core/output_parsers');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { VectorStoreFilter } = require('../vectorStores/vectorStoreFilter');
+const { BaseVectorStoreManager } = require('../vectorStores/baseVectorStoreManager');
+const { logTraceSystemEventAsync } = require('../../operations/common/systemEventLogging');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -28,7 +27,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * @param {boolean|undefined} [verbose]
      * @returns {Promise<ChatGPTResponse>}
      */
-    async answerQuestionWithDocumentsAsync(
+    async answerQuestionWithDocumentsAsync (
         {
             // eslint-disable-next-line no-unused-vars
             startPrompt,
@@ -48,7 +47,6 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // First convert the resources in the bundle into text documents
         // Next create a vector store to store the embedding vectors from the above documents
         // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
-
 
         // Now create an OpenAI model.
         /**
@@ -94,8 +92,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const baseRetriever = vectorStoreManager.asRetriever({
                 filter: new VectorStoreFilter(
                     {
-                        resourceType: resourceType,
-                        uuid: uuid
+                        resourceType,
+                        uuid
                     }
                 )
             }
@@ -106,7 +104,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
 
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,
-            baseRetriever: baseRetriever,
+            baseRetriever
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
@@ -157,20 +155,20 @@ Question: {question}
             {
                 question: (input) => input.question,
                 chat_history: (input) =>
-                    formatChatHistory(input.chat_history),
+                    formatChatHistory(input.chat_history)
             },
             CONDENSE_QUESTION_PROMPT,
             model,
-            new StringOutputParser(),
+            new StringOutputParser()
         ]);
 
         const answerChain = RunnableSequence.from([
             {
                 context: retriever.pipe(combineDocumentsFn),
-                question: new RunnablePassthrough(),
+                question: new RunnablePassthrough()
             },
             ANSWER_PROMPT,
-            model,
+            model
         ]);
 
         const conversationalRetrievalQAChain =
@@ -178,21 +176,21 @@ Question: {question}
 
         const fullPrompt = await ANSWER_PROMPT.format({
             context: combineDocumentsFn(relevantDocuments),
-            question: question,
+            question
         });
 
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
 
         try {
             const res3 = await conversationalRetrievalQAChain.invoke({
-                question: question,
-                chat_history: [],
+                question,
+                chat_history: []
             });
 
             return new ChatGPTResponse({
                 responseText: res3.content,
-                fullPrompt: fullPrompt,
-                numberTokens: numberTokens,
+                fullPrompt,
+                numberTokens,
                 documents: relevantDocuments
             });
         } catch (e) {
@@ -224,7 +222,7 @@ Question: {question}
      * @param {verbose} verbose
      * @return {Promise<string|undefined>}
      */
-    async getFhirQueryAsync({query, baseUrl, patientId, verbose}) {
+    async getFhirQueryAsync ({ query, baseUrl, patientId, verbose }) {
         // https://js.langchain.com/docs/getting-started/guide-llm
         // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
         // https://nathankjer.com/introduction-to-langchain/
@@ -252,25 +250,25 @@ Question: {question}
                     ' using the base url of {baseUrl}' +
                     (patientId ? ' and patient id of {patientId}.' : '')
                 ),
-                HumanMessagePromptTemplate.fromTemplate('{query}'),
+                HumanMessagePromptTemplate.fromTemplate('{query}')
             ],
-            inputVariables: inputVariables,
+            inputVariables
         });
 
-        const chain = new LLMChain(
+        const chain = new LLMChainExtractor(
             {
                 llm: model,
-                prompt: prompt,
-                outputKey: 'text', // For readability - otherwise the chain output will default to a property named "text"
+                prompt,
+                outputKey: 'text' // For readability - otherwise the chain output will default to a property named "text"
             });
 
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
-        const parameters = {query: query, baseUrl: baseUrl};
+        const parameters = { query, baseUrl };
         if (patientId) {
-            parameters['patientId'] = patientId;
+            parameters.patientId = patientId;
         }
         const fullPrompt = await prompt.format(parameters);
-        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({ documents: [{ content: fullPrompt }] });
         // Finally run the chain and get the result
         try {
             const result = await chain.call(parameters);

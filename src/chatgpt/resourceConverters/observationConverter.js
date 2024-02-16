@@ -1,11 +1,10 @@
-const {BaseConverter} = require('./baseConverter');
-
+const { BaseConverter } = require('./baseConverter');
 
 class ObservationConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             status,
             category,
             code,
@@ -13,7 +12,7 @@ class ObservationConverter extends BaseConverter {
             effectiveDateTime,
             valueQuantity,
             valueCodeableConcept,
-            interpretation,
+            interpretation
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ScopesManager} = require('../security/scopesManager');
-const {AccessIndexManager} = require('./accessIndexManager');
-const {ResourceManager} = require('./resourceManager');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ScopesManager } = require('../security/scopesManager');
+const { AccessIndexManager } = require('./accessIndexManager');
+const { ResourceManager } = require('./resourceManager');
 
 class ResourcePreparer {
     /**
@@ -14,7 +14,7 @@ class ResourcePreparer {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ResourceManager} resourceManager
      */
-    constructor({
+    constructor ({
                     scopesManager, accessIndexManager,
                     enrichmentManager,
                     resourceManager
@@ -51,7 +51,7 @@ class ResourcePreparer {
      * @param {string} resourceType
      * @return {Resource}
      */
-    selectSpecificElements({parsedArgs, element, resourceType}) {
+    selectSpecificElements ({ parsedArgs, element, resourceType }) {
         /**
          * @type {string[]|null}
          */
@@ -60,7 +60,7 @@ class ResourcePreparer {
          * @type {Resource}
          */
         const element_to_return = element.create({});
-        if (properties_to_return_list){
+        if (properties_to_return_list) {
             /**
              * @type {string}
              */
@@ -73,8 +73,8 @@ class ResourcePreparer {
 
         // this is a hack for the CQL Evaluator since it does not request these fields but expects them
         if (resourceType === 'Library') {
-            element_to_return['id'] = element['id'];
-            element_to_return['url'] = element['url'];
+            element_to_return.id = element.id;
+            element_to_return.url = element.url;
         }
         return element_to_return;
     }
@@ -89,7 +89,7 @@ class ResourcePreparer {
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
      */
-    async prepareResourceAsync({
+    async prepareResourceAsync ({
                                    user, scope, parsedArgs,
                                    element, resourceType, useAccessIndex
                                }) {
@@ -98,7 +98,7 @@ class ResourcePreparer {
          */
         let resources = [];
         if (parsedArgs.get('_elements')) {
-            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
+            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({ resourceType })) {
                 // TODO: discuss this double check and update accrodingly
                 // if the whole resource is returned then we have security tags to check again to be double sure
                 // if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(

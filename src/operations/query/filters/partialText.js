@@ -1,5 +1,5 @@
-const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
-const {BaseFilter} = require('./baseFilter');
+const { partialTextQueryBuilder } = require('../../../utils/querybuilder.util');
+const { BaseFilter } = require('./baseFilter');
 
 /**
  * @classdesc Filters by missing
@@ -11,15 +11,15 @@ class FilterByPartialText extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         return {
-            '$or': [
+            $or: [
                 // 1. search in text field
                 partialTextQueryBuilder(
                     {
                         field: this.fieldMapper.getFieldName(`${field}.text`),
                         partialText: value,
-                        ignoreCase: true,
+                        ignoreCase: true
                     }
                 ),
                 // 2. search in display field for every coding
@@ -27,14 +27,13 @@ class FilterByPartialText extends BaseFilter {
                     {
                         field: this.fieldMapper.getFieldName(`${field}.coding.display`),
                         partialText: value,
-                        ignoreCase: true,
+                        ignoreCase: true
                     }
                 )
             ]
         };
     }
 }
-
 
 module.exports = {
     FilterByPartialText

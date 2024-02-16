@@ -1,10 +1,10 @@
-const {SimpleChatModel} = require('langchain/chat_models/base');
+const { SimpleChatModel } = require('langchain/chat_models/base');
 
 class FakeLLM extends SimpleChatModel {
     /**
      * constructor
      */
-    constructor() {
+    constructor () {
         /**
          * @type {import('langchain/base_language').BaseLanguageModelParams}
          */
@@ -21,11 +21,11 @@ class FakeLLM extends SimpleChatModel {
      * @private
      */
     // eslint-disable-next-line no-unused-vars
-    _call(messages, options, runManager) {
+    _call (messages, options, runManager) {
         throw new Error('Should override via mocking');
     }
 
-    _llmType() {
+    _llmType () {
         return 'fake';
     }
 }

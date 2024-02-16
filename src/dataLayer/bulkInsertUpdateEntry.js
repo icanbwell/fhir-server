@@ -22,7 +22,7 @@ class BulkInsertUpdateEntry {
      * @param {boolean|undefined} [skipped]
      * @param {string} sourceAssigningAuthority
      */
-    constructor({
+    constructor ({
                     operationType,
                     isCreateOperation,
                     isUpdateOperation,

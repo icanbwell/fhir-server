@@ -1,14 +1,14 @@
 const {
     commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-const {customIndexes} = require('./mockCustomIndexes');
-const {IndexProvider} = require('../../../indexes/indexProvider');
-const {logInfo} = require('../../../operations/common/logging');
+const { customIndexes } = require('./mockCustomIndexes');
+const { IndexProvider } = require('../../../indexes/indexProvider');
+const { logInfo } = require('../../../operations/common/logging');
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         // noinspection JSValidateTypes
         return customIndexes;
     }
@@ -60,7 +60,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName, db: fhirDb
@@ -68,7 +68,7 @@ describe('Synchronize Index Tests', () => {
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
                 audit: false
             });
-            logInfo('', {created: synchronizeIndexesResult.created});
+            logInfo('', { created: synchronizeIndexesResult.created });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
         });
@@ -98,7 +98,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              *
@@ -112,7 +112,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
@@ -194,7 +194,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({ id: '1', resourceType: 'AuditEvent' });
             /**
              *
              * @type {import('mongodb').CreateIndexesOptions}
@@ -207,7 +207,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').IndexSpecification}
              */
             const indexSpec = {
-                'id': 1
+                id: 1
             };
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
@@ -230,72 +230,72 @@ describe('Synchronize Index Tests', () => {
             expect(sortedIndexes.length).toBe(6);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_recorded'
+                    options: {
+                        name: 'helix_auditEvent_recorded'
                     }
                 }
             );
             expect(sortedIndexes[1]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         '_access.client': 1,
-                        'id': 1,
-                        'recorded': 1
+                        id: 1,
+                        recorded: 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_recorded_access_client'
+                    options: {
+                        name: 'helix_auditEvent_recorded_access_client'
                     }
                 }
             );
             expect(sortedIndexes[2]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         '_access.client': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'options': {
-                        'name': 'helix_auditEvent_security_access_client'
+                    options: {
+                        name: 'helix_auditEvent_security_access_client'
                     }
                 }
             );
             expect(sortedIndexes[3]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
-                        'id': 1,
+                        id: 1,
                         'meta.lastUpdated': 1
                     },
-                    'options': {
-                        'name': 'helix_audit_event_security'
+                    options: {
+                        name: 'helix_audit_event_security'
                     }
                 }
             );
             expect(sortedIndexes[4]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.source': 1
                     },
-                    'options': {
-                        'name': 'meta.source_1'
+                    options: {
+                        name: 'meta.source_1'
                     }
                 }
             );
             expect(sortedIndexes[5]).toStrictEqual(
                 {
-                    'keys': {
+                    keys: {
                         'meta.security.system': 1,
                         'meta.security.code': 1
                     },
-                    'options': {
-                        'name': 'security.system_code_1'
+                    options: {
+                        name: 'security.system_code_1'
                     }
                 }
             );
@@ -328,7 +328,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(patientCollectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: patientCollectionName, db: fhirDb
@@ -338,7 +338,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientHistoryCollection = fhirDb.collection(patientHistoryCollectionName);
-            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientHistoryCollection.insertOne({ id: '1', resourceType: 'Patient' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: patientHistoryCollectionName, db: fhirDb
@@ -348,7 +348,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const practitionerCollection = fhirDb.collection(practitionerCollectionName);
-            await practitionerCollection.insertOne({id: '1', resourceType: 'Practitioner'});
+            await practitionerCollection.insertOne({ id: '1', resourceType: 'Practitioner' });
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName: practitionerCollectionName, db: fhirDb
@@ -390,7 +390,7 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientHistoryCollection = fhirDb.collection(collectionName);
-            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientHistoryCollection.insertOne({ id: '1', resourceType: 'Patient' });
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
                 audit: false
             });
@@ -400,11 +400,11 @@ describe('Synchronize Index Tests', () => {
             const indexes = synchronizeIndexesResult.created[0].indexes;
             expect(indexes.length).toStrictEqual(1);
             expect(indexes[0]).toStrictEqual({
-                'keys': {
-                    'id': 1
+                keys: {
+                    id: 1
                 },
-                'options': {
-                    'name': 'id_1'
+                options: {
+                    name: 'id_1'
                 }
             });
         });
@@ -435,14 +435,14 @@ describe('Synchronize Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({ id: '1', resourceType: 'Patient' });
 
             /**
              * @type {IndexConfig}
              */
             const extraIndex = {
                 keys: {
-                    'id': 1
+                    id: 1
                 },
                 options: {
                     // unique: true,
@@ -471,7 +471,7 @@ describe('Synchronize Index Tests', () => {
             expect(sortedIndexes).toStrictEqual([
                 {
                     keys: {
-                        'id': 1
+                        id: 1
                     },
                     options: {
                         name: 'id_1'
@@ -518,7 +518,7 @@ describe('Synchronize Index Tests', () => {
             expect(droppedIndexes[0]).toStrictEqual(
                 {
                     keys: {
-                        'id': 1
+                        id: 1
                     },
                     options: {
                         name: extraIndex.options.name,

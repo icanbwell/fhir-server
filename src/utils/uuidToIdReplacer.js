@@ -1,6 +1,6 @@
-const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const { assertTypeEquals, assertIsValid } = require('./assertType');
+const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
 /**
  * @classdesc Takes a uuid and calls database to get the corresponding id and securityTagStructure
@@ -10,7 +10,7 @@ class UuidToIdReplacer {
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory
         }
@@ -28,7 +28,7 @@ class UuidToIdReplacer {
      * @param {string} uuid
      * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
      */
-    async getIdAndSourceAssigningAuthorityForUuidAsync({resourceType, uuid}) {
+    async getIdAndSourceAssigningAuthorityForUuidAsync ({ resourceType, uuid }) {
         assertIsValid(resourceType, 'resourceType is null');
         /**
          * @type {DatabaseQueryManager}

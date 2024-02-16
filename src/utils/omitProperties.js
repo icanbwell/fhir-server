@@ -4,7 +4,7 @@
  * @param {string} omitKey
  * @return {Object|Resource}
  */
-function omitProperty(obj, omitKey) {
+function omitProperty (obj, omitKey) {
     return Object.keys(obj).reduce((result, key) => {
         if (key !== omitKey) {
             result[`${key}`] = obj[`${key}`];
@@ -19,7 +19,7 @@ function omitProperty(obj, omitKey) {
  * @param {string} omitKey
  * @return {Resource}
  */
-function omitPropertyFromResource(obj, omitKey) {
+function omitPropertyFromResource (obj, omitKey) {
     return omitProperty(obj, omitKey);
 }
 

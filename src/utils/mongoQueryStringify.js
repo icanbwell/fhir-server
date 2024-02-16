@@ -3,10 +3,9 @@
  * @param {Object} query
  * @returns {string|undefined}
  */
-const {assertIsValid} = require('./assertType');
-const {BadRequestError} = require('./httpErrors');
+const { assertIsValid } = require('./assertType');
+const { BadRequestError } = require('./httpErrors');
 const mongoQueryStringify = (query) => {
-
     const isArray = (value) => {
         return Array.isArray(value) && typeof value === 'object';
     };
@@ -101,7 +100,6 @@ const mongoQueryStringify = (query) => {
         return undefined;
     }
 
-
     if (restOfDataTypes(query)) {
         const passQuotes = isString(query) ? '\'' : '';
         return `${passQuotes}${query}${passQuotes}`;
@@ -122,7 +120,6 @@ const mongoQueryStringify = (query) => {
     }
 
     if (isObject(query)) {
-
         let objStr = '';
 
         const objKeys = Object.keys(query);
@@ -168,7 +165,7 @@ const mongoQueryAndOptionsStringifySingleQuery = (
  * @returns {string|undefined}
  */
 const mongoQueryAndOptionsStringify = (
-    {query, options}
+    { query, options }
 ) => {
     if (Array.isArray(query)) {
         let result = '';
@@ -182,7 +179,6 @@ const mongoQueryAndOptionsStringify = (
         return mongoQueryAndOptionsStringifySingleQuery(query, Array.isArray(options) ? options[0] : options);
     }
 };
-
 
 module.exports = {
     mongoQueryStringify,

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RiskEvidenceSynthesis.PrecisionEstimate
     The RiskEvidenceSynthesis resource describes the likelihood of an outcome in a
@@ -23,7 +22,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
      * @param {decimal|undefined} [from],
      * @param {decimal|undefined} [to],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type,
             level,
             from,
-            to,
+            to
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -186,9 +185,6 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -197,19 +193,16 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type,
             level,
             from,
-            to,
+            to
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -218,7 +211,7 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type: this.type && this.type.toJSON(),
             level: this.level,
             from: this.from,
-            to: this.to,
+            to: this.to
         });
     }
 
@@ -227,18 +220,18 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -246,10 +239,8 @@ class RiskEvidenceSynthesisPrecisionEstimate extends Element {
             type: this.type && this.type.toJSONInternal(),
             level: this.level,
             from: this.from,
-            to: this.to,
+            to: this.to
         };
-
-
 
         return removeNull(json);
     }

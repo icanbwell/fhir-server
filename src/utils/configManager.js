@@ -1,35 +1,35 @@
 const env = require('var');
-const {isTrue} = require('./isTrue');
+const { isTrue } = require('./isTrue');
 
 class ConfigManager {
     /**
      * @returns {string[]}
      */
-    get partitionResources() {
+    get partitionResources () {
         // see if resourceType is in list of resources we want to partitionConfig in this environment
         /**
          * @type {string|undefined}
          */
         const partitionResourcesString = env.PARTITION_RESOURCES;
-        return partitionResourcesString ?
-            partitionResourcesString.split(',').map(s => String(s).trim()) : [];
+        return partitionResourcesString
+            ? partitionResourcesString.split(',').map(s => String(s).trim()) : [];
     }
 
-    get resourcesWithAccessIndex() {
+    get resourcesWithAccessIndex () {
         return (
             env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
                 .map((col) => col.trim())
         ) || [];
     }
 
-    get useAccessIndex() {
+    get useAccessIndex () {
         return isTrue(env.USE_ACCESS_INDEX);
     }
 
     /**
      * @return {string[]|null}
      */
-    get requiredFiltersForAuditEvent() {
+    get requiredFiltersForAuditEvent () {
         return (
             env.REQUIRED_AUDIT_EVENT_FILTERS && env.REQUIRED_AUDIT_EVENT_FILTERS.split(',')
                 .map((col) => col.trim())
@@ -40,7 +40,7 @@ class ConfigManager {
      * @description The max range period for which AuditEvent is to queried.
      * @return {number}
      */
-    get auditEventMaxRangePeriod() {
+    get auditEventMaxRangePeriod () {
         return env.AUDIT_EVENT_MAX_RANGE_PERIOD ? Number(env.AUDIT_EVENT_MAX_RANGE_PERIOD) : 30;
     }
 
@@ -48,7 +48,7 @@ class ConfigManager {
      * whether to enable two step optimization
      * @return {boolean}
      */
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION);
     }
 
@@ -56,18 +56,18 @@ class ConfigManager {
      * whether to stream the response
      * @return {boolean}
      */
-    get streamResponse() {
+    get streamResponse () {
         return isTrue(env.STREAM_RESPONSE);
     }
 
-    get doNotRequirePersonOrPatientIdForPatientScope() {
+    get doNotRequirePersonOrPatientIdForPatientScope () {
         return isTrue(env.DO_NOT_REQUIRE_PERSON_OR_PATIENT_FOR_PATIENT_SCOPE);
     }
 
     /**
      * @returns {string[]}
      */
-    get accessTagsIndexed() {
+    get accessTagsIndexed () {
         return (
             env.ACCESS_TAGS_INDEXED && env.ACCESS_TAGS_INDEXED.split(',')
                 .map((col) => col.trim())
@@ -77,7 +77,7 @@ class ConfigManager {
     /**
      * whether authorization is required
      */
-    get authEnabled() {
+    get authEnabled () {
         return isTrue(env.AUTH_ENABLED);
     }
 
@@ -85,7 +85,7 @@ class ConfigManager {
      * username for kafka auth
      * @return {string|null}
      */
-    get kafkaUserName() {
+    get kafkaUserName () {
         return env.KAFKA_SASL_USERNAME || null;
     }
 
@@ -93,7 +93,7 @@ class ConfigManager {
      * password for kafka auth
      * @return {string|null}
      */
-    get kafkaPassword() {
+    get kafkaPassword () {
         return env.KAFKA_SASL_PASSWORD || null;
     }
 
@@ -101,7 +101,7 @@ class ConfigManager {
      * auth mechanism for kafka auth
      * @return {string|undefined}
      */
-    get kafkaAuthMechanism() {
+    get kafkaAuthMechanism () {
         return env.KAFKA_SASL_MECHANISM || 'aws';
     }
 
@@ -109,7 +109,7 @@ class ConfigManager {
      * sasl identity for kafka auth (UserId or RoleId)
      * @return {string|undefined}
      */
-    get kafkaIdentity() {
+    get kafkaIdentity () {
         return env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null;
     }
 
@@ -117,7 +117,7 @@ class ConfigManager {
      * access key for kafka auth
      * @return {string|undefined}
      */
-    get kafkaAccessKeyId() {
+    get kafkaAccessKeyId () {
         return env.KAFKA_SASL_ACCESS_KEY_ID;
     }
 
@@ -125,7 +125,7 @@ class ConfigManager {
      * access key secret for kafka auth
      * @return {string|undefined}
      */
-    get kafkaAccessKeySecret() {
+    get kafkaAccessKeySecret () {
         return env.KAFKA_SASL_ACCESS_KEY_SECRET;
     }
 
@@ -133,7 +133,7 @@ class ConfigManager {
      * client id for kafka auth
      * @return {string|undefined}
      */
-    get kafkaClientId() {
+    get kafkaClientId () {
         return env.KAFKA_CLIENT_ID;
     }
 
@@ -141,7 +141,7 @@ class ConfigManager {
      * get brokers for kafka
      * @return {string[]}
      */
-    get kafkaBrokers() {
+    get kafkaBrokers () {
         return env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : [];
     }
 
@@ -149,7 +149,7 @@ class ConfigManager {
      * whether to use ssl for kafka
      * @return {boolean}
      */
-    get kafkaUseSsl() {
+    get kafkaUseSsl () {
         return isTrue(env.KAFKA_SSL);
     }
 
@@ -157,7 +157,7 @@ class ConfigManager {
      * whether to use SASL for kafka
      * @return {boolean}
      */
-    get kafkaUseSasl() {
+    get kafkaUseSasl () {
         return isTrue(env.KAFKA_SASL);
     }
 
@@ -165,7 +165,7 @@ class ConfigManager {
      * whether to send events to kafka
      * @return {boolean}
      */
-    get kafkaEnableEvents() {
+    get kafkaEnableEvents () {
         return isTrue(env.ENABLE_EVENTS_KAFKA);
     }
 
@@ -173,7 +173,7 @@ class ConfigManager {
      * gets url to person matching service
      * @return {string|undefined}
      */
-    get personMatchingServiceUrl() {
+    get personMatchingServiceUrl () {
         return env.PERSON_MATCHING_SERVICE_URL;
     }
 
@@ -181,7 +181,7 @@ class ConfigManager {
      * whether to create index when we create a collection
      * @returns {boolean}
      */
-    get createIndexOnCollectionCreation() {
+    get createIndexOnCollectionCreation () {
         return isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION);
     }
 
@@ -189,7 +189,7 @@ class ConfigManager {
      * whether we should log all merges
      * @returns {boolean}
      */
-    get logAllMerges() {
+    get logAllMerges () {
         return isTrue(env.LOG_ALL_MERGES);
     }
 
@@ -197,7 +197,7 @@ class ConfigManager {
      * whether to handle concurrency
      * @return {boolean}
      */
-    get handleConcurrency() {
+    get handleConcurrency () {
         return !isTrue(env.SKIP_HANDLE_CONCURRENCY);
     }
 
@@ -205,7 +205,7 @@ class ConfigManager {
      * number to times to retry an update
      * @returns {number}
      */
-    get replaceRetries() {
+    get replaceRetries () {
         return env.REPLACE_RETRIES || 10;
     }
 
@@ -213,7 +213,7 @@ class ConfigManager {
      * whether to enable Global Unique Id support
      * @returns {boolean}
      */
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         if (env.ENABLE_GLOBAL_ID === null || env.ENABLE_GLOBAL_ID === undefined) {
             return true;
         }
@@ -225,14 +225,14 @@ class ConfigManager {
      * whether to return data as bundle
      * @return {boolean}
      */
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return isTrue(env.RETURN_BUNDLE);
     }
 
     /**
      * The default sort id currently used
      */
-    get defaultSortId() {
+    get defaultSortId () {
         return env.DEFAULT_SORT_ID || '_uuid';
     }
 
@@ -240,7 +240,7 @@ class ConfigManager {
      * whether to support legacy id support in queries
      * @return {boolean}
      */
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         if (env.SUPPORT_LEGACY_IDS === null || env.SUPPORT_LEGACY_IDS === undefined) {
             return true;
         }
@@ -251,7 +251,7 @@ class ConfigManager {
      * Whether meta.source tags are required
      * @return {boolean}
      */
-    get requireMetaSourceTags() {
+    get requireMetaSourceTags () {
         if (env.REQUIRE_META_SOURCE_TAGS === null || env.REQUIRE_META_SOURCE_TAGS === undefined) {
             return true;
         }
@@ -263,7 +263,7 @@ class ConfigManager {
      * is greater than this number than we fall back to processing in serial to save memory
      * @return {number}
      */
-    get graphBatchSize() {
+    get graphBatchSize () {
         return env.GRAPH_BATCH_SIZE || 10;
     }
 
@@ -271,7 +271,7 @@ class ConfigManager {
      * returns enabled gridFs resources list
      * @returns {string[]}
      */
-    get enabledGridFsResources() {
+    get enabledGridFsResources () {
         return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
     }
 
@@ -279,7 +279,7 @@ class ConfigManager {
      * Specifies whether to Consent based data access enabled.
      * @return {boolean}
      */
-    get enableConsentedProaDataAccess() {
+    get enableConsentedProaDataAccess () {
         return isTrue(env.ENABLE_CONSENTED_PROA_DATA_ACCESS);
     }
 
@@ -287,7 +287,7 @@ class ConfigManager {
      * Specifies allowed connection types for consent data sharing.
      * @return {string[]}
      */
-    get getConsentConnectionTypesList() {
+    get getConsentConnectionTypesList () {
         return env.CONSENT_CONNECTION_TYPES_LIST ? env.CONSENT_CONNECTION_TYPES_LIST.split(',') : ['proa'];
     }
 
@@ -295,7 +295,7 @@ class ConfigManager {
      * Specifies whether to enable HIE/Treatment related data access.
      * @return {boolean}
      */
-    get enableHIETreatmentRelatedDataAccess() {
+    get enableHIETreatmentRelatedDataAccess () {
         return isTrue(env.ENABLE_HIE_TREATMENT_RELATED_DATA_ACCESS);
     }
 
@@ -303,7 +303,7 @@ class ConfigManager {
      * Specifies allowed connection types for HIE/Treatment related data.
      * @return {string[]}
      */
-    get getHIETreatmentConnectionTypesList() {
+    get getHIETreatmentConnectionTypesList () {
         return env.HIE_TREATMENT_CONNECTION_TYPES_LIST ? env.HIE_TREATMENT_CONNECTION_TYPES_LIST.split(',') : ['hipaa'];
     }
 
@@ -311,7 +311,7 @@ class ConfigManager {
      * Specifies "provision.class.code" for the Data sharing Consent
      * @return {string[]}
      */
-    get getDataSharingConsentCodes() {
+    get getDataSharingConsentCodes () {
         return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['/dataSharingConsent', '/hipaaConsent'];
     }
 
@@ -320,7 +320,7 @@ class ConfigManager {
      * https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
      * @returns {number}
      */
-    get streamingHighWaterMark() {
+    get streamingHighWaterMark () {
         return env.STREAMING_HIGH_WATER_MARK || 100;
     }
 
@@ -328,7 +328,7 @@ class ConfigManager {
      * whether to log inside our streaming.  Very verbose so don't set in production
      * @returns {boolean}
      */
-    get logStreamSteps() {
+    get logStreamSteps () {
         return isTrue(env.LOG_STREAM_STEPS);
     }
 
@@ -336,14 +336,14 @@ class ConfigManager {
      * url to fhir validation service e.g., http://localhost:8080/fhir/
      * @returns {string|undefined}
      */
-    get fhirValidationUrl() {
+    get fhirValidationUrl () {
         return env.FHIR_VALIDATION_URL;
     }
 
     /**
      * Batch size for parallel fetching/updating profiles in HAPI Fhir
      */
-    get batchSizeForRemoteFhir() {
+    get batchSizeForRemoteFhir () {
         return Number(env.REMOTE_FHIR_REQUEST_BATCH_SIZE) || 10;
     }
 
@@ -351,7 +351,7 @@ class ConfigManager {
      * whether to log validation failures
      * @returns {boolean}
      */
-    get logValidationFailures() {
+    get logValidationFailures () {
         return isTrue(env.LOG_VALIDATION_FAILURES);
     }
 
@@ -359,7 +359,7 @@ class ConfigManager {
      * whether to log all saves
      * @returns {boolean}
      */
-    get logAllSaves() {
+    get logAllSaves () {
         return isTrue(env.LOG_ALL_SAVES);
     }
 
@@ -367,7 +367,7 @@ class ConfigManager {
      * whether to validate schemas
      * @returns {boolean}
      */
-    get validateSchema() {
+    get validateSchema () {
         return isTrue(env.VALIDATE_SCHEMA);
     }
 
@@ -375,7 +375,7 @@ class ConfigManager {
      * url to open search vector store
      * @returns {string|undefined}
      */
-    get openSearchVectorStoreUrl() {
+    get openSearchVectorStoreUrl () {
         return env.OPENSEARCH_VECTORSTORE_URL;
     }
 
@@ -383,7 +383,7 @@ class ConfigManager {
      * url to mongo atlas vector store
      * @returns {string|undefined}
      */
-    get openSearchVectorStoreUserName() {
+    get openSearchVectorStoreUserName () {
         return env.OPENSEARCH_VECTORSTORE_USERNAME;
     }
 
@@ -391,16 +391,15 @@ class ConfigManager {
      * url to mongo atlas vector store
      * @returns {string|undefined}
      */
-    get openSearchVectorStorePassword() {
+    get openSearchVectorStorePassword () {
         return env.OPENSEARCH_VECTORSTORE_PASSWORD;
     }
-
 
     /**
      * url to open search vector store
      * @returns {string|undefined}
      */
-    get openSearchVectorStoreIndexName() {
+    get openSearchVectorStoreIndexName () {
         return env.OPENSEARCH_VECTORSTORE_INDEX || 'fhir-summaries';
     }
 
@@ -408,7 +407,7 @@ class ConfigManager {
      * url to mongo atlas vector store
      * @returns {string|undefined}
      */
-    get mongoAtlasVectorStoreUrl() {
+    get mongoAtlasVectorStoreUrl () {
         return env.MONGO_VECTORSTORE_URL;
     }
 
@@ -416,7 +415,7 @@ class ConfigManager {
      * url to mongo atlas vector store
      * @returns {string|undefined}
      */
-    get mongoAtlasVectorStoreUserName() {
+    get mongoAtlasVectorStoreUserName () {
         return env.MONGO_VECTORSTORE_USERNAME;
     }
 
@@ -424,7 +423,7 @@ class ConfigManager {
      * url to mongo atlas vector store
      * @returns {string|undefined}
      */
-    get mongoAtlasVectorStorePassword() {
+    get mongoAtlasVectorStorePassword () {
         return env.MONGO_VECTORSTORE_PASSWORD;
     }
 
@@ -432,7 +431,7 @@ class ConfigManager {
      * database for mongo atlas vector store
      * @returns {string|undefined}
      */
-    get mongoAtlasVectorStoreDb() {
+    get mongoAtlasVectorStoreDb () {
         return env.MONGO_VECTORSTORE_DB;
     }
 
@@ -440,7 +439,7 @@ class ConfigManager {
      * collection for mongo atlas vector store
      * @returns {string|undefined}
      */
-    get mongoAtlasVectorStoreCollection() {
+    get mongoAtlasVectorStoreCollection () {
         return env.MONGO_VECTORSTORE_COLLECTION || 'fhir';
     }
 
@@ -448,7 +447,7 @@ class ConfigManager {
      * url to open search vector store
      * @returns {string|undefined}
      */
-    get mongoAtlasVectorStoreIndexName() {
+    get mongoAtlasVectorStoreIndexName () {
         return env.MONGO_VECTORSTORE_INDEX || 'default';
     }
 
@@ -456,7 +455,7 @@ class ConfigManager {
      * key to use for embedding in mongo atlas vector store
      * @return {string}
      */
-    get mongoAtlasVectorStoreTextKey() {
+    get mongoAtlasVectorStoreTextKey () {
         return env.MONGO_VECTORSTORE_TEXT_KEY || 'text';
     }
 
@@ -464,7 +463,7 @@ class ConfigManager {
      * key to use for embedding in mongo atlas vector store
      * @return {string}
      */
-    get mongoAtlasVectorStoreEmbeddingKey() {
+    get mongoAtlasVectorStoreEmbeddingKey () {
         return env.MONGO_VECTORSTORE_EMBEDDING_KEY || 'embedding';
     }
 
@@ -472,7 +471,7 @@ class ConfigManager {
      * returns key to use for OpenAI
      * @returns {string|undefined}
      */
-    get openAIApiKey() {
+    get openAIApiKey () {
         return process.env.OPENAI_API_KEY;
     }
 
@@ -480,7 +479,7 @@ class ConfigManager {
      * returns model to use for OpenAI
      * @returns {string}
      */
-    get openAIModel() {
+    get openAIModel () {
         return env.OPENAI_MODEL || 'gpt-4';
     }
 
@@ -488,7 +487,7 @@ class ConfigManager {
      * returns whether to write fhir summary to vector store
      * @returns {boolean}
      */
-    get writeFhirSummaryToVectorStore() {
+    get writeFhirSummaryToVectorStore () {
         return isTrue(env.WRITE_FHIR_SUMMARY_TO_VECTORSTORE);
     }
 
@@ -496,7 +495,7 @@ class ConfigManager {
      * returns whether to enable memory vector store
      * @return {boolean}
      */
-    get enableMemoryVectorStore() {
+    get enableMemoryVectorStore () {
         return false; // should only enable in unit tests
     }
 
@@ -504,7 +503,7 @@ class ConfigManager {
      * returns the size of payload that should be acceptable
      * @returns {string}
      */
-    get payloadLimit() {
+    get payloadLimit () {
         return env.PAYLOAD_LIMIT || '50mb';
     }
 
@@ -512,7 +511,7 @@ class ConfigManager {
      * returns the request timeout in ms
      * @returns {number}
      */
-    get requestTimeoutMs() {
+    get requestTimeoutMs () {
         return (parseInt(env.EXTERNAL_REQUEST_TIMEOUT_SEC) || 30) * 1000;
     }
 
@@ -520,7 +519,7 @@ class ConfigManager {
      * whether to enable stats endpoint
      * @returns {boolean}
      */
-    get enableStatsEndpoint() {
+    get enableStatsEndpoint () {
         if (env.ENABLE_STATS_ENDPOINT === null || env.ENABLE_STATS_ENDPOINT === undefined) {
             return false;
         }
@@ -532,7 +531,7 @@ class ConfigManager {
      * whether to enable graphql playground
      * @returns {boolean}
      */
-    get enableGraphQLPlayground() {
+    get enableGraphQLPlayground () {
         if (env.ENABLE_GRAPHQL_PLAYGROUND === null || env.ENABLE_GRAPHQL_PLAYGROUND === undefined) {
             return true;
         }
@@ -544,7 +543,7 @@ class ConfigManager {
      * whether to read audit event data from archive
      * @returns {boolean}
      */
-    get enableAuditEventArchiveRead() {
+    get enableAuditEventArchiveRead () {
         if (env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === null || env.AUDIT_EVENT_ONLINE_ARCHIVE_ENABLE_READ === undefined) {
             return false;
         }
@@ -554,7 +553,7 @@ class ConfigManager {
     /**
      * whether to rewrite patient references to proxy-patient reference
      */
-    get rewritePatientReference() {
+    get rewritePatientReference () {
         if (env.REWRITE_PATIENT_REFERENCE === null || env.REWRITE_PATIENT_REFERENCE === undefined) {
             return true;
         }
@@ -565,7 +564,7 @@ class ConfigManager {
      * returns number of resources to process in parallel
      * @returns {number}
      */
-    get mergeParallelChunkSize() {
+    get mergeParallelChunkSize () {
         return parseInt(env.MERGE_PARALLEL_CHUNK_SIZE) || 50;
     }
 
@@ -573,7 +572,7 @@ class ConfigManager {
      * returns cron expression for postRequest processes
      * @returns {string}
      */
-    get postRequestFlushTime() {
+    get postRequestFlushTime () {
         // default cron expression is to run the function every 5 sec
         return env.POST_REQUEST_FLUSH_TIME || '*/5 * * * * *';
     }
@@ -582,7 +581,7 @@ class ConfigManager {
      * returns the buffer size for post request processes
      * @returns {number}
      */
-    get postRequestBatchSize() {
+    get postRequestBatchSize () {
         return parseInt(env.POST_REQUEST_BATCH_SIZE) || 50;
     }
 }

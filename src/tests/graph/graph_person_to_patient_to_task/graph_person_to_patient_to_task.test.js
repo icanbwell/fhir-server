@@ -26,8 +26,8 @@ const expectedPatientsInDatabase = require('./fixtures/expected/expected_patient
 const expectedPatientsInDatabaseWithoutSourceAssigningAuthority = require('./fixtures/expected/expected_patients_in_database_without_sourceAssigningAuthority.json');
 const expectedProxyPatientResource = require('./fixtures/expected/expected_proxy_patient.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -48,7 +48,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
@@ -58,7 +58,7 @@ describe('Person Tests', () => {
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
             const personCollection = fhirDb.collection('Person_4_0_0');
-            const persons = await personCollection.find({}).project({_id: 0, 'meta.lastUpdated': 0}).toArray();
+            const persons = await personCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
             expectedPersonsInDatabase.forEach(a => delete a.meta.lastUpdated);
             expect(persons).toStrictEqual(expectedPersonsInDatabase);
 
@@ -68,16 +68,16 @@ describe('Person Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const patientCollection = fhirDb.collection('Patient_4_0_0');
-            const patients = await patientCollection.find({}).project({_id: 0, 'meta.lastUpdated': 0}).toArray();
+            const patients = await patientCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
             expectedPatientsInDatabase.forEach(a => delete a.meta.lastUpdated);
             expect(patients).toStrictEqual(expectedPatientsInDatabase);
 
@@ -87,21 +87,21 @@ describe('Person Tests', () => {
                 .send(task1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request
@@ -122,7 +122,7 @@ describe('Person Tests', () => {
                 .send(person1WithoutSourceAssigningAuthorityResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const container = getTestContainer();
             /**
@@ -132,7 +132,7 @@ describe('Person Tests', () => {
             const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
             const personCollection = fhirDb.collection('Person_4_0_0');
-            const persons = await personCollection.find({}).project({_id: 0, 'meta.lastUpdated': 0}).toArray();
+            const persons = await personCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
             expectedPersonsInDatabaseWithoutSourceAssigningAuthority.forEach(a => delete a.meta.lastUpdated);
             expect(persons).toStrictEqual(expectedPersonsInDatabaseWithoutSourceAssigningAuthority);
 
@@ -142,16 +142,16 @@ describe('Person Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             const patientCollection = fhirDb.collection('Patient_4_0_0');
-            const patients = await patientCollection.find({}).project({_id: 0, 'meta.lastUpdated': 0}).toArray();
+            const patients = await patientCollection.find({}).project({ _id: 0, 'meta.lastUpdated': 0 }).toArray();
             expectedPatientsInDatabaseWithoutSourceAssigningAuthority.forEach(a => delete a.meta.lastUpdated);
             expect(patients).toStrictEqual(expectedPatientsInDatabaseWithoutSourceAssigningAuthority);
 
@@ -161,21 +161,21 @@ describe('Person Tests', () => {
                 .send(task1WithoutSourceAssigningAuthorityResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2WithoutSourceAssigningAuthorityResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task3WithoutSourceAssigningAuthorityResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request
@@ -196,7 +196,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // add patients
             resp = await request
@@ -204,13 +204,13 @@ describe('Person Tests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
                 .send(patient2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // add tasks
             resp = await request
@@ -218,21 +218,21 @@ describe('Person Tests', () => {
                 .send(task1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task3Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request

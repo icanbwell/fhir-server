@@ -5,8 +5,8 @@ const personResource = require('./fixtures/person.json');
 const expectedPersonResources = require('./fixtures/expected/expectedPerson.json');
 const expectedResult = require('./fixtures/expected/expectedResult.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersWithCustomToken } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -27,7 +27,7 @@ describe('Person Tests', () => {
                 .send(personResource)
                 .set(getHeadersWithCustomToken('user/*.read user/*.write admin/*.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // Remove person to person link using admin panel
             resp = await request

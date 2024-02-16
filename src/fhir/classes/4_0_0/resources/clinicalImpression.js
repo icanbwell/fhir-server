@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ClinicalImpression
     A record of a clinical assessment performed to determine what problem(s) may
@@ -53,7 +52,7 @@ class ClinicalImpression extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -87,7 +86,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -130,7 +129,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -194,7 +193,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -216,7 +215,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -240,7 +239,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -272,7 +271,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -294,7 +293,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -332,7 +331,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.statusReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -352,7 +351,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -391,7 +390,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -412,7 +411,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -450,7 +449,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.effectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -488,7 +487,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.assessor = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -511,7 +510,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.previous = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -531,7 +530,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.problem = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -555,7 +554,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const ClinicalImpressionInvestigation = require('../backbone_elements/clinicalImpressionInvestigation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.investigation = FhirResourceCreator.createArray(valueProvided, ClinicalImpressionInvestigation);
             }
         });
@@ -613,7 +612,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const ClinicalImpressionFinding = require('../backbone_elements/clinicalImpressionFinding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.finding = FhirResourceCreator.createArray(valueProvided, ClinicalImpressionFinding);
             }
         });
@@ -633,7 +632,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.prognosisCodeableConcept = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -653,7 +652,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.prognosisReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -673,7 +672,7 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.supportingInfo = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -695,11 +694,10 @@ class ClinicalImpression extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
-
 
         /**
          * @description _access
@@ -754,7 +752,6 @@ class ClinicalImpression extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -789,7 +786,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -808,7 +805,7 @@ class ClinicalImpression extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'ClinicalImpression';
     }
 
@@ -849,7 +846,7 @@ class ClinicalImpression extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {ClinicalImpression}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -883,7 +880,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new ClinicalImpression({
@@ -919,7 +916,7 @@ class ClinicalImpression extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -927,17 +924,16 @@ class ClinicalImpression extends Resource {
      * @description creates a copy of this resource
      * @returns {ClinicalImpression}
     */
-    clone() {
+    clone () {
         return new ClinicalImpression(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -969,7 +965,7 @@ class ClinicalImpression extends Resource {
             prognosisCodeableConcept: this.prognosisCodeableConcept && this.prognosisCodeableConcept.map(v => v.toJSON()),
             prognosisReference: this.prognosisReference && this.prognosisReference.map(v => v.toJSON()),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -978,35 +974,35 @@ class ClinicalImpression extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.statusReason) {await this.statusReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.effectivePeriod) {await this.effectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.assessor) {await this.assessor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.previous) {await this.previous.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.problem) {await async.each(this.problem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.investigation) {await async.each(this.investigation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.finding) {await async.each(this.finding, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.prognosisCodeableConcept) {await async.each(this.prognosisCodeableConcept, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.prognosisReference) {await async.each(this.prognosisReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingInfo) {await async.each(this.supportingInfo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.statusReason) { await this.statusReason.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.effectivePeriod) { await this.effectivePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.assessor) { await this.assessor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.previous) { await this.previous.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.problem) { await async.each(this.problem, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.investigation) { await async.each(this.investigation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.finding) { await async.each(this.finding, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.prognosisCodeableConcept) { await async.each(this.prognosisCodeableConcept, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.prognosisReference) { await async.each(this.prognosisReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.supportingInfo) { await async.each(this.supportingInfo, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -1037,9 +1033,8 @@ class ClinicalImpression extends Resource {
             prognosisCodeableConcept: this.prognosisCodeableConcept && this.prognosisCodeableConcept.map(v => v.toJSONInternal()),
             prognosisReference: this.prognosisReference && this.prognosisReference.map(v => v.toJSONInternal()),
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

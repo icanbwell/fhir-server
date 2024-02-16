@@ -1,5 +1,5 @@
-const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
-const {assertTypeEquals} = require('../../utils/assertType');
+const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
+const { assertTypeEquals } = require('../../utils/assertType');
 
 /**
  * @classdesc Base factory to create a vector store from documents
@@ -9,7 +9,7 @@ class VectorStoreFactory {
      * constructor
      * @param {BaseVectorStoreManager[]} vectorStoreManagers
      */
-    constructor(
+    constructor (
         {
             vectorStoreManagers
         }
@@ -24,7 +24,7 @@ class VectorStoreFactory {
      * creates a vector store from a list of langchain documents
      * @returns {Promise<BaseVectorStoreManager|undefined>}
      */
-    async createVectorStoreAsync() {
+    async createVectorStoreAsync () {
         for (const vectorStoreManager of this.vectorStoreManagers) {
             if (await vectorStoreManager.isEnabledAsync()) {
                 await vectorStoreManager.createVectorStoreAsync();

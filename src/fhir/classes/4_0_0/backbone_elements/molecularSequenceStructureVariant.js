@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MolecularSequence.StructureVariant
     Raw data describing a biological sequence.
@@ -22,7 +21,7 @@ class MolecularSequenceStructureVariant extends Element {
      * @param {MolecularSequenceOuter|undefined} [outer],
      * @param {MolecularSequenceInner|undefined} [inner],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class MolecularSequenceStructureVariant extends Element {
             exact,
             length,
             outer,
-            inner,
+            inner
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.variantType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -184,7 +183,7 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const MolecularSequenceOuter = require('../backbone_elements/molecularSequenceOuter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outer = FhirResourceCreator.create(valueProvided, MolecularSequenceOuter);
             }
         });
@@ -204,13 +203,10 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const MolecularSequenceInner = require('../backbone_elements/molecularSequenceInner.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.inner = FhirResourceCreator.create(valueProvided, MolecularSequenceInner);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -221,19 +217,16 @@ class MolecularSequenceStructureVariant extends Element {
             exact,
             length,
             outer,
-            inner,
+            inner
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -243,7 +236,7 @@ class MolecularSequenceStructureVariant extends Element {
             exact: this.exact,
             length: this.length,
             outer: this.outer && this.outer.toJSON(),
-            inner: this.inner && this.inner.toJSON(),
+            inner: this.inner && this.inner.toJSON()
         });
     }
 
@@ -252,20 +245,20 @@ class MolecularSequenceStructureVariant extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.variantType) {await this.variantType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.outer) {await this.outer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.inner) {await this.inner.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.variantType) { await this.variantType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.outer) { await this.outer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.inner) { await this.inner.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -274,10 +267,8 @@ class MolecularSequenceStructureVariant extends Element {
             exact: this.exact,
             length: this.length,
             outer: this.outer && this.outer.toJSONInternal(),
-            inner: this.inner && this.inner.toJSONInternal(),
+            inner: this.inner && this.inner.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

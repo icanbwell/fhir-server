@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial.Organism
     Source material shall capture information on the taxonomic and anatomical
@@ -38,7 +37,7 @@ class SubstanceSourceMaterialOrganism extends Element {
      * @param {SubstanceSourceMaterialHybrid|undefined} [hybrid],
      * @param {SubstanceSourceMaterialOrganismGeneral|undefined} [organismGeneral],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -50,7 +49,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription,
             author,
             hybrid,
-            organismGeneral,
+            organismGeneral
         }
     ) {
         super({});
@@ -94,7 +93,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +125,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -146,7 +145,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.family = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -168,7 +167,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.genus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -190,7 +189,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.species = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -210,7 +209,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.intraspecificType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -250,7 +249,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const SubstanceSourceMaterialAuthor = require('../backbone_elements/substanceSourceMaterialAuthor.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.author = FhirResourceCreator.createArray(valueProvided, SubstanceSourceMaterialAuthor);
             }
         });
@@ -270,7 +269,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const SubstanceSourceMaterialHybrid = require('../backbone_elements/substanceSourceMaterialHybrid.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.hybrid = FhirResourceCreator.create(valueProvided, SubstanceSourceMaterialHybrid);
             }
         });
@@ -290,13 +289,10 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 const SubstanceSourceMaterialOrganismGeneral = require('../backbone_elements/substanceSourceMaterialOrganismGeneral.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.organismGeneral = FhirResourceCreator.create(valueProvided, SubstanceSourceMaterialOrganismGeneral);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -310,19 +306,16 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription,
             author,
             hybrid,
-            organismGeneral,
+            organismGeneral
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -335,7 +328,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription: this.intraspecificDescription,
             author: this.author && this.author.map(v => v.toJSON()),
             hybrid: this.hybrid && this.hybrid.toJSON(),
-            organismGeneral: this.organismGeneral && this.organismGeneral.toJSON(),
+            organismGeneral: this.organismGeneral && this.organismGeneral.toJSON()
         });
     }
 
@@ -344,24 +337,24 @@ class SubstanceSourceMaterialOrganism extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.family) {await this.family.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.genus) {await this.genus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.species) {await this.species.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.intraspecificType) {await this.intraspecificType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.author) {await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.hybrid) {await this.hybrid.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.organismGeneral) {await this.organismGeneral.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.family) { await this.family.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.genus) { await this.genus.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.species) { await this.species.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.intraspecificType) { await this.intraspecificType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.author) { await async.each(this.author, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.hybrid) { await this.hybrid.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.organismGeneral) { await this.organismGeneral.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -373,10 +366,8 @@ class SubstanceSourceMaterialOrganism extends Element {
             intraspecificDescription: this.intraspecificDescription,
             author: this.author && this.author.map(v => v.toJSONInternal()),
             hybrid: this.hybrid && this.hybrid.toJSONInternal(),
-            organismGeneral: this.organismGeneral && this.organismGeneral.toJSONInternal(),
+            organismGeneral: this.organismGeneral && this.organismGeneral.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

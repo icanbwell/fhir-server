@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicationDispense.Substitution
     Indicates that a medication product is to be or has been dispensed for a named
@@ -25,7 +24,7 @@ class MedicationDispenseSubstitution extends Element {
      * @param {CodeableConcept[]|undefined} [reason],
      * @param {Reference[]|undefined} [responsibleParty],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted,
             type,
             reason,
-            responsibleParty,
+            responsibleParty
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class MedicationDispenseSubstitution extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class MedicationDispenseSubstitution extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -149,7 +148,7 @@ class MedicationDispenseSubstitution extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -170,7 +169,7 @@ class MedicationDispenseSubstitution extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -191,13 +190,10 @@ class MedicationDispenseSubstitution extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.responsibleParty = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -207,19 +203,16 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted,
             type,
             reason,
-            responsibleParty,
+            responsibleParty
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -228,7 +221,7 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSON(),
             reason: this.reason && this.reason.map(v => v.toJSON()),
-            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON())
         });
     }
 
@@ -237,20 +230,20 @@ class MedicationDispenseSubstitution extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reason) {await async.each(this.reason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.responsibleParty) {await async.each(this.responsibleParty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reason) { await async.each(this.reason, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.responsibleParty) { await async.each(this.responsibleParty, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -258,10 +251,8 @@ class MedicationDispenseSubstitution extends Element {
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSONInternal(),
             reason: this.reason && this.reason.map(v => v.toJSONInternal()),
-            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -8,22 +8,22 @@ const env = require('var');
  * @param {Error} error
  * @returns {OperationOutcome}
  */
-function convertErrorToOperationOutcome({error}) {
-    return error.issue && error.issue.length > 0 ?
-        new OperationOutcome({
+function convertErrorToOperationOutcome ({ error }) {
+    return error.issue && error.issue.length > 0
+        ? new OperationOutcome({
             issue: error.issue
-        }) :
-        new OperationOutcome({
+        })
+        : new OperationOutcome({
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',
                     code: 'internal',
                     details: new CodeableConcept({
-                        text: `Unexpected: ${error.message}`,
+                        text: `Unexpected: ${error.message}`
                     }),
-                    diagnostics: env.IS_PRODUCTION ? error.message : error.stack,
-                }),
-            ],
+                    diagnostics: env.IS_PRODUCTION ? error.message : error.stack
+                })
+            ]
         });
 }
 

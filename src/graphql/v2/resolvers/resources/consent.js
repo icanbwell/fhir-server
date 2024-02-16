@@ -16,14 +16,14 @@ module.exports = {
         }
     },
     ConsentPerformer: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     ConsentSourceReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Consent: {
         // noinspection JSUnusedLocalSymbols
@@ -65,7 +65,6 @@ module.exports = {
                 context,
                 info,
                 parent.sourceReference);
-        },
+        }
     }
 };
-

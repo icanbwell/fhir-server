@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Coverage.CostToBeneficiary
     Financial instrument which may be used to reimburse or pay for health care
@@ -22,7 +21,7 @@ class CoverageCostToBeneficiary extends Element {
      * @param {Money|undefined} [valueMoney],
      * @param {CoverageException[]|undefined} [exception],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -30,7 +29,7 @@ class CoverageCostToBeneficiary extends Element {
             type,
             valueQuantity,
             valueMoney,
-            exception,
+            exception
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +125,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -146,7 +145,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -166,7 +165,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -187,13 +186,10 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const CoverageException = require('../backbone_elements/coverageException.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.exception = FhirResourceCreator.createArray(valueProvided, CoverageException);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -203,19 +199,16 @@ class CoverageCostToBeneficiary extends Element {
             type,
             valueQuantity,
             valueMoney,
-            exception,
+            exception
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -224,7 +217,7 @@ class CoverageCostToBeneficiary extends Element {
             type: this.type && this.type.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueMoney: this.valueMoney && this.valueMoney.toJSON(),
-            exception: this.exception && this.exception.map(v => v.toJSON()),
+            exception: this.exception && this.exception.map(v => v.toJSON())
         });
     }
 
@@ -233,21 +226,21 @@ class CoverageCostToBeneficiary extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueMoney) {await this.valueMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.exception) {await async.each(this.exception, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueMoney) { await this.valueMoney.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.exception) { await async.each(this.exception, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -255,10 +248,8 @@ class CoverageCostToBeneficiary extends Element {
             type: this.type && this.type.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
             valueMoney: this.valueMoney && this.valueMoney.toJSONInternal(),
-            exception: this.exception && this.exception.map(v => v.toJSONInternal()),
+            exception: this.exception && this.exception.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

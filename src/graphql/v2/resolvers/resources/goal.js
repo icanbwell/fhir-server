@@ -16,19 +16,19 @@ module.exports = {
         }
     },
     GoalSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     GoalExpressedBy: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     GoalAddresses: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     Goal: {
         // noinspection JSUnusedLocalSymbols
@@ -70,7 +70,6 @@ module.exports = {
                 context,
                 info,
                 parent.outcomeReference);
-        },
+        }
     }
 };
-

@@ -4,10 +4,9 @@
 
 const hash = require('object-hash');
 const crypto = require('crypto');
-const {v5: uuidv5, validate: uuidValidate} = require('uuid');
-const {UUID} = require('mongodb').BSON;
+const { v5: uuidv5, validate: uuidValidate } = require('uuid');
+const { UUID } = require('mongodb').BSON;
 const OID_NAMESPACE = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
-
 
 /**
  * Make a hash of the object for use as a UUID.
@@ -47,14 +46,14 @@ const generateUUIDv5 = (name) => uuidv5(name, OID_NAMESPACE);
  */
 const generateUUID = () => crypto.randomUUID();
 
-const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
 /**
  * Checks whether the provided string is a uuid using regex
  * @param {string|undefined|null} text
  * @return {boolean}
  */
-function isUuid(text) {
+function isUuid (text) {
     // uuidValidate does not support UUIDv7 yet: https://github.com/uuidjs/uuid/issues/580
     return text && (uuidValidate(text) || uuidRegex.test(text));
 }
@@ -64,7 +63,7 @@ function isUuid(text) {
  * @param uuid
  * @return {import('mongodb').BSON.UUID}
  */
-function convertToMongoUuid(uuid) {
+function convertToMongoUuid (uuid) {
     if (uuid instanceof UUID) {
         return uuid;
     }
@@ -76,7 +75,7 @@ function convertToMongoUuid(uuid) {
  * Converts a mongo uuid to a uuid string
  * @param {import('mongodb').BSON.UUID} uuid
  */
-function convertFromMongoUuid(uuid) {
+function convertFromMongoUuid (uuid) {
     if (uuid instanceof String) {
         return uuid;
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Age
     A duration of time during which an organism (or a process) has existed.
@@ -21,13 +20,13 @@ class Age extends Element {
      * @param {uri|undefined} [system],
      * @param {code|undefined} [code],
     */
-    constructor(
+    constructor (
         {
             value,
             comparator,
             unit,
             system,
-            code,
+            code
         }
     ) {
         super({});
@@ -127,35 +126,29 @@ class Age extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             value,
             comparator,
             unit,
             system,
-            code,
+            code
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             value: this.value,
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         });
     }
 
@@ -164,24 +157,22 @@ class Age extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             value: this.value,
             comparator: this.comparator,
             unit: this.unit,
             system: this.system,
-            code: this.code,
+            code: this.code
         };
-
-
 
         return removeNull(json);
     }

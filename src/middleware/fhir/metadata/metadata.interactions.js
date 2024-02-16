@@ -2,15 +2,15 @@
  * Generate a list of interactions a particular profile can support
  * keep a local copy of interactions so this does not need to happen each time
  */
-let profileInteractions = {};
+const profileInteractions = {};
 
-let generateInteractions = (resourceType) => {
+const generateInteractions = (resourceType) => {
     // return from cache if it exists
     if (profileInteractions[`${resourceType}`]) {
         return profileInteractions[`${resourceType}`];
     }
 
-    let interactions = []; // Test for the existence of a service method
+    const interactions = []; // Test for the existence of a service method
 
     // https://www.hl7.org/fhir/valueset-type-restful-interaction.html
 

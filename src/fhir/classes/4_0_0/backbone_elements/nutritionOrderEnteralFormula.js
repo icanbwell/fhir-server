@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NutritionOrder.EnteralFormula
     A request to supply a diet, formula feeding (enteral) or oral nutritional
@@ -27,7 +26,7 @@ class NutritionOrderEnteralFormula extends Element {
      * @param {Quantity|undefined} [maxVolumeToDeliver],
      * @param {String|undefined} [administrationInstruction],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -40,7 +39,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration,
             administration,
             maxVolumeToDeliver,
-            administrationInstruction,
+            administrationInstruction
         }
     ) {
         super({});
@@ -84,7 +83,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -116,7 +115,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -137,7 +136,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.baseFormulaType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -177,7 +176,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additiveType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -219,7 +218,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.caloricDensity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -241,7 +240,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.routeofAdministration = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -264,7 +263,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const NutritionOrderAdministration = require('../backbone_elements/nutritionOrderAdministration.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.administration = FhirResourceCreator.createArray(valueProvided, NutritionOrderAdministration);
             }
         });
@@ -285,7 +284,7 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.maxVolumeToDeliver = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -309,9 +308,6 @@ class NutritionOrderEnteralFormula extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -325,19 +321,16 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration,
             administration,
             maxVolumeToDeliver,
-            administrationInstruction,
+            administrationInstruction
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -351,7 +344,7 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSON(),
             administration: this.administration && this.administration.map(v => v.toJSON()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSON(),
-            administrationInstruction: this.administrationInstruction,
+            administrationInstruction: this.administrationInstruction
         });
     }
 
@@ -360,23 +353,23 @@ class NutritionOrderEnteralFormula extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.baseFormulaType) {await this.baseFormulaType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additiveType) {await this.additiveType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.caloricDensity) {await this.caloricDensity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.routeofAdministration) {await this.routeofAdministration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.administration) {await async.each(this.administration, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.maxVolumeToDeliver) {await this.maxVolumeToDeliver.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.baseFormulaType) { await this.baseFormulaType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.additiveType) { await this.additiveType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.caloricDensity) { await this.caloricDensity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.routeofAdministration) { await this.routeofAdministration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.administration) { await async.each(this.administration, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.maxVolumeToDeliver) { await this.maxVolumeToDeliver.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -389,10 +382,8 @@ class NutritionOrderEnteralFormula extends Element {
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSONInternal(),
             administration: this.administration && this.administration.map(v => v.toJSONInternal()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSONInternal(),
-            administrationInstruction: this.administrationInstruction,
+            administrationInstruction: this.administrationInstruction
         };
-
-
 
         return removeNull(json);
     }

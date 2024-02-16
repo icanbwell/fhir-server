@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubscriptionTopic.CanFilterBy
     Describes a stream of resource state changes or events and annotated with
@@ -23,7 +22,7 @@ class SubscriptionTopicCanFilterBy extends Element {
      * @param {uri|undefined} [filterDefinition],
      * @param {code[]|undefined} [modifier],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource,
             filterParameter,
             filterDefinition,
-            modifier,
+            modifier
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class SubscriptionTopicCanFilterBy extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class SubscriptionTopicCanFilterBy extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -213,9 +212,6 @@ class SubscriptionTopicCanFilterBy extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -225,19 +221,16 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource,
             filterParameter,
             filterDefinition,
-            modifier,
+            modifier
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -247,7 +240,7 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource: this.resource,
             filterParameter: this.filterParameter,
             filterDefinition: this.filterDefinition,
-            modifier: this.modifier,
+            modifier: this.modifier
         });
     }
 
@@ -256,17 +249,17 @@ class SubscriptionTopicCanFilterBy extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -275,10 +268,8 @@ class SubscriptionTopicCanFilterBy extends Element {
             resource: this.resource,
             filterParameter: this.filterParameter,
             filterDefinition: this.filterDefinition,
-            modifier: this.modifier,
+            modifier: this.modifier
         };
-
-
 
         return removeNull(json);
     }

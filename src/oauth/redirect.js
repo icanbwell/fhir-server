@@ -12,7 +12,7 @@ $(document).ready(function () {
         grant_type: 'authorization_code',
         client_id: parameters.get('clientId'),
         code: authCode,
-        redirect_uri: window.location.origin + '/authcallback',
+        redirect_uri: window.location.origin + '/authcallback'
     };
 
     const querystring = $.param(data);
@@ -23,12 +23,12 @@ $(document).ready(function () {
             method: 'post',
             data: querystring,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         })
         .then(function (res) {
             const accessToken = res.data.access_token;
-            var jwt = parseJwt(accessToken);
+            const jwt = parseJwt(accessToken);
 
             setCookie('jwt', accessToken, jwt.exp);
 
@@ -42,23 +42,23 @@ $(document).ready(function () {
         });
 });
 
-function getUrlVars() {
+function getUrlVars () {
     const queryString = window.location.search;
     // console.log(queryString);
     const urlParams = new URLSearchParams(queryString);
     return urlParams;
 }
 
-function setCookie(cookie_name, cookie_value, expirationTime) {
+function setCookie (cookie_name, cookie_value, expirationTime) {
     const d = new Date(expirationTime * 1000);
-    let expires = 'expires=' + d.toUTCString();
+    const expires = 'expires=' + d.toUTCString();
     document.cookie = cookie_name + '=' + cookie_value + ';' + expires + ';path=/; samesite=strict';
 }
 
-function parseJwt(token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(
+function parseJwt (token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
         window
             .atob(base64)
             .split('')

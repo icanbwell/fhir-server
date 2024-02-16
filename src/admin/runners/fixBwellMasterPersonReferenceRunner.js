@@ -17,7 +17,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {string[]} preLoadCollections
      * @param {boolean} logUnresolvedReferencesToFile
      */
-    constructor({ preLoadCollections, logUnresolvedReferencesToFile, ...args }) {
+    constructor ({ preLoadCollections, logUnresolvedReferencesToFile, ...args }) {
         super(args);
 
         /**
@@ -39,12 +39,13 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             this.writeStream.write('{\n');
         }
     }
+
     /**
      * Updates the reference if it is present in cache and removes duplicate references
      * @param {Resource} resource
      * @return {Promise<Reference>}
      */
-    async updateResourceReferenceAsync(resource, isHistoryDoc) {
+    async updateResourceReferenceAsync (resource, isHistoryDoc) {
         /**
          * @type {Set<string>}
          */
@@ -57,7 +58,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
         try {
             if (resource?.link) {
                 resource.link = resource.link.map(link => {
-                    let reference = link?.target;
+                    const reference = link?.target;
                     if (!reference || !reference.reference) {
                         return reference;
                     }
@@ -133,7 +134,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             }
                         }
                     }
-                    return {...link, target: reference};
+                    return { ...link, target: reference };
                     // remove duplicate fields as they were duplicates
                 }).filter(link => {
                     if (uuidSet.has(link.target._uuid)) {
@@ -178,7 +179,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         try {
             /**
              * @type {boolean}
@@ -201,7 +202,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
             // for speed, first check if the incoming resource is exactly the same
             let updatedResourceJsonInternal = resource.toJSONInternal();
-            let currentResourceJsonInternal = currentResource.toJSONInternal();
+            const currentResourceJsonInternal = currentResource.toJSONInternal();
 
             if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
                 return operations;
@@ -238,7 +239,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async addIndexesToCollection({ collectionName, mongoConfig }) {
+    async addIndexesToCollection ({ collectionName, mongoConfig }) {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         try {
@@ -251,7 +252,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     {
                         'resource.meta.security.system': 1,
                         'resource.meta.security.code': 1,
-                        '_id': 1
+                        _id: 1
                     },
                     {
                         name: indexName
@@ -259,7 +260,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 );
             }
         } catch (e) {
-
             throw new RethrownError(
                 {
                     message: `Error creating indexes for collection ${collectionName}, ${e.message}`,
@@ -279,14 +279,14 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {String[]}
      */
-    async getUuidsForMainResource({ collectionName, mongoConfig }) {
+    async getUuidsForMainResource ({ collectionName, mongoConfig }) {
         this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
-        let result = [];
+        const result = [];
         /**
          * @type {Object}
          */
-        let projection = {
-            _uuid: 1,
+        const projection = {
+            _uuid: 1
         };
         /**
          * @type {require('mongodb').collection}
@@ -315,8 +315,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 {
                     message: `Error fetching uuids for collection ${collectionName}, ${e.message}`,
                     error: e,
-                    source: 'FixBwellMasterPersonReferenceRunner.getUuidsForMainResource',
-                },
+                    source: 'FixBwellMasterPersonReferenceRunner.getUuidsForMainResource'
+                }
             );
         } finally {
             await session.endSession();
@@ -329,7 +329,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -366,7 +366,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     const query = this.getQueryForResource(isHistoryCollection);
 
                     if (isHistoryCollection) {
-                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                        await this.addIndexesToCollection({ collectionName, mongoConfig });
                     }
                     const startFromIdContainer = this.createStartFromIdContainer();
 
@@ -388,7 +388,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skip: this.skip,
                             filterToIds: isHistoryCollection ? await this.getUuidsForMainResource({
                                 collectionName: collectionName.replace('_History', ''),
-                                mongoConfig,
+                                mongoConfig
                             }) : undefined,
                             filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
                             useEstimatedCount: true
@@ -431,8 +431,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
      * @returns {Promise<void>}
      */
-    async preloadReferencesAsync({ mongoConfig }) {
-        let promises = [];
+    async preloadReferencesAsync ({ mongoConfig }) {
+        const promises = [];
 
         if (this.preLoadCollections.length > 0 && this.preLoadCollections[0] === 'all') {
             /**
@@ -454,7 +454,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async cacheReferencesAsync({ mongoConfig, collectionName }) {
+    async cacheReferencesAsync ({ mongoConfig, collectionName }) {
         this.adminLogger.logInfo(`Starting reference caching for collection: ${collectionName}`);
         /**
          * @type {boolean}
@@ -529,7 +529,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {Resource} doc
      * @param {string} collectionName
      */
-    cacheReferenceFromResource({ doc, collectionName }) {
+    cacheReferenceFromResource ({ doc, collectionName }) {
         /**
          * @type {string}
          */
@@ -583,7 +583,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         // create a query from the parameters
         /**
          * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -598,11 +598,11 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             {
                 [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {
                     $elemMatch: {
-                        'system': SecurityTagSystem.owner,
-                        'code': 'bwell'
+                        system: SecurityTagSystem.owner,
+                        code: 'bwell'
                     }
                 }
-            },
+            }
         ];
 
         // merge query and filterQuery

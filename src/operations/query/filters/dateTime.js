@@ -3,10 +3,10 @@ const {
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder
 } = require('../../../utils/querybuilder.util');
-const {isColumnDateType} = require('../../common/isColumnDateType');
-const {BaseFilter} = require('./baseFilter');
+const { isColumnDateType } = require('../../common/isColumnDateType');
+const { BaseFilter } = require('./baseFilter');
 
-function isPeriodField(fieldString) {
+function isPeriodField (fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod' || fieldString === 'executionPeriod';
 }
 
@@ -20,7 +20,7 @@ class FilterByDateTime extends BaseFilter {
      * @param {string} value
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filterByItem(field, value) {
+    filterByItem (field, value) {
         // prettier-ignore
         const isDateSearchingPeriod = isPeriodField(field);
         if (isDateSearchingPeriod) {
@@ -42,14 +42,14 @@ class FilterByDateTime extends BaseFilter {
                         dateSearchParameter: value,
                         type: this.propertyObj.type
                     }
-                ),
+                )
             };
         } else {
             // if this is date as a string
             return {
                 [this.fieldMapper.getFieldName(field)]: dateQueryBuilder({
                     date: value, type: this.propertyObj.type
-                }),
+                })
             };
         }
     }
@@ -58,7 +58,7 @@ class FilterByDateTime extends BaseFilter {
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    filter() {
+    filter () {
         /**
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
@@ -69,8 +69,8 @@ class FilterByDateTime extends BaseFilter {
                     $or: this.propertyObj.fields.flatMap((field) => {
                             return this.filterByField(field, this.parsedArg.queryParameterValue);
                         }
-                    ),
-                },
+                    )
+                }
             );
         }
 
@@ -82,7 +82,7 @@ class FilterByDateTime extends BaseFilter {
      * @param {string} field
      * @param {import('../queryParameterValue').QueryParameterValue} queryParameterValue
      */
-    filterByField(field, queryParameterValue) {
+    filterByField (field, queryParameterValue) {
         const childQueries = queryParameterValue.values.flatMap((v) => {
             return this.filterByItem(field, v);
         });
@@ -116,27 +116,26 @@ class FilterByDateTime extends BaseFilter {
                         nestedKeys.forEach((k) => {
                             simplifiedRangeQuery[`${k}`] = nestedRangeQuery[`${k}`];
                         });
-                    }
-                    else {
+                    } else {
                         newChildQueries.push(childQuery);
                     }
                 });
             }
 
             // simplify the range query
-            if (simplifiedRangeQuery['$lt'] && simplifiedRangeQuery['$lte']) {
+            if (simplifiedRangeQuery.$lt && simplifiedRangeQuery.$lte) {
                 // give more preference to $lte
-                delete simplifiedRangeQuery['$lt'];
+                delete simplifiedRangeQuery.$lt;
             }
 
-            if (simplifiedRangeQuery['$gt'] && simplifiedRangeQuery['$gte']) {
+            if (simplifiedRangeQuery.$gt && simplifiedRangeQuery.$gte) {
                 // give more preference to $gte
-                delete simplifiedRangeQuery['$gt'];
+                delete simplifiedRangeQuery.$gt;
             }
 
             if (Object.keys(simplifiedRangeQuery).length > 0) {
                 newChildQueries.push({
-                    [fieldName]: simplifiedRangeQuery,
+                    [fieldName]: simplifiedRangeQuery
                 });
             }
 
@@ -147,5 +146,5 @@ class FilterByDateTime extends BaseFilter {
 }
 
 module.exports = {
-    FilterByDateTime,
+    FilterByDateTime
 };

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Subscription.Channel
     The subscription resource is used to define a push-based subscription from a
@@ -25,7 +24,7 @@ class SubscriptionChannel extends Element {
      * @param {code|undefined} [payload],
      * @param {String[]|undefined} [header],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class SubscriptionChannel extends Element {
             type,
             endpoint,
             payload,
-            header,
+            header
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class SubscriptionChannel extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class SubscriptionChannel extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -189,9 +188,6 @@ class SubscriptionChannel extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -200,19 +196,16 @@ class SubscriptionChannel extends Element {
             type,
             endpoint,
             payload,
-            header,
+            header
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -221,7 +214,7 @@ class SubscriptionChannel extends Element {
             type: this.type,
             endpoint: this.endpoint,
             payload: this.payload,
-            header: this.header,
+            header: this.header
         });
     }
 
@@ -230,17 +223,17 @@ class SubscriptionChannel extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -248,10 +241,8 @@ class SubscriptionChannel extends Element {
             type: this.type,
             endpoint: this.endpoint,
             payload: this.payload,
-            header: this.header,
+            header: this.header
         };
-
-
 
         return removeNull(json);
     }

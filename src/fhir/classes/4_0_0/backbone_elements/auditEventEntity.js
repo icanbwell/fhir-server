@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AuditEvent.Entity
     A record of an event made for purposes of maintaining a security log. Typical
@@ -28,7 +27,7 @@ class AuditEventEntity extends Element {
      * @param {base64Binary|undefined} [query],
      * @param {AuditEventDetail[]|undefined} [detail],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -41,7 +40,7 @@ class AuditEventEntity extends Element {
             name,
             description,
             query,
-            detail,
+            detail
         }
     ) {
         super({});
@@ -85,7 +84,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -117,7 +116,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -138,7 +137,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.what = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -158,7 +157,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -178,7 +177,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.role = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -198,7 +197,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.lifecycle = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -218,7 +217,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.securityLabel = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -292,13 +291,10 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const AuditEventDetail = require('../backbone_elements/auditEventDetail.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detail = FhirResourceCreator.createArray(valueProvided, AuditEventDetail);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -313,19 +309,16 @@ class AuditEventEntity extends Element {
             name,
             description,
             query,
-            detail,
+            detail
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -339,7 +332,7 @@ class AuditEventEntity extends Element {
             name: this.name,
             description: this.description,
             query: this.query,
-            detail: this.detail && this.detail.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON())
         });
     }
 
@@ -348,23 +341,23 @@ class AuditEventEntity extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.what) {await this.what.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.role) {await this.role.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.lifecycle) {await this.lifecycle.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.securityLabel) {await async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.detail) {await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.what) { await this.what.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.role) { await this.role.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.lifecycle) { await this.lifecycle.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.securityLabel) { await async.each(this.securityLabel, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.detail) { await async.each(this.detail, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -377,10 +370,8 @@ class AuditEventEntity extends Element {
             name: this.name,
             description: this.description,
             query: this.query,
-            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

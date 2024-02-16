@@ -1,15 +1,15 @@
 const async = require('async');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {BadRequestError, ForbiddenError} = require('../../../utils/httpErrors');
-const {ConfigManager} = require('../../../utils/configManager');
-const {DatabaseBulkLoader} = require('../../../dataLayer/databaseBulkLoader');
-const {FhirResourceCreator} = require('../../../fhir/fhirResourceCreator');
-const {MergeManager} = require('../mergeManager');
-const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
-const {ScopesManager} = require('../../security/scopesManager');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
-const {isUuid} = require('../../../utils/uid.util');
-const {BaseValidator} = require('./baseValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { BadRequestError, ForbiddenError } = require('../../../utils/httpErrors');
+const { ConfigManager } = require('../../../utils/configManager');
+const { DatabaseBulkLoader } = require('../../../dataLayer/databaseBulkLoader');
+const { FhirResourceCreator } = require('../../../fhir/fhirResourceCreator');
+const { MergeManager } = require('../mergeManager');
+const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
+const { ScopesManager } = require('../../security/scopesManager');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { isUuid } = require('../../../utils/uid.util');
+const { BaseValidator } = require('./baseValidator');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -19,7 +19,7 @@ class MergeResourceValidator extends BaseValidator {
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
         scopesManager,
         mergeManager,
         databaseBulkLoader,
@@ -68,7 +68,7 @@ class MergeResourceValidator extends BaseValidator {
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
+    async validate ({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
         /**
          * @type {string[]}
          */
@@ -94,7 +94,10 @@ class MergeResourceValidator extends BaseValidator {
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
             resourcesToMerge: resourcesIncomingArray,
-            scopes, user, path, currentDate
+            scopes,
+user,
+path,
+currentDate
         });
 
         // process only the resources that are valid

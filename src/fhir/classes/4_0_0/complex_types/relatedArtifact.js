@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RelatedArtifact
     Related artifacts such as additional documentation, justification, or
@@ -26,7 +25,7 @@ class RelatedArtifact extends Element {
      * @param {Attachment|undefined} [document],
      * @param {canonical|undefined} [resource],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -36,7 +35,7 @@ class RelatedArtifact extends Element {
             citation,
             url,
             document,
-            resource,
+            resource
         }
     ) {
         super({});
@@ -80,7 +79,7 @@ class RelatedArtifact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -194,7 +193,7 @@ class RelatedArtifact extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.document = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -218,9 +217,6 @@ class RelatedArtifact extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -231,19 +227,16 @@ class RelatedArtifact extends Element {
             citation,
             url,
             document,
-            resource,
+            resource
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -254,7 +247,7 @@ class RelatedArtifact extends Element {
             citation: this.citation,
             url: this.url,
             document: this.document && this.document.toJSON(),
-            resource: this.resource,
+            resource: this.resource
         });
     }
 
@@ -263,17 +256,17 @@ class RelatedArtifact extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.document) {await this.document.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.document) { await this.document.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -283,10 +276,8 @@ class RelatedArtifact extends Element {
             citation: this.citation,
             url: this.url,
             document: this.document && this.document.toJSONInternal(),
-            resource: this.resource,
+            resource: this.resource
         };
-
-
 
         return removeNull(json);
     }

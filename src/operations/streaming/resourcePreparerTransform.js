@@ -1,9 +1,9 @@
-const {Transform} = require('stream');
-const {logInfo, logError} = require('../common/logging');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {RethrownError} = require('../../utils/rethrownError');
-const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const { Transform } = require('stream');
+const { logInfo, logError } = require('../common/logging');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { RethrownError } = require('../../utils/rethrownError');
+const { convertErrorToOperationOutcome } = require('../../utils/convertErrorToOperationOutcome');
 const { captureException } = require('../common/sentry');
 
 class ResourcePreparerTransform extends Transform {
@@ -20,7 +20,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {ConfigManager} configManager
      * @param {import('http').ServerResponse} response
      */
-    constructor(
+    constructor (
         {
             user,
             scope,
@@ -31,10 +31,10 @@ class ResourcePreparerTransform extends Transform {
             resourcePreparer,
             highWaterMark,
             configManager,
-            response,
+            response
         }
     ) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+        super({ objectMode: true, highWaterMark });
         /**
          * @type {string|null}
          */
@@ -82,7 +82,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _transform(chunk, encoding, callback) {
+    _transform (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -101,13 +101,13 @@ class ResourcePreparerTransform extends Transform {
                                 chunk1.id
                             }`,
                             {
-                                error: error,
+                                error,
                                 source: 'ResourcePreparer._transform',
                                 args: {
                                     id: chunk1.id,
                                     stack: error?.stack,
-                                    message: error.message,
-                                },
+                                    message: error.message
+                                }
                             }
                         );
                         const rethrownError = new RethrownError({
@@ -117,9 +117,9 @@ class ResourcePreparerTransform extends Transform {
                                 chunk: chunk1,
                                 reason: error,
                                 message: error?.message,
-                                stack: error?.stack,
+                                stack: error?.stack
                             },
-                            error: error,
+                            error
                         });
                         captureException(rethrownError);
                         /**
@@ -129,7 +129,7 @@ class ResourcePreparerTransform extends Transform {
                             error: {
                                 ...rethrownError,
                                 message: `Error occurred while streaming response for chunk: ${chunk1.id}`
-                            },
+                            }
                         });
                         this.push(operationOutcome);
                     }
@@ -145,16 +145,16 @@ class ResourcePreparerTransform extends Transform {
                 args: {
                     id: chunk.id,
                     stack: e?.stack,
-                    message: e.message,
-                },
+                    message: e.message
+                }
             });
             const error = new RethrownError({
                 message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
                 error: e,
                 args: {
                     id: chunk.id,
-                    chunk: chunk,
-                },
+                    chunk
+                }
             });
 
             captureException(error);
@@ -164,7 +164,7 @@ class ResourcePreparerTransform extends Transform {
             const operationOutcome = convertErrorToOperationOutcome({
                 error: {
                     ...error, message: `Error occurred while streaming response for chunk: ${chunk.id}`
-                },
+                }
             });
             // this is an unexpected error so set statuscode 500
             this.response.statusCode = 500;
@@ -178,11 +178,15 @@ class ResourcePreparerTransform extends Transform {
      * @param chunk1
      * @returns {Promise<Resource[]>}
      */
-    async processChunkAsync(chunk1) {
+    async processChunkAsync (chunk1) {
         return this.resourcePreparer.prepareResourceAsync(
             {
-                user: this.user, scope: this.scope, parsedArgs: this.parsedArgs, element: chunk1,
-                resourceType: this.resourceName, useAccessIndex: this.useAccessIndex
+                user: this.user,
+scope: this.scope,
+parsedArgs: this.parsedArgs,
+element: chunk1,
+                resourceType: this.resourceName,
+useAccessIndex: this.useAccessIndex
             })
             .then(
                 /** @type {Resource[]} */resources => {
@@ -190,7 +194,7 @@ class ResourcePreparerTransform extends Transform {
                         for (const /** @type {Resource} */ resource of resources) {
                             if (resource) {
                                 if (this.configManager.logStreamSteps) {
-                                    logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
+                                    logInfo(`ResourcePreparerTransform: push ${resource.id}`, {});
                                 }
                                 this.push(resource);
                             }
@@ -204,7 +208,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _flush(callback) {
+    _flush (callback) {
         if (this.configManager.logStreamSteps) {
             logInfo('ResourcePreparerTransform: _flush', {});
         }

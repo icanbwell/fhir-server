@@ -5,7 +5,6 @@ const practitionerBundleResource = require('./fixtures/practitioners.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const query = fs.readFileSync(path.resolve(__dirname, './fixtures/updateCareTeam.graphql'), 'utf8');
 
 const {
@@ -13,9 +12,9 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { logInfo, logError } = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Update Care Team Tests', () => {
@@ -62,14 +61,14 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
 
-            let body = resp.body;
+            const body = resp.body;
             if (body.errors) {
-                logError('', {'errors': body.errors});
+                logError('', { errors: body.errors });
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction

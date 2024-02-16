@@ -1,10 +1,10 @@
-const {BaseConverter} = require('./baseConverter');
+const { BaseConverter } = require('./baseConverter');
 
 class ExplanationOfBenefitConverter extends BaseConverter {
-    convert({resource}) {
+    convert ({ resource }) {
         const {
             id,
-            meta: {lastUpdated, source},
+            meta: { lastUpdated, source },
             status,
             type,
             patient,
@@ -12,7 +12,7 @@ class ExplanationOfBenefitConverter extends BaseConverter {
             billablePeriod,
             total,
             item,
-            payment,
+            payment
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);

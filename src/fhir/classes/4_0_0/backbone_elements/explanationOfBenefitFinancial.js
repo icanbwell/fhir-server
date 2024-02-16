@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ExplanationOfBenefit.Financial
     This resource provides: the claim details; adjudication details from the
@@ -25,7 +24,7 @@ class ExplanationOfBenefitFinancial extends Element {
      * @param {unsignedInt|undefined} [usedUnsignedInt],
      * @param {Money|undefined} [usedMoney],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -35,7 +34,7 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString,
             allowedMoney,
             usedUnsignedInt,
-            usedMoney,
+            usedMoney
         }
     ) {
         super({});
@@ -79,7 +78,7 @@ class ExplanationOfBenefitFinancial extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -111,7 +110,7 @@ class ExplanationOfBenefitFinancial extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -131,7 +130,7 @@ class ExplanationOfBenefitFinancial extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -187,7 +186,7 @@ class ExplanationOfBenefitFinancial extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.allowedMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
@@ -225,13 +224,10 @@ class ExplanationOfBenefitFinancial extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.usedMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -243,19 +239,16 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString,
             allowedMoney,
             usedUnsignedInt,
-            usedMoney,
+            usedMoney
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -266,7 +259,7 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString: this.allowedString,
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSON(),
             usedUnsignedInt: this.usedUnsignedInt,
-            usedMoney: this.usedMoney && this.usedMoney.toJSON(),
+            usedMoney: this.usedMoney && this.usedMoney.toJSON()
         });
     }
 
@@ -275,20 +268,20 @@ class ExplanationOfBenefitFinancial extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.allowedMoney) {await this.allowedMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.usedMoney) {await this.usedMoney.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.allowedMoney) { await this.allowedMoney.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.usedMoney) { await this.usedMoney.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -298,10 +291,8 @@ class ExplanationOfBenefitFinancial extends Element {
             allowedString: this.allowedString,
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSONInternal(),
             usedUnsignedInt: this.usedUnsignedInt,
-            usedMoney: this.usedMoney && this.usedMoney.toJSONInternal(),
+            usedMoney: this.usedMoney && this.usedMoney.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

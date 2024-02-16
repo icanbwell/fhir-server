@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 TestScript.Operation
     A structured set of tests against a FHIR server or client implementation to
@@ -35,7 +34,7 @@ class TestScriptOperation extends Element {
      * @param {id|undefined} [targetId],
      * @param {String|undefined} [url],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -56,7 +55,7 @@ class TestScriptOperation extends Element {
             responseId,
             sourceId,
             targetId,
-            url,
+            url
         }
     ) {
         super({});
@@ -100,7 +99,7 @@ class TestScriptOperation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -132,7 +131,7 @@ class TestScriptOperation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -152,7 +151,7 @@ class TestScriptOperation extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -359,7 +358,7 @@ class TestScriptOperation extends Element {
                     return;
                 }
                 const TestScriptRequestHeader = require('../backbone_elements/testScriptRequestHeader.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.requestHeader = FhirResourceCreator.createArray(valueProvided, TestScriptRequestHeader);
             }
         });
@@ -455,9 +454,6 @@ class TestScriptOperation extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -479,19 +475,16 @@ class TestScriptOperation extends Element {
             responseId,
             sourceId,
             targetId,
-            url,
+            url
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -513,7 +506,7 @@ class TestScriptOperation extends Element {
             responseId: this.responseId,
             sourceId: this.sourceId,
             targetId: this.targetId,
-            url: this.url,
+            url: this.url
         });
     }
 
@@ -522,19 +515,19 @@ class TestScriptOperation extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.requestHeader) {await async.each(this.requestHeader, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.requestHeader) { await async.each(this.requestHeader, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -555,10 +548,8 @@ class TestScriptOperation extends Element {
             responseId: this.responseId,
             sourceId: this.sourceId,
             targetId: this.targetId,
-            url: this.url,
+            url: this.url
         };
-
-
 
         return removeNull(json);
     }

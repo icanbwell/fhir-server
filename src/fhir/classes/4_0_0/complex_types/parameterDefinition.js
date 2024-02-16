@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ParameterDefinition
     The parameters to the module. This collection specifies both the input and
@@ -27,7 +26,7 @@ class ParameterDefinition extends Element {
      * @param {code} type,
      * @param {canonical|undefined} [profile],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -37,7 +36,7 @@ class ParameterDefinition extends Element {
             max,
             documentation,
             type,
-            profile,
+            profile
         }
     ) {
         super({});
@@ -81,7 +80,7 @@ class ParameterDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -217,9 +216,6 @@ class ParameterDefinition extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -230,19 +226,16 @@ class ParameterDefinition extends Element {
             max,
             documentation,
             type,
-            profile,
+            profile
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -253,7 +246,7 @@ class ParameterDefinition extends Element {
             max: this.max,
             documentation: this.documentation,
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         });
     }
 
@@ -262,16 +255,16 @@ class ParameterDefinition extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -281,10 +274,8 @@ class ParameterDefinition extends Element {
             max: this.max,
             documentation: this.documentation,
             type: this.type,
-            profile: this.profile,
+            profile: this.profile
         };
-
-
 
         return removeNull(json);
     }

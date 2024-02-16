@@ -1,9 +1,9 @@
-const {Client} = require('@opensearch-project/opensearch');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {FhirOpenSearchVectorStore} = require('./fhirOpenSearchVectorStore');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
-const {BaseVectorStoreManager} = require('./baseVectorStoreManager');
+const { Client } = require('@opensearch-project/opensearch');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { FhirOpenSearchVectorStore } = require('./fhirOpenSearchVectorStore');
+const { OpenAIEmbeddings } = require('@langchain/openai');
+const { BaseVectorStoreManager } = require('./baseVectorStoreManager');
 
 /**
  * @classdesc Implementation of VectorStoreFactory that creates a vector store in memory
@@ -13,7 +13,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor({
+    constructor ({
                     configManager
                 }) {
         super();
@@ -29,7 +29,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * returns whether the vector store is enabled
      * @returns {Promise<boolean>}
      */
-    async isEnabledAsync() {
+    async isEnabledAsync () {
         return this.configManager.openSearchVectorStoreUrl;
     }
 
@@ -37,7 +37,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreInternalAsync() {
+    async createVectorStoreInternalAsync () {
         let openSearchVectorStoreUrl = this.configManager.openSearchVectorStoreUrl;
         if (this.configManager.openSearchVectorStoreUserName !== undefined) {
             openSearchVectorStoreUrl = openSearchVectorStoreUrl.replace(
@@ -51,7 +51,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
         }
 
         const client = new Client({
-            nodes: [openSearchVectorStoreUrl],
+            nodes: [openSearchVectorStoreUrl]
         });
         const embeddings = new OpenAIEmbeddings();
 
@@ -59,7 +59,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
         assertIsValid(indexName === indexName.toLowerCase(), 'openSearchVectorStoreIndexName must be lowercase');
         return new FhirOpenSearchVectorStore(embeddings, {
             client,
-            indexName: indexName,
+            indexName
         });
     }
 
@@ -67,7 +67,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * creates a vector store from a list of langchain documents
      * @returns {Promise<import('langchain/vectorstores').VectorStore>}
      */
-    async createVectorStoreAsync() {
+    async createVectorStoreAsync () {
         if (!this.vectorStore) {
             this.vectorStore = await this.createVectorStoreInternalAsync();
         }
@@ -79,9 +79,9 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter} filter
      * @returns {function(*): boolean| import('langchain/vectorstores/opensearch').OpenSearchFilter}
      */
-    getFilter(filter) {
+    getFilter (filter) {
         // OpenSearchFilter is just of type object
-        return /** @type {import('langchain/vectorstores').OpenSearchFilter}*/ {
+        return /** @type {import('langchain/vectorstores').OpenSearchFilter} */ {
             parentResourceType: filter.resourceType,
             parentUuid: filter.uuid
         };
@@ -92,7 +92,7 @@ class OpenSearchVectorStoreManager extends BaseVectorStoreManager {
      * @param {VectorStoreFilter|undefined} [filter]
      * @return {import('langchain/schema/retriever').BaseRetriever}
      */
-    asRetriever({filter}) {
+    asRetriever ({ filter }) {
         assertIsValid(this.vectorStore, 'vectorStore was not initialized.  Call createVectorStoreAsync() first');
         return this.vectorStore.asRetriever(10, filter ? this.getFilter(filter) : undefined);
     }

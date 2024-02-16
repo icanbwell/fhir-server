@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Provenance
     Provenance of a resource is a record that describes entities and processes
@@ -45,7 +44,7 @@ class Provenance extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -69,7 +68,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -112,7 +111,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -176,7 +175,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -198,7 +197,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -222,7 +221,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -254,7 +253,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -276,7 +275,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.target = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -296,7 +295,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.occurredPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -372,7 +371,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -392,7 +391,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.reason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -414,7 +413,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.activity = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -435,7 +434,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.agent = FhirResourceCreator.createArray(valueProvided, ProvenanceAgent);
             }
         });
@@ -455,7 +454,7 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.entity = FhirResourceCreator.createArray(valueProvided, ProvenanceEntity);
             }
         });
@@ -476,11 +475,10 @@ class Provenance extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.signature = FhirResourceCreator.createArray(valueProvided, Signature);
             }
         });
-
 
         /**
          * @description _access
@@ -535,7 +533,6 @@ class Provenance extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -560,7 +557,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -579,7 +576,7 @@ class Provenance extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Provenance';
     }
 
@@ -610,7 +607,7 @@ class Provenance extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Provenance}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -634,7 +631,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Provenance({
@@ -660,7 +657,7 @@ class Provenance extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -668,17 +665,16 @@ class Provenance extends Resource {
      * @description creates a copy of this resource
      * @returns {Provenance}
     */
-    clone() {
+    clone () {
         return new Provenance(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -700,7 +696,7 @@ class Provenance extends Resource {
             activity: this.activity && this.activity.toJSON(),
             agent: this.agent && this.agent.map(v => v.toJSON()),
             entity: this.entity && this.entity.map(v => v.toJSON()),
-            signature: this.signature && this.signature.map(v => v.toJSON()),
+            signature: this.signature && this.signature.map(v => v.toJSON())
         });
     }
 
@@ -709,28 +705,28 @@ class Provenance extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.target) {await async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.occurredPeriod) {await this.occurredPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.location) {await this.location.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reason) {await async.each(this.reason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.activity) {await this.activity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.agent) {await async.each(this.agent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.entity) {await async.each(this.entity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.signature) {await async.each(this.signature, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.target) { await async.each(this.target, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.occurredPeriod) { await this.occurredPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.location) { await this.location.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.reason) { await async.each(this.reason, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.activity) { await this.activity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.agent) { await async.each(this.agent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.entity) { await async.each(this.entity, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.signature) { await async.each(this.signature, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -751,9 +747,8 @@ class Provenance extends Resource {
             activity: this.activity && this.activity.toJSONInternal(),
             agent: this.agent && this.agent.map(v => v.toJSONInternal()),
             entity: this.entity && this.entity.map(v => v.toJSONInternal()),
-            signature: this.signature && this.signature.map(v => v.toJSONInternal()),
+            signature: this.signature && this.signature.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

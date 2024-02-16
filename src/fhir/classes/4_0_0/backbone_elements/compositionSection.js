@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Composition.Section
     A set of healthcare-related information that is assembled together into a
@@ -35,7 +34,7 @@ class CompositionSection extends Element {
      * @param {CodeableConcept|undefined} [emptyReason],
      * @param {CompositionSection[]|undefined} [section],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -49,7 +48,7 @@ class CompositionSection extends Element {
             orderedBy,
             entry,
             emptyReason,
-            section,
+            section
         }
     ) {
         super({});
@@ -93,7 +92,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -125,7 +124,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -165,7 +164,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -186,7 +185,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.author = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -213,7 +212,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.focus = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -236,7 +235,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -277,7 +276,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.orderedBy = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -298,7 +297,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.entry = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -319,7 +318,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.emptyReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -338,13 +337,10 @@ class CompositionSection extends Element {
                     this.__data.section = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.section = FhirResourceCreator.createArray(valueProvided, CompositionSection);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -360,19 +356,16 @@ class CompositionSection extends Element {
             orderedBy,
             entry,
             emptyReason,
-            section,
+            section
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -387,7 +380,7 @@ class CompositionSection extends Element {
             orderedBy: this.orderedBy && this.orderedBy.toJSON(),
             entry: this.entry && this.entry.map(v => v.toJSON()),
             emptyReason: this.emptyReason && this.emptyReason.toJSON(),
-            section: this.section && this.section.map(v => v.toJSON()),
+            section: this.section && this.section.map(v => v.toJSON())
         });
     }
 
@@ -396,25 +389,25 @@ class CompositionSection extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.author) {await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.focus) {await this.focus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.orderedBy) {await this.orderedBy.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.entry) {await async.each(this.entry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.emptyReason) {await this.emptyReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.section) {await async.each(this.section, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.author) { await async.each(this.author, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.focus) { await this.focus.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.orderedBy) { await this.orderedBy.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.entry) { await async.each(this.entry, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.emptyReason) { await this.emptyReason.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.section) { await async.each(this.section, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -428,10 +421,8 @@ class CompositionSection extends Element {
             orderedBy: this.orderedBy && this.orderedBy.toJSONInternal(),
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
             emptyReason: this.emptyReason && this.emptyReason.toJSONInternal(),
-            section: this.section && this.section.map(v => v.toJSONInternal()),
+            section: this.section && this.section.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

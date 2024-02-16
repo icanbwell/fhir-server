@@ -1,26 +1,26 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
-const {validate, applyPatch, compare} = require('fast-json-patch');
+const { BadRequestError, NotFoundError } = require('../../utils/httpErrors');
+const { validate, applyPatch, compare } = require('fast-json-patch');
 const moment = require('moment-timezone');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {ConfigManager} = require('../../utils/configManager');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { fhirContentTypes } = require('../../utils/contentTypes');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { ConfigManager } = require('../../utils/configManager');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { SearchManager } = require('../search/searchManager');
-const {GRIDFS: {DELETE, RETRIEVE}, OPERATIONS: {WRITE}} = require('../../constants');
+const { GRIDFS: { DELETE, RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
 
 class PatchOperation {
     /**
@@ -36,7 +36,7 @@ class PatchOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
      */
-    constructor(
+    constructor (
         {
             databaseQueryFactory,
             postSaveProcessor,
@@ -112,28 +112,28 @@ class PatchOperation {
      * @param {string} resourceType
      * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
-    async patchAsync({requestInfo, parsedArgs, resourceType}) {
+    async patchAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'patch';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         const {
             requestId,
             method,
             body: patchContent,
             /** @type {import('content-type').ContentType} */ contentTypeFromHeader,
-            /**@type {string} */ userRequestId,
+            /** @type {string} */ userRequestId,
             user,
-            /**@type {string | null} */ scope,
+            /** @type {string | null} */ scope,
             /** @type {string[]} */
             patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            personIdFromJwtToken,
+            personIdFromJwtToken
         } = requestInfo;
 
         // currently we only support JSONPatch
@@ -143,7 +143,7 @@ class PatchOperation {
                 `Only ${fhirContentTypes.jsonPatch} is supported.`;
             throw new BadRequestError(
                 {
-                    'message': message,
+                    message,
                     toString: function () {
                         return message;
                     }
@@ -166,11 +166,10 @@ class PatchOperation {
         });
 
         try {
-
             const currentDate = moment.utc().format('YYYY-MM-DD');
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
-            let {base_version, id} = parsedArgs;
+            const { base_version, id } = parsedArgs;
             // Get current record
             // Query our collection for this observation
             /**
@@ -180,14 +179,14 @@ class PatchOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
@@ -202,30 +201,30 @@ class PatchOperation {
                 operation: WRITE
             });
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                { resourceType, base_version },
+                { resourceType, base_version }
             );
             /**
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await databaseQueryManager.findAsync({ query: query, extraInfo });
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             /**
              * @type {[Resource] | null}
              */
-            let resources = await cursor.toArrayAsync();
+            const resources = await cursor.toArrayAsync();
 
             if (resources.length > 1) {
                 const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security ?
-                        r.meta.security
+                    r => r.meta && r.meta.security
+                        ? r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
-                        : [],
+                        : []
                 ).sort();
                 throw new BadRequestError(new Error(
                     `Multiple resources found with id ${id}.  ` +
                     'Please either specify the owner/sourceAssigningAuthority tag: ' +
                     sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
-                    ' OR use uuid to query.',
+                    ' OR use uuid to query.'
                 ));
             } else if (resources.length === 0) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
@@ -240,7 +239,7 @@ class PatchOperation {
             );
 
             // Validate the patch
-            let errors = validate(patchContent, foundResource);
+            const errors = validate(patchContent, foundResource);
             if (errors) {
                 const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
                 throw new BadRequestError(error);
@@ -249,7 +248,7 @@ class PatchOperation {
             /**
              * @type {Object}
              */
-            let resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
+            const resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
             const appliedPatchContent = compare(foundResource.toJSONInternal(), resource_incoming);
             /**
              * @type {Resource}
@@ -258,7 +257,7 @@ class PatchOperation {
 
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {
-                let meta = foundResource.meta;
+                const meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
@@ -282,7 +281,9 @@ class PatchOperation {
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
                 {
-                    requestId, resourceType, doc: resource,
+                    requestId,
+resourceType,
+doc: resource,
                     uuid: resource._uuid,
                     patches: patchContent.map(
                         p => {
@@ -300,9 +301,11 @@ class PatchOperation {
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version,
+                    requestId,
+currentDate,
+base_version,
                     method,
-                    userRequestId,
+                    userRequestId
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -317,7 +320,6 @@ class PatchOperation {
                     startTime,
                     action: currentOperationName
                 });
-
 
             this.postRequestProcessor.add({
                 requestId,
@@ -336,7 +338,7 @@ class PatchOperation {
                 created: false,
                 updated: true,
                 resource_version: resource.meta.versionId,
-                resource: resource
+                resource
             };
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

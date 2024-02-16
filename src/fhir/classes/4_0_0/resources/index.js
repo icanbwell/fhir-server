@@ -301,6 +301,5 @@ module.exports = {
     testscript,
     valueset,
     verificationresult,
-    visionprescription,
+    visionprescription
 };
-

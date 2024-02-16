@@ -8,7 +8,6 @@ const service = require('./metadata.service.js');
  * @summary Metadata controller
  */
 
-
 module.exports.getCapabilityStatement = ({
                                              profiles,
                                              security,

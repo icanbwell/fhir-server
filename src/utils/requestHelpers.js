@@ -11,7 +11,7 @@ const jsonMimeTypes = ['application/fhir+json', 'application/json', 'json'];
  * @param query
  * @returns {boolean}
  */
-function hasJsonMimeTypeInFormatQuery({query}) {
+function hasJsonMimeTypeInFormatQuery ({ query }) {
     const urlParams = new URLSearchParams(query);
     return urlParams.has('_format') && jsonMimeTypes.includes(urlParams.get('_format'));
 }
@@ -22,7 +22,7 @@ function hasJsonMimeTypeInFormatQuery({query}) {
  * @returns {boolean}
  */
 // eslint-disable-next-line no-unused-vars
-function hasJsonMimeTypeInAcceptsHeader({req}) {
+function hasJsonMimeTypeInAcceptsHeader ({ req }) {
     // https://www.npmjs.com/package/accepts
     const acceptHeader = accepts(req);
     return acceptHeader.type(jsonMimeTypes) !== false;
@@ -37,18 +37,17 @@ const shouldReturnHtml = (req) => {
     return (
         // Postman sends */* so we need this to avoid sending html to Postman
         (// and does not have _format=json
-            ((req.accepts('text/html') && !(req.query['_format'])) /*&& !hasJsonMimeTypeInAcceptsHeader({req})*/) && // if the request is for HTML
+            ((req.accepts('text/html') && !(req.query._format)) /* && !hasJsonMimeTypeInAcceptsHeader({req}) */) && // if the request is for HTML
             (req.method === 'GET' || req.method === 'POST') && // and this is a GET or a POST
-            !hasJsonMimeTypeInFormatQuery({query: req.query}) && (req.useragent && req.useragent.isDesktop))
+            !hasJsonMimeTypeInFormatQuery({ query: req.query }) && (req.useragent && req.useragent.isDesktop))
     );
 };
 
 const shouldStreamResponse = (req) => {
     return (
-        !shouldReturnHtml(req) && !(req.params['_question'])
+        !shouldReturnHtml(req) && !(req.params._question)
     );
 };
-
 
 module.exports = {
     shouldReturnHtml,

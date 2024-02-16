@@ -1,10 +1,10 @@
-const {removeNull} = require('../../../../utils/nullRemover');
+const { removeNull } = require('../../../../utils/nullRemover');
 
 class ResourceContainer {
-    constructor(opts) {
+    constructor (opts) {
         // Create an object to store all props
         Object.defineProperty(this, '__data', {
-            value: {},
+            value: {}
         });
 
         // Define getters and setters as enumerable
@@ -23,7 +23,7 @@ class ResourceContainer {
                 }
 
                 this.__data.id = value;
-            },
+            }
         });
 
         /**
@@ -39,10 +39,10 @@ class ResourceContainer {
                     return;
                 }
 
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
 
                 this.__data.meta = new Meta(value);
-            },
+            }
         });
 
         Object.assign(this, opts);
@@ -52,14 +52,13 @@ class ResourceContainer {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             resourceType: this.resourceType,
             id: this.id,
-            meta: this.meta && this.meta.toJSON(),
+            meta: this.meta && this.meta.toJSON()
         });
     }
 }
 
 module.exports = ResourceContainer;
-

@@ -1,14 +1,14 @@
 const deepcopy = require('deepcopy');
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
-const {BadRequestError} = require('../../utils/httpErrors');
-const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem} = require('./parsedArgsItem');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
-const {QueryParameterValue} = require('./queryParameterValue');
-const {ParsedArgs} = require('./parsedArgs');
-const {ConfigManager} = require('../../utils/configManager');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
+const { STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS } = require('../../constants');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { convertGraphQLParameters } = require('./convertGraphQLParameters');
+const { ParsedArgsItem } = require('./parsedArgsItem');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { FhirTypesManager } = require('../../fhir/fhirTypesManager');
+const { QueryParameterValue } = require('./queryParameterValue');
+const { ParsedArgs } = require('./parsedArgs');
+const { ConfigManager } = require('../../utils/configManager');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -19,7 +19,7 @@ class R4ArgsParser {
      * @param {FhirTypesManager} fhirTypesManager
      * @param {ConfigManager} configManager
      */
-    constructor({fhirTypesManager, configManager}) {
+    constructor ({ fhirTypesManager, configManager }) {
         /**
          * @type {FhirTypesManager}
          */
@@ -40,18 +40,18 @@ class R4ArgsParser {
      * @param {boolean|undefined} [useOrFilterForArrays]  whether to use OR filters for arrays
      * @return {ParsedArgs}
      */
-    parseArgs({resourceType, args, useOrFilterForArrays}) {
+    parseArgs ({ resourceType, args, useOrFilterForArrays }) {
         /**
          * @type {ParsedArgsItem[]}
          */
         const parseArgItems = [];
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
         // ---- start of backward compatibility mappings ---
-        if (args['source'] && !args['_source']) {
-            args['_source'] = args['source'];
+        if (args.source && !args._source) {
+            args._source = args.source;
         }
-        if (args['id'] && !args['_id']) {
-            args['_id'] = args['id'];
+        if (args.id && !args._id) {
+            args._id = args.id;
         }
         if (args['id:above'] && !args['_id:above']) {
             args['_id:above'] = args['id:above'];
@@ -59,14 +59,14 @@ class R4ArgsParser {
         if (args['id:below'] && !args['_id:below']) {
             args['_id:below'] = args['id:below'];
         }
-        if (args['onset_date'] && !args['onset-date']) {
-            args['onset-date'] = args['onset_date'];
+        if (args.onset_date && !args['onset-date']) {
+            args['onset-date'] = args.onset_date;
         }
         // ---- end of backward compatibility mappings ---
 
         // ---- start of add range logic to args sent from the search form   ---
-        if (args['_lastUpdated'] && Array.isArray(args['_lastUpdated'])) {
-            const lastUpdatedArray = args['_lastUpdated'];
+        if (args._lastUpdated && Array.isArray(args._lastUpdated)) {
+            const lastUpdatedArray = args._lastUpdated;
             const newUpdatedArray = [];
             lastUpdatedArray.forEach((value, i) => {
                 const currentPrefix = value.replace(/[^a-z]/gi, '');
@@ -76,14 +76,14 @@ class R4ArgsParser {
                 }
             });
             if (newUpdatedArray.length > 0) {
-                args['_lastUpdated'] = newUpdatedArray;
+                args._lastUpdated = newUpdatedArray;
             }
         }
         // ---- end of add range logic to args sent from the search form   ---
 
         // Represents type of search to be conducted strict or lenient
-        const handlingType = args['handling'];
-        delete args['handling'];
+        const handlingType = args.handling;
+        delete args.handling;
 
         for (const argName in args) {
             let [queryParameter, ...modifiers] = argName.split(':');
@@ -112,7 +112,7 @@ class R4ArgsParser {
                 propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             }
             if (!propertyObj) {
-                propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
+                propertyObj = searchParameterQueries.Resource[`${queryParameter}`];
             }
             /**
              * @type {string | string[]}
@@ -149,8 +149,8 @@ class R4ArgsParser {
             }
 
             // set type of field in propertyObj
-            propertyObj.fieldType = propertyObj.fields.length > 0 ?
-                this.fhirTypesManager.getTypeForField(
+            propertyObj.fieldType = propertyObj.fields.length > 0
+                ? this.fhirTypesManager.getTypeForField(
                     {
                         resourceType,
                         field: propertyObj.firstField
@@ -158,7 +158,7 @@ class R4ArgsParser {
                 ) : null;
 
             let notQueryParameterValue;
-            ({queryParameterValue, notQueryParameterValue} = convertGraphQLParameters(
+            ({ queryParameterValue, notQueryParameterValue } = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
@@ -187,7 +187,7 @@ class R4ArgsParser {
                     notQueryParameterValue.filter(v => v).length > 0
                 )
             ) {
-                let newModifiers = deepcopy(modifiers);
+                const newModifiers = deepcopy(modifiers);
                 newModifiers.push('not');
                 parseArgItems.push(
                     new ParsedArgsItem({
@@ -201,14 +201,13 @@ class R4ArgsParser {
                     })
                 );
             }
-
         }
         /**
          * @type {ParsedArgs}
          */
         const parsedArgs = new ParsedArgs(
             {
-                base_version: args['base_version'],
+                base_version: args.base_version,
                 parsedArgItems: parseArgItems
             }
         );

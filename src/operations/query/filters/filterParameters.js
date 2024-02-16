@@ -8,7 +8,7 @@ class FilterParameters {
      * @param {string} resourceType
      * @param {boolean|undefined} enableGlobalIdSupport
      */
-    constructor(
+    constructor (
         {
             propertyObj,
             parsedArg,

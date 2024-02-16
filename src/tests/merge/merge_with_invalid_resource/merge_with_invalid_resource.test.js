@@ -8,6 +8,8 @@ const {
     createTestRequest
 } = require('../../common');
 
+const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+
 describe('Invalid Resource Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();

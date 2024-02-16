@@ -16,9 +16,9 @@ module.exports = {
         }
     },
     CatalogEntryReferencedItem: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     CatalogEntry: {
         // noinspection JSUnusedLocalSymbols
@@ -30,7 +30,6 @@ module.exports = {
                 context,
                 info,
                 parent.referencedItem);
-        },
+        }
     }
 };
-

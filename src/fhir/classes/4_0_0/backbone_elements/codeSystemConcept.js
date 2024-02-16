@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem.Concept
     The CodeSystem resource is used to declare the existence of and describe a
@@ -25,7 +24,7 @@ class CodeSystemConcept extends Element {
      * @param {CodeSystemProperty1[]|undefined} [property],
      * @param {CodeSystemConcept[]|undefined} [concept],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -35,7 +34,7 @@ class CodeSystemConcept extends Element {
             definition,
             designation,
             property,
-            concept,
+            concept
         }
     ) {
         super({});
@@ -79,7 +78,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -111,7 +110,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -191,7 +190,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.designation = FhirResourceCreator.createArray(valueProvided, CodeSystemDesignation);
             }
         });
@@ -211,7 +210,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.property = FhirResourceCreator.createArray(valueProvided, CodeSystemProperty1);
             }
         });
@@ -232,13 +231,10 @@ class CodeSystemConcept extends Element {
                     this.__data.concept = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.concept = FhirResourceCreator.createArray(valueProvided, CodeSystemConcept);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -250,19 +246,16 @@ class CodeSystemConcept extends Element {
             definition,
             designation,
             property,
-            concept,
+            concept
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -273,7 +266,7 @@ class CodeSystemConcept extends Element {
             definition: this.definition,
             designation: this.designation && this.designation.map(v => v.toJSON()),
             property: this.property && this.property.map(v => v.toJSON()),
-            concept: this.concept && this.concept.map(v => v.toJSON()),
+            concept: this.concept && this.concept.map(v => v.toJSON())
         });
     }
 
@@ -282,20 +275,20 @@ class CodeSystemConcept extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.designation) {await async.each(this.designation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.property) {await async.each(this.property, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.concept) {await async.each(this.concept, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.designation) { await async.each(this.designation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.property) { await async.each(this.property, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.concept) { await async.each(this.concept, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -305,10 +298,8 @@ class CodeSystemConcept extends Element {
             definition: this.definition,
             designation: this.designation && this.designation.map(v => v.toJSONInternal()),
             property: this.property && this.property.map(v => v.toJSONInternal()),
-            concept: this.concept && this.concept.map(v => v.toJSONInternal()),
+            concept: this.concept && this.concept.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

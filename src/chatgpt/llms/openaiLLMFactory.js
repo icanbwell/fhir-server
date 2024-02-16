@@ -1,15 +1,15 @@
-const {ChatOpenAI} = require('langchain/chat_models/openai');
-const {ConsoleCallbackHandler} = require('langchain/callbacks');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {ConfigManager} = require('../../utils/configManager');
-const {LLMFactory} = require('./llmFactory');
+const { ChatOpenAI } = require('@langchain/openai');
+const { ConsoleCallbackHandler } = require('@langchain/core/callbacks/base');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { ConfigManager } = require('../../utils/configManager');
+const { LLMFactory } = require('./llmFactory');
 
-class OpenAILLMFactory extends LLMFactory{
+class OpenAILLMFactory extends LLMFactory {
     /**
      * constructor
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             configManager
         }
@@ -24,7 +24,7 @@ class OpenAILLMFactory extends LLMFactory{
      * @param verbose
      * @return {Promise<import('langchain/chat_models').BaseChatModel>}
      */
-    async createAsync({verbose}) {
+    async createAsync ({ verbose }) {
         return new ChatOpenAI(
             {
                 openAIApiKey: this.configManager.openAIApiKey,
@@ -37,7 +37,7 @@ class OpenAILLMFactory extends LLMFactory{
                 // This handler will be used for all calls made with this LLM.
                 callbacks: verbose ? [new ConsoleCallbackHandler()] : [],
                 // maxTokens: 3800,
-                verbose: verbose,
+                verbose,
                 cache: true // cache in memory
             }
         );
@@ -47,4 +47,3 @@ class OpenAILLMFactory extends LLMFactory{
 module.exports = {
     OpenAILLMFactory
 };
-

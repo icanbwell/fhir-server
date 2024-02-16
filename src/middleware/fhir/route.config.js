@@ -6,8 +6,7 @@ const {
  * @description Common express routes used for all resources
  */
 
-
-let routes = [
+const routes = [
     {
         type: 'patch',
         path: '/:base_version/:resource/:id',
@@ -86,7 +85,7 @@ let routes = [
  * @description Common express arguments used on many routes as route params
  */
 
-let routeArgs = {
+const routeArgs = {
     BASE: {
         name: 'base_version',
         type: 'string',
@@ -109,6 +108,6 @@ let routeArgs = {
  */
 
 module.exports = {
-    routeArgs: routeArgs,
+    routeArgs,
     routes
 };

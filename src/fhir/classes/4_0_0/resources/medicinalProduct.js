@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProduct
     Detailed definition of a medicinal product, typically for uses other than
@@ -47,7 +46,7 @@ class MedicinalProduct extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -80,7 +79,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -123,7 +122,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -187,7 +186,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -209,7 +208,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -233,7 +232,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -265,7 +264,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -285,7 +284,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -305,7 +304,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -325,7 +324,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.domain = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -346,7 +345,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.combinedPharmaceuticalDoseForm = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -367,7 +366,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.legalStatusOfSupply = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -388,7 +387,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additionalMonitoringIndicator = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -427,7 +426,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.paediatricUseIndicator = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -447,7 +446,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.productClassification = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -468,7 +467,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const MarketingStatus = require('../backbone_elements/marketingStatus.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.marketingStatus = FhirResourceCreator.createArray(valueProvided, MarketingStatus);
             }
         });
@@ -488,7 +487,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.pharmaceuticalProduct = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -508,7 +507,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.packagedMedicinalProduct = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -528,7 +527,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.attachedDocument = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -549,7 +548,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.masterFile = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -569,7 +568,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contact = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -589,7 +588,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.clinicalTrial = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -609,7 +608,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const MedicinalProductName = require('../backbone_elements/medicinalProductName.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.name = FhirResourceCreator.createArray(valueProvided, MedicinalProductName);
             }
         });
@@ -630,7 +629,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.crossReference = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -651,7 +650,7 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const MedicinalProductManufacturingBusinessOperation = require('../backbone_elements/medicinalProductManufacturingBusinessOperation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.manufacturingBusinessOperation = FhirResourceCreator.createArray(valueProvided, MedicinalProductManufacturingBusinessOperation);
             }
         });
@@ -672,11 +671,10 @@ class MedicinalProduct extends Resource {
                     return;
                 }
                 const MedicinalProductSpecialDesignation = require('../backbone_elements/medicinalProductSpecialDesignation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.specialDesignation = FhirResourceCreator.createArray(valueProvided, MedicinalProductSpecialDesignation);
             }
         });
-
 
         /**
          * @description _access
@@ -731,7 +729,6 @@ class MedicinalProduct extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -765,7 +762,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -784,7 +781,7 @@ class MedicinalProduct extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'MedicinalProduct';
     }
 
@@ -824,7 +821,7 @@ class MedicinalProduct extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProduct}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -857,7 +854,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new MedicinalProduct({
@@ -892,7 +889,7 @@ class MedicinalProduct extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -900,17 +897,16 @@ class MedicinalProduct extends Resource {
      * @description creates a copy of this resource
      * @returns {MedicinalProduct}
     */
-    clone() {
+    clone () {
         return new MedicinalProduct(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -941,7 +937,7 @@ class MedicinalProduct extends Resource {
             name: this.name && this.name.map(v => v.toJSON()),
             crossReference: this.crossReference && this.crossReference.map(v => v.toJSON()),
             manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSON()),
-            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSON()),
+            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSON())
         });
     }
 
@@ -950,39 +946,39 @@ class MedicinalProduct extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.domain) {await this.domain.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.combinedPharmaceuticalDoseForm) {await this.combinedPharmaceuticalDoseForm.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.legalStatusOfSupply) {await this.legalStatusOfSupply.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additionalMonitoringIndicator) {await this.additionalMonitoringIndicator.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.paediatricUseIndicator) {await this.paediatricUseIndicator.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.productClassification) {await async.each(this.productClassification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.marketingStatus) {await async.each(this.marketingStatus, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.pharmaceuticalProduct) {await async.each(this.pharmaceuticalProduct, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.packagedMedicinalProduct) {await async.each(this.packagedMedicinalProduct, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.attachedDocument) {await async.each(this.attachedDocument, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.masterFile) {await async.each(this.masterFile, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.clinicalTrial) {await async.each(this.clinicalTrial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.name) {await async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.crossReference) {await async.each(this.crossReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.manufacturingBusinessOperation) {await async.each(this.manufacturingBusinessOperation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.specialDesignation) {await async.each(this.specialDesignation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.domain) { await this.domain.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.combinedPharmaceuticalDoseForm) { await this.combinedPharmaceuticalDoseForm.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.legalStatusOfSupply) { await this.legalStatusOfSupply.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.additionalMonitoringIndicator) { await this.additionalMonitoringIndicator.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.paediatricUseIndicator) { await this.paediatricUseIndicator.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.productClassification) { await async.each(this.productClassification, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.marketingStatus) { await async.each(this.marketingStatus, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.pharmaceuticalProduct) { await async.each(this.pharmaceuticalProduct, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.packagedMedicinalProduct) { await async.each(this.packagedMedicinalProduct, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.attachedDocument) { await async.each(this.attachedDocument, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.masterFile) { await async.each(this.masterFile, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contact) { await async.each(this.contact, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.clinicalTrial) { await async.each(this.clinicalTrial, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.name) { await async.each(this.name, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.crossReference) { await async.each(this.crossReference, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.manufacturingBusinessOperation) { await async.each(this.manufacturingBusinessOperation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.specialDesignation) { await async.each(this.specialDesignation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -1012,9 +1008,8 @@ class MedicinalProduct extends Resource {
             name: this.name && this.name.map(v => v.toJSONInternal()),
             crossReference: this.crossReference && this.crossReference.map(v => v.toJSONInternal()),
             manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSONInternal()),
-            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSONInternal()),
+            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 RequestGroup.RelatedAction
     A group of related requests that can be used to capture intended activities
@@ -22,7 +21,7 @@ class RequestGroupRelatedAction extends Element {
      * @param {Quantity|undefined} [offsetDuration],
      * @param {Range|undefined} [offsetRange],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -30,7 +29,7 @@ class RequestGroupRelatedAction extends Element {
             actionId,
             relationship,
             offsetDuration,
-            offsetRange,
+            offsetRange
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class RequestGroupRelatedAction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class RequestGroupRelatedAction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -162,7 +161,7 @@ class RequestGroupRelatedAction extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.offsetDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -182,13 +181,10 @@ class RequestGroupRelatedAction extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.offsetRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -198,19 +194,16 @@ class RequestGroupRelatedAction extends Element {
             actionId,
             relationship,
             offsetDuration,
-            offsetRange,
+            offsetRange
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -219,7 +212,7 @@ class RequestGroupRelatedAction extends Element {
             actionId: this.actionId,
             relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSON(),
-            offsetRange: this.offsetRange && this.offsetRange.toJSON(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSON()
         });
     }
 
@@ -228,19 +221,19 @@ class RequestGroupRelatedAction extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.offsetDuration) {await this.offsetDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.offsetRange) {await this.offsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.offsetDuration) { await this.offsetDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.offsetRange) { await this.offsetRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -248,10 +241,8 @@ class RequestGroupRelatedAction extends Element {
             actionId: this.actionId,
             relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSONInternal(),
-            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

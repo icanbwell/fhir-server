@@ -37,7 +37,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
 
         /**
@@ -82,16 +82,15 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         this.collectionName = 'Person_4_0_0';
     }
 
-
     /**
      * @description Updates the link of resources by removing
      * @param {Resource} resource
      * @returns
      */
-    async removeDuplicateLinks(resource) {
+    async removeDuplicateLinks (resource) {
         const linkSet = new Set();
         resource.link = resource.link.reduce((uniqueLinks, link) => {
-            let reference = link?.target?._uuid;
+            const reference = link?.target?._uuid;
             if (!linkSet.has(reference)) {
                 linkSet.add(reference);
                 uniqueLinks.push(link);
@@ -107,7 +106,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         assertIsValid(doc.resourceType);
         /**
@@ -138,7 +137,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         return operations;
     }
 
-    async processBatch(uuidList) {
+    async processBatch (uuidList) {
         const query = {};
         try {
             this.adminLogger.logInfo(`Total resources being processed: ${uuidList.length}`);
@@ -158,62 +157,65 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     useTransaction: false,
                     skip: this.skip,
                     filterToIdProperty: '_uuid',
-                    filterToIds: uuidList,
-                },
+                    filterToIds: uuidList
+                }
             );
         } catch (e) {
             this.adminLogger.logError(`Got error ${e.message}.  At ${this.startFromIdContainer.startFromId}`);
         }
     }
+
     /**
      * Runs a loop to process all the documents and remove duplicate person links
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         await this.init();
         this.startFromIdContainer.startFromId = '';
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {
-                db: db, collectionName: this.collectionName
+                db, collectionName: this.collectionName
             }
         );
         // Filter to process only certain documents which match an uuid
-        const personUuidQuery = this.personUuids ?
-            { _uuid: { $in: this.personUuids } } :
-            {};
+        const personUuidQuery = this.personUuids
+            ? { _uuid: { $in: this.personUuids } }
+            : {};
 
         // Fetch only uuid that are greater than uuidGreaterThan
-        const uuidGreaterThanQuery = this.uuidGreaterThan ?
-            { _uuid: { $gt: this.uuidGreaterThan}} :
-            {};
+        const uuidGreaterThanQuery = this.uuidGreaterThan
+            ? { _uuid: { $gt: this.uuidGreaterThan } }
+            : {};
 
         const result = dbCollection.aggregate([
             { $unwind: '$link' },
             {
                 $group: {
                     _id: { link: '$link.target._uuid', _uuid: '$_uuid' },
-                    count: { $sum: 1 },
-                },
+                    count: { $sum: 1 }
+                }
             },
-            { $match: {
+            {
+ $match: {
                 count: { $gt: 1 },
                 ...personUuidQuery,
-                ...uuidGreaterThanQuery,
-            } },
+                ...uuidGreaterThanQuery
+            }
+},
             { $project: { uuid: '$_id._uuid', _id: 0 } },
             {
                 $group: {
-                    _id: '$uuid',
-                },
-            },
+                    _id: '$uuid'
+                }
+            }
         ],
-        {allowDiskUse: true}
+        { allowDiskUse: true }
         );
         let uuidList = [];
         // Remove duplicates and update in batches.
         while (await result.hasNext()) {
-            let document = await result.next();
+            const document = await result.next();
             uuidList.push(document._id);
             if (uuidList.length === this.batchSize) {
                 await this.processBatch(uuidList);

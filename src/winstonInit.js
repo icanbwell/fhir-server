@@ -58,10 +58,10 @@ const initialize = () => {
     // has a console transport added. This can happen when someone accesses the
     // logger before calling initialize
     if (container.has('default')) {
-        let logger = container.get('default'); // Only add the console logger if none is present
+        const logger = container.get('default'); // Only add the console logger if none is present
 
         if (logger.transports.length === 0) {
-            logger.configure({transports: defaultConfig.transports});
+            logger.configure({ transports: defaultConfig.transports });
         }
     } else {
         container.add('default', defaultConfig);

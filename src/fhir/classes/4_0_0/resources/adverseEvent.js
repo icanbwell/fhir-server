@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AdverseEvent
     Actual or  potential/avoided event causing unintended physical injury
@@ -49,7 +48,7 @@ class AdverseEvent extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -82,7 +81,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -125,7 +124,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -189,7 +188,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -211,7 +210,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -235,7 +234,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -267,7 +266,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -289,7 +288,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -328,7 +327,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -349,7 +348,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.event = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -369,7 +368,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -390,7 +389,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -466,7 +465,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.resultingCondition = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -486,7 +485,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -506,7 +505,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.seriousness = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -528,7 +527,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.severity = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -548,7 +547,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.outcome = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -569,7 +568,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.recorder = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -594,7 +593,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contributor = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -614,7 +613,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const AdverseEventSuspectEntity = require('../backbone_elements/adverseEventSuspectEntity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.suspectEntity = FhirResourceCreator.createArray(valueProvided, AdverseEventSuspectEntity);
             }
         });
@@ -634,7 +633,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subjectMedicalHistory = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -654,7 +653,7 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.referenceDocument = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -674,11 +673,10 @@ class AdverseEvent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.study = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
-
 
         /**
          * @description _access
@@ -733,7 +731,6 @@ class AdverseEvent extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -767,7 +764,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -786,7 +783,7 @@ class AdverseEvent extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'AdverseEvent';
     }
 
@@ -826,7 +823,7 @@ class AdverseEvent extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {AdverseEvent}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -859,7 +856,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AdverseEvent({
@@ -894,7 +891,7 @@ class AdverseEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -902,17 +899,16 @@ class AdverseEvent extends Resource {
      * @description creates a copy of this resource
      * @returns {AdverseEvent}
     */
-    clone() {
+    clone () {
         return new AdverseEvent(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -943,7 +939,7 @@ class AdverseEvent extends Resource {
             suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSON()),
             subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSON()),
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSON()),
-            study: this.study && this.study.map(v => v.toJSON()),
+            study: this.study && this.study.map(v => v.toJSON())
         });
     }
 
@@ -952,36 +948,36 @@ class AdverseEvent extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.event) {await this.event.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.resultingCondition) {await async.each(this.resultingCondition, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.location) {await this.location.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.seriousness) {await this.seriousness.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.severity) {await this.severity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.outcome) {await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.recorder) {await this.recorder.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contributor) {await async.each(this.contributor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.suspectEntity) {await async.each(this.suspectEntity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subjectMedicalHistory) {await async.each(this.subjectMedicalHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.referenceDocument) {await async.each(this.referenceDocument, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.study) {await async.each(this.study, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.event) { await this.event.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.resultingCondition) { await async.each(this.resultingCondition, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.location) { await this.location.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.seriousness) { await this.seriousness.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.severity) { await this.severity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.outcome) { await this.outcome.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.recorder) { await this.recorder.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contributor) { await async.each(this.contributor, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.suspectEntity) { await async.each(this.suspectEntity, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.subjectMedicalHistory) { await async.each(this.subjectMedicalHistory, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.referenceDocument) { await async.each(this.referenceDocument, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.study) { await async.each(this.study, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -1011,9 +1007,8 @@ class AdverseEvent extends Resource {
             suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSONInternal()),
             subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSONInternal()),
             referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSONInternal()),
-            study: this.study && this.study.map(v => v.toJSONInternal()),
+            study: this.study && this.study.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

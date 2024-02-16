@@ -6,39 +6,39 @@ const {
     commonAfterEach,
     getHeaders,
     getHeadersNdJson,
-    createTestRequest, getTestContainer,
+    createTestRequest, getTestContainer
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
-const {ConfigManager} = require('../../../utils/configManager');
-const {ResponseChunkParser} = require('../responseChunkParser');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
+const { ConfigManager } = require('../../../utils/configManager');
+const { ResponseChunkParser } = require('../responseChunkParser');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { PreSaveManager } = require('../../../preSaveHandlers/preSave');
 const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
 let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {
-    get defaultSortId() {
+    get defaultSortId () {
         return '_uuid';
     }
 
-    get streamResponse() {
+    get streamResponse () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get streamingHighWaterMark() {
+    get streamingHighWaterMark () {
         return 100;
     }
 
-    get logStreamSteps() {
+    get logStreamSteps () {
         return false;
     }
 
-    get enableTwoStepOptimization() {
+    get enableTwoStepOptimization () {
         return false;
     }
 }
@@ -72,14 +72,14 @@ describe('seach by id many performance', () => {
                 const initialId = practitionerResource.id;
                 const bundle = {
                     resourceType: 'Bundle',
-                    entry: [],
+                    entry: []
                 };
                 const numberOfResources = 20000;
                 for (let i = 0; i < numberOfResources; i++) {
                     const newId = initialId + '-' + i;
                     practitionerResource.id = newId;
                     bundle.entry.push({
-                        resource: Object.assign({}, practitionerResource, {id: newId}),
+                        resource: Object.assign({}, practitionerResource, { id: newId })
                     });
                 }
                 /**
@@ -102,7 +102,7 @@ describe('seach by id many performance', () => {
                  * @type {MongoDatabaseManager}
                  */
                 const mongoDatabaseManager = container.mongoDatabaseManager;
-                let db = await mongoDatabaseManager.getClientDbAsync();
+                const db = await mongoDatabaseManager.getClientDbAsync();
                 const resourceType = 'Practitioner';
                 const base_version = '4_0_0';
                 /**

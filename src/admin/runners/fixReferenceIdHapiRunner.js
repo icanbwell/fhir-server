@@ -10,7 +10,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
      * @param {boolean} isHistoryCollection
      * @returns {import('mongodb').Filter<import('mongodb').Document>}
      */
-    getQueryForResource(isHistoryCollection) {
+    getQueryForResource (isHistoryCollection) {
         const queryPrefix = isHistoryCollection ? 'resource.' : '';
         // create a query from the parameters
         /**
@@ -45,7 +45,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async cacheReferencesAsync({ mongoConfig, collectionName }) {
+    async cacheReferencesAsync ({ mongoConfig, collectionName }) {
         /**
          * @type {boolean}
          */
@@ -129,7 +129,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
      * @param {boolean} _sanitize
      * @returns {string}
      */
-    getOriginalId({ doc, _sanitize }) {
+    getOriginalId ({ doc, _sanitize }) {
         // for observation resource we need to check if the resource is observation and id length is 64
         if (doc.resourceType === 'Observation' && doc._sourceId.length === 64) {
             // to check if doc.code exists and the sourceId has some suffix at the end
@@ -154,7 +154,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
      * @param {string} originalId
      * @returns {[string]}
      */
-    getCurrentIds({ originalId }) {
+    getCurrentIds ({ originalId }) {
         return [(`HumanApi-${originalId}`).slice(0, 64)];
     }
 }

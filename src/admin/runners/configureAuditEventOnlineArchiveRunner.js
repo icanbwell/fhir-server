@@ -4,17 +4,17 @@ const { RequestWithDigestAuth } = require('../../utils/digestAuth');
 const ARCHIVE_DEFAULT_EXPIRE_AFTER_DAYS = 60;
 
 class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
-    constructor({
+    constructor ({
         mongoDatabaseManager,
         mongoCollectionManager,
         adminLogger,
         collections,
-        expireAfterDays,
+        expireAfterDays
     }) {
         super({
-            mongoCollectionManager: mongoCollectionManager,
-            adminLogger: adminLogger,
-            mongoDatabaseManager: mongoDatabaseManager,
+            mongoCollectionManager,
+            adminLogger,
+            mongoDatabaseManager
         });
 
         /**
@@ -32,7 +32,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
      * @param {Object} collectionNames
      * @returns {Object}
      */
-    filterAuditEventCollections(collectionNames) {
+    filterAuditEventCollections (collectionNames) {
         return collectionNames.filter((name) => name.includes('AuditEvent_4_0_0'));
     }
 
@@ -43,7 +43,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
      * @return {Promise<import('superagent').Response>}
      * @throws {Error | import('superagent').Response}
      */
-    async createCollection({ config, collectionName }) {
+    async createCollection ({ config, collectionName }) {
         const data = {
             collName: collectionName,
             dbName: config.db_name,
@@ -51,30 +51,30 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
                 type: 'DATE',
                 dateField: 'recorded',
                 dateFormat: 'ISODATE',
-                expireAfterDays: this.expireAfterDays,
+                expireAfterDays: this.expireAfterDays
             },
             partitionFields: [
                 {
                     fieldName: 'recorded',
-                    order: 0,
-                },
-            ],
+                    order: 0
+                }
+            ]
         };
         const headers = {
             'Content-Type': 'application/json',
             // version number is required
-            'Accept': 'application/vnd.atlas.2023-02-01+json',
+            Accept: 'application/vnd.atlas.2023-02-01+json'
         };
 
         const digestRequest = new RequestWithDigestAuth({
             username: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
-            password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
+            password: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY
         });
         const response = await digestRequest.request({
             method: 'post',
             url: env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
             headers,
-            data,
+            data
         });
         if (response.status !== 200) {
             throw response;
@@ -85,7 +85,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     /**
      * Creates collection in audit event online archive with the same name as that of audit event cluster.
      */
-    async processAsync() {
+    async processAsync () {
         // Creating a config of audit event cluster and initiating a client connection
         const auditEventConfig = await this.mongoDatabaseManager.getAuditConfigAsync();
         const auditEventClient =
@@ -108,7 +108,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         for (const collectionName of collectionNames) {
             await this.createCollection({
                 config: auditEventConfig,
-                collectionName: collectionName,
+                collectionName
             })
                 .then((resp) => {
                     this.adminLogger.logInfo(
@@ -127,5 +127,5 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
 }
 
 module.exports = {
-    ConfigureAuditEventOnlineArchiveRunner,
+    ConfigureAuditEventOnlineArchiveRunner
 };

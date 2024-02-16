@@ -1,14 +1,13 @@
-const {QueryRewriter} = require('./queryRewriter');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
-const {QueryParameterValue} = require('../../operations/query/queryParameterValue');
+const { QueryRewriter } = require('./queryRewriter');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { PersonToPatientIdsExpander } = require('../../utils/personToPatientIdsExpander');
+const { QueryParameterValue } = require('../../operations/query/queryParameterValue');
 const { isTrueWithFallback } = require('../../utils/isTrue');
 const { ConfigManager } = require('../../utils/configManager');
 
 const patientReferencePrefix = 'Patient/';
 const personProxyPrefix = 'person.';
 const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
-
 
 class PatientProxyQueryRewriter extends QueryRewriter {
     /**
@@ -18,10 +17,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * constructor
      * @param {PatientProxyQueryRewriterProps} params
      */
-    constructor(
+    constructor (
         {
             personToPatientIdsExpander,
-            configManager,
+            configManager
         }
     ) {
         super();
@@ -47,13 +46,13 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @param {boolean} cachePatientToPersonMap
      * @returns {ParsedArgsItem}
      */
-    async rewriteQueryParametersAsync({ parsedArg, base_version, includePatientPrefix, cachePatientToPersonMap }) {
+    async rewriteQueryParametersAsync ({ parsedArg, base_version, includePatientPrefix, cachePatientToPersonMap }) {
         const queryParameterValues = parsedArg.queryParameterValue.values;
         if (queryParameterValues && queryParameterValues.length > 0) {
             /**
              * @type {{queryParametersWithProxyPatientIds: string[], queryParametersWithoutProxyPatientIds: string[]}}
              */
-            const {queryParametersWithProxyPatientIds, queryParametersWithoutProxyPatientIds} =
+            const { queryParametersWithProxyPatientIds, queryParametersWithoutProxyPatientIds } =
                 queryParameterValues.reduce((queryParametersMap, queryParameterValue) => {
                     if (typeof queryParameterValue === 'string' && (
                         // either person.id or Patient/person.id
@@ -79,15 +78,14 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         base_version,
                         ids: queryParametersWithProxyPatientIds,
                         includePatientPrefix,
-                        toMap: true,
+                        toMap: true
                     }
                 );
 
+                 /** @type {{[k: string]: string}} */
+                const patientToPersonMap = {};
 
-                 /**@type {{[k: string]: string}} */
-                let patientToPersonMap = {};
-
-                /**@type {string[]} */
+                /** @type {string[]} */
                 const patientProxyIds = [];
                 Object.entries(patientProxyMap).forEach(([personId, ids]) => {
                     patientProxyIds.push(...ids);
@@ -98,7 +96,6 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         });
                     }
                 });
-
 
                 parsedArg.queryParameterValue = new QueryParameterValue({
                     value: [...patientProxyIds, ...queryParametersWithoutProxyPatientIds],
@@ -122,11 +119,11 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
+    async rewriteArgsAsync ({ base_version, parsedArgs, resourceType }) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
         // const foo = undefined[1];
-        const cachePatientToPersonMap = isTrueWithFallback(parsedArgs['_rewritePatientReference'], this.configManager.rewritePatientReference);
+        const cachePatientToPersonMap = isTrueWithFallback(parsedArgs._rewritePatientReference, this.configManager.rewritePatientReference);
         if (parsedArgs?.parsedArgItems) {
             parsedArgs.parsedArgItems = await Promise.all(
                 parsedArgs.parsedArgItems.map(async parsedArg => {
@@ -144,7 +141,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                             parsedArg,
                             base_version,
                             includePatientPrefix: true,
-                            cachePatientToPersonMap,
+                            cachePatientToPersonMap
                         });
                     }
                     return parsedArg;

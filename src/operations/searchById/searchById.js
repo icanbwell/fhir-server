@@ -1,22 +1,22 @@
-const {ForbiddenError, NotFoundError, BadRequestError} = require('../../utils/httpErrors');
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {removeNull} = require('../../utils/nullRemover');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SearchManager} = require('../search/searchManager');
-const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {AuditLogger} = require('../../utils/auditLogger');
-const {SecurityTagManager} = require('../common/securityTagManager');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {isTrue} = require('../../utils/isTrue');
-const {ConfigManager} = require('../../utils/configManager');
-const {getFirstResourceOrNull} = require('../../utils/list.util');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ForbiddenError, NotFoundError, BadRequestError } = require('../../utils/httpErrors');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { removeNull } = require('../../utils/nullRemover');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SearchManager } = require('../search/searchManager');
+const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
+const { AuditLogger } = require('../../utils/auditLogger');
+const { SecurityTagManager } = require('../common/securityTagManager');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { isTrue } = require('../../utils/isTrue');
+const { ConfigManager } = require('../../utils/configManager');
+const { getFirstResourceOrNull } = require('../../utils/list.util');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class SearchByIdOperation {
     /**
@@ -33,7 +33,7 @@ class SearchByIdOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {PostRequestProcessor} postRequestProcessor
      */
-    constructor(
+    constructor (
         {
             searchManager,
             databaseQueryFactory,
@@ -116,13 +116,13 @@ class SearchByIdOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async searchByIdAsync({requestInfo, parsedArgs, resourceType}) {
+    async searchByIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
         const extraInfo = {
-            currentOperationName: currentOperationName
+            currentOperationName
         };
         /**
          * @type {number}
@@ -140,7 +140,7 @@ class SearchByIdOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            requestId,
+            requestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -153,9 +153,8 @@ class SearchByIdOperation {
         });
 
         try {
-
             // Common search params
-            const {id, base_version} = parsedArgs;
+            const { id, base_version } = parsedArgs;
 
             /**
              * @type {Promise<Resource> | *}
@@ -165,14 +164,14 @@ class SearchByIdOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
             const {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
@@ -188,12 +187,12 @@ class SearchByIdOperation {
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
+                { resourceType, base_version }
             );
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({query, extraInfo});
+            const cursor = await databaseQueryManager.findAsync({ query, extraInfo });
             // we can convert to array since we don't expect to be many resources that have same id
             /**
              * @type {Resource[]}
@@ -211,8 +210,8 @@ class SearchByIdOperation {
                  * @type {string[]}
                  */
                 const sourceAssigningAuthorities = resources.flatMap(
-                    r => r.meta && r.meta.security ?
-                        r.meta.security
+                    r => r.meta && r.meta.security
+                        ? r.meta.security
                             .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
                             .map(tag => tag.code)
                         : []
@@ -228,7 +227,7 @@ class SearchByIdOperation {
 
             if (resource) {
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource: resource, user, scope
+                    resource, user, scope
                 }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
@@ -254,8 +253,12 @@ class SearchByIdOperation {
                             // log access to audit logs
                             await this.auditLogger.logAuditEntryAsync(
                                 {
-                                    requestInfo, base_version, resourceType,
-                                    operation: 'read', args: parsedArgs.getRawArgs(), ids: [resource['id']]
+                                    requestInfo,
+base_version,
+resourceType,
+                                    operation: 'read',
+args: parsedArgs.getRawArgs(),
+ids: [resource.id]
                                 }
                             );
                         }

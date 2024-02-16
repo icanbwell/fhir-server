@@ -2,7 +2,7 @@
  * helper method to check health of mongoDB connection
  */
 
-const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const { VERSIONS } = require('../middleware/fhir/utils/constants');
 
     /**
      * Makes a simple DB query to validate mongoDB connection

@@ -19,16 +19,16 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
 
 class MockConfigManager extends ConfigManager {
     /**
      * @returns {boolean}
      */
-    get enableConsentedProaDataAccess() {
+    get enableConsentedProaDataAccess () {
         return false;
     }
 }
@@ -60,12 +60,12 @@ describe('Disabled Consent Based Data Access Test', () => {
                 clientPatientResource, proaPatientResource, clientObservationResource, proaObservationResource, consentGivenResource])
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
-        let expectedClintObservationCopy = deepcopy(expectedClintObservation);
-        expectedClintObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
-        let expectedProaObservationCopy = deepcopy(expectedProaObservation);
-        expectedProaObservationCopy['subject']['reference'] = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+        const expectedClintObservationCopy = deepcopy(expectedClintObservation);
+        expectedClintObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
+        const expectedProaObservationCopy = deepcopy(expectedProaObservation);
+        expectedProaObservationCopy.subject.reference = 'Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57';
 
         // Get Observation for a specific person, client have access to read both proa and client resources
         resp = await request

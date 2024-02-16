@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ConceptMap.Target
     A statement of relationships from one set of concepts to one or more other
@@ -25,7 +24,7 @@ class ConceptMapTarget extends Element {
      * @param {ConceptMapDependsOn[]|undefined} [dependsOn],
      * @param {ConceptMapDependsOn[]|undefined} [product],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -35,7 +34,7 @@ class ConceptMapTarget extends Element {
             equivalence,
             comment,
             dependsOn,
-            product,
+            product
         }
     ) {
         super({});
@@ -79,7 +78,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -111,7 +110,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -209,7 +208,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dependsOn = FhirResourceCreator.createArray(valueProvided, ConceptMapDependsOn);
             }
         });
@@ -233,13 +232,10 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.product = FhirResourceCreator.createArray(valueProvided, ConceptMapDependsOn);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -251,19 +247,16 @@ class ConceptMapTarget extends Element {
             equivalence,
             comment,
             dependsOn,
-            product,
+            product
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -274,7 +267,7 @@ class ConceptMapTarget extends Element {
             equivalence: this.equivalence,
             comment: this.comment,
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
-            product: this.product && this.product.map(v => v.toJSON()),
+            product: this.product && this.product.map(v => v.toJSON())
         });
     }
 
@@ -283,19 +276,19 @@ class ConceptMapTarget extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dependsOn) {await async.each(this.dependsOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.product) {await async.each(this.product, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dependsOn) { await async.each(this.dependsOn, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.product) { await async.each(this.product, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -305,10 +298,8 @@ class ConceptMapTarget extends Element {
             equivalence: this.equivalence,
             comment: this.comment,
             dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
-            product: this.product && this.product.map(v => v.toJSONInternal()),
+            product: this.product && this.product.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Goal.Target
     Describes the intended objective(s) for a patient, group or organization care,
@@ -29,7 +28,7 @@ class GoalTarget extends Element {
      * @param {date|undefined} [dueDate],
      * @param {Quantity|undefined} [dueDuration],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -43,7 +42,7 @@ class GoalTarget extends Element {
             detailInteger,
             detailRatio,
             dueDate,
-            dueDuration,
+            dueDuration
         }
     ) {
         super({});
@@ -87,7 +86,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -119,7 +118,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -140,7 +139,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.measure = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -160,7 +159,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detailQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -180,7 +179,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detailRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -200,7 +199,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detailCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -274,7 +273,7 @@ class GoalTarget extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.detailRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -312,13 +311,10 @@ class GoalTarget extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dueDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -334,19 +330,16 @@ class GoalTarget extends Element {
             detailInteger,
             detailRatio,
             dueDate,
-            dueDuration,
+            dueDuration
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -361,7 +354,7 @@ class GoalTarget extends Element {
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSON(),
             dueDate: this.dueDate,
-            dueDuration: this.dueDuration && this.dueDuration.toJSON(),
+            dueDuration: this.dueDuration && this.dueDuration.toJSON()
         });
     }
 
@@ -370,23 +363,23 @@ class GoalTarget extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.measure) {await this.measure.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.detailQuantity) {await this.detailQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.detailRange) {await this.detailRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.detailCodeableConcept) {await this.detailCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.detailRatio) {await this.detailRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.dueDuration) {await this.dueDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.measure) { await this.measure.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.detailQuantity) { await this.detailQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.detailRange) { await this.detailRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.detailCodeableConcept) { await this.detailCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.detailRatio) { await this.detailRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.dueDuration) { await this.dueDuration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -400,10 +393,8 @@ class GoalTarget extends Element {
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSONInternal(),
             dueDate: this.dueDate,
-            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal(),
+            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

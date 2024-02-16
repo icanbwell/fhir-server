@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 PractitionerRole.AvailableTime
     A specific set of Roles/Locations/specialties/services that a practitioner may
@@ -22,7 +21,7 @@ class PractitionerRoleAvailableTime extends Element {
      * @param {time|undefined} [availableStartTime],
      * @param {time|undefined} [availableEndTime],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -30,7 +29,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class PractitionerRoleAvailableTime extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -106,7 +105,7 @@ class PractitionerRoleAvailableTime extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -186,9 +185,6 @@ class PractitionerRoleAvailableTime extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -197,19 +193,16 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek,
             allDay,
             availableStartTime,
-            availableEndTime,
+            availableEndTime
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -218,7 +211,7 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         });
     }
 
@@ -227,17 +220,17 @@ class PractitionerRoleAvailableTime extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -245,10 +238,8 @@ class PractitionerRoleAvailableTime extends Element {
             daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
             availableStartTime: this.availableStartTime,
-            availableEndTime: this.availableEndTime,
+            availableEndTime: this.availableEndTime
         };
-
-
 
         return removeNull(json);
     }

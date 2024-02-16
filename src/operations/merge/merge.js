@@ -1,26 +1,26 @@
 const moment = require('moment-timezone');
-const {fhirRequestTimer} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {MergeManager} = require('./mergeManager');
-const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
-const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {BundleManager} = require('../common/bundleManager');
+const { fhirRequestTimer } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { MergeManager } = require('./mergeManager');
+const { DatabaseBulkInserter } = require('../../dataLayer/databaseBulkInserter');
+const { DatabaseBulkLoader } = require('../../dataLayer/databaseBulkLoader');
+const { PostRequestProcessor } = require('../../utils/postRequestProcessor');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { BundleManager } = require('../common/bundleManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {MergeResultEntry} = require('../common/mergeResultEntry');
-const {QueryItem} = require('../graph/queryItem');
-const {ConfigManager} = require('../../utils/configManager');
-const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
-const {MergeValidator} = require('./mergeValidator');
-const {PostSaveProcessor} = require('../../dataLayer/postSaveProcessor');
+const { getCircularReplacer } = require('../../utils/getCircularReplacer');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { MergeResultEntry } = require('../common/mergeResultEntry');
+const { QueryItem } = require('../graph/queryItem');
+const { ConfigManager } = require('../../utils/configManager');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { MergeValidator } = require('./mergeValidator');
+const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 
 class MergeOperation {
     /**
@@ -37,7 +37,7 @@ class MergeOperation {
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {MergeValidator} mergeValidator
      */
-    constructor(
+    constructor (
         {
             mergeManager,
             databaseBulkInserter,
@@ -126,7 +126,7 @@ class MergeOperation {
      * @param {MergeResultEntry[]} currentMergeResults
      * @return {MergeResultEntry[]}
      */
-    addSuccessfulMergesToMergeResult(resourcesIncomingArray, currentMergeResults) {
+    addSuccessfulMergesToMergeResult (resourcesIncomingArray, currentMergeResults) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -144,7 +144,7 @@ class MergeOperation {
                         sourceAssigningAuthority: resource._sourceAssigningAuthority,
                         resourceType: resource.resourceType,
                         created: false,
-                        updated: false,
+                        updated: false
                     }
                 );
                 mergeResults.push(mergeResultItem);
@@ -160,7 +160,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async mergeAsync({requestInfo, parsedArgs, resourceType}) {
+    async mergeAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -196,7 +196,6 @@ class MergeOperation {
             method
         } = requestInfo;
 
-
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -215,7 +214,7 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            let {/** @type {string} */ base_version} = parsedArgs;
+            const { /** @type {string} */ base_version } = parsedArgs;
 
             /**
              * @type {string[]}
@@ -225,7 +224,7 @@ class MergeOperation {
             /**
              * @type {Object|Object[]|undefined}
              */
-            let incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
+            const incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
@@ -263,12 +262,12 @@ class MergeOperation {
              */
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate,
+                    requestId,
+currentDate,
                     base_version,
                     method,
-                    userRequestId,
+                    userRequestId
                 });
-
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
@@ -316,7 +315,7 @@ class MergeOperation {
                                     severity: 'information',
                                     code: 'informational',
                                     details: new CodeableConcept(
-                                        {text: 'OK'}
+                                        { text: 'OK' }
                                     )
                                 })]
                         }) : new OperationOutcome({
@@ -335,7 +334,7 @@ class MergeOperation {
                                                     // resource was created
                                                     system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
                                                     code: m.created ? '201' : m.updated ? '200' : '304',
-                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified'
                                                 })
                                             ]
                                         }),
@@ -359,7 +358,7 @@ class MergeOperation {
                         originalUrl: url,
                         host,
                         protocol,
-                        resources: resources,
+                        resources,
                         base_version,
                         total_count: operationOutcomes.length,
                         originalQuery: new QueryItem(
@@ -392,7 +391,7 @@ class MergeOperation {
                 });
             throw e;
         } finally {
-            timer({action: currentOperationName, resourceType});
+            timer({ action: currentOperationName, resourceType });
         }
     }
 }

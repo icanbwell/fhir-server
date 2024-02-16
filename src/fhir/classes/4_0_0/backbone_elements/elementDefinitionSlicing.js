@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ElementDefinition.Slicing
     Captures constraints on each element within the resource, profile, or
@@ -24,7 +23,7 @@ class ElementDefinitionSlicing extends Element {
      * @param {Boolean|undefined} [ordered],
      * @param {code} rules,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator,
             description,
             ordered,
-            rules,
+            rules
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -132,7 +131,7 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 const ElementDefinitionDiscriminator = require('../backbone_elements/elementDefinitionDiscriminator.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.discriminator = FhirResourceCreator.createArray(valueProvided, ElementDefinitionDiscriminator);
             }
         });
@@ -196,9 +195,6 @@ class ElementDefinitionSlicing extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -207,19 +203,16 @@ class ElementDefinitionSlicing extends Element {
             discriminator,
             description,
             ordered,
-            rules,
+            rules
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -228,7 +221,7 @@ class ElementDefinitionSlicing extends Element {
             discriminator: this.discriminator && this.discriminator.map(v => v.toJSON()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules,
+            rules: this.rules
         });
     }
 
@@ -237,18 +230,18 @@ class ElementDefinitionSlicing extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.discriminator) {await async.each(this.discriminator, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.discriminator) { await async.each(this.discriminator, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -256,10 +249,8 @@ class ElementDefinitionSlicing extends Element {
             discriminator: this.discriminator && this.discriminator.map(v => v.toJSONInternal()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules,
+            rules: this.rules
         };
-
-
 
         return removeNull(json);
     }

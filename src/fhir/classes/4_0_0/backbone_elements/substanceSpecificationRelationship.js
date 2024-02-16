@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSpecification.Relationship
     The detailed description of a substance, typically at a level beyond what is
@@ -29,7 +28,7 @@ class SubstanceSpecificationRelationship extends Element {
      * @param {CodeableConcept|undefined} [amountType],
      * @param {Reference[]|undefined} [source],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -44,7 +43,7 @@ class SubstanceSpecificationRelationship extends Element {
             amountString,
             amountRatioLowLimit,
             amountType,
-            source,
+            source
         }
     ) {
         super({});
@@ -88,7 +87,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -120,7 +119,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -140,7 +139,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.substanceReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -160,7 +159,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.substanceCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -180,7 +179,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.relationship = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -220,7 +219,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -240,7 +239,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -260,7 +259,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -298,7 +297,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountRatioLowLimit = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
@@ -319,7 +318,7 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.amountType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -339,13 +338,10 @@ class SubstanceSpecificationRelationship extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -362,19 +358,16 @@ class SubstanceSpecificationRelationship extends Element {
             amountString,
             amountRatioLowLimit,
             amountType,
-            source,
+            source
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -390,7 +383,7 @@ class SubstanceSpecificationRelationship extends Element {
             amountString: this.amountString,
             amountRatioLowLimit: this.amountRatioLowLimit && this.amountRatioLowLimit.toJSON(),
             amountType: this.amountType && this.amountType.toJSON(),
-            source: this.source && this.source.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON())
         });
     }
 
@@ -399,26 +392,26 @@ class SubstanceSpecificationRelationship extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.substanceReference) {await this.substanceReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.substanceCodeableConcept) {await this.substanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.relationship) {await this.relationship.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountQuantity) {await this.amountQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountRange) {await this.amountRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountRatio) {await this.amountRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountRatioLowLimit) {await this.amountRatioLowLimit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.amountType) {await this.amountType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.substanceReference) { await this.substanceReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.substanceCodeableConcept) { await this.substanceCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.relationship) { await this.relationship.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountQuantity) { await this.amountQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountRange) { await this.amountRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountRatio) { await this.amountRatio.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountRatioLowLimit) { await this.amountRatioLowLimit.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.amountType) { await this.amountType.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.source) { await async.each(this.source, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -433,10 +426,8 @@ class SubstanceSpecificationRelationship extends Element {
             amountString: this.amountString,
             amountRatioLowLimit: this.amountRatioLowLimit && this.amountRatioLowLimit.toJSONInternal(),
             amountType: this.amountType && this.amountType.toJSONInternal(),
-            source: this.source && this.source.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

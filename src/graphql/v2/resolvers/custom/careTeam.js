@@ -1,35 +1,35 @@
-const {getHash} = require('../../../../utils/uid.util');
-const {MergeOperation} = require('../../../../operations/merge/merge');
-const {assertTypeEquals} = require('../../../../utils/assertType');
-const {SimpleContainer} = require('../../../../utils/simpleContainer');
-const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
+const { getHash } = require('../../../../utils/uid.util');
+const { MergeOperation } = require('../../../../operations/merge/merge');
+const { assertTypeEquals } = require('../../../../utils/assertType');
+const { SimpleContainer } = require('../../../../utils/simpleContainer');
+const { R4ArgsParser } = require('../../../../operations/query/r4ArgsParser');
 
-function mapParticipants(members) {
+function mapParticipants (members) {
     const result = [];
     members.forEach((m) => {
         result.push({
             id: m.id,
             role: m.role,
-            member: {reference: m.member},
-            onBehalfOf: {reference: m.onBehalfOf},
-            period: m.period,
+            member: { reference: m.member },
+            onBehalfOf: { reference: m.onBehalfOf },
+            period: m.period
         });
     });
     return result;
 }
 
-function mapManagingOrganization(organizations) {
+function mapManagingOrganization (organizations) {
     const result = [];
     organizations.forEach((org) => {
         result.push({
-            reference: org,
+            reference: org
         });
     });
 
     return result;
 }
 
-function mapCareTeam(team) {
+function mapCareTeam (team) {
     const careTeamMap = {
         resourceType: 'CareTeam',
         id: team.id,
@@ -41,14 +41,14 @@ function mapCareTeam(team) {
         status: team.code,
         category: team.category,
         name: team.name,
-        subject: {reference: team.subject},
-        encounter: {reference: team.encounter},
+        subject: { reference: team.subject },
+        encounter: { reference: team.encounter },
         period: team.period,
         participant: mapParticipants(team.participant),
         reasonCode: team.reasonCode,
         reasonReference: team.reasonReference,
         telecom: team.telecom,
-        note: team.note,
+        note: team.note
     };
 
     if (team.contained) {
@@ -82,7 +82,7 @@ module.exports = {
                     parent,
                     {
                         ...args,
-                        id: args.patientId,
+                        id: args.patientId
                     },
                     context,
                     info,
@@ -117,10 +117,10 @@ module.exports = {
                     {
                         requestInfo,
                         parsedArgs: r4ArgsParser.parseArgs({
-                            resourceType: resourceType,
-                            args: {...args, base_version: '4_0_0'}
+                            resourceType,
+                            args: { ...args, base_version: '4_0_0' }
                         }),
-                        resourceType: resourceType
+                        resourceType
                     }
                 );
                 if (result && result[0].operationOutcome) {
@@ -129,6 +129,6 @@ module.exports = {
                         `${result[0].operationOutcome.issue.map(i => i.diagnostics)}`);
                 }
                 return patientToChange;
-            },
-    },
+            }
+    }
 };

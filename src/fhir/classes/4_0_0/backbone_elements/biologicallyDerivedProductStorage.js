@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 BiologicallyDerivedProduct.Storage
     A material substance originating from a biological entity intended to be
@@ -23,7 +22,7 @@ class BiologicallyDerivedProductStorage extends Element {
      * @param {code|undefined} [scale],
      * @param {Period|undefined} [duration],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description,
             temperature,
             scale,
-            duration,
+            duration
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class BiologicallyDerivedProductStorage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class BiologicallyDerivedProductStorage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -181,13 +180,10 @@ class BiologicallyDerivedProductStorage extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.duration = FhirResourceCreator.create(valueProvided, Period);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -197,19 +193,16 @@ class BiologicallyDerivedProductStorage extends Element {
             description,
             temperature,
             scale,
-            duration,
+            duration
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -218,7 +211,7 @@ class BiologicallyDerivedProductStorage extends Element {
             description: this.description,
             temperature: this.temperature,
             scale: this.scale,
-            duration: this.duration && this.duration.toJSON(),
+            duration: this.duration && this.duration.toJSON()
         });
     }
 
@@ -227,18 +220,18 @@ class BiologicallyDerivedProductStorage extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.duration) {await this.duration.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.duration) { await this.duration.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -246,10 +239,8 @@ class BiologicallyDerivedProductStorage extends Element {
             description: this.description,
             temperature: this.temperature,
             scale: this.scale,
-            duration: this.duration && this.duration.toJSONInternal(),
+            duration: this.duration && this.duration.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

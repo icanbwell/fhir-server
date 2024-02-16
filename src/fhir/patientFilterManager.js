@@ -1,5 +1,5 @@
 class PatientFilterManager {
-    constructor() {
+    constructor () {
         /**
          * defines the field in each resource that links to patient
          * @type {Object}
@@ -108,7 +108,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @return {string|string[]|null}
      */
-    getPatientPropertyForResource({resourceType}) {
+    getPatientPropertyForResource ({ resourceType }) {
         return this.patientFilterMapping[`${resourceType}`];
     }
 
@@ -117,7 +117,7 @@ class PatientFilterManager {
      * @param {string} resourceType
      * @returns {boolean}
      */
-    canAccessResourceWithPatientScope({resourceType}) {
+    canAccessResourceWithPatientScope ({ resourceType }) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);
     }
@@ -125,7 +125,7 @@ class PatientFilterManager {
     /**
      * Returns the patient filter mapping
      */
-    getAllResourcesLinkedWithPatient() {
+    getAllResourcesLinkedWithPatient () {
         return this.patientFilterMapping;
     }
 
@@ -133,7 +133,7 @@ class PatientFilterManager {
      * Checks if the resourceType is related to patient
      * @param {string} resourceType
      */
-    isPatientRelatedResource({ resourceType, }) {
+    isPatientRelatedResource ({ resourceType }) {
         return Object.keys(this.patientFilterMapping).includes(resourceType);
     }
 }

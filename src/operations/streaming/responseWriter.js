@@ -1,9 +1,9 @@
-const {Writable} = require('stream');
-const {getLogger} = require('../../winstonInit');
-const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {hasNdJsonContentType} = require('../../utils/contentTypes');
-const {ConfigManager} = require('../../utils/configManager');
-const {RethrownError} = require('../../utils/rethrownError');
+const { Writable } = require('stream');
+const { getLogger } = require('../../winstonInit');
+const { assertIsValid, assertTypeEquals } = require('../../utils/assertType');
+const { hasNdJsonContentType } = require('../../utils/contentTypes');
+const { ConfigManager } = require('../../utils/configManager');
+const { RethrownError } = require('../../utils/rethrownError');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -15,7 +15,7 @@ class HttpResponseWriter extends Writable {
      * @param {number} highWaterMark
      * @param {ConfigManager} configManager
      */
-    constructor(
+    constructor (
         {
             requestId,
             response,
@@ -25,7 +25,7 @@ class HttpResponseWriter extends Writable {
             configManager
         }
     ) {
-        super({objectMode: true, highWaterMark: highWaterMark});
+        super({ objectMode: true, highWaterMark });
         assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}
@@ -55,7 +55,7 @@ class HttpResponseWriter extends Writable {
         assertTypeEquals(configManager, ConfigManager);
     }
 
-    _construct(callback) {
+    _construct (callback) {
         if (this.configManager.logStreamSteps) {
             logger.info(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
@@ -77,7 +77,7 @@ class HttpResponseWriter extends Writable {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _write(chunk, encoding, callback) {
+    _write (chunk, encoding, callback) {
         if (this._signal.aborted) {
             callback();
             return;
@@ -92,7 +92,7 @@ class HttpResponseWriter extends Writable {
                                  * @type {Object}
                                  */
                                 const jsonObject = JSON.parse(chunk);
-                                logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                                logger.verbose(`HttpResponseWriter: _write ${jsonObject.id}`);
                             } catch (e) {
                                 logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
                             }
@@ -116,7 +116,7 @@ class HttpResponseWriter extends Writable {
                     error: e,
                     args: {
                         id: chunk.id,
-                        chunk: chunk
+                        chunk
                     }
                 }
             );
@@ -128,7 +128,7 @@ class HttpResponseWriter extends Writable {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _final(callback) {
+    _final (callback) {
         if (this.configManager.logStreamSteps) {
             logger.verbose('HttpResponseWriter: _flush');
         }

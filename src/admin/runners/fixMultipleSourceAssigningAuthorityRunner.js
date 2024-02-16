@@ -28,7 +28,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {number|undefined} [limit]
      * * @param {number|undefined} [skip]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -43,13 +43,13 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             filterRecords,
             startFromCollection,
             limit,
-            skip,
+            skip
         }) {
         super({
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
         /**
          * @type {string[]}
@@ -111,7 +111,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
             return operations;
@@ -150,7 +150,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -160,8 +160,8 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                 this.collections = (await this.getAllCollectionNamesAsync(
                         {
                             useAuditDatabase: this.useAuditDatabase,
-                            includeHistoryCollections: this.includeHistoryCollections,
-                        },
+                            includeHistoryCollections: this.includeHistoryCollections
+                        }
                     )
                 );
                 this.collections = this.collections.sort();
@@ -176,54 +176,52 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
 
-
                 const query = this.beforeLastUpdatedDate ? {
                     'meta.lastUpdated': {
-                        $lt: this.beforeLastUpdatedDate,
-                    },
+                        $lt: this.beforeLastUpdatedDate
+                    }
                 } : {};
 
                 let idList = [];
                 if (this.filterRecords) {
                     // Get ids of documents that have multiple sourceAssigningAuthority.
-                    let db = await this.mongoDatabaseManager.getClientDbAsync();
-                    let dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
+                    const db = await this.mongoDatabaseManager.getClientDbAsync();
+                    const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
                         db,
-                        collectionName,
+                        collectionName
                     });
-                    let result = await dbCollection.aggregate([
+                    const result = await dbCollection.aggregate([
                         {
-                            '$unwind': {
-                                'path': '$meta.security',
-                            },
+                            $unwind: {
+                                path: '$meta.security'
+                            }
                         },
                         {
-                            '$match': {
-                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
-                            },
+                            $match: {
+                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`
+                            }
                         },
                         {
-                            '$group': {
+                            $group: {
                                 _id: '$_id',
-                                count: { $count: {} },
-                            },
+                                count: { $count: {} }
+                            }
                         },
                         {
-                            '$match': {
-                                'count': {
-                                    $gte: 2,
-                                },
-                            },
+                            $match: {
+                                count: {
+                                    $gte: 2
+                                }
+                            }
                         },
                         {
-                            $project: { array: true },
-                        },
+                            $project: { array: true }
+                        }
                     ], { allowDiskUse: true }).toArray();
 
                     idList = result.map(obj => obj._id);
@@ -232,9 +230,9 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: this.useAuditDatabase ?
-                                await this.mongoDatabaseManager.getAuditConfigAsync() :
-                                await this.mongoDatabaseManager.getClientConfigAsync(),
+                            config: this.useAuditDatabase
+                                ? await this.mongoDatabaseManager.getAuditConfigAsync()
+                                : await this.mongoDatabaseManager.getClientConfigAsync(),
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,
@@ -247,8 +245,8 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                             limit: this.limit,
                             skip: this.skip,
                             filterToIdProperty: '_id',
-                            filterToIds: this.filterRecords ? idList : undefined,
-                        },
+                            filterToIds: this.filterRecords ? idList : undefined
+                        }
                     );
                 } catch (e) {
                     console.error(e);
@@ -264,9 +262,8 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             console.log(`ERROR: ${e}`);
         }
     }
-
 }
 
 module.exports = {
-    FixMultipleSourceAssigningAuthorityRunner,
+    FixMultipleSourceAssigningAuthorityRunner
 };

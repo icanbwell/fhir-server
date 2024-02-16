@@ -1,9 +1,9 @@
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepcopy = require('deepcopy');
 const { fixMultipleAuthorities } = require('../utils/fixMultipleSourceAssigningAuthority');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc runs preSave() on every record
@@ -20,7 +20,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
      * @param {boolean|undefined} [skipIfResourcePresent]
      * @param {string|undefined} [startFromCollection]
      */
-    constructor(
+    constructor (
         {
             mongoCollectionManager,
             collections,
@@ -65,7 +65,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync (doc) {
         const operations = [];
         let hasChanges = false;
         if (!doc.resource) {
@@ -89,7 +89,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
             hasChanges = true;
         }
         if (hasChanges) {
-            const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
+            const result = { replaceOne: { filter: { _id: doc._id }, replacement: doc } };
             operations.push(result);
         }
         return operations;
@@ -99,7 +99,7 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
@@ -127,14 +127,12 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
-
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
 
-
-                const query = this.skipIfResourcePresent ? {resource: null} : {};
+                const query = this.skipIfResourcePresent ? { resource: null } : {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {
@@ -164,7 +162,6 @@ class FixMultipleSourceAssigningAuthorityHistoryRunner extends BaseBulkOperation
             console.log(`ERROR: ${e}`);
         }
     }
-
 }
 
 module.exports = {

@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Bundle
     A container for a collection of resources.
@@ -29,7 +28,7 @@ class Bundle extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -45,7 +44,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -88,7 +87,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -148,7 +147,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -226,7 +225,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleLink = require('../backbone_elements/bundleLink.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.link = FhirResourceCreator.createArray(valueProvided, BundleLink);
             }
         });
@@ -247,7 +246,7 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleEntry = require('../backbone_elements/bundleEntry.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.entry = FhirResourceCreator.createArray(valueProvided, BundleEntry);
             }
         });
@@ -267,11 +266,10 @@ class Bundle extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.signature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
-
 
         /**
          * @description _access
@@ -326,7 +324,6 @@ class Bundle extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -343,7 +340,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -362,7 +359,7 @@ class Bundle extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Bundle';
     }
 
@@ -385,7 +382,7 @@ class Bundle extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Bundle}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -401,7 +398,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Bundle({
@@ -419,7 +416,7 @@ class Bundle extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -427,17 +424,16 @@ class Bundle extends Resource {
      * @description creates a copy of this resource
      * @returns {Bundle}
     */
-    clone() {
+    clone () {
         return new Bundle(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -451,7 +447,7 @@ class Bundle extends Resource {
             total: this.total,
             link: this.link && this.link.map(v => v.toJSON()),
             entry: this.entry && this.entry.map(v => v.toJSON()),
-            signature: this.signature && this.signature.toJSON(),
+            signature: this.signature && this.signature.toJSON()
         });
     }
 
@@ -460,20 +456,20 @@ class Bundle extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.link) {await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.entry) {await async.each(this.entry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.signature) {await this.signature.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.entry) { await async.each(this.entry, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.signature) { await this.signature.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -486,9 +482,8 @@ class Bundle extends Resource {
             total: this.total,
             link: this.link && this.link.map(v => v.toJSONInternal()),
             entry: this.entry && this.entry.map(v => v.toJSONInternal()),
-            signature: this.signature && this.signature.toJSONInternal(),
+            signature: this.signature && this.signature.toJSONInternal()
         };
-
 
         if (this._access) {
             json._access = this._access;

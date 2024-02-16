@@ -11,18 +11,19 @@ const expectedActivityDefinitionClientResources = require('./fixtures/expected/e
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
 const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected_error_with_multiple_documents.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../utils/configManager');
 
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -112,7 +113,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             const clientHeaders = getHeaders('user/*.read user/*.write access/client.*');
             const bwellHeaders = getHeaders('user/*.read user/*.write access/bwell.*');
@@ -155,7 +156,7 @@ describe('ActivityDefinition Tests', () => {
                 .set(allAccessHeaders)
                 .expect(200);
 
-            let activitydefinition5Data = deepcopy(activitydefinition5Resource);
+            const activitydefinition5Data = deepcopy(activitydefinition5Resource);
             activitydefinition5Data.name = 'TEST3';
             resp = await request
                 .put('/4_0_0/ActivityDefinition/sameid')

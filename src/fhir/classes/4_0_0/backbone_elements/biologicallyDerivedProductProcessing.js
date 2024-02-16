@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 BiologicallyDerivedProduct.Processing
     A material substance originating from a biological entity intended to be
@@ -24,7 +23,7 @@ class BiologicallyDerivedProductProcessing extends Element {
      * @param {dateTime|undefined} [timeDateTime],
      * @param {Period|undefined} [timePeriod],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure,
             additive,
             timeDateTime,
-            timePeriod,
+            timePeriod
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class BiologicallyDerivedProductProcessing extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class BiologicallyDerivedProductProcessing extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -147,7 +146,7 @@ class BiologicallyDerivedProductProcessing extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.procedure = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -167,7 +166,7 @@ class BiologicallyDerivedProductProcessing extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.additive = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -205,13 +204,10 @@ class BiologicallyDerivedProductProcessing extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.timePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -222,19 +218,16 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure,
             additive,
             timeDateTime,
-            timePeriod,
+            timePeriod
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -244,7 +237,7 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure: this.procedure && this.procedure.toJSON(),
             additive: this.additive && this.additive.toJSON(),
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSON(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSON()
         });
     }
 
@@ -253,20 +246,20 @@ class BiologicallyDerivedProductProcessing extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.procedure) {await this.procedure.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.additive) {await this.additive.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.timePeriod) {await this.timePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.procedure) { await this.procedure.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.additive) { await this.additive.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.timePeriod) { await this.timePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -275,10 +268,8 @@ class BiologicallyDerivedProductProcessing extends Element {
             procedure: this.procedure && this.procedure.toJSONInternal(),
             additive: this.additive && this.additive.toJSONInternal(),
             timeDateTime: this.timeDateTime,
-            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal(),
+            timePeriod: this.timePeriod && this.timePeriod.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

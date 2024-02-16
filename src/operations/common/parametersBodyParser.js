@@ -5,7 +5,7 @@ class ParametersBodyParser {
      * @param {Object} args
      * @returns {Object}
      */
-    parseParametersResource({body, args}) {
+    parseParametersResource ({ body, args }) {
         const parameterArgs = {};
         if (body &&
             typeof body === 'object' &&
@@ -26,7 +26,7 @@ class ParametersBodyParser {
      * @param {Object} args
      * @returns {Object}
      */
-    parseFormUrlEncoded({body, args}) {
+    parseFormUrlEncoded ({ body, args }) {
         const parameterArgs = {};
         if (body && typeof body === 'object') {
             for (const key of Object.keys(body)) {

@@ -1,13 +1,13 @@
-const {validateResource} = require('../utils/validator.util');
-const {assertFail, assertIsValid} = require('../utils/assertType');
-const {diff} = require('jest-diff');
+const { validateResource } = require('../utils/validator.util');
+const { assertFail, assertIsValid } = require('../utils/assertType');
+const { diff } = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
-const {expect} = require('@jest/globals');
+const { expect } = require('@jest/globals');
 const moment = require('moment-timezone');
-const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
-const {ndjsonToJsonText} = require('ndjson-to-json-text');
-const {fhirContentTypes} = require('../utils/contentTypes');
-const {csv2json} = require('csv42');
+const { YearMonthPartitioner } = require('../partitioners/yearMonthPartitioner');
+const { ndjsonToJsonText } = require('ndjson-to-json-text');
+const { fhirContentTypes } = require('../utils/contentTypes');
+const { csv2json } = require('csv42');
 
 /**
  * @typedef JestUtils
@@ -17,32 +17,32 @@ const {csv2json} = require('csv42');
  * @property {function(Object): string} printReceived
  */
 
-function cleanMeta(resource) {
+function cleanMeta (resource) {
     assertIsValid(resource, 'resource is null');
     const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
     /**
      * @type {string}
      */
     const auditCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
-        {fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0'}
+        { fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0' }
     );
 
     if (resource.meta && resource.meta.tag) {
         resource.meta.tag.forEach((tag) => {
-            if (tag['system'] === 'https://www.icanbwell.com/queryTime' && tag['display']) {
-                delete tag['display'];
+            if (tag.system === 'https://www.icanbwell.com/queryTime' && tag.display) {
+                delete tag.display;
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryExplain' && tag['display']) {
-                delete tag['display'];
+            if (tag.system === 'https://www.icanbwell.com/queryExplain' && tag.display) {
+                delete tag.display;
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryExplainSimple' && tag['display']) {
-                delete tag['display'];
+            if (tag.system === 'https://www.icanbwell.com/queryExplainSimple' && tag.display) {
+                delete tag.display;
             }
-            if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
-                tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
+            if (tag.system === 'https://www.icanbwell.com/query' && tag.display) {
+                tag.display = tag.display.replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code'] && tag['code'].startsWith('AuditEvent_4_0_0')) {
-                tag['code'] = `${auditCollectionName}`;
+            if (tag.system === 'https://www.icanbwell.com/queryCollection' && tag.code && tag.code.startsWith('AuditEvent_4_0_0')) {
+                tag.code = `${auditCollectionName}`;
             }
         });
     }
@@ -57,7 +57,7 @@ function cleanMeta(resource) {
  * cleans request Id
  * @param {Object} request
  */
-function cleanRequestId(request) {
+function cleanRequestId (request) {
     if (request && request.id) {
         delete request.id;
     }
@@ -71,22 +71,22 @@ function cleanRequestId(request) {
  * @param {boolean} ignoreMetaTags
  * @returns {boolean}
  */
-function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
+function compareBundles ({ body, expected, fnCleanResource, ignoreMetaTags = false }) {
     // logInfo(body);
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
-    delete body['timestamp'];
-    delete expected['timestamp'];
-    delete body['link'];
-    delete body['id']; // This is uniquely created each time
+    delete body.timestamp;
+    delete expected.timestamp;
+    delete body.link;
+    delete body.id; // This is uniquely created each time
 
     cleanMeta(body);
     if (body.entry) {
         body.entry.forEach((element) => {
-            cleanRequestId(element['request']);
-            cleanMeta(element['resource']);
+            cleanRequestId(element.request);
+            cleanMeta(element.resource);
             if (fnCleanResource) {
-                fnCleanResource(element['resource']);
+                fnCleanResource(element.resource);
             }
         });
         // now sort the two lists so the comparison is agnostic to order
@@ -94,22 +94,22 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
             `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
         );
         body.entry.forEach((element) => {
-            delete element['fullUrl'];
-            if (element['resource']) {
-                cleanMeta(element['resource']);
-                if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach((containedElement) => {
+            delete element.fullUrl;
+            if (element.resource) {
+                cleanMeta(element.resource);
+                if (element.resource.contained) {
+                    element.resource.contained.forEach((containedElement) => {
                         cleanMeta(containedElement);
                     });
                     // sort the list
-                    element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                    element.resource.contained = element.resource.contained.sort((a, b) =>
                         `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
                     );
                 }
             }
         });
     }
-    delete expected['link'];
+    delete expected.link;
 
     if (expected.meta && expected.meta.tag) {
         if (ignoreMetaTags) {
@@ -119,28 +119,28 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     }
     if (expected.entry) {
         expected.entry.forEach((element) => {
-            cleanRequestId(element['request']);
-            cleanMeta(element['resource']);
-            delete element['resource']['$schema'];
+            cleanRequestId(element.request);
+            cleanMeta(element.resource);
+            delete element.resource.$schema;
             if (fnCleanResource) {
-                fnCleanResource(element['resource']);
+                fnCleanResource(element.resource);
             }
         });
         expected.entry = expected.entry.sort((a, b) =>
             `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
         );
         expected.entry.forEach((element) => {
-            delete element['fullUrl'];
-            cleanMeta(element['resource']);
+            delete element.fullUrl;
+            cleanMeta(element.resource);
             if ('$schema' in element) {
-                delete element['$schema'];
+                delete element.$schema;
             }
-            if (element['resource']['contained']) {
-                element['resource']['contained'].forEach((containedElement) => {
+            if (element.resource.contained) {
+                element.resource.contained.forEach((containedElement) => {
                     cleanMeta(containedElement);
                 });
                 // sort the list
-                element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                element.resource.contained = element.resource.contained.sort((a, b) =>
                     `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
                 );
             }
@@ -160,17 +160,17 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
  * @param [fnCleanResource]
  * @returns {{actual, pass: boolean, expected, message: {(): string, (): string}}}
  */
-function checkContent({actual, expected, utils, options, expand, fnCleanResource}) {
+function checkContent ({ actual, expected, utils, options, expand, fnCleanResource }) {
     let pass = false;
     if (!(Array.isArray(actual)) && actual.resourceType === 'Bundle') {
         if (!Array.isArray(expected)) {
-            pass = compareBundles({body: actual, expected, fnCleanResource});
+            pass = compareBundles({ body: actual, expected, fnCleanResource });
         } else {
             pass = deepEqual(actual.entry.map(e => e.resource), expected);
         }
     } else if (!(Array.isArray(expected)) && expected.resourceType === 'Bundle') {
         if (!Array.isArray(actual)) {
-            pass = compareBundles({body: actual, expected, fnCleanResource});
+            pass = compareBundles({ body: actual, expected, fnCleanResource });
         } else {
             pass = deepEqual(actual, expected.entry.map(e => e.resource));
         }
@@ -198,7 +198,7 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             `Received: ${utils.printReceived(actual)}`
         : () => {
             const diffString = diff(expected, actual, {
-                expand: expand,
+                expand
             });
             return (
                 // eslint-disable-next-line prefer-template
@@ -207,7 +207,7 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
                         `Received: ${utils.printReceived(actual)}`))
             );
         };
-    return {actual: actual, expected: expected, message, pass};
+    return { actual, expected, message, pass };
 }
 
 /**
@@ -215,7 +215,7 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
  * @param {Object[]} entries Array of entries to be sorted
  * @returns {void}
  */
-function sortEntriesByUUID(entries) {
+function sortEntriesByUUID (entries) {
     entries?.sort((a, b) => {
         // Consider uuid or id of resource
         const getUUID = (resource) => {
@@ -250,11 +250,11 @@ function sortEntriesByUUID(entries) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveResponse(resp, expectedIn, fnCleanResource) {
+function toHaveResponse (resp, expectedIn, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
-        promise: this.promise,
+        promise: this.promise
     };
     /**
      * @type {JestUtils}
@@ -278,9 +278,8 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
             // Check if both UUIDs exist before comparing
             if (uuidA && uuidB) {
                 return uuidA.localeCompare(uuidB);
-            }
-            // If one UUID is missing, prioritize the entry with a UUID
-            else if (uuidA) {
+            } else if (uuidA) {
+                // If one UUID is missing, prioritize the entry with a UUID
                 return -1;
             } else if (uuidB) {
                 return 1;
@@ -304,14 +303,18 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
                 resourceType: 'Bundle',
                 type: 'searchset',
                 entry: expected.map((e) => {
-                    return {resource: e};
-                }),
+                    return { resource: e };
+                })
             };
         }
         expected.entry = sortEntriesByUUID(expected.entry);
         body.entry = sortEntriesByUUID(body.entry);
         return checkContent({
-            actual: body, expected, utils, options, expand: this.expand,
+            actual: body,
+            expected,
+            utils,
+            options,
+            expand: this.expand,
             fnCleanResource
         });
     } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
@@ -334,7 +337,11 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
             cleanMeta(expected);
         }
         return checkContent({
-            actual: propertyValue, expected, utils, options, expand: this.expand,
+            actual: propertyValue,
+            expected,
+            utils,
+            options,
+            expand: this.expand,
             fnCleanResource
         });
     } else {
@@ -360,8 +367,8 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
                         args: {
                             resourceType: body.resourceType,
                             resource: body,
-                            operationOutcome: operationOutcome,
-                        },
+                            operationOutcome
+                        }
                     });
                 }
             }
@@ -392,7 +399,11 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
         }
     }
     return checkContent({
-        actual: body, expected, utils, options, expand: this.expand,
+        actual: body,
+        expected,
+        utils,
+        options,
+        expand: this.expand,
         fnCleanResource
     });
 }
@@ -406,11 +417,11 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
+function toHaveGraphQLResponse (resp, expected, queryName, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
-        promise: this.promise,
+        promise: this.promise
     };
     /**
      * @type {JestUtils}
@@ -432,12 +443,16 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
                 resourceType: 'Bundle',
                 type: 'searchset',
                 entry: expected.map((e) => {
-                    return {resource: e};
-                }),
+                    return { resource: e };
+                })
             };
         }
         return checkContent({
-            actual: body, expected, utils, options, expand: this.expand,
+            actual: body,
+            expected,
+            utils,
+            options,
+            expand: this.expand,
             fnCleanResource
         });
     } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
@@ -460,7 +475,11 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
             cleanMeta(expected);
         }
         return checkContent({
-            actual: propertyValue, expected, utils, options, expand: this.expand,
+            actual: propertyValue,
+            expected,
+            utils,
+            options,
+            expand: this.expand,
             fnCleanResource
         });
     } else {
@@ -486,8 +505,8 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
                         args: {
                             resourceType: body.resourceType,
                             resource: body,
-                            operationOutcome: operationOutcome,
-                        },
+                            operationOutcome
+                        }
                     });
                 }
             }
@@ -518,7 +537,11 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
         }
     }
     return checkContent({
-        actual: body, expected, utils, options, expand: this.expand,
+        actual: body,
+        expected,
+        utils,
+        options,
+        expand: this.expand,
         fnCleanResource
     });
 }
@@ -528,19 +551,19 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
  * @param {import('http').ServerResponse} resp
  * @param {number} expectedStatusCode
  */
-function toHaveStatusCode(resp, expectedStatusCode) {
+function toHaveStatusCode (resp, expectedStatusCode) {
     const pass = resp.status === expectedStatusCode;
     const message = pass ? () =>
             `Status Code did match: ${resp.text}`
         : () => `Status Code did not match: ${resp.text}`;
-    return {actual: resp.status, expected: expectedStatusCode, message, pass};
+    return { actual: resp.status, expected: expectedStatusCode, message, pass };
 }
 
 /**
  *
  * @param {import('http').ServerResponse} resp
  */
-function toHaveStatusOk(resp) {
+function toHaveStatusOk (resp) {
     return toHaveStatusCode(resp, 200);
 }
 
@@ -549,7 +572,7 @@ function toHaveStatusOk(resp) {
  * @param {import('http').ServerResponse} resp
  * @param {Object[]|Object} checks
  */
-function toHaveMergeResponse(resp, checks) {
+function toHaveMergeResponse (resp, checks) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }
@@ -577,7 +600,7 @@ function toHaveMergeResponse(resp, checks) {
     } catch (e) {
         const pass = false;
         const message = () => `Merge failed: ${JSON.stringify(resp.body)} ${e}`;
-        return {actual: resp.body, expected: checks, message, pass};
+        return { actual: resp.body, expected: checks, message, pass };
     }
     return {
         pass: true,
@@ -590,7 +613,7 @@ function toHaveMergeResponse(resp, checks) {
  * @param {import('http').ServerResponse} resp
  * @param {number} expected
  */
-function toHaveResourceCount(resp, expected) {
+function toHaveResourceCount (resp, expected) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }
@@ -617,7 +640,7 @@ function toHaveResourceCount(resp, expected) {
     const message = pass ? () =>
             `Resource count matched: ${resp.text}`
         : () => `Resource count did not match: ${resp.text}`;
-    return {actual: count, expected: expected, message, pass};
+    return { actual: count, expected, message, pass };
 }
 
 // NOTE: Also need to register any new ones with Jest in src/tests/testSetup.js
@@ -629,5 +652,5 @@ module.exports = {
     toHaveResourceCount,
     cleanMeta,
     toHaveGraphQLResponse,
-    sortEntriesByUUID,
+    sortEntriesByUUID
 };

@@ -1,4 +1,4 @@
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getGraphQLHeaders } = require('../../common');
 const { customIndexes } = require('./mockCustomIndexes');
 const { IndexProvider } = require('../../../indexes/indexProvider');
@@ -19,7 +19,7 @@ const queryWithIndexHint2 = fs.readFileSync(
 );
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
+    getIndexes () {
         // noinspection JSValidateTypes
         return customIndexes;
     }
@@ -52,7 +52,7 @@ describe('Graphql IndexHints Test', () => {
                 .send(personBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Person/')
@@ -65,7 +65,7 @@ describe('Graphql IndexHints Test', () => {
                 .send(patientBundleResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{ created: true }, { created: true }]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
@@ -79,7 +79,7 @@ describe('Graphql IndexHints Test', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryTextWithIndexHint1,
+                    query: graphqlQueryTextWithIndexHint1
                 })
                 .set(getGraphQLHeaders());
 
@@ -87,21 +87,21 @@ describe('Graphql IndexHints Test', () => {
             let desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
 
             // noinspection JSUnresolvedFunction
-            expect(desiredObject['code']).toEqual('[id_1]');
+            expect(desiredObject.code).toEqual('[id_1]');
 
             resp = await request
                 .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryTextWithIndexHint2,
+                    query: graphqlQueryTextWithIndexHint2
                 })
                 .set(getGraphQLHeaders());
 
             desiredObject = resp.body.data.patient.meta.tag.find(tag => tag.system === desiredSystem);
 
             // noinspection JSUnresolvedFunction
-            expect(desiredObject['code']).toEqual('[uuid]');
+            expect(desiredObject.code).toEqual('[uuid]');
         });
     });
 });

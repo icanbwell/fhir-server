@@ -8,7 +8,6 @@ const practitionerBundleResource = require('./fixtures/practitioners.json');
 const fs = require('fs');
 const path = require('path');
 
-// eslint-disable-next-line security/detect-non-literal-fs-filename
 const updatePractitionerQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/updatePractitioner.graphql'),
     'utf8'
@@ -21,9 +20,9 @@ const {
     getGraphQLHeaders,
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
-    getTestContainer, mockHttpContext,
+    getTestContainer, mockHttpContext
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
 
@@ -76,7 +75,7 @@ describe('GraphQL Patient Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
-            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            const internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
             // no audit logs should be created since there were no resources returned
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(0);
 
@@ -104,7 +103,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(2);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
             // clear out audit table
@@ -115,7 +114,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(
                     getGraphQLHeaders(
@@ -124,7 +123,7 @@ describe('GraphQL Patient Tests', () => {
                 )
                 .expect(200);
 
-            let body = resp.body;
+            const body = resp.body;
             if (body.errors) {
                 console.log(body.errors);
                 expect(body.errors).toBeUndefined();
@@ -133,7 +132,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResponse(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
-            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
             await auditLogger.flushAsync();
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
         });
@@ -170,7 +169,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getUnAuthenticatedGraphQLHeaders())
                 .expect(401);
@@ -208,7 +207,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(getGraphQLHeaders('user/Patient.read user/Practitioner.read access/client.*'))
                 .expect(200);
@@ -249,7 +248,7 @@ describe('GraphQL Patient Tests', () => {
                 .send({
                     operationName: null,
                     variables: {},
-                    query: graphqlQueryText,
+                    query: graphqlQueryText
                 })
                 .set(
                     getGraphQLHeaders(

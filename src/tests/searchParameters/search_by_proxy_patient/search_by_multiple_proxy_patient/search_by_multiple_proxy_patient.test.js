@@ -30,26 +30,26 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../../utils/configManager');
 const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 
-    get supportLegacyIds() {
+    get supportLegacyIds () {
         return false;
     }
 
-    get rewritePatientReference() {
+    get rewritePatientReference () {
         return true;
     }
 }
@@ -81,7 +81,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -115,7 +115,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -149,7 +149,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -163,7 +163,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedPatientsWithProxyPatient);
-
         });
 
         test('search patient by proxy-patient should return empty result when person is not present', async () => {
@@ -183,7 +182,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -198,7 +197,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(emptyEntries);
-
         });
 
         test('search observation by proxy-patient should work correctly with multiple proxy persons', async () => {
@@ -222,7 +220,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -235,7 +233,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationsWithProxyPatients);
-
         });
 
         test('search observation by proxy-patient should also include resources with directly linked proxy-patient', async () => {
@@ -260,7 +257,7 @@ describe('Patient Tests', () => {
                     observation2,
                     observation3,
                     observation4,
-                    observation5,
+                    observation5
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -273,7 +270,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationWithDirectlyLinkedProxyPatient);
-
         });
 
         test('search observation by proxy-patient should return 0 entries if wrong proxy-patient is passed', async () => {
@@ -298,7 +294,7 @@ describe('Patient Tests', () => {
                     observation2,
                     observation3,
                     observation4,
-                    observation5,
+                    observation5
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -311,7 +307,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedWithWrongProxyPatient);
-
         });
 
         test('search observation by proxy-patient should work correctly when some proxy-patient-id are non existent', async () => {
@@ -335,7 +330,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -348,7 +343,6 @@ describe('Patient Tests', () => {
                 )
                 .set(getHeaders());
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientAndSomeWrongProxyPatient);
-
         });
 
         test('should return result with original patient references when _rewritePatientReference is false', async () => {
@@ -372,7 +366,7 @@ describe('Patient Tests', () => {
                     observation1,
                     observation2,
                     observation3,
-                    observation4,
+                    observation4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -404,7 +398,7 @@ describe('Patient Tests', () => {
                     patient1,
                     patient2,
                     patient3,
-                    patient4,
+                    patient4
                 ])
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -420,5 +414,4 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatientWithRewritePatientReferenceFalse);
         });
     });
-
 });

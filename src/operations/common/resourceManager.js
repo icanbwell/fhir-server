@@ -1,21 +1,15 @@
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 
 /**
  * This class provides helper functions for dealing with resources
  */
 class ResourceManager {
     /**
-     */
-    constructor() {
-        // ok to not specify
-    }
-
-    /**
      * Gets name of the patient field from resource
      * @param {string} resourceType
      * @return {string|null}
      */
-    getPatientFieldNameFromResource(resourceType) {
+    getPatientFieldNameFromResource (resourceType) {
         if (resourceType === 'Patient') {
             return 'id';
         }
@@ -24,7 +18,7 @@ class ResourceManager {
                 // see if there is a 'patient' property
                 for (const [
                     /** @type {string} **/ queryParameter,
-                    /** @type {SearchParameterDefinition} **/ propertyObj,
+                    /** @type {SearchParameterDefinition} **/ propertyObj
                 ] of Object.entries(resourceObj)) {
                     if (queryParameter === 'patient') {
                         return propertyObj.firstField;
@@ -41,7 +35,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {Promise<string|null>}
      */
-    async getPatientIdFromResourceAsync(resourceType, resource) {
+    async getPatientIdFromResourceAsync (resourceType, resource) {
         /**
          * @type {string|null}
          */
@@ -71,7 +65,7 @@ class ResourceManager {
      * @param {Resource} resource
      * @return {string}
      */
-    getFullUrlForResource({protocol, host, base_version, resource}) {
+    getFullUrlForResource ({ protocol, host, base_version, resource }) {
         return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
     }
 }
@@ -79,4 +73,3 @@ class ResourceManager {
 module.exports = {
     ResourceManager
 };
-

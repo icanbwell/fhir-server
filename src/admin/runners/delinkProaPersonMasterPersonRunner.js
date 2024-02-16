@@ -11,7 +11,7 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
      *
      * @param {ConstructorProps}
      */
-    constructor({ masterPersonSAAColumn, masterPersonLastUpdatedColumn, ...args }) {
+    constructor ({ masterPersonSAAColumn, masterPersonLastUpdatedColumn, ...args }) {
         super(args);
 
         /**
@@ -29,14 +29,15 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
          */
         this.statusToConsider = [
             'Proa Person not linked to master person',
-            'Master Person Not Linked to Client Person and Master Patient',
+            'Master Person Not Linked to Client Person and Master Patient'
         ];
     }
+
     /**
      * Processes data from the csv and creates map of proaPatient, proaPerson, masterPerson, clientPerson, status
      * @returns {Promise<void>}
      */
-    async processDataFromCsv() {
+    async processDataFromCsv () {
         // No need for data processing
     }
 
@@ -44,7 +45,7 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
      * Handles Delinking of proa person and master person
      * @returns {Promise<void>}
      */
-    async handleDelink() {
+    async handleDelink () {
         // No need for delinking here we can directly delete the data if all references
         // are to be deleted else we donot change the data
     }
@@ -53,7 +54,7 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
      * Initializes write streams
      * @returns {Promise<void>}
      */
-    initializeWriteStreams() {
+    initializeWriteStreams () {
         // write stream to write person status
         this.writeStream = fs.createWriteStream('deleted_persons.csv');
         this.writeStream.write('Person Uuid| Person SourceAssigningAuthority| Person LastUpdated|\n');
@@ -66,10 +67,10 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
      * Handle deletion of person
      * @returns {Promise<void>}
      */
-    async handlePersonDelete() {
+    async handlePersonDelete () {
         this.adminLogger.logInfo('Starting first iteration to delete proa persons');
 
-        let file = await open(this.csvFileName);
+        const file = await open(this.csvFileName);
         for await (const line of file.readLines()) {
             /**
              * @type {string[]}
@@ -120,7 +121,7 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
                             personUuid: proaPersonUuid,
                             sourceAssigningAuthority,
                             lastUpdated,
-                            slug: 'Proa',
+                            slug: 'Proa'
                         });
                     }
                 }
@@ -140,7 +141,7 @@ class DelinkProaPersonMasterPersonRunner extends DelinkProaPersonRunner {
                             personUuid: masterPersonUuid,
                             sourceAssigningAuthority,
                             lastUpdated,
-                            slug: 'Master',
+                            slug: 'Master'
                         });
                     }
                 }

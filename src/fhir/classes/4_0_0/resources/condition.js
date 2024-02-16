@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Condition
     A clinical condition, problem, diagnosis, or other event, situation, issue, or
@@ -52,7 +51,7 @@ class Condition extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -90,7 +89,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -133,7 +132,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -197,7 +196,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -219,7 +218,7 @@ class Condition extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -243,7 +242,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -275,7 +274,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -297,7 +296,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -317,7 +316,7 @@ class Condition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.clinicalStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -337,7 +336,7 @@ class Condition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.verificationStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -357,7 +356,7 @@ class Condition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.category = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -378,7 +377,7 @@ class Condition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.severity = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -398,7 +397,7 @@ class Condition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -418,7 +417,7 @@ class Condition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.bodySite = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -438,7 +437,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -459,7 +458,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -497,7 +496,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.onsetAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -517,7 +516,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.onsetPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -537,7 +536,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.onsetRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -593,7 +592,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.abatementAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -613,7 +612,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.abatementPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -633,7 +632,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.abatementRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -690,7 +689,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.recorder = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -710,7 +709,7 @@ class Condition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.asserter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -731,7 +730,7 @@ class Condition extends Resource {
                     return;
                 }
                 const ConditionStage = require('../backbone_elements/conditionStage.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.stage = FhirResourceCreator.createArray(valueProvided, ConditionStage);
             }
         });
@@ -752,7 +751,7 @@ class Condition extends Resource {
                     return;
                 }
                 const ConditionEvidence = require('../backbone_elements/conditionEvidence.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.evidence = FhirResourceCreator.createArray(valueProvided, ConditionEvidence);
             }
         });
@@ -773,11 +772,10 @@ class Condition extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
-
 
         /**
          * @description _access
@@ -832,7 +830,6 @@ class Condition extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -871,7 +868,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -890,7 +887,7 @@ class Condition extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'Condition';
     }
 
@@ -935,7 +932,7 @@ class Condition extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {Condition}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -973,7 +970,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new Condition({
@@ -1013,7 +1010,7 @@ class Condition extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -1021,17 +1018,16 @@ class Condition extends Resource {
      * @description creates a copy of this resource
      * @returns {Condition}
     */
-    clone() {
+    clone () {
         return new Condition(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -1067,7 +1063,7 @@ class Condition extends Resource {
             asserter: this.asserter && this.asserter.toJSON(),
             stage: this.stage && this.stage.map(v => v.toJSON()),
             evidence: this.evidence && this.evidence.map(v => v.toJSON()),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -1076,40 +1072,40 @@ class Condition extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.clinicalStatus) {await this.clinicalStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.verificationStatus) {await this.verificationStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.severity) {await this.severity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.bodySite) {await async.each(this.bodySite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetAge) {await this.onsetAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetPeriod) {await this.onsetPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onsetRange) {await this.onsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.abatementAge) {await this.abatementAge.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.abatementPeriod) {await this.abatementPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.abatementRange) {await this.abatementRange.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.recorder) {await this.recorder.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.asserter) {await this.asserter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.stage) {await async.each(this.stage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.evidence) {await async.each(this.evidence, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.clinicalStatus) { await this.clinicalStatus.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.verificationStatus) { await this.verificationStatus.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.category) { await async.each(this.category, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.severity) { await this.severity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.code) { await this.code.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.bodySite) { await async.each(this.bodySite, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.subject) { await this.subject.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.onsetAge) { await this.onsetAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.onsetPeriod) { await this.onsetPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.onsetRange) { await this.onsetRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.abatementAge) { await this.abatementAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.abatementPeriod) { await this.abatementPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.abatementRange) { await this.abatementRange.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.recorder) { await this.recorder.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.asserter) { await this.asserter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.stage) { await async.each(this.stage, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.evidence) { await async.each(this.evidence, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -1144,9 +1140,8 @@ class Condition extends Resource {
             asserter: this.asserter && this.asserter.toJSONInternal(),
             stage: this.stage && this.stage.map(v => v.toJSONInternal()),
             evidence: this.evidence && this.evidence.map(v => v.toJSONInternal()),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

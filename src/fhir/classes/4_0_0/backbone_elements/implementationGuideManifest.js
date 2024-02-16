@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImplementationGuide.Manifest
     A set of rules of how a particular interoperability or standards problem is
@@ -25,7 +24,7 @@ class ImplementationGuideManifest extends Element {
      * @param {String[]|undefined} [image],
      * @param {String[]|undefined} [other],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -34,7 +33,7 @@ class ImplementationGuideManifest extends Element {
             resource,
             page,
             image,
-            other,
+            other
         }
     ) {
         super({});
@@ -78,7 +77,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -110,7 +109,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -152,7 +151,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.resource = FhirResourceCreator.createArray(valueProvided, ImplementationGuideResource1);
             }
         });
@@ -172,7 +171,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.page = FhirResourceCreator.createArray(valueProvided, ImplementationGuidePage1);
             }
         });
@@ -215,9 +214,6 @@ class ImplementationGuideManifest extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -227,19 +223,16 @@ class ImplementationGuideManifest extends Element {
             resource,
             page,
             image,
-            other,
+            other
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -249,7 +242,7 @@ class ImplementationGuideManifest extends Element {
             resource: this.resource && this.resource.map(v => v.toJSON()),
             page: this.page && this.page.map(v => v.toJSON()),
             image: this.image,
-            other: this.other,
+            other: this.other
         });
     }
 
@@ -258,19 +251,19 @@ class ImplementationGuideManifest extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.resource) {await async.each(this.resource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.page) {await async.each(this.page, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.resource) { await async.each(this.resource, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.page) { await async.each(this.page, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -279,10 +272,8 @@ class ImplementationGuideManifest extends Element {
             resource: this.resource && this.resource.map(v => v.toJSONInternal()),
             page: this.page && this.page.map(v => v.toJSONInternal()),
             image: this.image,
-            other: this.other,
+            other: this.other
         };
-
-
 
         return removeNull(json);
     }

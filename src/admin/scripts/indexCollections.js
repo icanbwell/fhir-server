@@ -1,13 +1,13 @@
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
-const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
-const {AdminLogger} = require('../adminLogger');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
+const { IndexCollectionsRunner } = require('../runners/indexCollectionsRunner');
+const { AdminLogger } = require('../adminLogger');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -27,15 +27,15 @@ async function main() {
     container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner(
         {
             indexManager: c.indexManager,
-            collections: collections,
-            dropIndexes: parameters.drop ? true : false,
-            useAuditDatabase: parameters.audit ? true : false,
-            useAccessLogsDatabase: parameters.accessLogs ? true : false,
-            addMissingIndexesOnly: parameters.addMissingIndexesOnly ? true : false,
-            removeExtraIndexesOnly: parameters.dropExtraIndexesOnly ? true : false,
-            includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+            collections,
+            dropIndexes: !!parameters.drop,
+            useAuditDatabase: !!parameters.audit,
+            useAccessLogsDatabase: !!parameters.accessLogs,
+            addMissingIndexesOnly: !!parameters.addMissingIndexesOnly,
+            removeExtraIndexesOnly: !!parameters.dropExtraIndexesOnly,
+            includeHistoryCollections: !!parameters.includeHistoryCollections,
             adminLogger: new AdminLogger(),
-            synchronizeIndexes: parameters.synchronize ? true : false,
+            synchronizeIndexes: !!parameters.synchronize,
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager
         }));

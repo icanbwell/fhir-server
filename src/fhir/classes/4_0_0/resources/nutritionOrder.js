@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 NutritionOrder
     A request to supply a diet, formula feeding (enteral) or oral nutritional
@@ -44,7 +43,7 @@ class NutritionOrder extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -74,7 +73,7 @@ class NutritionOrder extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -117,7 +116,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -181,7 +180,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -203,7 +202,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -227,7 +226,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -259,7 +258,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -280,7 +279,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -396,7 +395,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -417,7 +416,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -456,7 +455,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.orderer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -477,7 +476,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.allergyIntolerance = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -501,7 +500,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.foodPreferenceModifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -530,7 +529,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.excludeFoodModifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -550,7 +549,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const NutritionOrderOralDiet = require('../backbone_elements/nutritionOrderOralDiet.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.oralDiet = FhirResourceCreator.create(valueProvided, NutritionOrderOralDiet);
             }
         });
@@ -571,7 +570,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const NutritionOrderSupplement = require('../backbone_elements/nutritionOrderSupplement.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.supplement = FhirResourceCreator.createArray(valueProvided, NutritionOrderSupplement);
             }
         });
@@ -592,7 +591,7 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const NutritionOrderEnteralFormula = require('../backbone_elements/nutritionOrderEnteralFormula.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.enteralFormula = FhirResourceCreator.create(valueProvided, NutritionOrderEnteralFormula);
             }
         });
@@ -613,11 +612,10 @@ class NutritionOrder extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
-
 
         /**
          * @description _access
@@ -672,7 +670,6 @@ class NutritionOrder extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -703,7 +700,7 @@ class NutritionOrder extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -722,7 +719,7 @@ class NutritionOrder extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'NutritionOrder';
     }
 
@@ -759,7 +756,7 @@ class NutritionOrder extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {NutritionOrder}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -789,7 +786,7 @@ class NutritionOrder extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new NutritionOrder({
@@ -821,7 +818,7 @@ class NutritionOrder extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -829,17 +826,16 @@ class NutritionOrder extends Resource {
      * @description creates a copy of this resource
      * @returns {NutritionOrder}
     */
-    clone() {
+    clone () {
         return new NutritionOrder(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -867,7 +863,7 @@ class NutritionOrder extends Resource {
             oralDiet: this.oralDiet && this.oralDiet.toJSON(),
             supplement: this.supplement && this.supplement.map(v => v.toJSON()),
             enteralFormula: this.enteralFormula && this.enteralFormula.toJSON(),
-            note: this.note && this.note.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON())
         });
     }
 
@@ -876,31 +872,31 @@ class NutritionOrder extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.orderer) {await this.orderer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.allergyIntolerance) {await async.each(this.allergyIntolerance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.foodPreferenceModifier) {await async.each(this.foodPreferenceModifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.excludeFoodModifier) {await async.each(this.excludeFoodModifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.oralDiet) {await this.oralDiet.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.supplement) {await async.each(this.supplement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.enteralFormula) {await this.enteralFormula.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.patient) { await this.patient.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.encounter) { await this.encounter.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.orderer) { await this.orderer.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.allergyIntolerance) { await async.each(this.allergyIntolerance, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.foodPreferenceModifier) { await async.each(this.foodPreferenceModifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.excludeFoodModifier) { await async.each(this.excludeFoodModifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.oralDiet) { await this.oralDiet.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.supplement) { await async.each(this.supplement, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.enteralFormula) { await this.enteralFormula.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.note) { await async.each(this.note, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -927,9 +923,8 @@ class NutritionOrder extends Resource {
             oralDiet: this.oralDiet && this.oralDiet.toJSONInternal(),
             supplement: this.supplement && this.supplement.map(v => v.toJSONInternal()),
             enteralFormula: this.enteralFormula && this.enteralFormula.toJSONInternal(),
-            note: this.note && this.note.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

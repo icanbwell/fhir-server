@@ -6,9 +6,8 @@ const moment = require('moment-timezone');
  *
  * @param {*} date
  */
-function parseDate(date) {
+function parseDate (date) {
     // supports date formats with prefix
-    // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /(^\D\D)?([\d-Tt:+]+)([\d: ]+)?/;
     const match = date.match(regex);
     let prefix = '$eq';
@@ -28,9 +27,9 @@ function parseDate(date) {
         }
 
         // return in desired ISO format
-        return {[prefix]: moment.utc(dateStr).format('YYYY-MM-DDTHH:mm:ssZ')};
+        return { [prefix]: moment.utc(dateStr).format('YYYY-MM-DDTHH:mm:ssZ') };
     } else {
-        return {[prefix]: moment.utc(date).format('YYYY-MM-DDTHH:mm:ssZ')};
+        return { [prefix]: moment.utc(date).format('YYYY-MM-DDTHH:mm:ssZ') };
     }
 }
 
@@ -41,13 +40,13 @@ function parseDate(date) {
  *
  * @param {*} dates
  */
-let validateDate = function (dates) {
+const validateDate = function (dates) {
     let parsedDate = {};
     if (dates) {
         // dates could be comma delimited if passed in more than one
         const dateArr = dates.split(',');
         if (dateArr) {
-            for (let date in dateArr) {
+            for (const date in dateArr) {
                 parsedDate = Object.assign(parsedDate, parseDate(dateArr[`${date}`]));
             }
         }
@@ -62,7 +61,7 @@ let validateDate = function (dates) {
  * @param {Date} end
  * @returns {boolean}
  */
-function isUTCDayDifferent(start, end) {
+function isUTCDayDifferent (start, end) {
     return start.getUTCDay() !== end.getUTCDay();
 }
 

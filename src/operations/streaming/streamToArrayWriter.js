@@ -1,12 +1,12 @@
-const {Writable} = require('stream');
+const { Writable } = require('stream');
 
 class StreamToArrayWriter extends Writable {
     /**
      * writes stream to the passed in array
      * @param {Object[]} buffer
      */
-    constructor(buffer) {
-        super({objectMode: true});
+    constructor (buffer) {
+        super({ objectMode: true });
         /**
          * buffer
          * @type {Object[]}
@@ -22,7 +22,7 @@ class StreamToArrayWriter extends Writable {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _write(chunk, encoding, callback) {
+    _write (chunk, encoding, callback) {
         for (const item of chunk) {
             this._buffer.push(item);
         }
@@ -33,7 +33,7 @@ class StreamToArrayWriter extends Writable {
      * @param {import('stream').TransformCallBack} callback
      * @private
      */
-    _final(callback) {
+    _final (callback) {
         this.push(this._buffer);
         callback();
     }

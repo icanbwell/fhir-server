@@ -5,11 +5,11 @@
 // const expectedPatientResources = require('./fixtures/expected/expected_patient.json');
 const expectedEmptyParameters = require('./fixtures/expected/expected_empty_parameters.json');
 
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {assertTypeEquals} = require('../../../utils/assertType');
-const {R4ArgsParser} = require('../../../operations/query/r4ArgsParser');
-const {VERSIONS} = require('../../../middleware/fhir/utils/constants');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { R4ArgsParser } = require('../../../operations/query/r4ArgsParser');
+const { VERSIONS } = require('../../../middleware/fhir/utils/constants');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -34,8 +34,9 @@ describe('Patient Tests', () => {
             assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
             const parsedArgs = r4ArgsParser.parseArgs({
-                resourceType: 'Patient', args: {
-                    'base_version': VERSIONS['4_0_0'],
+                resourceType: 'Patient',
+args: {
+                    base_version: VERSIONS['4_0_0'],
                     'id:above': '1'
                 }
             });
@@ -58,8 +59,9 @@ describe('Patient Tests', () => {
             assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
             const parsedArgs = r4ArgsParser.parseArgs({
-                resourceType: 'Organization', args: {
-                    'base_version': VERSIONS['4_0_0'],
+                resourceType: 'Organization',
+args: {
+                    base_version: VERSIONS['4_0_0'],
                     'category:missing': 'true'
                 }
             });
@@ -83,8 +85,8 @@ describe('Patient Tests', () => {
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
-                    'base_version': VERSIONS['4_0_0'],
-                    'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                    base_version: VERSIONS['4_0_0'],
+                    id: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
                     'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
                 }
             });
@@ -111,8 +113,8 @@ describe('Patient Tests', () => {
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
-                    'base_version': VERSIONS['4_0_0'],
-                    'code': ['health-activity', 'foo']
+                    base_version: VERSIONS['4_0_0'],
+                    code: ['health-activity', 'foo']
                 }
             });
             expect(parsedArgs.parsedArgItems.length).toStrictEqual(2);
@@ -136,8 +138,8 @@ describe('Patient Tests', () => {
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
-                    'base_version': VERSIONS['4_0_0'],
-                    'code': 'health-activity,foo'
+                    base_version: VERSIONS['4_0_0'],
+                    code: 'health-activity,foo'
                 }
             });
             expect(parsedArgs.parsedArgItems.length).toStrictEqual(2);
@@ -161,7 +163,7 @@ describe('Patient Tests', () => {
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
-                    'base_version': VERSIONS['4_0_0'],
+                    base_version: VERSIONS['4_0_0'],
                     'address:contains': '',
                     'address-city:contains': '',
                     'address-country:contains': '',
@@ -169,17 +171,17 @@ describe('Patient Tests', () => {
                     'address-state:contains': '',
                     'name:contains': '',
                     'phonetic:contains': '',
-                    '_lastUpdated': ['', ''],
-                    'given': 'DONOTUSE',
-                    'family': 'HIEMASTERONE',
-                    'email': '',
-                    '_security': '',
-                    'id': '',
-                    'identifier': ['', ''],
+                    _lastUpdated: ['', ''],
+                    given: 'DONOTUSE',
+                    family: 'HIEMASTERONE',
+                    email: '',
+                    _security: '',
+                    id: '',
+                    identifier: ['', ''],
                     '_source:contains': '',
-                    '_getpagesoffset': '',
-                    '_sort': '',
-                    '_count': '100'
+                    _getpagesoffset: '',
+                    _sort: '',
+                    _count: '100'
 
                 }
             });

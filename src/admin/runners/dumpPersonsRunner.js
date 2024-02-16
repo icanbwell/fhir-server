@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {finished} = require('stream/promises');
+const { finished } = require('stream/promises');
 const moment = require('moment-timezone');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 
@@ -31,7 +31,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             batchSize,
             adminLogger,
-            mongoDatabaseManager,
+            mongoDatabaseManager
         });
 
         /**
@@ -62,14 +62,14 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         this.numberOfSecondsBetweenSessionRefreshes = 10 * 60;
    }
 
-    async formatDocument(doc) {
-        delete doc['_uuid'];
-        delete doc['_id'];
-        delete doc['_access'];
-        delete doc['_sourceAssigningAuthority'];
-        delete doc['_sourceId'];
-        delete doc['active'];
-        const newDoc = { resource: {...doc} };
+    async formatDocument (doc) {
+        delete doc._uuid;
+        delete doc._id;
+        delete doc._access;
+        delete doc._sourceAssigningAuthority;
+        delete doc._sourceId;
+        delete doc.active;
+        const newDoc = { resource: { ...doc } };
         return newDoc;
     }
 
@@ -77,7 +77,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
      * Runs a loop to access all the documents and dump into output file
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         await this.init();
         const writeStream = (writer, data) => {
             // return a promise only when we get a drain
@@ -88,26 +88,26 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
             }
         };
 
-        let config = await this.mongoDatabaseManager.getClientConfigAsync();
-        let sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
-        let session = sourceClient.startSession();
-        let sessionId = session.serverSession.id;
+        const config = await this.mongoDatabaseManager.getClientConfigAsync();
+        const sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
+        const session = sourceClient.startSession();
+        const sessionId = session.serverSession.id;
         const sourceDb = sourceClient.db(config.db_name);
         const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {
                 db: sourceDb, collectionName: this.collectionName
             }
         );
-        const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS};
+        const options = { session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS };
         let refreshTimestamp = moment(); // take note of time at operation start
         // Filter to process only certain documents depending on the owner code passed.
-        const accessFilter = this.accessCode ?
-            { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode }} } :
-            {};
+        const accessFilter = this.accessCode
+            ? { 'meta.security': { $elemMatch: { system: 'https://www.icanbwell.com/access', code: this.accessCode } } }
+            : {};
         // Fetch only docs that were lastUpdated before beforeDate
-        const beforeDateQuery = this.beforeDate ?
-            { 'meta.lastUpdated': { $lt: new Date(this.beforeDate)}} :
-            {};
+        const beforeDateQuery = this.beforeDate
+            ? { 'meta.lastUpdated': { $lt: new Date(this.beforeDate) } }
+            : {};
 
         console.log(accessFilter);
         console.log(beforeDateQuery);
@@ -125,7 +125,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         for await (let doc of result) {
             if (newPage) {
                 console.log(`Opening Page ${pageCount}`);
-                outputStream = await fs.createWriteStream(`${this.outputFile}_${pageCount}.json` );
+                outputStream = await fs.createWriteStream(`${this.outputFile}_${pageCount}.json`);
                 const firstWrite = writeStream(outputStream, '{ "entry" : [');
                 if (firstWrite) {
                     if (firstWrite) {
@@ -162,10 +162,10 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
            // Check if more than 5 minutes have passed since the last refresh
            if (moment().diff(refreshTimestamp, 'seconds') > this.numberOfSecondsBetweenSessionRefreshes) {
                 this.adminLogger.logInfo(
-                                    'refreshing session with sessionId', {'session_id': sessionId});
-                const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
+                                    'refreshing session with sessionId', { session_id: sessionId });
+                const adminResult = await sourceDb.admin().command({ refreshSessions: [sessionId] });
                 this.adminLogger.logInfo(
-                    'result from refreshing session', {'result': adminResult});
+                    'result from refreshing session', { result: adminResult });
                 refreshTimestamp = moment();
             }
         }

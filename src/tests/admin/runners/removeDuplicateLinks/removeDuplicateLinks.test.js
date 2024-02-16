@@ -10,24 +10,24 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { ConfigManager } = require('../../../../utils/configManager');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return false;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, personResource,
+async function setupDatabaseAsync (mongoDatabaseManager, personResource,
                                   collectionName) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
@@ -78,11 +78,11 @@ describe('Person Tests', () => {
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const collection = await setupDatabaseAsync(
-                mongoDatabaseManager, person1Resource, 'Person_4_0_0',
+                mongoDatabaseManager, person1Resource, 'Person_4_0_0'
             );
 
             await setupDatabaseAsync(
-                mongoDatabaseManager, person2Resource, 'Person_4_0_0',
+                mongoDatabaseManager, person2Resource, 'Person_4_0_0'
             );
             // run admin runner
 
@@ -98,11 +98,11 @@ describe('Person Tests', () => {
                         preSaveManager: c.preSaveManager,
                         personUuids: undefined,
                         minLinks: 3,
-                        batchSize: batchSize,
+                        batchSize,
                         ownerCode: undefined,
                         uuidGreaterThan: undefined
-                    },
-                ),
+                    }
+                )
             );
 
             /**

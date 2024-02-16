@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Bundle.Entry
     A container for a collection of resources.
@@ -23,7 +22,7 @@ class BundleEntry extends Element {
      * @param {BundleRequest|undefined} [request],
      * @param {BundleResponse|undefined} [response],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class BundleEntry extends Element {
             resource,
             search,
             request,
-            response,
+            response
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class BundleEntry extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class BundleEntry extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -129,7 +128,7 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleLink = require('../backbone_elements/bundleLink.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.link = FhirResourceCreator.createArray(valueProvided, BundleLink);
             }
         });
@@ -175,7 +174,7 @@ class BundleEntry extends Element {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.resource = FhirResourceCreator.create(valueProvided);
             }
         });
@@ -195,7 +194,7 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleSearch = require('../backbone_elements/bundleSearch.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.search = FhirResourceCreator.create(valueProvided, BundleSearch);
             }
         });
@@ -217,7 +216,7 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleRequest = require('../backbone_elements/bundleRequest.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.request = FhirResourceCreator.create(valueProvided, BundleRequest);
             }
         });
@@ -239,13 +238,10 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleResponse = require('../backbone_elements/bundleResponse.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.response = FhirResourceCreator.create(valueProvided, BundleResponse);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -257,19 +253,16 @@ class BundleEntry extends Element {
             resource,
             search,
             request,
-            response,
+            response
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -280,7 +273,7 @@ class BundleEntry extends Element {
             resource: this.resource && this.resource.toJSON(),
             search: this.search && this.search.toJSON(),
             request: this.request && this.request.toJSON(),
-            response: this.response && this.response.toJSON(),
+            response: this.response && this.response.toJSON()
         });
     }
 
@@ -289,22 +282,22 @@ class BundleEntry extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.link) {await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.resource) {await this.resource.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.search) {await this.search.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.request) {await this.request.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.response) {await this.response.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.resource) { await this.resource.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.search) { await this.search.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.request) { await this.request.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.response) { await this.response.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -314,10 +307,8 @@ class BundleEntry extends Element {
             resource: this.resource && this.resource.toJSONInternal(),
             search: this.search && this.search.toJSONInternal(),
             request: this.request && this.request.toJSONInternal(),
-            response: this.response && this.response.toJSONInternal(),
+            response: this.response && this.response.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

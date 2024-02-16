@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceNucleicAcid.Linkage
     Nucleic acids are defined by three distinct elements: the base, sugar and
@@ -24,7 +23,7 @@ class SubstanceNucleicAcidLinkage extends Element {
      * @param {String|undefined} [name],
      * @param {String|undefined} [residueSite],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity,
             identifier,
             name,
-            residueSite,
+            residueSite
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class SubstanceNucleicAcidLinkage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class SubstanceNucleicAcidLinkage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -150,7 +149,7 @@ class SubstanceNucleicAcidLinkage extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -192,9 +191,6 @@ class SubstanceNucleicAcidLinkage extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -203,19 +199,16 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity,
             identifier,
             name,
-            residueSite,
+            residueSite
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -224,7 +217,7 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity: this.connectivity,
             identifier: this.identifier && this.identifier.toJSON(),
             name: this.name,
-            residueSite: this.residueSite,
+            residueSite: this.residueSite
         });
     }
 
@@ -233,18 +226,18 @@ class SubstanceNucleicAcidLinkage extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -252,10 +245,8 @@ class SubstanceNucleicAcidLinkage extends Element {
             connectivity: this.connectivity,
             identifier: this.identifier && this.identifier.toJSONInternal(),
             name: this.name,
-            residueSite: this.residueSite,
+            residueSite: this.residueSite
         };
-
-
 
         return removeNull(json);
     }

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Expression
     A expression that is evaluated in a specified context and returns a value. The
@@ -25,7 +24,7 @@ class Expression extends Element {
      * @param {String|undefined} [expression],
      * @param {uri|undefined} [reference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class Expression extends Element {
             name,
             language,
             expression,
-            reference,
+            reference
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class Expression extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -174,9 +173,6 @@ class Expression extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -185,19 +181,16 @@ class Expression extends Element {
             name,
             language,
             expression,
-            reference,
+            reference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -206,7 +199,7 @@ class Expression extends Element {
             name: this.name,
             language: this.language,
             expression: this.expression,
-            reference: this.reference,
+            reference: this.reference
         });
     }
 
@@ -215,16 +208,16 @@ class Expression extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -232,10 +225,8 @@ class Expression extends Element {
             name: this.name,
             language: this.language,
             expression: this.expression,
-            reference: this.reference,
+            reference: this.reference
         };
-
-
 
         return removeNull(json);
     }

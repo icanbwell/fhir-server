@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductAuthorization.JurisdictionalAuthorization
     The regulatory authorization of a medicinal product.
@@ -22,7 +21,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
      * @param {CodeableConcept|undefined} [legalStatusOfSupply],
      * @param {Period|undefined} [validityPeriod],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country,
             jurisdiction,
             legalStatusOfSupply,
-            validityPeriod,
+            validityPeriod
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
@@ -147,7 +146,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.country = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -167,7 +166,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -187,7 +186,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.legalStatusOfSupply = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -207,13 +206,10 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.validityPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -224,19 +220,16 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country,
             jurisdiction,
             legalStatusOfSupply,
-            validityPeriod,
+            validityPeriod
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -246,7 +239,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country: this.country && this.country.toJSON(),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
             legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSON(),
-            validityPeriod: this.validityPeriod && this.validityPeriod.toJSON(),
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSON()
         });
     }
 
@@ -255,22 +248,22 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.country) {await this.country.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.legalStatusOfSupply) {await this.legalStatusOfSupply.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.validityPeriod) {await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await async.each(this.identifier, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.country) { await this.country.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.jurisdiction) { await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.legalStatusOfSupply) { await this.legalStatusOfSupply.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.validityPeriod) { await this.validityPeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -279,10 +272,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
             country: this.country && this.country.toJSONInternal(),
             jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
             legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSONInternal(),
-            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal(),
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

@@ -17,7 +17,7 @@ const { DelinkProaPersonRunner } = require('../runners/delinkProaPersonRunner');
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     const parameters = CommandLineParser.parseCommandLine();
 
     /**
@@ -64,7 +64,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    let currentDateTime = new Date();
+    const currentDateTime = new Date();
     adminLogger.logInfo(`[${currentDateTime}] Running proaPatientLinkCsvRunner script`);
 
     // set up all the standard services in the container
@@ -81,12 +81,12 @@ async function main() {
         clientUuidColumn,
         statusColumn,
         adminLogger,
-        deleteData: parameters.deleteData ? true : false,
+        deleteData: !!parameters.deleteData,
         databaseQueryFactory: c.databaseQueryFactory,
         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory,
-            fhirOperationsManager: c.fhirOperationsManager,
+            fhirOperationsManager: c.fhirOperationsManager
         })
     }));
 

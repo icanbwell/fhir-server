@@ -5,18 +5,18 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {logInfo} = require('../../operations/common/logging');
-const {createContainer} = require('../../createContainer');
-const {CommandLineParser} = require('./commandLineParser');
+const { logInfo } = require('../../operations/common/logging');
+const { createContainer } = require('../../createContainer');
+const { CommandLineParser } = require('./commandLineParser');
 const moment = require('moment-timezone');
-const {PartitionAuditEventRunner} = require('../runners/partitionAuditEventRunner');
-const {AdminLogger} = require('../adminLogger');
+const { PartitionAuditEventRunner } = require('../runners/partitionAuditEventRunner');
+const { AdminLogger } = require('../adminLogger');
 
 /**
  * main function
  * @returns {Promise<void>}
  */
-async function main() {
+async function main () {
     /**
      * @type {Object}
      */
@@ -29,7 +29,7 @@ async function main() {
     // set up all the standard services in the container
     const container = createContainer();
 
-    logInfo('Parameters', {parameters});
+    logInfo('Parameters', { parameters });
     // now add our class
     container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner(
             {
@@ -38,9 +38,9 @@ async function main() {
                 recordedAfter: moment.utc(recordedAfter),
                 recordedBefore: moment.utc(recordedBefore),
                 batchSize,
-                skipExistingIds: parameters.skipExistingIds ? true : false,
-                useAuditDatabase: parameters.audit ? true : false,
-                dropDestinationCollection: parameters.dropDestinationCollection ? true : false,
+                skipExistingIds: !!parameters.skipExistingIds,
+                useAuditDatabase: !!parameters.audit,
+                dropDestinationCollection: !!parameters.dropDestinationCollection,
                 adminLogger: new AdminLogger(),
                 indexManager: c.indexManager,
                 sourceCollection: parameters.source || 'AuditEvent_4_0_0'

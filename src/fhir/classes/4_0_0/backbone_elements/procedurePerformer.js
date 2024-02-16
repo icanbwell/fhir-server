@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Procedure.Performer
     An action that is or was performed on or for a patient. This can be a physical
@@ -22,14 +21,14 @@ class ProcedurePerformer extends Element {
      * @param {Reference} actor,
      * @param {Reference|undefined} [onBehalfOf],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor,
-            onBehalfOf,
+            onBehalfOf
         }
     ) {
         super({});
@@ -73,7 +72,7 @@ class ProcedurePerformer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class ProcedurePerformer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +125,7 @@ class ProcedurePerformer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.function = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -146,7 +145,7 @@ class ProcedurePerformer extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.actor = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -166,34 +165,28 @@ class ProcedurePerformer extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.onBehalfOf = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
             extension,
             modifierExtension,
-            'function': function_,
+            function: function_,
             actor,
-            onBehalfOf,
+            onBehalfOf
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -201,7 +194,7 @@ class ProcedurePerformer extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             function: this.function && this.function.toJSON(),
             actor: this.actor && this.actor.toJSON(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON()
         });
     }
 
@@ -210,30 +203,28 @@ class ProcedurePerformer extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.function) {await this.function.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.actor) {await this.actor.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onBehalfOf) {await this.onBehalfOf.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.function) { await this.function.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.actor) { await this.actor.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.onBehalfOf) { await this.onBehalfOf.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             function: this.function && this.function.toJSONInternal(),
             actor: this.actor && this.actor.toJSONInternal(),
-            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

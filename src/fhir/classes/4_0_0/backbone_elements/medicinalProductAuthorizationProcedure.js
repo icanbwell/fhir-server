@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 MedicinalProductAuthorization.Procedure
     The regulatory authorization of a medicinal product.
@@ -22,7 +21,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
      * @param {dateTime|undefined} [dateDateTime],
      * @param {MedicinalProductAuthorizationProcedure[]|undefined} [application],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -31,7 +30,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type,
             datePeriod,
             dateDateTime,
-            application,
+            application
         }
     ) {
         super({});
@@ -75,7 +74,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -107,7 +106,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -127,7 +126,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
@@ -147,7 +146,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -167,7 +166,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.datePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -204,13 +203,10 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     this.__data.application = undefined;
                     return;
                 }
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.application = FhirResourceCreator.createArray(valueProvided, MedicinalProductAuthorizationProcedure);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -221,19 +217,16 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type,
             datePeriod,
             dateDateTime,
-            application,
+            application
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -243,7 +236,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type: this.type && this.type.toJSON(),
             datePeriod: this.datePeriod && this.datePeriod.toJSON(),
             dateDateTime: this.dateDateTime,
-            application: this.application && this.application.map(v => v.toJSON()),
+            application: this.application && this.application.map(v => v.toJSON())
         });
     }
 
@@ -252,21 +245,21 @@ class MedicinalProductAuthorizationProcedure extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.datePeriod) {await this.datePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.application) {await async.each(this.application, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.identifier) { await this.identifier.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.datePeriod) { await this.datePeriod.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.application) { await async.each(this.application, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -275,10 +268,8 @@ class MedicinalProductAuthorizationProcedure extends Element {
             type: this.type && this.type.toJSONInternal(),
             datePeriod: this.datePeriod && this.datePeriod.toJSONInternal(),
             dateDateTime: this.dateDateTime,
-            application: this.application && this.application.map(v => v.toJSONInternal()),
+            application: this.application && this.application.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

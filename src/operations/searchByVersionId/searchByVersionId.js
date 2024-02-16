@@ -1,16 +1,16 @@
-const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {EnrichmentManager} = require('../../enrich/enrich');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {ScopesManager} = require('../security/scopesManager');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {isTrue} = require('../../utils/isTrue');
-const {ConfigManager} = require('../../utils/configManager');
-const {SearchManager} = require('../search/searchManager');
-const {ParsedArgs} = require('../query/parsedArgs');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {GRIDFS: {RETRIEVE}, OPERATIONS: {READ}} = require('../../constants');
+const { ForbiddenError, NotFoundError } = require('../../utils/httpErrors');
+const { EnrichmentManager } = require('../../enrich/enrich');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { DatabaseHistoryFactory } = require('../../dataLayer/databaseHistoryFactory');
+const { ScopesManager } = require('../security/scopesManager');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { isTrue } = require('../../utils/isTrue');
+const { ConfigManager } = require('../../utils/configManager');
+const { SearchManager } = require('../search/searchManager');
+const { ParsedArgs } = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { GRIDFS: { RETRIEVE }, OPERATIONS: { READ } } = require('../../constants');
 
 class SearchByVersionIdOperation {
     /**
@@ -24,7 +24,7 @@ class SearchByVersionIdOperation {
      * @param {SearchManager} searchManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor(
+    constructor (
         {
             databaseHistoryFactory,
             scopesManager,
@@ -86,7 +86,7 @@ class SearchByVersionIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async searchByVersionIdAsync({requestInfo, parsedArgs, resourceType}) {
+    async searchByVersionIdAsync ({ requestInfo, parsedArgs, resourceType }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -105,14 +105,13 @@ class SearchByVersionIdOperation {
             /** @type {string | null} */
             user,
             /** @type {string | null} */
-            scope,
+            scope
             // /** @type {string} */
             // requestId
         } = requestInfo;
 
         try {
-
-            let {base_version, id, version_id} = parsedArgs;
+            const { base_version, id, version_id } = parsedArgs;
             // check if user has permissions to access this resource
             await this.scopesValidator.verifyHasValidScopesAsync(
                 {
@@ -125,18 +124,17 @@ class SearchByVersionIdOperation {
                 }
             );
 
-
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs._useAccessIndex));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
             let {
                 /** @type {import('mongodb').Document}**/
-                query,
+                query
                 // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
@@ -176,7 +174,7 @@ class SearchByVersionIdOperation {
                     }
                 );
                 resource = await databaseHistoryManager.findOneAsync({
-                    query: query
+                    query
                 });
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
@@ -184,7 +182,7 @@ class SearchByVersionIdOperation {
 
             if (resource) {
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                    resource: resource, user, scope
+                    resource, user, scope
                 }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
@@ -228,4 +226,3 @@ class SearchByVersionIdOperation {
 module.exports = {
     SearchByVersionIdOperation
 };
-

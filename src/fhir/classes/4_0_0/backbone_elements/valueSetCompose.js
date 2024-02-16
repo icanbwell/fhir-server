@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ValueSet.Compose
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -24,7 +23,7 @@ class ValueSetCompose extends Element {
      * @param {ValueSetInclude[]} include,
      * @param {ValueSetInclude[]|undefined} [exclude],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -32,7 +31,7 @@ class ValueSetCompose extends Element {
             lockedDate,
             inactive,
             include,
-            exclude,
+            exclude
         }
     ) {
         super({});
@@ -76,7 +75,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -108,7 +107,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -171,7 +170,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.include = FhirResourceCreator.createArray(valueProvided, ValueSetInclude);
             }
         });
@@ -192,13 +191,10 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.exclude = FhirResourceCreator.createArray(valueProvided, ValueSetInclude);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -208,19 +204,16 @@ class ValueSetCompose extends Element {
             lockedDate,
             inactive,
             include,
-            exclude,
+            exclude
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -229,7 +222,7 @@ class ValueSetCompose extends Element {
             lockedDate: this.lockedDate,
             inactive: this.inactive,
             include: this.include && this.include.map(v => v.toJSON()),
-            exclude: this.exclude && this.exclude.map(v => v.toJSON()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSON())
         });
     }
 
@@ -238,19 +231,19 @@ class ValueSetCompose extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.include) {await async.each(this.include, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.exclude) {await async.each(this.exclude, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.include) { await async.each(this.include, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.exclude) { await async.each(this.exclude, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -258,10 +251,8 @@ class ValueSetCompose extends Element {
             lockedDate: this.lockedDate,
             inactive: this.inactive,
             include: this.include && this.include.map(v => v.toJSONInternal()),
-            exclude: this.exclude && this.exclude.map(v => v.toJSONInternal()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

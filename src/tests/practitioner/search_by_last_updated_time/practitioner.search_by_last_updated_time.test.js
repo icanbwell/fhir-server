@@ -9,10 +9,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Practitioner Last Updated Time', () => {
     beforeEach(async () => {
@@ -23,8 +22,8 @@ describe('Practitioner Last Updated Time', () => {
         await commonAfterEach();
     });
 
-    let today_minus_10_minutes = moment.utc().subtract(10, 'minutes').format();
-    let today_plus_30_minutes = moment.utc().add(30, 'minutes').format();
+    const today_minus_10_minutes = moment.utc().subtract(10, 'minutes').format();
+    const today_plus_30_minutes = moment.utc().add(30, 'minutes').format();
 
     describe('Practitioner Search By Last Updated Time Tests', () => {
         test('search by lastUpdated time greater than or equals', async () => {
@@ -38,7 +37,7 @@ describe('Practitioner Last Updated Time', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -68,7 +67,7 @@ describe('Practitioner Last Updated Time', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
@@ -93,7 +92,7 @@ describe('Practitioner Last Updated Time', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -118,7 +117,7 @@ describe('Practitioner Last Updated Time', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
@@ -143,7 +142,7 @@ describe('Practitioner Last Updated Time', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
@@ -173,7 +172,7 @@ describe('Practitioner Last Updated Time', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction

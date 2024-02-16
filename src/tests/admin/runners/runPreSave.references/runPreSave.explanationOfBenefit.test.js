@@ -9,26 +9,26 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
+    getTestContainer
 } = require('../../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {AdminLogger} = require('../../../../admin/adminLogger');
-const {ConfigManager} = require('../../../../utils/configManager');
-const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
-const {IdentifierSystem} = require('../../../../utils/identifierSystem');
-const {assertTypeEquals} = require('../../../../utils/assertType');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { AdminLogger } = require('../../../../admin/adminLogger');
+const { ConfigManager } = require('../../../../utils/configManager');
+const { RunPreSaveRunner } = require('../../../../admin/runners/runPreSaveRunner');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
+const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return false;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, explanationOfBenefitResource, expectedExplanationInDatabase) {
+async function setupDatabaseAsync (mongoDatabaseManager, explanationOfBenefitResource, expectedExplanationInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection('ExplanationOfBenefit_4_0_0');
@@ -39,7 +39,7 @@ async function setupDatabaseAsync(mongoDatabaseManager, explanationOfBenefitReso
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: explanationOfBenefitResource.id});
+    const resource = await collection.findOne({ id: explanationOfBenefitResource.id });
     // const resultsJson = JSON.stringify(results);
 
     delete resource._id;
@@ -90,7 +90,7 @@ describe('ExplanationOfBenefit Tests', () => {
             container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
+                        collections,
                         batchSize,
                         beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,
@@ -109,7 +109,7 @@ describe('ExplanationOfBenefit Tests', () => {
             await runPreSaveRunner.processAsync();
 
             // Check patient 1
-            const explanationOfBenefit1 = await collection.findOne({id: explanationOfBenefit1Resource.id});
+            const explanationOfBenefit1 = await collection.findOne({ id: explanationOfBenefit1Resource.id });
             expect(explanationOfBenefit1).toBeDefined();
             delete explanationOfBenefit1._id;
             expect(explanationOfBenefit1._uuid).toBeDefined();

@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SubstanceSourceMaterial.OrganismGeneral
     Source material shall capture information on the taxonomic and anatomical
@@ -34,15 +33,15 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
      * @param {CodeableConcept|undefined} [class_],
      * @param {CodeableConcept|undefined} [order],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             kingdom,
             phylum,
-            'class': class_,
-            order,
+            class: class_,
+            order
         }
     ) {
         super({});
@@ -86,7 +85,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -118,7 +117,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -138,7 +137,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.kingdom = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -158,7 +157,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.phylum = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -178,7 +177,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.class = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -198,13 +197,10 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.order = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -213,20 +209,17 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             modifierExtension,
             kingdom,
             phylum,
-            'class': class_,
-            order,
+            class: class_,
+            order
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -235,7 +228,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             kingdom: this.kingdom && this.kingdom.toJSON(),
             phylum: this.phylum && this.phylum.toJSON(),
             class: this.class && this.class.toJSON(),
-            order: this.order && this.order.toJSON(),
+            order: this.order && this.order.toJSON()
         });
     }
 
@@ -244,21 +237,21 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.kingdom) {await this.kingdom.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.phylum) {await this.phylum.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.class) {await this.class.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.order) {await this.order.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.kingdom) { await this.kingdom.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.phylum) { await this.phylum.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.class) { await this.class.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.order) { await this.order.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -266,10 +259,8 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
             kingdom: this.kingdom && this.kingdom.toJSONInternal(),
             phylum: this.phylum && this.phylum.toJSONInternal(),
             class: this.class && this.class.toJSONInternal(),
-            order: this.order && this.order.toJSONInternal(),
+            order: this.order && this.order.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

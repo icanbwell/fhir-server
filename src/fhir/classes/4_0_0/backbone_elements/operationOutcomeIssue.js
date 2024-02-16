@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 OperationOutcome.Issue
     A collection of error, warning, or information messages that result from a
@@ -24,7 +23,7 @@ class OperationOutcomeIssue extends Element {
      * @param {String[]|undefined} [location],
      * @param {String[]|undefined} [expression],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -34,7 +33,7 @@ class OperationOutcomeIssue extends Element {
             details,
             diagnostics,
             location,
-            expression,
+            expression
         }
     ) {
         super({});
@@ -78,7 +77,7 @@ class OperationOutcomeIssue extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -110,7 +109,7 @@ class OperationOutcomeIssue extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -169,7 +168,7 @@ class OperationOutcomeIssue extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.details = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -236,9 +235,6 @@ class OperationOutcomeIssue extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -249,19 +245,16 @@ class OperationOutcomeIssue extends Element {
             details,
             diagnostics,
             location,
-            expression,
+            expression
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -272,7 +265,7 @@ class OperationOutcomeIssue extends Element {
             details: this.details && this.details.toJSON(),
             diagnostics: this.diagnostics,
             location: this.location,
-            expression: this.expression,
+            expression: this.expression
         });
     }
 
@@ -281,18 +274,18 @@ class OperationOutcomeIssue extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.details) {await this.details.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.details) { await this.details.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -302,10 +295,8 @@ class OperationOutcomeIssue extends Element {
             details: this.details && this.details.toJSONInternal(),
             diagnostics: this.diagnostics,
             location: this.location,
-            expression: this.expression,
+            expression: this.expression
         };
-
-
 
         return removeNull(json);
     }

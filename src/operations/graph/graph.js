@@ -1,18 +1,18 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {logDebug} = require('../common/logging');
-const {isTrue} = require('../../utils/isTrue');
-const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {GraphHelper} = require('./graphHelpers');
-const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ScopesValidator} = require('../security/scopesValidator');
-const {getFirstElementOrNull} = require('../../utils/list.util');
-const {ResourceValidator} = require('../common/resourceValidator');
+const { logDebug } = require('../common/logging');
+const { isTrue } = require('../../utils/isTrue');
+const { BadRequestError, NotValidatedError } = require('../../utils/httpErrors');
+const { validationsFailedCounter } = require('../../utils/prometheus.utils');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { GraphHelper } = require('./graphHelpers');
+const { FhirLoggingManager } = require('../common/fhirLoggingManager');
+const { ScopesValidator } = require('../security/scopesValidator');
+const { getFirstElementOrNull } = require('../../utils/list.util');
+const { ResourceValidator } = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ParsedArgs} = require('../query/parsedArgs');
+const { ResourceLocatorFactory } = require('../common/resourceLocatorFactory');
+const { ParsedArgs } = require('../query/parsedArgs');
 
 class GraphOperation {
     /**
@@ -22,7 +22,7 @@ class GraphOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
-    constructor(
+    constructor (
         {
             graphHelper,
             fhirLoggingManager,
@@ -70,7 +70,7 @@ class GraphOperation {
      * @param {boolean} supportLegacyId
      * @return {Promise<Bundle>}
      */
-    async graph({requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId = true }) {
+    async graph ({ requestInfo, res, parsedArgs, resourceType, responseStreamer, supportLegacyId = true }) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -91,7 +91,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            method,
+            method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -107,7 +107,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            let {base_version, id} = parsedArgs;
+            const { base_version, id } = parsedArgs;
 
             if (!id) {
                 throw new BadRequestError(new Error('No id parameter was passed'));
@@ -116,7 +116,7 @@ class GraphOperation {
             /**
              * @type {boolean}
              */
-            const contained = isTrue(parsedArgs['contained']);
+            const contained = isTrue(parsedArgs.contained);
             /**
              * @type {string}
              */
@@ -129,8 +129,8 @@ class GraphOperation {
             /**
              * @type {Object|null}
              */
-            let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0 ?
-                parsedArgs.resource : body;
+            let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0
+                ? parsedArgs.resource : body;
 
             // check if this is a Parameters resourceType
             if (graphDefinitionRaw.resourceType === 'Parameters') {
@@ -139,12 +139,12 @@ class GraphOperation {
                 // const parametersResource = new ParametersResourceCreator(resource_incoming);
                 const parametersResource = graphDefinitionRaw;
                 if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
-                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
+                    throw new BadRequestError({ message: 'Invalid parameter field in resource' });
                 }
                 // find the actual resource in the parameter called resource
                 const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
                 if (!resourceParameter || !resourceParameter.resource) {
-                    throw new BadRequestError({message: 'Invalid parameter field in resource'});
+                    throw new BadRequestError({ message: 'Invalid parameter field in resource' });
                 }
                 graphDefinitionRaw = resourceParameter.resource;
             }
@@ -157,13 +157,13 @@ class GraphOperation {
                     id: graphDefinitionRaw.id,
                     resourceType: 'GraphDefinition',
                     resourceToValidate: graphDefinitionRaw,
-                    path: path,
-                    currentDate: currentDate
+                    path,
+                    currentDate
                 }
             );
             if (validationOperationOutcome) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                logDebug('GraphDefinition schema failed validation', {user});
+                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
+                logDebug('GraphDefinition schema failed validation', { user });
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
@@ -182,8 +182,8 @@ class GraphOperation {
             /**
              * @type {Bundle}
              */
-            const resultBundle = (method.toLowerCase() === 'delete') ?
-                await this.graphHelper.deleteGraphAsync(
+            const resultBundle = (method.toLowerCase() === 'delete')
+                ? await this.graphHelper.deleteGraphAsync(
                     {
                         requestInfo,
                         base_version,

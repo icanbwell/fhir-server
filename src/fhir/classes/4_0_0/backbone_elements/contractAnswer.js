@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Contract.Answer
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
@@ -30,7 +29,7 @@ class ContractAnswer extends Element {
      * @param {Quantity|undefined} [valueQuantity],
      * @param {Reference|undefined} [valueReference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -46,7 +45,7 @@ class ContractAnswer extends Element {
             valueAttachment,
             valueCoding,
             valueQuantity,
-            valueReference,
+            valueReference
         }
     ) {
         super({});
@@ -90,7 +89,7 @@ class ContractAnswer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -122,7 +121,7 @@ class ContractAnswer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -286,7 +285,7 @@ class ContractAnswer extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
@@ -306,7 +305,7 @@ class ContractAnswer extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -326,7 +325,7 @@ class ContractAnswer extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -346,13 +345,10 @@ class ContractAnswer extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -370,19 +366,16 @@ class ContractAnswer extends Element {
             valueAttachment,
             valueCoding,
             valueQuantity,
-            valueReference,
+            valueReference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -399,7 +392,7 @@ class ContractAnswer extends Element {
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueReference: this.valueReference && this.valueReference.toJSON(),
+            valueReference: this.valueReference && this.valueReference.toJSON()
         });
     }
 
@@ -408,21 +401,21 @@ class ContractAnswer extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.valueAttachment) {await this.valueAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueCoding) {await this.valueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueReference) {await this.valueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.valueAttachment) { await this.valueAttachment.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueCoding) { await this.valueCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueQuantity) { await this.valueQuantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueReference) { await this.valueReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -438,10 +431,8 @@ class ContractAnswer extends Element {
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
-            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

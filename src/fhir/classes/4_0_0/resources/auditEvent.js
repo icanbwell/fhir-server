@@ -5,7 +5,6 @@
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 AuditEvent
     A record of an event made for purposes of maintaining a security log. Typical
@@ -39,7 +38,7 @@ class AuditEvent extends Resource {
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
-    constructor(
+    constructor (
         {
             id,
             meta,
@@ -63,7 +62,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         super({});
@@ -106,7 +105,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
@@ -170,7 +169,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
@@ -192,7 +191,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
@@ -216,7 +215,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -248,7 +247,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -270,7 +269,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -290,7 +289,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.subtype = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -329,7 +328,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
@@ -403,7 +402,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.purposeOfEvent = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -423,7 +422,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventAgent = require('../backbone_elements/auditEventAgent.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.agent = FhirResourceCreator.createArray(valueProvided, AuditEventAgent);
             }
         });
@@ -443,7 +442,7 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventSource = require('../backbone_elements/auditEventSource.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.source = FhirResourceCreator.create(valueProvided, AuditEventSource);
             }
         });
@@ -463,11 +462,10 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventEntity = require('../backbone_elements/auditEventEntity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.entity = FhirResourceCreator.createArray(valueProvided, AuditEventEntity);
             }
         });
-
 
         /**
          * @description _access
@@ -522,7 +520,6 @@ class AuditEvent extends Resource {
             }
         });
 
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -547,7 +544,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
 
         /**
@@ -566,7 +563,7 @@ class AuditEvent extends Resource {
      * @description Define a default non-writable resourceType property
      * @property {string|undefined}
      */
-    static get resourceType() {
+    static get resourceType () {
         return 'AuditEvent';
     }
 
@@ -597,7 +594,7 @@ class AuditEvent extends Resource {
      * @param {string|undefined} [_sourceId]
      * @returns {AuditEvent}
     */
-    create(
+    create (
             {
             id,
             meta,
@@ -621,7 +618,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         }
     ) {
         return new AuditEvent({
@@ -647,7 +644,7 @@ class AuditEvent extends Resource {
             _access,
             _sourceAssigningAuthority,
             _uuid,
-            _sourceId,
+            _sourceId
         });
     }
 
@@ -655,17 +652,16 @@ class AuditEvent extends Resource {
      * @description creates a copy of this resource
      * @returns {AuditEvent}
     */
-    clone() {
+    clone () {
         return new AuditEvent(this.toJSONInternal());
     }
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             resourceType: this.resourceType,
@@ -687,7 +683,7 @@ class AuditEvent extends Resource {
             purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.map(v => v.toJSON()),
             agent: this.agent && this.agent.map(v => v.toJSON()),
             source: this.source && this.source.toJSON(),
-            entity: this.entity && this.entity.map(v => v.toJSON()),
+            entity: this.entity && this.entity.map(v => v.toJSON())
         });
     }
 
@@ -696,27 +692,27 @@ class AuditEvent extends Resource {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subtype) {await async.each(this.subtype, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.purposeOfEvent) {await async.each(this.purposeOfEvent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.agent) {await async.each(this.agent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.source) {await this.source.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.entity) {await async.each(this.entity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.meta) { await this.meta.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.text) { await this.text.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contained) { await async.each(this.contained, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.subtype) { await async.each(this.subtype, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.period) { await this.period.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.purposeOfEvent) { await async.each(this.purposeOfEvent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.agent) { await async.each(this.agent, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.source) { await this.source.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.entity) { await async.each(this.entity, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             resourceType: this.resourceType,
             id: this.id,
@@ -737,9 +733,8 @@ class AuditEvent extends Resource {
             purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.map(v => v.toJSONInternal()),
             agent: this.agent && this.agent.map(v => v.toJSONInternal()),
             source: this.source && this.source.toJSONInternal(),
-            entity: this.entity && this.entity.map(v => v.toJSONInternal()),
+            entity: this.entity && this.entity.map(v => v.toJSONInternal())
         };
-
 
         if (this._access) {
             json._access = this._access;

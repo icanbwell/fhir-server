@@ -19,5 +19,5 @@ const getQueryParams = (url) => {
 };
 
 module.exports = {
-    getQueryParams,
+    getQueryParams
 };

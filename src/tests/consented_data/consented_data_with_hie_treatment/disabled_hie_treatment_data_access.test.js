@@ -16,9 +16,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test, jest, expect } = require('@jest/globals');
 const { DatabasePartitionedCursor } = require('../../../dataLayer/databasePartitionedCursor');
 const { ConfigManager } = require('../../../utils/configManager');
 
@@ -28,7 +28,7 @@ class MockConfigManager extends ConfigManager {
     /**
      * @returns {boolean}
      */
-    get enableHIETreatmentRelatedDataAccess() {
+    get enableHIETreatmentRelatedDataAccess () {
         return false;
     }
 }
@@ -59,7 +59,7 @@ describe('Disabled HIE/Treatment Related Data Access Test', () => {
                 hipaaPatientResource, hipaaObservation1Resource])
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-        expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({ created: true });
 
         resp = await request
             .get('/4_0_0/Observation?patient=Patient/person.08f1b73a-e27c-456d-8a61-277f164a9a57')

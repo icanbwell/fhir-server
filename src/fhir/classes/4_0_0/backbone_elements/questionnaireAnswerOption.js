@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Questionnaire.AnswerOption
     A structured set of questions intended to guide the collection of answers from
@@ -26,7 +25,7 @@ class QuestionnaireAnswerOption extends Element {
      * @param {Reference|undefined} [valueReference],
      * @param {Boolean|undefined} [initialSelected],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -37,7 +36,7 @@ class QuestionnaireAnswerOption extends Element {
             valueString,
             valueCoding,
             valueReference,
-            initialSelected,
+            initialSelected
         }
     ) {
         super({});
@@ -81,7 +80,7 @@ class QuestionnaireAnswerOption extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -113,7 +112,7 @@ class QuestionnaireAnswerOption extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -205,7 +204,7 @@ class QuestionnaireAnswerOption extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -225,7 +224,7 @@ class QuestionnaireAnswerOption extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -249,9 +248,6 @@ class QuestionnaireAnswerOption extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -263,19 +259,16 @@ class QuestionnaireAnswerOption extends Element {
             valueString,
             valueCoding,
             valueReference,
-            initialSelected,
+            initialSelected
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -287,7 +280,7 @@ class QuestionnaireAnswerOption extends Element {
             valueString: this.valueString,
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
-            initialSelected: this.initialSelected,
+            initialSelected: this.initialSelected
         });
     }
 
@@ -296,19 +289,19 @@ class QuestionnaireAnswerOption extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.valueCoding) {await this.valueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.valueReference) {await this.valueReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.valueCoding) { await this.valueCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.valueReference) { await this.valueReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -319,10 +312,8 @@ class QuestionnaireAnswerOption extends Element {
             valueString: this.valueString,
             valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
             valueReference: this.valueReference && this.valueReference.toJSONInternal(),
-            initialSelected: this.initialSelected,
+            initialSelected: this.initialSelected
         };
-
-
 
         return removeNull(json);
     }

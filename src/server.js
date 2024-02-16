@@ -1,12 +1,12 @@
-const {createApp} = require('./app');
-const {fhirServerConfig} = require('./config');
+const { createApp } = require('./app');
+const { fhirServerConfig } = require('./config');
 const env = require('var');
-const {logError, logInfo} = require('./operations/common/logging');
-const {logSystemEventAsync} = require('./operations/common/systemEventLogging');
+const { logError, logInfo } = require('./operations/common/logging');
+const { logSystemEventAsync } = require('./operations/common/systemEventLogging');
 const http = require('http');
 const { isTrue } = require('./utils/isTrue');
-const {getImageVersion} = require('./utils/getImageVersion');
-const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
+const { getImageVersion } = require('./utils/getImageVersion');
+const { MongoDatabaseManager } = require('./utils/mongoDatabaseManager');
 const { createTerminus } = require('@godaddy/terminus');
 /**
  * To use uncaught error handlers, we need to import the file
@@ -41,13 +41,13 @@ const flushBuffer = async (fnGetContainer) => {
  * @param {function (): SimpleContainer} fnGetContainer
  * @return {Promise<import('http').Server>}
  */
-async function createServer(fnGetContainer) {
+async function createServer (fnGetContainer) {
     const container = fnGetContainer();
     await new MongoDatabaseManager({
-        configManager: container.configManager,
+        configManager: container.configManager
     }).connectAsync();
 
-    const app = createApp({fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
+    const app = createApp({ fnGetContainer, trackMetrics: isTrue(env.TRACK_METRICS) });
 
     const server = http
         .createServer(app)
@@ -56,7 +56,7 @@ async function createServer(fnGetContainer) {
             await logSystemEventAsync({
                 event: 'serverStartup',
                 message: 'Server is up and running',
-                args: {image: image, version: getImageVersion()},
+                args: { image, version: getImageVersion() }
             });
         });
 
@@ -64,7 +64,7 @@ async function createServer(fnGetContainer) {
     // https://www.w3schools.com/nodejs/prop_server_timeout.asp
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
-    server.setTimeout(10 * 60 * 1000, (/*socket*/) => {
+    server.setTimeout(10 * 60 * 1000, (/* socket */) => {
         logInfo('Server timeout', {});
     }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
@@ -81,7 +81,7 @@ async function createServer(fnGetContainer) {
             logInfo('Socket timeout', {});
         });
         socket.once('error', function (e) {
-            logError('Socket error', {error: e});
+            logError('Socket error', { error: e });
         });
     });
 
@@ -96,14 +96,14 @@ async function createServer(fnGetContainer) {
             await logSystemEventAsync({
                 event: 'shutdown',
                 message: 'Beginning shutdown of server',
-                args: {},
+                args: {}
             });
         }, // called before the HTTP server starts its shutdown
         onShutdown: () => {
             logInfo('Successfully shut down server', {});
         }, // called right before exiting
         useExit0: true, // instead of sending the received signal again without being catched, the process will exit(0)
-        logError, // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.
+        logError // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.
     };
 
     createTerminus(server, options);
@@ -112,5 +112,5 @@ async function createServer(fnGetContainer) {
 }
 
 module.exports = {
-    createServer,
+    createServer
 };

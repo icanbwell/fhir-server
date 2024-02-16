@@ -26,7 +26,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {ConstructorProps}
      */
-    constructor({
+    constructor ({
         csvFileName,
         proaPatientUuidColumn,
         proaPersonUuidColumn,
@@ -38,7 +38,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         deleteData,
         adminPersonPatientLinkManager,
         databaseQueryFactory,
-        adminLogger,
+        adminLogger
     }) {
         super({
             csvFileName,
@@ -46,7 +46,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             clientUuidColumn,
             statusColumn,
             adminPersonPatientLinkManager,
-            adminLogger,
+            adminLogger
         });
         /**
          * @type {DatabaseQueryFactory}
@@ -89,7 +89,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Main process
      * @returns {Promise<void>}
      */
-    async processAsync() {
+    async processAsync () {
         try {
             this.csvFileName = path.resolve(__dirname, path.join('../../../', this.csvFileName));
 
@@ -112,7 +112,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Initializes write streams
      * @returns {Promise<void>}
      */
-    initializeWriteStreams() {
+    initializeWriteStreams () {
         // write stream to write person status
         this.writeStream = fs.createWriteStream('deleted_persons.csv');
         this.writeStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated|\n');
@@ -121,13 +121,13 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
         this.errorStream.write('Proa Person Uuid| Proa Person SourceAssigningAuthority| Proa Person LastUpdated| Status|\n');
     }
 
-    handleStreamClose() {
+    handleStreamClose () {
         this.errorStream.close();
         this.writeStream.close();
 
         return Promise.all([
-            new Promise((res) => this.errorStream.once('close', res)),
-            new Promise((res) => this.writeStream.once('close', res))
+            new Promise((resolve) => this.errorStream.once('close', resolve)),
+            new Promise((resolve) => this.writeStream.once('close', resolve))
         ]);
     }
 
@@ -135,7 +135,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Processes data from the csv and creates map of proaPatient, proaPerson, masterPerson, clientPerson, status
      * @returns {Promise<void>}
      */
-    async processDataFromCsv() {
+    async processDataFromCsv () {
         try {
             this.adminLogger.logInfo('Processing CSV Data');
             /**
@@ -143,7 +143,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
              */
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: '4_0_0',
+                base_version: '4_0_0'
             });
 
             const file = await open(this.csvFileName);
@@ -203,7 +203,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             throw new RethrownError({
                 message: err.message,
                 error: err,
-                source: 'DelinkProaPersonRunner.processDataFromCsv',
+                source: 'DelinkProaPersonRunner.processDataFromCsv'
             });
         }
     }
@@ -212,7 +212,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Handles Delinking of proa person and master person
      * @returns {Promise<void>}
      */
-    async handleDelink() {
+    async handleDelink () {
         this.adminLogger.logInfo('Starting first iteration to remove links');
         const file = await open(this.csvFileName);
 
@@ -254,12 +254,12 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 if (isClientPersonRelated && relatedClientPersons.length > 0) {
                     await this.removeProaPersonToMasterPersonLink({
                         proaPersonUuid,
-                        masterPersonUuids,
+                        masterPersonUuids
                     });
 
                     await this.removeProaPersonToProaPatientLink({
                         proaPersonUuid,
-                        proaPatientUuid,
+                        proaPatientUuid
                     });
                 }
             }
@@ -271,7 +271,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      * Handle deletion of person
      * @returns {Promise<void>}
      */
-    async handlePersonDelete() {
+    async handlePersonDelete () {
         this.adminLogger.logInfo('Starting second iteration to delete proa persons');
 
         const file = await open(this.csvFileName);
@@ -299,7 +299,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                     personUuid: proaPersonUuid,
                     sourceAssigningAuthority,
                     lastUpdated,
-                    slug: 'Proa',
+                    slug: 'Proa'
                 });
             }
         }
@@ -314,7 +314,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {RemoveProaPersonToMasterPersonLinkProps}
      */
-    async removeProaPersonToMasterPersonLink({ proaPersonUuid, masterPersonUuids }) {
+    async removeProaPersonToMasterPersonLink ({ proaPersonUuid, masterPersonUuids }) {
         for (const masterPersonUuid of masterPersonUuids) {
             this.adminLogger.logInfo(
                 `Removing link from master person ${masterPersonUuid} to proa person ${proaPersonUuid}`
@@ -324,7 +324,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 const results = await this.adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
                     req: this.req,
                     bwellPersonId: masterPersonUuid,
-                    externalPersonId: proaPersonUuid,
+                    externalPersonId: proaPersonUuid
                 });
                 this.adminLogger.logInfo(results.message);
             }
@@ -339,7 +339,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {RemoveProaPersonToProaPatientLinkProps}
      */
-    async removeProaPersonToProaPatientLink({ proaPersonUuid, proaPatientUuid }) {
+    async removeProaPersonToProaPatientLink ({ proaPersonUuid, proaPatientUuid }) {
         this.adminLogger.logInfo(
             `Removing link from proa person ${proaPersonUuid} to proa patient ${proaPatientUuid}`
         );
@@ -348,7 +348,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             const results = await this.adminPersonPatientLinkManager.removePersonToPatientLinkAsync({
                 req: this.req,
                 personId: proaPersonUuid,
-                patientId: proaPatientUuid,
+                patientId: proaPatientUuid
             });
             this.adminLogger.logInfo(results.message);
         }
@@ -365,7 +365,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
      *
      * @param {DeletePersonProps}
      */
-    async deletePerson({ referencesToBeDeleted, personUuid, sourceAssigningAuthority, lastUpdated, slug }) {
+    async deletePerson ({ referencesToBeDeleted, personUuid, sourceAssigningAuthority, lastUpdated, slug }) {
         try {
             // Get person data to check for links
             /**
@@ -373,10 +373,10 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
              */
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
-                base_version: '4_0_0',
+                base_version: '4_0_0'
             });
             const personData = await databaseQueryManager.findOneAsync({
-                query: { _uuid: personUuid },
+                query: { _uuid: personUuid }
             });
 
             if (!personData) {
@@ -396,7 +396,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
                 // if no links are present delete the proa person
                 const results = await databaseQueryManager.deleteManyAsync({
                     query: { _uuid: personUuid },
-                    requestId: this.systemRequestId,
+                    requestId: this.systemRequestId
                 });
 
                 if (results.deletedCount === 1) {
@@ -420,7 +420,7 @@ class DelinkProaPersonRunner extends ClientPersonToProaPatientLinkRunner {
             throw new RethrownError({
                 message: err.message,
                 error: err,
-                source: 'DelinkProaPersonRunner.deletePerson',
+                source: 'DelinkProaPersonRunner.deletePerson'
             });
         }
     }

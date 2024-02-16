@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ImmunizationRecommendation.Recommendation
     A patient's point-in-time set of recommendations (i.e. forecasting) according
@@ -32,7 +31,7 @@ class ImmunizationRecommendationRecommendation extends Element {
      * @param {Reference[]|undefined} [supportingImmunization],
      * @param {Reference[]|undefined} [supportingPatientInformation],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -50,7 +49,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt,
             seriesDosesString,
             supportingImmunization,
-            supportingPatientInformation,
+            supportingPatientInformation
         }
     ) {
         super({});
@@ -94,7 +93,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -126,7 +125,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -146,7 +145,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.vaccineCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -166,7 +165,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.targetDisease = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -186,7 +185,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contraindicatedVaccineCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -207,7 +206,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.forecastStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -227,7 +226,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.forecastReason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -248,7 +247,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.dateCriterion = FhirResourceCreator.createArray(valueProvided, ImmunizationRecommendationDateCriterion);
             }
         });
@@ -379,7 +378,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.supportingImmunization = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -401,13 +400,10 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.supportingPatientInformation = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -427,19 +423,16 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt,
             seriesDosesString,
             supportingImmunization,
-            supportingPatientInformation,
+            supportingPatientInformation
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -458,7 +451,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString,
             supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSON()),
-            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSON()),
+            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSON())
         });
     }
 
@@ -467,25 +460,25 @@ class ImmunizationRecommendationRecommendation extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.vaccineCode) {await async.each(this.vaccineCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.targetDisease) {await this.targetDisease.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contraindicatedVaccineCode) {await async.each(this.contraindicatedVaccineCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.forecastStatus) {await this.forecastStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.forecastReason) {await async.each(this.forecastReason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dateCriterion) {await async.each(this.dateCriterion, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingImmunization) {await async.each(this.supportingImmunization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingPatientInformation) {await async.each(this.supportingPatientInformation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.vaccineCode) { await async.each(this.vaccineCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.targetDisease) { await this.targetDisease.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.contraindicatedVaccineCode) { await async.each(this.contraindicatedVaccineCode, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.forecastStatus) { await this.forecastStatus.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.forecastReason) { await async.each(this.forecastReason, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.dateCriterion) { await async.each(this.dateCriterion, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.supportingImmunization) { await async.each(this.supportingImmunization, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.supportingPatientInformation) { await async.each(this.supportingPatientInformation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -503,10 +496,8 @@ class ImmunizationRecommendationRecommendation extends Element {
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString,
             supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSONInternal()),
-            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSONInternal()),
+            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

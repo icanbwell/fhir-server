@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 DataRequirement.CodeFilter
     Describes a required data item for evaluation in terms of the type of data,
@@ -23,14 +22,14 @@ class DataRequirementCodeFilter extends Element {
      * @param {canonical|undefined} [valueSet],
      * @param {Coding[]|undefined} [code],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             path,
             searchParam,
             valueSet,
-            code,
+            code
         }
     ) {
         super({});
@@ -74,7 +73,7 @@ class DataRequirementCodeFilter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -164,13 +163,10 @@ class DataRequirementCodeFilter extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.code = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -179,19 +175,16 @@ class DataRequirementCodeFilter extends Element {
             path,
             searchParam,
             valueSet,
-            code,
+            code
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -199,7 +192,7 @@ class DataRequirementCodeFilter extends Element {
             path: this.path,
             searchParam: this.searchParam,
             valueSet: this.valueSet,
-            code: this.code && this.code.map(v => v.toJSON()),
+            code: this.code && this.code.map(v => v.toJSON())
         });
     }
 
@@ -208,27 +201,25 @@ class DataRequirementCodeFilter extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.code) { await async.each(this.code, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             path: this.path,
             searchParam: this.searchParam,
             valueSet: this.valueSet,
-            code: this.code && this.code.map(v => v.toJSONInternal()),
+            code: this.code && this.code.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

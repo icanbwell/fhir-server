@@ -9,8 +9,8 @@ const patch1 = require('./fixtures/patches/patch1.json');
 const patch2 = require('./fixtures/patches/patch2.json');
 const patch3 = require('./fixtures/patches/patch3.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch} = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const expectedActivityDefinition5Resource = require('./fixtures/expected/expected_ActivityDefinition5.json');
 const expectedActivityDefinitionClientResources = require('./fixtures/expected/expected_ActivityDefinitionClient.json');
 const expectedActivityDefinitionBwellResources = require('./fixtures/expected/expected_ActivityDefinitionBwell.json');
@@ -18,11 +18,11 @@ const expectedErrorWithMultipleDocuments = require('./fixtures/expected/expected
 const { ConfigManager } = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport() {
+    get enableGlobalIdSupport () {
         return true;
     }
 
-    get enableReturnBundle() {
+    get enableReturnBundle () {
         return true;
     }
 }
@@ -77,15 +77,15 @@ describe('Person Tests', () => {
                 .send(patch1)
                 .set(getHeaders());
             expect(resp.body).toStrictEqual({
-                'resourceType': 'OperationOutcome',
-                'issue': [
+                resourceType: 'OperationOutcome',
+                issue: [
                     {
-                        'severity': 'error',
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        severity: 'error',
+                        code: 'invalid',
+                        details: {
+                            text: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                         },
-                        'diagnostics': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
+                        diagnostics: 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                     }
                 ]
             });
@@ -108,17 +108,17 @@ describe('Person Tests', () => {
                 .set(getHeadersJsonPatch());
 
             expect(resp.body).toStrictEqual({
-                'issue': [
+                issue: [
                     {
-                        'code': 'invalid',
-                        'details': {
-                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        code: 'invalid',
+                        details: {
+                            text: 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}'
                         },
-                        'diagnostics': 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
-                        'severity': 'error',
-                    },
+                        diagnostics: 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        severity: 'error'
+                    }
                 ],
-                'resourceType': 'OperationOutcome',
+                resourceType: 'OperationOutcome'
             });
         });
 

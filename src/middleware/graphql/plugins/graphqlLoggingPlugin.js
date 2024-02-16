@@ -1,16 +1,16 @@
 const async = require('async');
-const {logInfo, logError} = require('../../../operations/common/logging');
+const { logInfo, logError } = require('../../../operations/common/logging');
 
 /***
  * Plugin to log calls to GraphQL
  */
-class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
+class MyApolloServerLoggingPlugin /* extends ApolloServerPlugin */ {
     /***
      * This plugin logs calls to the GraphQL
      * https://www.apollographql.com/docs/apollo-server/integrations/plugins/
      * @param {string} endpoint
      */
-    constructor(endpoint) {
+    constructor (endpoint) {
         /**
          * @type {string}
          */
@@ -25,7 +25,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
      * @param {import('apollo-server-core/dist/requestPipeline').GraphQLRequestContext} requestContext
      * @return {Promise<{executionDidEnd(*): Promise<void>}|{executionDidStart(): Promise<{executionDidEnd(*): Promise<void>}>, parsingDidStart(): Promise<function(*): Promise<void>>, validationDidStart(): Promise<function(*): Promise<void>>}|(function(*): Promise<void>)|*>}
      */
-    async requestDidStart(requestContext) {
+    async requestDidStart (requestContext) {
         /**
          * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
          */
@@ -42,13 +42,13 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                 args: {
                     endpoint: self.endpoint,
                     operationName: req.operationName,
-                    query: req.query,
+                    query: req.query
                 }
             }
         );
 
         return {
-            async parsingDidStart() {
+            async parsingDidStart () {
                 return async (err) => {
                     if (err) {
                         logError(
@@ -67,7 +67,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                     }
                 };
             },
-            async validationDidStart() {
+            async validationDidStart () {
                 // This end hook is unique in that it can receive an array of errors,
                 // which will contain every validation error that occurred.
                 return async (errs) => {
@@ -90,9 +90,9 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                     }
                 };
             },
-            async executionDidStart() {
+            async executionDidStart () {
                 return {
-                    async executionDidEnd(err) {
+                    async executionDidEnd (err) {
                         if (err) {
                             logError(`GraphQL Request Execution Error: ${err.message}`, {
                                 error: err,
@@ -107,7 +107,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                         }
                     }
                 };
-            },
+            }
         };
     }
 }
@@ -117,6 +117,5 @@ const getApolloServerLoggingPlugin = (endpoint) => {
 };
 
 module.exports = {
-    getApolloServerLoggingPlugin: getApolloServerLoggingPlugin
+    getApolloServerLoggingPlugin
 };
-

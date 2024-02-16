@@ -1,4 +1,4 @@
-const {removeNull} = require('../../utils/nullRemover');
+const { removeNull } = require('../../utils/nullRemover');
 
 class ParsedReferenceItem {
     /**
@@ -7,7 +7,7 @@ class ParsedReferenceItem {
      * @param {string} id
      * @param {string|undefined} sourceAssigningAuthority
      */
-    constructor({resourceType, id, sourceAssigningAuthority}) {
+    constructor ({ resourceType, id, sourceAssigningAuthority }) {
         /**
          * @type {string|undefined}
          */
@@ -26,14 +26,14 @@ class ParsedReferenceItem {
      * returns id + sourceAssigningAuthority (if present)
      * @return {string}
      */
-    get idPlusSourceAssigningAuthority() {
+    get idPlusSourceAssigningAuthority () {
         if (this.sourceAssigningAuthority) {
             return `${this.id}|${this.sourceAssigningAuthority}`;
         }
         return this.id;
     }
 
-    clone() {
+    clone () {
         return new ParsedReferenceItem(
             {
                 resourceType: this.resourceType,
@@ -47,7 +47,7 @@ class ParsedReferenceItem {
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
+    toJSON () {
         return removeNull({
             resourceType: this.resourceType,
             id: this.id,

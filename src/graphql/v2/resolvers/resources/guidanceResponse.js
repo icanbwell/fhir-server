@@ -16,19 +16,19 @@ module.exports = {
         }
     },
     GuidanceResponseSubject: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     GuidanceResponseReasonReference: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     GuidanceResponseResult: {
-        __resolveType(obj, context, info) {
+        __resolveType (obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
-        },
+        }
     },
     GuidanceResponse: {
         // noinspection JSUnusedLocalSymbols
@@ -100,7 +100,6 @@ module.exports = {
                 context,
                 info,
                 parent.result);
-        },
+        }
     }
 };
-

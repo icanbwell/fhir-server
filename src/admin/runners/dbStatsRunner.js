@@ -1,6 +1,5 @@
 const { BaseScriptRunner } = require('./baseScriptRunner');
 
-
 class DatabaseStats extends BaseScriptRunner {
     /**
      *
@@ -13,7 +12,7 @@ class DatabaseStats extends BaseScriptRunner {
         mongoDatabaseManager,
         mongoCollectionManager,
         collections,
-        adminLogger,
+        adminLogger
     }) {
         super({
             mongoCollectionManager,
@@ -32,9 +31,9 @@ class DatabaseStats extends BaseScriptRunner {
      * @param {Object} collectionNames
      * @returns {Object}
     */
-    validateCollections(collectionNames) {
-        let validCollections = [];
-        for (let collection of collectionNames) {
+    validateCollections (collectionNames) {
+        const validCollections = [];
+        for (const collection of collectionNames) {
             // Skip collections which are of type views or collection whose name contains 'system.
             if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
                 this.adminLogger.logInfo(`${collection.name} is an invalid collection`);
@@ -50,11 +49,11 @@ class DatabaseStats extends BaseScriptRunner {
      * @param {Object} collectionNames
      * @returns {Object}
     */
-    filterCollections(collectionNames) {
-        let filteredCollections = [];
+    filterCollections (collectionNames) {
+        const filteredCollections = [];
         const listOfCollections = this.collections ? this.collections : collectionNames;
-        for ( let collection of collectionNames) {
-            let groupedCollection = [];
+        for (const collection of collectionNames) {
+            const groupedCollection = [];
             // If the collection is to included and also has a history table add it to the list of collections.
             if (listOfCollections.includes(collection) && !collection.endsWith('_History')) {
                 groupedCollection.push(collection);
@@ -68,7 +67,7 @@ class DatabaseStats extends BaseScriptRunner {
         return filteredCollections;
     }
 
-    async processAsync() {
+    async processAsync () {
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         // Fetch all the collection names for the source database.
         const collectionNames = await db.listCollections().toArray();
@@ -78,7 +77,7 @@ class DatabaseStats extends BaseScriptRunner {
         let totalMainDocuments = 0;
         let totalHistoryDocuments = 0;
         try {
-            let result = {};
+            const result = {};
             for (const collection of filteredCollections) {
                 // Processing both the main and history collections together
                 const [mainCollection, historyCollection] = collection.length === 2 ? [collection[0], collection[1]] : [collection[0], null];
@@ -102,7 +101,6 @@ class DatabaseStats extends BaseScriptRunner {
                 totalMainDocuments += documntsInMainDb;
                 // Keep tracks of the total socuments processed in history db.
                 totalHistoryDocuments += documentsInHistoryDb;
-                // eslint-disable-next-line security/detect-object-injection
                 result[mainCollection] = {
                   documntsInMainDb,
                   documentsInHistoryDb
@@ -120,7 +118,6 @@ class DatabaseStats extends BaseScriptRunner {
     }
 }
 
-
 module.exports = {
-    DatabaseStats,
+    DatabaseStats
 };

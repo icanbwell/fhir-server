@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ObservationDefinition.QualifiedInterval
     Set of definitional characteristics for a kind of observation or measurement
@@ -26,7 +25,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @param {Range|undefined} [gestationalAge],
      * @param {String|undefined} [condition],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -38,7 +37,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender,
             age,
             gestationalAge,
-            condition,
+            condition
         }
     ) {
         super({});
@@ -82,7 +81,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -114,7 +113,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -154,7 +153,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.range = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -175,7 +174,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.context = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -195,7 +194,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.appliesTo = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
@@ -234,7 +233,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.age = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -255,7 +254,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.gestationalAge = FhirResourceCreator.create(valueProvided, Range);
             }
         });
@@ -278,9 +277,6 @@ class ObservationDefinitionQualifiedInterval extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -293,19 +289,16 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender,
             age,
             gestationalAge,
-            condition,
+            condition
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -318,7 +311,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender: this.gender,
             age: this.age && this.age.toJSON(),
             gestationalAge: this.gestationalAge && this.gestationalAge.toJSON(),
-            condition: this.condition,
+            condition: this.condition
         });
     }
 
@@ -327,22 +320,22 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.range) {await this.range.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.context) {await this.context.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.appliesTo) {await async.each(this.appliesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.age) {await this.age.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.gestationalAge) {await this.gestationalAge.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.range) { await this.range.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.context) { await this.context.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.appliesTo) { await async.each(this.appliesTo, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.age) { await this.age.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.gestationalAge) { await this.gestationalAge.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -354,10 +347,8 @@ class ObservationDefinitionQualifiedInterval extends Element {
             gender: this.gender,
             age: this.age && this.age.toJSONInternal(),
             gestationalAge: this.gestationalAge && this.gestationalAge.toJSONInternal(),
-            condition: this.condition,
+            condition: this.condition
         };
-
-
 
         return removeNull(json);
     }

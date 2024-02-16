@@ -1,7 +1,7 @@
 /**
  * This file defines the custom query filters
  */
-const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
+const { SearchParameterDefinition } = require('../../searchParameters/searchParameterTypes');
 /**
  * This is the enum for the types of filters we support
  * @type {Object.<string, SearchParameterDefinitionType>}
@@ -85,950 +85,950 @@ const fhirFilterTypes = {
  * @type {Object.<string, Object.<string, SearchParameterDefinition>>}
  */
 const customFilterQueries = {
-    'Account': {
-        'patient': new SearchParameterDefinition(
+    Account: {
+        patient: new SearchParameterDefinition(
             {
-                'type': fhirFilterTypes.reference,
-                'field': 'subject.reference',
-                'target': ['Patient']
+                type: fhirFilterTypes.reference,
+                field: 'subject.reference',
+                target: ['Patient']
             }
         )
     },
-    'AllergyIntolerance': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    AllergyIntolerance: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'recordedDate'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'recordedDate'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         }),
-        'type': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'type'
+        type: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'type'
         })
     },
-    'Appointment': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'participant.actor.reference',
-            'target': ['Patient']
+    Appointment: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'participant.actor.reference',
+            target: ['Patient']
         })
     },
-    'AuditEvent': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.instant,
-            'field': 'recorded'
+    AuditEvent: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.instant,
+            field: 'recorded'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'agent.who.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'agent.who.reference',
+            target: ['Patient']
         }),
-        'agent': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'agent.who.reference',
-            'target': ['Person']
+        agent: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'agent.who.reference',
+            target: ['Person']
         })
     },
-    'CapabilityStatement': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+    CapabilityStatement: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'CarePlan': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'period'
+    CarePlan: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'period'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'CareTeam': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'period'
+    CareTeam: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'period'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'Claim': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    Claim: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'ClinicalImpression': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+    ClinicalImpression: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'CodeSystem': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    CodeSystem: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'CompartmentDefinition': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    CompartmentDefinition: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'Composition': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+    Composition: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'type': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'type'
+        type: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'type'
         })
     },
-    'ConceptMap': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    ConceptMap: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'Condition': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    Condition: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'Consent': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'dateTime'
+    Consent: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'dateTime'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'Coverage': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'beneficiary.reference',
-            'target': ['Patient']
+    Coverage: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'beneficiary.reference',
+            target: ['Patient']
         })
     },
-    'DetectedIssue': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    DetectedIssue: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'Device': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    Device: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'DeviceRequest': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    DeviceRequest: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'DeviceUseStatement': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    DeviceUseStatement: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'DiagnosticReport': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    DiagnosticReport: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'effectiveDateTime'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'effectiveDateTime'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'DocumentManifest': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    DocumentManifest: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'type': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'type'
+        type: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'type'
         })
     },
-    'DocumentReference': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    DocumentReference: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'type': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'type'
+        type: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'type'
         })
     },
-    'Encounter': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'period'
+    Encounter: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'period'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'type': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'type'
+        type: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'type'
         })
     },
-    'EpisodeOfCare': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'period'
+    EpisodeOfCare: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'period'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         }),
-        'type': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'type'
+        type: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'type'
         })
     },
-    'ExplanationOfBenefit': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    ExplanationOfBenefit: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'FamilyMemberHistory': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    FamilyMemberHistory: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'Flag': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'period'
+    Flag: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'period'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'Goal': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    Goal: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'GraphDefinition': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    GraphDefinition: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'HealthcareService': {
-        'healthcareService': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    HealthcareService: {
+        healthcareService: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         }),
-        'organization': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'providedBy.reference',
-            'target': ['Organization']
+        organization: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'providedBy.reference',
+            target: ['Organization']
         })
     },
-    'ImagingStudy': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    ImagingStudy: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'ImplementationGuide': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    ImplementationGuide: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'Immunization': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'occurrenceDateTime'
+    Immunization: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'occurrenceDateTime'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'InsurancePlan': {
-        'organization': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'ownedBy.reference',
-            'target': ['Organization']
+    InsurancePlan: {
+        organization: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'ownedBy.reference',
+            target: ['Organization']
         })
     },
-    'Location': {
-        'location': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    Location: {
+        location: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         })
     },
-    'List': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    List: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'MeasureReport': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    MeasureReport: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'Medication': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    Medication: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         })
     },
-    'MedicationAdministration': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    MedicationAdministration: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
-        })
-
-    },
-    'MedicationDispense': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
-        }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
-        }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         })
 
     },
-    'MedicationRequest': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    MedicationDispense: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
+        })
+
+    },
+    MedicationRequest: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
+        }),
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
+        }),
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         })
     },
-    'MedicationStatement': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    MedicationStatement: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         })
     },
-    'MessageDefinition': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    MessageDefinition: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'NamingSystem': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    NamingSystem: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         })
     },
-    'NutritionOrder': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    NutritionOrder: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'Observation': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    Observation: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'effectivePeriod'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'effectivePeriod'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'OperationDefinition': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    OperationDefinition: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'Organization': {
-        'organization': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    Organization: {
+        organization: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         })
     },
-    'Patient': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    Patient: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         }),
-        'birthdate': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'birthDate'
+        birthdate: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'birthDate'
         }),
-        'email': new SearchParameterDefinition({
-            'type': fhirFilterTypes.email,
-            'field': 'telecom'
+        email: new SearchParameterDefinition({
+            type: fhirFilterTypes.email,
+            field: 'telecom'
         }),
-        'phone': new SearchParameterDefinition({
-            'type': fhirFilterTypes.phone,
-            'field': 'telecom'
+        phone: new SearchParameterDefinition({
+            type: fhirFilterTypes.phone,
+            field: 'telecom'
         })
     },
-    'Person': {
-        'agent': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    Person: {
+        agent: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'link.target.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'link.target.reference',
+            target: ['Patient']
         }),
-        'birthdate': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'birthDate'
+        birthdate: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'birthDate'
         }),
-        'email': new SearchParameterDefinition({
-            'type': fhirFilterTypes.email,
-            'field': 'telecom'
+        email: new SearchParameterDefinition({
+            type: fhirFilterTypes.email,
+            field: 'telecom'
         }),
-        'phone': new SearchParameterDefinition({
-            'type': fhirFilterTypes.phone,
-            'field': 'telecom'
+        phone: new SearchParameterDefinition({
+            type: fhirFilterTypes.phone,
+            field: 'telecom'
         })
     },
-    'Practitioner': {
-        'practitioner': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    Practitioner: {
+        practitioner: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         }),
-        'email': new SearchParameterDefinition({
-            'type': fhirFilterTypes.email,
-            'field': 'telecom'
+        email: new SearchParameterDefinition({
+            type: fhirFilterTypes.email,
+            field: 'telecom'
         }),
-        'phone': new SearchParameterDefinition({
-            'type': fhirFilterTypes.phone,
-            'field': 'telecom'
+        phone: new SearchParameterDefinition({
+            type: fhirFilterTypes.phone,
+            field: 'telecom'
         })
     },
-    'PractitionerRole': {
-        'practitioner': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'practitioner.reference',
-            'target': ['Practitioner']
+    PractitionerRole: {
+        practitioner: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'practitioner.reference',
+            target: ['Practitioner']
         }),
-        'organization': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'organization.reference',
-            'target': ['Organization']
+        organization: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'organization.reference',
+            target: ['Organization']
         }),
-        'location': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'location.reference',
-            'target': ['Location']
+        location: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'location.reference',
+            target: ['Location']
         }),
-        'healthcareService': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'healthcareService.reference',
-            'target': ['HealthcareService']
+        healthcareService: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'healthcareService.reference',
+            target: ['HealthcareService']
         }),
-        'email': new SearchParameterDefinition({
-            'type': fhirFilterTypes.email,
-            'field': 'telecom'
+        email: new SearchParameterDefinition({
+            type: fhirFilterTypes.email,
+            field: 'telecom'
         }),
-        'phone': new SearchParameterDefinition({
-            'type': fhirFilterTypes.phone,
-            'field': 'telecom'
+        phone: new SearchParameterDefinition({
+            type: fhirFilterTypes.phone,
+            field: 'telecom'
         })
     },
-    'Procedure': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    Procedure: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'performedDateTime'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'performedDateTime'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'QuestionnaireResponse': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+    QuestionnaireResponse: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'RelatedPerson': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    RelatedPerson: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         }),
-        'birthdate': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'birthDate'
+        birthdate: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'birthDate'
         }),
-        'email': new SearchParameterDefinition({
-            'type': fhirFilterTypes.email,
-            'field': 'telecom'
+        email: new SearchParameterDefinition({
+            type: fhirFilterTypes.email,
+            field: 'telecom'
         }),
-        'phone': new SearchParameterDefinition({
-            'type': fhirFilterTypes.phone,
-            'field': 'telecom'
+        phone: new SearchParameterDefinition({
+            type: fhirFilterTypes.phone,
+            field: 'telecom'
         })
     },
-    'RiskAssessment': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'occurrenceDateTime'
+    RiskAssessment: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'occurrenceDateTime'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'Schedule': {
-        'schedule': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'id'
+    Schedule: {
+        schedule: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'id'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'actor.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'actor.reference',
+            target: ['Patient']
         }),
-        'practitioner': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'actor.reference',
-            'target': ['Practitioner']
+        practitioner: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'actor.reference',
+            target: ['Practitioner']
         }),
-        'location': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'actor.reference',
-            'target': ['Location']
+        location: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'actor.reference',
+            target: ['Location']
         }),
-        'healthcareService': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'actor.reference',
-            'target': ['HealthcareService']
+        healthcareService: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'actor.reference',
+            target: ['HealthcareService']
         })
     },
-    'SearchParameter': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    SearchParameter: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'ServiceRequest': {
-        'code': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'code'
+    ServiceRequest: {
+        code: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'code'
         }),
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'subject.reference',
-            'target': ['Patient']
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'subject.reference',
+            target: ['Patient']
         })
     },
-    'Slot': {
-        'schedule': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'schedule.reference',
-            'target': ['Schedule']
+    Slot: {
+        schedule: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'schedule.reference',
+            target: ['Schedule']
         })
     },
-    'StructureDefinition': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    StructureDefinition: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
-        }),
-    },
-    'StructureMap': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
-        }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
-        }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
-        }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
-        }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'SupplyRequest': {
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'occurrenceDateTime'
+    StructureMap: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
+        }),
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
+        }),
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
+        }),
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
+        }),
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'SupplyDelivery': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    SupplyRequest: {
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'occurrenceDateTime'
         })
     },
-    'Task': {
-        'period': new SearchParameterDefinition({
-            'type': fhirFilterTypes.period,
-            'field': 'executionPeriod'
+    SupplyDelivery: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     },
-    'TerminologyCapabilities': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
-        }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
-        }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
-        }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
-        }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+    Task: {
+        period: new SearchParameterDefinition({
+            type: fhirFilterTypes.period,
+            field: 'executionPeriod'
         })
     },
-    'ValueSet': {
-        'name': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'name'
+    TerminologyCapabilities: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
         }),
-        'date': new SearchParameterDefinition({
-            'type': fhirFilterTypes.dateTime,
-            'field': 'date'
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
         }),
-        'url': new SearchParameterDefinition({
-            'type': fhirFilterTypes.uri,
-            'field': 'url'
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
         }),
-        'status': new SearchParameterDefinition({
-            'type': fhirFilterTypes.string,
-            'field': 'status'
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
         }),
-        'version': new SearchParameterDefinition({
-            'type': fhirFilterTypes.token,
-            'field': 'version'
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
         })
     },
-    'VisionPrescription': {
-        'patient': new SearchParameterDefinition({
-            'type': fhirFilterTypes.reference,
-            'field': 'patient.reference',
-            'target': ['Patient']
+    ValueSet: {
+        name: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'name'
+        }),
+        date: new SearchParameterDefinition({
+            type: fhirFilterTypes.dateTime,
+            field: 'date'
+        }),
+        url: new SearchParameterDefinition({
+            type: fhirFilterTypes.uri,
+            field: 'url'
+        }),
+        status: new SearchParameterDefinition({
+            type: fhirFilterTypes.string,
+            field: 'status'
+        }),
+        version: new SearchParameterDefinition({
+            type: fhirFilterTypes.token,
+            field: 'version'
+        })
+    },
+    VisionPrescription: {
+        patient: new SearchParameterDefinition({
+            type: fhirFilterTypes.reference,
+            field: 'patient.reference',
+            target: ['Patient']
         })
     }
 };
 
 module.exports = {
-    fhirFilterTypes: fhirFilterTypes,
-    customFilterQueries: customFilterQueries
+    fhirFilterTypes,
+    customFilterQueries
 };

@@ -1,14 +1,14 @@
-const {logInfo} = require('../operations/common/logging');
+const { logInfo } = require('../operations/common/logging');
 
 const getSchemaOfMongoDocument = (prefix, obj, indent) => {
     let result = {};
     for (const key in obj) {
-        if (typeof obj[`${key}`] !== 'function') { //we don't want to print functions
-            const specificDataTypes = [Date, Array]; //specify the specific data types you want to check
+        if (typeof obj[`${key}`] !== 'function') { // we don't want to print functions
+            const specificDataTypes = [Date, Array]; // specify the specific data types you want to check
             let type = null;
             for (const specificDataType of specificDataTypes) { // looping over [Date,Array]
-                if (obj[`${key}`] instanceof specificDataType) { //if the current property is instance of the DataType
-                    type = specificDataType.name; //get its name
+                if (obj[`${key}`] instanceof specificDataType) { // if the current property is instance of the DataType
+                    type = specificDataType.name; // get its name
                     break;
                 }
             }
@@ -18,7 +18,7 @@ const getSchemaOfMongoDocument = (prefix, obj, indent) => {
             const query = {};
             query[`${keyName}`] = keyType;
             result = Object.assign(result, query);
-            if (typeof obj[`${key}`] === 'object') { //if current property is of object type, print its sub properties too
+            if (typeof obj[`${key}`] === 'object') { // if current property is of object type, print its sub properties too
                 const child = getSchemaOfMongoDocument(keyName, obj[`${key}`], indent + '\t');
                 result = Object.assign(result, child);
             }
@@ -28,5 +28,5 @@ const getSchemaOfMongoDocument = (prefix, obj, indent) => {
 };
 
 module.exports = {
-    getSchemaOfMongoDocument: getSchemaOfMongoDocument
+    getSchemaOfMongoDocument
 };

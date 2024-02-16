@@ -35,8 +35,9 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { FixBwellMasterPersonReferenceRunner } = require('../../../../admin/runners/fixBwellMasterPersonReferenceRunner');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
-async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0`);
@@ -47,7 +48,7 @@ async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expect
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({id: incomingResource.id});
+    const resource = await collection.findOne({ id: incomingResource.id });
 
     delete resource._id;
 
@@ -57,18 +58,18 @@ async function setupDatabaseAsync(mongoDatabaseManager, incomingResource, expect
     return collection;
 }
 
-async function setupHistoryDatabaseAsync(mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
+async function setupHistoryDatabaseAsync (mongoDatabaseManager, incomingResource, expectedResourceInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection(`${incomingResource.resourceType}_4_0_0_History`);
-    await collection.insertOne({ resource: incomingResource});
+    await collection.insertOne({ resource: incomingResource });
 
     // ACT & ASSERT
     // check that two entries were stored in the database
     /**
      * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    const resource = await collection.findOne({'resource.id': incomingResource.id});
+    const resource = await collection.findOne({ 'resource.id': incomingResource.id });
 
     delete resource.resource._id;
 
@@ -182,7 +183,7 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger,
+                    resourceMerger: c.resourceMerger
                 }
             )
             );
@@ -323,7 +324,7 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger,
+                    resourceMerger: c.resourceMerger
                 }
             )
             );
@@ -450,7 +451,7 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger,
+                    resourceMerger: c.resourceMerger
                 }
             )
             );
@@ -561,7 +562,7 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger,
+                    resourceMerger: c.resourceMerger
                 }
             )
             );
@@ -650,7 +651,7 @@ describe('Person Tests', () => {
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
                     resourceLocatorFactory: c.resourceLocatorFactory,
-                    resourceMerger: c.resourceMerger,
+                    resourceMerger: c.resourceMerger
                 }
             )
             );

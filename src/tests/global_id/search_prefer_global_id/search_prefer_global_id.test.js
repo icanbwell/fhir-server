@@ -7,11 +7,11 @@ const expectedObservationResources = require('./fixtures/expected/expected_obser
 const expectedObservationByReferenceResources = require('./fixtures/expected/expected_observation_by_reference.json');
 const expectedObservationBothResources = require('./fixtures/expected/expected_observation_both.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {IdentifierSystem} = require('../../../utils/identifierSystem');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
-const {generateUUIDv5} = require('../../../utils/uid.util');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { IdentifierSystem } = require('../../../utils/identifierSystem');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -32,12 +32,12 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             const headers = getHeaders();
-            headers['Prefer'] = 'global_id=true';
+            headers.Prefer = 'global_id=true';
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
                 .set(headers);
@@ -53,18 +53,18 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             const headers = getHeaders();
-            headers['Prefer'] = 'global_id=true';
+            headers.Prefer = 'global_id=true';
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1')
                 .set(headers);
@@ -99,12 +99,12 @@ describe('Observation Tests', () => {
                 .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Observation back
             const headers = getHeaders();
-            headers['Prefer'] = 'global_id=true';
+            headers.Prefer = 'global_id=true';
 
             const patientId = generateUUIDv5('2354|A');
             resp = await request

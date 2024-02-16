@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 InsurancePlan.Coverage
     Details of a Health Insurance product/plan provided by an organization.
@@ -20,14 +19,14 @@ class InsurancePlanCoverage extends Element {
      * @param {Reference[]|undefined} [network],
      * @param {InsurancePlanBenefit[]} benefit,
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             type,
             network,
-            benefit,
+            benefit
         }
     ) {
         super({});
@@ -71,7 +70,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -103,7 +102,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -124,7 +123,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -144,7 +143,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.network = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
@@ -164,13 +163,10 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 const InsurancePlanBenefit = require('../backbone_elements/insurancePlanBenefit.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.benefit = FhirResourceCreator.createArray(valueProvided, InsurancePlanBenefit);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -179,19 +175,16 @@ class InsurancePlanCoverage extends Element {
             modifierExtension,
             type,
             network,
-            benefit,
+            benefit
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -199,7 +192,7 @@ class InsurancePlanCoverage extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             network: this.network && this.network.map(v => v.toJSON()),
-            benefit: this.benefit && this.benefit.map(v => v.toJSON()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSON())
         });
     }
 
@@ -208,30 +201,28 @@ class InsurancePlanCoverage extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.network) {await async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.benefit) {await async.each(this.benefit, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await this.type.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.network) { await async.each(this.network, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.benefit) { await async.each(this.benefit, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             type: this.type && this.type.toJSONInternal(),
             network: this.network && this.network.map(v => v.toJSONInternal()),
-            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

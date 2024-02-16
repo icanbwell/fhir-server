@@ -1,5 +1,5 @@
 const request = require('superagent');
-const {ResponseChunkParser} = require('./responseChunkParser');
+const { ResponseChunkParser } = require('./responseChunkParser');
 
 const token = '';
 
@@ -10,12 +10,11 @@ const getHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: accept,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
     };
 };
 
-async function main() {
-
+async function main () {
     // const url = 'https://fhir.client-sandbox.icanbwell.com/4_0_0/Person?_security=https://www.icanbwell.com/access%7Cbwell&address-postalcode=10001';
     const url = 'http://localhost:3000/4_0_0/Person?_security=https://www.icanbwell.com/access|bwell&address-postalcode=10001';
     // const url = 'http://localhost:3000/4_0_0/Practitioner?_format=text/csv&_count=10000';
@@ -36,9 +35,9 @@ async function main() {
         .on('error', (res) => {
             console.log('Response error:', res);
         })
-        .parse(accept === 'application/fhir+json' ?
-            new ResponseChunkParser().getFhirBundleParser() :
-            new ResponseChunkParser().getTextParser()
+        .parse(accept === 'application/fhir+json'
+            ? new ResponseChunkParser().getFhirBundleParser()
+            : new ResponseChunkParser().getTextParser()
         );
 
     const lines = resp.text.split('\n');

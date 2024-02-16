@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 GraphDefinition.Target
     A formal computable definition of a graph of resources - that is, a coherent
@@ -24,7 +23,7 @@ class GraphDefinitionTarget extends Element {
      * @param {GraphDefinitionCompartment[]|undefined} [compartment],
      * @param {GraphDefinitionLink[]|undefined} [link],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -33,7 +32,7 @@ class GraphDefinitionTarget extends Element {
             params,
             profile,
             compartment,
-            link,
+            link
         }
     ) {
         super({});
@@ -77,7 +76,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -109,7 +108,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -183,7 +182,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.compartment = FhirResourceCreator.createArray(valueProvided, GraphDefinitionCompartment);
             }
         });
@@ -203,13 +202,10 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.link = FhirResourceCreator.createArray(valueProvided, GraphDefinitionLink);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -220,19 +216,16 @@ class GraphDefinitionTarget extends Element {
             params,
             profile,
             compartment,
-            link,
+            link
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -242,7 +235,7 @@ class GraphDefinitionTarget extends Element {
             params: this.params,
             profile: this.profile,
             compartment: this.compartment && this.compartment.map(v => v.toJSON()),
-            link: this.link && this.link.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON())
         });
     }
 
@@ -251,19 +244,19 @@ class GraphDefinitionTarget extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.compartment) {await async.each(this.compartment, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.link) {await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.compartment) { await async.each(this.compartment, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.link) { await async.each(this.link, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -272,10 +265,8 @@ class GraphDefinitionTarget extends Element {
             params: this.params,
             profile: this.profile,
             compartment: this.compartment && this.compartment.map(v => v.toJSONInternal()),
-            link: this.link && this.link.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

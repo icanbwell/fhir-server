@@ -1,5 +1,5 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHeaders } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const graphResource = require('./fixtures/graph.json');
 const expectedResponseResource = require('./fixtures/expected_response.json');
 
@@ -18,7 +18,7 @@ describe('Bad Graph Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Patient/$graph?id=b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2')
                 .send(graphResource)
                 .set(getHeaders());

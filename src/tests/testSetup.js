@@ -6,11 +6,18 @@ const {
     toHaveMergeResponse,
     toHaveResourceCount,
     toHaveGraphQLResponse,
-    sortEntriesByUUID,
+    sortEntriesByUUID
 } = require('./customMatchers');
 
+const { expect } = require('@jest/globals');
+
 expect.extend({
-    toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount, toHaveGraphQLResponse,
+    toHaveResponse,
+toHaveStatusCode,
+toHaveStatusOk,
+toHaveMergeResponse,
+toHaveResourceCount,
+toHaveGraphQLResponse,
     sortEntriesByUUID
 });
 
@@ -24,4 +31,4 @@ const {
     toInclude,
     toBeArrayOfSize
 } = require('jest-extended');
-expect.extend({toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude, toBeArrayOfSize});
+expect.extend({ toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude, toBeArrayOfSize });

@@ -1,6 +1,6 @@
 const env = require('var');
 
-function getImageVersion() {
+function getImageVersion () {
     /**
      * @type {string}
      */

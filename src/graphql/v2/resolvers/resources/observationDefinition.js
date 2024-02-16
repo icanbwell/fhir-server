@@ -55,7 +55,6 @@ module.exports = {
                 context,
                 info,
                 parent.criticalCodedValueSet);
-        },
+        }
     }
 };
-

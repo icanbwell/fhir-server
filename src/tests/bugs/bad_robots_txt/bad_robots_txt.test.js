@@ -1,5 +1,5 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders } = require('../../common');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Bad url Tests', () => {
     beforeEach(async () => {
@@ -17,8 +17,8 @@ describe('Bad url Tests', () => {
             // ARRANGE
             // add the resources to FHIR server
             const headers = getHtmlHeaders();
-            headers['Accept'] = '*/*';
-            let resp = await request
+            headers.Accept = '*/*';
+            const resp = await request
                 .get('/robots.txt')
                 .set(headers);
 

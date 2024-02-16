@@ -25,7 +25,6 @@ module.exports = {
                 context,
                 info,
                 parent.subscription);
-        },
+        }
     }
 };
-

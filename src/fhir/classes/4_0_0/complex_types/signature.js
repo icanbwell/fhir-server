@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 Signature
     A signature along with supporting context. The signature may be a digital
@@ -29,7 +28,7 @@ class Signature extends Element {
      * @param {code|undefined} [sigFormat],
      * @param {base64Binary|undefined} [data],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -39,7 +38,7 @@ class Signature extends Element {
             onBehalfOf,
             targetFormat,
             sigFormat,
-            data,
+            data
         }
     ) {
         super({});
@@ -83,7 +82,7 @@ class Signature extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -105,7 +104,7 @@ class Signature extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.type = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
@@ -144,7 +143,7 @@ class Signature extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.who = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -165,7 +164,7 @@ class Signature extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.onBehalfOf = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
@@ -228,9 +227,6 @@ class Signature extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -241,19 +237,16 @@ class Signature extends Element {
             onBehalfOf,
             targetFormat,
             sigFormat,
-            data,
+            data
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -264,7 +257,7 @@ class Signature extends Element {
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
             targetFormat: this.targetFormat,
             sigFormat: this.sigFormat,
-            data: this.data,
+            data: this.data
         });
     }
 
@@ -273,19 +266,19 @@ class Signature extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.type) {await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.who) {await this.who.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.onBehalfOf) {await this.onBehalfOf.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.type) { await async.each(this.type, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.who) { await this.who.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.onBehalfOf) { await this.onBehalfOf.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -295,10 +288,8 @@ class Signature extends Element {
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
             targetFormat: this.targetFormat,
             sigFormat: this.sigFormat,
-            data: this.data,
+            data: this.data
         };
-
-
 
         return removeNull(json);
     }

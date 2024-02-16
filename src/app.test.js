@@ -3,8 +3,7 @@
  */
 const { createTestRequest } = require('./tests/common');
 
-const { Kafka } = require('kafkajs');
-const { describe, expect, test } = require('@jest/globals');
+const { describe, beforeAll, afterAll, test, jest, expect } = require('@jest/globals');
 const env = require('var');
 const { KafkaClient } = require('./utils/kafkaClient');
 
@@ -15,20 +14,22 @@ const mockProducerMethods = {
     }),
     disconnect: jest.fn().mockImplementation(() => {
         return Promise.resolve('disconnected');
-    }),
+    })
 };
 
 // Mocking the producer method of Kafka class
 const mockProducer = {
-    producer: jest.fn(() => mockProducerMethods),
+    producer: jest.fn(() => mockProducerMethods)
 };
+
+const mockKafka = jest.fn(() => mockProducer);
 
 // Mocking kafkajs library
 jest.mock('kafkajs', () => {
-    //Mock the Kafka class
+    // Mock the Kafka class
     return {
         __esmodule: true,
-        Kafka: jest.fn(() => mockProducer),
+        Kafka: mockKafka
     };
 });
 
@@ -44,7 +45,7 @@ class MockKafkaClient extends KafkaClient {
      * @param {InitProps}
      */
     // eslint-disable-next-line no-unused-vars
-    init({ clientId, brokers, ssl, sasl }) {
+    init ({ clientId, brokers, ssl, sasl }) {
         // do nothing
         this.client = new (require('kafkajs').Kafka)();
 
@@ -58,7 +59,8 @@ class MockKafkaClient extends KafkaClient {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async sendMessagesAsync(topic, messages) {}
+    async sendMessagesAsync (topic, messages) {
+    }
 }
 
 describe('#app', () => {
@@ -96,7 +98,7 @@ describe('#app', () => {
         // If Kafka is healthy status returned is ok
         expect(response.body).toMatchObject({ status: 'OK' });
         // Kafka class has been called
-        expect(Kafka).toHaveBeenCalledTimes(1);
+        expect(mockKafka).toHaveBeenCalledTimes(1);
         // A connection request is being made
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(1);
 
@@ -109,7 +111,7 @@ describe('#app', () => {
         // If Kafka is healthy status returned is ok
         expect(response.body).toMatchObject({ status: 'OK' });
         // Since the request has been made with 30 seconds of the previous request. Kafka class won't be called
-        expect(Kafka).toHaveBeenCalledTimes(0);
+        expect(mockKafka).toHaveBeenCalledTimes(0);
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(0);
 
         // Kafka Health Connection should be checked but all the values should be stored in variables.
@@ -125,7 +127,7 @@ describe('#app', () => {
         // If Kafka is healthy status returned is ok
         expect(response.body).toMatchObject({ status: 'OK' });
         // Since the KafkaClient is being stored in a variable. Kafka class won't be called.
-        expect(Kafka).toHaveBeenCalledTimes(0);
+        expect(mockKafka).toHaveBeenCalledTimes(0);
         // Ensuring the connect() is being called.
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(0);
 

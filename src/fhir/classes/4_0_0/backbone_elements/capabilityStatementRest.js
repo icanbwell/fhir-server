@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CapabilityStatement.Rest
     A Capability Statement documents a set of capabilities (behaviors) of a FHIR
@@ -28,7 +27,7 @@ class CapabilityStatementRest extends Element {
      * @param {CapabilityStatementOperation[]|undefined} [operation],
      * @param {canonical[]|undefined} [compartment],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -40,7 +39,7 @@ class CapabilityStatementRest extends Element {
             interaction,
             searchParam,
             operation,
-            compartment,
+            compartment
         }
     ) {
         super({});
@@ -84,7 +83,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -116,7 +115,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -175,7 +174,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const CapabilityStatementSecurity = require('../backbone_elements/capabilityStatementSecurity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.security = FhirResourceCreator.create(valueProvided, CapabilityStatementSecurity);
             }
         });
@@ -196,7 +195,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const CapabilityStatementResource = require('../backbone_elements/capabilityStatementResource.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.resource = FhirResourceCreator.createArray(valueProvided, CapabilityStatementResource);
             }
         });
@@ -216,7 +215,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const CapabilityStatementInteraction1 = require('../backbone_elements/capabilityStatementInteraction1.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.interaction = FhirResourceCreator.createArray(valueProvided, CapabilityStatementInteraction1);
             }
         });
@@ -239,7 +238,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.searchParam = FhirResourceCreator.createArray(valueProvided, CapabilityStatementSearchParam);
             }
         });
@@ -260,7 +259,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 const CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.operation = FhirResourceCreator.createArray(valueProvided, CapabilityStatementOperation);
             }
         });
@@ -285,9 +284,6 @@ class CapabilityStatementRest extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -300,19 +296,16 @@ class CapabilityStatementRest extends Element {
             interaction,
             searchParam,
             operation,
-            compartment,
+            compartment
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -325,7 +318,7 @@ class CapabilityStatementRest extends Element {
             interaction: this.interaction && this.interaction.map(v => v.toJSON()),
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSON()),
             operation: this.operation && this.operation.map(v => v.toJSON()),
-            compartment: this.compartment,
+            compartment: this.compartment
         });
     }
 
@@ -334,22 +327,22 @@ class CapabilityStatementRest extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.security) {await this.security.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.resource) {await async.each(this.resource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.interaction) {await async.each(this.interaction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.searchParam) {await async.each(this.searchParam, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.operation) {await async.each(this.operation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.security) { await this.security.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.resource) { await async.each(this.resource, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.interaction) { await async.each(this.interaction, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.searchParam) { await async.each(this.searchParam, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.operation) { await async.each(this.operation, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -361,10 +354,8 @@ class CapabilityStatementRest extends Element {
             interaction: this.interaction && this.interaction.map(v => v.toJSONInternal()),
             searchParam: this.searchParam && this.searchParam.map(v => v.toJSONInternal()),
             operation: this.operation && this.operation.map(v => v.toJSONInternal()),
-            compartment: this.compartment,
+            compartment: this.compartment
         };
-
-
 
         return removeNull(json);
     }

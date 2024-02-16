@@ -8,7 +8,7 @@ class FieldMapper {
      *
      * @param {boolean|undefined} useHistoryTable
      */
-    constructor(
+    constructor (
         {
             useHistoryTable
         }
@@ -26,10 +26,10 @@ class FieldMapper {
      * @param {string} [value]
      * @return {string}
      */
-    getFieldName(field, value) {
-        const fieldName = field === 'id' ?
-            isUuid(value) ? uuidFieldName : sourceIdFieldName :
-            field;
+    getFieldName (field, value) {
+        const fieldName = field === 'id'
+            ? isUuid(value) ? uuidFieldName : sourceIdFieldName
+            : field;
         return this.useHistoryTable ? `resource.${fieldName}` : fieldName;
     }
 }

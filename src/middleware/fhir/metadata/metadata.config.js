@@ -1,10 +1,10 @@
 const controller = require('./metadata.controller.js');
 
 const {
-    routeArgs: routeArgs
+    routeArgs
 } = require('../route.config.js');
 
-let route = {
+const route = {
     path: '/:base_version/metadata',
     corsOptions: {
         methods: ['GET']

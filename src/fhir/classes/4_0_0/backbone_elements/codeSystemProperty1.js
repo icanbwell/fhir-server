@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 CodeSystem.Property1
     The CodeSystem resource is used to declare the existence of and describe a
@@ -27,7 +26,7 @@ class CodeSystemProperty1 extends Element {
      * @param {dateTime|undefined} [valueDateTime],
      * @param {decimal|undefined} [valueDecimal],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -39,7 +38,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger,
             valueBoolean,
             valueDateTime,
-            valueDecimal,
+            valueDecimal
         }
     ) {
         super({});
@@ -83,7 +82,7 @@ class CodeSystemProperty1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -115,7 +114,7 @@ class CodeSystemProperty1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -171,7 +170,7 @@ class CodeSystemProperty1 extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.valueCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
@@ -266,9 +265,6 @@ class CodeSystemProperty1 extends Element {
             }
         });
 
-
-
-
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -281,19 +277,16 @@ class CodeSystemProperty1 extends Element {
             valueInteger,
             valueBoolean,
             valueDateTime,
-            valueDecimal,
+            valueDecimal
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -306,7 +299,7 @@ class CodeSystemProperty1 extends Element {
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
             valueDateTime: this.valueDateTime,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         });
     }
 
@@ -315,18 +308,18 @@ class CodeSystemProperty1 extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.valueCoding) {await this.valueCoding.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.valueCoding) { await this.valueCoding.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -338,10 +331,8 @@ class CodeSystemProperty1 extends Element {
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
             valueDateTime: this.valueDateTime,
-            valueDecimal: this.valueDecimal,
+            valueDecimal: this.valueDecimal
         };
-
-
 
         return removeNull(json);
     }

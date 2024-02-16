@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 ValueSet.Expansion
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -26,7 +25,7 @@ class ValueSetExpansion extends Element {
      * @param {ValueSetParameter[]|undefined} [parameter],
      * @param {ValueSetContains[]|undefined} [contains],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
@@ -36,7 +35,7 @@ class ValueSetExpansion extends Element {
             total,
             offset,
             parameter,
-            contains,
+            contains
         }
     ) {
         super({});
@@ -80,7 +79,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -112,7 +111,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -215,7 +214,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const ValueSetParameter = require('../backbone_elements/valueSetParameter.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.parameter = FhirResourceCreator.createArray(valueProvided, ValueSetParameter);
             }
         });
@@ -235,13 +234,10 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const ValueSetContains = require('../backbone_elements/valueSetContains.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.contains = FhirResourceCreator.createArray(valueProvided, ValueSetContains);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -253,19 +249,16 @@ class ValueSetExpansion extends Element {
             total,
             offset,
             parameter,
-            contains,
+            contains
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -276,7 +269,7 @@ class ValueSetExpansion extends Element {
             total: this.total,
             offset: this.offset,
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
-            contains: this.contains && this.contains.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON())
         });
     }
 
@@ -285,19 +278,19 @@ class ValueSetExpansion extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.parameter) {await async.each(this.parameter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contains) {await async.each(this.contains, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.parameter) { await async.each(this.parameter, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.contains) { await async.each(this.contains, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
@@ -307,10 +300,8 @@ class ValueSetExpansion extends Element {
             total: this.total,
             offset: this.offset,
             parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
-            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal())
         };
-
-
 
         return removeNull(json);
     }

@@ -10,11 +10,11 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {generateUUIDv5} = require('../../utils/uid.util');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { generateUUIDv5 } = require('../../utils/uid.util');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -69,7 +69,7 @@ describe('Practitioner Tests', () => {
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));
-            practitioner1Resource['active'] = false;
+            practitioner1Resource.active = false;
 
             resp = await request
                 .post('/4_0_0/Practitioner')
@@ -96,7 +96,7 @@ describe('Practitioner Tests', () => {
         });
         test('create reference validation works', async () => {
             const request = await createTestRequest();
-            let resp = await request
+            const resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner2Resource)
                 .set(getHeaders());

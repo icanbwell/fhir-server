@@ -6,16 +6,16 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
+const { ConfigManager } = require('../../../utils/configManager');
 const nock = require('nock');
 const USCorePractitionerProfile = require('./fixtures/us_core_profile_practitioner.json');
 const validPractitionerResourceWithProfile = require('./fixtures/valid_practitioner_with_profile.json');
 const expectedValidPractitionerResponseWithProfile = require('./expected/valid_practitioner_response_with_profile.json');
 const deepcopy = require('deepcopy');
-const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const invalidPractitionerResource = require('./fixtures/invalid_practitioner.json');
 const invalidPractitionerResource1 = require('./fixtures/invalid_practitioner_1.json');
 const invalidPractitionerResource2 = require('./fixtures/invalid_practitioner_2.json');
@@ -28,7 +28,7 @@ const expected404FromProfilesInsideResource = require('./expected/404_from_multi
 const fhirValidationUrl = 'http://foo/fhir';
 
 class MockConfigManager extends ConfigManager {
-    get fhirValidationUrl() {
+    get fhirValidationUrl () {
         return fhirValidationUrl;
     }
 }
@@ -52,26 +52,26 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -86,7 +86,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate')
@@ -114,9 +114,9 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -124,26 +124,26 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -158,7 +158,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate')
@@ -187,9 +187,9 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -197,26 +197,26 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -231,7 +231,7 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -259,21 +259,21 @@ describe('Practitioner Update Tests', () => {
             profile.meta.security = [
                 {
                     system: SecurityTagSystem.owner,
-                    code: profile.publisher || 'profile',
+                    code: profile.publisher || 'profile'
                 },
                 {
                     system: SecurityTagSystem.sourceAssigningAuthority,
-                    code: profile.publisher || 'profile',
-                },
+                    code: profile.publisher || 'profile'
+                }
             ];
 
             // http://foo/fhir/StructureDefinition
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -281,26 +281,26 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'issue': {
-                            'code': 'informational',
-                            'details': {
-                                'text': 'OK'
+                        issue: {
+                            code: 'informational',
+                            details: {
+                                text: 'OK'
                             },
-                            'expression': [
+                            expression: [
                                 'Practitioner'
                             ],
-                            'severity': 'information'
+                            severity: 'information'
                         },
-                        'resourceType': 'OperationOutcome'
+                        resourceType: 'OperationOutcome'
                     }
                 );
 
@@ -315,14 +315,14 @@ describe('Practitioner Update Tests', () => {
                 .send(profile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .post('/4_0_0/Practitioner/$merge')
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -350,9 +350,9 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -360,30 +360,30 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'resourceType': 'OperationOutcome',
-                        'issue': [
+                        resourceType: 'OperationOutcome',
+                        issue: [
                             {
-                                'severity': 'error',
-                                'code': 'processing',
-                                'details': {
-                                    'coding': [
+                                severity: 'error',
+                                code: 'processing',
+                                details: {
+                                    coding: [
                                         {
-                                            'system': 'http://hl7.org/fhir/java-core-messageId',
-                                            'code': 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
+                                            system: 'http://hl7.org/fhir/java-core-messageId',
+                                            code: 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
                                         }
                                     ]
                                 },
-                                'diagnostics': "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
-                                'location': [
+                                diagnostics: "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+                                location: [
                                     'Patient.meta.profile[0]',
                                     'Line 1, Col 2'
                                 ]
@@ -403,7 +403,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -435,9 +435,9 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -445,30 +445,30 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'resourceType': 'OperationOutcome',
-                        'issue': [
+                        resourceType: 'OperationOutcome',
+                        issue: [
                             {
-                                'severity': 'error',
-                                'code': 'processing',
-                                'details': {
-                                    'coding': [
+                                severity: 'error',
+                                code: 'processing',
+                                details: {
+                                    coding: [
                                         {
-                                            'system': 'http://hl7.org/fhir/java-core-messageId',
-                                            'code': 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
+                                            system: 'http://hl7.org/fhir/java-core-messageId',
+                                            code: 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
                                         }
                                     ]
                                 },
-                                'diagnostics': "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
-                                'location': [
+                                diagnostics: "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+                                location: [
                                     'Patient.meta.profile[0]',
                                     'Line 1, Col 2'
                                 ]
@@ -488,7 +488,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
                 .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
@@ -514,9 +514,9 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -524,30 +524,30 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'resourceType': 'OperationOutcome',
-                        'issue': [
+                        resourceType: 'OperationOutcome',
+                        issue: [
                             {
-                                'severity': 'error',
-                                'code': 'processing',
-                                'details': {
-                                    'coding': [
+                                severity: 'error',
+                                code: 'processing',
+                                details: {
+                                    coding: [
                                         {
-                                            'system': 'http://hl7.org/fhir/java-core-messageId',
-                                            'code': 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
+                                            system: 'http://hl7.org/fhir/java-core-messageId',
+                                            code: 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
                                         }
                                     ]
                                 },
-                                'diagnostics': "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
-                                'location': [
+                                diagnostics: "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+                                location: [
                                     'Patient.meta.profile[0]',
                                     'Line 1, Col 2'
                                 ]
@@ -567,7 +567,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource1)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // http://hl7.org/fhir/us/core/StructureDefinition/invalid
             const getProfileScopeInternal = nock('http://hl7.org')
@@ -601,9 +601,9 @@ describe('Practitioner Update Tests', () => {
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                },
+                    accept: 'application/json',
+                    'content-type': 'application/fhir+json'
+                }
             })
                 .put('/StructureDefinition/us-core-practitioner', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
@@ -611,30 +611,30 @@ describe('Practitioner Update Tests', () => {
             const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
-                    'accept': 'application/json',
+                    accept: 'application/json',
                     'content-type': 'application/fhir+json'
-                },
+                }
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
-                        'resourceType': 'OperationOutcome',
-                        'issue': [
+                        resourceType: 'OperationOutcome',
+                        issue: [
                             {
-                                'severity': 'error',
-                                'code': 'processing',
-                                'details': {
-                                    'coding': [
+                                severity: 'error',
+                                code: 'processing',
+                                details: {
+                                    coding: [
                                         {
-                                            'system': 'http://hl7.org/fhir/java-core-messageId',
-                                            'code': 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
+                                            system: 'http://hl7.org/fhir/java-core-messageId',
+                                            code: 'VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY'
                                         }
                                     ]
                                 },
-                                'diagnostics': "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
-                                'location': [
+                                diagnostics: "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+                                location: [
                                     'Patient.meta.profile[0]',
                                     'Line 1, Col 2'
                                 ]
@@ -654,7 +654,7 @@ describe('Practitioner Update Tests', () => {
                 .send(invalidPractitionerResource2)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // http://hl7.org/fhir/us/core/StructureDefinition/invalid
             const getProfileScopeInternal = nock('http://hl7.org')

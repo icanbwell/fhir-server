@@ -18,16 +18,18 @@ const {
     commonAfterEach,
     createTestRequest,
     getTestContainer,
-    getHeaders,
+    getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const {
-    DelinkProaPersonMasterPersonRunner,
+    DelinkProaPersonMasterPersonRunner
 } = require('../../../../admin/runners/delinkProaPersonMasterPersonRunner');
 const {
-    AdminPersonPatientLinkManager,
+    AdminPersonPatientLinkManager
 } = require('../../../../admin/adminPersonPatientLinkManager');
+
+const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -93,8 +95,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -177,8 +179,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -271,8 +273,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -362,8 +364,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -435,8 +437,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 
@@ -526,8 +528,8 @@ describe('Person Tests', () => {
                         adminPersonPatientLinkManager: new AdminPersonPatientLinkManager({
                             databaseQueryFactory: c.databaseQueryFactory,
                             databaseUpdateFactory: c.databaseUpdateFactory,
-                            fhirOperationsManager: c.fhirOperationsManager,
-                        }),
+                            fhirOperationsManager: c.fhirOperationsManager
+                        })
                     })
             );
 

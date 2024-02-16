@@ -6,7 +6,6 @@ const Element = require('../complex_types/element');
 const Resource = require('../resources/resource');
 const async = require('async');
 
-
 /**
 SupplyDelivery.SuppliedItem
     Record of delivery of what is supplied.
@@ -20,14 +19,14 @@ class SupplyDeliverySuppliedItem extends Element {
      * @param {CodeableConcept|undefined} [itemCodeableConcept],
      * @param {Reference|undefined} [itemReference],
     */
-    constructor(
+    constructor (
         {
             id,
             extension,
             modifierExtension,
             quantity,
             itemCodeableConcept,
-            itemReference,
+            itemReference
         }
     ) {
         super({});
@@ -71,7 +70,7 @@ class SupplyDeliverySuppliedItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -103,7 +102,7 @@ class SupplyDeliverySuppliedItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
@@ -123,7 +122,7 @@ class SupplyDeliverySuppliedItem extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
@@ -143,7 +142,7 @@ class SupplyDeliverySuppliedItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.itemCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
@@ -163,13 +162,10 @@ class SupplyDeliverySuppliedItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                const { FhirResourceCreator } = require('../../../fhirResourceCreator');
                 this.__data.itemReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
-
-
-
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -178,19 +174,16 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension,
             quantity,
             itemCodeableConcept,
-            itemReference,
+            itemReference
         });
-
     }
-
-
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSON() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSON () {
+        const { removeNull } = require('../../../../utils/nullRemover');
 
         return removeNull({
             id: this.id,
@@ -198,7 +191,7 @@ class SupplyDeliverySuppliedItem extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSON(),
-            itemReference: this.itemReference && this.itemReference.toJSON(),
+            itemReference: this.itemReference && this.itemReference.toJSON()
         });
     }
 
@@ -207,30 +200,28 @@ class SupplyDeliverySuppliedItem extends Element {
      * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.itemCodeableConcept) {await this.itemCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.itemReference) {await this.itemReference.updateReferencesAsync({fnUpdateReferenceAsync});}
+    async updateReferencesAsync ({ fnUpdateReferenceAsync }) {
+            if (this.extension) { await async.each(this.extension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.modifierExtension) { await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({ fnUpdateReferenceAsync })); }
+            if (this.quantity) { await this.quantity.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.itemCodeableConcept) { await this.itemCodeableConcept.updateReferencesAsync({ fnUpdateReferenceAsync }); }
+            if (this.itemReference) { await this.itemReference.updateReferencesAsync({ fnUpdateReferenceAsync }); }
     }
 
     /**
      * Returns JSON representation of entity
      * @return {Object}
      */
-    toJSONInternal() {
-        const {removeNull} = require('../../../../utils/nullRemover');
+    toJSONInternal () {
+        const { removeNull } = require('../../../../utils/nullRemover');
         const json = {
             id: this.id,
             extension: this.extension && this.extension.map(v => v.toJSONInternal()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
             quantity: this.quantity && this.quantity.toJSONInternal(),
             itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
-            itemReference: this.itemReference && this.itemReference.toJSONInternal(),
+            itemReference: this.itemReference && this.itemReference.toJSONInternal()
         };
-
-
 
         return removeNull(json);
     }

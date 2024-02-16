@@ -10,9 +10,9 @@ const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { PRACTITIONER_SOURCE_OWNER_MAP } = require('../runners/constants');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
-function fixPractitionerResource(resource, fixMultipleOwners) {
-    let security = resource.meta.security || [];
-    if (!security.length){
+function fixPractitionerResource (resource, fixMultipleOwners) {
+    const security = resource.meta.security || [];
+    if (!security.length) {
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
         return resource;
     }
@@ -22,7 +22,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
     if (fixMultipleOwners) {
         const owners = security.filter(s => s.system === SecurityTagSystem.owner);
         securityWithoutOriginalOwnersAndAuthority = security.filter(
-            s => [SecurityTagSystem.owner, SecurityTagSystem.sourceAssigningAuthority].indexOf(s.system) === -1,
+            s => [SecurityTagSystem.owner, SecurityTagSystem.sourceAssigningAuthority].indexOf(s.system) === -1
         );
         let newOwner;
         if (owners.length > 1) {
@@ -36,7 +36,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
         }
     } else {
         securityWithoutOriginalOwnersAndAuthority = security.filter(
-            s => SecurityTagSystem.sourceAssigningAuthority !== s.system,
+            s => SecurityTagSystem.sourceAssigningAuthority !== s.system
         );
     }
 
@@ -46,7 +46,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
         if (npiIdentifier && (npiIdentifier.value === resource.id || npiIdentifier.value === resource._sourceId)) {
             newSourceAssigningAuthority = new Coding({
                 system: SecurityTagSystem.sourceAssigningAuthority,
-                code: NPPES,
+                code: NPPES
             });
         }
     }
@@ -67,21 +67,21 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
     return resource;
 }
 
-function fixResource(resource) {
-    let security = resource.meta.security || [];
-    if (!security.length){
+function fixResource (resource) {
+    const security = resource.meta.security || [];
+    if (!security.length) {
         console.log(`meta.security not present for resource _id: ${resource._id}. Skipping`);
         return resource;
     }
     const sourceAssigningAuthorities = security.filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority);
     const owners = security.filter(s => s.system === SecurityTagSystem.owner);
-    let securityWithoutOriginalAuthority = security.filter(
-        s => SecurityTagSystem.sourceAssigningAuthority !== s.system,
+    const securityWithoutOriginalAuthority = security.filter(
+        s => SecurityTagSystem.sourceAssigningAuthority !== s.system
     );
 
-    let newSourceAssigningAuthority = sourceAssigningAuthorities.length ? sourceAssigningAuthorities[0] : new Coding({
+    const newSourceAssigningAuthority = sourceAssigningAuthorities.length ? sourceAssigningAuthorities[0] : new Coding({
         system: SecurityTagSystem.sourceAssigningAuthority,
-        code: owners[0].code,
+        code: owners[0].code
     });
     securityWithoutOriginalAuthority.push(newSourceAssigningAuthority);
     resource._sourceAssigningAuthority = newSourceAssigningAuthority.code;
@@ -96,13 +96,13 @@ function fixResource(resource) {
     return resource;
 }
 
-function fixMultipleAuthorities(resource, fixMultipleOwners) {
+function fixMultipleAuthorities (resource, fixMultipleOwners) {
     const resourceFixFnMap = {
-        'Practitioner': fixPractitionerResource,
+        Practitioner: fixPractitionerResource
     };
     return resourceFixFnMap[`${resource.resourceType}`] ? resourceFixFnMap[`${resource.resourceType}`](resource, fixMultipleOwners) : fixResource(resource);
 }
 
 module.exports = {
-    fixMultipleAuthorities,
+    fixMultipleAuthorities
 };

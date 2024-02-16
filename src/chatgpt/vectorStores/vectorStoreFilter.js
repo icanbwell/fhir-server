@@ -4,7 +4,7 @@ class VectorStoreFilter {
      * @param {string|undefined} [resourceType]
      * @param {string|undefined} [uuid]
      */
-    constructor(
+    constructor (
         {
             resourceType,
             uuid
