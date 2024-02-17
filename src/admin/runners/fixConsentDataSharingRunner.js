@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-computed-key */
+/* eslint-disable comma-dangle */
 const { ObjectId } = require('mongodb');
 const deepEqual = require('fast-deep-equal');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
@@ -419,8 +421,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             },
         });
         // must have sourceReference
-        // eslint-disable-next-line no-useless-computed-key
-        // eslint-disable-next-line comma-dangle
         query.$and.push({
             ['sourceReference']: {
                 $exists: true
@@ -428,8 +428,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         });
         // add support for lastUpdated
         if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
-            // eslint-disable-next-line no-useless-computed-key
-            // eslint-disable-next-line comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
@@ -437,16 +435,12 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 },
             });
         } else if (this.beforeLastUpdatedDate) {
-            // eslint-disable-next-line no-useless-computed-key
-            // eslint-disable-next-line comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $lt: this.beforeLastUpdatedDate,
                 },
             });
         } else if (this.afterLastUpdatedDate) {
-            // eslint-disable-next-line no-useless-computed-key
-            // eslint-disable-next-line comma-dangle
             query.$and.push({
                 ['meta.lastUpdated']: {
                     $gt: this.afterLastUpdatedDate,
