@@ -40,6 +40,7 @@ const xyzPatientResource = require('./fixtures/patient/xyz_patient.json');
 const expectedClintObservation = require('./fixtures/expected/client_observation.json');
 const expectedProaObservation = require('./fixtures/expected/proa_observation.json');
 const expectedProaObservation2 = require('./fixtures/expected/proa_observation2.json');
+const expectedProaObservation3 = require('./fixtures/expected/proa_observation3.json');
 const expectedClient1Observation = require('./fixtures/expected/client_1_observation.json');
 const expectedXyzObservationJson = require('./fixtures/expected/xyz_observation.json');
 const expectedHighMarkObservationJson = require('./fixtures/expected/highmark_observation.json');
@@ -72,7 +73,7 @@ describe('Consent Based Data Access Test', () => {
         await commonAfterEach();
     });
 
-    describe('Observation Resource data read by Client Credentails', () => {
+    describe('Observation Resource data read by Client Credentials', () => {
         test('consent object not created yet', async () => {
             const request = await createTestRequest((c) => {
                 return c;
@@ -229,7 +230,7 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation2]);
+            expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation3]);
         });
 
         test('Check Consented data fetching for two different patient but only has consented', async () => {
@@ -254,7 +255,7 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation2]);
+            expect(resp).toHaveResponse(expectedProaObservation3);
         });
 
         test('Consent has provided, it should return all consented data when searching with proxy-patient with master person id', async () => {
@@ -349,7 +350,7 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedProaObservation2]);
+            expect(resp).toHaveResponse(expectedProaObservation2);
         });
 
         test('Should be able to access observation of xyz and highmark if client-1 has consent', async () => {

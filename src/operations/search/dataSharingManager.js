@@ -117,16 +117,19 @@ class DataSharingManager {
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
+        let personToLinkedPatientsMap;
 
         // If 'patientIdToImmediatePersonUuid' is in the map, retrieve values.
         if (everythingCacheMap?.has('patientIdToImmediatePersonUuid')) {
             patientIdToImmediatePersonUuid = everythingCacheMap.get('patientIdToImmediatePersonUuid');
             patientsList = everythingCacheMap.get('patientsList');
+            personToLinkedPatientsMap = everythingCacheMap.get('personToLinkedPatientsMap');
         } else {
             // If not in the map, fetch the values and set them in the map for future use.
             ({
                 patientIdToImmediatePersonUuid,
-                patientsList
+                patientsList,
+                personToLinkedPatientsMap
             } = await this.getValidatedPatientIdsMap({
                 resourceType,
                 parsedArgs,
@@ -139,6 +142,7 @@ class DataSharingManager {
                 // Set values in the map for future use.
                 everythingCacheMap.set('patientIdToImmediatePersonUuid', patientIdToImmediatePersonUuid);
                 everythingCacheMap.set('patientsList', patientsList);
+                everythingCacheMap.set('personToLinkedPatientsMap', personToLinkedPatientsMap);
             }
         }
 
@@ -173,7 +177,8 @@ class DataSharingManager {
                 // Filter Patients which have provided consent to view data.
                 allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
                     patientIdToImmediatePersonUuid,
-                    securityTags
+                    securityTags,
+                    personToLinkedPatientsMap
                 });
                 if (requestId) {
                     everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
@@ -245,6 +250,10 @@ class DataSharingManager {
          * @type {{[key: string]: string[]}}
          */
         let patientIdToImmediatePersonUuid = {};
+        /**
+         * @type {Map<string, string[]>}
+         */
+        let personToLinkedPatientsMap = new Map();
         let patientsList;
 
         // 1. Check resourceType is specific to Patient.
@@ -269,12 +278,15 @@ class DataSharingManager {
                 });
 
                 // 6. Creating patient id to immediate person map with owner same as in security tags provided.
-                patientIdToImmediatePersonUuid = await this.getPatientToImmediatePersonMapAsync({
-                    patientReferences, securityTags
-                });
+                (
+                    {
+                        patientReferenceToPersonUuid: patientIdToImmediatePersonUuid,
+                        personUUIDToLinkedPatientsUUID: personToLinkedPatientsMap
+                    } = await this.getPatientToImmediatePersonMapAsync({ patientReferences, securityTags })
+                );
             }
         }
-        return { patientIdToImmediatePersonUuid, patientsList };
+        return { patientIdToImmediatePersonUuid, patientsList, personToLinkedPatientsMap };
     }
 
     /**
@@ -454,13 +466,13 @@ class DataSharingManager {
      * @property {string[]} securityTags
      * Get patient to person map based on passed patient references
      * @param {GetPatientToPersonParams} options
-     * @returns {Promise<{[key: string]: string[]}>}
+     * @returns {Promise<{Map<string, string[]>, Map<string, string[]>}>}
      */
     async getPatientToImmediatePersonMapAsync ({ patientReferences, securityTags }) {
         /**
-         * @type {Map<string, string[]>}
+         * @type {Map<string, string[]>, Map<string, string[]>}
          */
-        const patientToImmediatePersonAsync =
+        const { patientRefToImmediatePersonRefMap, personToLinkedPatientsMap } =
             await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
                 patientReferences,
                 securityTags
@@ -468,7 +480,7 @@ class DataSharingManager {
         // convert to patientReference -> PersonUuid
         /** @type {{[key: string]: string[]}} */
         const patientReferenceToPersonUuid = {};
-        for (const [patientReference, immediatePersons] of patientToImmediatePersonAsync.entries()) {
+        for (const [patientReference, immediatePersons] of patientRefToImmediatePersonRefMap.entries()) {
             // reference without Patient prefix
             const patientId = patientReference.replace(
                 PATIENT_REFERENCE_PREFIX,
@@ -481,7 +493,15 @@ class DataSharingManager {
             }
         }
 
-        return patientReferenceToPersonUuid;
+        const personUUIDToLinkedPatientsUUID = new Map();
+        for (const [person, linkedPatients] of personToLinkedPatientsMap.entries()) {
+            const personId = person.replace(
+                PERSON_REFERENCE_PREFIX,
+                ''
+            );
+            personUUIDToLinkedPatientsUUID.set(personId, linkedPatients);
+        }
+        return { patientReferenceToPersonUuid, personUUIDToLinkedPatientsUUID };
     }
 
     /**

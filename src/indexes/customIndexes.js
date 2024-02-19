@@ -1311,9 +1311,8 @@ module.exports = {
             {
                 keys: {
                     status: 1,
-                    'provision.actor.reference._uuid': 1,
-                    'provision.actor.role.coding.system': 1,
-                    'provision.actor.role.coding.code': 1
+                    'patient._uuid': 1,
+                    'patient._sourceId': 1
                 },
                 options: {
                     name: CONSENT_OF_LINKED_PERSON_INDEX
