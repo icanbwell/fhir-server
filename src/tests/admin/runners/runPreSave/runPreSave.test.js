@@ -42,10 +42,6 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return false;
-    }
-
     get enableReturnBundle () {
         return true;
     }

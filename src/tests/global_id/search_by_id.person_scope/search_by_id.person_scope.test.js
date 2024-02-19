@@ -23,10 +23,6 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { IdentifierSystem } = require('../../../utils/identifierSystem');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return true;
-    }
-
     get enableReturnBundle () {
         return true;
     }

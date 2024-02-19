@@ -210,18 +210,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to enable Global Unique Id support
-     * @returns {boolean}
-     */
-    get enableGlobalIdSupport () {
-        if (env.ENABLE_GLOBAL_ID === null || env.ENABLE_GLOBAL_ID === undefined) {
-            return true;
-        }
-
-        return isTrue(env.ENABLE_GLOBAL_ID);
-    }
-
-    /**
      * whether to return data as bundle
      * @return {boolean}
      */

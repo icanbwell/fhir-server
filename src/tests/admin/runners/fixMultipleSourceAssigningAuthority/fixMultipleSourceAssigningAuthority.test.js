@@ -35,10 +35,6 @@ const { FixMultipleSourceAssigningAuthorityRunner } = require('../../../../admin
 const { assertTypeEquals } = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return false;
-    }
-
     get enableReturnBundle () {
         return true;
     }

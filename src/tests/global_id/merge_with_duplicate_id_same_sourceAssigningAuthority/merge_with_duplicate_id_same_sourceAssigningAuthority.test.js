@@ -17,13 +17,6 @@ const {
     mockHttpContext
 } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
-
-class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return true;
-    }
-}
 
 describe('Observation Tests', () => {
     let requestId;
@@ -38,10 +31,7 @@ describe('Observation Tests', () => {
 
     describe('Observation merge_with_duplicate_id Tests', () => {
         test('merge_with_duplicate_id adds only one resource with same sourceAssigningAuthority', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
 
             const container = getTestContainer();
             // ARRANGE

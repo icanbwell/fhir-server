@@ -24,10 +24,6 @@ class MockConfigManager extends ConfigManager {
         return 'id';
     }
 
-    get enableGlobalIdSupport () {
-        return true;
-    }
-
     get enableReturnBundle () {
         return true;
     }
