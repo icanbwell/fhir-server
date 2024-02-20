@@ -69,12 +69,7 @@ class ProaConsentManager {
         {
             $and: [
                 { status: 'active' },
-                {
-                    $or: [
-                        { 'patient._uuid': { $in: patientIds } },
-                        { 'patient._sourceId': { $in: patientIds } }
-                    ]
-                },
+                { 'patient._uuid': { $in: patientIds } },
                 { 'provision.class.code': { $in: this.configManager.getDataSharingConsentCodes } },
                 { 'provision.type': 'permit' },
                 {
