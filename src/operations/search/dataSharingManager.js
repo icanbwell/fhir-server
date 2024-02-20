@@ -4,7 +4,7 @@ const { ConfigManager } = require('../../utils/configManager');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const { QueryParameterValue } = require('../query/queryParameterValue');
-const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_PROXY_PREFIX } = require('../../constants');
 const { SearchQueryBuilder } = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
@@ -117,16 +117,19 @@ class DataSharingManager {
         }
         let patientIdToImmediatePersonUuid;
         let patientsList;
+        let personToLinkedPatientsMap;
 
         // If 'patientIdToImmediatePersonUuid' is in the map, retrieve values.
         if (everythingCacheMap?.has('patientIdToImmediatePersonUuid')) {
             patientIdToImmediatePersonUuid = everythingCacheMap.get('patientIdToImmediatePersonUuid');
             patientsList = everythingCacheMap.get('patientsList');
+            personToLinkedPatientsMap = everythingCacheMap.get('personToLinkedPatientsMap');
         } else {
             // If not in the map, fetch the values and set them in the map for future use.
             ({
                 patientIdToImmediatePersonUuid,
-                patientsList
+                patientsList,
+                personToLinkedPatientsMap
             } = await this.getValidatedPatientIdsMap({
                 resourceType,
                 parsedArgs,
@@ -139,6 +142,7 @@ class DataSharingManager {
                 // Set values in the map for future use.
                 everythingCacheMap.set('patientIdToImmediatePersonUuid', patientIdToImmediatePersonUuid);
                 everythingCacheMap.set('patientsList', patientsList);
+                everythingCacheMap.set('personToLinkedPatientsMap', personToLinkedPatientsMap);
             }
         }
 
@@ -173,7 +177,8 @@ class DataSharingManager {
                 // Filter Patients which have provided consent to view data.
                 allowedPatientIds = await this.proaConsentManager.getPatientIdsWithConsent({
                     patientIdToImmediatePersonUuid,
-                    securityTags
+                    securityTags,
+                    personToLinkedPatientsMap
                 });
                 if (requestId) {
                     everythingCacheMap.set('allowedPatientIds', allowedPatientIds);
@@ -245,6 +250,10 @@ class DataSharingManager {
          * @type {{[key: string]: string[]}}
          */
         let patientIdToImmediatePersonUuid = {};
+        /**
+         * @type {Map<string, string[]>}
+         */
+        let personToLinkedPatientsMap = new Map();
         let patientsList;
 
         // 1. Check resourceType is specific to Patient.
@@ -269,12 +278,17 @@ class DataSharingManager {
                 });
 
                 // 6. Creating patient id to immediate person map with owner same as in security tags provided.
-                patientIdToImmediatePersonUuid = await this.getPatientToImmediatePersonMapAsync({
-                    patientReferences, securityTags
-                });
+                (
+                    {
+                        patientReferenceToPersonUuid: patientIdToImmediatePersonUuid,
+                        personToLinkedPatientsMap
+                    } = await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
+                        patientReferences, securityTags
+                    })
+                );
             }
         }
-        return { patientIdToImmediatePersonUuid, patientsList };
+        return { patientIdToImmediatePersonUuid, patientsList, personToLinkedPatientsMap };
     }
 
     /**
@@ -446,42 +460,6 @@ class DataSharingManager {
             }, []);
 
         return idReferenceMap;
-    }
-
-    /**
-     * @typedef {Object} GetPatientToPersonParams - Function Options
-     * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} patientReferences - Array of references
-     * @property {string[]} securityTags
-     * Get patient to person map based on passed patient references
-     * @param {GetPatientToPersonParams} options
-     * @returns {Promise<{[key: string]: string[]}>}
-     */
-    async getPatientToImmediatePersonMapAsync ({ patientReferences, securityTags }) {
-        /**
-         * @type {Map<string, string[]>}
-         */
-        const patientToImmediatePersonAsync =
-            await this.bwellPersonFinder.getImmediatePersonIdsOfPatientsAsync({
-                patientReferences,
-                securityTags
-            });
-        // convert to patientReference -> PersonUuid
-        /** @type {{[key: string]: string[]}} */
-        const patientReferenceToPersonUuid = {};
-        for (const [patientReference, immediatePersons] of patientToImmediatePersonAsync.entries()) {
-            // reference without Patient prefix
-            const patientId = patientReference.replace(
-                PATIENT_REFERENCE_PREFIX,
-                ''
-            );
-            // filter out proxy-patient
-            if (!patientId.startsWith('person.')) {
-                // remove Person/ prefix
-                patientReferenceToPersonUuid[`${patientId}`] = immediatePersons.map(s => s.replace(PERSON_REFERENCE_PREFIX, ''));
-            }
-        }
-
-        return patientReferenceToPersonUuid;
     }
 
     /**
