@@ -24,7 +24,7 @@ class IndexProvider {
      * @returns {boolean}
      */
     hasIndexForAccessCodes ({ accessCodes }) {
-        const accessCodesWithIndexes = this.configManager.accessTagsIndexed || this.configManager.indexedClientAccessGlobal;
+        const accessCodesWithIndexes = this.configManager.accessTagsIndexed;
         return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }
 }

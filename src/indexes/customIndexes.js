@@ -64,23 +64,10 @@ module.exports = {
                     ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
-            {
-                keys: {
-                    '_access.anthem': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'security._access_anthem'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
-            },
             ...(
                     (
-                        env.INDEXED_CLIENT_ACCESS_GLOBAL &&
-                        env.INDEXED_CLIENT_ACCESS_GLOBAL.split(',').map((item) => item.trim())
+                        env.ACCESS_TAGS_INDEXED &&
+                        env.ACCESS_TAGS_INDEXED.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {

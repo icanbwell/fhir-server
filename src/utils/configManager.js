@@ -572,17 +572,6 @@ class ConfigManager {
     get postRequestBatchSize () {
         return parseInt(env.POST_REQUEST_BATCH_SIZE) || 50;
     }
-
-    /**
-     * returns clients access to be indexed for all collections
-     * @returns {string[]}
-     */
-    get indexedClientAccessGlobal () {
-        return (
-            env.INDEXED_CLIENT_ACCESS_GLOBAL && env.INDEXED_CLIENT_ACCESS_GLOBAL.split(',')
-                .map((item) => item.trim())
-        ) || [];
-    }
 }
 
 module.exports = {
