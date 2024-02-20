@@ -131,12 +131,12 @@ class ProaConsentManager {
             });
         });
 
-        const patients = await this.getAllPatientsForPersons(immediatePersonUuids, personToLinkedPatientsMap);
+        const patientIds = await this.getAllPatientsForPersons(immediatePersonUuids, personToLinkedPatientsMap);
 
         // Get Consent for each patient
         const consentResources = await this.getConsentResources({
             ownerTags: securityTags,
-            patientIds: [...patients]
+            patientIds
         });
 
         /**
@@ -188,7 +188,7 @@ class ProaConsentManager {
                 });
             }
         }
-        return allPatients;
+        return [...allPatients];
     }
 }
 

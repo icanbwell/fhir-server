@@ -54,10 +54,10 @@ class BwellPersonFinder {
             resourceType: 'Person',
             base_version: '4_0_0'
         });
-        const { patientRefToImmediatePersonRefMap, personToLinkedPatientsMap } = await this.getImmediatePersonIdHelperAsync({
+        const { patientReferenceToPersonUuid, personToLinkedPatientsMap } = await this.getImmediatePersonIdHelperAsync({
             references: patientReferences, databaseQueryManager, asObject, securityTags
         });
-        return { patientRefToImmediatePersonRefMap, personToLinkedPatientsMap };
+        return { patientReferenceToPersonUuid, personToLinkedPatientsMap };
     }
 
     /**
@@ -100,20 +100,14 @@ class BwellPersonFinder {
 
         const personIdFilter = FilterById.getListFilter(Array.from(personIds));
 
-        /**
-         * @type {Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]}
-         */
-        const patientRefToImmediatePersonRefMap = new Map();
+        /** @type {{[key: string]: string[]}} */
+        const patientReferenceToPersonUuid = {};
 
         /**
          * @type {Map<string, string[]>}
          */
         const personToLinkedPatientsMap = new Map();
 
-        /**
-         * @type {Map<string, string[]>}
-         */
-        const personRefToLinkedRefsMap = new Map();
         /**
          * @type {Map<string, import('../operations/query/filters/searchFilterFromReference').IReference}
          */
@@ -152,13 +146,11 @@ class BwellPersonFinder {
 
         while (await linkedPersonCursor.hasNext()) {
             const linkedPerson = await linkedPersonCursor.next();
-            const personUuidRef = `${PERSON_REFERENCE_PREFIX}${linkedPerson._uuid}`;
-            const { linkedIds, allLinkedIds } = this.getAllLinkedReferencesFromPerson(linkedPerson, patientReferencesString);
-            personToLinkedPatientsMap.set(personUuidRef, allLinkedIds);
-            personRefToLinkedRefsMap.set(personUuidRef, linkedIds);
+            const allLinkedIds = this.getAllLinkedReferencesFromPerson(linkedPerson);
+            personToLinkedPatientsMap.set(linkedPerson._uuid, allLinkedIds);
 
             if (asObject) {
-                personRefToPersonRefObj.set(personUuidRef, {
+                personRefToPersonRefObj.set(linkedPerson._uuid, {
                     id: linkedPerson._uuid,
                     resourceType: linkedPerson.resourceType,
                     sourceAssigningAuthority: linkedPerson._sourceAssigningAuthority
@@ -167,34 +159,35 @@ class BwellPersonFinder {
         }
 
         // build map of patient to person
-        for (const [person, linkedReferences] of personRefToLinkedRefsMap.entries()) {
+        for (const [person, linkedReferences] of personToLinkedPatientsMap.entries()) {
             if (linkedReferences && linkedReferences.length > 0) {
                 linkedReferences.forEach((currentReference) => {
-                    const immediatePersons = patientRefToImmediatePersonRefMap.get(currentReference) ?? [];
+                    const { id: patientId } = ReferenceParser.parseReference(currentReference);
+                    if (!patientReferencesString.includes(currentReference) || patientId.startsWith('person.')) {
+                        return;
+                    }
+                    const immediatePersons = patientReferenceToPersonUuid[patientId] || [];
 
                     if (asObject) {
                         immediatePersons.push(personRefToPersonRefObj.get(person));
-                        patientRefToImmediatePersonRefMap.set(currentReference, immediatePersons);
+                        patientReferenceToPersonUuid[patientId] = immediatePersons;
                     } else {
                         immediatePersons.push(person);
-                        patientRefToImmediatePersonRefMap.set(currentReference, immediatePersons);
+                        patientReferenceToPersonUuid[patientId] = immediatePersons;
                     }
                 });
             }
         }
 
-        return { patientRefToImmediatePersonRefMap, personToLinkedPatientsMap };
+        return { patientReferenceToPersonUuid, personToLinkedPatientsMap };
     }
 
     /**
      * Gets intersection of all references & all references linked to the person
      * @param {Person} person
-     * @param {string[]} referencesToSearchFrom references to search from If can be uuid reference or sourceId reference
-     * @return {string[], string[]} references linked to given person
+     * @return {string[]} references linked to given person
      */
-    getAllLinkedReferencesFromPerson (person, referencesToSearchFrom) {
-        /** @type {string[]} */
-        const linkedIds = [];
+    getAllLinkedReferencesFromPerson (person) {
         /** @type {string[]} */
         const allLinkedIds = [];
 
@@ -203,7 +196,7 @@ class BwellPersonFinder {
          * then return empty
          */
         if (!person || !person.link || !Array.isArray(person.link)) {
-            return { linkedIds, allLinkedIds };
+            return [];
         }
 
         /**
@@ -213,23 +206,13 @@ class BwellPersonFinder {
         const links = person.link;
         links.forEach((link) => {
             // check if reference is included in referencesToSearchFrom, then add it to array
-            const reference = link.target;
+            const reference = link?.target;
             if (reference && reference._uuid) {
-                if (referencesToSearchFrom.includes(reference._uuid)) {
-                    linkedIds.push(reference._uuid);
-                }
                 allLinkedIds.push(reference._uuid);
-            } else if (reference && reference._sourceId) {
-                const id = reference._sourceId;
-                if (referencesToSearchFrom.includes(id)) {
-                    // if sourceId is present in referencesToSearchFrom
-                    linkedIds.push(id);
-                }
-                allLinkedIds.push(id);
             }
         });
 
-        return { linkedIds, allLinkedIds };
+        return allLinkedIds;
     }
 
     /**
