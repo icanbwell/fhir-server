@@ -391,58 +391,6 @@ cursors,
 
     /**
      * Gets UUID from database
-     * @param {string} id
-     * @param {SecurityTagStructure} securityTagStructure
-     * @return {Promise<string>}
-     */
-    async getUuidForReferenceAsync ({ id, securityTagStructure }) {
-        /**
-         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-         */
-        const query = this.mongoFilterGenerator.generateFilterForIdAndSecurityTags(
-            {
-                id,
-                securityTagStructure
-            }
-        );
-        /**
-         *
-         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
-         */
-        const options = {
-            projection: {
-                _uuid: 1
-            }
-        };
-        try {
-            const cursor = this.findAsync(
-                {
-                    query,
-                    options
-                }
-            );
-            if (await cursor.hasNext()) {
-                /**
-                 * @type {Object|null}
-                 */
-                const doc = await cursor.nextRaw();
-                if (!doc) {
-                    return null;
-                }
-                return doc._uuid;
-            }
-            return null;
-        } catch (e) {
-            throw new RethrownError({
-                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`,
-error: e,
-                args: { query, options }
-            });
-        }
-    }
-
-    /**
-     * Gets UUID from database
      * @param {string} uuid
      * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
      */
@@ -490,7 +438,7 @@ error: e,
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`,
+                message: 'Error in getIdAndSourceAssigningAuthorityForUuidAsync(): ' + `query: ${JSON.stringify(query)}`,
 error: e,
                 args: { query, options }
             });

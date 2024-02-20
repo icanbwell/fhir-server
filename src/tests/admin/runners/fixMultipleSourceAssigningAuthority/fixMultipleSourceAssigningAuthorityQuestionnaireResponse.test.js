@@ -18,10 +18,6 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const { FixMultipleSourceAssigningAuthorityRunner } = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return false;
-    }
-
     get enableReturnBundle () {
         return true;
     }

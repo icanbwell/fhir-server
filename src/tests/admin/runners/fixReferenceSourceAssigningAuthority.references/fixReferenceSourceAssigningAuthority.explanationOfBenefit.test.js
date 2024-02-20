@@ -19,10 +19,6 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 const { FixReferenceSourceAssigningAuthorityRunner } = require('../../../../admin/runners/fixReferenceSourceAssigningAuthorityRunner');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return false;
-    }
-
     get enableReturnBundle () {
         return true;
     }

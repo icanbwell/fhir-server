@@ -10,13 +10,6 @@ const expectedPatient1UpdateReferenceResources = require('./fixtures/expected/ex
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { ConfigManager } = require('../../../utils/configManager');
-
-class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return true;
-    }
-}
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -29,10 +22,7 @@ describe('Patient Tests', () => {
 
     describe('Patient merge_with_references_global_id Tests', () => {
         test('merge_with_references_global_id works', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
 
             // ARRANGE
             // add the resources to FHIR server
@@ -52,10 +42,7 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatient1Resources);
         });
         test('merge_with_references_global_id works for update gender', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
 
             // ARRANGE
             // add the resources to FHIR server
@@ -82,10 +69,7 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatient1UpdateGenderResources);
         });
         test('merge_with_references_global_id works for update reference', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                return c;
-            });
+            const request = await createTestRequest();
 
             // ARRANGE
             // add the resources to FHIR server

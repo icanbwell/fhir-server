@@ -19,10 +19,6 @@ const { ConfigManager } = require('../../../utils/configManager');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return true;
-    }
-
     get enableReturnBundle () {
         return true;
     }

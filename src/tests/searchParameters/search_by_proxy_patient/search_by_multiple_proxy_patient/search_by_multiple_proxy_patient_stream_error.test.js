@@ -29,10 +29,6 @@ const { ConfigManager } = require('../../../../utils/configManager');
 const { IdEnrichmentProvider } = require('../../../../enrich/providers/idEnrichmentProvider');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return true;
-    }
-
     get enableReturnBundle () {
         return true;
     }

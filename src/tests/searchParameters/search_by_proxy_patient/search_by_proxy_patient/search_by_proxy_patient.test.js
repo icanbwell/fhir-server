@@ -24,10 +24,6 @@ const deepcopy = require('deepcopy');
 const { ConfigManager } = require('../../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
-    get enableGlobalIdSupport () {
-        return true;
-    }
-
     get enableReturnBundle () {
         return true;
     }

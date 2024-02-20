@@ -95,8 +95,7 @@ class R4SearchQueryCreator {
                                 accessCodes: [accessCode]
                             }),
                         fieldMapper,
-                        resourceType,
-                        enableGlobalIdSupport: this.configManager.enableGlobalIdSupport
+                        resourceType
                     });
 
                 let {
