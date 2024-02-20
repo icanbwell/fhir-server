@@ -77,32 +77,24 @@ module.exports = {
                     ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
-            {
-                keys: {
-                    '_access.medstar': 1,
-                    _sourceId: 1
-                },
-                options: {
-                    name: 'security._access_medstar'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
-            },
-            {
-                keys: {
-                    '_access.Thedacare': 1,
-                    _sourceId: 1
-                },
-                options: {
-                    name: 'security._access_Thedacare'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0',
-                    ACCESS_LOGS_COLLECTION_NAME
-                ]
-            },
+            ...(
+                    (
+                        env.INDEXED_CLIENT_ACCESS_GLOBAL &&
+                        env.INDEXED_CLIENT_ACCESS_GLOBAL.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        _sourceId: 1
+                    },
+                    options: {
+                        name: `security._access_${client}`
+                    },
+                    exclude: [
+                        'AuditEvent_4_0_0',
+                        ACCESS_LOGS_COLLECTION_NAME
+                    ]
+            })),
             {
                 keys: {
                     _sourceId: 1,
@@ -465,19 +457,24 @@ module.exports = {
             }
         ],
         Encounter_4_0_0: [
+            ...(
+                    (
+                        env.INDEXED_CLIENT_ACCESS_ENCOUNTER &&
+                        env.INDEXED_CLIENT_ACCESS_ENCOUNTER.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        'meta.source': 1,
+                        _uuid: 1,
+                        'meta.lastUpdated': 1
+                    },
+                    options: {
+                        name: `access_${client}.meta_source.uuid.meta_lastUpdated`
+                    }
+            })),
             {
                 keys: {
-                    '_access.Thedacare': 1,
-                    'meta.source': 1,
-                    _uuid: 1,
-                    'meta.lastUpdated': 1
-                },
-                options: {
-                    name: 'access_Thedacare.meta_source.uuid.meta_lastUpdated'
-                }
-            },
-            {
-               keys: {
                     'meta.lastUpdated': 1,
                     '_access.bwell': 1,
                     _uuid: 1
@@ -1090,15 +1087,20 @@ module.exports = {
                     name: 'location.reference_uuid'
                 }
             },
-            {
-                keys: {
-                    '_access.medstar': 1,
-                    _uuid: 1
-                },
-                options: {
-                    name: 'security._access_medstar_1_uuid_1'
-                }
-            }
+            ...(
+                    (
+                        env.INDEXED_CLIENT_ACCESS_PRACTITIONER_ROLE &&
+                        env.INDEXED_CLIENT_ACCESS_PRACTITIONER_ROLE.split(',').map((item) => item.trim())
+                    ) || []
+                ).map(client => ({
+                    keys: {
+                        [`_access.${client}`]: 1,
+                        _uuid: 1
+                    },
+                    options: {
+                        name: `security._access_${client}_1_uuid_1`
+                    }
+            }))
         ],
         Procedure_4_0_0: [
             {
