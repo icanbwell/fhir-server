@@ -24,7 +24,7 @@ class IndexProvider {
      * @returns {boolean}
      */
     hasIndexForAccessCodes ({ accessCodes }) {
-        const accessCodesWithIndexes = this.configManager.accessTagsIndexed || ['medstar', 'Thedacare'];
+        const accessCodesWithIndexes = this.configManager.accessTagsIndexed;
         return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }
 }
