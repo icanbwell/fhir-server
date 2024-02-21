@@ -75,7 +75,7 @@ module.exports = {
                         _uuid: 1
                     },
                     options: {
-                        name: `security._access_${client}`
+                        name: `_access_${client}_1._uuid_1`
                     },
                     exclude: [
                         'AuditEvent_4_0_0',
@@ -457,7 +457,7 @@ module.exports = {
                         'meta.lastUpdated': 1
                     },
                     options: {
-                        name: `access_${client}.meta_source.uuid.meta_lastUpdated`
+                        name: `_access_${client}_1.meta_source_1._uuid_1.meta_lastUpdated_1`
                     }
             })),
             {
@@ -1085,7 +1085,7 @@ module.exports = {
                         _uuid: 1
                     },
                     options: {
-                        name: `security._access_${client}_1_uuid_1`
+                        name: `_access_${client}_1._uuid_1`
                     }
             }))
         ],
