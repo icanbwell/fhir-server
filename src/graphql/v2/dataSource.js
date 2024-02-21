@@ -220,7 +220,11 @@ class FhirDataSource {
                     possibleResourceType = info.returnType._types[0].name;
                 }
             }
-            return this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
+            const enrichedResource = this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
+            if (Object.keys(enrichedResource).length === 0) {
+                return null;
+            }
+            return enrichedResource;
         }
         // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
         const referenceValue = ['Person', 'Practitioner'].includes(
