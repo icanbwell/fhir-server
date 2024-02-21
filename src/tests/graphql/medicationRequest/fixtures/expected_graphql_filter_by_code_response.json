@@ -21,7 +21,8 @@
         }
       ],
       "text": "Lipitor"
-    }
+    },
+    "requester": null
   },
   {
     "authoredOn": "2022-07-05",
@@ -30,6 +31,10 @@
     "medicationCodeableConcept": {
       "coding": [],
       "text": "Aspirin"
+    },
+    "requester": {
+      "__typename": "Practitioner",
+      "id": null
     }
   }
 ]
