@@ -249,7 +249,6 @@ function createApp ({ fnGetContainer, trackMetrics }) {
 
     app.get('/ready', (req, res) => handleMemoryCheck(req, res));
 
-    app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
         const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
@@ -271,11 +270,14 @@ function createApp ({ fnGetContainer, trackMetrics }) {
 
     app.get('/alert', handleAlert);
 
+    // Need to use version endpoint in fhir app
+    app.use(cors(fhirServerConfig.server.corsOptions));
+    app.get('/version', handleVersion);
+
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
         // noinspection JSCheckFunctionSignatures
         passport.use('adminStrategy', strategy);
-        app.use(cors(fhirServerConfig.server.corsOptions));
     }
 
     // eslint-disable-next-line new-cap
