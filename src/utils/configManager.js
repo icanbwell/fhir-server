@@ -71,7 +71,7 @@ class ConfigManager {
         return (
             env.ACCESS_TAGS_INDEXED && env.ACCESS_TAGS_INDEXED.split(',')
                 .map((col) => col.trim())
-        ) || null;
+        ) || [];
     }
 
     /**

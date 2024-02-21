@@ -446,8 +446,8 @@ module.exports = {
         Encounter_4_0_0: [
             ...(
                     (
-                        env.INDEXED_CLIENT_ACCESS_ENCOUNTER &&
-                        env.INDEXED_CLIENT_ACCESS_ENCOUNTER.split(',').map((item) => item.trim())
+                        env.ACCESS_TAGS_INDEXED_ENCOUNTER &&
+                        env.ACCESS_TAGS_INDEXED_ENCOUNTER.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
@@ -1076,8 +1076,8 @@ module.exports = {
             },
             ...(
                     (
-                        env.INDEXED_CLIENT_ACCESS_PRACTITIONER_ROLE &&
-                        env.INDEXED_CLIENT_ACCESS_PRACTITIONER_ROLE.split(',').map((item) => item.trim())
+                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE &&
+                        env.ACCESS_TAGS_INDEXED_PRACTITIONER_ROLE.split(',').map((item) => item.trim())
                     ) || []
                 ).map(client => ({
                     keys: {
