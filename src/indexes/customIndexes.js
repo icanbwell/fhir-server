@@ -72,7 +72,7 @@ module.exports = {
                 ).map(client => ({
                     keys: {
                         [`_access.${client}`]: 1,
-                        _sourceId: 1
+                        _uuid: 1
                     },
                     options: {
                         name: `security._access_${client}`
