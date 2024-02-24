@@ -25,10 +25,14 @@ describe('SecurityTagManager Tests', () => {
             const container = createTestContainer();
             /** @type {SecurityTagManager} */
             const securityTagManager = container.securityTagManager;
+            /** @type {PreSaveManager} */
+            const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
+            // generate all the uuids
+            await preSaveManager.preSaveAsync(condition);
             const patientUuid = securityTagManager.getValueOfPatientPropertyFromResource({ resource: condition });
-            expect(patientUuid).toStrictEqual('patient1');
+            expect(patientUuid).toStrictEqual('24a5930e-11b4-5525-b482-669174917044');
         });
     });
 });

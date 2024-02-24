@@ -7,6 +7,7 @@ const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { isUuid } = require('../../utils/uid.util');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 
 /**
  * This class manages queries for security tags
@@ -251,7 +252,7 @@ class SecurityTagManager {
     /**
      * Gets value of patient property from resource
      * @param {Resource} resource
-     * @return {string | null}
+     * @return {string | undefined}
      */
     getValueOfPatientPropertyFromResource ({ resource }) {
         assertTypeEquals(resource, Resource);
@@ -273,8 +274,9 @@ class SecurityTagManager {
                         return resource._uuid;
                     } else {
                         const propertyUuid = p.replace('.reference', '._uuid');
-                        if (resource[propertyUuid]) {
-                            return resource[propertyUuid];
+                        const value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                        if (value !== undefined) {
+                            return value.replace('Patient/', '');
                         }
                     }
                 }
@@ -283,11 +285,14 @@ class SecurityTagManager {
                     return resource._uuid;
                 } else {
                     const propertyUuid = patientFilterProperty.replace('.reference', '._uuid');
-                    return resource[propertyUuid];
+                    const value = NestedPropertyReader.getNestedProperty({ obj: resource, path: propertyUuid });
+                    if (value !== undefined) {
+                        return value.replace('Patient/', '');
+                    }
                 }
             }
         }
-        return null;
+        return undefined;
     }
 
     /**
