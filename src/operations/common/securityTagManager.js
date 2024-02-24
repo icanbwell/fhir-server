@@ -298,11 +298,12 @@ class SecurityTagManager {
     /**
      * Gets whether the user can write the given resource with the given patient scope
      * @param {string[] | null} patientIds
-     * @param {import('mongodb').Document} query
      * @param {Resource} resource
      * @return {boolean}
      */
-    canWriteResourceWithPatientScope ({ patientIds, query, resource }) {
+    canWriteResourceWithPatientScope ({ patientIds, resource }) {
+        assertTypeEquals(resource, Resource);
+
         /** @type {string} */
         const resourceType = resource.resourceType;
 

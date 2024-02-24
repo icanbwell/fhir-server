@@ -22,8 +22,8 @@ describe('SecurityTagManager Tests', () => {
         await commonAfterEach();
     });
 
-    describe('securityTagManager Tests', () => {
-        test('securityTagManager getValueOfPatientPropertyFromResource works for Patient', async () => {
+    describe('securityTagManager getValueOfPatientPropertyFromResource Tests', () => {
+        test('getValueOfPatientPropertyFromResource works for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {SecurityTagManager} */
@@ -38,7 +38,7 @@ describe('SecurityTagManager Tests', () => {
             const expectedPatientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
             expect(patientUuid).toStrictEqual(expectedPatientUuid);
         });
-        test('securityTagManager getValueOfPatientPropertyFromResource works for Condition', async () => {
+        test('getValueOfPatientPropertyFromResource works for Condition', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {SecurityTagManager} */
@@ -54,6 +54,29 @@ describe('SecurityTagManager Tests', () => {
             const patientId = patientReference.split('/')[1];
             const expectedPatientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
             expect(patientUuid).toStrictEqual(expectedPatientUuid);
+        });
+    });
+
+    describe('securityTagManager canWriteResourceWithPatientScope Tests', () => {
+        test('canWriteResourceWithPatientScope works for Patient', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            /** @type {SecurityTagManager} */
+            const securityTagManager = container.securityTagManager;
+            /** @type {PreSaveManager} */
+            const preSaveManager = container.preSaveManager;
+            /** @type {Patient} */
+            const patient = new Patient(patient1Resource);
+            // generate all the uuids
+            await preSaveManager.preSaveAsync(patient);
+            const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
+            // now do the test
+            /** @type {boolean} */
+            const writeAllowed = securityTagManager.canWriteResourceWithPatientScope({
+                patientIds: [patientUuid],
+                resource: patient
+            });
+            expect(writeAllowed).toStrictEqual(true);
         });
     });
 });
