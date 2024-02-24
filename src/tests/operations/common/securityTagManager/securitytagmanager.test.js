@@ -78,5 +78,25 @@ describe('SecurityTagManager Tests', () => {
             });
             expect(writeAllowed).toStrictEqual(true);
         });
+        test('canWriteResourceWithPatientScope fails with wrong uuid for Patient', async () => {
+            /** @type {SimpleContainer} */
+            const container = createTestContainer();
+            /** @type {SecurityTagManager} */
+            const securityTagManager = container.securityTagManager;
+            /** @type {PreSaveManager} */
+            const preSaveManager = container.preSaveManager;
+            /** @type {Patient} */
+            const patient = new Patient(patient1Resource);
+            // generate all the uuids
+            await preSaveManager.preSaveAsync(patient);
+            const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
+            // now do the test
+            /** @type {boolean} */
+            const writeAllowed = securityTagManager.canWriteResourceWithPatientScope({
+                patientIds: [patientUuid],
+                resource: patient
+            });
+            expect(writeAllowed).toStrictEqual(false);
+        });
     });
 });
