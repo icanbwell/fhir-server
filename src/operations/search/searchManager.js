@@ -168,6 +168,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
+     * @param {string|null} requestId
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
      * @param {'READ'|'WRITE'} operation

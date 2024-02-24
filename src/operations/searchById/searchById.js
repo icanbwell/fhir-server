@@ -183,7 +183,8 @@ class SearchByIdOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                operation: READ
+                operation: READ,
+                requestId
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

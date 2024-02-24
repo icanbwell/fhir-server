@@ -85,7 +85,6 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  */
 module.exports.commonBeforeEach = async () => {
     // noinspection DynamicallyGeneratedCodeJS
-    // eslint-disable-next-line no-undef
     jest.setTimeout(30000);
     env.VALIDATE_SCHEMA = true;
     process.env.AUTH_ENABLED = '1';
