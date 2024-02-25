@@ -107,6 +107,7 @@ const { MongoAtlasVectorStoreManager } = require('./chatgpt/vectorStores/mongoAt
 const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
+const { PatientScopeManager } = require('./operations/common/patientScopeManager');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -311,6 +312,14 @@ const createContainer = function () {
         }
     }));
 
+    container.register('patientScopeManager', (c) => new PatientScopeManager(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            personToPatientIdsExpander: c.personToPatientIdsExpander,
+            scopesManager: c.scopesManager
+        }
+    ));
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -327,7 +336,8 @@ const createContainer = function () {
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 proaConsentManager: c.proaConsentManager,
                 dataSharingManager: c.dataSharingManager,
-                searchQueryBuilder: c.searchQueryBuilder
+                searchQueryBuilder: c.searchQueryBuilder,
+                patientScopeManager: c.patientScopeManager
             }
         )
     );

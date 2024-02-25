@@ -13,7 +13,7 @@ class RemoteFhirValidator {
     /**
      * constructor
      * @param {ConfigManager} configManager
-     * @param {ProfileUrlMapper} ProfileUrlMapper
+     * @param {ProfileUrlMapper} profileUrlMapper
      */
     constructor (
         {

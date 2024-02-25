@@ -134,7 +134,6 @@ class MergeManager {
      * @param {Resource} resourceToMerge
      * @param {Resource} currentResource
      * @param {string|null} user
-     * @param {string} scope
      * @param {string} currentDate
      * @param {string} requestId
      * @returns {Promise<void>}
@@ -193,7 +192,6 @@ class MergeManager {
      * @param {string} requestId
      * @param {Resource} resourceToMerge
      * @param {string | null} user
-     * @param {string|null} scope
      * @returns {Promise<void>}
      */
     async mergeInsertAsync (
