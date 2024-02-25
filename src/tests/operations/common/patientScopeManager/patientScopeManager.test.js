@@ -7,15 +7,22 @@ const condition1Resource = require('./fixtures/Condition/condition1.json');
 const expectedConditionResources = require('./fixtures/expected/expected_condition.json');
 
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach } = require('../../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, mockHttpContext, getTestContainer } = require('../../../common');
 const { createTestContainer } = require('../../../createTestContainer');
 const Patient = require('../../../../fhir/classes/4_0_0/resources/patient');
 const Condition = require('../../../../fhir/classes/4_0_0/resources/condition');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
+const person1Resource = require('../../../patient_scope/read_by_id.person_scope/fixtures/Person/person1.json');
+const deepcopy = require('deepcopy');
 
 describe('PatientScopeManager Tests', () => {
+    /**
+     * @type {string|undefined}
+     */
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+                requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -323,6 +330,86 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: null,
                 patientIdsFromJwtToken: [patientUuid, patientUuid2],
+                resource: condition
+            });
+            expect(writeAllowed).toStrictEqual(false);
+        });
+    });
+
+    describe('patientScopeManager canWriteResourceAsync Tests (using personIdFromJwtToken)', () => {
+        test('canWriteResourceAsync works for Condition', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
+            /** @type {PatientScopeManager} */
+            const patientScopeManager = container.patientScopeManager;
+            /** @type {PreSaveManager} */
+            const preSaveManager = container.preSaveManager;
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            const resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            /** @type {Condition} */
+            const condition = new Condition(condition1Resource);
+            // generate all the uuids
+            await preSaveManager.preSaveAsync(condition);
+            // now do the test
+            /** @type {boolean} */
+            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
+                base_version: '4_0_0',
+                isUser: true,
+                personIdFromJwtToken: person1Resource.id,
+                patientIdsFromJwtToken: undefined,
+                resource: condition
+            });
+            expect(writeAllowed).toStrictEqual(true);
+        });
+        test('canWriteResourceWithAllowedPatientIds fails with wrong uuid for Patient', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
+            /** @type {PatientScopeManager} */
+            const patientScopeManager = container.patientScopeManager;
+            /** @type {PreSaveManager} */
+            const preSaveManager = container.preSaveManager;
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            const resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            /** @type {Condition} */
+            const condition = new Condition(deepcopy(condition1Resource));
+            condition.subject.reference = 'Patient/patient2';
+            // generate all the uuids
+            await preSaveManager.preSaveAsync(condition);
+            // now do the test
+            /** @type {boolean} */
+            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
+                base_version: '4_0_0',
+                isUser: true,
+                personIdFromJwtToken: person1Resource.id,
+                patientIdsFromJwtToken: undefined,
                 resource: condition
             });
             expect(writeAllowed).toStrictEqual(false);
