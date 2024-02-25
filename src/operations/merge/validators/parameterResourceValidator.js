@@ -6,10 +6,14 @@ const { BaseValidator } = require('./baseValidator');
 
 class ParametersResourceValidator extends BaseValidator {
     /**
+     * @param {FhirRequestInfo} requestInfo
+     * @param {date} currentDate
+     * @param {string} currentOperationName
      * @param {Resource|Resource[]} incomingResources
+     * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ incomingResources }) {
+    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
         // see if the resources were passed as parameters
         if (incomingResources.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters

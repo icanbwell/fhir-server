@@ -17,26 +17,14 @@ class WriteAllowedByPatientScopeValidator extends BaseValidator {
     }
 
     /**
-     * @param {string|null} scope
-     * @param {string|null} user
-     * @param {string|null} path
+     * @param {FhirRequestInfo} requestInfo
      * @param {date} currentDate
+     * @param {string} currentOperationName
      * @param {Resource|Resource[]} incomingResources
-     * @param {string} requestId
      * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate (
-        {
-            scope,
-            user,
-            path,
-            currentDate,
-            incomingResources,
-            requestId,
-            base_version
-        }
-        ) {
+    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
         return { validatedObjects: incomingResources, preCheckErrors: [], wasAList: false };
     }
 }

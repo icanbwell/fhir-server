@@ -17,14 +17,14 @@ class BundleResourceValidator extends BaseValidator {
     }
 
     /**
-     * @param {Resource|Resource[]} incomingResources
-     * @param {string|null} path
+     * @param {FhirRequestInfo} requestInfo
      * @param {date} currentDate
      * @param {string} currentOperationName
-     * @param {string} resourceType
+     * @param {Resource|Resource[]} incomingResources
+     * @param {string} base_version
      * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate ({ incomingResources, path, currentDate, currentOperationName, resourceType }) {
+    async validate ({ requestInfo, currentDate, currentOperationName, incomingResources, base_version }) {
         // if the incoming request is a bundle then unwrap the bundle
         if (!Array.isArray(incomingResources) && incomingResources.resourceType === 'Bundle') {
             /**
@@ -40,12 +40,12 @@ class BundleResourceValidator extends BaseValidator {
                     id: bundle1.id,
                     resourceType: 'Bundle',
                     resourceToValidate: bundle1,
-                    path,
+                    path: requestInfo.path,
                     currentDate
                 }
             );
             if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-                validationsFailedCounter.inc({ action: currentOperationName, resourceType }, 1);
+                validationsFailedCounter.inc({ action: currentOperationName, resourceType: 'Bundle' }, 1);
                 return { validatedObjects: [], preCheckErrors: [validationOperationOutcome], wasAList: true };
             }
             // unwrap the resources

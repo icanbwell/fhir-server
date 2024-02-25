@@ -239,7 +239,7 @@ class MergeOperation {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ resourcesIncomingArray,
                 /** @type {boolean} */ wasIncomingAList
-            } = await this.mergeValidator.validate({
+            } = await this.mergeValidator.validateAsync({
                 base_version,
                 currentDate,
                 currentOperationName,
@@ -248,7 +248,8 @@ class MergeOperation {
                 requestId,
                 resourceType,
                 scope,
-                user
+                user,
+                requestInfo
             });
 
             // merge the resources
