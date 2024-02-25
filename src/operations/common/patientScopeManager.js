@@ -189,9 +189,9 @@ class PatientScopeManager {
      * Gets whether the user can write the given resource with the given patient scope
      * @param {string[] | null} patientIds
      * @param {Resource} resource
-     * @return {boolean}
+     * @return {Promise<boolean>}
      */
-    canWriteResourceWithAllowedPatientIds ({ patientIds, resource }) {
+    async canWriteResourceWithAllowedPatientIdsAsync ({ patientIds, resource }) {
         assertTypeEquals(resource, Resource);
 
         /** @type {string} */

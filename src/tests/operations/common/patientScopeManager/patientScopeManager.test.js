@@ -72,7 +72,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: [patientUuid],
                 resource: patient
             });
@@ -92,7 +92,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: ['3d6d9c23-e357-465a-b7c3-6d177bcc27c7', patientUuid],
                 resource: patient
             });
@@ -112,7 +112,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: [patientUuid],
                 resource: patient
             });
@@ -133,7 +133,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid2 = generateUUIDv5(`456|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: [patientUuid, patientUuid2],
                 resource: patient
             });
@@ -158,7 +158,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: [patientUuid],
                 resource: condition
             });
@@ -180,7 +180,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: ['3d6d9c23-e357-465a-b7c3-6d177bcc27c7', patientUuid],
                 resource: condition
             });
@@ -200,7 +200,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`123|${condition.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: [patientUuid],
                 resource: condition
             });
@@ -221,7 +221,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid2 = generateUUIDv5(`456|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
+            const writeAllowed = await patientScopeManager.canWriteResourceWithAllowedPatientIdsAsync({
                 patientIds: [patientUuid, patientUuid2],
                 resource: condition
             });
