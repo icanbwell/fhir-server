@@ -7,6 +7,7 @@ const condition1Resource = require('./fixtures/Condition/condition1.json');
 const { commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
+const deepcopy = require('deepcopy');
 
 const person_payload = {
     'cognito:username': 'patient-123@example.com',
@@ -50,6 +51,23 @@ describe('Condition Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: true });
+        });
+        test('merge_with_patient_scope fails if patient id does not match', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
+            const condition1WithDifferentPatientId = deepcopy(condition1Resource);
+            condition1WithDifferentPatientId.subject.reference = 'Patient/2';
+            // ARRANGE
+            // add the resources to FHIR server
+            const resp = await request
+                .post('/4_0_0/Condition/1/$merge?validate=true')
+                .send(condition1WithDifferentPatientId)
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: false });
         });
     });
 });
