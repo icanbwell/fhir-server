@@ -57,8 +57,8 @@ describe('PatientScopeManager Tests', () => {
         });
     });
 
-    describe('patientScopeManager canWriteResourceWithPatientScope Tests for Patient', () => {
-        test('canWriteResourceWithPatientScope works for Patient', async () => {
+    describe('patientScopeManager canWriteResourceWithAllowedPatientIds Tests for Patient', () => {
+        test('canWriteResourceWithAllowedPatientIds works for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -72,13 +72,13 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: [patientUuid],
                 resource: patient
             });
             expect(writeAllowed).toStrictEqual(true);
         });
-        test('canWriteResourceWithPatientScope works with multiple uuids for Patient', async () => {
+        test('canWriteResourceWithAllowedPatientIds works with multiple uuids for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -92,13 +92,13 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: ['3d6d9c23-e357-465a-b7c3-6d177bcc27c7', patientUuid],
                 resource: patient
             });
             expect(writeAllowed).toStrictEqual(true);
         });
-        test('canWriteResourceWithPatientScope fails with wrong uuid for Patient', async () => {
+        test('canWriteResourceWithAllowedPatientIds fails with wrong uuid for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -112,13 +112,13 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: [patientUuid],
                 resource: patient
             });
             expect(writeAllowed).toStrictEqual(false);
         });
-        test('canWriteResourceWithPatientScope fails with multiple wrong uuid for Patient', async () => {
+        test('canWriteResourceWithAllowedPatientIds fails with multiple wrong uuid for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -133,7 +133,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid2 = generateUUIDv5(`456|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: [patientUuid, patientUuid2],
                 resource: patient
             });
@@ -141,8 +141,8 @@ describe('PatientScopeManager Tests', () => {
         });
     });
 
-    describe('patientScopeManager canWriteResourceWithPatientScope Tests for Condition', () => {
-        test('canWriteResourceWithPatientScope works for Condition', async () => {
+    describe('patientScopeManager canWriteResourceWithAllowedPatientIds Tests for Condition', () => {
+        test('canWriteResourceWithAllowedPatientIds works for Condition', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -158,13 +158,13 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: [patientUuid],
                 resource: condition
             });
             expect(writeAllowed).toStrictEqual(true);
         });
-        test('canWriteResourceWithPatientScope works with multiple uuids for Patient', async () => {
+        test('canWriteResourceWithAllowedPatientIds works with multiple uuids for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -180,13 +180,13 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`${patientId}|${condition.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: ['3d6d9c23-e357-465a-b7c3-6d177bcc27c7', patientUuid],
                 resource: condition
             });
             expect(writeAllowed).toStrictEqual(true);
         });
-        test('canWriteResourceWithPatientScope fails with wrong uuid for Patient', async () => {
+        test('canWriteResourceWithAllowedPatientIds fails with wrong uuid for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -200,13 +200,13 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid = generateUUIDv5(`123|${condition.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: [patientUuid],
                 resource: condition
             });
             expect(writeAllowed).toStrictEqual(false);
         });
-        test('canWriteResourceWithPatientScope fails with multiple wrong uuid for Patient', async () => {
+        test('canWriteResourceWithAllowedPatientIds fails with multiple wrong uuid for Patient', async () => {
             /** @type {SimpleContainer} */
             const container = createTestContainer();
             /** @type {PatientScopeManager} */
@@ -221,7 +221,7 @@ describe('PatientScopeManager Tests', () => {
             const patientUuid2 = generateUUIDv5(`456|${patient1Resource.meta.security[0].code}`);
             // now do the test
             /** @type {boolean} */
-            const writeAllowed = patientScopeManager.canWriteResourceWithPatientScope({
+            const writeAllowed = patientScopeManager.canWriteResourceWithAllowedPatientIds({
                 patientIds: [patientUuid, patientUuid2],
                 resource: condition
             });

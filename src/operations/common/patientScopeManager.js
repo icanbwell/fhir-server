@@ -191,7 +191,7 @@ class PatientScopeManager {
      * @param {Resource} resource
      * @return {boolean}
      */
-    canWriteResourceWithPatientScope ({ patientIds, resource }) {
+    canWriteResourceWithAllowedPatientIds ({ patientIds, resource }) {
         assertTypeEquals(resource, Resource);
 
         /** @type {string} */
