@@ -67,6 +67,7 @@ services:
       ENABLE_STATS_ENDPOINT: '1'
       FHIR_SERVER_UI_URL: 'http://localhost:5051'
       REDIRECT_TO_NEW_UI: '1'
+      KAFKAJS_NO_PARTITIONER_WARNING: '1'
 #      MONGO_VECTORSTORE_URL: 'mongodb+srv://cl-dev-knowledge-pl-0.vpsmx.mongodb.net/?retryWrites=true&w=majority'
 #      MONGO_VECTORSTORE_USERNAME: ''
 #      MONGO_VECTORSTORE_PASSWORD: ''
@@ -90,7 +91,7 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
 
   #  mongoclient:
   #    image: imranq2/mongoclient-aws:0.1.8
@@ -165,6 +166,7 @@ services:
       #      - opendistro_security.disabled=true
       - cluster.routing.allocation.disk.threshold_enabled=false
       - plugins.security.ssl.http.enabled=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=UujbDM76i6ZKjHZn88dN
     ulimits:
       memlock:
         soft: -1
