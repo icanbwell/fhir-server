@@ -221,6 +221,34 @@ class PatientScopeManager {
         }
         return false;
     }
+
+    /**
+     * returns whether this resource can be written based on permissions in the patient scope
+     * @param base_version
+     * @param isUser
+     * @param personIdFromJwtToken
+     * @param patientIdsFromJwtToken
+     * @param resource
+     * @returns {Promise<boolean>}
+     */
+    async canWriteResourceAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken, resource }) {
+        const patientIds = await this.getPatientIdsFromScopeAsync(
+            {
+                base_version,
+                isUser,
+                personIdFromJwtToken,
+                patientIdsFromJwtToken
+            }
+        );
+        if (patientIds && patientIds.length > 0) {
+            return await this.canWriteResourceWithAllowedPatientIdsAsync(
+                {
+                    patientIds, resource
+                });
+        } else {
+            return false;
+        }
+    }
 }
 
 module.exports = {
