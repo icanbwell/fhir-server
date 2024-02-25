@@ -7,7 +7,7 @@ const { BaseValidator } = require('./baseValidator');
 class ParametersResourceValidator extends BaseValidator {
     /**
      * @param {Resource|Resource[]} incomingResources
-     * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate ({ incomingResources }) {
         // see if the resources were passed as parameters

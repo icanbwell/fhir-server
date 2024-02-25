@@ -108,6 +108,7 @@ const { ProfileUrlMapper } = require('./utils/profileMapper');
 const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/referenceQueryRewriter');
 const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
 const { PatientScopeManager } = require('./operations/common/patientScopeManager');
+const { WriteAllowedByPatientScopeValidator } = require('./operations/merge/validators/writeAllowedByPatientScopeValidator');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -381,7 +382,8 @@ const createContainer = function () {
                     databaseBulkLoader: c.databaseBulkLoader,
                     preSaveManager: c.preSaveManager,
                     configManager: c.configManager
-                })
+                }),
+                new WriteAllowedByPatientScopeValidator()
             ]
         }
     ));

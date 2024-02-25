@@ -22,7 +22,7 @@ class BundleResourceValidator extends BaseValidator {
      * @param {date} currentDate
      * @param {string} currentOperationName
      * @param {string} resourceType
-     * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
     async validate ({ incomingResources, path, currentDate, currentOperationName, resourceType }) {
         // if the incoming request is a bundle then unwrap the bundle

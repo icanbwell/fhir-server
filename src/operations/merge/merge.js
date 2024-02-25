@@ -193,7 +193,16 @@ class MergeOperation {
             /** @type {Object | Object[] | null} */
             body,
             /** @type {string} */
-            method
+            method,
+            /** @type {string[]} */
+            // eslint-disable-next-line no-unused-vars
+            patientIdsFromJwtToken,
+            /** @type {boolean} */
+            // eslint-disable-next-line no-unused-vars
+            isUser,
+            /** @type {string} */
+            // eslint-disable-next-line no-unused-vars
+            personIdFromJwtToken
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
