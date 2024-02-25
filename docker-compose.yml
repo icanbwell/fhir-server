@@ -82,7 +82,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:5.0.23
+    image: mongo:6.0.13
     ports:
       - '27017:27017'
     environment:
@@ -110,7 +110,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: bitnami/kafka:3.5.2
+    image: bitnami/kafka:3.6.1
     ports:
       - '9092:9092'
     environment:
@@ -152,7 +152,7 @@ services:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
     # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
     # https://opendistro.github.io/for-elasticsearch/downloads.html
-    image: opensearchproject/opensearch:2.11.1
+    image: opensearchproject/opensearch:2.12.0
     container_name: elasticsearch
     environment:
       - cluster.name=odfe-cluster
