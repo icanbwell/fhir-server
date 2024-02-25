@@ -316,7 +316,8 @@ const createContainer = function () {
         {
             databaseQueryFactory: c.databaseQueryFactory,
             personToPatientIdsExpander: c.personToPatientIdsExpander,
-            scopesManager: c.scopesManager
+            scopesManager: c.scopesManager,
+            patientFilterManager: c.patientFilterManager
         }
     ));
 
