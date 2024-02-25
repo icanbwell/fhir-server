@@ -383,7 +383,11 @@ const createContainer = function () {
                     preSaveManager: c.preSaveManager,
                     configManager: c.configManager
                 }),
-                new WriteAllowedByPatientScopeValidator()
+                new WriteAllowedByPatientScopeValidator(
+                    {
+                        patientScopeManager: c.patientScopeManager
+                    }
+                )
             ]
         }
     ));

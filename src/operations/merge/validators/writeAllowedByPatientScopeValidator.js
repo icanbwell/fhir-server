@@ -1,6 +1,21 @@
 const { BaseValidator } = require('./baseValidator');
+const { assertTypeEquals } = require('../../../utils/assertType');
+const { PatientScopeManager } = require('../../common/patientScopeManager');
 
 class WriteAllowedByPatientScopeValidator extends BaseValidator {
+    /**
+     * Checks whether write is allowed for given resources based on patient scope
+     * @param {PatientScopeManager} patientScopeManager
+     */
+    constructor ({
+        patientScopeManager
+                }) {
+        super();
+
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
+    }
+
     /**
      * @param {string|null} scope
      * @param {string|null} user
