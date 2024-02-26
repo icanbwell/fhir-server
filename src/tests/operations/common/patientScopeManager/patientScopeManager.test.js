@@ -420,5 +420,45 @@ describe('PatientScopeManager Tests', () => {
             });
             expect(writeAllowed).toStrictEqual(false);
         });
+        test('canWriteResourceWithAllowedPatientIds works with wrong uuid for Patient but no patient scope', async () => {
+            const request = await createTestRequest((c) => {
+                return c;
+            });
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
+            /** @type {PatientScopeManager} */
+            const patientScopeManager = container.patientScopeManager;
+            /** @type {PreSaveManager} */
+            const preSaveManager = container.preSaveManager;
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            const resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            /** @type {Condition} */
+            const condition = new Condition(deepcopy(condition1Resource));
+            condition.subject.reference = 'Patient/patient2';
+            // generate all the uuids
+            await preSaveManager.preSaveAsync(condition);
+            // now do the test
+            /** @type {boolean} */
+            const writeAllowed = await patientScopeManager.canWriteResourceAsync({
+                base_version: '4_0_0',
+                isUser: true,
+                personIdFromJwtToken: person1Resource.id,
+                patientIdsFromJwtToken: undefined,
+                resource: condition,
+                scope: 'user/*.* access/*.*'
+            });
+            expect(writeAllowed).toStrictEqual(true);
+        });
     });
 });
