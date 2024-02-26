@@ -228,7 +228,24 @@ class ScopesManager {
     hasPatientScope ({ scope }) {
         if (this.configManager.authEnabled) {
             assertIsValid(scope);
-            if (scope.includes('patient/')) {
+            const scopes = this.parseScopes(scope);
+            if (scopes.some(s => s.includes('patient/'))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * returns whether the scope has a patient scope
+     * @param {string} scope
+     * @return {boolean}
+     */
+    hasPatientWriteScope ({ scope }) {
+        if (this.configManager.authEnabled) {
+            assertIsValid(scope);
+            const scopes = this.parseScopes(scope);
+            if (scopes.some(s => s === 'patient/*.write')) {
                 return true;
             }
         }

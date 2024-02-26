@@ -249,6 +249,10 @@ class PatientScopeManager {
         if (!this.scopesManager.hasPatientScope({ scope })) {
             return true;
         }
+        // TODO: Enable this once we're setting the patient/*.write scope in the JWT tokens
+        // if (!this.scopesManager.hasPatientWriteScope({ scope })) {
+        //     return false;
+        // }
         const patientIds = await this.getPatientIdsFromScopeAsync(
             {
                 base_version,
