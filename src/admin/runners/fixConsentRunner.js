@@ -239,10 +239,8 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         if (!questionnaireItem) {
             return null;
         }
-        this.adminLogger.logInfo(`In CategoryCoding, questionnaireItem = ${questionnaireItem}`);
         const coding = {};
         questionnaireItem.code.forEach((code) => {
-            this.adminLogger.logInfo(`LCC code ${code.id}, ${code.code}, ${code.display}`);
             if (code.id === 'code-category') {
                 coding.id = 'bwell-consent-type';
                 coding.system = 'http://www.icanbwell.com/consent-category';
@@ -303,10 +301,8 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         if (!questionnaireItem) {
             return null;
         }
-        this.adminLogger.logInfo(`In ProvisionClass, questionnaireItem = ${questionnaireItem}`);
         const qClass = {};
         questionnaireItem.code.forEach((code) => {
-            this.adminLogger.logInfo(`LPC code ${code.id}, ${code.code}, ${code.display}`);
             if (code.id === 'code-display') {
                 qClass.code = code.code;
                 qClass.display = code.display;
@@ -341,6 +337,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                 this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
                 // only cache if questionaire is consent type
                 questionnaire.item?.forEach((item) => {
+                    // all of the conditions past the linkId are due to bad data in Dev
                     if ((item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent' ||
                         item.linkId === '/accept' ||
@@ -349,8 +346,6 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                         Array.isArray(item.code) &&
                         item.code.length === 2) {
                         this.questionnaireValues.set(questionnaire._uuid, item);
-                        this.adminLogger.logInfo(
-                            `Cached ${questionnaire._uuid} with item ${item}`);
                     }
                 });
             }
@@ -393,7 +388,6 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                     if (this.questionnaireValues.has(uuid)) {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
-                        // this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
                  }
             }
@@ -495,7 +489,6 @@ class FixConsentRunner extends BaseBulkOperationRunner {
             if (resourceType === 'QuestionnaireResponse') {
                 // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
                 const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
-                this.adminLogger.logInfo(`******Questionnaire ID ${questionnaireId}`);
                 if (questionnaireId) {
                     const questionnaireItem = this.questionnaireValues.get(questionnaireId);
                     if (questionnaireItem) {
@@ -504,7 +497,6 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                 }
             }
         }
-        this.adminLogger.logInfo(`Questionaire Item ${questionnaire}`);
         return questionnaire;
     }
 }
