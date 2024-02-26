@@ -528,7 +528,9 @@ const createContainer = function () {
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 bwellPersonFinder: c.bwellPersonFinder,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                patientScopeManager: c.patientScopeManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );

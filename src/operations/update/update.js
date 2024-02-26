@@ -23,7 +23,9 @@ const { PostSaveProcessor } = require('../../dataLayer/postSaveProcessor');
 const { isTrue } = require('../../utils/isTrue');
 const { SearchManager } = require('../search/searchManager');
 const { IdParser } = require('../../utils/idParser');
-const { GRIDFS: { RETRIEVE }, OPERATIONS: { WRITE } } = require('../../constants');
+const { GRIDFS: { RETRIEVE } } = require('../../constants');
+const { PatientScopeManager } = require('../common/patientScopeManager');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 
 /**
  * Update Operation
@@ -45,6 +47,8 @@ class UpdateOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {SearchManager} searchManager
+     * @param {PatientScopeManager} patientScopeManager
+     * @param {PreSaveManager} preSaveManager
      */
     constructor (
         {
@@ -61,7 +65,9 @@ class UpdateOperation {
             configManager,
             databaseAttachmentManager,
             bwellPersonFinder,
-            searchManager
+            searchManager,
+            patientScopeManager,
+            preSaveManager
         }
     ) {
         /**
@@ -139,6 +145,14 @@ class UpdateOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /** @type {PatientScopeManager} */
+        this.patientScopeManager = patientScopeManager;
+        assertTypeEquals(patientScopeManager, PatientScopeManager);
+
+        /** @type {PreSaveManager} */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -163,16 +177,22 @@ class UpdateOperation {
          */
         const startTime = Date.now();
         const {
+            /** @type {string | null} */
             user,
+            /** @type {string | null} */
             scope,
+            /** @type {string} */
             path,
-            body, /** @type {string|null} */
-            requestId, /** @type {string} */
+            /** @type {Object} */
+            body,
+            /** @type {string|null} */
+            requestId,
+            /** @type {string} */
             method,
             /** @type {string} */ userRequestId,
-            /** @type {string[]} */
+            /** @type {string[] | null} */
             patientIdsFromJwtToken,
-            /** @type {boolean} */
+            /** @type {boolean | null} */
             isUser,
             /** @type {string} */
             personIdFromJwtToken
@@ -214,7 +234,7 @@ class UpdateOperation {
         /**
          * @type {Resource}
          */
-        const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
+        let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         if (this.configManager.validateSchema || parsedArgs._validate) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
@@ -251,6 +271,22 @@ class UpdateOperation {
             }
         }
 
+        if (this.scopesManager.hasPatientScope({ scope })) {
+            resource_incoming = await this.preSaveManager.preSaveAsync(resource_incoming);
+            if (!(await this.patientScopeManager.canWriteResourceAsync({
+                base_version,
+                resource: resource_incoming,
+                scope,
+                isUser,
+                patientIdsFromJwtToken,
+                personIdFromJwtToken
+            }))) {
+                throw new BadRequestError(
+                    new Error('The current patient scope and person id in the JWT token do not allow writing this resource.')
+                );
+            }
+        }
+
         try {
             /**
              * @type {boolean}
@@ -274,7 +310,7 @@ class UpdateOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
                 parsedArgs,
-                operation: WRITE
+                operation: 'WRITE'
             });
 
             // Get current record
@@ -345,7 +381,6 @@ class UpdateOperation {
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         foundResource.resourceType + ' with id ' + id);
                 }
-
                 const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
@@ -362,8 +397,8 @@ class UpdateOperation {
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId,
-resourceType,
-doc,
+                            resourceType,
+                            doc,
                             uuid: doc._uuid,
                             patches
                         }
@@ -392,8 +427,8 @@ doc,
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
                         requestId,
-currentDate,
-base_version,
+                        currentDate,
+                        base_version,
                         method,
                         userRequestId
                     }

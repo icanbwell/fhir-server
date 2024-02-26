@@ -2,7 +2,7 @@ const deepEqual = require('fast-deep-equal');
 const { mergeObject } = require('../../utils/mergeHelper');
 const { compare, applyPatch } = require('fast-json-patch');
 const moment = require('moment-timezone');
-const { assertTypeEquals } = require('../../utils/assertType');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { getFirstElementOrNull } = require('../../utils/list.util');
@@ -264,6 +264,8 @@ class ResourceMerger {
             databaseAttachmentManager = null
         }
     ) {
+        // confirm the resource has been run through preSave
+        assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
          * @type {string}
          */

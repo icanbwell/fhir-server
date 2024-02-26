@@ -443,7 +443,7 @@ resourceType
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
-     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
+     * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
     async update (args, { req }, resourceType) {
         /**
