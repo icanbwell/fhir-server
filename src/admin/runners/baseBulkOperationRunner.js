@@ -691,7 +691,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const requestInfo = new FhirRequestInfo(
             {
                 user: '',
-                scope: '',
+                scope: 'user/*.* access/*.*',
                 protocol: 'http',
                 originalUrl: '',
                 requestId,
