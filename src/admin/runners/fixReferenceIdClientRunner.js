@@ -55,7 +55,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
 
     /**
      * Gets the incomingMessage object and gets data from it and converts it to json format
-     * @param {require('http').IncomingMessage} incomingMessage
+     * @param {import('http').IncomingMessage} incomingMessage
      * @returns {Promise<Object>}
      */
     extractDataFromS3Response (incomingMessage) {
@@ -97,7 +97,7 @@ class FixReferenceIdClientRunner extends FixReferenceIdRunner {
      */
     async getDataFromS3 () {
         /**
-         * @type {require('@aws-sdk/client-s3').S3}
+         * @type {import('@aws-sdk/client-s3').S3}
          */
         const client = new S3({ region: this.AWS_REGION });
 

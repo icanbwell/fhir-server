@@ -94,11 +94,12 @@ class RethrownError extends Error {
      * @return {{value: string}|{get: (function(): string)}}
      */
     buildStackDescriptor (oldStackDescriptor, nested) {
+        const self = this;
         if (oldStackDescriptor.get) {
             return {
                 get: function () {
                     const stack = oldStackDescriptor.get.call(this);
-                    return this.buildCombinedStacks(stack, this.nested);
+                    return self.buildCombinedStacks(stack, this.nested);
                 }
             };
         } else {

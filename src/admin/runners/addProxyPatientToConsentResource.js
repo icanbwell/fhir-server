@@ -116,7 +116,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             }
         });
 
-        /** @type {Map<string, { id: string; sourceAssigningAuthority: string}} */
+        /** @type {Map<string, { id: string; sourceAssigningAuthority: string}>} */
         this.consentToImmediatePersonCache = new Map();
 
         /** @type {Map<string, string>} */
@@ -325,14 +325,14 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 });
 
             if (alreadyPresent) {
-                if (actor.reference._uuid !== proxyPatientReference) {
+                if (actor.reference._uuid === proxyPatientReference) {
+                    this.adminLogger.logger.warn(
+                        `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
+                    );
+                } else {
                     wrongPersonActor = actor;
                     this.adminLogger.logger.warn(
                         `[addProxyPersonReference] Wrong Proxy Person '${actor.reference._uuid}' present instead of ${proxyPatientReference} for ${resource._uuid}`
-                    );
-                } else {
-                    this.adminLogger.logger.warn(
-                        `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
                     );
                 }
             }
@@ -394,7 +394,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             _uuid: 1
         };
         /**
-         * @type {require('mongodb').collection}
+         * @type {import('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({
             mongoConfig,
@@ -565,7 +565,9 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
     /**
      * If null values are present then return else process. Pass the processPatientReference which gets called if uuids are present.
-     * @param {{ doc: import('mongodb').Document, processPatientReference: (consentId: string, patientId: string): Promise<void>}} params
+     * @param {import('mongodb').Document} doc
+     * @param {(consentId: string, patientId: string) => Promise<void>} processPatientReference
+     * @returns {Promise<void>}
      */
     async consentCacheHelper ({ doc, processPatientReference }) {
         if (!doc._uuid) {
@@ -584,7 +586,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
         const uuid = doc._uuid;
         const patientId = doc.patient._uuid;
-        processPatientReference(uuid, patientId);
+        await processPatientReference(uuid, patientId);
     }
 
     /**

@@ -1118,21 +1118,21 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * Creates a single connection and returns the collection instance
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} mongoConfig
      * @param {string} collectionName
-     * @returns {Promise<{collection: require('mongodb').Collection<import('mongodb').Document>|undefined, session: require('mongodb').ClientSession}>}
+     * @returns {Promise<{collection: import('mongodb').Collection<import('mongodb').Document>|undefined, session: import('mongodb').ClientSession}>}
      */
     async createSingeConnectionAsync ({ mongoConfig, collectionName }) {
         /**
-         * @type {require('mongodb').MongoClient}
+         * @type {import('mongodb').MongoClient}
          */
         const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
 
         /**
-         * @type {require('mongodb').ClientSession}
+         * @type {import('mongodb').ClientSession}
          */
         const session = client.startSession();
 
         /**
-         * @type {require('mongodb').db}
+         * @type {import('mongodb').db}
          */
         const db = client.db(mongoConfig.db_name);
 
@@ -1141,7 +1141,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         }
 
         /**
-         * @type {require('mongodb').Collection<import('mongodb').Document>|undefined}
+         * @type {import('mongodb').Collection<import('mongodb').Document>|undefined}
          */
         let collection;
         if (collectionName) {
@@ -1184,7 +1184,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         }
 
         /**
-         * @type {require('mongodb').collection}
+         * @type {import('mongodb').collection}
          */
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 

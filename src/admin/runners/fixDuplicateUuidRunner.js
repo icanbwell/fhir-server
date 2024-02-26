@@ -164,7 +164,7 @@ class FixDuplicateUuidRunner extends BaseBulkOperationRunner {
 
     /**
      * Gets duplicate uuids in and array from collection passed
-     * @param {require('mongodb').collection} collection
+     * @param {import('mongodb').collection} collection
      * @returns {Promise<string[]>}
      */
     async getDuplicateUuidArrayAsync ({ collection }) {
