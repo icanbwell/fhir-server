@@ -74,7 +74,7 @@ describe('graphHelper Tests', () => {
         await commonAfterEach();
     });
 
-    const requestInfo = getTestRequestInfo({ requestId: '1234' });
+    const requestInfo = getTestRequestInfo({ requestId: '1' });
 
     describe('graphHelper Tests with uuid', () => {
         test('graphHelper single Practitioner works', async () => {
