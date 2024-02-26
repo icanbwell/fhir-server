@@ -21,7 +21,6 @@ const { handleSecurityPolicy, handleSecurityPolicyGraphql } = require('./routeHa
 const { handleHealthCheck } = require('./routeHandlers/healthCheck.js');
 const { handleFullHealthCheck } = require('./routeHandlers/healthFullCheck.js');
 const { handleVersion } = require('./routeHandlers/version');
-const { handleClean } = require('./routeHandlers/clean');
 const { handleStats } = require('./routeHandlers/stats');
 const { handleLogout } = require('./routeHandlers/logout');
 const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
@@ -255,10 +254,6 @@ function createApp ({ fnGetContainer, trackMetrics }) {
         const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
         res.redirect(logoutUrl);
     });
-
-    app.get('/clean/:collection?', (req, res) => handleClean(
-        { fnGetContainer, req, res }
-    ));
 
     if (configManager.enableStatsEndpoint) {
         app.get('/stats', (req, res) => handleStats(
