@@ -239,6 +239,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         if (!questionnaireItem) {
             return null;
         }
+        this.adminLogger.logInfo(`In CategoryCoding, questionnaireItem = ${questionnaireItem}`);
         const coding = {};
         questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-category') {
@@ -249,9 +250,11 @@ class FixConsentRunner extends BaseBulkOperationRunner {
             }
         });
         const codingArray = [];
-        codingArray.push(coding);
-        const newCoding = { coding: codingArray };
-        category.push(newCoding);
+        if (coding) {
+            codingArray.push(coding);
+            const newCoding = { coding: codingArray };
+            category.push(newCoding);
+        }
         return category;
     }
 
@@ -299,7 +302,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         if (!questionnaireItem) {
             return null;
         }
-
+        this.adminLogger.logInfo(`In ProvisionClass, questionnaireItem = ${questionnaireItem}`);
         const qClass = {};
         questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-display') {
@@ -467,7 +470,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * returns questionnaire associated with consent if questionnaire is dataSharing type
+     * returns questionnaire associated with consent
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
@@ -495,6 +498,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                 }
             }
         }
+        this.adminLogger.logInfo(`Questionaire Item ${questionnaire}`);
         return questionnaire;
     }
 }
