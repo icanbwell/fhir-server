@@ -395,16 +395,19 @@ args: {
 
     /**
      * Inserts item into history collection
-     * @param {string} requestId
-     * @param {string} method
      * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} doc
      * @param {MergePatchEntry[]|null} patches
-     * @param {string} userRequestId
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync ({ requestId, method, base_version, resourceType, doc, patches, userRequestId }) {
+    async insertOneHistoryAsync ({ requestInfo, base_version, resourceType, doc, patches }) {
+        assertTypeEquals(doc, Resource);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
+        const userRequestId = requestInfo.userRequestId;
+        const method = requestInfo.method;
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
@@ -684,12 +687,10 @@ args: {
 
     /**
      * Executes all the operations in bulk
-     * @typedef {Object} executeAsyncParams
-     * @property {string} base_version
+     * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @property {string} currentDate
-     * @property {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
-     * @param {executeAsyncParams}
+     * @param {string} currentDate
+     * @param {Map<string, BulkInsertUpdateEntry[]>|undefined} operationsMap
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync ({ requestInfo, currentDate, base_version, operationsMap }) {
@@ -848,7 +849,6 @@ operations
         }) {
         assertTypeEquals(requestInfo, FhirRequestInfo);
         const requestId = requestInfo.requestId;
-        const userRequestId = requestInfo.userRequestId;
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkInserterTimer.startTimer();
         try {
@@ -1056,12 +1056,11 @@ args: {
                         mergeResultEntries.push(
                             await this.postSaveAsync({
                                 base_version,
-                                requestId,
+                                requestInfo,
                                 resourceType,
                                 bulkInsertUpdateEntry: operationByCollection,
                                 bulkWriteResult,
-                                useHistoryCollection,
-                                userRequestId
+                                useHistoryCollection
                             })
                         );
                     }
@@ -1091,28 +1090,26 @@ args: {
     }
 
     /**
-     * @param {string} requestId
-     * @param {string} method
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
      * @param {BulkInsertUpdateEntry} bulkInsertUpdateEntry
      * @param {import('mongodb').BulkWriteResult} bulkWriteResult
      * @param {boolean} useHistoryCollection
-     * @param {string} userRequestId
      * @returns {Promise<MergeResultEntry>}
      */
     async postSaveAsync (
         {
-            requestId,
-            method,
+            requestInfo,
             base_version,
             resourceType,
             bulkInsertUpdateEntry,
             bulkWriteResult,
-            useHistoryCollection,
-            userRequestId
+            useHistoryCollection
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        const requestId = requestInfo.requestId;
         await logTraceSystemEventAsync(
             {
                 event: 'postSaveAsync' + `_${resourceType}`,
@@ -1130,13 +1127,11 @@ args: {
         if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
             await this.insertOneHistoryAsync(
                 {
-                    requestId,
-                    method,
+                    requestInfo,
                     base_version,
                     resourceType,
                     doc: bulkInsertUpdateEntry.resource.clone(),
-                    patches: bulkInsertUpdateEntry.patches,
-                    userRequestId
+                    patches: bulkInsertUpdateEntry.patches
                 }
             );
         }
