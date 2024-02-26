@@ -46,25 +46,7 @@ class WriteAllowedByPatientScopeValidator extends BaseValidator {
                 )) {
                       validIncomingResources.push(resource);
                 } else {
-                    /**
-                     * @type {OperationOutcome}
-                     */
-                    const operationOutcome = new OperationOutcome({
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resource.toJSON())
-                                }),
-                                diagnostics: 'resource is missing id',
-                                expression: [
-                                    resource.resourceType
-                                ]
-                            })
-                        ]
-                    });
+                    const operationOutcome = this.createOperationOutcomeForResource({ resource });
                     const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
 
                     preCheckErrors.push(new MergeResultEntry({
@@ -81,43 +63,27 @@ class WriteAllowedByPatientScopeValidator extends BaseValidator {
             }
             return { validatedObjects: validIncomingResources, preCheckErrors, wasAList: false };
         } else {
+            /** @type {Resource} */
+            const resource = incomingResources;
             if (await this.patientScopeManager.canWriteResourceAsync(
                 {
                     base_version,
                     isUser: requestInfo.isUser,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                     patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                    resource: incomingResources,
+                    resource,
                     scope: requestInfo.scope
                 }
             )) {
-                return { validatedObjects: [incomingResources], preCheckErrors, wasAList: false };
+                return { validatedObjects: [resource], preCheckErrors, wasAList: false };
             } else {
-                /**
-                 * @type {OperationOutcome}
-                 */
-                const operationOutcome = new OperationOutcome({
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(incomingResources.toJSON())
-                            }),
-                            diagnostics: 'resource is missing id',
-                            expression: [
-                                incomingResources.resourceType
-                            ]
-                        })
-                    ]
-                });
+                const operationOutcome = this.createOperationOutcomeForResource({ resource });
                 const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
 
                 preCheckErrors.push(new MergeResultEntry({
-                    id: incomingResources.id,
-                    resourceType: incomingResources.resourceType,
-                    uuid: incomingResources._uuid,
+                    id: resource.id,
+                    resourceType: resource.resourceType,
+                    uuid: resource._uuid,
                     created: false,
                     updated: false,
                     sourceAssigningAuthority: incomingResources.meta?.sourceAssigningAuthority,
@@ -127,6 +93,34 @@ class WriteAllowedByPatientScopeValidator extends BaseValidator {
                return { validatedObjects: [], preCheckErrors, wasAList: false };
             }
         }
+    }
+
+    /**
+     * Creates an OperationOutcome resource to signify that the resource cannot be written
+     * @param {Resource} resource
+     * @returns {OperationOutcome}
+     */
+    createOperationOutcomeForResource ({ resource }) {
+        /**
+         * @type {OperationOutcome}
+         */
+        const operationOutcome = new OperationOutcome({
+            resourceType: 'OperationOutcome',
+            issue: [
+                new OperationOutcomeIssue({
+                    severity: 'error',
+                    code: 'exception',
+                    details: new CodeableConcept({
+                        text: 'Error merging: ' + JSON.stringify(resource.toJSON())
+                    }),
+                    diagnostics: 'The current patient scope and person id in the JWT token do not allow writing this resource.',
+                    expression: [
+                        resource.resourceType
+                    ]
+                })
+            ]
+        });
+        return operationOutcome;
     }
 }
 

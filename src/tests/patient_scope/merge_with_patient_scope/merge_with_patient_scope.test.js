@@ -68,6 +68,8 @@ describe('Condition Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({ created: false });
+            const body = resp.body;
+            expect(body.issue.diagnostics).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
         });
     });
 });
