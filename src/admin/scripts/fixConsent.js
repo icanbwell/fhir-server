@@ -51,7 +51,7 @@ async function main () {
 
     // now add our class
     container.register(
-        'fixConsentDataSharingRunner',
+        'fixConsentRunner',
         (c) =>
             new FixConsentRunner({
                 mongoCollectionManager: c.mongoCollectionManager,
