@@ -76,7 +76,7 @@ async function main () {
     const fixConsentRunner = container.fixConsentRunner;
     await fixConsentRunner.processAsync();
 
-    adminLogger.logInfo('Exiting process');
+    adminLogger.logInfo('Exiting process fixConsent');
     process.exit(0);
 }
 
