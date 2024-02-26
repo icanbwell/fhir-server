@@ -16,7 +16,11 @@ class UpdateCollectionsRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} updatedBefore
      * @param {number} readBatchSize
+     * @param concurrentRunners
+     * @param _idAbove
      * @param {Object|string|undefined} collections
+     * @param startWithCollection
+     * @param skipHistoryCollections
      * @param {AdminLogger} adminLogger
      */
     constructor ({

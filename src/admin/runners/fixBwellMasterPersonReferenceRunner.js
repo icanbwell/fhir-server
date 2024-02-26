@@ -43,6 +43,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     /**
      * Updates the reference if it is present in cache and removes duplicate references
      * @param {Resource} resource
+     * @param {boolean|null} isHistoryDoc
      * @return {Promise<Reference>}
      */
     async updateResourceReferenceAsync (resource, isHistoryDoc) {

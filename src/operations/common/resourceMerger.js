@@ -269,6 +269,11 @@ class ResourceMerger {
         }
     ) {
         // confirm the resource has been run through preSave
+        if (!resourceToMerge._uuid) {
+            resourceToMerge = await this.preSaveManager.preSaveAsync(
+                { base_version, requestInfo, resource: resourceToMerge }
+            );
+        }
         assertIsValid(resourceToMerge._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
         /**
          * @type {string}

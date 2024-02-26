@@ -47,7 +47,7 @@ class BwellPersonFinder {
     /**
      * finds immediate person Ids associated with patientsIds
      * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences; asObject: boolean, securityTags?: string[] }} options List of patient and proxy-patient References
-     * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>, Map<string, string[]>} Returns map with key as patientId and value as next level persons-id & person to linked patients map
+     * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>, Map<string, string[]>>} Returns map with key as patientId and value as next level persons-id & person to linked patients map
      */
     async getImmediatePersonIdsOfPatientsAsync ({ patientReferences, asObject, securityTags }) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -68,7 +68,7 @@ class BwellPersonFinder {
      * @property {boolean} asObject If true, will return Map of PatientReference -> Person IReference
      * @property {string[] | undefined} securityTags
      * @param {GetImmediatePersonIdsHelperProps}
-     * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>, Map<string, string[]>} Returns a map of patientRefs -> array of immediate person uuid refs & person to linked patients map
+     * @returns {Promise<Map<string, string[]> | Map<string, import('../operations/query/filters/searchFilterFromReference').IReference[]>, Map<string, string[]>>} Returns a map of patientRefs -> array of immediate person uuid refs & person to linked patients map
      */
     async getImmediatePersonIdHelperAsync ({ references, databaseQueryManager, asObject, securityTags }) {
         if (!references || Object.keys(references).length === 0) {
@@ -109,7 +109,7 @@ class BwellPersonFinder {
         const personToLinkedPatientsMap = new Map();
 
         /**
-         * @type {Map<string, import('../operations/query/filters/searchFilterFromReference').IReference}
+         * @type {Map<string, import('../operations/query/filters/searchFilterFromReference').IReference>}
          */
         const personRefToPersonRefObj = new Map();
 
