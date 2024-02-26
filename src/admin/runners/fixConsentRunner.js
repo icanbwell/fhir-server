@@ -339,12 +339,15 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                 const questionnaire = await cursor.next();
                 this.questionnaireIdToResource.set(questionnaire.id, questionnaire);
                 this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
-                // only cache if questionaire is datasharing type
+                // only cache if questionaire is consent type
                 questionnaire.item?.forEach((item) => {
-                    if (item.linkId === '/dataSharingConsent' ||
+                    if ((item.linkId === '/dataSharingConsent' ||
                         item.linkId === '/hipaaConsent' ||
                         item.linkId === '/accept' ||
-                        item.linkId === '/consent') {
+                        item.linkId === '/consent') &&
+                        item.code &&
+                        Array.isArray(item.code) &&
+                        item.code.length === 2) {
                         this.questionnaireValues.set(questionnaire._uuid, item);
                         this.adminLogger.logInfo(
                             `Cached ${questionnaire._uuid} with item ${item}`);
@@ -390,7 +393,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                     if (this.questionnaireValues.has(uuid)) {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
-                        this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
+                        // this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
                  }
             }
