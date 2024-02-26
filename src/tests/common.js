@@ -461,11 +461,11 @@ module.exports.getTestRequestInfo = ({
                 {
                     user: '',
                     scope,
-                    protocol: 'http',
+                    protocol: 'https',
                     originalUrl: '',
                     requestId,
                     userRequestId: requestId,
-                    host: 'localhost',
+                    host: 'host',
                     headers: {},
                     method: 'POST',
                     contentTypeFromHeader: null
