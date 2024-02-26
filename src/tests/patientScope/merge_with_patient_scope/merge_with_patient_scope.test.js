@@ -106,9 +106,9 @@ describe('Condition Tests', () => {
                 .send(condition1WithDifferentPatientId)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: false });
+            expect(resp).toHaveStatusCode(403);
             const body = resp.body;
-            expect(body.issue.diagnostics).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+            expect(body.issue[0].details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
         });
     });
 });
