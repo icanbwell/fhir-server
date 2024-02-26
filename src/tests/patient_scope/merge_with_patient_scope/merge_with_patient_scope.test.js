@@ -1,10 +1,14 @@
 // test file
+const person1Resource = require('./fixtures/Person/person1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
 
 // expected
 // const expectedConditionResources = require('./fixtures/expected/expected_condition.json');
 
-const { commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload } = require('../../common');
+const {
+ commonBeforeEach, commonAfterEach, createTestRequest, getHeadersWithCustomPayload, getHeaders, getTestContainer,
+    mockHttpContext
+} = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { ConfigManager } = require('../../../utils/configManager');
 const deepcopy = require('deepcopy');
@@ -28,8 +32,13 @@ class MockConfigManager extends ConfigManager {
 }
 
 describe('Condition Tests', () => {
+    /**
+     * @type {string|undefined}
+     */
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -44,8 +53,23 @@ describe('Condition Tests', () => {
             });
 
             // ARRANGE
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
             // add the resources to FHIR server
-            const resp = await request
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1Resource)
                 .set(headers);
@@ -57,12 +81,27 @@ describe('Condition Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
+            // add the resources to FHIR server
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
 
             const condition1WithDifferentPatientId = deepcopy(condition1Resource);
             condition1WithDifferentPatientId.subject.reference = 'Patient/2';
             // ARRANGE
             // add the resources to FHIR server
-            const resp = await request
+            resp = await request
                 .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1WithDifferentPatientId)
                 .set(headers);

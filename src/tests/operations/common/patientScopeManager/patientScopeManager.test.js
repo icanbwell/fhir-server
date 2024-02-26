@@ -1,6 +1,7 @@
 // test file
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const condition1Resource = require('./fixtures/Condition/condition1.json');
+const person1Resource = require('./fixtures/Person/person1.json');
 
 // expected
 // eslint-disable-next-line no-unused-vars
@@ -12,7 +13,6 @@ const { createTestContainer } = require('../../../createTestContainer');
 const Patient = require('../../../../fhir/classes/4_0_0/resources/patient');
 const Condition = require('../../../../fhir/classes/4_0_0/resources/condition');
 const { generateUUIDv5 } = require('../../../../utils/uid.util');
-const person1Resource = require('../../../patient_scope/read_by_id.person_scope/fixtures/Person/person1.json');
 const deepcopy = require('deepcopy');
 
 describe('PatientScopeManager Tests', () => {
@@ -22,7 +22,7 @@ describe('PatientScopeManager Tests', () => {
     let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
-                requestId = mockHttpContext();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
