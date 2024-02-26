@@ -224,14 +224,19 @@ class PatientScopeManager {
 
     /**
      * returns whether this resource can be written based on permissions in the patient scope
-     * @param base_version
-     * @param isUser
-     * @param personIdFromJwtToken
-     * @param patientIdsFromJwtToken
-     * @param resource
+     * @param {string} base_version
+     * @param {boolean | null} isUser
+     * @param {string} personIdFromJwtToken
+     * @param {string[] | null} patientIdsFromJwtToken
+     * @param {Resource} resource
+     * @param {string} scope
      * @returns {Promise<boolean>}
      */
-    async canWriteResourceAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken, resource }) {
+    async canWriteResourceAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken, resource, scope }) {
+        assertIsValid(scope, 'scope is required');
+        if (!this.scopesManager.hasPatientScope({ scope })) {
+            return true;
+        }
         const patientIds = await this.getPatientIdsFromScopeAsync(
             {
                 base_version,

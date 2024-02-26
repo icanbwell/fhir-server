@@ -258,7 +258,8 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: null,
                 patientIdsFromJwtToken: [patientUuid],
-                resource: condition
+                resource: condition,
+                scope: 'patient/*.read user/*.* access/*.*'
             });
             expect(writeAllowed).toStrictEqual(true);
         });
@@ -283,7 +284,8 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: null,
                 patientIdsFromJwtToken: ['3d6d9c23-e357-465a-b7c3-6d177bcc27c7', patientUuid],
-                resource: condition
+                resource: condition,
+                scope: 'patient/*.read user/*.* access/*.*'
             });
             expect(writeAllowed).toStrictEqual(true);
         });
@@ -306,7 +308,8 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: null,
                 patientIdsFromJwtToken: [patientUuid],
-                resource: condition
+                resource: condition,
+                scope: 'patient/*.read user/*.* access/*.*'
             });
             expect(writeAllowed).toStrictEqual(false);
         });
@@ -330,7 +333,8 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: null,
                 patientIdsFromJwtToken: [patientUuid, patientUuid2],
-                resource: condition
+                resource: condition,
+                scope: 'patient/*.read user/*.* access/*.*'
             });
             expect(writeAllowed).toStrictEqual(false);
         });
@@ -371,7 +375,8 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: person1Resource.id,
                 patientIdsFromJwtToken: undefined,
-                resource: condition
+                resource: condition,
+                scope: 'patient/*.read user/*.* access/*.*'
             });
             expect(writeAllowed).toStrictEqual(true);
         });
@@ -410,7 +415,8 @@ describe('PatientScopeManager Tests', () => {
                 isUser: true,
                 personIdFromJwtToken: person1Resource.id,
                 patientIdsFromJwtToken: undefined,
-                resource: condition
+                resource: condition,
+                scope: 'patient/*.read user/*.* access/*.*'
             });
             expect(writeAllowed).toStrictEqual(false);
         });
