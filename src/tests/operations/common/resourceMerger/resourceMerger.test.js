@@ -13,6 +13,7 @@ const { ResourceMerger } = require('../../../../operations/common/resourceMerger
 const Person = require('../../../../fhir/classes/4_0_0/resources/person');
 const deepmerge = require('deepmerge');
 const { mergeObject } = require('../../../../utils/mergeHelper');
+const { UuidColumnHandler } = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 
 describe('ResourceMerger Tests', () => {
     beforeEach(async () => {
@@ -33,7 +34,15 @@ describe('ResourceMerger Tests', () => {
             const mongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
             await mongoDatabaseManager.dropDatabasesAsync();
             const resourceMerger = new ResourceMerger({
-                preSaveManager: new PreSaveManager({ preSaveHandlers: [] })
+                preSaveManager: new PreSaveManager({
+                     preSaveHandlers: [
+                                        new UuidColumnHandler(
+                                            {
+                                                configManager
+                                            }
+                                        )
+                                        ]
+                    })
             });
             const currentResource = new Person(person1Resource);
             const resourceToMerge = new Person(personMergeResource);

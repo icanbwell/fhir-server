@@ -10,6 +10,7 @@ const { DELETE, RETRIEVE } = require('../../constants').GRIDFS;
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { isUuid } = require('../../utils/uid.util');
 const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
+const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 
 /**
  * @typedef {object} MergePatchEntry
@@ -111,7 +112,17 @@ class ResourceMerger {
         ) {
             if (resourceToMerge.id === resourceToMerge._uuid) {
                 if (resourceToMerge.identifier) {
-                    resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                    /** @type {Identifier} */
+                    const currentResourceSourceIdIdentifier = getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId)
+                    );
+                    /** @type {Identifier} */
+                    const resourceToMergeSourceIdIdentifier = getFirstElementOrNull(
+                        resourceToMerge.identifier.filter(s => s.system === IdentifierSystem.sourceId)
+                    );
+                    if (currentResourceSourceIdIdentifier.value !== resourceToMergeSourceIdIdentifier.value) {
+                        resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                    }
                 }
                 resourceToMerge.id = currentResource.id;
             }
@@ -245,7 +256,12 @@ class ResourceMerger {
          */
         let patched_resource_incoming = currentResource.create(patched_incoming_data);
 
-        patched_resource_incoming = this.updateMeta({ patched_resource_incoming, currentResource, original_source, incrementVersion });
+        patched_resource_incoming = this.updateMeta({
+            patched_resource_incoming,
+            currentResource,
+            original_source,
+            incrementVersion
+        });
 
         return patched_resource_incoming;
     }
@@ -253,7 +269,14 @@ class ResourceMerger {
     /**
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * Note: Make sure to run preSave on the updatedResource before inserting/updating the resource into database
-     * @param {MergeResourceAsyncProp}
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} currentResource
+     * @param {Resource} resourceToMerge
+     * @param {boolean|undefined} [smartMerge]
+     * @param {boolean|undefined} [incrementVersion]
+     * @param {string[]|undefined} [limitToPaths]
+     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync (
@@ -268,6 +291,7 @@ class ResourceMerger {
             databaseAttachmentManager = null
         }
     ) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
         // confirm the resource has been run through preSave
         if (!resourceToMerge._uuid) {
             resourceToMerge = await this.preSaveManager.preSaveAsync(
