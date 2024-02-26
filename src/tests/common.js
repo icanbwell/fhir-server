@@ -451,24 +451,30 @@ module.exports.mockHttpContext = ({
 /**
  * @param {string} requestId
  * @param {string|undefined} [scope]
+ * @param {string|undefined} [userRequestId]
  * @returns {FhirRequestInfo}
  */
 module.exports.getTestRequestInfo = ({
-    requestId,
-    scope = 'user/*.read user/*.write access/*.*'
-}) => {
-            const requestInfo = new FhirRequestInfo(
-                {
-                    user: '',
-                    scope,
-                    protocol: 'https',
-                    originalUrl: '',
-                    requestId,
-                    userRequestId: requestId,
-                    host: 'host',
-                    headers: {},
-                    method: 'POST',
-                    contentTypeFromHeader: null
-                });
+                                         requestId,
+                                         scope = 'user/*.read user/*.write access/*.*',
+                                         userRequestId
+                                     }) => {
+    if (!userRequestId) {
+        userRequestId = requestId
+    }
+    ;
+    const requestInfo = new FhirRequestInfo(
+        {
+            user: '',
+            scope,
+            protocol: 'https',
+            originalUrl: '',
+            requestId,
+            userRequestId,
+            host: 'host',
+            headers: {},
+            method: 'POST',
+            contentTypeFromHeader: null
+        });
     return requestInfo;
 };

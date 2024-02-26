@@ -431,8 +431,8 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
-            const requestInfo = getTestRequestInfo({ requestId });
             const userRequestId = '123456';
+            const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
@@ -898,8 +898,8 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
-            const requestInfo = getTestRequestInfo({ requestId });
             const userRequestId = '123456';
+            const requestInfo = getTestRequestInfo({ requestId, userRequestId });
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
