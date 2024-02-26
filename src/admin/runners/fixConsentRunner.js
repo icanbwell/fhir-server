@@ -242,6 +242,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         this.adminLogger.logInfo(`In CategoryCoding, questionnaireItem = ${questionnaireItem}`);
         const coding = {};
         questionnaireItem.code.forEach((code) => {
+            this.adminLogger.logInfo(`LCC code ${code.id}, ${code.code}, ${code.display}`);
             if (code.id === 'code-category') {
                 coding.id = 'bwell-consent-type';
                 coding.system = 'http://www.icanbwell.com/consent-category';
@@ -305,6 +306,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
         this.adminLogger.logInfo(`In ProvisionClass, questionnaireItem = ${questionnaireItem}`);
         const qClass = {};
         questionnaireItem.code.forEach((code) => {
+            this.adminLogger.logInfo(`LPC code ${code.id}, ${code.code}, ${code.display}`);
             if (code.id === 'code-display') {
                 qClass.code = code.code;
                 qClass.display = code.display;
@@ -339,9 +341,9 @@ class FixConsentRunner extends BaseBulkOperationRunner {
                 this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
                 // only cache if questionaire is datasharing type
                 questionnaire.item?.forEach((item) => {
-                    // if (item.linkId === '/dataSharingConsent' ||
-                    //     item.linkId === '/hipaaConsent') { // these categories already done
-                    if (item.linkId === '/accept' ||
+                    if (item.linkId === '/dataSharingConsent' ||
+                        item.linkId === '/hipaaConsent' ||
+                        item.linkId === '/accept' ||
                         item.linkId === '/consent') {
                         this.questionnaireValues.set(questionnaire._uuid, item);
                         this.adminLogger.logInfo(
