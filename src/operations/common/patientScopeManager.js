@@ -235,7 +235,7 @@ class PatientScopeManager {
      * returns whether this resource can be written based on permissions in the patient scope
      * @param {string} base_version
      * @param {boolean | null} isUser
-     * @param {string} personIdFromJwtToken
+     * @param {string|null} personIdFromJwtToken
      * @param {string[] | null} patientIdsFromJwtToken
      * @param {Resource} resource
      * @param {string | null} scope

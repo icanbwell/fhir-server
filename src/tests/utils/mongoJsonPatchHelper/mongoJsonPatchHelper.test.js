@@ -1,4 +1,4 @@
-const { commonBeforeEach, commonAfterEach, getTestContainer, createTestRequest } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getTestContainer, createTestRequest, getTestRequestInfo } = require('../../common');
 const {
     MongoJsonPatchHelper
 } = require('../../../utils/mongoJsonPatchHelper');
@@ -23,10 +23,12 @@ describe('mongoJsonPatchHelper Tests', () => {
     });
 
     describe('Patient mongoJsonPatchHelper Tests', () => {
+        const base_version = '4_0_0';
         test('mongoJsonPatchHelper works for adding a new link', async () => {
             await createTestRequest();
             const container = getTestContainer();
 
+            /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
 
@@ -52,7 +54,8 @@ describe('mongoJsonPatchHelper Tests', () => {
                     })
                 ]
             });
-            doc1 = await preSaveManager.preSaveAsync(doc1);
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            doc1 = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc1 });
 
             /**
              * @type {MongoDatabaseManager}
@@ -60,7 +63,6 @@ describe('mongoJsonPatchHelper Tests', () => {
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const db = await mongoDatabaseManager.getClientDbAsync();
             const resourceType = 'Person';
-            const base_version = '4_0_0';
             /**
              * @type {import('mongodb').Collection<import('mongodb').Document>}
              */
@@ -97,6 +99,8 @@ describe('mongoJsonPatchHelper Tests', () => {
             assertTypeEquals(resourceMerger, ResourceMerger);
 
             const { patches } = await resourceMerger.mergeResourceAsync({
+                base_version,
+                requestInfo,
                 currentResource: doc1,
                 resourceToMerge: doc2
             });
@@ -268,6 +272,7 @@ describe('mongoJsonPatchHelper Tests', () => {
             await createTestRequest();
             const container = getTestContainer();
 
+            /** @type {PreSaveManager} */
             const preSaveManager = container.preSaveManager;
             assertTypeEquals(preSaveManager, PreSaveManager);
 
@@ -295,7 +300,8 @@ describe('mongoJsonPatchHelper Tests', () => {
                     })
                 ]
             });
-            doc1 = await preSaveManager.preSaveAsync(doc1);
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            doc1 = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc1 });
 
             /**
              * @type {MongoDatabaseManager}
@@ -303,7 +309,6 @@ describe('mongoJsonPatchHelper Tests', () => {
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const db = await mongoDatabaseManager.getClientDbAsync();
             const resourceType = 'Person';
-            const base_version = '4_0_0';
             /**
              * @type {import('mongodb').Collection<import('mongodb').Document>}
              */
@@ -342,6 +347,8 @@ describe('mongoJsonPatchHelper Tests', () => {
             assertTypeEquals(resourceMerger, ResourceMerger);
 
             const { patches } = await resourceMerger.mergeResourceAsync({
+                base_version,
+                requestInfo,
                 currentResource: doc1,
                 resourceToMerge: doc2
             });

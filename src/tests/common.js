@@ -14,6 +14,7 @@ const { TestMongoDatabaseManager } = require('./testMongoDatabaseManager');
 const httpContext = require('express-http-context');
 const { fhirContentTypes } = require('../utils/contentTypes');
 const { TestConfigManager } = require('./testConfigManager');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
 
 /**
  * @type {import('http').Server}
@@ -445,4 +446,27 @@ module.exports.mockHttpContext = ({
         return values[key];
     });
     return values.systemGeneratedRequestId;
+};
+
+/**
+ * @param {string} requestId
+ * @returns {FhirRequestInfo}
+ */
+module.exports.getTestRequestInfo = ({
+    requestId
+}) => {
+            const requestInfo = new FhirRequestInfo(
+                {
+                    user: '',
+                    scope: '',
+                    protocol: 'http',
+                    originalUrl: '',
+                    requestId,
+                    userRequestId: requestId,
+                    host: 'localhost',
+                    headers: {},
+                    method: 'POST',
+                    contentTypeFromHeader: null
+                });
+    return requestInfo;
 };

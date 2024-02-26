@@ -63,9 +63,10 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                 }
             }
         );
-
+        const base_version = '4_0_0';
+        const requestInfo = this.requestInfo;
         // run preSave to update all the fields according to new values
-        await this.preSaveManager.preSaveAsync(resource);
+        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
 
         return resource;
     }

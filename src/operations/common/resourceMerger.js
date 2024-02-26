@@ -26,6 +26,8 @@ const Meta = require('../../fhir/classes/4_0_0/complex_types/meta');
  * @property {boolean|undefined} incrementVersion
  * @property {string[]|undefined} limitToPaths
  * @property {import('../../dataLayer/databaseAttachmentManager').DatabaseAttachmentManager|null} databaseAttachmentManager
+ * @property {string} base_version
+ * @property {import('../../fhir/classes/4_0_0/requestInfo').FhirRequestInfo} requestInfo
  */
 
 /**
@@ -256,6 +258,8 @@ class ResourceMerger {
      */
     async mergeResourceAsync (
         {
+            base_version,
+            requestInfo,
             currentResource,
             resourceToMerge,
             smartMerge = true,
@@ -275,7 +279,7 @@ class ResourceMerger {
         resourceToMerge = this.overWriteNonWritableFields({ currentResource, resourceToMerge });
 
         // fix up any data that we normally fix up before saving so the comparison is correct
-        await this.preSaveManager.preSaveAsync(resourceToMerge);
+        await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: resourceToMerge });
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {

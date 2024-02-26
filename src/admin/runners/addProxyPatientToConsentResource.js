@@ -171,13 +171,18 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     destinationCollectionName: collection,
                     query,
                     startFromIdContainer,
-                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordsAsync(doc),
+                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordsAsync(
+                        {
+                            base_version: '4_0_0',
+                            requestInfo: this.requestInfo,
+                            doc
+                        }),
                     ordered: false,
                     batchSize: this.batchSize,
                     skipExistingIds: false,
-                    limit: !isHistoryCollection ? this.limit : undefined,
+                    limit: isHistoryCollection ? undefined : this.limit,
                     useTransaction: this.useTransaction,
-                    skip: !isHistoryCollection ? this.skip : undefined,
+                    skip: isHistoryCollection ? undefined : this.skip,
                     filterToIds,
                     filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
                     useEstimatedCount: true
@@ -214,10 +219,12 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
     /**
      * returns the bulk operation for this doc
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {import('mongodb').Document} doc
      * @returns {Promise<Operations[]>}
      */
-    async processRecordsAsync (doc) {
+    async processRecordsAsync ({ base_version, requestInfo, doc }) {
         this.adminLogger.logInfo(`[processRecordsAsync] Processing doc _id: ${doc._id}}`);
         /**
          * @type {boolean}
@@ -234,7 +241,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
          */
         const currentResource = resource.clone();
         // Update resource references from cache
-        resource = await this.addProxyPersonLinkToConsent({ resource, isHistoryDoc });
+        resource = await this.addProxyPersonLinkToConsent({ base_version, requestInfo, resource, isHistoryDoc });
 
         // for speed, first check if the incoming resource is exactly the same
         let updatedResourceJsonInternal = resource.toJSONInternal();
@@ -260,20 +267,22 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
 
     /**
      * Adds Proxy Person reference in resource.provision.actor array
-     * @param {{ resource: Resource, isHistoryDoc: boolean}} options
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
      */
-    async addProxyPersonLinkToConsent ({ resource }) {
+    async addProxyPersonLinkToConsent ({ base_version, requestInfo, resource }) {
         const provision = resource.provision;
         if (!provision) {
             return resource;
         }
 
         let provisionActor;
-        if (!provision.actor) {
+        if (provision.actor) {
+            provisionActor = provision.actor;
+        } else {
             // resource.provision.actor set method assigns undefined if empty array is passed. So storing it in provisionActor[]
             provisionActor = [];
-        } else {
-            provisionActor = provision.actor;
         }
 
         if (!Array.isArray(provisionActor)) {
@@ -338,7 +347,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                     _sourceAssigningAuthority: immediatePerson.sourceAssigningAuthority
                 };
                  // call the presave
-                 resource = await this.preSaveManager.preSaveAsync(resource);
+                 resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             }
 
             return resource;
@@ -363,7 +372,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             // setting the value
             resource.provision.actor = provisionActor;
             // call the presave
-            resource = await this.preSaveManager.preSaveAsync(resource);
+            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             // add the reference
             return resource;
         }

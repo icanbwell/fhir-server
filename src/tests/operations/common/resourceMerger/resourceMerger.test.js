@@ -1,5 +1,5 @@
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
-const { commonBeforeEach, commonAfterEach } = require('../../../common');
+const { commonBeforeEach, commonAfterEach, getTestRequestInfo } = require('../../../common');
 
 const { TestMongoDatabaseManager } = require('../../../testMongoDatabaseManager');
 const { TestConfigManager } = require('../../../testConfigManager');
@@ -24,6 +24,7 @@ describe('ResourceMerger Tests', () => {
     });
 
     describe('ResourceMerger Tests', () => {
+        const base_version = '4_0_0';
         test('ResourceMerger works with identical resources', async () => {
             const configManager = new TestConfigManager();
             /**
@@ -49,11 +50,15 @@ describe('ResourceMerger Tests', () => {
             mergedObject = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
             expect(mergedObject.gender).toStrictEqual('male');
 
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+
             /**
              * @type {{updatedResource: (Resource|null), patches: (MergePatchEntry[]|null)}}
              */
             const result = await resourceMerger.mergeResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     currentResource,
                     resourceToMerge
                 }

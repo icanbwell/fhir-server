@@ -62,6 +62,8 @@ class ResourceValidator {
 
     /**
      * validates a resource
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} id
      * @param {string} resourceType
      * @param {Object|Resource} resourceToValidate
@@ -74,6 +76,8 @@ class ResourceValidator {
      */
     async validateResourceAsync (
         {
+            base_version,
+            requestInfo,
             id,
             resourceType,
             resourceToValidate,
@@ -91,6 +95,8 @@ class ResourceValidator {
         const validationOperationOutcome = this.configManager.fhirValidationUrl && useRemoteFhirValidatorIfAvailable
             ? await this.validateResourceFromServerAsync(
                 {
+                    base_version,
+                    requestInfo,
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
                     path,
@@ -141,6 +147,8 @@ class ResourceValidator {
     /**
      * @function validateResourceFromServerAsync
      * @description - validates name is correct for resource body and resource body conforms to FHIR specification
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Object} resourceBody - payload of req.body
      * @param {string} resourceName - name of resource in url
      * @param {string} path - req.path from express
@@ -150,6 +158,8 @@ class ResourceValidator {
      */
     async validateResourceFromServerAsync (
         {
+            base_version,
+            requestInfo,
             resourceBody,
             resourceName,
             path,
@@ -160,7 +170,7 @@ class ResourceValidator {
 
         if (profile) {
             // save profile in remote server
-            await this.upsertProfileInRemoteServer({ profile });
+            await this.upsertProfileInRemoteServer({ base_version, requestInfo, profile });
         }
 
         // upsert profiles contained in metaProfiles
@@ -169,7 +179,7 @@ class ResourceValidator {
              * @type {string[]}
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
-            await this.upsertProfileInRemoteServer({ profile: metaProfiles, resourceType: resourceToValidateJson.resourceType });
+            await this.upsertProfileInRemoteServer({ base_version, requestInfo, profile: metaProfiles, resourceType: resourceToValidateJson.resourceType });
         }
 
         /**
@@ -206,10 +216,12 @@ class ResourceValidator {
     /**
      * Fetch profiles from database. If not exists, fetch it from fhirRemoveValidator and
      * then save it to Database.
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {{ profile: string | string[], resourceType?: string}} options
      * @throws {BadRequestError} Error if not able to fetch profile from remote url
      */
-    async upsertProfileInRemoteServer ({ profile, resourceType }) {
+    async upsertProfileInRemoteServer ({ base_version, requestInfo, profile, resourceType }) {
         // convert to array
         const profiles = Array.isArray(profile) ? profile : [profile];
         const profilesToFetchFromRemote = new Set(profiles);
@@ -263,14 +275,14 @@ class ResourceValidator {
                 .catch((error) => {
                     if (error.response && error.response.status === 404) {
                         // push error if 404
-                        if (!resourceType) {
+                        if (resourceType) {
                             invalidProfileUrls.push({
-                                location: 'profile',
+                                location: `${resourceType}.meta.profile[${index}]`,
                                 profile: profileUrl
                             });
                         } else {
                             invalidProfileUrls.push({
-                                location: `${resourceType}.meta.profile[${index}]`,
+                                location: 'profile',
                                 profile: profileUrl
                             });
                         }
@@ -284,6 +296,8 @@ class ResourceValidator {
             if (profileJson) {
                 const profileResourceNew = this.createProfileResourceFromJson({ profileJson });
                 await databaseUpdateManager.replaceOneAsync({
+                    base_version,
+                    requestInfo,
                     doc: profileResourceNew
                 });
 

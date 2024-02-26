@@ -37,6 +37,8 @@ class BundleResourceValidator extends BaseValidator {
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     id: bundle1.id,
                     resourceType: 'Bundle',
                     resourceToValidate: bundle1,

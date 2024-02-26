@@ -6,7 +6,7 @@ const expectedCodeSystemResources = require('./fixtures/expected/expected_codesy
 const expectedCodeSystemHistoryResources = require('./fixtures/expected/expected_codesystem_history.json');
 const expectedCodeSystemsFromDatabase = require('./fixtures/expected/expected_codesystem_from_database.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer } = require('../../common');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getTestRequestInfo } = require('../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const moment = require('moment-timezone');
@@ -14,6 +14,7 @@ const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const deepcopy = require('deepcopy');
 const { logInfo } = require('../../../operations/common/logging');
+const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -25,6 +26,7 @@ describe('CodeSystem Tests', () => {
     });
 
     describe('CodeSystem concurrency_issue Tests', () => {
+        const base_version = '4_0_0';
         test('concurrency_issue works', async () => {
             logInfo('start test: concurrency_issue works', {});
             const request = await createTestRequest();
@@ -184,11 +186,17 @@ describe('CodeSystem Tests', () => {
 
             const countOfUpdates = codesystem1Resource.length;
 
+            const requestId = '1234';
+            const requestInfo = getTestRequestInfo({ requestId });
             let i = 0;
             for (const codeSystem of codesystem1Resource) {
                 // eslint-disable-next-line no-unused-vars
                 i += 1;
-                await databaseUpdateManager.replaceOneAsync({ doc: new CodeSystem(codeSystem) });
+                await databaseUpdateManager.replaceOneAsync({
+                    base_version,
+                    requestInfo,
+                    doc: new CodeSystem(codeSystem)
+                });
             }
 
             /**
@@ -257,10 +265,23 @@ describe('CodeSystem Tests', () => {
             const countOfUpdates = codesystem1ResourceCopy.length;
 
             const requestId = '1234';
-
+            const requestInfo = new FhirRequestInfo(
+                {
+                    user: '',
+                    scope: '',
+                    protocol: 'http',
+                    originalUrl: '',
+                    requestId,
+                    userRequestId: requestId,
+                    host: 'localhost',
+                    headers: {},
+                    method: 'POST',
+                    contentTypeFromHeader: null
+                });
             const firstCodeSystem = codesystem1ResourceCopy.splice(0, 1)[0];
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version: '4_0_0',
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: new CodeSystem(firstCodeSystem)
             });
@@ -268,7 +289,8 @@ describe('CodeSystem Tests', () => {
             for (const codeSystem of codesystem1ResourceCopy) {
                 await databaseBulkInserter.mergeOneAsync(
                     {
-                        requestId,
+                        base_version,
+                        requestInfo,
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
@@ -284,10 +306,9 @@ describe('CodeSystem Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
             await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version: '4_0_0',
-                method: 'POST'
+                base_version
             });
 
             /**
@@ -366,10 +387,23 @@ describe('CodeSystem Tests', () => {
             const countOfUpdates = codesystem1ResourceCopy.length;
 
             const requestId = '9999';
-
+            const requestInfo = new FhirRequestInfo(
+                {
+                    user: '',
+                    scope: '',
+                    protocol: 'http',
+                    originalUrl: '',
+                    requestId,
+                    userRequestId: requestId,
+                    host: 'localhost',
+                    headers: {},
+                    method: 'POST',
+                    contentTypeFromHeader: null
+                });
             const firstCodeSystem = codesystem1ResourceCopy.splice(0, 1)[0];
             await databaseBulkInserter.insertOneAsync({
-                requestId,
+                base_version: '4_0_0',
+                requestInfo: new FhirRequestInfo(),
                 resourceType: 'CodeSystem',
                 doc: new CodeSystem(firstCodeSystem)
             });
@@ -384,7 +418,8 @@ describe('CodeSystem Tests', () => {
                 }
                 await databaseBulkInserter.mergeOneAsync(
                     {
-                        requestId,
+                        base_version,
+                        requestInfo,
                         resourceType: 'CodeSystem',
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
@@ -400,10 +435,9 @@ describe('CodeSystem Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
             await databaseBulkInserter.executeAsync({
-                requestId,
+                requestInfo,
                 currentDate,
-                base_version: '4_0_0',
-                method: 'POST'
+                base_version
             });
 
             /**

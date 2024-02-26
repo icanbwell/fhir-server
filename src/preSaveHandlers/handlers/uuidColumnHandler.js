@@ -23,7 +23,15 @@ class UuidColumnHandler extends PreSaveHandler {
         assertTypeEquals(configManager, ConfigManager);
     }
 
-    async preSaveAsync ({ resource }) {
+    /**
+     * fixes up any resources before they are saved
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
+     * @returns {Promise<Resource>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async preSaveAsync ({ base_version, requestInfo, resource }) {
         if (isUuid(resource.id)) {
             resource._uuid = resource.id;
         } else if (!resource.id) {

@@ -103,10 +103,12 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {Resource}
          */
         const currentResource = FhirResourceCreator.create(doc);
+        const base_version = '4_0_0';
+        const requestInfo = this.requestInfo;
         /**
          * @type {Resource}
          */
-        const updatedResource = await this.preSaveManager.preSaveAsync(currentResource.clone());
+        const updatedResource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: currentResource.clone() });
         // for speed, first check if the incoming resource is exactly the same
         const updatedResourceJsonInternal = updatedResource.toJSONInternal();
         const currentResourceJsonInternal = currentResource.toJSONInternal();

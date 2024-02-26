@@ -187,9 +187,6 @@ class UpdateOperation {
             body,
             /** @type {string|null} */
             requestId,
-            /** @type {string} */
-            method,
-            /** @type {string} */ userRequestId,
             /** @type {string[] | null} */
             patientIdsFromJwtToken,
             /** @type {boolean | null} */
@@ -244,6 +241,8 @@ class UpdateOperation {
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     id: resource_incoming_json.id,
                     resourceType,
                     resourceToValidate: resource_incoming_json,
@@ -272,7 +271,7 @@ class UpdateOperation {
         }
 
         if (this.scopesManager.hasPatientScope({ scope })) {
-            resource_incoming = await this.preSaveManager.preSaveAsync(resource_incoming);
+            resource_incoming = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: resource_incoming });
             if (!(await this.patientScopeManager.canWriteResourceAsync({
                 base_version,
                 resource: resource_incoming,
@@ -382,6 +381,8 @@ class UpdateOperation {
                         foundResource.resourceType + ' with id ' + id);
                 }
                 const { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync({
+                    base_version,
+                    requestInfo,
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false,
@@ -396,7 +397,8 @@ class UpdateOperation {
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
-                            requestId,
+                            base_version,
+                            requestInfo,
                             resourceType,
                             doc,
                             uuid: doc._uuid,
@@ -417,7 +419,7 @@ class UpdateOperation {
                 // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
-                await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
+                await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
             }
 
             if (doc) {
@@ -426,11 +428,9 @@ class UpdateOperation {
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        requestId,
+                        requestInfo,
                         currentDate,
-                        base_version,
-                        method,
-                        userRequestId
+                        base_version
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {

@@ -13,6 +13,8 @@ const { DatabaseQueryFactory } = require('./databaseQueryFactory');
 const { ConfigManager } = require('../utils/configManager');
 const { getCircularReplacer } = require('../utils/getCircularReplacer');
 const { ReadPreference } = require('mongodb');
+const { FhirRequestInfo } = require('../utils/fhirRequestInfo');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 class DatabaseUpdateManager {
     /**
@@ -81,12 +83,14 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a resource into the database
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @return {Promise<Resource>}
      */
-    async insertOneAsync ({ doc }) {
+    async insertOneAsync ({ base_version, requestInfo, doc }) {
         try {
-            doc = await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
@@ -103,13 +107,17 @@ class DatabaseUpdateManager {
     /**
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
      * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync ({ doc, smartMerge = true }) {
+    async replaceOneAsync ({ base_version, requestInfo, doc, smartMerge = true }) {
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(doc, Resource);
         const originalDoc = doc.clone();
-        doc = await this.preSaveManager.preSaveAsync(doc);
+        doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
         /**
          * @type {Resource[]}
          */
@@ -152,13 +160,15 @@ class DatabaseUpdateManager {
                 }
             );
             if (!resourceInDatabase) {
-                return { savedResource: await this.insertOneAsync({ doc }), patches: null };
+                return { savedResource: await this.insertOneAsync({ base_version, requestInfo, doc }), patches: null };
             }
             /**
              * @type {Resource|null}
              */
             let { updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     currentResource: resourceInDatabase,
                     resourceToMerge: doc,
                     smartMerge
@@ -174,7 +184,7 @@ class DatabaseUpdateManager {
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (runsLeft > 0) {
-                const updatedDoc = await this.preSaveManager.preSaveAsync(doc.clone());
+                const updatedDoc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc.clone() });
                 const previousVersionId = parseInt(updatedDoc.meta.versionId) - 1;
                 const filter = previousVersionId > 0
                     ? { $and: [{ _uuid: updatedDoc._uuid }, { 'meta.versionId': `${previousVersionId}` }] }
@@ -207,25 +217,27 @@ class DatabaseUpdateManager {
                         query: { _uuid: doc._uuid }, options: findQueryOptions
                     });
 
-                    if (resourceInDatabase !== null) {
+                    if (resourceInDatabase === null) {
+                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
+                    } else {
                         // merge with our resource
                         ({ updatedResource, patches } = await this.resourceMerger.mergeResourceAsync(
                                 {
+                                    base_version,
+                                    requestInfo,
                                     currentResource: resourceInDatabase,
                                     resourceToMerge: doc
                                 }
                             )
                         );
-                        if (!updatedResource) {
-                            return { savedResource: null, patches: null };
-                        } else {
+                        if (updatedResource) {
                             doc = updatedResource;
+                        } else {
+                            return { savedResource: null, patches: null };
                         }
-                    } else {
-                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
                     }
-                    runsLeft = runsLeft - 1;
-                    logTraceSystemEventAsync({
+                    runsLeft -= 1;
+                    await logTraceSystemEventAsync({
                         event: 'replaceOneAsync',
                         message: 'retry',
                         args: {
@@ -278,18 +290,23 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a history collection for a resource
-     * @param {string} requestId
-     * @param {string} method
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {Resource} doc
+     * @return {Promise<void>}
      */
     async postSaveAsync (
         {
-            requestId,
-            method,
+            base_version,
+            requestInfo,
             doc
         }
     ) {
-        doc = await this.preSaveManager.preSaveAsync(doc);
+        assertTypeEquals(requestInfo, FhirRequestInfo);
+        assertTypeEquals(doc, Resource);
+        const requestId = requestInfo.requestId;
+        const method = requestInfo.method;
+        doc = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: doc });
         const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
         const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
         await historyCollection.insertOne(new BundleEntry({

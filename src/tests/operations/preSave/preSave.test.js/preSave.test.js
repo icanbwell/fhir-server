@@ -1,4 +1,4 @@
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../../../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestRequestInfo } = require('../../../common');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { PreSaveManager } = require('../../../../preSaveHandlers/preSave');
 const { SecurityTagSystem } = require('../../../../utils/securityTagSystem');
@@ -15,6 +15,7 @@ describe('Patient Tests', () => {
     });
 
     describe('Patient preSave.test.js Tests', () => {
+        const base_version = '4_0_0';
         test('preSave.test.js works', async () => {
             await createTestRequest();
             /**
@@ -44,7 +45,8 @@ describe('Patient Tests', () => {
                     ]
                 }
             });
-            const result = await preSaveManager.preSaveAsync(resource);
+            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const result = await preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             expect(result._uuid).toBeDefined();
             const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
             expect(result._uuid).toMatch(uuidRegex);

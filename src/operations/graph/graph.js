@@ -154,6 +154,8 @@ class GraphOperation {
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     id: graphDefinitionRaw.id,
                     resourceType: 'GraphDefinition',
                     resourceToValidate: graphDefinitionRaw,

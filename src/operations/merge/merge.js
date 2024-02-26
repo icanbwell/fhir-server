@@ -192,8 +192,6 @@ class MergeOperation {
             path,
             /** @type {Object | Object[] | null} */
             body,
-            /** @type {string} */
-            method,
             /** @type {string[]} */
             // eslint-disable-next-line no-unused-vars
             patientIdsFromJwtToken,
@@ -225,10 +223,6 @@ class MergeOperation {
         try {
             const { /** @type {string} */ base_version } = parsedArgs;
 
-            /**
-             * @type {string[]}
-             */
-            const scopes = this.scopesManager.parseScopes(scope);
             // read the incoming resource from request body
             /**
              * @type {Object|Object[]|undefined}
@@ -256,14 +250,10 @@ class MergeOperation {
             await this.mergeManager.mergeResourceListAsync(
                 {
                     resources_incoming: resourcesIncomingArray,
-                    user,
                     resourceType,
-                    scopes,
-                    path,
                     currentDate,
-                    requestId,
                     base_version,
-                    scope
+                    requestInfo
                 }
             );
             /**
@@ -272,11 +262,9 @@ class MergeOperation {
              */
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId,
-currentDate,
-                    base_version,
-                    method,
-                    userRequestId
+                    requestInfo,
+                    currentDate,
+                    base_version
                 });
 
             // add in any pre-merge failures

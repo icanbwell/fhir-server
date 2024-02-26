@@ -71,10 +71,7 @@ class MergeResourceValidator extends BaseValidator {
         const user = requestInfo.user;
         /** @type {string} */
         const scope = requestInfo.scope;
-        /**
-         * @type {string[]}
-         */
-        const scopes = this.scopesManager.parseScopes(scope);
+
         /**
          * @type {boolean}
          */
@@ -95,10 +92,9 @@ class MergeResourceValidator extends BaseValidator {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
         } = await this.mergeManager.preMergeChecksMultipleAsync({
+            base_version,
+            requestInfo,
             resourcesToMerge: resourcesIncomingArray,
-            scopes,
-user,
-path: requestInfo.path,
 currentDate
         });
 
@@ -111,7 +107,7 @@ currentDate
                 if (isUuid(resource.id)) {
                     resource._uuid = resource.id;
                 } else {
-                    resource = await this.preSaveManager.preSaveAsync(resource);
+                    resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
                 }
                 return resource;
             }

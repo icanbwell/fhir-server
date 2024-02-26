@@ -52,7 +52,7 @@ class AdminPersonPatientLinkManager {
 
     /**
      * creates a person to person link
-     * @param {request} req
+     * @param {import('http').IncomingMessage} req
      * @param {string} bwellPersonId
      * @param {string} externalPersonId
      * @return {Promise<Object>}
@@ -72,10 +72,6 @@ class AdminPersonPatientLinkManager {
             base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        const {
-            requestId,
-            method
-        } = requestInfo;
 
         /**
          * @type {Person}
@@ -117,12 +113,14 @@ class AdminPersonPatientLinkManager {
             }
             // eslint-disable-next-line no-unused-vars
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
+                base_version,
+                requestInfo,
                 doc: bwellPerson
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId,
-                method,
+                base_version,
+                requestInfo,
                 doc: savedResource
             });
 
@@ -142,7 +140,7 @@ class AdminPersonPatientLinkManager {
 
     /**
      * removes a person to person link
-     * @param {request} req
+     * @param {import('http').IncomingMessage} req
      * @param {string} bwellPersonId
      * @param {string} externalPersonId
      * @return {Promise<Object>}
@@ -159,10 +157,7 @@ class AdminPersonPatientLinkManager {
             base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        const {
-            requestId,
-            method
-        } = requestInfo;
+
         /**
          * @type {Person}
          */
@@ -202,13 +197,15 @@ class AdminPersonPatientLinkManager {
             });
             // eslint-disable-next-line no-unused-vars
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
+                base_version,
+                requestInfo,
                 doc: bwellPerson,
                 smartMerge: false
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId,
-                method,
+                base_version,
+                requestInfo,
                 doc: savedResource
             });
 
@@ -228,7 +225,7 @@ class AdminPersonPatientLinkManager {
 
     /**
      * creates a person to patient link
-     * @param {request} req
+     * @param {import('http').IncomingMessage} req
      * @param {string} externalPersonId
      * @param {string} patientId
      * @return {Promise<Object>}
@@ -249,10 +246,6 @@ class AdminPersonPatientLinkManager {
             base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        const {
-            requestId,
-            method
-        } = requestInfo;
 
         /**
          * @type {Person}
@@ -301,11 +294,15 @@ class AdminPersonPatientLinkManager {
                         })
                 ]
             });
-            const savedResource = await databaseUpdateManager.insertOneAsync({ doc: sourcePerson });
+            const savedResource = await databaseUpdateManager.insertOneAsync({
+                base_version,
+                requestInfo,
+                doc: sourcePerson
+            });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId,
-                method,
+                base_version,
+                requestInfo,
                 doc: savedResource
             });
 
@@ -347,12 +344,14 @@ class AdminPersonPatientLinkManager {
             }
             // eslint-disable-next-line no-unused-vars
             const { savedResource, patches } = await databaseUpdateManager.replaceOneAsync({
+                base_version,
+                requestInfo,
                 doc: sourcePerson
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId,
-                method,
+                base_version,
+                requestInfo,
                 doc: savedResource
             });
 
@@ -366,7 +365,7 @@ class AdminPersonPatientLinkManager {
 
     /**
      * removes a person to patient link
-     * @param {import('express').Request} req
+     * @param {import('http').IncomingMessage} req
      * @param {string} personId
      * @param {string} patientId
      * @return {Promise<Object>}
@@ -383,10 +382,7 @@ class AdminPersonPatientLinkManager {
             base_version
         });
         const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        const {
-            requestId,
-            method
-        } = requestInfo;
+
         /**
          * @type {Person}
          */
@@ -427,13 +423,15 @@ class AdminPersonPatientLinkManager {
             });
 
             const { savedResource } = await databaseUpdateManager.replaceOneAsync({
+                base_version,
+                requestInfo,
                 doc: person,
                 smartMerge: false
             });
 
             await databaseUpdateManager.postSaveAsync({
-                requestId,
-                method,
+                base_version,
+                requestInfo,
                 doc: savedResource
             });
 
@@ -465,6 +463,7 @@ class AdminPersonPatientLinkManager {
             resourceType: 'Person',
             base_version
         });
+        /** @type {Person|null} */
         const person = await databaseQueryManager.findOneAsync({
             query: { id: personId }
         });
@@ -592,6 +591,7 @@ class AdminPersonPatientLinkManager {
 
     /**
      * deletes a Person and remove any links to it
+     * @param {import('http').IncomingMessage} req
      * @param {string} requestId
      * @param {string} personId
      * @return {Promise<{deletedCount: (number|null), error: (Error|null)}>}

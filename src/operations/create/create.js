@@ -152,8 +152,6 @@ class CreateOperation {
             /* @type {Object|Object[]|null} */
             body,
             /** @type {string} */ requestId,
-            /** @type {string} */ method,
-            /** @type {string} */ userRequestId,
             /** @type {string} */
             scope,
             /** @type {boolean | null} */
@@ -215,6 +213,8 @@ class CreateOperation {
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
+                    base_version,
+                    requestInfo,
                     id: resource_incoming.id,
                     resourceType,
                     resourceToValidate: resource_incoming,
@@ -242,7 +242,7 @@ class CreateOperation {
         }
 
         if (this.scopesManager.hasPatientScope({ scope })) {
-            resource = await this.preSaveManager.preSaveAsync(resource);
+            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
             if (!(await this.patientScopeManager.canWriteResourceAsync({
                 base_version,
                 resource,
@@ -310,17 +310,15 @@ ids: [resource.id]
             logDebug('Inserting', { user, args: { doc } });
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({ requestId, resourceType, doc });
+            await this.databaseBulkInserter.insertOneAsync({ base_version, requestInfo, resourceType, doc });
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId,
-currentDate,
-base_version,
-                    method,
-                    userRequestId
+                    requestInfo,
+                    currentDate,
+                    base_version
                 }
             );
 

@@ -7,7 +7,15 @@ const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
  * @classdesc Adds the _sourceId internal column if not present
  */
 class SourceIdColumnHandler extends PreSaveHandler {
-    async preSaveAsync ({ resource }) {
+    /**
+     * fixes up any resources before they are saved
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Resource} resource
+     * @returns {Promise<Resource>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async preSaveAsync ({ base_version, requestInfo, resource }) {
         if (!resource._sourceId) {
             resource._sourceId = resource.id;
         }
