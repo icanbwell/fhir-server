@@ -333,7 +333,7 @@ class KafkaClient {
             });
             throw e;
         } finally {
-            consumer.disconnect();
+            await consumer.disconnect();
         }
     }
 

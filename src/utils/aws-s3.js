@@ -33,47 +33,44 @@ const s3 = new S3({
  * @param filename_postfix - Optional postfix for filename
  * @return {Promise<data|err>}
  */
-module.exports = function sendToS3 (prefix, resourceType, resource, currentDate, id, filename_postfix) {
+module.exports = async function sendToS3 (prefix, resourceType, resource, currentDate, id, filename_postfix) {
     if (!AWS_BUCKET) {
         return Promise.resolve(null);
     }
     const currentTime = moment.utc().format('HH-mm-ss');
     const randomString = Math.random().toString(36).substring(0, 5);
     const key = `${AWS_FOLDER}/${prefix}/${resourceType}/${currentDate}/${id}/${currentTime}-${filename_postfix}-${randomString}.json`;
-    return new Promise((resolve, reject) => {
         try {
-            const params = {
-                Body: JSON.stringify(resource),
-                Bucket: AWS_BUCKET,
-                Key: key,
-                ContentType: 'application/json',
-                ServerSideEncryption: 'AES256'
-            };
-            s3.putObject(params, function (err, data) {
-                if (err) {
-                    const sts = new STS({});
-                    sts.getCallerIdentity(function (_error, role_data) {
-                        logger.error('[AWS-S3] Failed to put object: ' +
-                            key + ' in bucket: ' + AWS_BUCKET + ': ' + key + ' with user: ' + JSON.stringify(role_data));
-                        logger.error(
-                            '[AWS-S3] Object: ',
-                            JSON.stringify(resource)
-                        );
-                        logger.error('[AWS-S3] Error: ' + key + ':', err);
-                        return reject(err);
-                    });
-                } else {
-                    logger.info('[AWS-S3] Successfully placed object in bucket' + AWS_BUCKET + ': ' + key);
-                    return resolve(data);
-                }
-            });
-        } catch (e) {
-            logger.error('[AWS-S3] Error to put object: ' +
-                key + ' in bucket: ' + AWS_BUCKET + ': ' + key + '. Error=' + e);
-            return resolve(null);
+        const params = {
+            Body: JSON.stringify(resource),
+            Bucket: AWS_BUCKET,
+            Key: key,
+            ContentType: 'application/json',
+            ServerSideEncryption: 'AES256'
+        };
+
+// Using async/await with promise support
+        try {
+            const data = await s3.putObject(params);
+            logger.info('[AWS-S3] Successfully placed object in bucket' + AWS_BUCKET + ': ' + key);
+            return data;
+        } catch (err) {
+            // If putObject fails, log the error and attempt to getCallerIdentity
+            const sts = new STS({});
+            try {
+                const role_data = await sts.getCallerIdentity({});
+                logger.error('[AWS-S3] Failed to put object: ' +
+                    key + ' in bucket: ' + AWS_BUCKET + ': ' + key + ' with user: ' + JSON.stringify(role_data));
+            } catch (_error) {
+                // Log the original putObject error if getCallerIdentity also fails
+                logger.error('[AWS-S3] Object: ', JSON.stringify(resource));
+                logger.error('[AWS-S3] Error: ' + key + ':', _error);
+            }
+            throw err; // Rethrow the original error after logging
         }
-    }).catch(function (e) {
-        logger.error('[AWS-S3] Error in promise to put object: ' +
+    } catch (e) {
+        logger.error('[AWS-S3] Error to put object: ' +
             key + ' in bucket: ' + AWS_BUCKET + ': ' + key + '. Error=' + e);
-    });
+        throw e; // Rethrow the error to be caught by the caller
+    }
 };
