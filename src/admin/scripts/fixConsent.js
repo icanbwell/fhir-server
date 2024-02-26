@@ -44,7 +44,7 @@ async function main () {
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const adminLogger = new AdminLogger();
 
-    adminLogger.logInfo(`[${currentDateTime}] Running fixConsentDataSharing script`);
+    adminLogger.logInfo(`[${currentDateTime}] Running fixConsent script`);
 
     // set up all the standard services in the container
     const container = createContainer();

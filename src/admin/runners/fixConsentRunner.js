@@ -14,7 +14,7 @@ const { ReferenceParser } = require('../../utils/referenceParser');
 const AvailableCollections = ['Consent_4_0_0'];
 class FixConsentRunner extends BaseBulkOperationRunner {
     /**
-     * @typedef FixConsentRunnerParams
+     * @typedef AddProxyPatientToConsentResourceRunnerParams
      * @property {MongoCollectionManager} mongoCollectionManager
      * @property {number} batchSize
      * @property {AdminLogger} adminLogger
