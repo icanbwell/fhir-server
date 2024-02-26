@@ -109,6 +109,7 @@ const { ReferenceQueryRewriter } = require('./queryRewriters/rewriters/reference
 const { HiddenMetaTagEnrichmentProvider } = require('./enrich/providers/hiddenMetaTagEnrichmentProvider');
 const { PatientScopeManager } = require('./operations/common/patientScopeManager');
 const { WriteAllowedByPatientScopeValidator } = require('./operations/merge/validators/writeAllowedByPatientScopeValidator');
+const { CanWriteWithPatientScopeHandler } = require('./preSaveHandlers/handlers/canWriteWithPatientScopeHandler');
 const { READ } = require('./constants').OPERATIONS;
 /**
  * Creates a container and sets up all the services
@@ -177,7 +178,12 @@ const createContainer = function () {
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
             new ReferenceGlobalIdHandler({
                 configManager: c.configManager
-            })
+            }),
+            new CanWriteWithPatientScopeHandler(
+                {
+                    patientScopeManager: c.patientScopeManager
+                }
+            )
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({

@@ -231,7 +231,7 @@ class UpdateOperation {
         /**
          * @type {Resource}
          */
-        let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
+        const resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         if (this.configManager.validateSchema || parsedArgs._validate) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
@@ -267,22 +267,6 @@ class UpdateOperation {
                         'update_failure');
                 }
                 throw new NotValidatedError(validationOperationOutcome);
-            }
-        }
-
-        if (this.scopesManager.hasPatientScope({ scope })) {
-            resource_incoming = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource: resource_incoming });
-            if (!(await this.patientScopeManager.canWriteResourceAsync({
-                base_version,
-                resource: resource_incoming,
-                scope,
-                isUser,
-                patientIdsFromJwtToken,
-                personIdFromJwtToken
-            }))) {
-                throw new ForbiddenError(
-                    'The current patient scope and person id in the JWT token do not allow writing this resource.'
-                );
             }
         }
 

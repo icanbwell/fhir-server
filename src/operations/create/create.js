@@ -2,7 +2,7 @@ const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const { NotValidatedError, BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
 const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -151,15 +151,7 @@ class CreateOperation {
             user,
             /* @type {Object|Object[]|null} */
             body,
-            /** @type {string} */ requestId,
-            /** @type {string} */
-            scope,
-            /** @type {boolean | null} */
-            isUser,
-            /** @type {string[] | null} */
-            patientIdsFromJwtToken,
-            /* @type {string | null} */
-            personIdFromJwtToken
+            /** @type {string} */ requestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
@@ -238,22 +230,6 @@ class CreateOperation {
                     error: notValidatedError
                 });
                 throw notValidatedError;
-            }
-        }
-
-        if (this.scopesManager.hasPatientScope({ scope })) {
-            resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
-            if (!(await this.patientScopeManager.canWriteResourceAsync({
-                base_version,
-                resource,
-                scope,
-                isUser,
-                patientIdsFromJwtToken,
-                personIdFromJwtToken
-            }))) {
-                throw new ForbiddenError(
-                    'The current patient scope and person id in the JWT token do not allow writing this resource.'
-                );
             }
         }
 
