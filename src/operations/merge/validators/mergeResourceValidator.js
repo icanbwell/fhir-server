@@ -10,6 +10,10 @@ const { ScopesManager } = require('../../security/scopesManager');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
+const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
 class MergeResourceValidator extends BaseValidator {
     /**
@@ -20,12 +24,12 @@ class MergeResourceValidator extends BaseValidator {
      * @param {ConfigManager} configManager
      */
     constructor ({
-        scopesManager,
-        mergeManager,
-        databaseBulkLoader,
-        preSaveManager,
-        configManager
-    }) {
+                    scopesManager,
+                    mergeManager,
+                    databaseBulkLoader,
+                    preSaveManager,
+                    configManager
+                }) {
         super();
         /**
          * @type {ScopesManager}
@@ -95,23 +99,73 @@ class MergeResourceValidator extends BaseValidator {
             base_version,
             requestInfo,
             resourcesToMerge: resourcesIncomingArray,
-currentDate
+            currentDate
         });
 
         // process only the resources that are valid
         resourcesIncomingArray = validResources;
 
-        resourcesIncomingArray = await async.map(
+        /**
+         * @type {({resource: Resource | null, mergePreCheckError: MergeResultEntry | null})[]}
+         */
+        const preSaveResults = await async.map(
             resourcesIncomingArray,
             async resource => {
                 if (isUuid(resource.id)) {
                     resource._uuid = resource.id;
                 } else {
-                    resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
+                    try {
+                        resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
+                    } catch (e) {
+                        /**
+                         * @type {OperationOutcome}
+                         */
+                        const operationOutcome = new OperationOutcome({
+                            resourceType: 'OperationOutcome',
+                            issue: [
+                                new OperationOutcomeIssue({
+                                    severity: 'error',
+                                    code: 'exception',
+                                    details: new CodeableConcept({
+                                        text: e.message
+                                    }),
+                                    diagnostics: e.message,
+                                    expression: [
+                                       resource.resourceType
+                                    ]
+                                })
+                            ]
+                        });
+                        const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
+                        const mergeResultEntry = new MergeResultEntry(
+                            {
+                                id: resource.id,
+                                uuid: resource._uuid,
+                                sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                                created: false,
+                                updated: false,
+                                issue,
+                                operationOutcome,
+                                resourceType: resource.resourceType
+                            }
+                        );
+
+                        return { resource: null, mergePreCheckError: mergeResultEntry };
+                    }
                 }
-                return resource;
+                return { resource, mergePreCheckError: null };
             }
         );
+
+        resourcesIncomingArray = preSaveResults
+            .filter(result => result.resource)
+            .map(result => result.resource);
+
+        for (const mergePreCheckError of preSaveResults.map(result => result.mergePreCheckError)) {
+            if (mergePreCheckError) {
+                mergePreCheckErrors.push(mergePreCheckError);
+            }
+        }
 
         // Load the resources from the database
         await this.databaseBulkLoader.loadResourcesAsync(

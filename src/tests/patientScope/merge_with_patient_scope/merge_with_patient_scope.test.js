@@ -13,6 +13,8 @@ const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals
 const { ConfigManager } = require('../../../utils/configManager');
 const deepcopy = require('deepcopy');
 
+const Bundle = require('../../../../src/fhir/classes/4_0_0/resources/bundle');
+
 const person_payload = {
     'cognito:username': 'patient-123@example.com',
     'custom:bwell_fhir_person_id': 'person1',
@@ -106,9 +108,73 @@ describe('Condition Tests', () => {
                 .send(condition1WithDifferentPatientId)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(403);
+            expect(resp).toHaveStatusCode(200);
             const body = resp.body;
-            expect(body.issue[0].details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+            expect(body.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+        });
+        test('merge_with_patient_scope with multiple resources if tient id does not match in one', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            /** @type {SimpleContainer} */
+            const container = getTestContainer();
+            // add the resources to FHIR server
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            // insert Person record
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            const condition1WithDifferentPatientId = deepcopy(condition1Resource);
+            condition1WithDifferentPatientId.subject.reference = 'Patient/2';
+
+            const bundle = new Bundle(
+                {
+                    resourceType: 'Bundle',
+                    type: 'transaction',
+                    entry: [
+                        {
+                            resource: condition1Resource,
+                            request: {
+                                method: 'POST',
+                                url: 'Condition'
+                            }
+                        },
+                        {
+                            resource: condition1WithDifferentPatientId,
+                            request: {
+                                method: 'POST',
+                                url: 'Condition'
+                            }
+                        }
+                    ]
+                }
+            )
+            // ARRANGE
+            // add the resources to FHIR server
+            resp = await request
+                .post('/4_0_0/Condition/1/$merge?validate=true')
+                .send(bundle)
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            const body = resp.body;
+            expect(body.length).toStrictEqual(2);
+
+            const condition1Response = body[0];
+            expect(condition1Response.created).toStrictEqual(false);
+            expect(condition1Response.issue.details.text).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.');
+
+            const condition2Response = body[1];
+            expect(condition2Response.created).toStrictEqual(true);
         });
     });
 });
