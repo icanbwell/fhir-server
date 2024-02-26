@@ -499,4 +499,4 @@ class FixConsentRunner extends BaseBulkOperationRunner {
     }
 }
 
-module.exports = { FixConsentDataSharingRunner: FixConsentRunner };
+module.exports = { FixConsentRunner: FixConsentRunner };
