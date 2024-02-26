@@ -568,7 +568,8 @@ const createContainer = function () {
             r4SearchQueryCreator: c.r4SearchQueryCreator,
             r4ArgsParser: c.r4ArgsParser,
             queryRewriterManager: c.queryRewriterManager,
-            postRequestProcessor: c.postRequestProcessor
+            postRequestProcessor: c.postRequestProcessor,
+            patientScopeManager: c.patientScopeManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(

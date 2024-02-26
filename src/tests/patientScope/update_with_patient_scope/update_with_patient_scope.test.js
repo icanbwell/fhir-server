@@ -131,10 +131,10 @@ describe('Condition Tests', () => {
                 .send(condition1WithDifferentPatientId)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
+            expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].diagnostics).toStrictEqual('Error: The current patient scope and person id in the JWT token do not allow writing this resource.')
+            expect(body.issue[0].diagnostics).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.')
         });
     });
 });

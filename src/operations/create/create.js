@@ -2,7 +2,7 @@ const { logDebug } = require('../common/logging');
 const { generateUUID } = require('../../utils/uid.util');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const { NotValidatedError, BadRequestError } = require('../../utils/httpErrors');
+const { NotValidatedError, BadRequestError, ForbiddenError } = require('../../utils/httpErrors');
 const { validationsFailedCounter } = require('../../utils/prometheus.utils');
 const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { AuditLogger } = require('../../utils/auditLogger');
@@ -251,8 +251,8 @@ class CreateOperation {
                 patientIdsFromJwtToken,
                 personIdFromJwtToken
             }))) {
-                throw new BadRequestError(
-                    new Error('The current patient scope and person id in the JWT token do not allow writing this resource.')
+                throw new ForbiddenError(
+                    'The current patient scope and person id in the JWT token do not allow writing this resource.'
                 );
             }
         }

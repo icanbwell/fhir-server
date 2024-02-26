@@ -46,7 +46,7 @@ describe('Condition Tests', () => {
     });
 
     describe('Condition merge_with_patient_scope Tests', () => {
-        test('create_with_patient_scope works', async () => {
+        test('delete_with_patient_scope works', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -69,14 +69,23 @@ describe('Condition Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
             await postRequestProcessor.waitTillDoneAsync({ requestId });
 
+            // first insert with non-patient scope headers
             resp = await request
-                .post('/4_0_0/Condition')
+                .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // now try to update with patient scope headers
+            resp = await request
+                .delete('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+            expect(resp).toHaveStatusCode(204);
         });
-        test('create_with_patient_scope fails if patient id does not match', async () => {
+        test('delete_with_patient_scope fails if patient id does not match', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -99,17 +108,25 @@ describe('Condition Tests', () => {
 
             const condition1WithDifferentPatientId = deepcopy(condition1Resource);
             condition1WithDifferentPatientId.subject.reference = 'Patient/2';
-            // ARRANGE
-            // add the resources to FHIR server
+
+            // first insert with non-patient scope headers
             resp = await request
-                .post('/4_0_0/Condition')
+                .post('/4_0_0/Condition/1/$merge?validate=true')
                 .send(condition1WithDifferentPatientId)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+            await postRequestProcessor.waitTillDoneAsync({ requestId });
+
+            // now try to update with patient scope headers
+            resp = await request
+                .delete('/4_0_0/Condition/14736deef3663a7946a8fde33e67c50d03d903cdd1a46c36a426c47a24fb71f')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(403);
             const body = resp.body;
             expect(body.resourceType).toStrictEqual('OperationOutcome');
-            expect(body.issue[0].diagnostics).toStrictEqual('The current patient scope and person id in the JWT token do not allow writing this resource.')
+            expect(body.issue[0].diagnostics).toStrictEqual('The current patient scope and person id in the JWT token do not allow deleting this resource.')
         });
     });
 });

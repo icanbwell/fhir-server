@@ -159,7 +159,8 @@ class ForbiddenError extends ServerError {
                 {
                     severity: 'error',
                     code: 'forbidden',
-                    details: { text: message }
+                    details: { text: message },
+                    diagnostics: message
                 }
             ]
         });

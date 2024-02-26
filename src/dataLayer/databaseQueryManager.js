@@ -86,7 +86,7 @@ class DatabaseQueryManager {
      * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @property {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      *
-     * @param {FindOneOption} options
+     * @param {FindOneOption} params
      * @return {Promise<Resource|null>}
      */
     async findOneAsync ({ query, options = null }) {

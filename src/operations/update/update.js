@@ -281,8 +281,8 @@ class UpdateOperation {
                 patientIdsFromJwtToken,
                 personIdFromJwtToken
             }))) {
-                throw new BadRequestError(
-                    new Error('The current patient scope and person id in the JWT token do not allow writing this resource.')
+                throw new ForbiddenError(
+                    'The current patient scope and person id in the JWT token do not allow writing this resource.'
                 );
             }
         }
