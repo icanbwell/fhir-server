@@ -12,9 +12,9 @@ const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
 const AvailableCollections = ['Consent_4_0_0'];
-class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
+class FixConsentRunner extends BaseBulkOperationRunner {
     /**
-     * @typedef AddProxyPatientToConsentResourceRunnerParams
+     * @typedef FixConsentRunnerParams
      * @property {MongoCollectionManager} mongoCollectionManager
      * @property {number} batchSize
      * @property {AdminLogger} adminLogger
@@ -336,8 +336,10 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
                 // only cache if questionaire is datasharing type
                 questionnaire.item?.forEach((item) => {
-                    if (item.linkId === '/dataSharingConsent' ||
-                        item.linkId === '/hipaaConsent') {
+                    // if (item.linkId === '/dataSharingConsent' ||
+                    //     item.linkId === '/hipaaConsent') { // these categories already done
+                    if (item.linkId === '/accept' ||
+                        item.linkId === '/consent') {
                         this.questionnaireValues.set(questionnaire._uuid, item);
                         this.adminLogger.logInfo(
                             `Cached ${questionnaire._uuid} with item ${item}`);
@@ -497,4 +499,4 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
     }
 }
 
-module.exports = { FixConsentDataSharingRunner };
+module.exports = { FixConsentDataSharingRunner: FixConsentRunner };
