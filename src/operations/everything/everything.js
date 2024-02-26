@@ -54,7 +54,7 @@ class EverythingOperation {
     /**
      * does a FHIR $everything
      * @param {FhirRequestInfo} requestInfo
-     * @param {import('express').Response} res
+     * @param {import('http').ServerResponse} res
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]

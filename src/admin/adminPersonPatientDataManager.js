@@ -94,7 +94,8 @@ class AdminPersonPatientDataManager {
                  * @type {BundleEntry[]}
                  */
                 const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
-                    requestId: req.id,
+                    base_version,
+                    requestInfo,
                     bundle,
                     responseStreamer
                 });
@@ -110,12 +111,13 @@ class AdminPersonPatientDataManager {
 
     /**
      * @description Removes links from other Person records pointing to the resources in this bundle
-     * @param {string} requestId
+     * @param {string} base_version
+     * @param {FhirRequestInfo} requestInfo
      * @param {BaseResponseStreamer} responseStreamer
      * @param {Bundle} bundle
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksFromOtherPersonsAsync ({ requestId, responseStreamer, bundle }) {
+    async removeLinksFromOtherPersonsAsync ({ base_version, requestInfo, responseStreamer, bundle }) {
         try {
             /**
              * @type {DatabaseQueryManager}
@@ -138,7 +140,8 @@ class AdminPersonPatientDataManager {
             updatedRecords = updatedRecords.concat(
                 await this.removeLinksToResourceTypeAsync(
                     {
-                        requestId,
+                        base_version,
+                        requestInfo,
                         bundle,
 resourceType: 'Patient',
 databaseQueryManagerForPerson,
@@ -148,7 +151,8 @@ databaseUpdateManagerForPerson,
             );
             updatedRecords = updatedRecords.concat(
                 await this.removeLinksToResourceTypeAsync({
-                    requestId,
+                    base_version,
+                    requestInfo,
                     bundle,
 resourceType: 'Person',
 databaseQueryManagerForPerson,
@@ -192,7 +196,8 @@ databaseUpdateManagerForPerson,
             if (method === 'DELETE') {
                 // now also remove any connections to this Patient record
                 await this.removeLinksFromOtherPersonsAsync({
-                    requestId: req.id,
+                    base_version,
+                    requestInfo,
                     responseStreamer,
                     bundle
                 });
