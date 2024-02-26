@@ -246,16 +246,24 @@ class MergeOperation {
                 requestInfo
             });
 
+            let validResources = resourcesIncomingArray;
+
             // merge the resources
-            await this.mergeManager.mergeResourceListAsync(
+            /**
+             * @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]}
+             */
+            const mergeResourceResults = await this.mergeManager.mergeResourceListAsync(
                 {
-                    resources_incoming: resourcesIncomingArray,
+                    resources_incoming: validResources,
                     resourceType,
                     currentDate,
                     base_version,
                     requestInfo
                 }
             );
+            validResources = mergeResourceResults
+                .flatMap(m => m.resource)
+                .filter(r => r !== null);
             /**
              * mergeResults
              * @type {MergeResultEntry[]}
@@ -271,7 +279,13 @@ class MergeOperation {
             mergeResults = mergeResults.concat(mergePreCheckErrors);
 
             mergeResults = mergeResults.concat(
-                this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults)
+                mergeResourceResults
+                    .flatMap(m => m.mergeError)
+                    .filter(m => m !== null)
+            );
+
+            mergeResults = mergeResults.concat(
+                this.addSuccessfulMergesToMergeResult(validResources, mergeResults)
             );
 
             mergeResults.sort((res1, res2) =>

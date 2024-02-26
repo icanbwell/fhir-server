@@ -10,9 +10,6 @@ const { ScopesManager } = require('../../security/scopesManager');
 const { SecurityTagSystem } = require('../../../utils/securityTagSystem');
 const { isUuid } = require('../../../utils/uid.util');
 const { BaseValidator } = require('./baseValidator');
-const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const { MergeResultEntry } = require('../../common/mergeResultEntry');
 
 class MergeResourceValidator extends BaseValidator {
@@ -116,41 +113,8 @@ class MergeResourceValidator extends BaseValidator {
                 } else {
                     try {
                         resource = await this.preSaveManager.preSaveAsync({ base_version, requestInfo, resource });
-                    } catch (e) {
-                        /**
-                         * @type {OperationOutcome}
-                         */
-                        const operationOutcome = new OperationOutcome({
-                            resourceType: 'OperationOutcome',
-                            issue: [
-                                new OperationOutcomeIssue({
-                                    severity: 'error',
-                                    code: 'exception',
-                                    details: new CodeableConcept({
-                                        text: e.message
-                                    }),
-                                    diagnostics: e.message,
-                                    expression: [
-                                       resource.resourceType
-                                    ]
-                                })
-                            ]
-                        });
-                        const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-                        const mergeResultEntry = new MergeResultEntry(
-                            {
-                                id: resource.id,
-                                uuid: resource._uuid,
-                                sourceAssigningAuthority: resource._sourceAssigningAuthority,
-                                created: false,
-                                updated: false,
-                                issue,
-                                operationOutcome,
-                                resourceType: resource.resourceType
-                            }
-                        );
-
-                        return { resource: null, mergePreCheckError: mergeResultEntry };
+                    } catch (error) {
+                        return { resource: null, mergePreCheckError: MergeResultEntry.createFromError({ error, resource }) };
                     }
                 }
                 return { resource, mergePreCheckError: null };

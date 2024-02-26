@@ -159,7 +159,7 @@ class MergeManager {
         assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
-        await this.preSaveManager.preSaveAsync({
+        currentResource = await this.preSaveManager.preSaveAsync({
             base_version,
             requestInfo,
             resource: currentResource
@@ -379,7 +379,7 @@ class MergeManager {
             }
             throw new RethrownError(
                 {
-                    message: 'Failed to load data',
+                    message: e.message,
                     error: e,
                     source: 'MergeManager',
                     args: {
@@ -403,7 +403,7 @@ class MergeManager {
      * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @returns {Promise<void>}
+     * @returns {Promise<{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]>}
      */
     async mergeResourceListAsync (
         {
@@ -445,16 +445,18 @@ class MergeManager {
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
                     resourceToMerge: x,
-resourceType,
-currentDate,
-base_version,
-requestInfo
+                    resourceType,
+                    currentDate,
+                    base_version,
+                    requestInfo
                 });
 
-            await Promise.all([
+            /** @type {{resource: (Resource|null), mergeError: (MergeResultEntry|null)}[]} */
+            const result = (await Promise.all([
                 async.mapLimit(non_duplicate_uuid_resources, chunkSize, mergeResourceFn), // run chunks in parallel
                 async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
-            ]);
+            ])).flatMap(x => x); // remove any empty arrays
+            return result;
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -471,7 +473,7 @@ requestInfo
      * @param {string} currentDate
      * @param {string} base_version
      * @param {FhirRequestInfo} requestInfo
-     * @return {Promise<void>}
+     * @return {Promise<{resource: Resource|null, mergeError: MergeResultEntry|null}>}
      */
     async mergeResourceWithRetryAsync (
         {
@@ -492,10 +494,9 @@ requestInfo
                     base_version,
                     requestInfo
                 });
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
+            return { resource: resourceToMerge, mergeError: null };
+        } catch (error) {
+            return { resource: null, mergeError: MergeResultEntry.createFromError({ error, resource: resourceToMerge }) }
         }
     }
 
@@ -564,7 +565,7 @@ requestInfo
             await this.preSaveManager.preSaveAsync({
                 base_version,
                 requestInfo,
-              resource: resourceToMerge
+                resource: resourceToMerge
             });
 
             // Insert/update our resource record
