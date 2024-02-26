@@ -8,6 +8,7 @@ const { NestedPropertyReader } = require('../../utils/nestedPropertyReader');
 const { ForbiddenError } = require('../../utils/httpErrors');
 const { isUuid } = require('../../utils/uid.util');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { ConfigManager } = require('../../utils/configManager');
 
 class PatientScopeManager {
     /**
@@ -16,13 +17,15 @@ class PatientScopeManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {PatientFilterManager} patientFilterManager
+     * @param {ConfigManager} configManager
      */
     constructor (
         {
             databaseQueryFactory,
             personToPatientIdsExpander,
             scopesManager,
-            patientFilterManager
+            patientFilterManager,
+            configManager
         }
     ) {
         /**
@@ -48,6 +51,10 @@ class PatientScopeManager {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
+
+        /** @type {ConfigManager} */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -193,6 +200,8 @@ class PatientScopeManager {
      */
     async canWriteResourceWithAllowedPatientIdsAsync ({ patientIds, resource }) {
         assertTypeEquals(resource, Resource);
+        // confirm the resource has been run through preSave
+        assertIsValid(resource._uuid, 'resource._uuid is required.  Be sure to run preSave on the resource before calling this method.');
 
         /** @type {string} */
         const resourceType = resource.resourceType;
@@ -229,10 +238,13 @@ class PatientScopeManager {
      * @param {string} personIdFromJwtToken
      * @param {string[] | null} patientIdsFromJwtToken
      * @param {Resource} resource
-     * @param {string} scope
+     * @param {string | null} scope
      * @returns {Promise<boolean>}
      */
     async canWriteResourceAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken, resource, scope }) {
+        if (!this.configManager.authEnabled) {
+            return true;
+        }
         assertIsValid(scope, 'scope is required');
         if (!this.scopesManager.hasPatientScope({ scope })) {
             return true;

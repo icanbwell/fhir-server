@@ -318,7 +318,8 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             personToPatientIdsExpander: c.personToPatientIdsExpander,
             scopesManager: c.scopesManager,
-            patientFilterManager: c.patientFilterManager
+            patientFilterManager: c.patientFilterManager,
+            configManager: c.configManager
         }
     ));
 
@@ -504,7 +505,9 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                bwellPersonFinder: c.bwellPersonFinder
+                bwellPersonFinder: c.bwellPersonFinder,
+                patientScopeManager: c.patientScopeManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
