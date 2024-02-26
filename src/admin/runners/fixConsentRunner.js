@@ -251,7 +251,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
             }
         });
         const codingArray = [];
-        if (coding) {
+        if (coding.id) {
             codingArray.push(coding);
             const newCoding = { coding: codingArray };
             category.push(newCoding);
@@ -492,6 +492,7 @@ class FixConsentRunner extends BaseBulkOperationRunner {
             if (resourceType === 'QuestionnaireResponse') {
                 // Extract the questionnaire response id from the reference, fetch its corresponding questionnaire and push it to the array
                 const questionnaireId = this.questionnaireResponseToQuestionnaireId.get(id);
+                this.adminLogger.logInfo(`******Questionnaire ID ${questionnaireId}`);
                 if (questionnaireId) {
                     const questionnaireItem = this.questionnaireValues.get(questionnaireId);
                     if (questionnaireItem) {
