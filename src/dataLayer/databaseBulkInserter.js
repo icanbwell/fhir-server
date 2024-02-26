@@ -163,7 +163,7 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Adds an operation
-     * @param {string} requestId
+     * @param {string | null} requestId
      * @param {string} resourceType
      * @param {Resource} resource
      * @param {OperationType} operationType
@@ -234,11 +234,17 @@ class DatabaseBulkInserter extends EventEmitter {
             historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
+        /** @type {string} */
+        const sourceAssigningAuthority = resource._sourceAssigningAuthority;
+        /** @type {string} */
+        const id = resource.id;
+        /** @type {string} */
+        const uuid = resource._uuid;
         historyOperationsByResourceTypeMap.get(resourceType).push(
             new BulkInsertUpdateEntry({
-                    id: resource.id,
-                    uuid: resource._uuid,
-                    sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                    id,
+                    uuid,
+                    sourceAssigningAuthority,
                     resourceType,
                     resource,
                     operation,
@@ -270,11 +276,11 @@ class DatabaseBulkInserter extends EventEmitter {
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             if (doc._id) {
                 logInfo('_id still present', {
-args: {
-                    source: 'DatabaseBulkInserter.getOperationForResourceAsync',
-                    doc
-                }
-});
+                    args: {
+                        source: 'DatabaseBulkInserter.getOperationForResourceAsync',
+                        doc
+                    }
+                });
             }
 
             return new BulkInsertUpdateEntry({
@@ -323,6 +329,7 @@ args: {
 
             assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
+            /** @type {string|null} */
             const requestId = requestInfo.requestId;
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
@@ -380,11 +387,11 @@ args: {
             }
             if (doc._id) {
                 logInfo('_id still present', {
-args: {
-                    source: 'DatabaseBulkInserter.insertOneAsync',
-                    doc
-                }
-});
+                    args: {
+                        source: 'DatabaseBulkInserter.insertOneAsync',
+                        doc
+                    }
+                });
             }
         } catch (e) {
             throw new RethrownError({
@@ -815,11 +822,11 @@ args: {
             return await this.performBulkForResourceTypeAsync(
                 {
                     requestInfo,
-currentDate,
+                    currentDate,
                     resourceType,
-base_version,
-useHistoryCollection,
-operations
+                    base_version,
+                    useHistoryCollection,
+                    operations
                 });
         } catch (e) {
             throw new RethrownError({
@@ -882,13 +889,13 @@ operations
 
                 if (!useHistoryCollection && resource._id) {
                     logInfo('_id still present', {
-args: {
-                        source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
-                        doc: resource,
-                        collection: collectionName,
-                        operation
-                    }
-});
+                        args: {
+                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                            doc: resource,
+                            collection: collectionName,
+                            operation
+                        }
+                    });
                 }
                 operationsByCollectionNames.get(collectionName).push(operation);
             }
@@ -1164,15 +1171,15 @@ args: {
             logError(
                 `databaseBulkInserter: Error resource ${resourceType}`,
                 {
-                  args: {
-                    error: bulkWriteResult.getWriteErrors(),
-                    source: 'databaseBulkInserter',
-                    requestId,
-                    resourceType,
-                    operation: bulkInsertUpdateEntry
-                  }
+                    args: {
+                        error: bulkWriteResult.getWriteErrors(),
+                        source: 'databaseBulkInserter',
+                        requestId,
+                        resourceType,
+                        operation: bulkInsertUpdateEntry
+                    }
                 }
-              );
+            );
         }
 
         // fire change events
@@ -1279,10 +1286,10 @@ args: {
      * @param {String} fieldName - field that is to be patched
      * @param {Object} fieldValue - The new document with which the field is to be updated
      * @param {boolean} upsert - If true a new document is created if filter is not matched
-      */
+     */
     async patchFieldAsync ({
-        requestId, resource, fieldName, fieldValue, upsert = false
-    }) {
+                              requestId, resource, fieldName, fieldValue, upsert = false
+                          }) {
         if (resource._id) {
             delete resource._id;
         }
