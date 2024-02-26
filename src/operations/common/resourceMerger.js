@@ -120,8 +120,14 @@ class ResourceMerger {
                     const resourceToMergeSourceIdIdentifier = getFirstElementOrNull(
                         resourceToMerge.identifier.filter(s => s.system === IdentifierSystem.sourceId)
                     );
-                    if (currentResourceSourceIdIdentifier.value !== resourceToMergeSourceIdIdentifier.value) {
-                        resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                    if (currentResourceSourceIdIdentifier &&
+                        resourceToMergeSourceIdIdentifier &&
+                        currentResourceSourceIdIdentifier.value !== resourceToMergeSourceIdIdentifier.value
+                    ) {
+                        const indexInResourceToMerge = resourceToMerge.identifier.findIndex(
+                            s => s.system === IdentifierSystem.sourceId
+                        );
+                        resourceToMerge.identifier[indexInResourceToMerge].value = currentResourceSourceIdIdentifier.value;
                     }
                 }
                 resourceToMerge.id = currentResource.id;
