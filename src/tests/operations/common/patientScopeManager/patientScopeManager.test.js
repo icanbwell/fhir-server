@@ -44,7 +44,7 @@ describe('PatientScopeManager Tests', () => {
             /** @type {Patient} */
             const patient = new Patient(patient1Resource);
 
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
             const patientUuid = patientScopeManager.getValueOfPatientPropertyFromResource({ resource: patient });
@@ -60,7 +60,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientUuid = patientScopeManager.getValueOfPatientPropertyFromResource({ resource: condition });
@@ -82,7 +82,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Patient} */
             const patient = new Patient(patient1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
             const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
@@ -103,7 +103,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Patient} */
             const patient = new Patient(patient1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
             const patientUuid = generateUUIDv5(`${patient1Resource.id}|${patient1Resource.meta.security[0].code}`);
@@ -124,7 +124,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Patient} */
             const patient = new Patient(patient1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
             const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
@@ -145,7 +145,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Patient} */
             const patient = new Patient(patient1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: patient });
             const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
@@ -171,7 +171,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientReference = condition.subject.reference;
@@ -194,7 +194,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientReference = condition.subject.reference;
@@ -217,7 +217,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientUuid = generateUUIDv5(`123|${condition.meta.security[0].code}`);
@@ -238,7 +238,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
@@ -264,7 +264,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientReference = condition.subject.reference;
@@ -291,7 +291,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientReference = condition.subject.reference;
@@ -318,7 +318,7 @@ describe('PatientScopeManager Tests', () => {
             const preSaveManager = container.preSaveManager;
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientUuid = generateUUIDv5(`123|${condition.meta.security[0].code}`);
@@ -344,7 +344,7 @@ describe('PatientScopeManager Tests', () => {
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
             // generate all the uuids
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             const patientUuid = generateUUIDv5(`123|${patient1Resource.meta.security[0].code}`);
             const patientUuid2 = generateUUIDv5(`456|${patient1Resource.meta.security[0].code}`);
@@ -389,7 +389,7 @@ describe('PatientScopeManager Tests', () => {
 
             /** @type {Condition} */
             const condition = new Condition(condition1Resource);
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             // now do the test
@@ -430,7 +430,7 @@ describe('PatientScopeManager Tests', () => {
             /** @type {Condition} */
             const condition = new Condition(deepcopy(condition1Resource));
             condition.subject.reference = 'Patient/patient2';
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             // now do the test
@@ -471,7 +471,7 @@ describe('PatientScopeManager Tests', () => {
             /** @type {Condition} */
             const condition = new Condition(deepcopy(condition1Resource));
             condition.subject.reference = 'Patient/patient2';
-            const requestInfo = getTestRequestInfo({ requestId: '1234' });
+            const requestInfo = getTestRequestInfo({ requestId: '1234', scope: 'patient/*.read user/*.* access/*.*' });
             // generate all the uuids
             await preSaveManager.preSaveAsync({ base_version, requestInfo, resource: condition });
             // now do the test

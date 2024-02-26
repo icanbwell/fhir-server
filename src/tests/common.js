@@ -450,15 +450,17 @@ module.exports.mockHttpContext = ({
 
 /**
  * @param {string} requestId
+ * @param {string|undefined} [scope]
  * @returns {FhirRequestInfo}
  */
 module.exports.getTestRequestInfo = ({
-    requestId
+    requestId,
+    scope = 'user/*.read user/*.write access/*.*'
 }) => {
             const requestInfo = new FhirRequestInfo(
                 {
                     user: '',
-                    scope: '',
+                    scope,
                     protocol: 'http',
                     originalUrl: '',
                     requestId,
