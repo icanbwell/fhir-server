@@ -315,7 +315,7 @@ class MergeManager {
             if (currentResource && currentResource.meta) {
                 await this.mergeExistingAsync(
                     {
-                        resourceToMerge, currentResource, user, scope, currentDate, requestId
+                        resourceToMerge, currentResource, user, scope, currentDate, requestInfo, base_version
                     }
                 );
             } else {

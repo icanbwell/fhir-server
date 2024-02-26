@@ -1170,7 +1170,7 @@ args: {
                 `databaseBulkInserter: Error resource ${resourceType}`,
                 {
                   args: {
-                    error: bulkWriteResult.error,
+                    error: bulkWriteResult.getWriteErrors(),
                     source: 'databaseBulkInserter',
                     requestId,
                     resourceType,

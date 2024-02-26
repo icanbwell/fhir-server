@@ -14,7 +14,6 @@ const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const deepcopy = require('deepcopy');
 const { logInfo } = require('../../../operations/common/logging');
-const { FhirRequestInfo } = require('../../../utils/fhirRequestInfo');
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -265,22 +264,10 @@ describe('CodeSystem Tests', () => {
             const countOfUpdates = codesystem1ResourceCopy.length;
 
             const requestId = '1234';
-            const requestInfo = new FhirRequestInfo(
-                {
-                    user: '',
-                    scope: '',
-                    protocol: 'http',
-                    originalUrl: '',
-                    requestId,
-                    userRequestId: requestId,
-                    host: 'localhost',
-                    headers: {},
-                    method: 'POST',
-                    contentTypeFromHeader: null
-                });
+            const requestInfo = getTestRequestInfo({ requestId });
             const firstCodeSystem = codesystem1ResourceCopy.splice(0, 1)[0];
             await databaseBulkInserter.insertOneAsync({
-                base_version: '4_0_0',
+                base_version,
                 requestInfo,
                 resourceType: 'CodeSystem',
                 doc: new CodeSystem(firstCodeSystem)
@@ -387,23 +374,11 @@ describe('CodeSystem Tests', () => {
             const countOfUpdates = codesystem1ResourceCopy.length;
 
             const requestId = '9999';
-            const requestInfo = new FhirRequestInfo(
-                {
-                    user: '',
-                    scope: '',
-                    protocol: 'http',
-                    originalUrl: '',
-                    requestId,
-                    userRequestId: requestId,
-                    host: 'localhost',
-                    headers: {},
-                    method: 'POST',
-                    contentTypeFromHeader: null
-                });
+            const requestInfo = getTestRequestInfo({ requestId });
             const firstCodeSystem = codesystem1ResourceCopy.splice(0, 1)[0];
             await databaseBulkInserter.insertOneAsync({
                 base_version: '4_0_0',
-                requestInfo: new FhirRequestInfo(),
+                requestInfo,
                 resourceType: 'CodeSystem',
                 doc: new CodeSystem(firstCodeSystem)
             });

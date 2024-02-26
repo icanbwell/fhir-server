@@ -1,10 +1,9 @@
-const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer } = require('../common');
+const { commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestRequestInfo } = require('../common');
 const graphSimpleReverseDefinition = require('./fixtures/graphSimpleReverse.json');
 const graphSimpleForwardDefinition = require('./fixtures/graphSimpleForward.json');
 const graphDefinition = require('./fixtures/graph.json');
 const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json');
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { createTestContainer } = require('../createTestContainer');
 const { describe, beforeEach, afterEach, test, expect } = require('@jest/globals');
 const { generateUUIDv5 } = require('../../utils/uid.util');
@@ -75,18 +74,7 @@ describe('graphHelper Tests', () => {
         await commonAfterEach();
     });
 
-    const requestInfo = new FhirRequestInfo({
-        user: 'user',
-        scope: 'user/*.read access/*.*',
-        requestId: '12345678',
-        userRequestId: '1',
-        protocol: 'https',
-        originalUrl: '',
-        host: 'host',
-        headers: {},
-        method: 'post',
-        contentTypeFromHeader: null
-    });
+    const requestInfo = getTestRequestInfo({ requestId: '1234' });
 
     describe('graphHelper Tests with uuid', () => {
         test('graphHelper single Practitioner works', async () => {
