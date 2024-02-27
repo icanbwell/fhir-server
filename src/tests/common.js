@@ -135,25 +135,18 @@ module.exports.setupMockOpenIdServer = ({ token, patientId, personId }) => {
  * @return {Promise<void>}
  */
 module.exports.commonAfterEach = async () => {
-    console.info('commonAfterEach');
     if (testContainer) {
         /**
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        try {
-            console.info('commonAfterEach: waiting for all requests to be done');
-            await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
-        } finally {
-            console.info('commonAfterEach: clearing requestSpecificCache');
-            /**
-             * @type {RequestSpecificCache}
-             */
-            const requestSpecificCache = testContainer.requestSpecificCache;
-            await requestSpecificCache.clearAllAsync();
-        }
-        console.info('commonAfterEach: dropping databases');
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({ timeoutInSeconds: 20 });
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
+        /**
+         * @type {RequestSpecificCache}
+         */
+        const requestSpecificCache = testContainer.requestSpecificCache;
+        await requestSpecificCache.clearAllAsync();
         // testContainer = null;
     }
     nock.cleanAll();
@@ -162,10 +155,8 @@ module.exports.commonAfterEach = async () => {
     const configManager = testContainer?.configManager ?? new TestConfigManager();
 
     const testMongoDatabaseManager = new TestMongoDatabaseManager({ configManager });
-    console.info('commonAfterEach: dropping test databases');
     await testMongoDatabaseManager.dropDatabasesAsync();
     if (server) {
-        console.info('commonAfterEach: waiting for server to close');
         await server.close();
         server = null;
     }
@@ -173,7 +164,6 @@ module.exports.commonAfterEach = async () => {
     // app = null;
     // global.gc();
     // globals.clear();
-    console.info('commonAfterEach: done');
 };
 
 /**
