@@ -156,8 +156,8 @@ class KafkaClient {
                      */
                     if (
                         (cause instanceof KafkaJSProtocolError && cause.code === 72) ||
-                        e.message?.includes('The producer is disconnected'
-                    )) {
+                        e.message?.includes('The producer is disconnected')
+                    ) {
                         // reconfigure the client by reordering brokers array
                         const oldBrokers = this.brokers || [];
                         const reorderedBrokers = oldBrokers.length > 1 ? [...oldBrokers.slice(1), oldBrokers[0]] : [...oldBrokers];
