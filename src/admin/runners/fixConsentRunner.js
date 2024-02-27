@@ -12,7 +12,7 @@ const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
 const AvailableCollections = ['Consent_4_0_0'];
-class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
+class FixConsentRunner extends BaseBulkOperationRunner {
     /**
      * @typedef AddProxyPatientToConsentResourceRunnerParams
      * @property {MongoCollectionManager} mongoCollectionManager
@@ -249,9 +249,11 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
             }
         });
         const codingArray = [];
-        codingArray.push(coding);
-        const newCoding = { coding: codingArray };
-        category.push(newCoding);
+        if (coding.id) {
+            codingArray.push(coding);
+            const newCoding = { coding: codingArray };
+            category.push(newCoding);
+        }
         return category;
     }
 
@@ -299,7 +301,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
         if (!questionnaireItem) {
             return null;
         }
-
         const qClass = {};
         questionnaireItem.code.forEach((code) => {
             if (code.id === 'code-display') {
@@ -334,13 +335,17 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                 const questionnaire = await cursor.next();
                 this.questionnaireIdToResource.set(questionnaire.id, questionnaire);
                 this.questionnaireIdToResource.set(questionnaire._uuid, questionnaire);
-                // only cache if questionaire is datasharing type
+                // only cache if questionaire is consent type
                 questionnaire.item?.forEach((item) => {
-                    if (item.linkId === '/dataSharingConsent' ||
-                        item.linkId === '/hipaaConsent') {
+                    // all of the conditions past the linkId are due to bad data in Dev
+                    if ((item.linkId === '/dataSharingConsent' ||
+                        item.linkId === '/hipaaConsent' ||
+                        item.linkId === '/accept' ||
+                        item.linkId === '/consent') &&
+                        item.code &&
+                        Array.isArray(item.code) &&
+                        item.code.length === 2) {
                         this.questionnaireValues.set(questionnaire._uuid, item);
-                        this.adminLogger.logInfo(
-                            `Cached ${questionnaire._uuid} with item ${item}`);
                     }
                 });
             }
@@ -383,7 +388,6 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
                     if (this.questionnaireValues.has(uuid)) {
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse.id, uuid);
                         this.questionnaireResponseToQuestionnaireId.set(questionnaireResponse._uuid, uuid);
-                        this.adminLogger.logInfo(`Cached questionnaireResponse having uuid ${questionnaireResponse._uuid} to questionnaire ${uuid}`);
                     }
                  }
             }
@@ -465,7 +469,7 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * returns questionnaire associated with consent if questionnaire is dataSharing type
+     * returns questionnaire associated with consent
      * @param {import('mongodb').Document} doc
      * @returns {Promise<any>}
      */
@@ -497,4 +501,4 @@ class FixConsentDataSharingRunner extends BaseBulkOperationRunner {
     }
 }
 
-module.exports = { FixConsentDataSharingRunner };
+module.exports = { FixConsentRunner: FixConsentRunner };

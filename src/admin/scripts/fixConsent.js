@@ -12,8 +12,8 @@ const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
 const {
-    FixConsentDataSharingRunner
-} = require('../runners/fixConsentDataSharingRunner');
+    FixConsentRunner
+} = require('../runners/fixConsentRunner');
 
 /**
  * main function
@@ -44,16 +44,16 @@ async function main () {
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const adminLogger = new AdminLogger();
 
-    adminLogger.logInfo(`[${currentDateTime}] Running fixConsentDataSharing script`);
+    adminLogger.logInfo(`[${currentDateTime}] Running fixConsent script`);
 
     // set up all the standard services in the container
     const container = createContainer();
 
     // now add our class
     container.register(
-        'fixConsentDataSharingRunner',
+        'fixConsentRunner',
         (c) =>
-            new FixConsentDataSharingRunner({
+            new FixConsentRunner({
                 mongoCollectionManager: c.mongoCollectionManager,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 collections,
@@ -73,26 +73,26 @@ async function main () {
     /**
      * @type {FixConsentDataSharingRunner}
      */
-    const fixConsentDataSharingRunner = container.fixConsentDataSharingRunner;
-    await fixConsentDataSharingRunner.processAsync();
+    const fixConsentRunner = container.fixConsentRunner;
+    await fixConsentRunner.processAsync();
 
-    adminLogger.logInfo('Exiting process');
+    adminLogger.logInfo('Exiting process fixConsent');
     process.exit(0);
 }
 
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/fixConsentDataSharing.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --collections=Consent_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000 --useTransaction --startFromId=123
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000 --limit 10 --before 2023-10-28
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsentDataSharing.js --batchSize=10000 --limit 10 --after 2023-10-28
+ * node src/admin/scripts/fixConsent.js --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --collections=Consent_4_0_0 --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --collections=all --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --useTransaction --startFromId=123
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --useTransaction --skip 200000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --before 2023-10-28
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixConsent.js --batchSize=10000 --limit 10 --after 2023-10-28
  */
 console.log('Running main');
 main().catch((reason) => {
