@@ -90,6 +90,33 @@ class FixDuplicatePractitionerRunner extends BaseBulkOperationRunner {
         this.beforeLastUpdatedDate = beforeLastUpdatedDate;
 
         /**
+         * stores resources and fields to be updated
+         * @type {Map<string, string[]>}
+         */
+        this.fieldsToUpdate = new Map([
+            ['Appointment_4_0_0', ['participant.actor', 'agent.who']],
+            ['CarePlan_4_0_0', ['careTeam.member']],
+            ['CareTeam_4_0_0', ['participant.member']],
+            ['Communication_4_0_0', ['sender', 'recipient']],
+            ['CommunicationRequest_4_0_0', ['requester', 'recipient']],
+            ['Condition_4_0_0', ['asserter']],
+            ['Consent_4_0_0', ['performer']],
+            ['DeviceRequest_4_0_0', ['requester']],
+            ['DiagnosticReport_4_0_0', ['performer']],
+            ['Encounter_4_0_0', ['participant.individual']],
+            ['EpisodeOfCare_4_0_0', ['careManager', 'team.member']],
+            ['Immunization_4_0_0', ['performer.actor']],
+            ['MedicationAdministration_4_0_0', ['performer.actor']],
+            ['MedicationRequest_4_0_0', ['requester']],
+            ['Observation_4_0_0', ['performer']],
+            ['Procedure_4_0_0', ['performer.actor']],
+            ['Provenance_4_0_0', ['agent.who']],
+            ['ServiceRequest_4_0_0', ['requester']],
+            ['SupplyRequest_4_0_0', ['requester']],
+            ['Task_4_0_0', ['requester', 'owner']]
+        ]);
+
+        /**
          * stores uuid processed till this point
          * @type {Map<string, Set<string>>}
          */
