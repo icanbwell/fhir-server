@@ -1,4 +1,3 @@
-const env = require('var');
 const { ForbiddenError } = require('../../utils/httpErrors');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { ScopesManager } = require('../security/scopesManager');
@@ -51,17 +50,15 @@ class SecurityTagManager {
         let securityTags = [];
         // add any access codes from scopes
         const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
-        if (env.AUTH_ENABLED === '1') {
-            // fail if there are no access codes unless we have a patient limiting scope
-            if (accessCodes.length === 0 && !hasPatientScope) {
-                const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-                throw new ForbiddenError(errorMessage);
-            } else if (accessCodes.includes('*')) {
-                // see if we have the * access code
-                // no security check since user has full access to everything
-            } else {
-                securityTags = accessCodes;
-            }
+        // fail if there are no access codes unless we have a patient limiting scope
+        if (accessCodes.length === 0 && !hasPatientScope) {
+            const errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+            throw new ForbiddenError(errorMessage);
+        } else if (accessCodes.includes('*')) {
+            // see if we have the * access code
+            // no security check since user has full access to everything
+        } else {
+            securityTags = accessCodes;
         }
         return securityTags;
     }

@@ -75,13 +75,6 @@ class ConfigManager {
     }
 
     /**
-     * whether authorization is required
-     */
-    get authEnabled () {
-        return isTrue(env.AUTH_ENABLED);
-    }
-
-    /**
      * username for kafka auth
      * @return {string|null}
      */

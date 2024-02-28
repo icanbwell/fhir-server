@@ -242,9 +242,6 @@ class PatientScopeManager {
      * @returns {Promise<boolean>}
      */
     async canWriteResourceAsync ({ base_version, isUser, personIdFromJwtToken, patientIdsFromJwtToken, resource, scope }) {
-        if (!this.configManager.authEnabled) {
-            return true;
-        }
         assertIsValid(scope, 'scope is required');
         if (!this.scopesManager.hasPatientScope({ scope })) {
             return true;

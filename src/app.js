@@ -269,18 +269,14 @@ function createApp ({ fnGetContainer, trackMetrics }) {
     app.use(cors(fhirServerConfig.server.corsOptions));
     app.get('/version', handleVersion);
 
-    if (isTrue(env.AUTH_ENABLED)) {
-        // Set up admin routes
-        // noinspection JSCheckFunctionSignatures
-        passport.use('adminStrategy', strategy);
-    }
+    // Set up admin routes
+    // noinspection JSCheckFunctionSignatures
+    passport.use('adminStrategy', strategy);
 
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router({ mergeParams: true });
-    if (isTrue(env.AUTH_ENABLED)) {
-        adminRouter.use(passport.initialize());
-        adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
-    }
+    adminRouter.use(passport.initialize());
+    adminRouter.use(passport.authenticate('adminStrategy', { session: false }, null));
     const adminHandler = (req, res) => handleAdmin(
         fnGetContainer, req, res
     );
@@ -288,10 +284,8 @@ function createApp ({ fnGetContainer, trackMetrics }) {
     adminRouter.post('/admin/:op?', adminHandler);
     app.use(adminRouter);
 
-    if (isTrue(env.AUTH_ENABLED)) {
-        // noinspection JSCheckFunctionSignatures
-        passport.use('graphqlStrategy', strategy);
-    }
+    // noinspection JSCheckFunctionSignatures
+    passport.use('graphqlStrategy', strategy);
 
     // enable middleware for graphql
     if (isTrue(env.ENABLE_GRAPHQL)) {
@@ -301,10 +295,8 @@ function createApp ({ fnGetContainer, trackMetrics }) {
             .then((graphqlMiddleware) => {
                 // eslint-disable-next-line new-cap
                 const router = express.Router();
-                if (isTrue(env.AUTH_ENABLED)) {
-                    router.use(passport.initialize());
-                    router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
-                }
+                router.use(passport.initialize());
+                router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
                 router.use(cors(fhirServerConfig.server.corsOptions));
                 router.use(express.json());
                 // enableUnsafeInline because graphql requires it to be true for loading graphql-ui

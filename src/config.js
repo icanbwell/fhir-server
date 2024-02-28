@@ -251,20 +251,18 @@ const fhirServerConfig = {
     profiles
 };
 
-if (env.AUTH_ENABLED === '1') {
-    fhirServerConfig.auth = {
-        // This servers URI
-        resourceServer: env.RESOURCE_SERVER,
-        //
-        // if you use this strategy, you need to add the corresponding env vars to docker-compose
-        //
-        strategy: {
-            name: 'jwt',
-            useSession: false,
-            service: './src/strategies/jwt.bearer.strategy.js'
-        }
-    };
-}
+fhirServerConfig.auth = {
+    // This servers URI
+    resourceServer: env.RESOURCE_SERVER,
+    //
+    // if you use this strategy, you need to add the corresponding env vars to docker-compose
+    //
+    strategy: {
+        name: 'jwt',
+        useSession: false,
+        service: './src/strategies/jwt.bearer.strategy.js'
+    }
+};
 
 module.exports = {
     fhirServerConfig,
